@@ -51,14 +51,17 @@ INSERT INTO schemes (id, name, coach_name, description, tempo, cfb26_playbook) V
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Arbuckle player types
+-- Arbuckle player types (unique per scheme_id + position — see migration 20260406130000)
 INSERT INTO scheme_player_types (scheme_id, position, archetype_label, key_attributes, avoid_note) VALUES
 ('00000001-0000-4000-8000-000000000001', 'QB', 'Dual-Threat Scrambler', ARRAY['Speed', 'Throw on Run', 'Short Accuracy', 'Release Speed'], 'Avoid pure pocket passers'),
 ('00000001-0000-4000-8000-000000000001', 'HB', 'Receiving Back', ARRAY['Speed', 'Catching', 'Pass Block'], 'Avoid power backs — screens and checkdowns are the role'),
 ('00000001-0000-4000-8000-000000000001', 'WR1', 'Route Runner', ARRAY['Route Running', 'Catch in Traffic', 'Release'], 'Speed helps but technique wins'),
 ('00000001-0000-4000-8000-000000000001', 'WR2', 'Separator', ARRAY['Short Route Running', 'Catching', 'Acceleration'], 'Must win quickly off the line'),
+('00000001-0000-4000-8000-000000000001', 'WR3 (Slot 1)', 'Inside Slot', ARRAY['Short Route Running', 'Option Routes', 'Quickness', 'Hands'], 'Big outside-only types struggle in traffic and on rub/mesh timing.'),
+('00000001-0000-4000-8000-000000000001', 'WR4 (Slot 2)', 'Field/Boundary Slot', ARRAY['Separation', 'Spatial Awareness', 'YAC', 'Contested Catch'], 'One-speed runners limit how you stress linebackers from the second slot.'),
 ('00000001-0000-4000-8000-000000000001', 'TE', 'Blocking TE or Mismatch Weapon', ARRAY['Pass Block', 'Catch in Traffic'], 'Used as either extra blocker or seam threat'),
-('00000001-0000-4000-8000-000000000001', 'OL', 'Pass Protector', ARRAY['Pass Block', 'Awareness'], 'Wide splits demand footwork over power');
+('00000001-0000-4000-8000-000000000001', 'OL', 'Pass Protector', ARRAY['Pass Block', 'Awareness'], 'Wide splits demand footwork over power')
+ON CONFLICT (scheme_id, position) DO NOTHING;
 
 -- Arbuckle formations (Washington State)
 INSERT INTO scheme_formations (scheme_id, formation_name, formation_group, cfb26_playbook) VALUES
@@ -74,7 +77,8 @@ INSERT INTO scheme_formations (scheme_id, formation_name, formation_group, cfb26
 ('00000001-0000-4000-8000-000000000001', 'Gun Bunch Open TE', 'Red Zone', 'Washington State'),
 ('00000001-0000-4000-8000-000000000001', 'Gun Empty Y Off Trips', '3rd Down', 'Washington State'),
 ('00000001-0000-4000-8000-000000000001', 'Gun Trio Offset', '3rd Down', 'Washington State'),
-('00000001-0000-4000-8000-000000000001', 'Gun Flex Y Off Wk', '3rd Down', 'Washington State');
+('00000001-0000-4000-8000-000000000001', 'Gun Flex Y Off Wk', '3rd Down', 'Washington State')
+ON CONFLICT (scheme_id, formation_name) DO NOTHING;
 
 -- Arbuckle situational calls
 INSERT INTO situational_calls (scheme_id, situation, down, distance_min, distance_max, formation, play_type, rationale, priority) VALUES
@@ -84,7 +88,8 @@ INSERT INTO situational_calls (scheme_id, situation, down, distance_min, distanc
 ('00000001-0000-4000-8000-000000000001', '3rd & Short', 3, 1, 2, 'Pistol U Off', 'QB Power / RPO', 'Force hat conflict.', 4),
 ('00000001-0000-4000-8000-000000000001', '3rd & Long', 3, 6, 99, 'Gun Empty Trips', 'Four Verts / Spacing', 'Force safety declaration.', 5),
 ('00000001-0000-4000-8000-000000000001', 'Red Zone', NULL, NULL, NULL, 'Pistol Full House TE', 'Fade / Back Shoulder', 'Isolate WR in space.', 6),
-('00000001-0000-4000-8000-000000000001', '2-Minute Drill', NULL, NULL, NULL, 'Gun Empty Base Flex', 'Slants / Crossers', 'Fast, high-percentage completions.', 7);
+('00000001-0000-4000-8000-000000000001', '2-Minute Drill', NULL, NULL, NULL, 'Gun Empty Base Flex', 'Slants / Crossers', 'Fast, high-percentage completions.', 7)
+ON CONFLICT (scheme_id, situation) DO NOTHING;
 
 -- MVP 2: defensive scheme profiles (aligns with app game plan copy)
 INSERT INTO defensive_schemes (scheme_name, description, coverage_tendency, pressure_tendency) VALUES

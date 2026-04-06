@@ -144,6 +144,18 @@ function playerTypesArbuckle(schemeId: string): SchemePlayerType[] {
     p("HB", "Receiving Back", ["Speed", "Catching", "Pass Block"], "Avoid power backs — screens and checkdowns are the role"),
     p("WR1", "Route Runner", ["Route Running", "Catch in Traffic", "Release"], "Speed helps but technique wins"),
     p("WR2", "Separator", ["Short Route Running", "Catching", "Acceleration"], "Must win quickly off the line"),
+    p(
+      "WR3 (Slot 1)",
+      "Inside Slot",
+      ["Short Route Running", "Option Routes", "Quickness", "Hands"],
+      "Big outside-only types struggle in traffic and on rub/mesh timing.",
+    ),
+    p(
+      "WR4 (Slot 2)",
+      "Field/Boundary Slot",
+      ["Separation", "Spatial Awareness", "YAC", "Contested Catch"],
+      "One-speed runners limit how you stress linebackers from the second slot.",
+    ),
     p("TE", "Blocking TE or Mismatch Weapon", ["Pass Block", "Catch in Traffic"], "Used as either extra blocker or seam threat"),
     p("OL", "Pass Protector", ["Pass Block", "Awareness"], "Wide splits demand footwork over power"),
   ];

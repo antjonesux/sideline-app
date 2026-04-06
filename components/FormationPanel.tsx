@@ -64,7 +64,7 @@ export function FormationPanel({
               </div>
               <ul className="grid gap-1 px-4 pb-4">
                 {items.map((f) => (
-                  <li key={f.id}>
+                  <li key={`${f.scheme_id}:${f.formation_name}`}>
                     <button
                       type="button"
                       className="w-full rounded border border-transparent px-2 py-2 text-left font-mono text-sm text-[var(--chalk)] transition-colors hover:border-[var(--accent)]/40 hover:bg-black/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] active:bg-black/40"
