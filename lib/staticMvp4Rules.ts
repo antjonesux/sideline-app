@@ -80,6 +80,11 @@ export const STATIC_COVERAGE_AFFINITIES: CoverageAffinityRow[] = [
     suppressed_play_types: ["deep_post"],
   },
   {
+    coverage_tag: "COVER 6",
+    favored_play_types: ["middle_field", "seam", "crosser"],
+    suppressed_play_types: ["boundary_streak"],
+  },
+  {
     coverage_tag: "BLITZING",
     favored_play_types: ["quick_game", "screen", "hot_route"],
     suppressed_play_types: ["slow_developing", "seven_step"],
@@ -98,5 +103,30 @@ export const STATIC_COVERAGE_AFFINITIES: CoverageAffinityRow[] = [
     coverage_tag: "BRACKET MY WR1",
     favored_play_types: ["wr2_te_hb", "space"],
     suppressed_play_types: ["wr1_iso"],
+  },
+  {
+    coverage_tag: "ZONE",
+    favored_play_types: ["mesh_levels", "curl_flat", "middle_field"],
+    suppressed_play_types: ["iso_wr"],
+  },
+  {
+    coverage_tag: "MIX",
+    favored_play_types: ["quick_game", "run", "rpo"],
+    suppressed_play_types: [],
+  },
+  {
+    coverage_tag: "ROBBER",
+    favored_play_types: ["corner", "screen", "run"],
+    suppressed_play_types: ["middle_field", "dig", "slant"],
+  },
+  {
+    coverage_tag: "SOFT COVERAGE",
+    favored_play_types: ["quick_game", "screen", "run"],
+    suppressed_play_types: ["deep_shot"],
+  },
+  {
+    coverage_tag: "ZERO COVERAGE",
+    favored_play_types: ["quick_game", "screen", "slant", "hot_route"],
+    suppressed_play_types: ["seven_step"],
   },
 ];

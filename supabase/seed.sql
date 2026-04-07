@@ -485,10 +485,16 @@ INSERT INTO coverage_play_affinities (coverage_tag, favored_play_types, suppress
 ('COVER 2', ARRAY['seam', 'middle_field', 'corner'], ARRAY['flat_route']),
 ('COVER 3', ARRAY['mesh', 'levels', 'curl_flat'], ARRAY['boundary_streak']),
 ('COVER 4', ARRAY['short_game', 'crosser', 'rpo'], ARRAY['deep_post']),
+('COVER 6', ARRAY['middle_field', 'seam', 'crosser'], ARRAY['boundary_streak']),
 ('BLITZING', ARRAY['quick_game', 'screen', 'hot_route'], ARRAY['slow_developing', 'seven_step']),
 ('MAN', ARRAY['rub', 'pick', 'motion'], ARRAY['iso_wr']),
 ('BRACKET WR1', ARRAY['wr2_te_hb', 'space'], ARRAY['wr1_iso']),
-('BRACKET MY WR1', ARRAY['wr2_te_hb', 'space'], ARRAY['wr1_iso'])
+('BRACKET MY WR1', ARRAY['wr2_te_hb', 'space'], ARRAY['wr1_iso']),
+('ZONE', ARRAY['mesh_levels', 'curl_flat', 'middle_field'], ARRAY['iso_wr']),
+('MIX', ARRAY['quick_game', 'run', 'rpo'], ARRAY[]::text[]),
+('ROBBER', ARRAY['corner', 'screen', 'run'], ARRAY['middle_field', 'dig', 'slant']),
+('SOFT COVERAGE', ARRAY['quick_game', 'screen', 'run'], ARRAY['deep_shot']),
+('ZERO COVERAGE', ARRAY['quick_game', 'screen', 'slant', 'hot_route'], ARRAY['seven_step'])
 ON CONFLICT (coverage_tag) DO UPDATE SET
   favored_play_types = EXCLUDED.favored_play_types,
   suppressed_play_types = EXCLUDED.suppressed_play_types;

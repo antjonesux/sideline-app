@@ -45,16 +45,25 @@ export type TimelineEventRow = {
 };
 
 export async function nextGameNumber(params: {
-  play_sheet_id: string;
+  offensive_scheme_id: string;
+  defensive_scheme: string;
+  opponent_team?: string | null;
 }): Promise<number> {
   const supabase = getSupabase();
   if (!supabase) return 1;
-  const { data, error } = await supabase
+  let q = supabase
     .from("game_sessions")
     .select("game_number")
-    .eq("play_sheet_id", params.play_sheet_id)
+    .eq("offensive_scheme_id", params.offensive_scheme_id)
+    .eq("defensive_scheme", params.defensive_scheme)
     .order("game_number", { ascending: false })
     .limit(1);
+  if (params.opponent_team?.trim()) {
+    q = q.eq("opponent_team", params.opponent_team.trim());
+  } else {
+    q = q.is("opponent_team", null);
+  }
+  const { data, error } = await q;
   if (error || !data?.length) return 1;
   return (data[0].game_number as number) + 1;
 }
@@ -76,7 +85,9 @@ export async function createGameSession(input: {
   if (!supabase) return null;
 
   const game_number = await nextGameNumber({
-    play_sheet_id: input.play_sheet_id,
+    offensive_scheme_id: input.offensive_scheme_id,
+    defensive_scheme: input.defensive_scheme,
+    opponent_team: input.opponent_team ?? null,
   });
 
   const { data: session, error: sErr } = await supabase
