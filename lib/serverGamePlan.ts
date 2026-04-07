@@ -16,6 +16,26 @@ function sortAdjusted(list: GamePlanBundle["adjustedCalls"]) {
   return [...list].sort((a, b) => a.priority - b.priority);
 }
 
+/** Fill missing situations from static bundle (same matchup) when DB seed is partial. */
+function mergeAdjustedCallsFromFallback(
+  dbRows: GamePlanBundle["adjustedCalls"],
+  fallbackBundle: GamePlanBundle | null,
+  gamePlanId: string,
+): GamePlanBundle["adjustedCalls"] {
+  if (!fallbackBundle?.adjustedCalls.length) {
+    return sortAdjusted(dbRows);
+  }
+  const bySituation = new Map(
+    dbRows.map((r) => [r.situation, r] as const),
+  );
+  for (const row of fallbackBundle.adjustedCalls) {
+    if (!bySituation.has(row.situation)) {
+      bySituation.set(row.situation, { ...row, game_plan_id: gamePlanId });
+    }
+  }
+  return sortAdjusted(Array.from(bySituation.values()));
+}
+
 export async function loadDefensiveSchemes(): Promise<DefensiveSchemeProfile[]> {
   const supabase = getSupabase();
   if (!supabase) {
@@ -98,8 +118,10 @@ export async function loadGamePlanBundle(
     formationExploits: sortExploits(
       formationExploits as GamePlanBundle["formationExploits"],
     ),
-    adjustedCalls: sortAdjusted(
+    adjustedCalls: mergeAdjustedCallsFromFallback(
       adjustedCalls as GamePlanBundle["adjustedCalls"],
+      fallback,
+      planId,
     ),
   };
 }

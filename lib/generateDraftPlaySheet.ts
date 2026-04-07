@@ -148,6 +148,7 @@ export function generateDraftPlaySheet(params: {
         is_featured:
           situation === "1st & 10" || situation === "3rd & Long" ? true : false,
         is_used: false,
+        play_type: null,
       });
       continue;
     }
@@ -177,6 +178,7 @@ export function generateDraftPlaySheet(params: {
       custom_note: null,
       is_featured: false,
       is_used: false,
+      play_type: null,
     });
   }
 

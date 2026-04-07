@@ -6,6 +6,7 @@ import { FormationExploitPanel } from "@/components/FormationExploitPanel";
 import { GamePlanModeToggle } from "@/components/GamePlanModeToggle";
 import { InGameCallSheet } from "@/components/InGameCallSheet";
 import { InGameSheet } from "@/components/InGameSheet";
+import { PreGameNotesForm } from "@/components/PreGameNotesForm";
 import { SituationQuickNav } from "@/components/SituationQuickNav";
 import { fetchGamePlanBundle } from "@/lib/fetchGamePlan";
 import { playSheetPlayToDraft } from "@/lib/mapPlayToDraft";
@@ -303,6 +304,14 @@ export function GamePlanPageClient({ schemeId }: { schemeId: string }) {
             >
               Sheet library
             </Link>
+            {activePlaySheetId ? (
+              <Link
+                href={`/scheme/${schemeId}/playsheet/${activePlaySheetId}/game`}
+                className="rounded border border-[var(--amber)]/45 bg-[var(--amber)]/10 px-3 py-2 font-mono text-xs uppercase tracking-wider text-[var(--amber-soft)] hover:border-[var(--amber)]"
+              >
+                Live game
+              </Link>
+            ) : null}
             <button
               type="button"
               onClick={() => setScreenshotMode(!screenshotMode)}
@@ -319,6 +328,12 @@ export function GamePlanPageClient({ schemeId }: { schemeId: string }) {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 md:space-y-12 md:px-10">
+        <div className="max-w-xl">
+          <PreGameNotesForm
+            draftStorageKey={`sideline-pregame-${schemeId}-${activePlaySheetId ?? "nosheet"}`}
+            sessionId={null}
+          />
+        </div>
         <DefensiveSchemeCard
           profile={data.defensiveProfile}
           vulnerabilitySummary={data.gamePlan.vulnerability_summary}

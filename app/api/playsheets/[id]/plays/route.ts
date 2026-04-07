@@ -48,6 +48,10 @@ export async function POST(
     custom_note: clampNote(r.custom_note),
     is_featured: Boolean(r.is_featured),
     is_used: Boolean(r.is_used),
+    play_type:
+      r.play_type == null || typeof r.play_type !== "string"
+        ? null
+        : r.play_type.trim() || null,
   };
 
   if (!row.situation || !row.formation || !row.play_name) {

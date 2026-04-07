@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 type Tab = "team" | "scheme";
 
 export function OpponentSelector() {
-  const [tab, setTab] = useState<Tab>("team");
+  const [tab, setTab] = useState<Tab>("scheme");
   const [query, setQuery] = useState("");
 
   const selectedDefensiveScheme = useGameStore((s) => s.selectedDefensiveScheme);
@@ -34,17 +34,6 @@ export function OpponentSelector() {
       <div className="flex border-b border-white/10 px-4 font-mono text-xs md:px-6">
         <button
           type="button"
-          onClick={() => setTab("team")}
-          className={`border-b-2 px-3 py-3 uppercase tracking-wider transition ${
-            tab === "team"
-              ? "border-[var(--accent)] text-[var(--chalk)]"
-              : "border-transparent text-[var(--chalk-muted)] hover:text-[var(--chalk-soft)]"
-          }`}
-        >
-          By team
-        </button>
-        <button
-          type="button"
           onClick={() => setTab("scheme")}
           className={`border-b-2 px-3 py-3 uppercase tracking-wider transition ${
             tab === "scheme"
@@ -54,10 +43,38 @@ export function OpponentSelector() {
         >
           By scheme
         </button>
+        <button
+          type="button"
+          onClick={() => setTab("team")}
+          className={`border-b-2 px-3 py-3 uppercase tracking-wider transition ${
+            tab === "team"
+              ? "border-[var(--accent)] text-[var(--chalk)]"
+              : "border-transparent text-[var(--chalk-muted)] hover:text-[var(--chalk-soft)]"
+          }`}
+        >
+          By team
+        </button>
       </div>
 
       <div className="p-4 md:p-6">
-        {tab === "team" ? (
+        {tab === "scheme" ? (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {DEFENSIVE_SCHEME_OPTIONS.map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setOpponentByScheme(name)}
+                className={`rounded border px-3 py-3 text-left font-mono text-xs transition ${
+                  selectedDefensiveScheme === name && !selectedOpponentTeam
+                    ? "border-[var(--accent)] bg-[var(--accent)]/15 text-[var(--chalk)]"
+                    : "border-white/15 bg-black/25 text-[var(--chalk-soft)] hover:border-white/25"
+                }`}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        ) : (
           <div className="space-y-3">
             <label className="block font-mono text-[10px] uppercase tracking-wider text-[var(--chalk-muted)]">
               Search teams
@@ -90,23 +107,6 @@ export function OpponentSelector() {
                 Showing first 80 matches — keep typing to narrow results.
               </p>
             ) : null}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {DEFENSIVE_SCHEME_OPTIONS.map((name) => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => setOpponentByScheme(name)}
-                className={`rounded border px-3 py-3 text-left font-mono text-xs transition ${
-                  selectedDefensiveScheme === name && !selectedOpponentTeam
-                    ? "border-[var(--accent)] bg-[var(--accent)]/15 text-[var(--chalk)]"
-                    : "border-white/15 bg-black/25 text-[var(--chalk-soft)] hover:border-white/25"
-                }`}
-              >
-                {name}
-              </button>
-            ))}
           </div>
         )}
 

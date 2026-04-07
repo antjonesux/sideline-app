@@ -17,6 +17,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: true,
     is_used: false,
+    play_type: "Pass",
   },
   {
     id: "00000003-0000-4000-8000-000000000102",
@@ -32,6 +33,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "RPO",
   },
   {
     id: "00000003-0000-4000-8000-000000000103",
@@ -47,6 +49,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Play Action",
   },
   {
     id: "00000003-0000-4000-8000-000000000104",
@@ -62,6 +65,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "RPO",
   },
   {
     id: "00000003-0000-4000-8000-000000000105",
@@ -77,6 +81,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Pass",
   },
   {
     id: "00000003-0000-4000-8000-000000000106",
@@ -92,6 +97,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: true,
     is_used: false,
+    play_type: "Pass",
   },
   {
     id: "00000003-0000-4000-8000-000000000107",
@@ -107,6 +113,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Play Action",
   },
   {
     id: "00000003-0000-4000-8000-000000000108",
@@ -122,6 +129,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Run",
   },
   {
     id: "00000003-0000-4000-8000-000000000109",
@@ -137,6 +145,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Pass",
   },
   {
     id: "00000003-0000-4000-8000-000000000110",
@@ -152,6 +161,7 @@ const DEMO_PLAYS: Omit<PlaySheetPlay, "play_sheet_id">[] = [
     custom_note: null,
     is_featured: false,
     is_used: false,
+    play_type: "Run",
   },
 ];
 

@@ -99,9 +99,13 @@ export async function getPlaySheetWithPlays(
 
   if (playsErr) return null;
 
+  const raw = sortPlays((plays ?? []) as PlaySheetPlay[]);
   return {
     ...(sheet as PlaySheet),
-    plays: sortPlays((plays ?? []) as PlaySheetPlay[]),
+    plays: raw.map((p) => {
+      const row = p as PlaySheetPlay & { play_type?: string | null };
+      return { ...row, play_type: row.play_type ?? null };
+    }),
   };
 }
 
@@ -137,6 +141,7 @@ export async function createPlaySheetWithPlays(input: {
   const playRows = input.plays.map((p) => ({
     ...p,
     play_sheet_id: sheetId,
+    play_type: p.play_type ?? null,
   }));
 
   const { data: inserted, error: playErr } = await supabase
@@ -187,6 +192,7 @@ export async function updatePlayRow(
       | "is_used"
       | "situation_order"
       | "play_order"
+      | "play_type"
     >
   >,
 ): Promise<PlaySheetPlay | null> {
@@ -250,6 +256,7 @@ export async function duplicatePlaySheet(
       custom_note: p.custom_note,
       is_featured: p.is_featured,
       is_used: false,
+      play_type: p.play_type ?? null,
     })),
   });
 }

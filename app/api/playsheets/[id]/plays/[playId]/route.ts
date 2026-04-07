@@ -43,6 +43,10 @@ export async function PUT(
   if (cn !== undefined) patch.custom_note = cn;
   if (typeof r.is_featured === "boolean") patch.is_featured = r.is_featured;
   if (typeof r.is_used === "boolean") patch.is_used = r.is_used;
+  if (r.play_type !== undefined) {
+    patch.play_type =
+      r.play_type == null ? null : String(r.play_type).trim() || null;
+  }
   if (typeof r.situation_order === "number")
     patch.situation_order = r.situation_order;
   if (typeof r.play_order === "number") patch.play_order = r.play_order;

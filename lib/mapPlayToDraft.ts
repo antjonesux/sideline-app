@@ -15,6 +15,7 @@ export function playSheetPlayToDraft(p: PlaySheetPlay): DraftPlayRow {
     custom_note: p.custom_note,
     is_featured: p.is_featured,
     is_used: p.is_used,
+    play_type: p.play_type ?? null,
   };
 }
 
@@ -31,5 +32,6 @@ export function draftRowToApiPayload(row: DraftPlayRow) {
     custom_note: row.custom_note,
     is_featured: row.is_featured,
     is_used: row.is_used,
+    play_type: row.play_type ?? null,
   };
 }

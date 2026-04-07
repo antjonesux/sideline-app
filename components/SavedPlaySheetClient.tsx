@@ -2,6 +2,7 @@
 
 import { PlaySheetEditor } from "@/components/PlaySheetEditor";
 import { PlaySheetView } from "@/components/PlaySheetView";
+import { PreGameNotesForm } from "@/components/PreGameNotesForm";
 import { playSheetPlayToDraft } from "@/lib/mapPlayToDraft";
 import type { PlaySheetWithPlays } from "@/lib/playSheetTypes";
 import { playbookFromSchemeField } from "@/lib/resolvePlaybook";
@@ -78,6 +79,32 @@ export function SavedPlaySheetClient({
     setActivePlaySheetId(sheetId);
   }, [sheetId, setActivePlaySheetId]);
 
+  const { data: priorNotes } = useQuery({
+    queryKey: [
+      "prior-notes",
+      sheet?.offensive_scheme_id,
+      sheet?.defensive_scheme,
+    ],
+    queryFn: async () => {
+      if (!sheet?.offensive_scheme_id || !sheet?.defensive_scheme) return null;
+      const q = new URLSearchParams({
+        offensive_scheme_id: sheet.offensive_scheme_id,
+        defensive_scheme: sheet.defensive_scheme,
+      });
+      const res = await fetch(`/api/game-sessions/prior-notes?${q}`);
+      if (!res.ok) return null;
+      return (await res.json()) as {
+        what_worked?: string | null;
+        what_to_adjust?: string | null;
+        opponent_team?: string | null;
+        score?: string | null;
+        result?: string | null;
+      };
+    },
+    enabled: Boolean(sheet?.offensive_scheme_id && sheet?.defensive_scheme),
+    staleTime: 5 * 60_000,
+  });
+
   if (!sheet) {
     return (
       <div className="min-h-screen px-4 py-16 md:px-10">
@@ -109,12 +136,20 @@ export function SavedPlaySheetClient({
               {sheet.opponent_team ? ` · ${sheet.opponent_team}` : ""}
             </p>
           </div>
-          <Link
-            href="/playsheets"
-            className="font-mono text-xs text-[var(--accent-soft)]"
-          >
-            All sheets
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/scheme/${schemeId}/playsheet/${sheetId}/game`}
+              className="rounded border border-[var(--amber)]/50 bg-[var(--amber)]/10 px-3 py-2 font-mono text-xs uppercase tracking-wider text-[var(--amber-soft)]"
+            >
+              Live game mode
+            </Link>
+            <Link
+              href="/playsheets"
+              className="font-mono text-xs text-[var(--accent-soft)]"
+            >
+              All sheets
+            </Link>
+          </div>
         </div>
         <button
           type="button"
@@ -126,6 +161,34 @@ export function SavedPlaySheetClient({
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8 md:px-10">
+        {priorNotes &&
+        (priorNotes.what_worked || priorNotes.what_to_adjust) ? (
+          <div className="mb-8 rounded-xl border border-[var(--accent)]/25 bg-black/35 p-4">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-soft)]">
+              Last time vs this defense
+              {priorNotes.opponent_team ? ` (${priorNotes.opponent_team})` : ""}
+              {priorNotes.result && priorNotes.score
+                ? ` · ${priorNotes.result} ${priorNotes.score}`
+                : ""}
+            </p>
+            {priorNotes.what_worked ? (
+              <p className="mt-2 font-mono text-sm text-[var(--chalk-soft)]">
+                Worked: {priorNotes.what_worked}
+              </p>
+            ) : null}
+            {priorNotes.what_to_adjust ? (
+              <p className="mt-2 font-mono text-sm text-[var(--chalk-soft)]">
+                Adjust: {priorNotes.what_to_adjust}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="mb-10 max-w-xl">
+          <PreGameNotesForm
+            draftStorageKey={`sideline-pregame-${schemeId}-${sheetId}`}
+            sessionId={null}
+          />
+        </div>
         <PlaySheetView
           rows={rows}
           sheetViewMode={sheetViewMode}

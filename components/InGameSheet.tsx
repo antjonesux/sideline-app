@@ -12,6 +12,7 @@ export function InGameSheet({
   defensiveScheme,
   playbook,
   onRowsChange,
+  onMarkPlayUsed,
 }: {
   rows: DraftPlayRow[];
   activeSituation: string | null;
@@ -19,6 +20,8 @@ export function InGameSheet({
   defensiveScheme: string;
   playbook: string;
   onRowsChange: (next: DraftPlayRow[]) => void;
+  /** MVP 4: log timeline when a play is marked used from the sheet list. */
+  onMarkPlayUsed?: (row: DraftPlayRow) => void;
 }) {
   const [swapKey, setSwapKey] = useState<string | null>(null);
 
@@ -40,7 +43,13 @@ export function InGameSheet({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(patch),
     });
-    onRowsChange(rows.map((r) => (r.clientKey === clientKey ? { ...r, ...patch } : r)));
+    const nextRow = { ...row, ...patch };
+    onRowsChange(
+      rows.map((r) => (r.clientKey === clientKey ? nextRow : r)),
+    );
+    if (patch.is_used === true && onMarkPlayUsed) {
+      onMarkPlayUsed(nextRow);
+    }
   };
 
   const applySwap = async (
@@ -55,6 +64,7 @@ export function InGameSheet({
     await patchRow(clientKey, {
       formation: pick.formation,
       play_name: pick.play_name,
+      play_type: pick.play_type,
       coaching_note: meta.coaching_note,
       counter_formation: meta.counter_formation,
       counter_play: meta.counter_play,

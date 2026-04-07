@@ -127,6 +127,7 @@ export function PlaySheetEditor({
       custom_note: null,
       is_featured: false,
       is_used: false,
+      play_type: null,
     };
 
     if (sheetId) {

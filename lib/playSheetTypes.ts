@@ -22,6 +22,7 @@ export interface PlaySheetPlay {
   custom_note: string | null;
   is_featured: boolean;
   is_used: boolean;
+  play_type: string | null;
   created_at?: string;
 }
 

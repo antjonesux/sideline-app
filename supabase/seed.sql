@@ -332,10 +332,7 @@ INSERT INTO adjusted_situational_calls (game_plan_id, situation, down, distance_
 ('00000002-0000-4000-8000-000000000001', '3rd & Short', 3, 1, 2, 'Pistol U Off', 'QB Power', '5 DBs on the field — only 6 run defenders in the box. You have the numbers vs nickel.', 4),
 ('00000002-0000-4000-8000-000000000001', '3rd & Long', 3, 6, 99, 'Gun Empty Trips Y Off', 'Spacing / Flood', 'Nickel means more zone — flood the zone with 3 routes to one side and make the overhang choose.', 5),
 ('00000002-0000-4000-8000-000000000001', 'Red Zone', NULL, NULL, NULL, 'Gun Bunch Open TE', 'Fade or Back Shoulder', 'Compressed field + red-zone man = boundary 1-on-1. Win with timing vs 4-2-5 leverage.', 6),
-('00000002-0000-4000-8000-000000000001', '2-Minute Drill', NULL, NULL, NULL, 'Gun Empty Base Flex', 'Slants + Checkdowns', 'Keep tempo — nickel zones widen late; slants and checks move the chains without letting coverage dictate pace.', 7)
-ON CONFLICT (game_plan_id, situation) DO NOTHING;
-
-INSERT INTO adjusted_situational_calls (game_plan_id, situation, down, distance_min, distance_max, formation, play_type, rationale, priority) VALUES
+('00000002-0000-4000-8000-000000000001', '2-Minute Drill', NULL, NULL, NULL, 'Gun Empty Base Flex', 'Slants + Checkdowns', 'Keep tempo — nickel zones widen late; slants and checks move the chains without letting coverage dictate pace.', 7),
 ('00000002-0000-4000-8000-000000000001', '3rd & Medium', 3, 4, 6, 'Gun Empty Base Flex', 'Quick Game / Levels', 'Nickel LBs widen — attack the intermediate windows before safeties can drive.', 8),
 ('00000002-0000-4000-8000-000000000001', 'Goal Line', NULL, NULL, NULL, 'Pistol U Off', 'Power / Gap Run', 'Extra DBs shrink the box — gap schemes and double teams win at the goal line.', 9),
 ('00000002-0000-4000-8000-000000000001', 'Backed Up', NULL, NULL, NULL, 'Pistol U Off', 'Outside Run / PA', 'Own 1–10: horizontal stretch clears space before taking a shot off play action.', 10)
@@ -434,3 +431,64 @@ INSERT INTO play_sheet_plays (id, play_sheet_id, situation, situation_order, pla
 ('00000003-0000-4000-8000-000000000109', '00000003-0000-4000-8000-000000000001', '2-Minute Drill', 8, 0, 'Gun Empty Base Flex', 'STICK', 'Fast, safe throw to the flat — QB gets the ball out in under 2 seconds', NULL, 'WR SCREEN', NULL, false, false),
 ('00000003-0000-4000-8000-000000000110', '00000003-0000-4000-8000-000000000001', 'Backed Up', 9, 0, 'Pistol U Off', 'HB STRETCH', 'Get outside the box — stretch the defense horizontally before throwing', NULL, 'PA BOOT Y DRAG', NULL, false, false)
 ON CONFLICT (id) DO NOTHING;
+
+UPDATE play_sheet_plays SET play_type = v.play_type
+FROM (VALUES
+  ('00000003-0000-4000-8000-000000000101'::uuid, 'Pass'),
+  ('00000003-0000-4000-8000-000000000102'::uuid, 'RPO'),
+  ('00000003-0000-4000-8000-000000000103'::uuid, 'Play Action'),
+  ('00000003-0000-4000-8000-000000000104'::uuid, 'RPO'),
+  ('00000003-0000-4000-8000-000000000105'::uuid, 'Pass'),
+  ('00000003-0000-4000-8000-000000000106'::uuid, 'Pass'),
+  ('00000003-0000-4000-8000-000000000107'::uuid, 'Play Action'),
+  ('00000003-0000-4000-8000-000000000108'::uuid, 'Run'),
+  ('00000003-0000-4000-8000-000000000109'::uuid, 'Pass'),
+  ('00000003-0000-4000-8000-000000000110'::uuid, 'Run')
+) AS v(id, play_type)
+WHERE play_sheet_plays.id = v.id;
+
+-- MVP 4: field position philosophy (keys match app FieldZone enum)
+INSERT INTO field_position_rules (field_zone, prioritize_play_types, suppress_play_types, rule_note) VALUES
+('BACKED_UP',
+  ARRAY['run', 'quick_game', 'rpo', 'screen'],
+  ARRAY['empty_formation', 'deep_shot', 'trick_play'],
+  'Protect the ball. No turnovers. Get a first down.'),
+('OWN_TERRITORY',
+  ARRAY['balanced', 'play_action', 'quick_game'],
+  ARRAY[]::text[],
+  'Establish rhythm. Set up play action for midfield.'),
+('MIDFIELD',
+  ARRAY['explosive', 'deep_shot', 'rpo', 'play_action'],
+  ARRAY[]::text[],
+  'Attack. You have field to work with. Take your shot.'),
+('SCORING',
+  ARRAY['high_pct_pass', 'run', 'play_action', 'quick_game'],
+  ARRAY['deep_shot', 'negative_screen'],
+  'You''re in range. Don''t waste the field position.'),
+('RED_ZONE',
+  ARRAY['compressed_route', 'run', 'play_action', 'back_shoulder'],
+  ARRAY['empty_formation', 'all_go'],
+  'Field shrinks. Routes get shorter. Win 1-on-1.'),
+('GOAL_LINE',
+  ARRAY['power_run', 'qb_sneak', 'play_action_boot', 'run'],
+  ARRAY['empty_formation', 'spread', 'needs_space'],
+  'This is execution. Simple. Physical. Win at the point of attack.')
+ON CONFLICT (field_zone) DO UPDATE SET
+  prioritize_play_types = EXCLUDED.prioritize_play_types,
+  suppress_play_types = EXCLUDED.suppress_play_types,
+  rule_note = EXCLUDED.rule_note;
+
+-- MVP 4: coverage ↔ play-type affinities (tag labels match quick-tag UI)
+INSERT INTO coverage_play_affinities (coverage_tag, favored_play_types, suppressed_play_types) VALUES
+('COVER 0', ARRAY['quick_game', 'screen', 'slant'], ARRAY['deep_shot']),
+('COVER 1', ARRAY['crosser', 'dig', 'seam'], ARRAY['short_flat']),
+('COVER 2', ARRAY['seam', 'middle_field', 'corner'], ARRAY['flat_route']),
+('COVER 3', ARRAY['mesh', 'levels', 'curl_flat'], ARRAY['boundary_streak']),
+('COVER 4', ARRAY['short_game', 'crosser', 'rpo'], ARRAY['deep_post']),
+('BLITZING', ARRAY['quick_game', 'screen', 'hot_route'], ARRAY['slow_developing', 'seven_step']),
+('MAN', ARRAY['rub', 'pick', 'motion'], ARRAY['iso_wr']),
+('BRACKET WR1', ARRAY['wr2_te_hb', 'space'], ARRAY['wr1_iso']),
+('BRACKET MY WR1', ARRAY['wr2_te_hb', 'space'], ARRAY['wr1_iso'])
+ON CONFLICT (coverage_tag) DO UPDATE SET
+  favored_play_types = EXCLUDED.favored_play_types,
+  suppressed_play_types = EXCLUDED.suppressed_play_types;
