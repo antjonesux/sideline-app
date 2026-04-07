@@ -1,54 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "preline/variants.css";
 
 :root {
-  --bg: #0d0f12;
-  --surface: #12151a;
-  --chalk: #f5f5f0;
-  --chalk-soft: #c9cdc7;
-  --chalk-muted: #8a9088;
-  --accent: #2d6a4f;
-  --accent-soft: #40916c;
-  --amber: #f4a522;
-  --amber-soft: #e9b44c;
-  --background: var(--bg);
-  --foreground: var(--chalk);
+  --color-field-green: #1a4731;
+  --color-field-green-light: #27ae60;
+  --color-chalk: #f5f5f0;
+  --color-amber-call: #f4a522;
+  --color-result-positive: #27ae60;
+  --color-result-negative: #c0392b;
+  --background: #020617;
+  --foreground: #f8fafc;
 }
 
 body {
   color: var(--foreground);
-  background-color: var(--bg);
+  background-color: var(--background);
   min-height: 100vh;
-  position: relative;
+  @apply bg-slate-950 text-slate-100;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.04;
-  background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 47px,
-      var(--accent) 47px,
-      var(--accent) 48px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 47px,
-      var(--accent) 47px,
-      var(--accent) 48px
-    );
-}
-
-body > * {
-  position: relative;
-  z-index: 1;
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {

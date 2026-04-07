@@ -1,53 +1,33 @@
 "use client";
 
-import { SchemeCard } from "@/components/SchemeCard";
-import { fetchSchemesWithCache } from "@/lib/fetchSchemes";
-import { getStaticSchemes } from "@/lib/staticData";
-import type { Scheme } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useLiveGameStore } from "@/store/liveGameStore";
 
 export default function HomePage() {
-  const { data } = useQuery({
-    queryKey: ["schemes"],
-    queryFn: fetchSchemesWithCache,
-    placeholderData: (): Scheme[] => getStaticSchemes(),
-    staleTime: 30 * 60_000,
-  });
-
-  const schemes = data ?? getStaticSchemes();
+  const sessionId = useLiveGameStore((s) => s.sessionId);
+  const loggedCount = useLiveGameStore((s) => s.loggedPlays.length);
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-white/10 bg-black/30 px-4 py-8 md:px-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--accent-soft)]">
-          CFB26 · Coordinator mode
-        </p>
-        <h1 className="mt-2 font-display text-4xl tracking-wide text-[var(--chalk)] md:text-6xl">
-          The Sideline
-        </h1>
-        <p className="mt-4 max-w-xl font-mono text-sm text-[var(--chalk-muted)]">
-          Scheme-based play calling. Pick your system. The call sheet leads.
-        </p>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-10 md:px-10">
-        <h2 className="mb-6 font-display text-2xl text-[var(--chalk)]">
-          Offensive schemes
-        </h2>
-
-        <ul className="grid gap-5 md:grid-cols-2">
-          {schemes.map((scheme) => (
-            <li key={scheme.id}>
-              <SchemeCard scheme={scheme} />
-            </li>
-          ))}
-        </ul>
-
-        <footer className="mt-16 border-t border-white/10 pt-8 font-mono text-[11px] text-[var(--chalk-muted)]">
-          First load caches scheme data in this browser for offline or unstable
-          connections.
-        </footer>
-      </main>
-    </div>
+    <main className="mx-auto max-w-xl px-4 py-8">
+      <h1 className="font-display text-5xl tracking-wide text-white">The Sideline</h1>
+      <p className="mt-2 text-sm text-slate-400">Live play tracker for CFB26.</p>
+      <div className="mt-6 space-y-3">
+        {sessionId ? (
+          <Link href={`/game/${sessionId}`} className="flex w-full items-center justify-between rounded-xl bg-amber-700 px-4 py-3 font-semibold text-white">
+            Resume Game <span className="rounded-full bg-black/20 px-2 py-0.5 text-xs">{loggedCount} plays</span>
+          </Link>
+        ) : (
+          <Link href="/setup" className="block w-full rounded-xl bg-emerald-700 px-4 py-3 text-center font-semibold text-white">
+            Start New Game
+          </Link>
+        )}
+        <Link href="/playsheets" className="block w-full rounded-xl border border-slate-700 px-4 py-3 text-center text-slate-200">
+          My Play Sheets
+        </Link>
+        <Link href="/tendencies" className="block w-full rounded-xl border border-slate-700 px-4 py-3 text-center text-slate-200">
+          My Tendencies
+        </Link>
+      </div>
+    </main>
   );
 }
