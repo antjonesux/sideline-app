@@ -1,11 +1,16 @@
 import Link from "next/link";
+import { getServerOrigin } from "@/lib/serverOrigin";
 import type { GameSession } from "@/lib/types";
 
 async function getGames(): Promise<GameSession[]> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const res = await fetch(`${base}/api/games`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return (await res.json()) as GameSession[];
+  try {
+    const base = getServerOrigin();
+    const res = await fetch(`${base}/api/games`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return (await res.json()) as GameSession[];
+  } catch {
+    return [];
+  }
 }
 
 export default async function FilmRoomPage() {
