@@ -25,6 +25,7 @@ create table if not exists game_sessions (
 -- Older deployments: `create table if not exists` skips new columns. Keep remote DB in sync with the app.
 alter table game_sessions add column if not exists quarter_started_logging int check (quarter_started_logging between 1 and 4);
 alter table game_sessions add column if not exists is_partial_log boolean default false;
+alter table game_sessions add column if not exists import_source text default 'live';
 
 create table if not exists drives (
   id uuid primary key default gen_random_uuid(),
@@ -61,6 +62,8 @@ create table if not exists logged_plays (
   opponent_scheme text not null,
   created_at timestamptz default now()
 );
+
+alter table logged_plays add column if not exists drive_number int;
 
 create table if not exists play_sheets (
   id uuid primary key default gen_random_uuid(),
@@ -224,4 +227,4 @@ alter table game_sessions disable row level security;
 -- Allow LOSS as a film log result (idempotent for existing DBs).
 alter table logged_plays drop constraint if exists logged_plays_result_tag_check;
 alter table logged_plays add constraint logged_plays_result_tag_check
-  check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'LOSS', 'TURNOVER', 'PUNT', 'FIELD_GOAL', 'OUT_OF_BOUNDS'));
+  check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'LOSS', 'TURNOVER', 'PUNT', 'FIELD_GOAL', 'OUT_OF_BOUNDS', 'PENALTY'));

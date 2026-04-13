@@ -15,7 +15,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /** Seed script has no generated Database types; widen so helpers match createClient(). */
-type SeedSupabase = SupabaseClient<any, "public", any>;
+type SeedSupabase = SupabaseClient<object, "public", object>;
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

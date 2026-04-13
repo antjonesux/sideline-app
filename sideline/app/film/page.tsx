@@ -67,8 +67,26 @@ export default async function FilmRoomPage() {
       <header className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <h1 className="font-display text-3xl tracking-wide text-white sm:text-4xl">FILM ROOM</h1>
-          <Link href="/film/new" className={`inline-flex shrink-0 items-center justify-center text-sm font-semibold ${addDriveButtonClass}`}>
-            + New Game
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/film/new"
+            className="group rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/60 hover:bg-slate-800/80"
+          >
+            <p className="font-display text-lg text-white">Start New Game</p>
+            <p className="mt-1 text-sm text-slate-400">Log plays live from the sideline.</p>
+          </Link>
+          <Link
+            href="/import"
+            className="group rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/60 hover:bg-slate-800/80"
+          >
+            <p className="font-display text-lg text-white">
+              <span className="mr-2" aria-hidden>
+                📄
+              </span>
+              Import Game from CSV
+            </p>
+            <p className="mt-1 text-sm text-slate-400">Log a completed game from a spreadsheet.</p>
           </Link>
         </div>
         <div className="border-b border-slate-700" aria-hidden />

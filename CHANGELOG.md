@@ -4,6 +4,34 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-13 — CSV bulk import (spreadsheet → film session)
+
+### Added
+
+- **`/import`** — Multi-step wizard: template download, CSV upload, client-side parse with PapaParse, game metadata form (with last-used offensive playbook/scheme persisted via `lastGamePrefsStore`), preview of drives and plays, confirmation, and POST to execute import.
+- **Import UI components** (`sideline/components/import/`) — Stepper, uploader, game setup form, preview tables/drives, template download, result badges, and confirmation flow.
+- **`POST /api/import/validate`** — Validates parsed CSV row objects and returns `valid_rows`, `errors`, and counts.
+- **`POST /api/import/execute`** — Re-validates server-side, creates a `game_sessions` row with `import_source: "csv"`, inserts drives and `logged_plays` mapped from the import model.
+- **`GET /api/import/template`** — Downloads `sideline_game_template.csv` with headers and example rows.
+- **`importCsv`**, **`csvImportPreview`**, **`importSamplePlays`** (`sideline/lib/`) — Column validation, yard-line parsing, result mapping to film `result_tag` values, and bundled sample rows for quick testing.
+- **`importStore`** (`sideline/store/importStore.ts`) — Zustand store for wizard step and import payload state.
+
+### Changed
+
+- **`/film`** — Adds a prominent card linking to **Import from CSV** alongside “Start New Game.”
+- **`/film/[gameId]`** — Copy and link nudging users toward CSV import for full play-by-play from spreadsheets.
+- **`GameSession` type** (`sideline/lib/types.ts`) — Optional `import_source` aligned with the database column.
+
+### Database / Supabase (`sideline/supabase/schema.sql`)
+
+- **`game_sessions.import_source`** — `text` column defaulting to `'live'`; CSV imports set `'csv'` on insert.
+
+### Dependencies (`sideline/package.json`)
+
+- **`papaparse`** and **`@types/papaparse`** for CSV parsing in the browser.
+
+---
+
 ## 2026-04-13 — Film logging UX, CFB26 playbook API, and database alignment
 
 ### Added

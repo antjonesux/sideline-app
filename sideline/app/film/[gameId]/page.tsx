@@ -386,6 +386,17 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
         </div>
       ) : null}
+
+      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+        <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Secondary</p>
+        <p className="mt-1 text-sm text-slate-400">Need a full play-by-play from a spreadsheet? CSV import always creates a new session.</p>
+        <Link
+          href="/import"
+          className="mt-3 inline-flex items-center justify-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:border-emerald-700/50 hover:bg-slate-800"
+        >
+          Import Game
+        </Link>
+      </div>
     </section>
   );
 }
