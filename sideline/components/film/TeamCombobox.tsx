@@ -32,7 +32,9 @@ const SEARCH_LIMIT = 12;
 function visibleTeams<T extends { team_name: string }>(options: T[], query: string): T[] {
   const q = query.trim().toLowerCase();
   if (!q) return options.slice(0, BROWSE_LIMIT);
-  return options.filter((o) => o.team_name.toLowerCase().includes(q)).slice(0, SEARCH_LIMIT);
+  return options
+    .filter((o) => (o.team_name ?? "").toLowerCase().includes(q))
+    .slice(0, SEARCH_LIMIT);
 }
 
 export function TeamCombobox<T extends { team_name: string }>({
@@ -75,7 +77,8 @@ export function TeamCombobox<T extends { team_name: string }>({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const showList = open && !selected && !loading;
+  /** Keep the panel mountable while loading so Strict Mode / focus timing does not strand `open` with no list once data arrives. */
+  const showList = open && !selected;
 
   return (
     <div ref={rootRef} className="space-y-1">
@@ -121,30 +124,32 @@ export function TeamCombobox<T extends { team_name: string }>({
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             }`}
           >
-          {options.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-400">
-              No teams returned from the server. In ./sideline run npm run seed:teams (service role in .env.local), or open GET /api/film/setup in the Network tab to see Supabase errors.
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>
-          ) : (
-            filtered.map((item) => (
-              <button
-                key={item.team_name}
-                type="button"
-                className="block w-full border-b border-slate-800 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-slate-800"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {
-                  onSelect(item);
-                  setQuery(item.team_name);
-                  setOpen(false);
-                  requestAnimationFrame(() => nextFocusRef?.current?.focus());
-                }}
-              >
-                {item.team_name}
-              </button>
-            ))
-          )}
+            {loading ? (
+              <div className="px-3 py-2 text-sm text-slate-400">Loading teams…</div>
+            ) : options.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-slate-400">
+                No teams returned from the server. In ./sideline run npm run seed:teams (service role in .env.local), or open GET /api/film/setup in the Network tab to see Supabase errors.
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>
+            ) : (
+              filtered.map((item) => (
+                <button
+                  key={item.team_name}
+                  type="button"
+                  className="block w-full border-b border-slate-800 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-slate-800"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    onSelect(item);
+                    setQuery(item.team_name);
+                    setOpen(false);
+                    requestAnimationFrame(() => nextFocusRef?.current?.focus());
+                  }}
+                >
+                  {item.team_name}
+                </button>
+              ))
+            )}
           </div>
         ) : null}
       </div>

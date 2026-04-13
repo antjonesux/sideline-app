@@ -19,6 +19,22 @@ type NewGameForm = {
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 
+/** Normalize GET /api/film/setup JSON (camelCase or accidental snake_case). */
+function parseFilmSetupResponse(raw: unknown): {
+  offensiveTeams: OffensiveTeam[];
+  defensiveTeams: DefensiveTeam[];
+} {
+  if (!raw || typeof raw !== "object") {
+    return { offensiveTeams: [], defensiveTeams: [] };
+  }
+  const o = raw as Record<string, unknown>;
+  const offensiveRaw = o.offensiveTeams ?? o.offensive_teams;
+  const defensiveRaw = o.defensiveTeams ?? o.defensive_teams;
+  const offensiveTeams = Array.isArray(offensiveRaw) ? (offensiveRaw as OffensiveTeam[]) : [];
+  const defensiveTeams = Array.isArray(defensiveRaw) ? (defensiveRaw as DefensiveTeam[]) : [];
+  return { offensiveTeams, defensiveTeams };
+}
+
 export default function NewGamePage() {
   const router = useRouter();
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>([]);
@@ -42,7 +58,7 @@ export default function NewGamePage() {
     let cancelled = false;
     setSetupLoading(true);
     setSetupError(null);
-    fetch("/api/film/setup")
+    fetch("/api/film/setup", { cache: "no-store" })
       .then(async (res) => {
         const data = (await res.json()) as {
           offensiveTeams?: OffensiveTeam[];
@@ -62,8 +78,18 @@ export default function NewGamePage() {
           setDefensiveTeams([]);
           return;
         }
-        setOffensiveTeams(data.offensiveTeams ?? []);
-        setDefensiveTeams(data.defensiveTeams ?? []);
+        const { offensiveTeams, defensiveTeams } = parseFilmSetupResponse(data);
+        if (process.env.NODE_ENV === "development") {
+          console.log("[film/new] /api/film/setup response", {
+            keys: Object.keys(data as object),
+            offensiveTeams: offensiveTeams.length,
+            defensiveTeams: defensiveTeams.length,
+            sampleOffense: offensiveTeams[0],
+            sampleDefense: defensiveTeams[0],
+          });
+        }
+        setOffensiveTeams(offensiveTeams);
+        setDefensiveTeams(defensiveTeams);
       })
       .catch((e) => {
         if (cancelled) return;
