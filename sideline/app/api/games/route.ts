@@ -1,5 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  auth: { persistSession: false },
+});
 
 export async function GET() {
   const { data: games, error } = await supabase.from("game_sessions").select("*").order("game_date", { ascending: false });
@@ -19,8 +23,28 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const payload = await req.json();
-  const { data, error } = await supabase.from("game_sessions").insert(payload).select("*").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const body = await req.json();
+
+  const { data, error } = await supabase
+    .from("game_sessions")
+    .insert({
+      my_playbook: body.my_playbook,
+      my_scheme: body.my_scheme,
+      opponent_team: body.opponent_team,
+      opponent_scheme: body.opponent_scheme,
+      game_date: body.game_date,
+      my_score: body.my_score,
+      opponent_score: body.opponent_score,
+      result: body.result,
+      quarter_started_logging: body.quarter_started_logging,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Game insert error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
   return NextResponse.json(data);
 }

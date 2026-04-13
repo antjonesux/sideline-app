@@ -22,6 +22,10 @@ create table if not exists game_sessions (
   created_at timestamptz default now()
 );
 
+-- Older deployments: `create table if not exists` skips new columns. Keep remote DB in sync with the app.
+alter table game_sessions add column if not exists quarter_started_logging int check (quarter_started_logging between 1 and 4);
+alter table game_sessions add column if not exists is_partial_log boolean default false;
+
 create table if not exists drives (
   id uuid primary key default gen_random_uuid(),
   game_session_id uuid not null references game_sessions(id) on delete cascade,
@@ -51,7 +55,7 @@ create table if not exists logged_plays (
   formation text not null,
   play_name text not null,
   yards_gained int default 0,
-  result_tag text not null check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'TURNOVER', 'OUT_OF_BOUNDS')),
+  result_tag text not null check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'LOSS', 'TURNOVER', 'PUNT', 'FIELD_GOAL', 'OUT_OF_BOUNDS')),
   is_success boolean generated always as (result_tag in ('FIRST_DOWN', 'TOUCHDOWN')) stored,
   note text,
   opponent_scheme text not null,
@@ -211,3 +215,13 @@ create policy "Allow public read" on team_offensive_playbooks for select using (
 
 drop policy if exists "Allow public read" on team_defensive_schemes;
 create policy "Allow public read" on team_defensive_schemes for select using (true);
+
+-- Film logging: server routes use the anon key; keep RLS off so inserts/reads from API routes succeed.
+alter table drives disable row level security;
+alter table logged_plays disable row level security;
+alter table game_sessions disable row level security;
+
+-- Allow LOSS as a film log result (idempotent for existing DBs).
+alter table logged_plays drop constraint if exists logged_plays_result_tag_check;
+alter table logged_plays add constraint logged_plays_result_tag_check
+  check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'LOSS', 'TURNOVER', 'PUNT', 'FIELD_GOAL', 'OUT_OF_BOUNDS'));

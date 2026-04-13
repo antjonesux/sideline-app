@@ -1,7 +1,21 @@
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 type Ctx = { params: Promise<{ id: string }> };
+
+function jsonFromPostgrestError(err: PostgrestError, status = 500) {
+  return NextResponse.json(
+    {
+      error: err.message,
+      message: err.message,
+      details: err.details ?? null,
+      hint: err.hint ?? null,
+      code: err.code ?? null,
+    },
+    { status },
+  );
+}
 
 export async function GET(_: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
@@ -20,8 +34,40 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 
 export async function POST(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
-  const payload = await req.json();
-  const { data, error } = await supabase.from("drives").insert({ ...payload, game_session_id: id }).select("*").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+
+  const { count, error: countError } = await supabase
+    .from("drives")
+    .select("*", { count: "exact", head: true })
+    .eq("game_session_id", id);
+
+  if (countError) {
+    console.error("Drive count error:", countError);
+    return jsonFromPostgrestError(countError);
+  }
+
+  const drive_number = (count ?? 0) + 1;
+
+  const { data, error } = await supabase
+    .from("drives")
+    .insert({
+      game_session_id: id,
+      drive_number,
+      quarter: typeof body.quarter === "number" ? body.quarter : 1,
+      time_remaining: typeof body.time_remaining === "string" ? body.time_remaining : null,
+      starting_yard_line: typeof body.starting_yard_line === "number" ? body.starting_yard_line : null,
+      starting_side: body.starting_side === "OWN" || body.starting_side === "OPP" ? body.starting_side : "OWN",
+      score_mine: typeof body.score_mine === "number" ? body.score_mine : 0,
+      score_opponent: typeof body.score_opponent === "number" ? body.score_opponent : 0,
+      note: typeof body.note === "string" ? body.note : null,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("Drive insert error:", error);
+    return jsonFromPostgrestError(error);
+  }
+
   return NextResponse.json(data);
 }

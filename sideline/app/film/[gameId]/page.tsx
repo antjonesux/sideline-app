@@ -1,52 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { use, useCallback, useEffect, useState } from "react";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
+import { PlayLogger } from "@/components/film/PlayLogger";
 
-type PlayForm = {
-  down: number;
-  distance: number;
-  yard_line: number;
-  side: "OWN" | "OPP";
-  hash: "LEFT" | "MIDDLE" | "RIGHT";
-  formation: string;
-  play_name: string;
-  result_tag: "FIRST_DOWN" | "TOUCHDOWN" | "GAIN" | "NO_GAIN" | "INCOMPLETE" | "SACK" | "TURNOVER" | "OUT_OF_BOUNDS";
-  yards_gained: number;
-  note: string;
-};
+function getDriveResult(
+  plays: LoggedPlay[] | undefined | null,
+): "TOUCHDOWN" | "TURNOVER" | "PUNT" | "FIELD_GOAL" | "ACTIVE" | "NO_PLAYS" {
+  if (!plays || plays.length === 0) return "NO_PLAYS";
+  const lastPlay = plays[plays.length - 1];
+  if (lastPlay.result_tag === "TOUCHDOWN") return "TOUCHDOWN";
+  if (lastPlay.result_tag === "TURNOVER") return "TURNOVER";
+  if (lastPlay.result_tag === "PUNT") return "PUNT";
+  if (lastPlay.result_tag === "FIELD_GOAL") return "FIELD_GOAL";
+  return "ACTIVE";
+}
 
-type FormationRow = { formation: string; plays: string[] };
+type GameLogPageProps = { params: Promise<{ gameId: string }> };
 
-const PLAY_DEFAULT: PlayForm = {
-  down: 1,
-  distance: 10,
-  yard_line: 25,
-  side: "OWN",
-  hash: "MIDDLE",
-  formation: "",
-  play_name: "",
-  result_tag: "GAIN",
-  yards_gained: 4,
-  note: "",
-};
+export default function GameLogPage({ params }: GameLogPageProps) {
+  const { gameId } = use(params);
+  const router = useRouter();
 
-const RESULT_TAGS: PlayForm["result_tag"][] = ["FIRST_DOWN", "TOUCHDOWN", "GAIN", "NO_GAIN", "INCOMPLETE", "SACK", "TURNOVER", "OUT_OF_BOUNDS"];
-
-export default function GameLogPage({ params }: { params: { gameId: string } }) {
   const [game, setGame] = useState<GameSession | null>(null);
   const [drives, setDrives] = useState<Drive[]>([]);
   const [expandedDriveIds, setExpandedDriveIds] = useState<string[]>([]);
   const [editingDriveId, setEditingDriveId] = useState<string>("");
   const [activeDrive, setActiveDrive] = useState<string>("");
   const [showLogger, setShowLogger] = useState(false);
-  const [editPlayId, setEditPlayId] = useState<string>("");
-  const [play, setPlay] = useState<PlayForm>(PLAY_DEFAULT);
-  const [playbookOptions, setPlaybookOptions] = useState<FormationRow[]>([]);
-  const [showFormationPicker, setShowFormationPicker] = useState(false);
+  const [editPlay, setEditPlay] = useState<LoggedPlay | null>(null);
+  const [showEndGameModal, setShowEndGameModal] = useState(false);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
-    const res = await fetch(`/api/games/${params.gameId}/drives`);
+    if (!gameId) return;
+    const res = await fetch(`/api/games/${gameId}/drives`);
     const data = (await res.json()) as Drive[];
     setDrives(data);
     setExpandedDriveIds((current) => {
@@ -57,17 +47,18 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
       if (opts?.expandDriveId) return opts.expandDriveId;
       return current || data[0]?.id || "";
     });
-  }, [params.gameId]);
+  }, [gameId]);
 
   useEffect(() => {
+    if (!gameId) return;
     let cancelled = false;
-    fetch(`/api/games/${params.gameId}`)
+    fetch(`/api/games/${gameId}`)
       .then((res) => res.json())
       .then((data: GameSession) => {
         if (cancelled) return;
         setGame(data);
       });
-    fetch(`/api/games/${params.gameId}/drives`)
+    fetch(`/api/games/${gameId}/drives`)
       .then((res) => res.json())
       .then((data: Drive[]) => {
         if (cancelled) return;
@@ -79,51 +70,46 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
     return () => {
       cancelled = true;
     };
-  }, [params.gameId]);
-
-  useEffect(() => {
-    if (!game?.my_playbook) return;
-    fetch(`/api/film/playbook?playbook=${encodeURIComponent(game.my_playbook)}`)
-      .then((res) => res.json())
-      .then((data: { formations: FormationRow[] }) => setPlaybookOptions(data.formations ?? []));
-  }, [game?.my_playbook]);
+  }, [gameId]);
 
   async function addDrive() {
-    const nextDriveNumber = drives.length === 0 ? 1 : Math.max(0, ...drives.map((d) => d.drive_number ?? 0)) + 1;
-    const res = await fetch(`/api/games/${params.gameId}/drives`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        drive_number: nextDriveNumber,
-        quarter: 1,
-        time_remaining: "15:00",
-        starting_yard_line: 25,
-        starting_side: "OWN",
-        score_mine: game?.my_score ?? 0,
-        score_opponent: game?.opponent_score ?? 0,
-        note: "",
-      }),
-    });
-    const payload = (await res.json().catch(() => null)) as Drive | { error?: string } | null;
-    if (!res.ok || !payload || !("id" in payload)) {
-      console.error("Add drive failed", payload);
+    if (!gameId) return;
+
+    const { data: existingDrives } = await supabase.from("drives").select("id").eq("game_session_id", gameId);
+
+    const driveNumber = (existingDrives?.length ?? 0) + 1;
+
+    const { data, error } = await supabase
+      .from("drives")
+      .insert({
+        game_session_id: gameId,
+        drive_number: driveNumber,
+        score_mine: 0,
+        score_opponent: 0,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Drive insert error:", error.message, error.details, error.hint, error.code);
       return;
     }
-    const newDrive: Drive = { ...payload, plays: "plays" in payload && payload.plays ? payload.plays : [] };
-    await refresh({ expandDriveId: newDrive.id });
+
+    if (!data) return;
+
+    const newDrive: Drive = { ...(data as Drive), plays: [] };
+    setDrives((prev) => [...prev, newDrive]);
+    setExpandedDriveIds((current) => [...new Set([...current, newDrive.id])]);
+    setActiveDrive(newDrive.id);
   }
 
   async function saveDrive(drive: Drive) {
     await fetch(`/api/drives/${drive.id}`, {
       method: "PUT",
       body: JSON.stringify({
-        quarter: drive.quarter,
-        time_remaining: drive.time_remaining,
-        starting_yard_line: drive.starting_yard_line,
-        starting_side: drive.starting_side,
-        score_mine: drive.score_mine,
-        score_opponent: drive.score_opponent,
-        note: drive.note,
+        score_mine: drive.score_mine ?? 0,
+        score_opponent: drive.score_opponent ?? 0,
+        note: drive.note ?? null,
       }),
     });
     setEditingDriveId("");
@@ -132,66 +118,14 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
 
   function openForCreate(driveId: string) {
     setActiveDrive(driveId);
-    setEditPlayId("");
-    setPlay((prev) => ({
-      ...PLAY_DEFAULT,
-      down: prev.down,
-      distance: prev.distance,
-      formation: prev.formation,
-      play_name: prev.play_name,
-    }));
+    setEditPlay(null);
     setShowLogger(true);
   }
 
   function openForEdit(driveId: string, playToEdit: LoggedPlay) {
     setActiveDrive(driveId);
-    setEditPlayId(playToEdit.id);
-    setPlay({
-      down: playToEdit.down,
-      distance: playToEdit.distance,
-      yard_line: playToEdit.yard_line,
-      side: playToEdit.side,
-      hash: playToEdit.hash,
-      formation: playToEdit.formation,
-      play_name: playToEdit.play_name,
-      result_tag: playToEdit.result_tag as PlayForm["result_tag"],
-      yards_gained: playToEdit.yards_gained,
-      note: playToEdit.note ?? "",
-    });
+    setEditPlay(playToEdit);
     setShowLogger(true);
-  }
-
-  async function savePlay() {
-    if (!activeDrive || !game) return;
-    if (!play.formation || !play.play_name) return;
-
-    if (editPlayId) {
-      await fetch(`/api/plays/${editPlayId}`, { method: "PUT", body: JSON.stringify(play) });
-    } else {
-      await fetch(`/api/drives/${activeDrive}/plays`, { method: "POST", body: JSON.stringify({ ...play, game_session_id: params.gameId, opponent_scheme: game.opponent_scheme }) });
-    }
-
-    if (!editPlayId) {
-      const isReset = play.result_tag === "FIRST_DOWN" || play.result_tag === "TOUCHDOWN";
-      const nextDown = isReset ? 1 : Math.min(play.down + 1, 4);
-      const nextDistance = isReset ? 10 : Math.max(1, play.distance - Math.max(play.yards_gained, 0));
-      const forceSameDistance = play.result_tag === "INCOMPLETE" || play.result_tag === "SACK" || play.result_tag === "TURNOVER";
-      setPlay((prev) => ({
-        ...prev,
-        down: nextDown,
-        distance: forceSameDistance ? prev.distance : nextDistance,
-      }));
-
-      if (play.down === 4 && !isReset) {
-        const done = window.confirm("Drive over?");
-        if (done) setShowLogger(false);
-      }
-    } else {
-      setShowLogger(false);
-      setEditPlayId("");
-    }
-
-    await refresh();
   }
 
   async function deletePlay(playId: string) {
@@ -201,26 +135,98 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
     await refresh();
   }
 
-  function updateResultTag(nextTag: PlayForm["result_tag"]) {
-    setPlay((prev) => ({
-      ...prev,
-      result_tag: nextTag,
-      yards_gained: nextTag === "INCOMPLETE" ? 0 : nextTag === "SACK" ? -5 : prev.yards_gained,
-    }));
-  }
+  const totalPlays = drives.reduce((sum, d) => sum + (d.plays?.length ?? 0), 0);
+  const totalDrives = drives.length;
+  const showPartialWarning = totalDrives > 0 && totalPlays < 10;
+
+  const addDriveButtonClass = "rounded bg-emerald-500 px-3 py-2 text-slate-950";
+
+  const resultLabel = game?.result === "W" ? "W" : game?.result === "L" ? "L" : "—";
+  const scoreMine = game?.my_score ?? "—";
+  const scoreOpp = game?.opponent_score ?? "—";
 
   return (
     <section className="space-y-4 pb-28">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Drive Log</h1>
-        <button type="button" onClick={addDrive} className="rounded bg-emerald-500 px-3 py-2 text-slate-950">
+      <div className="space-y-3">
+        <Link href="/film" className="flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
+          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Film Room
+        </Link>
+
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="font-display text-xl leading-tight text-slate-100 sm:text-2xl">
+            {game ? (
+              <>
+                {game.my_playbook}
+                <span className="mx-2 text-slate-500">vs</span>
+                {game.opponent_team}
+              </>
+            ) : (
+              "…"
+            )}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setShowEndGameModal(true)}
+            className="shrink-0 rounded-lg border border-red-800/60 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-900/20"
+          >
+            End Game
+          </button>
+        </div>
+
+        <p className="text-sm text-slate-400">
+          <span className="font-semibold text-slate-200">{resultLabel}</span>
+          <span className="mx-2 font-mono text-slate-200">
+            {scoreMine} – {scoreOpp}
+          </span>
+          <span className="mx-2 text-slate-600">·</span>
+          <span>
+            {totalDrives} {totalDrives === 1 ? "drive" : "drives"}
+          </span>
+          <span className="mx-2 text-slate-600">·</span>
+          <span>
+            {totalPlays} {totalPlays === 1 ? "play" : "plays"}
+          </span>
+        </p>
+
+        <button type="button" onClick={addDrive} className={`text-sm font-semibold ${addDriveButtonClass}`}>
           + Add Drive
         </button>
       </div>
 
+      {showEndGameModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-sm space-y-4 rounded-xl border border-slate-700 bg-slate-900 p-6">
+            <h2 className="font-display text-xl text-slate-100">End Game?</h2>
+            <p className="text-sm text-slate-400">
+              This will close the game session and return you to the Film Room. You can come back to add more plays later.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowEndGameModal(false)}
+                className="flex-1 rounded-lg border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/film")}
+                className="flex-1 rounded-lg border border-red-800 bg-red-900/30 px-4 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-900/50"
+              >
+                End Game
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
+        const driveResult = getDriveResult(drive.plays);
         const isExpanded = expandedDriveIds.includes(drive.id);
         return (
           <div key={drive.id} className="rounded border border-slate-800 bg-slate-900 p-3">
@@ -232,9 +238,41 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
                   setExpandedDriveIds((current) => (current.includes(drive.id) ? current.filter((id) => id !== drive.id) : [...current, drive.id]))
                 }
               >
-                <p className="font-medium">Drive {drive.drive_number}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium">Drive {drive.drive_number}</p>
+                  {driveResult === "TOUCHDOWN" ? (
+                    <span className="inline-flex items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                      TD
+                    </span>
+                  ) : null}
+                  {driveResult === "TURNOVER" ? (
+                    <span className="inline-flex items-center rounded-full border border-red-700 bg-red-900/40 px-2 py-0.5 text-xs font-semibold text-red-400">
+                      TO
+                    </span>
+                  ) : null}
+                  {driveResult === "PUNT" ? (
+                    <span className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800/80 px-2 py-0.5 text-xs font-semibold text-slate-300">
+                      PUNT
+                    </span>
+                  ) : null}
+                  {driveResult === "FIELD_GOAL" ? (
+                    <span className="inline-flex items-center rounded-full bg-emerald-900/40 border border-emerald-700 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                      FG
+                    </span>
+                  ) : null}
+                  {driveResult === "ACTIVE" ? (
+                    <span className="inline-flex items-center rounded-full border border-amber-700 bg-amber-900/40 px-2 py-0.5 text-xs font-semibold text-amber-400">
+                      IN PROGRESS
+                    </span>
+                  ) : null}
+                  {driveResult === "NO_PLAYS" ? (
+                    <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs text-slate-500">
+                      No plays
+                    </span>
+                  ) : null}
+                </div>
                 <p className="text-xs text-slate-400">
-                  {drive.score_mine ?? 0}-{drive.score_opponent ?? 0} | {drive.starting_side ?? "OWN"} {drive.starting_yard_line ?? 25} | {playCount} plays | {yardsGained} yds
+                  {drive.score_mine ?? 0}-{drive.score_opponent ?? 0} | {playCount} plays | {yardsGained} yds
                 </p>
               </button>
               <button type="button" className="rounded border border-slate-700 px-2 py-1 text-xs" onClick={() => setEditingDriveId(drive.id)}>
@@ -243,18 +281,61 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
             </div>
 
             {editingDriveId === drive.id ? (
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <input className="rounded border border-slate-700 bg-slate-950" value={drive.score_mine ?? 0} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_mine: Number(e.target.value) } : d)))} />
-                <input className="rounded border border-slate-700 bg-slate-950" value={drive.score_opponent ?? 0} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_opponent: Number(e.target.value) } : d)))} />
-                <input className="rounded border border-slate-700 bg-slate-950" placeholder="Q2 8:42" value={drive.time_remaining ?? ""} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, time_remaining: e.target.value } : d)))} />
-                <input className="rounded border border-slate-700 bg-slate-950" value={drive.starting_yard_line ?? 25} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, starting_yard_line: Number(e.target.value) } : d)))} />
-                <input className="col-span-2 rounded border border-slate-700 bg-slate-950" maxLength={80} placeholder="Drive note" value={drive.note ?? ""} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, note: e.target.value } : d)))} />
-                <button type="button" className="rounded border border-slate-700 px-2 py-1" onClick={() => setEditingDriveId("")}>
-                  Cancel
-                </button>
-                <button type="button" className="rounded bg-emerald-500 px-2 py-1 text-slate-950" onClick={() => saveDrive(drive)}>
-                  Save
-                </button>
+              <div className="mt-3 text-xs">
+                <div className="mb-3 grid grid-cols-2 gap-2">
+                  <label>
+                    <span className="text-xs text-slate-400">My Score</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2"
+                      value={drive.score_mine ?? ""}
+                      onChange={(e) =>
+                        setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_mine: parseInt(e.target.value, 10) || 0 } : d)))
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span className="text-xs text-slate-400">Their Score</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2"
+                      value={drive.score_opponent ?? ""}
+                      onChange={(e) =>
+                        setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_opponent: parseInt(e.target.value, 10) || 0 } : d)))
+                      }
+                    />
+                  </label>
+                </div>
+                <label className="mb-3 block">
+                  <span className="text-xs text-slate-400">Drive Note (optional)</span>
+                  <input
+                    type="text"
+                    className="mt-0.5 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2"
+                    placeholder="e.g. opened with tempo"
+                    value={drive.note ?? ""}
+                    onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, note: e.target.value } : d)))}
+                  />
+                </label>
+                <div className="mt-8 flex gap-3">
+                  <button
+                    type="button"
+                    className="flex-1 rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700"
+                    onClick={() => setEditingDriveId("")}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400"
+                    onClick={() => saveDrive(drive)}
+                  >
+                    Save Drive
+                  </button>
+                </div>
               </div>
             ) : null}
 
@@ -271,7 +352,8 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
                       deletePlay(p.id);
                     }}
                   >
-                    {p.down}-{p.distance} {p.side} {p.yard_line} {p.hash} {p.formation} → {p.play_name} {p.yards_gained >= 0 ? `+${p.yards_gained}` : p.yards_gained} {p.result_tag}
+                    {p.down}-{p.distance} {p.side} {p.yard_line} {p.hash} {p.formation} → {p.play_name} {p.yards_gained >= 0 ? `+${p.yards_gained}` : p.yards_gained}{" "}
+                    {p.result_tag}
                   </button>
                 ))}
                 <button type="button" className="w-full rounded border border-slate-700 px-3 py-2 text-sm" onClick={() => openForCreate(drive.id)}>
@@ -283,98 +365,23 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
         );
       })}
 
-      {showLogger ? (
-        <div className="fixed inset-0 z-40 flex items-end bg-slate-950/70 p-3">
-          <div className="max-h-[90vh] w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-2xl">Play Logger</h2>
-              <button onClick={() => setShowLogger(false)} className="text-sm text-slate-300">Close</button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-400">Down & Distance</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: 1, label: "1ST" },
-                    { value: 2, label: "2ND" },
-                    { value: 3, label: "3RD" },
-                    { value: 4, label: "4TH" },
-                  ].map((down) => <button key={down.value} onClick={() => setPlay((p) => ({ ...p, down: down.value }))} className={`rounded px-2 py-3 ${play.down === down.value ? "bg-emerald-500 text-slate-950" : "bg-slate-800"}`}>{down.label}</button>)}
-                </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 10, 15].map((distance) => <button key={distance} onClick={() => setPlay((p) => ({ ...p, distance }))} className={`rounded px-2 py-2 text-sm ${play.distance === distance ? "bg-emerald-500 text-slate-950" : "bg-slate-800"}`}>{distance === 15 ? "15+" : distance}</button>)}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-400">Field Position</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    {(["OWN", "OPP"] as const).map((side) => <button key={side} onClick={() => setPlay((p) => ({ ...p, side }))} className={`rounded px-2 py-3 ${play.side === side ? "bg-emerald-500 text-slate-950" : "bg-slate-800"}`}>{side}</button>)}
-                  </div>
-                  <input type="number" min={1} max={50} value={play.yard_line} onChange={(e) => setPlay((p) => ({ ...p, yard_line: Number(e.target.value) }))} className="rounded border border-slate-700 bg-slate-950" />
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["LEFT", "MIDDLE", "RIGHT"] as const).map((hash) => <button key={hash} onClick={() => setPlay((p) => ({ ...p, hash }))} className={`rounded px-2 py-3 ${play.hash === hash ? "bg-emerald-500 text-slate-950" : "bg-slate-800"}`}>{hash}</button>)}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-400">Formation + Play</p>
-                <button className="w-full rounded border border-slate-700 px-3 py-3 text-left" onClick={() => setShowFormationPicker((v) => !v)}>
-                  {play.formation && play.play_name ? `${play.formation} → ${play.play_name}` : "Select Formation"}
-                </button>
-                {showFormationPicker ? (
-                  <div className="max-h-52 space-y-2 overflow-y-auto rounded border border-slate-700 p-2">
-                    {playbookOptions.map((row) => (
-                      <div key={row.formation} className="rounded bg-slate-800 p-2 text-xs">
-                        <p className="mb-1 font-semibold">{row.formation}</p>
-                        <div className="flex flex-wrap gap-1">
-                          {row.plays.map((playName) => (
-                            <button
-                              key={playName}
-                              className="rounded bg-slate-700 px-2 py-1"
-                              onClick={() => {
-                                setPlay((p) => ({ ...p, formation: row.formation, play_name: playName }));
-                                setShowFormationPicker(false);
-                              }}
-                            >
-                              {playName}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-400">Result</p>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {RESULT_TAGS.map((tag) => <button key={tag} onClick={() => updateResultTag(tag)} className={`rounded px-2 py-2 ${play.result_tag === tag ? "bg-emerald-500 text-slate-950" : "bg-slate-800"}`}>{tag.replaceAll("_", " ")}</button>)}
-                </div>
-                <input type="number" value={play.yards_gained} onChange={(e) => setPlay((p) => ({ ...p, yards_gained: Number(e.target.value) }))} className="w-full rounded border border-slate-700 bg-slate-950" />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-400">Note (optional)</p>
-                <input maxLength={60} value={play.note} onChange={(e) => setPlay((p) => ({ ...p, note: e.target.value }))} className="w-full rounded border border-slate-700 bg-slate-950" placeholder="What happened? (optional)" />
-              </div>
-
-              <button onClick={savePlay} className="w-full rounded bg-emerald-500 py-3 font-medium text-slate-950">{editPlayId ? "Save Play" : "Log Play"}</button>
-            </div>
-          </div>
-        </div>
+      {showLogger && game && activeDrive ? (
+        <PlayLogger
+          gameSessionId={gameId}
+          myPlaybook={game.my_playbook}
+          opponentScheme={game.opponent_scheme}
+          driveId={activeDrive}
+          editPlay={editPlay}
+          onClose={() => {
+            setShowLogger(false);
+            setEditPlay(null);
+          }}
+          onLogged={refresh}
+        />
       ) : null}
 
-      {game && drives.reduce((sum, d) => sum + (d.plays?.length ?? 0), 0) < 10 ? (
-        <div
-          className="rounded-lg border border-amber-800/50 bg-amber-500/10 p-4 text-sm text-amber-100"
-          role="status"
-          aria-live="polite"
-        >
+      {game && showPartialWarning ? (
+        <div className="rounded-lg border border-amber-800/50 bg-amber-500/10 p-4 text-sm text-amber-100" role="status" aria-live="polite">
           <p className="font-medium text-amber-200">Partial log notice</p>
           <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
         </div>

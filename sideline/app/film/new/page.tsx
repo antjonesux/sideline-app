@@ -99,8 +99,17 @@ export default function NewGamePage() {
       opponent_team: defensePick.team_name,
       opponent_scheme: defensePick.defensive_scheme,
     };
-    const res = await fetch("/api/games", { method: "POST", body: JSON.stringify(payload) });
-    const game = (await res.json()) as { id: string };
+    const res = await fetch("/api/games", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const game = (await res.json()) as { id?: string; error?: string };
+    console.log("Game created response:", game);
+    if (!game.id) {
+      window.alert("Failed to create game: " + JSON.stringify(game));
+      return;
+    }
     router.push(`/film/${game.id}`);
   }
 
@@ -190,11 +199,31 @@ export default function NewGamePage() {
       <div className="grid grid-cols-2 gap-2">
         <label className="space-y-1">
           <span className="text-xs uppercase tracking-wide text-slate-400">My Score</span>
-          <input className="w-full rounded border border-slate-700 bg-slate-900" type="number" value={form.my_score} onChange={(e) => setForm((p) => ({ ...p, my_score: Number(e.target.value) }))} />
+          <input
+            className="w-full rounded border border-slate-700 bg-slate-900"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.my_score}
+            onChange={(e) => {
+              const val = e.target.value.replace(/[^0-9]/g, "");
+              setForm((p) => ({ ...p, my_score: val === "" ? 0 : parseInt(val, 10) }));
+            }}
+          />
         </label>
         <label className="space-y-1">
           <span className="text-xs uppercase tracking-wide text-slate-400">Their Score</span>
-          <input className="w-full rounded border border-slate-700 bg-slate-900" type="number" value={form.opponent_score} onChange={(e) => setForm((p) => ({ ...p, opponent_score: Number(e.target.value) }))} />
+          <input
+            className="w-full rounded border border-slate-700 bg-slate-900"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.opponent_score}
+            onChange={(e) => {
+              const val = e.target.value.replace(/[^0-9]/g, "");
+              setForm((p) => ({ ...p, opponent_score: val === "" ? 0 : parseInt(val, 10) }));
+            }}
+          />
         </label>
       </div>
       <div className="space-y-1">

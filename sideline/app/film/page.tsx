@@ -1,41 +1,144 @@
 import Link from "next/link";
-import { getServerOrigin } from "@/lib/serverOrigin";
-import type { GameSession } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
 
-async function getGames(): Promise<GameSession[]> {
-  try {
-    const base = getServerOrigin();
-    const res = await fetch(`${base}/api/games`, { cache: "no-store" });
-    if (!res.ok) return [];
-    return (await res.json()) as GameSession[];
-  } catch {
-    return [];
-  }
+export const dynamic = "force-dynamic";
+
+type LoggedPlayRef = { id: string };
+type DriveWithPlays = { id: string; logged_plays: LoggedPlayRef[] | null };
+type GameSessionRow = {
+  id: string;
+  my_playbook: string;
+  opponent_team: string;
+  my_score: number | null;
+  opponent_score: number | null;
+  result: "W" | "L" | null;
+  game_date: string;
+  created_at: string;
+  drives: DriveWithPlays[] | null;
+};
+
+type GameWithCounts = GameSessionRow & { driveCount: number; playCount: number };
+
+function formatDate(isoDate: string): string {
+  const parts = isoDate.split("-").map(Number);
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return isoDate;
+  const [y, m, d] = parts;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
+}
+
+async function getGamesWithCounts(): Promise<GameWithCounts[]> {
+  const { data: games, error } = await supabase
+    .from("game_sessions")
+    .select(
+      `
+    id,
+    my_playbook,
+    opponent_team,
+    my_score,
+    opponent_score,
+    result,
+    game_date,
+    created_at,
+    drives (
+      id,
+      logged_plays (id)
+    )
+  `,
+    )
+    .order("created_at", { ascending: false });
+
+  if (error || !games) return [];
+
+  return (games as GameSessionRow[]).map((game) => {
+    const drives = game.drives ?? [];
+    const driveCount = drives.length;
+    const playCount = drives.reduce((sum, d) => sum + (d.logged_plays?.length ?? 0), 0);
+    return { ...game, driveCount, playCount };
+  });
 }
 
 export default async function FilmRoomPage() {
-  const games = await getGames();
+  const games = await getGamesWithCounts();
+
+  const addDriveButtonClass = "rounded bg-emerald-500 px-3 py-2 text-slate-950";
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Film Room</h1>
-        <Link href="/film/new" className="rounded bg-emerald-500 px-3 py-2 text-sm font-medium text-slate-950">Log New Game</Link>
-      </div>
-      <div className="space-y-3">
-        {games.map((game) => (
-          <Link key={game.id} href={`/film/${game.id}`} className="block rounded-lg border border-slate-800 bg-slate-900 p-4">
-            <div className="flex items-center justify-between">
-              <p className="font-semibold">{game.opponent_team} ({game.opponent_scheme})</p>
-              <span className={`rounded px-2 py-1 text-xs ${game.result === "W" ? "bg-emerald-700" : "bg-red-700"}`}>{game.result ?? "-"}</span>
-            </div>
-            <p className="text-sm text-slate-400">{game.game_date} · {game.my_score ?? "-"}-{game.opponent_score ?? "-"}</p>
-            <p className="mt-1 text-sm text-slate-300">Drives: {game.drive_count ?? 0} · Plays: {game.play_count ?? 0}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">Log status: {(game.play_count ?? 0) >= 10 && (game.quarter_started_logging ?? 1) === 1 ? "Full log" : "Partial log"}</p>
-            {(game.play_count ?? 0) < 10 ? <p className="mt-2 rounded bg-amber-500/20 p-2 text-xs text-amber-300">This looks like a partial log. Incomplete data may affect recommendations.</p> : null}
+    <section className="space-y-6">
+      <header className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="font-display text-3xl tracking-wide text-white sm:text-4xl">FILM ROOM</h1>
+          <Link href="/film/new" className={`inline-flex shrink-0 items-center justify-center text-sm font-semibold ${addDriveButtonClass}`}>
+            + New Game
           </Link>
-        ))}
-      </div>
+        </div>
+        <div className="border-b border-slate-700" aria-hidden />
+      </header>
+
+      {games.length === 0 ? (
+        <div className="rounded-xl border border-slate-700 bg-slate-800 p-10 text-center">
+          <p className="text-slate-300">No games logged yet.</p>
+          <p className="mt-1 text-sm text-slate-400">Start by logging your first game.</p>
+          <Link href="/film/new" className={`mt-6 inline-flex items-center justify-center text-sm font-semibold ${addDriveButtonClass}`}>
+            + Log Your First Game
+          </Link>
+        </div>
+      ) : (
+        <ul className="space-y-4">
+          {games.map((game) => (
+            <li key={game.id}>
+              <Link
+                href={`/film/${game.id}`}
+                className="block rounded-xl border border-slate-700 bg-slate-800 p-4 transition-colors hover:border-slate-600 hover:bg-slate-750"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-display text-lg leading-tight text-slate-100">
+                      {game.my_playbook}
+                      <span className="mx-2 text-slate-500">vs</span>
+                      {game.opponent_team}
+                    </p>
+                  </div>
+                  {game.result === "W" ? (
+                    <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2.5 py-1 text-xs font-bold text-emerald-400">
+                      W
+                    </span>
+                  ) : null}
+                  {game.result === "L" ? (
+                    <span className="inline-flex shrink-0 items-center rounded-full border border-red-700 bg-red-900/40 px-2.5 py-1 text-xs font-bold text-red-400">
+                      L
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="font-mono text-2xl font-bold text-slate-100">
+                    {game.my_score ?? "—"} – {game.opponent_score ?? "—"}
+                  </span>
+                  <time className="text-xs text-slate-500" dateTime={game.game_date}>
+                    {formatDate(game.game_date)}
+                  </time>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-400">
+                  <span>
+                    {game.driveCount} {game.driveCount === 1 ? "drive" : "drives"}
+                  </span>
+                  <span>·</span>
+                  <span>
+                    {game.playCount} {game.playCount === 1 ? "play" : "plays"}
+                  </span>
+                  {game.playCount > 0 && game.playCount < 10 ? (
+                    <>
+                      <span>·</span>
+                      <span className="text-amber-400">Partial log</span>
+                    </>
+                  ) : null}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
