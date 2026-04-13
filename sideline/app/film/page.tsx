@@ -26,6 +26,7 @@ export default async function FilmRoomPage() {
             </div>
             <p className="text-sm text-slate-400">{game.game_date} · {game.my_score ?? "-"}-{game.opponent_score ?? "-"}</p>
             <p className="mt-1 text-sm text-slate-300">Drives: {game.drive_count ?? 0} · Plays: {game.play_count ?? 0}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">Log status: {(game.play_count ?? 0) >= 10 && (game.quarter_started_logging ?? 1) === 1 ? "Full log" : "Partial log"}</p>
             {(game.play_count ?? 0) < 10 ? <p className="mt-2 rounded bg-amber-500/20 p-2 text-xs text-amber-300">This looks like a partial log. Incomplete data may affect recommendations.</p> : null}
           </Link>
         ))}
