@@ -123,7 +123,7 @@ export function TeamCombobox<T extends { team_name: string }>({
           >
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm text-slate-400">
-              No teams loaded yet. Seed the team tables (see repo scripts) or confirm the Film setup API can read them.
+              No teams returned from the server. In ./sideline run npm run seed:teams (service role in .env.local), or open GET /api/film/setup in the Network tab to see Supabase errors.
             </div>
           ) : filtered.length === 0 ? (
             <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>

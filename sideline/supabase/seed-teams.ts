@@ -12,7 +12,10 @@
  *   psql "$SUPABASE_DATABASE_URL" -f supabase/seed-team-schemes.sql
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+/** Seed script has no generated Database types; widen so helpers match createClient(). */
+type SeedSupabase = SupabaseClient<any, "public", any>;
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -93,7 +96,7 @@ function parseDefensive(sql: string): DefensiveRow[] {
 }
 
 async function clearTable(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SeedSupabase,
   table: "team_offensive_playbooks" | "team_defensive_schemes",
 ) {
   const { error } = await supabase.from(table).delete().neq("team_name", "");
@@ -101,7 +104,7 @@ async function clearTable(
 }
 
 async function insertBatches<T extends Record<string, string>>(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SeedSupabase,
   table: "team_offensive_playbooks" | "team_defensive_schemes",
   rows: T[],
   batchSize: number,
@@ -114,7 +117,7 @@ async function insertBatches<T extends Record<string, string>>(
 }
 
 async function countRows(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SeedSupabase,
   table: "team_offensive_playbooks" | "team_defensive_schemes",
 ): Promise<number> {
   const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
@@ -142,7 +145,7 @@ async function main() {
     throw new Error(`Row count mismatch: offense ${offensive.length}, defense ${defensive.length}`);
   }
 
-  const supabase = createClient(url, serviceKey, { auth: { persistSession: false } });
+  const supabase: SeedSupabase = createClient(url, serviceKey, { auth: { persistSession: false } });
 
   console.log("Clearing tables…");
   await clearTable(supabase, "team_offensive_playbooks");
