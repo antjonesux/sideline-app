@@ -1,28 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-function supabaseEnv() {
-  const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ??
-    process.env.SUPABASE_URL;
-  const anonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
-    process.env.SUPABASE_ANON_KEY ??
-    process.env.SUPABASE_KEY;
-  return { url, anonKey };
-}
+import { getPublicSupabaseCredentials } from "@/lib/supabase";
 
 export async function GET() {
-  const { url, anonKey } = supabaseEnv();
-  if (!url || !anonKey) {
+  const creds = getPublicSupabaseCredentials();
+  if (!creds) {
     return NextResponse.json(
       { error: "Missing Supabase URL or anon key for server requests." },
       { status: 500 },
     );
   }
 
-  const supabase = createClient(url, anonKey, { auth: { persistSession: false } });
+  const supabase = createClient(creds.url, creds.anonKey, { auth: { persistSession: false } });
 
   const [{ data: offensiveTeams, error: offError }, { data: defensiveTeams, error: defError }] =
     await Promise.all([
