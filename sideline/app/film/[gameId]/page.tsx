@@ -45,12 +45,18 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
   const [playbookOptions, setPlaybookOptions] = useState<FormationRow[]>([]);
   const [showFormationPicker, setShowFormationPicker] = useState(false);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
     const res = await fetch(`/api/games/${params.gameId}/drives`);
     const data = (await res.json()) as Drive[];
     setDrives(data);
-    setExpandedDriveIds((current) => (current.length ? current : data[0] ? [data[0].id] : []));
-    setActiveDrive((current) => current || data[0]?.id || "");
+    setExpandedDriveIds((current) => {
+      if (opts?.expandDriveId) return [...new Set([...current, opts.expandDriveId])];
+      return current.length ? current : data[0] ? [data[0].id] : [];
+    });
+    setActiveDrive((current) => {
+      if (opts?.expandDriveId) return opts.expandDriveId;
+      return current || data[0]?.id || "";
+    });
   }, [params.gameId]);
 
   useEffect(() => {
@@ -83,10 +89,12 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
   }, [game?.my_playbook]);
 
   async function addDrive() {
-    await fetch(`/api/games/${params.gameId}/drives`, {
+    const nextDriveNumber = drives.length === 0 ? 1 : Math.max(0, ...drives.map((d) => d.drive_number ?? 0)) + 1;
+    const res = await fetch(`/api/games/${params.gameId}/drives`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        drive_number: drives.length + 1,
+        drive_number: nextDriveNumber,
         quarter: 1,
         time_remaining: "15:00",
         starting_yard_line: 25,
@@ -96,7 +104,13 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
         note: "",
       }),
     });
-    await refresh();
+    const payload = (await res.json().catch(() => null)) as Drive | { error?: string } | null;
+    if (!res.ok || !payload || !("id" in payload)) {
+      console.error("Add drive failed", payload);
+      return;
+    }
+    const newDrive: Drive = { ...payload, plays: "plays" in payload && payload.plays ? payload.plays : [] };
+    await refresh({ expandDriveId: newDrive.id });
   }
 
   async function saveDrive(drive: Drive) {
@@ -199,7 +213,9 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
     <section className="space-y-4 pb-28">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl">Drive Log</h1>
-        <button onClick={addDrive} className="rounded bg-emerald-500 px-3 py-2 text-slate-950">+ Add Drive</button>
+        <button type="button" onClick={addDrive} className="rounded bg-emerald-500 px-3 py-2 text-slate-950">
+          + Add Drive
+        </button>
       </div>
 
       {drives.map((drive) => {
@@ -210,6 +226,7 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
           <div key={drive.id} className="rounded border border-slate-800 bg-slate-900 p-3">
             <div className="flex items-center justify-between gap-2">
               <button
+                type="button"
                 className="flex-1 text-left"
                 onClick={() =>
                   setExpandedDriveIds((current) => (current.includes(drive.id) ? current.filter((id) => id !== drive.id) : [...current, drive.id]))
@@ -220,7 +237,9 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
                   {drive.score_mine ?? 0}-{drive.score_opponent ?? 0} | {drive.starting_side ?? "OWN"} {drive.starting_yard_line ?? 25} | {playCount} plays | {yardsGained} yds
                 </p>
               </button>
-              <button className="rounded border border-slate-700 px-2 py-1 text-xs" onClick={() => setEditingDriveId(drive.id)}>Edit Drive</button>
+              <button type="button" className="rounded border border-slate-700 px-2 py-1 text-xs" onClick={() => setEditingDriveId(drive.id)}>
+                Edit Drive
+              </button>
             </div>
 
             {editingDriveId === drive.id ? (
@@ -230,8 +249,12 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
                 <input className="rounded border border-slate-700 bg-slate-950" placeholder="Q2 8:42" value={drive.time_remaining ?? ""} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, time_remaining: e.target.value } : d)))} />
                 <input className="rounded border border-slate-700 bg-slate-950" value={drive.starting_yard_line ?? 25} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, starting_yard_line: Number(e.target.value) } : d)))} />
                 <input className="col-span-2 rounded border border-slate-700 bg-slate-950" maxLength={80} placeholder="Drive note" value={drive.note ?? ""} onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, note: e.target.value } : d)))} />
-                <button className="rounded border border-slate-700 px-2 py-1" onClick={() => setEditingDriveId("")}>Cancel</button>
-                <button className="rounded bg-emerald-500 px-2 py-1 text-slate-950" onClick={() => saveDrive(drive)}>Save</button>
+                <button type="button" className="rounded border border-slate-700 px-2 py-1" onClick={() => setEditingDriveId("")}>
+                  Cancel
+                </button>
+                <button type="button" className="rounded bg-emerald-500 px-2 py-1 text-slate-950" onClick={() => saveDrive(drive)}>
+                  Save
+                </button>
               </div>
             ) : null}
 
@@ -239,6 +262,7 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
               <div className="mt-3 space-y-2">
                 {(drive.plays ?? []).map((p) => (
                   <button
+                    type="button"
                     key={p.id}
                     className="block w-full rounded bg-slate-800 p-2 text-left text-xs"
                     onClick={() => openForEdit(drive.id, p)}
@@ -250,16 +274,14 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
                     {p.down}-{p.distance} {p.side} {p.yard_line} {p.hash} {p.formation} → {p.play_name} {p.yards_gained >= 0 ? `+${p.yards_gained}` : p.yards_gained} {p.result_tag}
                   </button>
                 ))}
-                <button className="w-full rounded border border-slate-700 px-3 py-2 text-sm" onClick={() => openForCreate(drive.id)}>+ Add Play</button>
+                <button type="button" className="w-full rounded border border-slate-700 px-3 py-2 text-sm" onClick={() => openForCreate(drive.id)}>
+                  + Add Play
+                </button>
               </div>
             ) : null}
           </div>
         );
       })}
-
-      {game && (drives.reduce((sum, d) => sum + (d.plays?.length ?? 0), 0) < 10) ? (
-        <p className="rounded bg-amber-500/20 p-2 text-xs text-amber-300">This looks like a partial log. Incomplete data may affect recommendations.</p>
-      ) : null}
 
       {showLogger ? (
         <div className="fixed inset-0 z-40 flex items-end bg-slate-950/70 p-3">
@@ -344,6 +366,17 @@ export default function GameLogPage({ params }: { params: { gameId: string } }) 
               <button onClick={savePlay} className="w-full rounded bg-emerald-500 py-3 font-medium text-slate-950">{editPlayId ? "Save Play" : "Log Play"}</button>
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {game && drives.reduce((sum, d) => sum + (d.plays?.length ?? 0), 0) < 10 ? (
+        <div
+          className="rounded-lg border border-amber-800/50 bg-amber-500/10 p-4 text-sm text-amber-100"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="font-medium text-amber-200">Partial log notice</p>
+          <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
         </div>
       ) : null}
     </section>
