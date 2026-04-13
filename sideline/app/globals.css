@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "preline/variants.css";
+@source "../node_modules/preline/dist/*.js";
+@plugin "@tailwindcss/forms";
+@import "preline/css/themes/theme.css";
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  body {
+    font-family: var(--font-dm-mono), monospace;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-bebas), sans-serif;
+    letter-spacing: 0.02em;
+  }
+}
