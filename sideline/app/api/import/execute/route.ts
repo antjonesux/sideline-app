@@ -6,6 +6,7 @@ import {
   type ParsedCsvRow,
   type ValidatedImportPlay,
 } from "@/lib/importCsv";
+import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -121,6 +122,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Invalid yard line in play" }, { status: 400 });
       }
 
+      const field_zone = deriveFieldZone(pos.yard_line, pos.side);
+      const scenario = deriveScenario(p.down, p.distance, field_zone);
+
       const { error: playErr } = await supabase.from("logged_plays").insert({
         drive_id: driveId,
         game_session_id: sessionId,
@@ -130,6 +134,8 @@ export async function POST(req: NextRequest) {
         yard_line: pos.yard_line,
         side: pos.side,
         hash: "MIDDLE",
+        field_zone,
+        scenario,
         formation: p.formation,
         play_name: p.play_name,
         result_tag: p.result_db,
