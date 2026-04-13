@@ -49,15 +49,12 @@ export function TeamCombobox<T extends { team_name: string }>({
   inputRef: inputRefProp,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState(selected?.team_name ?? "");
+  const [filterText, setFilterText] = useState("");
+  const query = selected ? (selected.team_name ?? "") : filterText;
   const [dropUp, setDropUp] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const innerInputRef = useRef<HTMLInputElement>(null);
   const setInputRef = mergeRefs(innerInputRef, inputRefProp);
-
-  useEffect(() => {
-    setQuery(selected?.team_name ?? "");
-  }, [selected]);
 
   const filtered = useMemo(() => visibleTeams(options, query), [options, query]);
 
@@ -77,7 +74,7 @@ export function TeamCombobox<T extends { team_name: string }>({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  /** Keep the panel mountable while loading so Strict Mode / focus timing does not strand `open` with no list once data arrives. */
+  /** Dropdown only after explicit focus/click; loading fills the panel while open without closing. */
   const showList = open && !selected;
 
   return (
@@ -95,7 +92,7 @@ export function TeamCombobox<T extends { team_name: string }>({
             placeholder={placeholder}
             onChange={(e) => {
               const v = e.target.value;
-              setQuery(v);
+              setFilterText(v);
               onSelect(null);
               setOpen(true);
               updateDropPosition();
@@ -128,7 +125,7 @@ export function TeamCombobox<T extends { team_name: string }>({
               <div className="px-3 py-2 text-sm text-slate-400">Loading teams…</div>
             ) : options.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">
-                No teams returned from the server. In ./sideline run npm run seed:teams (service role in .env.local), or open GET /api/film/setup in the Network tab to see Supabase errors.
+                No teams returned from Supabase. In ./sideline run npm run seed:teams (service role in .env.local), or check the browser Network tab for failed PostgREST requests.
               </div>
             ) : filtered.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>
@@ -141,7 +138,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     onSelect(item);
-                    setQuery(item.team_name);
+                    setFilterText("");
                     setOpen(false);
                     requestAnimationFrame(() => nextFocusRef?.current?.focus());
                   }}

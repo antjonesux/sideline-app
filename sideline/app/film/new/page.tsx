@@ -1,6 +1,7 @@
 "use client";
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
@@ -19,27 +20,14 @@ type NewGameForm = {
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 
-/** Normalize GET /api/film/setup JSON (camelCase or accidental snake_case). */
-function parseFilmSetupResponse(raw: unknown): {
-  offensiveTeams: OffensiveTeam[];
-  defensiveTeams: DefensiveTeam[];
-} {
-  if (!raw || typeof raw !== "object") {
-    return { offensiveTeams: [], defensiveTeams: [] };
-  }
-  const o = raw as Record<string, unknown>;
-  const offensiveRaw = o.offensiveTeams ?? o.offensive_teams;
-  const defensiveRaw = o.defensiveTeams ?? o.defensive_teams;
-  const offensiveTeams = Array.isArray(offensiveRaw) ? (offensiveRaw as OffensiveTeam[]) : [];
-  const defensiveTeams = Array.isArray(defensiveRaw) ? (defensiveRaw as DefensiveTeam[]) : [];
-  return { offensiveTeams, defensiveTeams };
-}
+let cachedOffensive: OffensiveTeam[] | null = null;
+let cachedDefensive: DefensiveTeam[] | null = null;
 
 export default function NewGamePage() {
   const router = useRouter();
-  const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>([]);
-  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>([]);
-  const [setupLoading, setSetupLoading] = useState(true);
+  const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
+  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
+  const [setupLoading, setSetupLoading] = useState(() => cachedOffensive === null || cachedDefensive === null);
   const [setupError, setSetupError] = useState<string | null>(null);
   const [offensePick, setOffensePick] = useState<OffensiveTeam | null>(null);
   const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
@@ -56,51 +44,43 @@ export default function NewGamePage() {
 
   useEffect(() => {
     let cancelled = false;
-    setSetupLoading(true);
-    setSetupError(null);
-    fetch("/api/film/setup", { cache: "no-store" })
-      .then(async (res) => {
-        const data = (await res.json()) as {
-          offensiveTeams?: OffensiveTeam[];
-          defensiveTeams?: DefensiveTeam[];
-          error?: string;
-          details?: unknown;
-        };
-        if (cancelled) return;
-        if (!res.ok) {
-          const msg =
-            typeof data.error === "string"
-              ? data.error
-              : `Request failed (${res.status})`;
-          console.error("Film setup load failed:", data);
-          setSetupError(msg);
-          setOffensiveTeams([]);
-          setDefensiveTeams([]);
-          return;
-        }
-        const { offensiveTeams, defensiveTeams } = parseFilmSetupResponse(data);
-        if (process.env.NODE_ENV === "development") {
-          console.log("[film/new] /api/film/setup response", {
-            keys: Object.keys(data as object),
-            offensiveTeams: offensiveTeams.length,
-            defensiveTeams: defensiveTeams.length,
-            sampleOffense: offensiveTeams[0],
-            sampleDefense: defensiveTeams[0],
-          });
-        }
-        setOffensiveTeams(offensiveTeams);
-        setDefensiveTeams(defensiveTeams);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        console.error("Film setup fetch error:", e);
-        setSetupError("Could not reach the server to load teams.");
+
+    if (cachedOffensive !== null && cachedDefensive !== null) {
+      return;
+    }
+
+    async function loadTeams() {
+      setSetupLoading(true);
+      setSetupError(null);
+      const [offRes, defRes] = await Promise.all([
+        supabase
+          .from("team_offensive_playbooks")
+          .select("team_name, playbook_name, scheme_style")
+          .order("team_name"),
+        supabase.from("team_defensive_schemes").select("team_name, defensive_scheme").order("team_name"),
+      ]);
+      if (cancelled) return;
+
+      const err = offRes.error ?? defRes.error;
+      if (err) {
+        console.error("Film setup Supabase error:", err);
+        setSetupError(err.message || "Could not load teams from Supabase.");
         setOffensiveTeams([]);
         setDefensiveTeams([]);
-      })
-      .finally(() => {
-        if (!cancelled) setSetupLoading(false);
-      });
+        setSetupLoading(false);
+        return;
+      }
+
+      const offensive = (offRes.data ?? []) as OffensiveTeam[];
+      const defensive = (defRes.data ?? []) as DefensiveTeam[];
+      cachedOffensive = offensive;
+      cachedDefensive = defensive;
+      setOffensiveTeams(offensive);
+      setDefensiveTeams(defensive);
+      setSetupLoading(false);
+    }
+
+    void loadTeams();
     return () => {
       cancelled = true;
     };
