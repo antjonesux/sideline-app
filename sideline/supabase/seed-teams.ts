@@ -8,8 +8,8 @@
  *   NEXT_PUBLIC_SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
  *
- * To run the .sql file literally against Postgres instead, use:
- *   psql "$SUPABASE_DATABASE_URL" -f scripts/seed-team-schemes.sql
+ * To run the .sql file literally against Postgres instead, use (from sideline/):
+ *   psql "$SUPABASE_DATABASE_URL" -f supabase/seed-team-schemes.sql
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -47,6 +47,7 @@ function loadEnvFile(path: string) {
 function loadEnv() {
   const cwd = process.cwd();
   for (const p of [
+    join(__dirname, "..", ".env.local"),
     join(cwd, ".env.local"),
     join(cwd, "sideline", ".env.local"),
     join(cwd, "..", "sideline", ".env.local"),
@@ -128,7 +129,7 @@ async function main() {
   if (!url || !serviceKey) {
     console.error(
       "Missing NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL) or SUPABASE_SERVICE_ROLE_KEY.\n" +
-        "Add SUPABASE_SERVICE_ROLE_KEY to sideline/.env.local (server-only; never commit).",
+        "Add SUPABASE_SERVICE_ROLE_KEY to .env.local (server-only; never commit).",
     );
     process.exit(1);
   }

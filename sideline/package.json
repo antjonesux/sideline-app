@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:teams": "NODE_PATH=./node_modules tsx ../scripts/seed-teams.ts"
+    "seed:teams": "NODE_PATH=./node_modules tsx ./supabase/seed-teams.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
