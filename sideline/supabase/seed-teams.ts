@@ -12,10 +12,7 @@
  *   psql "$SUPABASE_DATABASE_URL" -f supabase/seed-team-schemes.sql
  */
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-/** Seed script has no generated Database types; widen so helpers match createClient(). */
-type SeedSupabase = SupabaseClient<object, "public", object>;
+import { createClient } from "@supabase/supabase-js";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -95,36 +92,6 @@ function parseDefensive(sql: string): DefensiveRow[] {
   return rows;
 }
 
-async function clearTable(
-  supabase: SeedSupabase,
-  table: "team_offensive_playbooks" | "team_defensive_schemes",
-) {
-  const { error } = await supabase.from(table).delete().neq("team_name", "");
-  if (error) throw new Error(`${table} delete: ${error.message}`);
-}
-
-async function insertBatches<T extends Record<string, string>>(
-  supabase: SeedSupabase,
-  table: "team_offensive_playbooks" | "team_defensive_schemes",
-  rows: T[],
-  batchSize: number,
-) {
-  for (let i = 0; i < rows.length; i += batchSize) {
-    const chunk = rows.slice(i, i + batchSize);
-    const { error } = await supabase.from(table).insert(chunk as never);
-    if (error) throw new Error(`${table} insert at ${i}: ${error.message}`);
-  }
-}
-
-async function countRows(
-  supabase: SeedSupabase,
-  table: "team_offensive_playbooks" | "team_defensive_schemes",
-): Promise<number> {
-  const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
-  if (error) throw new Error(`${table} count: ${error.message}`);
-  return count ?? 0;
-}
-
 async function main() {
   loadEnv();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
@@ -137,6 +104,31 @@ async function main() {
     process.exit(1);
   }
 
+  const supabase = createClient(url, serviceKey, { auth: { persistSession: false } });
+
+  async function clearTable(table: "team_offensive_playbooks" | "team_defensive_schemes") {
+    const { error } = await supabase.from(table).delete().neq("team_name", "");
+    if (error) throw new Error(`${table} delete: ${error.message}`);
+  }
+
+  async function insertBatches<T extends Record<string, string>>(
+    table: "team_offensive_playbooks" | "team_defensive_schemes",
+    rows: T[],
+    batchSize: number,
+  ) {
+    for (let i = 0; i < rows.length; i += batchSize) {
+      const chunk = rows.slice(i, i + batchSize);
+      const { error } = await supabase.from(table).insert(chunk as never);
+      if (error) throw new Error(`${table} insert at ${i}: ${error.message}`);
+    }
+  }
+
+  async function countRows(table: "team_offensive_playbooks" | "team_defensive_schemes"): Promise<number> {
+    const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
+    if (error) throw new Error(`${table} count: ${error.message}`);
+    return count ?? 0;
+  }
+
   const sqlPath = join(__dirname, "seed-team-schemes.sql");
   const sql = readFileSync(sqlPath, "utf8");
   const offensive = parseOffensive(sql);
@@ -145,18 +137,16 @@ async function main() {
     throw new Error(`Row count mismatch: offense ${offensive.length}, defense ${defensive.length}`);
   }
 
-  const supabase: SeedSupabase = createClient(url, serviceKey, { auth: { persistSession: false } });
-
   console.log("Clearing tables…");
-  await clearTable(supabase, "team_offensive_playbooks");
-  await clearTable(supabase, "team_defensive_schemes");
+  await clearTable("team_offensive_playbooks");
+  await clearTable("team_defensive_schemes");
 
   console.log(`Inserting ${offensive.length} offensive and ${defensive.length} defensive rows…`);
-  await insertBatches(supabase, "team_offensive_playbooks", offensive, 80);
-  await insertBatches(supabase, "team_defensive_schemes", defensive, 80);
+  await insertBatches("team_offensive_playbooks", offensive, 80);
+  await insertBatches("team_defensive_schemes", defensive, 80);
 
-  const co = await countRows(supabase, "team_offensive_playbooks");
-  const cd = await countRows(supabase, "team_defensive_schemes");
+  const co = await countRows("team_offensive_playbooks");
+  const cd = await countRows("team_defensive_schemes");
   console.log(`Done. team_offensive_playbooks=${co}, team_defensive_schemes=${cd}`);
   if (co !== offensive.length || cd !== defensive.length) {
     console.error("Count mismatch after insert.");
