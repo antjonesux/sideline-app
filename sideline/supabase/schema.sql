@@ -201,3 +201,13 @@ values
   ('Oregon', '3-3-5'),
   ('Michigan', 'Multiple')
 on conflict (team_name) do nothing;
+
+-- Reference data read by the app with the anon key (e.g. GET /api/film/setup).
+alter table team_offensive_playbooks enable row level security;
+alter table team_defensive_schemes enable row level security;
+
+drop policy if exists "Allow public read" on team_offensive_playbooks;
+create policy "Allow public read" on team_offensive_playbooks for select using (true);
+
+drop policy if exists "Allow public read" on team_defensive_schemes;
+create policy "Allow public read" on team_defensive_schemes for select using (true);

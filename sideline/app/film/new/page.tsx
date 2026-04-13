@@ -24,6 +24,7 @@ export default function NewGamePage() {
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>([]);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>([]);
   const [setupLoading, setSetupLoading] = useState(true);
+  const [setupError, setSetupError] = useState<string | null>(null);
   const [offensePick, setOffensePick] = useState<OffensiveTeam | null>(null);
   const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
   const [form, setForm] = useState<Omit<NewGameForm, "my_playbook" | "my_scheme" | "opponent_team" | "opponent_scheme">>({
@@ -40,12 +41,36 @@ export default function NewGamePage() {
   useEffect(() => {
     let cancelled = false;
     setSetupLoading(true);
+    setSetupError(null);
     fetch("/api/film/setup")
-      .then((res) => res.json())
-      .then((data: { offensiveTeams: OffensiveTeam[]; defensiveTeams: DefensiveTeam[] }) => {
+      .then(async (res) => {
+        const data = (await res.json()) as {
+          offensiveTeams?: OffensiveTeam[];
+          defensiveTeams?: DefensiveTeam[];
+          error?: string;
+          details?: unknown;
+        };
         if (cancelled) return;
+        if (!res.ok) {
+          const msg =
+            typeof data.error === "string"
+              ? data.error
+              : `Request failed (${res.status})`;
+          console.error("Film setup load failed:", data);
+          setSetupError(msg);
+          setOffensiveTeams([]);
+          setDefensiveTeams([]);
+          return;
+        }
         setOffensiveTeams(data.offensiveTeams ?? []);
         setDefensiveTeams(data.defensiveTeams ?? []);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        console.error("Film setup fetch error:", e);
+        setSetupError("Could not reach the server to load teams.");
+        setOffensiveTeams([]);
+        setDefensiveTeams([]);
       })
       .finally(() => {
         if (!cancelled) setSetupLoading(false);
@@ -76,6 +101,11 @@ export default function NewGamePage() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <h1 className="font-display text-3xl">New Game Setup</h1>
+      {setupError ? (
+        <p className="rounded border border-amber-700/60 bg-amber-950/40 px-3 py-2 text-sm text-amber-100" role="alert">
+          {setupError}
+        </p>
+      ) : null}
 
       <TeamCombobox<OffensiveTeam>
         label="My Playbook"
