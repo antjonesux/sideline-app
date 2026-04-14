@@ -49,73 +49,65 @@ function downloadClientTemplate() {
 }
 
 type Props = {
-  templateDownloaded: boolean;
-  onDownloaded: () => void;
-  onNext: () => void;
+  /** Omit section title when nested in a larger layout. */
+  embedded?: boolean;
+  /** Show only the download button for compact layouts (e.g. modals). */
+  compact?: boolean;
 };
 
-export function TemplateDownload({ templateDownloaded, onDownloaded, onNext }: Props) {
+export function TemplateDownload({ embedded, compact }: Props) {
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-3xl tracking-wide text-white">Download Template</h2>
+      {embedded ? null : <h3 className="font-display text-2xl tracking-wide text-white">Download template</h3>}
 
-      <div className="flex flex-wrap gap-2">
-        {REQUIRED_COLS.map((c) => (
-          <span
-            key={c.key}
-            title={c.desc}
-            className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-emerald-200"
-          >
-            {c.key}
-            <span className="text-emerald-500">✓</span>
-          </span>
-        ))}
-        {OPTIONAL_COLS.map((c) => (
-          <span
-            key={c.key}
-            title={c.desc}
-            className="inline-flex items-center gap-1 rounded-full bg-slate-800/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-slate-400"
-          >
-            {c.key}
-            <span className="text-slate-500">optional</span>
-          </span>
-        ))}
-      </div>
+      {compact ? null : (
+        <>
+          <div className="flex flex-wrap gap-2">
+            {REQUIRED_COLS.map((c) => (
+              <span
+                key={c.key}
+                title={c.desc}
+                className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-emerald-200"
+              >
+                {c.key}
+                <span className="text-emerald-500">✓</span>
+              </span>
+            ))}
+            {OPTIONAL_COLS.map((c) => (
+              <span
+                key={c.key}
+                title={c.desc}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-800/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-slate-400"
+              >
+                {c.key}
+                <span className="text-slate-500">optional</span>
+              </span>
+            ))}
+          </div>
 
-      <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 text-sm text-slate-300">
-        <p>
-          <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, TURNOVER, NO GAIN,
-          PENALTY
-        </p>
-        <p className="mt-2">
-          <span className="font-semibold text-slate-200">Yard line format:</span> OWN 25, OPP 40, 50
-        </p>
-        <p className="mt-2 text-slate-400">
-          Scenario and field zone are auto-derived on import — you do not enter them in the sheet.
-        </p>
-      </div>
+          <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 text-sm text-slate-300">
+            <p>
+              <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, TURNOVER, NO GAIN,
+              PENALTY
+            </p>
+            <p className="mt-2">
+              <span className="font-semibold text-slate-200">Yard line format:</span> OWN 25, OPP 40, 50
+            </p>
+            <p className="mt-2 text-slate-400">
+              Scenario and field zone are auto-derived on import — you do not enter them in the sheet.
+            </p>
+          </div>
+        </>
+      )}
 
       <button
         type="button"
-        onClick={() => {
-          downloadClientTemplate();
-          onDownloaded();
-        }}
+        onClick={() => downloadClientTemplate()}
         className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 bg-transparent py-3.5 font-mono text-sm font-semibold uppercase tracking-wide text-emerald-400 transition-colors hover:bg-emerald-500/10"
       >
         <span aria-hidden>↓</span>
         Download CSV Template
       </button>
-
-      {templateDownloaded ? (
-        <button
-          type="button"
-          onClick={onNext}
-          className="w-full rounded-lg bg-emerald-500 py-3.5 font-display text-lg tracking-wide text-slate-950 hover:bg-emerald-400"
-        >
-          Next → Upload Completed File
-        </button>
-      ) : null}
     </div>
   );
 }

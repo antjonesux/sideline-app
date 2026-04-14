@@ -26,6 +26,7 @@ create table if not exists game_sessions (
 alter table game_sessions add column if not exists quarter_started_logging int check (quarter_started_logging between 1 and 4);
 alter table game_sessions add column if not exists is_partial_log boolean default false;
 alter table game_sessions add column if not exists import_source text default 'live';
+alter table game_sessions add column if not exists offensive_playbook text;
 
 create table if not exists drives (
   id uuid primary key default gen_random_uuid(),

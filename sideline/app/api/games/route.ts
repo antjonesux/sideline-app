@@ -24,19 +24,23 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const startedAtIso = new Date().toISOString();
+  const gameDate = startedAtIso.slice(0, 10);
 
   const { data, error } = await supabase
     .from("game_sessions")
     .insert({
       my_playbook: body.my_playbook,
       my_scheme: body.my_scheme,
+      offensive_playbook: body.offensive_playbook ?? body.my_playbook,
       opponent_team: body.opponent_team,
       opponent_scheme: body.opponent_scheme,
-      game_date: body.game_date,
+      game_date: gameDate,
       my_score: body.my_score,
       opponent_score: body.opponent_score,
       result: body.result,
       quarter_started_logging: body.quarter_started_logging,
+      import_source: "live",
     })
     .select()
     .single();

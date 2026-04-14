@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
+import { PlayLogger } from "@/components/film/PlayLogger";
+import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { PlayLogger } from "@/components/film/PlayLogger";
 
 function getDriveResult(
   plays: LoggedPlay[] | undefined | null,
@@ -148,12 +149,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   return (
     <section className="space-y-4 pb-28">
       <div className="space-y-3">
-        <Link href="/film" className="flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
-          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Film Room
-        </Link>
+        <BackToFilmLink />
 
         <div className="flex items-start justify-between gap-3">
           <h1 className="font-display text-xl leading-tight text-slate-100 sm:text-2xl">
@@ -389,12 +385,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
       <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
         <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Secondary</p>
-        <p className="mt-1 text-sm text-slate-400">Need a full play-by-play from a spreadsheet? CSV import always creates a new session.</p>
+        <p className="mt-1 text-sm text-slate-400">Need a full play-by-play from a spreadsheet? CSV import creates a new session from the game setup page.</p>
         <Link
-          href="/import"
+          href="/film/new"
           className="mt-3 inline-flex items-center justify-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:border-emerald-700/50 hover:bg-slate-800"
         >
-          Import Game
+          Import from CSV
         </Link>
       </div>
     </section>

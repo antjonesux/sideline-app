@@ -8,9 +8,11 @@ type Props = {
   onParsed: (parsed: ParsedCsvRow[], valid: ValidatedImportPlay[], errors: RowValidationIssue[]) => void;
   onParseFatal: (message: string) => void;
   onSample: () => void;
+  /** Omit section title when nested in a larger layout. */
+  embedded?: boolean;
 };
 
-export function CSVUploader({ onParsed, onParseFatal, onSample }: Props) {
+export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -80,7 +82,7 @@ export function CSVUploader({ onParsed, onParseFatal, onSample }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-3xl tracking-wide text-white">Upload CSV</h2>
+      {embedded ? null : <h3 className="font-display text-2xl tracking-wide text-white">Upload CSV</h3>}
 
       <input ref={inputRef} type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && parseFile(e.target.files[0])} />
 

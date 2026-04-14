@@ -3,40 +3,15 @@
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { supabase } from "@/lib/supabase";
-import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
+import { useImportStore } from "@/store/importStore";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 type TeamOption = { team_name: string };
 type CfbPlaybookRow = { playbook: string | null };
-
-function playbookOptionLabel(row: OffensiveTeam): string {
-  if (row.playbook_name.trim() === row.team_name.trim()) {
-    return row.playbook_name;
-  }
-  return `${row.playbook_name} (${row.team_name})`;
-}
-
-function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[], fallbackScheme: string): OffensiveTeam[] {
-  const byPlaybook = new Map<string, OffensiveTeam>();
-  for (const row of rows) {
-    const key = row.playbook_name.trim();
-    if (!key) continue;
-    if (!byPlaybook.has(key)) byPlaybook.set(key, row);
-  }
-  for (const playbook of fallbackPlaybooks) {
-    const key = playbook.trim();
-    if (!key || byPlaybook.has(key)) continue;
-    byPlaybook.set(key, {
-      team_name: playbook,
-      playbook_name: playbook,
-      scheme_style: fallbackScheme,
-    });
-  }
-  return [...byPlaybook.values()].sort((a, b) => a.playbook_name.localeCompare(b.playbook_name));
-}
+type PlaybookOption = { team_name: string; playbook_name: string };
 
 let cachedOffensive: OffensiveTeam[] | null = null;
 let cachedDefensive: DefensiveTeam[] | null = null;
@@ -44,9 +19,25 @@ let cachedFallbackPlaybooks: string[] | null = null;
 
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
-export default function NewGamePage() {
+
+function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[]): PlaybookOption[] {
+  const byPlaybook = new Map<string, PlaybookOption>();
+  for (const row of rows) {
+    const key = row.playbook_name.trim();
+    if (!key || byPlaybook.has(key)) continue;
+    byPlaybook.set(key, { team_name: key, playbook_name: key });
+  }
+  for (const playbook of fallbackPlaybooks) {
+    const key = playbook.trim();
+    if (!key || byPlaybook.has(key)) continue;
+    byPlaybook.set(key, { team_name: key, playbook_name: key });
+  }
+  return [...byPlaybook.values()].sort((a, b) => a.playbook_name.localeCompare(b.playbook_name));
+}
+
+export default function FilmImportSavePage() {
   const router = useRouter();
-  const { my_playbook, my_scheme, setLastGame } = useLastGamePrefsStore();
+  const { parsedRows, validRows, setStep, setGameSetup, setImportedSession } = useImportStore();
 
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -55,18 +46,21 @@ export default function NewGamePage() {
     () => cachedOffensive === null || cachedDefensive === null || cachedFallbackPlaybooks === null,
   );
   const [setupError, setSetupError] = useState<string | null>(null);
-  const [offensePick, setOffensePick] = useState<TeamOption | null>(null);
-  const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
-  const [playbookRow, setPlaybookRow] = useState<OffensiveTeam | null>(null);
-  const [form, setForm] = useState({
-    my_score: 0,
-    opponent_score: 0,
-    result: "W" as "W" | "L",
-  });
+
+  const [myTeam, setMyTeam] = useState<TeamOption | null>(null);
+  const [opponent, setOpponent] = useState<DefensiveTeam | null>(null);
+  const [playbookRow, setPlaybookRow] = useState<PlaybookOption | null>(null);
+  const [form, setForm] = useState({ my_score: 0, opponent_score: 0, result: "W" as "W" | "L" });
   const [submitBusy, setSubmitBusy] = useState(false);
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (parsedRows.length === 0) {
+      router.replace("/film/import");
+    }
+  }, [parsedRows.length, router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +81,7 @@ export default function NewGamePage() {
 
       const err = offRes.error ?? defRes.error;
       if (err) {
-        console.error("Film setup Supabase error:", err);
+        console.error("Import save setup Supabase error:", err);
         setSetupError(err.message || "Could not load teams from Supabase.");
         setOffensiveTeams([]);
         setDefensiveTeams([]);
@@ -95,7 +89,7 @@ export default function NewGamePage() {
         return;
       }
       if (playbookRes.error) {
-        console.warn("Fallback playbook lookup failed:", playbookRes.error.message);
+        console.warn("Import save fallback playbook lookup failed:", playbookRes.error.message);
       }
 
       const offensive = (offRes.data ?? []) as OffensiveTeam[];
@@ -122,39 +116,15 @@ export default function NewGamePage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (offensePick) return;
-    if (!my_playbook.trim()) return;
-    let cancelled = false;
-    void (async () => {
-      await new Promise((r) => setTimeout(r, 0));
-      if (cancelled || setupLoading || offensiveTeams.length === 0) return;
-      const o = defensiveTeams.find((t) => t.team_name === my_playbook.trim());
-      if (o) setOffensePick({ team_name: o.team_name });
-      if (my_scheme.trim()) {
-        setOffensePick((cur) => {
-          if (cur) return cur;
-          const match = offensiveTeams.find((t) => t.team_name === my_playbook.trim() && t.scheme_style === my_scheme.trim());
-          return match ? { team_name: match.team_name } : o ? { team_name: o.team_name } : null;
-        });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [offensePick, my_playbook, my_scheme, setupLoading, offensiveTeams, defensiveTeams]);
-
   const allTeamOptions = useMemo<TeamOption[]>(
     () => Array.from(new Set(defensiveTeams.map((t) => t.team_name))).map((team_name) => ({ team_name })),
     [defensiveTeams],
   );
 
-  const playbookOptions = useMemo<OffensiveTeam[]>(
-    () => uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, my_scheme.trim() || "Multiple"),
-    [offensiveTeams, fallbackPlaybooks, my_scheme],
+  const playbookOptions = useMemo<PlaybookOption[]>(
+    () => uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks),
+    [offensiveTeams, fallbackPlaybooks],
   );
-
-  const usePlaybookSelect = playbookOptions.length > 0 && !setupError;
 
   useEffect(() => {
     setPlaybookRow((prev) => {
@@ -165,63 +135,55 @@ export default function NewGamePage() {
     });
   }, [playbookOptions]);
 
-  const canContinue = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
-
-  const buildGameSetup = useCallback(() => {
-    if (!offensePick || !defensePick || !playbookRow) return null;
-    return {
-      offensive_team: offensePick.team_name,
-      offensive_scheme: playbookRow.scheme_style,
-      offensive_playbook: playbookRow.playbook_name,
-      opponent_team: defensePick.team_name,
-      opponent_defensive_scheme: defensePick.defensive_scheme,
-      game_date: new Date().toISOString().slice(0, 10),
-      my_score: form.my_score,
-      opponent_score: form.opponent_score,
-      final_score: `${form.my_score}-${form.opponent_score}`,
-      result: form.result,
-    };
-  }, [offensePick, defensePick, playbookRow, form.my_score, form.opponent_score, form.result]);
-
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const setup = buildGameSetup();
-    if (!setup) {
-      window.alert("Select your team, offensive playbook, and opponent so schemes and metadata are set.");
-      return;
-    }
+    if (!myTeam || !opponent || !playbookRow || validRows.length === 0) return;
 
     setSubmitBusy(true);
     try {
-      const res = await fetch("/api/games", {
+      const nextSetup = {
+        my_team: myTeam.team_name,
+        opponent_team: opponent.team_name,
+        offensive_playbook: playbookRow.playbook_name,
+        my_score: form.my_score,
+        opponent_score: form.opponent_score,
+        result: form.result,
+      };
+      setGameSetup(nextSetup);
+
+      const res = await fetch("/api/import/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          my_playbook: setup.offensive_team,
-          my_scheme: setup.offensive_scheme,
-          offensive_playbook: setup.offensive_playbook,
-          opponent_team: setup.opponent_team,
-          opponent_scheme: setup.opponent_defensive_scheme,
-          game_date: setup.game_date,
-          my_score: setup.my_score,
-          opponent_score: setup.opponent_score,
-          result: setup.result,
+          game: nextSetup,
+          plays: validRows,
         }),
       });
-      const game = (await res.json()) as { id?: string; error?: string };
-      if (!game.id) {
-        window.alert("Failed to create game: " + (game.error ?? JSON.stringify(game)));
+      const body = (await res.json().catch(() => ({}))) as { session_id?: string; error?: string };
+      if (!res.ok || !body.session_id) {
+        window.alert(body.error ?? "Import failed.");
         return;
       }
-      setLastGame({ my_playbook: setup.offensive_team, my_scheme: setup.offensive_scheme });
-      router.push(`/film/${game.id}`);
+
+      setImportedSession(body.session_id);
+      router.push("/film/import/complete");
     } finally {
       setSubmitBusy(false);
     }
   }
 
+  const canSubmit = Boolean(myTeam && opponent && playbookRow && !setupLoading && validRows.length > 0);
   const primaryActionClass =
-    "w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500";
+    "w-full rounded-lg bg-emerald-500 py-4 font-display text-xl tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500";
+
+  if (parsedRows.length === 0) {
+    return (
+      <section className="pb-8">
+        <BackToFilmLink />
+        <p className="mt-6 text-sm text-slate-400">Loading game details…</p>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-8 pb-8">
@@ -229,7 +191,7 @@ export default function NewGamePage() {
 
       <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
         <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className="font-display text-3xl tracking-wide text-white">New Game Setup</h1>
+          <h1 className="font-display text-3xl tracking-wide text-white">Tag This Game</h1>
 
           {setupError ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 text-sm text-amber-100" role="alert">
@@ -240,9 +202,9 @@ export default function NewGamePage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TeamCombobox<TeamOption>
               label="Your Team"
-              inputId="film-my-playbook"
-              selected={offensePick}
-              onSelect={setOffensePick}
+              inputId="import-my-team"
+              selected={myTeam}
+              onSelect={setMyTeam}
               options={allTeamOptions}
               loading={setupLoading}
               placeholder="Tap to browse or type to filter"
@@ -251,10 +213,10 @@ export default function NewGamePage() {
 
             <TeamCombobox<DefensiveTeam>
               label="Opponent"
-              inputId="film-opponent"
+              inputId="import-opponent"
               inputRef={opponentInputRef}
-              selected={defensePick}
-              onSelect={setDefensePick}
+              selected={opponent}
+              onSelect={setOpponent}
               options={defensiveTeams}
               loading={setupLoading}
               placeholder="Tap to browse or type to filter"
@@ -263,27 +225,26 @@ export default function NewGamePage() {
           </div>
 
           <div className="space-y-1 md:max-w-2xl">
-            <TeamCombobox<OffensiveTeam>
+            <TeamCombobox<PlaybookOption>
               label="Offensive Playbook"
-              inputId="film-offensive-playbook"
+              inputId="import-offensive-playbook"
               inputRef={playbookInputRef}
               selected={playbookRow}
               onSelect={setPlaybookRow}
               options={playbookOptions}
               loading={setupLoading}
               placeholder="Tap to browse or type to filter"
-              getOptionLabel={playbookOptionLabel}
-              getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
+              getOptionLabel={(row) => row.playbook_name}
+              getSearchText={(row) => row.playbook_name}
             />
-            {!usePlaybookSelect ? <p className="text-xs text-slate-500">Playbook list is unavailable.</p> : null}
-            <p className="text-xs text-slate-500">You can use any playbook, not just your team&apos;s.</p>
+            <p className="text-xs text-slate-500">All playbooks are available.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <label className="space-y-1">
               <span className="font-mono text-xs uppercase tracking-widest text-slate-500">My Score</span>
               <input
-                className="hs-input block w-full rounded-lg border dark:border-slate-700 dark:bg-slate-800 px-3 py-2.5 text-slate-100"
+                className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -297,7 +258,7 @@ export default function NewGamePage() {
             <label className="space-y-1">
               <span className="font-mono text-xs uppercase tracking-widest text-slate-500">Their Score</span>
               <input
-                className="hs-input block w-full rounded-lg border dark:border-slate-700 dark:bg-slate-800 px-3 py-2.5 text-slate-100"
+                className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -334,12 +295,19 @@ export default function NewGamePage() {
             </div>
           </div>
 
+          <button type="submit" disabled={!canSubmit || submitBusy} className={primaryActionClass}>
+            {submitBusy ? "Importing…" : `Import ${validRows.length} Plays`}
+          </button>
+
           <button
-            type="submit"
-            disabled={!canContinue || submitBusy}
-            className={primaryActionClass}
+            type="button"
+            onClick={() => {
+              setStep(2);
+              router.push("/film/import/preview");
+            }}
+            className="w-full rounded-lg border border-slate-600 bg-transparent px-4 py-3 font-mono text-sm text-slate-300 hover:bg-slate-800"
           >
-            {submitBusy ? "Starting…" : "START LOGGING"}
+            ← Back to Preview
           </button>
         </form>
       </div>

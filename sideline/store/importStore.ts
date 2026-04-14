@@ -2,42 +2,38 @@ import type { ParsedCsvRow, RowValidationIssue, ValidatedImportPlay } from "@/li
 import { create } from "zustand";
 
 export type GameSetup = {
-  offensive_team: string;
-  offensive_scheme: string;
+  my_team: string;
   opponent_team: string;
-  opponent_defensive_scheme: string;
-  final_score: string;
+  offensive_playbook: string;
+  my_score: number;
+  opponent_score: number;
   result: "W" | "L";
 };
 
 type ImportState = {
-  step: number;
+  step: 1 | 2 | 3;
   gameSetup: GameSetup | null;
-  templateDownloaded: boolean;
   parsedRows: ParsedCsvRow[];
   validRows: ValidatedImportPlay[];
   validationErrors: RowValidationIssue[];
   importedSessionId: string | null;
-  importLoading: boolean;
 
-  setStep: (step: number) => void;
-  setGameSetup: (setup: GameSetup) => void;
-  setTemplateDownloaded: (v: boolean) => void;
+  setStep: (step: 1 | 2 | 3) => void;
+  setGameSetup: (setup: GameSetup | null) => void;
   setParsedData: (parsed: ParsedCsvRow[], valid: ValidatedImportPlay[], errors: RowValidationIssue[]) => void;
-  setImportedSession: (id: string) => void;
-  setImportLoading: (v: boolean) => void;
+  setImportedSession: (id: string | null) => void;
+  /** Clears CSV parse + import result; keeps or clears game setup via flag. */
+  resetParsed: (opts?: { clearGameSetup?: boolean }) => void;
   reset: () => void;
 };
 
 const initial = {
-  step: 1,
-  gameSetup: null,
-  templateDownloaded: false,
+  step: 1 as 1 | 2 | 3,
+  gameSetup: null as GameSetup | null,
   parsedRows: [] as ParsedCsvRow[],
   validRows: [] as ValidatedImportPlay[],
   validationErrors: [] as RowValidationIssue[],
   importedSessionId: null,
-  importLoading: false,
 };
 
 export const useImportStore = create<ImportState>((set) => ({
@@ -45,9 +41,16 @@ export const useImportStore = create<ImportState>((set) => ({
 
   setStep: (step) => set({ step }),
   setGameSetup: (gameSetup) => set({ gameSetup }),
-  setTemplateDownloaded: (templateDownloaded) => set({ templateDownloaded }),
   setParsedData: (parsedRows, validRows, validationErrors) => set({ parsedRows, validRows, validationErrors }),
   setImportedSession: (importedSessionId) => set({ importedSessionId }),
-  setImportLoading: (importLoading) => set({ importLoading }),
+  resetParsed: (opts) =>
+    set((s) => ({
+      step: 1,
+      parsedRows: [],
+      validRows: [],
+      validationErrors: [],
+      importedSessionId: null,
+      gameSetup: opts?.clearGameSetup ? null : s.gameSetup,
+    })),
   reset: () => set(initial),
 }));

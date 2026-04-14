@@ -1,5 +1,4 @@
 import {
-  parseFinalScore,
   parseYardLineField,
   validateAllRows,
   type CsvRowInput,
@@ -11,12 +10,12 @@ import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 type GamePayload = {
-  offensive_team: string;
-  offensive_scheme: string;
+  my_team: string;
   opponent_team: string;
-  opponent_defensive_scheme: string;
-  final_score: string;
+  offensive_playbook: string;
   result: "W" | "L";
+  my_score: number;
+  opponent_score: number;
 };
 
 function playToRowInput(p: ValidatedImportPlay): CsvRowInput {
@@ -43,6 +42,12 @@ export async function POST(req: NextRequest) {
   if (!game || !Array.isArray(plays) || plays.length === 0) {
     return NextResponse.json({ error: "Expected game and non-empty plays[]" }, { status: 400 });
   }
+  if (!game.offensive_playbook?.trim()) {
+    return NextResponse.json({ error: "offensive_playbook is required" }, { status: 400 });
+  }
+  if (!game.my_team?.trim() || !game.opponent_team?.trim()) {
+    return NextResponse.json({ error: "my_team and opponent_team are required" }, { status: 400 });
+  }
 
   const parsed: ParsedCsvRow[] = plays.map((p, i) => ({
     ...playToRowInput(p),
@@ -54,18 +59,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server validation failed", errors }, { status: 400 });
   }
 
-  const scores = parseFinalScore(game.final_score);
-  const my_score = scores?.my_score ?? 0;
-  const opponent_score = scores?.opponent_score ?? 0;
+  const my_score = Number.isFinite(game.my_score) ? game.my_score : 0;
+  const opponent_score = Number.isFinite(game.opponent_score) ? game.opponent_score : 0;
   const game_date = new Date().toISOString().slice(0, 10);
+
+  const [mySchemeRes, oppSchemeRes] = await Promise.all([
+    supabase.from("team_offensive_playbooks").select("scheme_style").eq("team_name", game.my_team.trim()).single(),
+    supabase.from("team_defensive_schemes").select("defensive_scheme").eq("team_name", game.opponent_team.trim()).single(),
+  ]);
+
+  const myScheme = mySchemeRes.data?.scheme_style?.trim() || "UNKNOWN";
+  const opponentScheme = oppSchemeRes.data?.defensive_scheme?.trim() || "UNKNOWN";
 
   const { data: session, error: sessionErr } = await supabase
     .from("game_sessions")
     .insert({
-      my_playbook: game.offensive_team,
-      my_scheme: game.offensive_scheme,
+      my_playbook: game.my_team,
+      my_scheme: myScheme,
+      offensive_playbook: game.offensive_playbook.trim(),
       opponent_team: game.opponent_team,
-      opponent_scheme: game.opponent_defensive_scheme,
+      opponent_scheme: opponentScheme,
       game_date,
       my_score,
       opponent_score,
@@ -73,6 +86,7 @@ export async function POST(req: NextRequest) {
       quarter_started_logging: 1,
       is_partial_log: false,
       import_source: "csv",
+      created_at: new Date().toISOString(),
     })
     .select("id")
     .single();
@@ -141,7 +155,7 @@ export async function POST(req: NextRequest) {
         result_tag: p.result_db,
         yards_gained: p.yards,
         note: p.note,
-        opponent_scheme: game.opponent_defensive_scheme,
+        opponent_scheme: opponentScheme,
         drive_number: p.drive_number,
       });
 

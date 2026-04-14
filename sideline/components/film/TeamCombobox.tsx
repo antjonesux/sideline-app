@@ -24,17 +24,21 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   inputId?: string;
   /** Exposes the inner text input (e.g. so another combobox can focus it after selection). */
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  getOptionLabel?: (item: T) => string;
+  getSearchText?: (item: T) => string;
 };
 
 const BROWSE_LIMIT = 24;
 const SEARCH_LIMIT = 12;
 
-function visibleTeams<T extends { team_name: string }>(options: T[], query: string): T[] {
+function visibleTeams<T extends { team_name: string }>(
+  options: T[],
+  query: string,
+  getSearchText: (item: T) => string,
+): T[] {
   const q = query.trim().toLowerCase();
   if (!q) return options.slice(0, BROWSE_LIMIT);
-  return options
-    .filter((o) => (o.team_name ?? "").toLowerCase().includes(q))
-    .slice(0, SEARCH_LIMIT);
+  return options.filter((o) => getSearchText(o).toLowerCase().includes(q)).slice(0, SEARCH_LIMIT);
 }
 
 export function TeamCombobox<T extends { team_name: string }>({
@@ -47,16 +51,20 @@ export function TeamCombobox<T extends { team_name: string }>({
   nextFocusRef,
   inputId,
   inputRef: inputRefProp,
+  getOptionLabel,
+  getSearchText,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
-  const query = selected ? (selected.team_name ?? "") : filterText;
+  const optionLabel = useCallback((item: T) => getOptionLabel?.(item) ?? item.team_name ?? "", [getOptionLabel]);
+  const optionSearchText = useCallback((item: T) => getSearchText?.(item) ?? optionLabel(item), [getSearchText, optionLabel]);
+  const inputValue = filterText !== "" ? filterText : selected ? optionLabel(selected) : "";
   const [dropUp, setDropUp] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const innerInputRef = useRef<HTMLInputElement>(null);
   const setInputRef = mergeRefs(innerInputRef, inputRefProp);
 
-  const filtered = useMemo(() => visibleTeams(options, query), [options, query]);
+  const filtered = useMemo(() => visibleTeams(options, filterText, optionSearchText), [options, filterText, optionSearchText]);
 
   const updateDropPosition = useCallback(() => {
     const el = innerInputRef.current;
@@ -75,11 +83,11 @@ export function TeamCombobox<T extends { team_name: string }>({
   }, []);
 
   /** Dropdown only after explicit focus/click; loading fills the panel while open without closing. */
-  const showList = open && !selected;
+  const showList = open;
 
   return (
     <div ref={rootRef} className="space-y-1">
-      <span className="block text-xs uppercase tracking-wide text-slate-400">{label}</span>
+      <span className="block font-mono text-xs uppercase tracking-widest text-slate-500">{label}</span>
       <div className="relative">
         <div className="relative">
           <input
@@ -87,13 +95,12 @@ export function TeamCombobox<T extends { team_name: string }>({
             id={inputId}
             type="text"
             autoComplete="off"
-            readOnly={!!selected}
-            value={query}
+            value={inputValue}
             placeholder={placeholder}
             onChange={(e) => {
               const v = e.target.value;
               setFilterText(v);
-              onSelect(null);
+              if (selected) onSelect(null);
               setOpen(true);
               updateDropPosition();
             }}
@@ -106,7 +113,7 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className="w-full rounded border border-slate-700 bg-slate-900 py-2 pl-3 pr-10"
+            className="hs-input block w-full rounded-lg border py-2.5 ps-3 pe-10 text-slate-100 read-only:cursor-default dark:border-slate-700 dark:bg-slate-800"
           />
           {loading ? (
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" aria-hidden>
@@ -117,7 +124,7 @@ export function TeamCombobox<T extends { team_name: string }>({
 
         {showList ? (
           <div
-            className={`absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto rounded border border-slate-700 bg-slate-900 shadow-lg ${
+            className={`absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 shadow-lg ${
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             }`}
           >
@@ -134,7 +141,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                 <button
                   key={item.team_name}
                   type="button"
-                  className="block w-full border-b border-slate-800 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-slate-800"
+                  className="block w-full border-b border-slate-800 px-3 py-2.5 text-left text-sm last:border-b-0 hover:bg-slate-800/80"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     onSelect(item);
@@ -143,7 +150,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                     requestAnimationFrame(() => nextFocusRef?.current?.focus());
                   }}
                 >
-                  {item.team_name}
+                  {optionLabel(item)}
                 </button>
               ))
             )}

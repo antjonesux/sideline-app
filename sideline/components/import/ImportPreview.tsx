@@ -7,11 +7,11 @@ import { ImportPreviewTable } from "./ImportPreviewTable";
 
 type Props = {
   onReupload: () => void;
-  onImport: () => void | Promise<void>;
+  onNext: () => void;
 };
 
-export function ImportPreview({ onReupload, onImport }: Props) {
-  const { parsedRows, validRows, validationErrors, importLoading } = useImportStore();
+export function ImportPreview({ onReupload, onNext }: Props) {
+  const { parsedRows, validRows, validationErrors } = useImportStore();
   const [tab, setTab] = useState<"pbp" | "drive">("pbp");
   const [expandErrors, setExpandErrors] = useState(false);
 
@@ -113,18 +113,11 @@ export function ImportPreview({ onReupload, onImport }: Props) {
         </button>
         <button
           type="button"
-          disabled={importLoading || validRows.length === 0}
-          onClick={() => void onImport()}
+          disabled={validRows.length === 0}
+          onClick={onNext}
           className="flex-1 rounded-lg bg-emerald-500 py-4 font-display text-xl tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
         >
-          {importLoading ? (
-            <span className="flex items-center justify-center gap-2 font-mono text-sm">
-              <span className="size-4 animate-spin rounded-full border-2 border-slate-600 border-t-slate-200" />
-              Importing…
-            </span>
-          ) : (
-            `Import ${validRows.length} Plays →`
-          )}
+          Next → Save Game
         </button>
       </div>
     </div>
