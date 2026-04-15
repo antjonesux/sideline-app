@@ -18,6 +18,10 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   return NextResponse.json(data);
 }
 
+export async function PATCH(req: NextRequest, ctx: Ctx) {
+  return PUT(req, ctx);
+}
+
 export async function DELETE(_: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
   const { error } = await supabase.from("game_sessions").delete().eq("id", id);

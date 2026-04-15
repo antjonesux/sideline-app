@@ -36,13 +36,165 @@ function playToRowInput(p: ValidatedImportPlay): CsvRowInput {
   };
 }
 
-export async function POST(req: NextRequest) {
-  const body = (await req.json().catch(() => null)) as { game?: GamePayload; plays?: ValidatedImportPlay[] } | null;
-  const game = body?.game;
-  const plays = body?.plays;
-  if (!game || !Array.isArray(plays) || plays.length === 0) {
-    return NextResponse.json({ error: "Expected game and non-empty plays[]" }, { status: 400 });
+function remapPlaysToNewDriveNumbers(plays: ValidatedImportPlay[], maxExistingDrive: number): ValidatedImportPlay[] {
+  const sorted = [...plays].sort((a, b) => a.play_number - b.play_number);
+  const distinctDriveNums = [...new Set(sorted.map((p) => p.drive_number))].sort((a, b) => a - b);
+  const map = new Map<number, number>();
+  distinctDriveNums.forEach((d, i) => map.set(d, maxExistingDrive + i + 1));
+  return sorted.map((p) => ({ ...p, drive_number: map.get(p.drive_number)! }));
+}
+
+async function insertDrivesAndPlaysForSession(
+  sessionId: string,
+  opponentScheme: string,
+  plays: ValidatedImportPlay[],
+  opts: { rollbackSessionOnFailure: boolean },
+): Promise<{ ok: true } | { ok: false; message: string; status: number }> {
+  const sorted = [...plays].sort((a, b) => a.play_number - b.play_number);
+  const driveNums = [...new Set(sorted.map((p) => p.drive_number))].sort((a, b) => a - b);
+  const driveIdByNum = new Map<number, string>();
+  const createdDriveIds: string[] = [];
+
+  for (const driveNum of driveNums) {
+    const first = sorted.filter((p) => p.drive_number === driveNum).sort((a, b) => a.play_number - b.play_number)[0];
+    const quarter = first.quarter >= 5 ? 5 : first.quarter;
+    const { data: driveRow, error: driveErr } = await supabase
+      .from("drives")
+      .insert({
+        game_session_id: sessionId,
+        drive_number: driveNum,
+        quarter,
+        score_mine: 0,
+        score_opponent: 0,
+      })
+      .select("id")
+      .single();
+
+    if (driveErr || !driveRow?.id) {
+      console.error("import execute drive:", driveErr);
+      if (opts.rollbackSessionOnFailure) {
+        await supabase.from("game_sessions").delete().eq("id", sessionId);
+      } else if (createdDriveIds.length) {
+        await supabase.from("drives").delete().in("id", createdDriveIds);
+      }
+      return { ok: false, message: driveErr?.message ?? "Could not create drive", status: 500 };
+    }
+    const id = driveRow.id as string;
+    createdDriveIds.push(id);
+    driveIdByNum.set(driveNum, id);
   }
+
+  for (const driveNum of driveNums) {
+    const drivePlays = sorted.filter((p) => p.drive_number === driveNum).sort((a, b) => a.play_number - b.play_number);
+    const driveId = driveIdByNum.get(driveNum)!;
+    let idx = 0;
+    for (const p of drivePlays) {
+      idx += 1;
+      const pos = parseYardLineField(p.yard_line);
+      if (!pos) {
+        if (opts.rollbackSessionOnFailure) {
+          await supabase.from("game_sessions").delete().eq("id", sessionId);
+        } else if (createdDriveIds.length) {
+          await supabase.from("drives").delete().in("id", createdDriveIds);
+        }
+        return { ok: false, message: "Invalid yard line in play", status: 400 };
+      }
+
+      const field_zone = deriveFieldZone(pos.yard_line, pos.side);
+      const scenario = deriveScenario(p.down, p.distance, field_zone);
+
+      const { error: playErr } = await supabase.from("logged_plays").insert({
+        drive_id: driveId,
+        game_session_id: sessionId,
+        play_number: idx,
+        down: p.down,
+        distance: p.distance,
+        yard_line: pos.yard_line,
+        side: pos.side,
+        hash: p.hash ?? "MIDDLE",
+        field_zone,
+        scenario,
+        formation: p.formation,
+        play_name: p.play_name,
+        result_tag: p.result_db,
+        yards_gained: p.yards,
+        note: p.note,
+        opponent_scheme: opponentScheme,
+        drive_number: p.drive_number,
+      });
+
+      if (playErr) {
+        console.error("import execute play:", playErr);
+        if (opts.rollbackSessionOnFailure) {
+          await supabase.from("game_sessions").delete().eq("id", sessionId);
+        } else if (createdDriveIds.length) {
+          await supabase.from("drives").delete().in("id", createdDriveIds);
+        }
+        return { ok: false, message: playErr.message, status: 500 };
+      }
+    }
+  }
+
+  return { ok: true };
+}
+
+export async function POST(req: NextRequest) {
+  const body = (await req.json().catch(() => null)) as
+    | { game?: GamePayload; plays?: ValidatedImportPlay[]; game_session_id?: string }
+    | null;
+
+  const playsIn = body?.plays;
+  if (!Array.isArray(playsIn) || playsIn.length === 0) {
+    return NextResponse.json({ error: "Expected non-empty plays[]" }, { status: 400 });
+  }
+
+  const existingSessionId = typeof body?.game_session_id === "string" ? body.game_session_id.trim() : "";
+
+  if (existingSessionId) {
+    const { data: session, error: sessErr } = await supabase.from("game_sessions").select("*").eq("id", existingSessionId).single();
+    if (sessErr || !session) {
+      return NextResponse.json({ error: sessErr?.message ?? "Game session not found" }, { status: 404 });
+    }
+
+    const parsed: ParsedCsvRow[] = playsIn.map((p, i) => ({
+      ...playToRowInput(p),
+      _line: i + 2,
+    }));
+    const { valid_rows, errors } = validateAllRows(parsed);
+    if (errors.length > 0 || valid_rows.length !== playsIn.length) {
+      return NextResponse.json({ error: "Server validation failed", errors }, { status: 400 });
+    }
+
+    const { data: maxDriveRow } = await supabase
+      .from("drives")
+      .select("drive_number")
+      .eq("game_session_id", existingSessionId)
+      .order("drive_number", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const maxDrive = typeof maxDriveRow?.drive_number === "number" ? maxDriveRow.drive_number : 0;
+    const remapped = remapPlaysToNewDriveNumbers(valid_rows, maxDrive);
+    const opponentScheme = String(session.opponent_scheme ?? "UNKNOWN").trim() || "UNKNOWN";
+
+    const inserted = await insertDrivesAndPlaysForSession(existingSessionId, opponentScheme, remapped, {
+      rollbackSessionOnFailure: false,
+    });
+    if (!inserted.ok) {
+      return NextResponse.json({ error: inserted.message }, { status: inserted.status });
+    }
+
+    return NextResponse.json({
+      session_id: existingSessionId,
+      plays_imported: playsIn.length,
+    });
+  }
+
+  const game = body?.game;
+  if (!game) {
+    return NextResponse.json({ error: "Expected game and non-empty plays[], or game_session_id with plays[]" }, { status: 400 });
+  }
+  const plays = playsIn;
   if (!game.offensive_playbook?.trim()) {
     return NextResponse.json({ error: "offensive_playbook is required" }, { status: 400 });
   }
@@ -98,74 +250,9 @@ export async function POST(req: NextRequest) {
   }
 
   const sessionId = session.id as string;
-  const sorted = [...plays].sort((a, b) => a.play_number - b.play_number);
-  const driveNums = [...new Set(sorted.map((p) => p.drive_number))].sort((a, b) => a - b);
-  const driveIdByNum = new Map<number, string>();
-
-  for (const driveNum of driveNums) {
-    const first = sorted.filter((p) => p.drive_number === driveNum).sort((a, b) => a.play_number - b.play_number)[0];
-    const quarter = first.quarter >= 5 ? 5 : first.quarter;
-    const { data: driveRow, error: driveErr } = await supabase
-      .from("drives")
-      .insert({
-        game_session_id: sessionId,
-        drive_number: driveNum,
-        quarter,
-        score_mine: 0,
-        score_opponent: 0,
-      })
-      .select("id")
-      .single();
-
-    if (driveErr || !driveRow?.id) {
-      console.error("import execute drive:", driveErr);
-      await supabase.from("game_sessions").delete().eq("id", sessionId);
-      return NextResponse.json({ error: driveErr?.message ?? "Could not create drive" }, { status: 500 });
-    }
-    driveIdByNum.set(driveNum, driveRow.id as string);
-  }
-
-  for (const driveNum of driveNums) {
-    const drivePlays = sorted.filter((p) => p.drive_number === driveNum).sort((a, b) => a.play_number - b.play_number);
-    const driveId = driveIdByNum.get(driveNum)!;
-    let idx = 0;
-    for (const p of drivePlays) {
-      idx += 1;
-      const pos = parseYardLineField(p.yard_line);
-      if (!pos) {
-        await supabase.from("game_sessions").delete().eq("id", sessionId);
-        return NextResponse.json({ error: "Invalid yard line in play" }, { status: 400 });
-      }
-
-      const field_zone = deriveFieldZone(pos.yard_line, pos.side);
-      const scenario = deriveScenario(p.down, p.distance, field_zone);
-
-      const { error: playErr } = await supabase.from("logged_plays").insert({
-        drive_id: driveId,
-        game_session_id: sessionId,
-        play_number: idx,
-        down: p.down,
-        distance: p.distance,
-        yard_line: pos.yard_line,
-        side: pos.side,
-        hash: p.hash ?? "MIDDLE",
-        field_zone,
-        scenario,
-        formation: p.formation,
-        play_name: p.play_name,
-        result_tag: p.result_db,
-        yards_gained: p.yards,
-        note: p.note,
-        opponent_scheme: opponentScheme,
-        drive_number: p.drive_number,
-      });
-
-      if (playErr) {
-        console.error("import execute play:", playErr);
-        await supabase.from("game_sessions").delete().eq("id", sessionId);
-        return NextResponse.json({ error: playErr.message }, { status: 500 });
-      }
-    }
+  const inserted = await insertDrivesAndPlaysForSession(sessionId, opponentScheme, valid_rows, { rollbackSessionOnFailure: true });
+  if (!inserted.ok) {
+    return NextResponse.json({ error: inserted.message }, { status: inserted.status });
   }
 
   return NextResponse.json({

@@ -7,11 +7,12 @@ import { ImportPreviewTable } from "./ImportPreviewTable";
 
 type Props = {
   onReupload: () => void;
-  onNext: () => void;
+  onNext: () => void | Promise<void>;
 };
 
 export function ImportPreview({ onReupload, onNext }: Props) {
-  const { parsedRows, validRows, validationErrors } = useImportStore();
+  const { parsedRows, validRows, validationErrors, importTargetSessionId } = useImportStore();
+  const [continueBusy, setContinueBusy] = useState(false);
   const [tab, setTab] = useState<"pbp" | "drive">("pbp");
   const [expandErrors, setExpandErrors] = useState(false);
 
@@ -106,18 +107,26 @@ export function ImportPreview({ onReupload, onNext }: Props) {
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
+          disabled={continueBusy}
           onClick={onReupload}
-          className="rounded-lg border border-slate-600 bg-transparent px-4 py-3 font-mono text-sm text-slate-300 hover:bg-slate-800"
+          className="rounded-lg border border-slate-600 bg-transparent px-4 py-3 font-mono text-sm text-slate-300 hover:bg-slate-800 disabled:opacity-50"
         >
           ← Re-upload
         </button>
         <button
           type="button"
-          disabled={validRows.length === 0}
-          onClick={onNext}
+          disabled={validRows.length === 0 || continueBusy}
+          onClick={async () => {
+            setContinueBusy(true);
+            try {
+              await onNext();
+            } finally {
+              setContinueBusy(false);
+            }
+          }}
           className="flex-1 rounded-lg bg-emerald-500 py-4 font-display text-xl tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
         >
-          Next → Save Game
+          {continueBusy ? "Working…" : importTargetSessionId ? "Import to current game" : "Next → Tag This Game"}
         </button>
       </div>
     </div>

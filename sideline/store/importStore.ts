@@ -17,11 +17,14 @@ type ImportState = {
   validRows: ValidatedImportPlay[];
   validationErrors: RowValidationIssue[];
   importedSessionId: string | null;
+  /** When set, import attaches plays to this session and skips “Tag This Game”. */
+  importTargetSessionId: string | null;
 
   setStep: (step: 1 | 2 | 3) => void;
   setGameSetup: (setup: GameSetup | null) => void;
   setParsedData: (parsed: ParsedCsvRow[], valid: ValidatedImportPlay[], errors: RowValidationIssue[]) => void;
   setImportedSession: (id: string | null) => void;
+  setImportTargetSessionId: (id: string | null) => void;
   /** Clears CSV parse + import result; keeps or clears game setup via flag. */
   resetParsed: (opts?: { clearGameSetup?: boolean }) => void;
   reset: () => void;
@@ -34,6 +37,7 @@ const initial = {
   validRows: [] as ValidatedImportPlay[],
   validationErrors: [] as RowValidationIssue[],
   importedSessionId: null,
+  importTargetSessionId: null as string | null,
 };
 
 export const useImportStore = create<ImportState>((set) => ({
@@ -43,6 +47,7 @@ export const useImportStore = create<ImportState>((set) => ({
   setGameSetup: (gameSetup) => set({ gameSetup }),
   setParsedData: (parsedRows, validRows, validationErrors) => set({ parsedRows, validRows, validationErrors }),
   setImportedSession: (importedSessionId) => set({ importedSessionId }),
+  setImportTargetSessionId: (importTargetSessionId) => set({ importTargetSessionId }),
   resetParsed: (opts) =>
     set((s) => ({
       step: 1,

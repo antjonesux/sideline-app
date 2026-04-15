@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 export default function FilmImportPreviewPage() {
   const router = useRouter();
-  const { parsedRows, setParsedData, setStep } = useImportStore();
+  const { parsedRows, setParsedData, setStep, reset } = useImportStore();
 
   useEffect(() => {
     if (parsedRows.length === 0) {
@@ -32,11 +32,29 @@ export default function FilmImportPreviewPage() {
       <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
         <ImportPreview
           onReupload={() => {
+            const attachId = useImportStore.getState().importTargetSessionId;
             setParsedData([], [], []);
             setStep(1);
-            router.push("/film/import");
+            router.push(attachId ? `/film/import?game_session_id=${encodeURIComponent(attachId)}` : "/film/import");
           }}
-          onNext={() => {
+          onNext={async () => {
+            const targetId = useImportStore.getState().importTargetSessionId;
+            const validRows = useImportStore.getState().validRows;
+            if (targetId) {
+              const res = await fetch("/api/import/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ game_session_id: targetId, plays: validRows }),
+              });
+              const body = (await res.json().catch(() => ({}))) as { session_id?: string; error?: string };
+              if (!res.ok || !body.session_id) {
+                window.alert(body.error ?? "Import failed.");
+                return;
+              }
+              reset();
+              router.push(`/film/${body.session_id}`);
+              return;
+            }
             setStep(3);
             router.push("/film/import/save");
           }}

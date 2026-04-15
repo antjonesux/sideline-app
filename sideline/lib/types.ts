@@ -2,6 +2,8 @@ export type GameSession = {
   id: string;
   my_playbook: string;
   my_scheme: string;
+  /** Offensive playbook name (may differ from my_playbook team label). */
+  offensive_playbook?: string | null;
   opponent_team: string;
   opponent_scheme: string;
   game_date: string;

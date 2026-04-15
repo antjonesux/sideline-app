@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
+import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { PlayLogger } from "@/components/film/PlayLogger";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
@@ -42,7 +43,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setDrives(data);
     setExpandedDriveIds((current) => {
       if (opts?.expandDriveId) return [...new Set([...current, opts.expandDriveId])];
-      return current.length ? current : data[0] ? [data[0].id] : [];
+      return current;
     });
     setActiveDrive((current) => {
       if (opts?.expandDriveId) return opts.expandDriveId;
@@ -64,7 +65,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       .then((data: Drive[]) => {
         if (cancelled) return;
         setDrives(data);
-        setExpandedDriveIds((current) => (current.length ? current : data[0] ? [data[0].id] : []));
+        setExpandedDriveIds([]);
         setActiveDrive((current) => current || data[0]?.id || "");
       });
 
@@ -140,8 +141,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const totalDrives = drives.length;
   const showPartialWarning = totalDrives > 0 && totalPlays < 10;
 
-  const addDriveButtonClass = "rounded bg-emerald-500 px-3 py-2 text-slate-950";
-
   const resultLabel = game?.result === "W" ? "W" : game?.result === "L" ? "L" : "—";
   const scoreMine = game?.my_score ?? "—";
   const scoreOpp = game?.opponent_score ?? "—";
@@ -152,7 +151,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         <BackToFilmLink />
 
         <div className="flex items-start justify-between gap-3">
-          <h1 className="font-display text-xl leading-tight text-slate-100 sm:text-2xl">
+          <h1 className="min-w-0 font-display text-xl leading-tight text-slate-100 sm:text-2xl">
             {game ? (
               <>
                 {game.my_playbook}
@@ -163,13 +162,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               "…"
             )}
           </h1>
-          <button
-            type="button"
-            onClick={() => setShowEndGameModal(true)}
-            className="shrink-0 rounded-lg border border-red-800/60 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-900/20"
-          >
-            End Game
-          </button>
+          {game ? (
+            <EditGameDetailsModal
+              gameId={gameId}
+              game={game}
+              onSaved={async (g) => {
+                setGame(g);
+                await refresh();
+              }}
+            />
+          ) : null}
         </div>
 
         <p className="text-sm text-slate-400">
@@ -187,9 +189,30 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </span>
         </p>
 
-        <button type="button" onClick={addDrive} className={`text-sm font-semibold ${addDriveButtonClass}`}>
-          + Add Drive
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
+            <button
+              type="button"
+              onClick={addDrive}
+              className="inline-flex items-center justify-center rounded-lg border border-emerald-600/80 px-3 py-2 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/10"
+            >
+              + Add Drive
+            </button>
+            <Link
+              href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
+              className="inline-flex items-center justify-center rounded-lg border border-slate-600 px-3 py-2 text-center text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800"
+            >
+              ↑ Upload CSV
+            </Link>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowEndGameModal(true)}
+            className="inline-flex w-full items-center justify-center self-center rounded-lg border border-red-800/60 px-3 py-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-900/20 sm:w-auto sm:self-auto"
+          >
+            ■ End Game
+          </button>
+        </div>
       </div>
 
       {showEndGameModal ? (
@@ -222,57 +245,94 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
+        const yardsLabel = yardsGained >= 0 ? `+${yardsGained}` : String(yardsGained);
         const driveResult = getDriveResult(drive.plays);
         const isExpanded = expandedDriveIds.includes(drive.id);
+        const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
+        function toggleDriveExpanded() {
+          setExpandedDriveIds((current) =>
+            current.includes(drive.id) ? current.filter((id) => id !== drive.id) : [...current, drive.id],
+          );
+        }
+
         return (
-          <div key={drive.id} className="rounded border border-slate-800 bg-slate-900 p-3">
-            <div className="flex items-center justify-between gap-2">
+          <div key={drive.id} className="rounded border border-slate-800 bg-slate-900 px-4 py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button type="button" className="min-w-0 flex-1 text-left" onClick={toggleDriveExpanded}>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium text-slate-100">
+                      Drive {drive.drive_number}
+                      <span className="mx-2 text-slate-600">|</span>
+                      <span className="font-mono text-sm text-slate-400">{qLabel}</span>
+                    </p>
+                    {driveResult === "TOUCHDOWN" ? (
+                      <span className="inline-flex items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                        TD
+                      </span>
+                    ) : null}
+                    {driveResult === "TURNOVER" ? (
+                      <span className="inline-flex items-center rounded-full border border-red-700 bg-red-900/40 px-2 py-0.5 text-xs font-semibold text-red-400">
+                        TO
+                      </span>
+                    ) : null}
+                    {driveResult === "PUNT" ? (
+                      <span className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800/80 px-2 py-0.5 text-xs font-semibold text-slate-300">
+                        PUNT
+                      </span>
+                    ) : null}
+                    {driveResult === "FIELD_GOAL" ? (
+                      <span className="inline-flex items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                        FG
+                      </span>
+                    ) : null}
+                    {driveResult === "ACTIVE" ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-700 bg-amber-900/40 px-2 py-0.5 text-xs font-semibold text-amber-400">
+                        IN PROGRESS
+                      </span>
+                    ) : null}
+                    {driveResult === "NO_PLAYS" ? (
+                      <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs text-slate-500">
+                        No plays
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-slate-400">
+                    <span>
+                      {drive.score_mine ?? 0}-{drive.score_opponent ?? 0}
+                    </span>
+                    <span className="text-slate-600">|</span>
+                    <span>
+                      {playCount} {playCount === 1 ? "play" : "plays"}
+                    </span>
+                    <span className="text-slate-600">|</span>
+                    <span>{yardsLabel} yds</span>
+                  </p>
+                </div>
+              </button>
               <button
                 type="button"
-                className="flex-1 text-left"
-                onClick={() =>
-                  setExpandedDriveIds((current) => (current.includes(drive.id) ? current.filter((id) => id !== drive.id) : [...current, drive.id]))
-                }
+                className="inline-flex shrink-0 items-center rounded border border-slate-700 px-2 py-1 text-xs leading-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingDriveId(drive.id);
+                }}
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-medium">Drive {drive.drive_number}</p>
-                  {driveResult === "TOUCHDOWN" ? (
-                    <span className="inline-flex items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2 py-0.5 text-xs font-semibold text-emerald-400">
-                      TD
-                    </span>
-                  ) : null}
-                  {driveResult === "TURNOVER" ? (
-                    <span className="inline-flex items-center rounded-full border border-red-700 bg-red-900/40 px-2 py-0.5 text-xs font-semibold text-red-400">
-                      TO
-                    </span>
-                  ) : null}
-                  {driveResult === "PUNT" ? (
-                    <span className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800/80 px-2 py-0.5 text-xs font-semibold text-slate-300">
-                      PUNT
-                    </span>
-                  ) : null}
-                  {driveResult === "FIELD_GOAL" ? (
-                    <span className="inline-flex items-center rounded-full bg-emerald-900/40 border border-emerald-700 px-2 py-0.5 text-xs font-semibold text-emerald-400">
-                      FG
-                    </span>
-                  ) : null}
-                  {driveResult === "ACTIVE" ? (
-                    <span className="inline-flex items-center rounded-full border border-amber-700 bg-amber-900/40 px-2 py-0.5 text-xs font-semibold text-amber-400">
-                      IN PROGRESS
-                    </span>
-                  ) : null}
-                  {driveResult === "NO_PLAYS" ? (
-                    <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs text-slate-500">
-                      No plays
-                    </span>
-                  ) : null}
-                </div>
-                <p className="text-xs text-slate-400">
-                  {drive.score_mine ?? 0}-{drive.score_opponent ?? 0} | {playCount} plays | {yardsGained} yds
-                </p>
-              </button>
-              <button type="button" className="rounded border border-slate-700 px-2 py-1 text-xs" onClick={() => setEditingDriveId(drive.id)}>
                 Edit Drive
+              </button>
+              <button
+                type="button"
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded border border-transparent text-slate-500 transition-colors hover:bg-slate-800 hover:text-slate-300"
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleDriveExpanded();
+                }}
+              >
+                <span className={`inline-block font-mono text-sm transition-transform ${isExpanded ? "rotate-90" : ""}`} aria-hidden>
+                  ▶
+                </span>
               </button>
             </div>
 
@@ -336,7 +396,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             ) : null}
 
             {isExpanded ? (
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 flex flex-col gap-2 border-t border-slate-800/80 pt-3">
                 {(drive.plays ?? []).map((p) => (
                   <button
                     type="button"
@@ -382,17 +442,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
         </div>
       ) : null}
-
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-        <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Secondary</p>
-        <p className="mt-1 text-sm text-slate-400">Need a full play-by-play from a spreadsheet? CSV import creates a new session from the game setup page.</p>
-        <Link
-          href="/film/new"
-          className="mt-3 inline-flex items-center justify-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:border-emerald-700/50 hover:bg-slate-800"
-        >
-          Import from CSV
-        </Link>
-      </div>
     </section>
   );
 }

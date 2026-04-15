@@ -54,9 +54,24 @@ type Props = {
   embedded?: boolean;
   /** Show only the download button for compact layouts (e.g. modals). */
   compact?: boolean;
+  /** Compact outlined button for header row (import step 1). */
+  variant?: "default" | "headerInline";
 };
 
-export function TemplateDownload({ embedded, compact }: Props) {
+export function TemplateDownload({ embedded, compact, variant = "default" }: Props) {
+  if (variant === "headerInline") {
+    return (
+      <button
+        type="button"
+        onClick={() => downloadClientTemplate()}
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600/80 bg-transparent px-3 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-emerald-400 transition-colors hover:bg-emerald-500/10 sm:w-auto"
+      >
+        <span aria-hidden>↓</span>
+        Download Template
+      </button>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {embedded ? null : <h3 className="font-display text-2xl tracking-wide text-white">Download template</h3>}
