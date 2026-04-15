@@ -1,0 +1,92 @@
+# Typography System — Enforced Globally
+
+This project uses exactly three fonts. Never use any other font.
+
+## Barlow Condensed (display/headings)
+- Page titles (h1), section headings (h2, h3)
+- Drive titles, large stat numbers, primary CTA button text
+- Always uppercase, letter-spacing 1-2px, weight 600 or 700
+
+## Barlow (body/UI)
+- Body text, descriptions, form labels, nav items, tab labels
+- Helper text, card subtitles, metadata, scenario names, formation names
+- Weight 400 for body, 500 for emphasis, 600 for labels
+
+## JetBrains Mono (data/monospace)
+- Play names, stat values, stat card labels, result badges
+- Yards, down & distance, table cell data, scores, percentages
+- Weight 400 for data, 500 for emphasis
+
+## Banned Fonts
+Never use: DM Mono, Bebas Neue, Inter, Arial, Roboto, system-ui, or Tailwind's default sans/mono stacks.
+
+## Tailwind Config
+font-mono must be mapped to JetBrains Mono in tailwind.config.js.
+font-sans must be mapped to Barlow.
+font-display (custom utility) must be mapped to Barlow Condensed.
+
+# UX/UI Systematic Principles — Enforced Globally
+
+Every component, page, and interaction must follow these principles.
+Do not build anything that violates them.
+
+## Feedback Visibility
+Every user action that changes data must produce visible feedback.
+- Destructive actions (delete, remove) require a confirmation step
+- Successful writes show a success toast
+- Failed writes show an error toast and roll back optimistic UI updates
+- Never let a button click produce no visible response
+
+## Progressive Disclosure
+Show the minimum information needed, let users drill deeper on demand.
+- Lists default to a collapsed/limited view with "Show more" to expand
+- Accordions start collapsed unless there's only one item
+- Detail data lives behind a tap, not on the surface
+- Empty slots and zero-states are always visible — never hide a section because it has no data
+
+## Empty States
+No screen, section, or component may render blank when it has no data.
+- Every empty state must include: a clear message explaining why it's empty, and a CTA button pointing the user to the action that fills it
+- Never show just "No data" or a blank container
+
+## Consistency
+Identical patterns must look and behave identically everywhere.
+- One dropdown component used app-wide, not multiple implementations
+- One accordion pattern (chevron right, 200ms ease-out animation)
+- One card style (same background, border, radius, padding)
+- One button hierarchy: primary (emerald solid), secondary (outlined), destructive (red outlined), ghost (text only)
+- One kebab menu pattern (three dots, top-right of card, vertically centered)
+- If a pattern exists on one page, reuse the same component on every other page that needs it
+
+## Spacing & Density
+- Page padding: px-4 py-6 on mobile, px-6 py-8 on desktop
+- Card internal padding: p-4 minimum
+- Gap between cards/sections: gap-3 (12px) minimum
+- Bottom padding on every page: pb-24 (so content clears the bottom nav)
+- Touch targets: 44px minimum on all interactive elements
+
+## Motion & Transitions
+- Accordions: 200ms ease-out expand/collapse, chevron rotates smoothly
+- Skeleton to content: 150ms fade-in
+- Button press: scale(0.97) on active, 100ms
+- Tab switches: 100ms crossfade
+- All animations wrapped in prefers-reduced-motion media query
+- No decorative animation — motion must serve comprehension or feedback
+
+## Accessibility Baseline
+- :focus-visible outline on every interactive element (2px emerald, 2px offset)
+- Never rely on color alone to convey meaning — always pair with a text label or icon
+- Minimum 44px touch targets on mobile
+- All images and icons have appropriate alt text or aria-label
+- Form inputs always have associated labels
+
+## Navigation & Orientation
+- Every detail page has a back button (ghost style, chevron + "Back")
+- Breadcrumbs on pages 2+ levels deep
+- The user should always know where they are and how to get back
+
+## Data Display
+- Numbers are always formatted: commas for thousands, 1 decimal for averages, 0 decimals for percentages
+- Positive yards: emerald. Negative yards: red. Zero: muted.
+- Success rate color coding: 60%+ emerald, 40-59% amber, below 40% red, no data gray
+- Tables use consistent column widths and alignment (numbers right-aligned, text left-aligned)

@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const { data: plays } = await supabase.from("logged_plays").select("*").order("created_at", { ascending: false });
-  const list = plays ?? [];
+  const list = (plays ?? []).filter((p) => {
+    const playName = String(p.play_name ?? "").trim().toLowerCase();
+    const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+    return playName !== "punt" && resultTag !== "punt";
+  });
 
   const total = list.length;
   const successes = list.filter((p) => p.is_success).length;

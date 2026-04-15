@@ -16,10 +16,10 @@ export function MotionUsage({ userPct, playbookPct, playbookName, underutilizing
         : "You're making good use of your playbook's motion plays.";
 
   return (
-    <div className="app-card app-card-pad">
+    <div className="app-card p-4">
       <p className="app-field-label">Pre-snap motion usage</p>
-      <p className="font-mono mt-1 text-4xl font-bold tabular-nums text-slate-100">{userPct}%</p>
-      <p className="font-body mt-3 text-sm leading-relaxed text-slate-400">
+      <p className="mt-1 font-barlow-condensed text-4xl font-bold leading-none tabular-nums text-slate-100">{userPct}%</p>
+      <p className="mt-2 font-barlow text-[13px] font-normal leading-[1.35] text-slate-400">
         {playbookName ? <span className="text-slate-500">Playbook: {playbookName}. </span> : null}
         {body}
       </p>

@@ -10,3 +10,10 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json(data);
 }
+
+export async function DELETE(_: NextRequest, ctx: Ctx) {
+  const { id } = await ctx.params;
+  const { error } = await supabase.from("drives").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ ok: true });
+}

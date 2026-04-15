@@ -117,6 +117,26 @@ export function TeamCombobox<T extends { team_name: string }>({
             }}
             className="hs-input app-input py-2.5 ps-3 pe-10 read-only:cursor-default"
           />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 inline-flex items-center pr-3 text-slate-400"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform ${open ? "rotate-180" : ""}`}
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
 
         {showList ? (

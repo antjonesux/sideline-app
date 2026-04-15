@@ -16,7 +16,7 @@ type TopPlaysApi = {
   meta: { play_count: number };
 };
 
-type TopFormationsApi = { top_formations: TopFormationRow[]; meta: { play_count: number } };
+type TopFormationsApi = { top_formations: TopFormationRow[]; total_matching: number; meta: { play_count: number } };
 
 type Props = {
   opponents: string[];
@@ -25,16 +25,23 @@ type Props = {
 export function WhatsWorking({ opponents }: Props) {
   const [filters, setFilters] = useState<TendenciesFilterParams>({ pill: "all", opponentTeam: opponents[0] ?? null, minUses: 3 });
   const [playsExpanded, setPlaysExpanded] = useState(false);
+  const [formationsExpanded, setFormationsExpanded] = useState(false);
+  const [reconsiderExpanded, setReconsiderExpanded] = useState(false);
 
   const qs = useMemo(() => buildTendenciesQueryString(filters), [filters]);
   const qsPlays = useMemo(() => {
     const sp = new URLSearchParams(qs);
-    if (playsExpanded) sp.set("expand", "1");
+      if (playsExpanded) sp.set("expand", "1");
     return sp.toString();
   }, [qs, playsExpanded]);
+  const qsFormations = useMemo(() => {
+    const sp = new URLSearchParams(qs);
+    if (formationsExpanded) sp.set("expand", "1");
+    return sp.toString();
+  }, [qs, formationsExpanded]);
 
   const playsKey = `${qsPlays}`;
-  const formationsKey = `${qs}`;
+  const formationsKey = `${qsFormations}`;
 
   const playsQuery = useQuery({
     queryKey: tendenciesQueryKeys.topPlays(playsKey),
@@ -64,7 +71,10 @@ export function WhatsWorking({ opponents }: Props) {
         <h2 className="app-section-title">Top plays</h2>
         {playsQuery.isLoading ? <TendenciesSectionSkeleton /> : null}
         {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
-          <p className="font-barlow text-sm text-slate-500">No plays in this filter.</p>
+          <div className="app-card app-card-pad text-center">
+            <p className="font-body text-sm text-slate-300">No plays with enough data for this filter yet.</p>
+            <p className="mt-1 font-body text-sm text-slate-500">Log more games to see trends here.</p>
+          </div>
         ) : null}
         {playsQuery.data && playsQuery.data.meta.play_count > 0 ? (
           <TopPlaysList
@@ -79,13 +89,25 @@ export function WhatsWorking({ opponents }: Props) {
       <section className="space-y-3">
         <h2 className="app-section-title">Top formations</h2>
         {formationsQuery.isLoading ? <TendenciesSectionSkeleton /> : null}
-        {formationsQuery.data?.top_formations?.length ? <TopFormationsList rows={formationsQuery.data.top_formations} /> : null}
+        {formationsQuery.data?.top_formations?.length ? (
+          <TopFormationsList
+            rows={formationsQuery.data.top_formations}
+            totalCount={formationsQuery.data.total_matching}
+            expanded={formationsExpanded}
+            onToggleExpand={() => setFormationsExpanded((v) => !v)}
+          />
+        ) : null}
       </section>
 
       {playsQuery.data?.reconsider_plays?.length ? (
         <section className="space-y-3">
           <h2 className="app-section-title">Plays to reconsider</h2>
-          <ReconsiderPlays rows={playsQuery.data.reconsider_plays} />
+          <ReconsiderPlays
+            rows={reconsiderExpanded ? playsQuery.data.reconsider_plays : playsQuery.data.reconsider_plays.slice(0, 3)}
+            totalCount={playsQuery.data.reconsider_plays.length}
+            expanded={reconsiderExpanded}
+            onToggleExpand={() => setReconsiderExpanded((v) => !v)}
+          />
         </section>
       ) : null}
     </div>

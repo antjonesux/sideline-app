@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { categorizeCfbPlayType, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
+import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
   id: string;
@@ -28,6 +28,10 @@ export type LoggedPlayRow = {
 };
 
 export type TendencyScope = "all" | "last5" | "last10" | "opponent";
+
+function isPunt(play: Pick<LoggedPlayRow, "play_name" | "result_tag">): boolean {
+  return (play.play_name ?? "").trim().toLowerCase() === "punt" || (play.result_tag ?? "").trim().toLowerCase() === "punt";
+}
 
 export function parseScope(raw: string | null): TendencyScope {
   if (raw === "last5" || raw === "last10" || raw === "opponent") return raw;
@@ -62,7 +66,8 @@ export function resolveFilteredGameIds(
   if (scope === "last5") return games.slice(0, 5).map((g) => g.id);
   if (scope === "last10") return games.slice(0, 10).map((g) => g.id);
   if (scope === "opponent" && opponentTeam) {
-    return games.filter((g) => g.opponent_team === opponentTeam).map((g) => g.id);
+    const target = opponentTeam.trim().toLowerCase();
+    return games.filter((g) => g.opponent_team.trim().toLowerCase() === target).map((g) => g.id);
   }
   return games.map((g) => g.id);
 }
@@ -86,13 +91,21 @@ export async function fetchLoggedPlaysForGames(
     }
     out.push(...((data ?? []) as LoggedPlayRow[]));
   }
-  return out;
+  return out.filter((play) => !isPunt(play));
 }
 
 type PlayLookupKey = string;
 
+function normalizeLookupPart(raw: string): string {
+  return raw.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function sanitizeIlikeTerm(raw: string): string {
+  return raw.replace(/[%_"]/g, (m) => `\\${m}`).trim();
+}
+
 function lookupKey(playbook: string, formation: string, playName: string): PlayLookupKey {
-  return `${playbook.trim()}|${formation.trim()}|${playName.trim()}`;
+  return `${normalizeLookupPart(playbook)}|${normalizeLookupPart(formation)}|${normalizeLookupPart(playName)}`;
 }
 
 export async function fetchCfbPlayTypeMap(
@@ -106,7 +119,27 @@ export async function fetchCfbPlayTypeMap(
   const chunkSize = 8;
   for (let i = 0; i < books.length; i += chunkSize) {
     const slice = books.slice(i, i + chunkSize);
-    const { data, error } = await supabase.from("cfb26_plays").select("playbook, formation, play_name, play_type").in("playbook", slice);
+    const ilikeFilters = slice
+      .map((book) => sanitizeIlikeTerm(book))
+      .filter(Boolean)
+      .map((book) => `playbook.ilike."${book}"`)
+      .join(",");
+    const withPlayTypeQuery = supabase.from("cfb26_plays").select("playbook, formation, play_name, play_type");
+    let data: { playbook: unknown; formation: unknown; play_name: unknown; play_type?: unknown }[] | null = null;
+    let error: { message?: string } | null = null;
+    const withPlayTypeResult = ilikeFilters ? await withPlayTypeQuery.or(ilikeFilters) : await withPlayTypeQuery.in("playbook", slice);
+    data = (withPlayTypeResult.data as typeof data) ?? null;
+    error = withPlayTypeResult.error as typeof error;
+    if (error && /play_type/i.test(error.message ?? "") && /column/i.test(error.message ?? "")) {
+      console.warn("[Tendencies] cfb26_plays.play_type missing; falling back to play_name-derived type.");
+      const fallbackQuery = supabase.from("cfb26_plays").select("playbook, formation, play_name");
+      const fallbackResult = ilikeFilters ? await fallbackQuery.or(ilikeFilters) : await fallbackQuery.in("playbook", slice);
+      data = ((fallbackResult.data ?? []) as { playbook: unknown; formation: unknown; play_name: unknown }[]).map((row) => ({
+        ...row,
+        play_type: "",
+      }));
+      error = fallbackResult.error as typeof error;
+    }
     if (error) {
       console.error("tendencies cfb26_plays:", error);
       continue;
@@ -127,12 +160,16 @@ export function attachPlayTypes(
   plays: LoggedPlayRow[],
   gamesById: Map<string, GameRow>,
   cfbTypes: Map<PlayLookupKey, string>,
-): { bucket: PlayTypeBucket }[] {
+): { bucket: PlayTypeBucket; matched: boolean; rawType: string }[] {
   return plays.map((p) => {
     const g = gamesById.get(p.game_session_id);
     const pb = g ? playbookForGame(g) : "";
-    const raw = pb ? cfbTypes.get(lookupKey(pb, p.formation, p.play_name)) : undefined;
-    return { bucket: categorizeCfbPlayType(raw) };
+    const key = pb ? lookupKey(pb, p.formation, p.play_name) : "";
+    const matched = key ? cfbTypes.has(key) : false;
+    const fromLookup = matched ? (cfbTypes.get(key) ?? "").trim() : "";
+    const derived = deriveCfbPlayTypeFromName(p.play_name);
+    const raw = fromLookup || derived;
+    return { bucket: categorizeCfbPlayType(raw), matched, rawType: raw };
   });
 }
 
@@ -168,6 +205,33 @@ export function aggregateByFormationPlay(plays: LoggedPlayRow[], minUses: number
     .filter((r) => r.uses >= minUses)
     .sort((a, b) => b.success_rate - a.success_rate || b.uses - a.uses);
   return rows;
+}
+
+export function mostCommonScenarioByFormationPlay(plays: LoggedPlayRow[]): Map<string, string> {
+  const scenarioCounts = new Map<string, Map<string, number>>();
+  for (const p of plays) {
+    const key = `${p.formation}\u0000${p.play_name}`;
+    const sc = p.scenario?.trim() || "Unknown";
+    if (!scenarioCounts.has(key)) {
+      scenarioCounts.set(key, new Map<string, number>());
+    }
+    const row = scenarioCounts.get(key)!;
+    row.set(sc, (row.get(sc) ?? 0) + 1);
+  }
+
+  const out = new Map<string, string>();
+  for (const [key, counts] of scenarioCounts.entries()) {
+    let winner = "Unknown";
+    let max = -1;
+    for (const [scenario, count] of counts.entries()) {
+      if (count > max) {
+        winner = scenario;
+        max = count;
+      }
+    }
+    out.set(key, winner);
+  }
+  return out;
 }
 
 export function aggregateByFormation(plays: LoggedPlayRow[], minUses: number) {
@@ -265,7 +329,7 @@ export function situationRunPassRows(plays: LoggedPlayRow[], buckets: PlayTypeBu
 }
 
 export function playTypeCounts(buckets: PlayTypeBucket[]) {
-  const c: Record<PlayTypeBucket, number> = { Run: 0, Pass: 0, RPO: 0, Option: 0, Other: 0 };
+  const c: Record<PlayTypeBucket, number> = { Run: 0, Pass: 0, "Play Action": 0, Screen: 0, RPO: 0, Option: 0, Other: 0 };
   for (const b of buckets) c[b] += 1;
   return c;
 }

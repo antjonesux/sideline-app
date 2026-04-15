@@ -6,9 +6,11 @@
 
 @theme {
   /* Next/font sets --font-barlow, --font-barlow-condensed, --font-jetbrains-mono on <html> */
-  --font-body: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-barlow-condensed), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-body: var(--font-barlow), sans-serif;
+  --font-heading: var(--font-barlow-condensed), sans-serif;
+  --font-display: var(--font-barlow-condensed), sans-serif;
+  --font-sans: var(--font-barlow), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 @layer base {
@@ -18,15 +20,36 @@
   }
 
   body {
-    font-family: var(--font-barlow), system-ui, sans-serif;
+    font-family: var(--font-barlow), sans-serif;
   }
 
   .font-barlow {
-    font-family: var(--font-barlow), system-ui, sans-serif;
+    font-family: var(--font-barlow), sans-serif;
   }
 
   .font-barlow-condensed {
-    font-family: var(--font-barlow-condensed), system-ui, sans-serif;
+    font-family: var(--font-barlow-condensed), sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-barlow-condensed), sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  :focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+    transition: transform 100ms ease-out;
   }
 }
 
@@ -66,7 +89,7 @@
   }
 
   .app-game-title {
-    @apply font-heading text-lg font-bold tracking-wide text-slate-100;
+    @apply font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100;
   }
 
   .app-editor-title {
@@ -74,20 +97,20 @@
   }
 
   .app-field-label {
-    @apply font-body text-xs font-medium uppercase tracking-widest text-slate-500;
+    @apply font-body text-xs font-semibold uppercase tracking-[0.12em] text-slate-500;
   }
 
   /* Buttons */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-primary-block {
-    @apply inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-primary-lg {
-    @apply inline-flex w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-body text-base font-semibold uppercase tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-heading text-base font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-secondary {
@@ -120,4 +143,55 @@
     @apply animate-pulse rounded-md bg-slate-700/55;
   }
 
+  .fade-in {
+    animation: fadeIn 150ms ease-out;
+  }
+
+  .tab-content {
+    animation: fadeIn 100ms ease-out;
+  }
+
+  .accordion-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms ease-out;
+  }
+
+  .accordion-content.open {
+    grid-template-rows: 1fr;
+  }
+
+  .accordion-content > div {
+    overflow: hidden;
+  }
+
+  .accordion-chevron {
+    transition: transform 200ms ease-out;
+  }
+
+  .accordion-chevron.open {
+    transform: rotate(180deg);
+  }
+
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

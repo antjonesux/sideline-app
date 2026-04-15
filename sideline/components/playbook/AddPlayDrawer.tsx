@@ -112,7 +112,7 @@ export function AddPlayDrawer({
       }}
     >
       <div
-        className="hs-overlay-animation-target pointer-events-auto absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-950 shadow-2xl sm:mx-auto sm:max-w-lg"
+        className="hs-overlay-animation-target pointer-events-auto absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:mx-auto sm:max-w-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
@@ -133,7 +133,7 @@ export function AddPlayDrawer({
           <div className="flex max-h-[calc(88vh-3.5rem)] flex-col">
             <div className="border-b border-slate-800 p-3">
               <input
-                className="hs-input app-input py-2 text-sm"
+                className="hs-input app-input py-2 text-sm text-white placeholder:text-[#A0A3AD]"
                 placeholder="Search formations…"
                 value={formationSearch}
                 onChange={(e) => setFormationSearch(e.target.value)}
@@ -142,30 +142,32 @@ export function AddPlayDrawer({
             <div className="min-h-0 flex-1 overflow-y-auto p-3">
               {filteredGroups.map((g) => (
                 <div key={g.formation_type} className="mb-4">
-                  <p className="app-field-label">{g.formation_type}</p>
+                  <p className="font-heading text-[12px] font-semibold uppercase tracking-[0.12em] text-emerald-300">{g.formation_type}</p>
                   <ul className="mt-2 space-y-1">
                     {g.formations.map((f) => {
                       const fs = formationStats[f];
                       const sub =
                         fs && fs.uses > 0 ? (
-                          <span className="font-mono text-[10px] text-slate-500">
-                            {fs.uses} uses · {fs.success_rate}% success
+                          <span className="font-mono text-[11px] font-normal text-[#A0A3AD]">
+                            {fs.uses} uses
+                            <span className="mx-1 text-slate-600">·</span>
+                            {fs.success_rate}% success
                           </span>
                         ) : (
-                          <span className="font-mono text-[10px] text-slate-600">No data yet</span>
+                          <span className="font-mono text-[11px] font-normal text-[#A0A3AD]">No data yet</span>
                         );
                       return (
                         <li key={f}>
                           <button
                             type="button"
-                            className="app-card flex w-full items-center justify-between px-3 py-2 text-start transition-colors hover:border-emerald-600/50"
+                            className="app-card flex w-full items-center justify-between px-3 py-3 text-start transition-colors hover:border-emerald-600/50"
                             onClick={() => {
                               setSelectedFormation(f);
                               setStep(2);
                               setPlaySearch("");
                             }}
                           >
-                            <span className="font-body text-sm text-white">{f}</span>
+                            <span className="font-body text-[14px] font-normal text-[#F5F5F0]">{f}</span>
                             {sub}
                           </button>
                         </li>
@@ -187,7 +189,7 @@ export function AddPlayDrawer({
                 ← Formations
               </button>
               <input
-                className="hs-input app-input min-w-0 flex-1 py-2 text-sm"
+                className="hs-input app-input min-w-0 flex-1 py-2 text-sm text-white placeholder:text-[#A0A3AD]"
                 placeholder="Search plays…"
                 value={playSearch}
                 onChange={(e) => setPlaySearch(e.target.value)}
@@ -206,10 +208,6 @@ export function AddPlayDrawer({
                     const ck = selectedFormation ? comboKey(selectedFormation, p.play_name) : "";
                     const st = ck ? scenarioStats[ck] : null;
                     const newBadge = !st || st.uses === 0;
-                    const line =
-                      st && st.uses > 0
-                        ? `${st.uses} uses · ${st.avg_yards.toFixed(1)} yds · ${st.success_rate}%`
-                        : "No logged data";
                     return (
                       <li key={p.play_name}>
                         <button
@@ -227,7 +225,19 @@ export function AddPlayDrawer({
                               </span>
                             ) : null}
                           </div>
-                          <span className="mt-1 font-mono text-[10px] text-slate-500">{line}</span>
+                          {st && st.uses > 0 ? (
+                            <span className="mt-1 text-[10px] text-slate-500">
+                              <span className="font-mono">{st.uses}</span>
+                              <span className="font-body ml-1">uses</span>
+                              <span className="mx-1 text-slate-600">·</span>
+                              <span className="font-mono">{st.avg_yards.toFixed(1)}</span>
+                              <span className="font-body ml-1">yds</span>
+                              <span className="mx-1 text-slate-600">·</span>
+                              <span className="font-mono">{st.success_rate}%</span>
+                            </span>
+                          ) : (
+                            <span className="mt-1 font-body text-[10px] text-slate-500">No logged data</span>
+                          )}
                         </button>
                       </li>
                     );

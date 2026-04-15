@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 type Row = { formation: string; count: number; pct: number };
 
 type Props = {
@@ -7,10 +9,11 @@ type Props = {
 };
 
 export function FormationFrequency({ rows }: Props) {
+  const [expanded, setExpanded] = useState(false);
   if (rows.length === 0) {
     return <p className="font-body text-sm text-slate-500">No formation data.</p>;
   }
-  const top = rows.slice(0, 12);
+  const top = expanded ? rows : rows.slice(0, 5);
   return (
     <div className="space-y-2">
       {top.map((r) => (
@@ -33,6 +36,11 @@ export function FormationFrequency({ rows }: Props) {
         <p className="font-body pt-2 text-xs text-amber-400/95">
           <span className="mr-1">⚠</span> Opponents may key on a formation you use over 20% of the time.
         </p>
+      ) : null}
+      {rows.length > 5 ? (
+        <button type="button" className="font-body text-sm text-emerald-400/90 hover:underline" onClick={() => setExpanded((v) => !v)}>
+          {expanded ? "Show less" : `Show all ${rows.length} formations`}
+        </button>
       ) : null}
     </div>
   );

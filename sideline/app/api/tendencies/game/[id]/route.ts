@@ -31,7 +31,11 @@ export async function GET(_: NextRequest, ctx: Ctx) {
       score_mine: d.score_mine,
       score_opponent: d.score_opponent,
       note: d.note,
-      plays: (plays ?? []) as DriveWithPlays["plays"],
+      plays: ((plays ?? []) as DriveWithPlays["plays"]).filter((p) => {
+        const playName = String(p.play_name ?? "").trim().toLowerCase();
+        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+        return playName !== "punt" && resultTag !== "punt";
+      }),
     });
   }
 

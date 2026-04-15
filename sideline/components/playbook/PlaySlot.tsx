@@ -86,7 +86,7 @@ export function PlaySlot({
               : "border-slate-600 text-slate-300 hover:border-emerald-700/50 hover:bg-slate-900 hover:text-emerald-200"
           }`}
         >
-          + Add Play
+          Add Play
         </button>
       </div>
     );
@@ -95,11 +95,6 @@ export function PlaySlot({
   const key = comboKey(play.formation, play.play_name);
   const stats = scenarioStats[key] ?? null;
   const dot = performanceDot(stats);
-  const statsLine =
-    stats && stats.uses > 0
-      ? `${stats.uses} uses · ${stats.avg_yards.toFixed(1)} avg yds · ${stats.success_rate}% success`
-      : "No data yet";
-
   return (
     <div
       draggable={isScript}
@@ -123,7 +118,7 @@ export function PlaySlot({
       }}
       className={`rounded-lg border border-slate-800 bg-slate-900/90 p-3 ${dragId === play.id ? "opacity-60" : ""}`}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex items-center gap-2">
         {isScript ? (
           <span className="mt-0.5 cursor-grab select-none font-mono text-xs text-slate-500 active:cursor-grabbing" title="Drag to reorder">
             ⋮⋮
@@ -139,15 +134,20 @@ export function PlaySlot({
               <span className="font-barlow text-slate-500"> → </span>
               <span className="font-mono text-[12px] font-medium uppercase text-white">{play.play_name}</span>
             </p>
-            <div className="relative shrink-0" ref={menuRef}>
+            <div className="relative shrink-0 self-start" ref={menuRef}>
               <button
                 type="button"
-                className="rounded px-1.5 font-mono text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 hover:bg-slate-800 hover:text-slate-300"
                 aria-expanded={menu}
                 aria-haspopup="menu"
+                aria-label="Play actions"
                 onClick={() => setMenu((m) => !m)}
               >
-                ···
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <circle cx="12" cy="5" r="1.75" />
+                  <circle cx="12" cy="12" r="1.75" />
+                  <circle cx="12" cy="19" r="1.75" />
+                </svg>
               </button>
               {menu ? (
                 <ul
@@ -185,8 +185,23 @@ export function PlaySlot({
             </div>
           </div>
           <div className="mt-1.5 flex items-center justify-between gap-2">
-            <p className="font-mono text-[11px] text-slate-500">{statsLine}</p>
-            <span className={`size-2 shrink-0 rounded-full ${dot.className}`} title={dot.label} />
+            <div className="flex min-w-0 items-center gap-2">
+              <span className={`size-2 shrink-0 rounded-full ${dot.className}`} title={dot.label} />
+              {stats && stats.uses > 0 ? (
+                <p className="min-w-0 truncate text-[11px] text-slate-500">
+                  <span className="font-mono">{stats.uses}</span>
+                  <span className="font-body ml-1">uses</span>
+                  <span className="mx-1 text-slate-600">·</span>
+                  <span className="font-mono">{stats.avg_yards.toFixed(1)}</span>
+                  <span className="font-body ml-1">avg yds</span>
+                  <span className="mx-1 text-slate-600">·</span>
+                  <span className="font-mono">{stats.success_rate}%</span>
+                  <span className="font-body ml-1">success</span>
+                </p>
+              ) : (
+                <p className="min-w-0 truncate font-body text-[11px] text-slate-500">No data yet</p>
+              )}
+            </div>
           </div>
           {isScript && onScriptNote ? (
             <input

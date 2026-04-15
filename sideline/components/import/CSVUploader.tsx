@@ -106,7 +106,7 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
         }`}
       >
         <p className="font-body text-sm text-slate-200">Drop your CSV here or click to browse</p>
-        <p className="mt-2 font-mono text-xs text-slate-500">sideline_game_template.csv</p>
+        <p className="mt-2 font-body text-xs text-slate-500">sideline_game_template.csv</p>
       </button>
 
       <button

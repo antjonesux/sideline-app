@@ -1,6 +1,7 @@
 "use client";
 
 import { ResultBadge } from "@/components/import/ResultBadge";
+import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { GameFormationTable } from "@/components/tendencies/GameFormationTable";
 import { GameStatsGrid } from "@/components/tendencies/GameStatsGrid";
 import type { PlayTypeBucket } from "@/lib/tendenciesPlayType";
@@ -85,18 +86,15 @@ export function GameBreakdown({ data }: Props) {
     <div className="space-y-8">
       <header className="space-y-1">
         <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-slate-100 sm:text-3xl">{title.line}</h2>
-        <p className="font-mono text-[11px] text-slate-500">
-          <span className="tabular-nums text-slate-400">{stats.play_count} plays</span>
-          <span className="mx-1.5 text-slate-600">·</span>
-          <span className="tabular-nums">{stats.drive_count} drives</span>
-          <span className="mx-1.5 text-slate-600">·</span>
-          <span className="tabular-nums">{stats.total_yards} total yards</span>
-          <span className="mx-1.5 text-slate-600">·</span>
-          <span className="tabular-nums">{stats.tds} TDs</span>
-          <span className="mx-1.5 text-slate-600">·</span>
-          <span className="tabular-nums">{stats.turnovers} turnovers</span>
-        </p>
+        <div className="overflow-x-auto">
+          <GameStatsInline playCount={stats.play_count} driveCount={stats.drive_count} totalYards={stats.total_yards} tds={stats.tds} turnovers={stats.turnovers} />
+        </div>
       </header>
+
+      <section className="space-y-3">
+        <h3 className="app-section-title">Game stats</h3>
+        <GameStatsGrid stats={data.stats} />
+      </section>
 
       <section className="space-y-3">
         <h3 className="app-section-title">Drive summary</h3>
@@ -116,19 +114,30 @@ export function GameBreakdown({ data }: Props) {
                 <div className="flex items-center gap-2">
                   <button type="button" className="min-w-0 flex-1 text-left" onClick={() => toggleDrive(drive.id)}>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-slate-500">{isExpanded ? "▼" : "▶"}</span>
                       <span className="font-heading text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">
                         Drive {drive.drive_number}
                       </span>
-                      <span className="font-mono text-[10px] font-semibold uppercase text-slate-400">{badge}</span>
-                      <span className="font-body text-[13px] text-slate-400">
-                        <span className="whitespace-nowrap">{qLabel}</span>
+                      <span className="shrink-0">
+                        {badge === "ACTIVE" || badge === "NO PLAYS" ? (
+                          <span className="font-mono rounded-full border border-[#2A2E3A] bg-[#1C1F28] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#A0A3AD]">
+                            {badge}
+                          </span>
+                        ) : (
+                          <ResultBadge label={badge === "TD" ? "TOUCHDOWN" : badge === "FG" ? "FIELD_GOAL" : badge} />
+                        )}
+                      </span>
+                      <span className="text-[13px] text-slate-400">
+                        <span className="font-body whitespace-nowrap">{qLabel}</span>
                         <span className="mx-1.5 text-slate-500">·</span>
                         <span className="whitespace-nowrap">
-                          {playCount} {playCount === 1 ? "play" : "plays"}
+                          <span className="font-mono">{playCount}</span>
+                          <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
                         </span>
                         <span className="mx-1.5 text-slate-500">·</span>
-                        <span className="whitespace-nowrap">{yardsLabel} yds</span>
+                        <span className="whitespace-nowrap">
+                          <span className="font-mono">{yardsLabel}</span>
+                          <span className="font-body ml-1">yds</span>
+                        </span>
                       </span>
                     </div>
                   </button>
@@ -174,11 +183,6 @@ export function GameBreakdown({ data }: Props) {
             );
           })}
         </div>
-      </section>
-
-      <section className="space-y-3">
-        <h3 className="app-section-title">Game stats</h3>
-        <GameStatsGrid stats={data.stats} />
       </section>
 
       <section className="space-y-3">

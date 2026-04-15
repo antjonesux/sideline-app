@@ -41,13 +41,13 @@ export function PlaybookHome() {
       </div>
 
       {list.length === 0 ? (
-        <div className="app-card app-card-pad py-10 text-center sm:px-8">
-          <p className="font-body text-slate-300">No playbooks yet.</p>
+        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
+          <p className="font-body text-base font-medium text-white">Build your playbook.</p>
           <p className="mt-2 font-body text-sm text-slate-500">
-            Create your first playbook to start building smarter play sheets.
+            Create a play sheet from any CFB26 playbook - your tendencies will show you what&apos;s working.
           </p>
           <Link href="/playbook/new" className="btn-primary mt-6 inline-flex px-5 py-2.5 text-sm">
-            + Create playbook
+            + Create Playbook
           </Link>
         </div>
       ) : (

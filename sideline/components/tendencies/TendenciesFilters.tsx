@@ -35,13 +35,11 @@ type Props = {
 };
 
 export function TendenciesFilters({ value, onChange, opponents, showMinUsesLine = true }: Props) {
-  const setPill = (pill: Pill) => {
-    if (pill === "vs" && !value.opponentTeam && opponents[0]) {
-      onChange({ ...value, pill: "vs", opponentTeam: opponents[0] });
-      return;
-    }
-    onChange({ ...value, pill });
-  };
+  const setPill = (pill: Pill) => onChange({ ...value, pill });
+  const opponentSelectId = "tendencies-opponent-filter";
+  const opponentActive = value.pill === "vs";
+  const opponentPillClass = opponentActive ? pillClass(true) : pillClass(false);
+  const opponentValue = value.opponentTeam ?? "";
 
   return (
     <div className="space-y-2">
@@ -55,27 +53,35 @@ export function TendenciesFilters({ value, onChange, opponents, showMinUsesLine 
         <button type="button" className={`rounded-full border px-3 py-1.5 text-sm font-barlow ${pillClass(value.pill === "last10")}`} onClick={() => setPill("last10")}>
           Last 10
         </button>
-        <button
-          type="button"
-          className={`rounded-full border px-3 py-1.5 text-sm font-barlow ${pillClass(value.pill === "vs")}`}
-          onClick={() => setPill("vs")}
-          disabled={opponents.length === 0}
-        >
-          vs Opponent
-        </button>
-        {value.pill === "vs" && opponents.length > 0 ? (
+        <div className="relative">
           <select
-            className="font-barlow max-w-[200px] rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-200"
-            value={value.opponentTeam ?? ""}
-            onChange={(e) => onChange({ ...value, opponentTeam: e.target.value || null })}
+            id={opponentSelectId}
+            name={opponentSelectId}
+            value={opponentValue}
+            disabled={opponents.length === 0}
+            aria-label="Filter by opponent"
+            className={`appearance-none rounded-full border px-3 py-1.5 text-sm font-barlow ${opponentPillClass} disabled:cursor-not-allowed disabled:opacity-70`}
+            onChange={(e) => {
+              const nextOpponent = e.target.value || null;
+              onChange({ ...value, pill: nextOpponent ? "vs" : "all", opponentTeam: nextOpponent });
+            }}
+            onFocus={() => {
+              if (value.pill !== "vs") onChange({ ...value, pill: "vs" });
+            }}
           >
-            {opponents.map((o) => (
-              <option key={o} value={o}>
-                {o}
+            <option value="">vs Opponent</option>
+            {opponents.map((opponent) => (
+              <option key={opponent} value={opponent}>
+                {opponent}
               </option>
             ))}
           </select>
-        ) : null}
+          <span className="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-slate-400" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+        </div>
       </div>
       {showMinUsesLine ? (
         <p className="font-barlow text-xs text-slate-500">

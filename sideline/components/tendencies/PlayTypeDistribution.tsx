@@ -5,9 +5,12 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 const COLORS: Record<string, string> = {
   Run: "#10B981",
   Pass: "#3B82F6",
+  "Play Action": "#06B6D4",
+  Screen: "#8B5CF6",
   RPO: "#F4A522",
   Option: "#94A3B8",
   Other: "#334155",
+  Unclassified: "#334155",
 };
 
 type Row = { name: string; pct: number; count: number };
@@ -17,7 +20,13 @@ type Props = {
 };
 
 export function PlayTypeDistribution({ data }: Props) {
-  const chartData = data.filter((d) => d.count > 0 || d.pct > 0);
+  const chartData = data
+    .filter((d) => d.name !== "Unclassified" || d.count > 0)
+    .filter((d) => d.count > 0 || d.pct > 0)
+    .map((d) => ({
+      ...d,
+      name: d.name === "Unclassified" ? `Unclassified (${d.count})` : d.name,
+    }));
   if (chartData.length === 0) {
     return <p className="font-body text-sm text-slate-500">Not enough plays to chart play types.</p>;
   }
@@ -52,7 +61,7 @@ export function PlayTypeDistribution({ data }: Props) {
           />
           <Bar dataKey="pct" radius={[6, 6, 0, 0]} maxBarSize={48}>
             {chartData.map((entry) => (
-              <Cell key={entry.name} fill={COLORS[entry.name] ?? "#64748b"} />
+              <Cell key={entry.name} fill={COLORS[entry.name.replace(/\s+\(\d+\)$/, "")] ?? "#64748b"} />
             ))}
           </Bar>
         </BarChart>

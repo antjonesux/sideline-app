@@ -64,7 +64,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
       <button
         type="button"
         onClick={() => downloadClientTemplate()}
-        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600/80 bg-transparent px-3 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-emerald-400 transition-colors hover:bg-emerald-500/10 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600/80 bg-transparent px-3 py-2 font-heading text-xs font-semibold uppercase tracking-[0.1em] text-emerald-400 transition-colors hover:bg-emerald-500/10 sm:w-auto"
       >
         <span aria-hidden>↓</span>
         Download Template
@@ -83,7 +83,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
               <span
                 key={c.key}
                 title={c.desc}
-                className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-emerald-200"
+                className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 font-body text-[10px] uppercase tracking-wide text-emerald-200"
               >
                 {c.key}
                 <span className="text-emerald-500">✓</span>
@@ -93,7 +93,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
               <span
                 key={c.key}
                 title={c.desc}
-                className="inline-flex items-center gap-1 rounded-full bg-slate-800/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-slate-400"
+                className="inline-flex items-center gap-1 rounded-full bg-slate-800/90 px-2.5 py-1 font-body text-[10px] uppercase tracking-wide text-slate-400"
               >
                 {c.key}
                 <span className="text-slate-500">optional</span>
@@ -119,7 +119,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
       <button
         type="button"
         onClick={() => downloadClientTemplate()}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 bg-transparent py-3.5 font-mono text-sm font-semibold uppercase tracking-wide text-emerald-400 transition-colors hover:bg-emerald-500/10"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 bg-transparent py-3.5 font-heading text-sm font-semibold uppercase tracking-[0.1em] text-emerald-400 transition-colors hover:bg-emerald-500/10"
       >
         <span aria-hidden>↓</span>
         Download CSV Template

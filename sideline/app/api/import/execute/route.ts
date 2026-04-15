@@ -101,7 +101,7 @@ async function insertDrivesAndPlaysForSession(
       }
 
       const field_zone = deriveFieldZone(pos.yard_line, pos.side);
-      const scenario = deriveScenario(p.down, p.distance, field_zone);
+      const scenario = p.distance_goal_to_go_alias ? "Goal Line" : deriveScenario(p.down, p.distance, field_zone);
 
       const { error: playErr } = await supabase.from("logged_plays").insert({
         drive_id: driveId,

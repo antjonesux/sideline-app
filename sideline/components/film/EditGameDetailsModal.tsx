@@ -4,6 +4,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import type { GameSession } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useToastStore } from "@/store/toastStore";
 
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
@@ -49,9 +50,17 @@ type Props = {
   gameId: string;
   game: GameSession;
   onSaved: (updated: GameSession) => void | Promise<void>;
+  triggerLabel?: string;
+  triggerClassName?: string;
 };
 
-export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
+export function EditGameDetailsModal({
+  gameId,
+  game,
+  onSaved,
+  triggerLabel = "Edit",
+  triggerClassName = "btn-secondary shrink-0 px-3 py-1.5 text-xs hover:border-emerald-600/50 hover:text-emerald-300",
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -66,6 +75,7 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
   const [form, setForm] = useState({ my_score: 0, opponent_score: 0, result: "W" as "W" | "L" });
   const [saveBusy, setSaveBusy] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
@@ -218,10 +228,11 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
       });
       const data = (await res.json()) as GameSession & { error?: string };
       if (!res.ok || (data as { error?: string }).error) {
-        window.alert((data as { error?: string }).error ?? "Could not save changes.");
+        addToast("Failed to save", "error");
         return;
       }
       await onSaved(data as GameSession);
+      addToast("Changes saved", "success");
       setIsOpen(false);
     } finally {
       setSaveBusy(false);
@@ -232,13 +243,13 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
     <>
       <button
         type="button"
-        className="btn-secondary shrink-0 px-3 py-1.5 text-xs hover:border-emerald-600/50 hover:text-emerald-300"
+        className={triggerClassName}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={MODAL_ID}
         onClick={() => setIsOpen(true)}
       >
-        Edit
+        {triggerLabel}
       </button>
 
       <div
@@ -253,8 +264,8 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
         }}
       >
         <div
-          className={`hs-overlay-animation-target m-3 transition-all ease-out sm:mx-auto sm:mt-0 sm:w-full sm:max-w-lg ${
-            isOpen ? "mt-7 opacity-100 duration-500" : "mt-0 opacity-0"
+          className={`hs-overlay-animation-target m-3 transition-all ease-out sm:mx-auto sm:mt-8 sm:w-full sm:max-w-lg ${
+            isOpen ? "mt-7 opacity-100 duration-500 sm:mt-8" : "mt-0 opacity-0 sm:mt-5"
           }`}
         >
           <div
@@ -353,14 +364,14 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
                   <button
                     type="button"
                     onClick={() => setForm((p) => ({ ...p, result: "W" }))}
-                    className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${form.result === "W" ? toggleOn : toggleOff}`}
+                    className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${form.result === "W" ? toggleOn : toggleOff}`}
                   >
                     W
                   </button>
                   <button
                     type="button"
                     onClick={() => setForm((p) => ({ ...p, result: "L" }))}
-                    className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${
+                    className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
                       form.result === "L" ? "border-red-500 bg-red-500/15 text-red-300" : toggleOff
                     }`}
                   >

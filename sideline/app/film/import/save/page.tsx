@@ -3,9 +3,11 @@
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { supabase } from "@/lib/supabase";
 import { useImportStore } from "@/store/importStore";
+import { useToastStore } from "@/store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -42,6 +44,7 @@ export default function FilmImportSavePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { parsedRows, validRows, setStep, setGameSetup, setImportedSession } = useImportStore();
+  const addToast = useToastStore((s) => s.addToast);
 
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -165,11 +168,12 @@ export default function FilmImportSavePage() {
       });
       const body = (await res.json().catch(() => ({}))) as { session_id?: string; error?: string };
       if (!res.ok || !body.session_id) {
-        window.alert(body.error ?? "Import failed.");
+        addToast("Import failed", "error");
         return;
       }
 
       setImportedSession(body.session_id);
+      addToast(`${validRows.length} plays imported`, "success");
       void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
       void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
       router.push("/film/import/complete");
@@ -191,6 +195,7 @@ export default function FilmImportSavePage() {
 
   return (
     <section className="space-y-8 pb-8">
+      <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import", href: "/film/import" }, { label: "Tag Game" }]} />
       <BackToFilmLink />
 
       <div className="app-shell">
@@ -284,7 +289,7 @@ export default function FilmImportSavePage() {
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, result: "W" }))}
-                className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${
+                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
                   form.result === "W" ? toggleOn : toggleOff
                 }`}
               >
@@ -293,7 +298,7 @@ export default function FilmImportSavePage() {
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, result: "L" }))}
-                className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${
+                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
                   form.result === "L" ? "border-red-500 bg-red-500/15 text-red-300" : toggleOff
                 }`}
               >

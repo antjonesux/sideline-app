@@ -8,6 +8,7 @@ export type TopPlayRow = {
   uses: number;
   avg_yards: number;
   success_rate: number;
+  common_scenario?: string;
 };
 
 type Props = {
@@ -36,14 +37,14 @@ export function TopPlaysList({ rows, totalMatching, expanded, onToggleExpand }: 
           avgYards={r.avg_yards}
         />
       ))}
-      {!expanded && totalMatching > 10 ? (
+      {!expanded && totalMatching > 5 ? (
         <button type="button" className="font-body py-2 text-sm text-emerald-400/90 hover:underline" onClick={onToggleExpand}>
-          Show all ({totalMatching})
+          Show all {totalMatching} plays
         </button>
       ) : null}
-      {expanded && totalMatching > 10 ? (
+      {expanded && totalMatching > 5 ? (
         <button type="button" className="font-body py-2 text-sm text-slate-400 hover:underline" onClick={onToggleExpand}>
-          Show top 10
+          Show less
         </button>
       ) : null}
     </div>

@@ -20,7 +20,10 @@ const RESULT_NORMALIZE = new Map<string, string>(
 );
 
 /** Synonyms → canonical CSV label (keys are space-stripped uppercase). */
-const RESULT_ALIASES = new Map<string, CsvResultLabel>([["INTERCEPTION", "TURNOVER"]]);
+const RESULT_ALIASES = new Map<string, CsvResultLabel>([
+  ["INTERCEPTION", "TURNOVER"],
+  ["FUMBLE", "TURNOVER"],
+]);
 
 const ZERO_DEFAULT_YARD_RESULTS = new Set<CsvResultLabel>(["TURNOVER", "INCOMPLETE", "PUNT"]);
 
@@ -69,6 +72,8 @@ export type ValidatedImportPlay = {
   quarter: number;
   down: number;
   distance: number;
+  /** True when distance came from goal-line alias text (G/goal/goal line). */
+  distance_goal_to_go_alias?: boolean;
   yard_line: string;
   formation: string;
   play_name: string;
@@ -127,14 +132,24 @@ export function parseQuarter(raw: string): number | null {
 
 /** Yards to go: supports 1st & 10 default, and inches as ~1 yard. */
 export function parseCsvDistance(raw: string, down: number): number | null {
+  return parseCsvDistanceWithMeta(raw, down).distance;
+}
+
+export function parseCsvDistanceWithMeta(raw: string, down: number): {
+  distance: number | null;
+  goalToGoAlias: boolean;
+} {
   const t = raw.trim();
-  if (t === "" && down === 1) return 10;
-  if (t === "") return null;
+  if (t === "" && down === 1) return { distance: 10, goalToGoAlias: false };
+  if (t === "") return { distance: null, goalToGoAlias: false };
   const lower = t.toLowerCase();
-  if (lower === "inches" || lower === "inch" || lower === "in") return 1;
+  if (lower === "inches" || lower === "inch" || lower === "in") return { distance: 1, goalToGoAlias: false };
+  if (["g", "goal line", "goaline", "goal"].includes(lower)) {
+    return { distance: 1, goalToGoAlias: true };
+  }
   const n = parseInt(t.replace(/,/g, ""), 10);
-  if (Number.isNaN(n) || n < 1) return null;
-  return n;
+  if (Number.isNaN(n) || n < 1) return { distance: null, goalToGoAlias: false };
+  return { distance: n, goalToGoAlias: false };
 }
 
 /** Map optional CSV zone text to DB hash; unknown values yield undefined (caller defaults MIDDLE). */
@@ -225,8 +240,8 @@ function rowToValidated(row: CsvRowInput): ValidatedImportPlay | null {
   const pn = parseInt(row.play_number, 10);
   const down = parseInt(row.down, 10);
   if ([dn, pn, down].some((n) => Number.isNaN(n))) return null;
-  const dist = parseCsvDistance(row.distance, down);
-  if (dist === null) return null;
+  const distanceInfo = parseCsvDistanceWithMeta(row.distance, down);
+  if (distanceInfo.distance === null) return null;
   const yards = parseCsvYards(row.yards, resultNorm);
   if (yards === null) return null;
   const noteTrim = row.note?.trim() ?? "";
@@ -237,7 +252,8 @@ function rowToValidated(row: CsvRowInput): ValidatedImportPlay | null {
     play_number: pn,
     quarter: q,
     down,
-    distance: dist,
+    distance: distanceInfo.distance,
+    distance_goal_to_go_alias: distanceInfo.goalToGoAlias,
     yard_line: row.yard_line.trim(),
     formation: row.formation.trim(),
     play_name: row.play_name.trim(),

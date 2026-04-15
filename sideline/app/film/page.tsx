@@ -1,59 +1,96 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { FilmGameCard } from "@/components/film/FilmGameCard";
 
 export const dynamic = "force-dynamic";
 
-type LoggedPlayRef = { id: string };
-type DriveWithPlays = { id: string; logged_plays: LoggedPlayRef[] | null };
 type GameSessionRow = {
   id: string;
   my_playbook: string;
+  offensive_playbook?: string | null;
   opponent_team: string;
   my_score: number | null;
   opponent_score: number | null;
   result: "W" | "L" | null;
   game_date: string;
   created_at: string;
-  drives: DriveWithPlays[] | null;
 };
 
-type GameWithCounts = GameSessionRow & { driveCount: number; playCount: number };
+type LoggedPlayStatsRow = {
+  game_session_id: string;
+  drive_id: string | null;
+  play_name: string | null;
+  yards_gained: number | null;
+  result_tag: string | null;
+};
 
-function formatDate(isoDate: string): string {
-  const parts = isoDate.split("-").map(Number);
-  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return isoDate;
-  const [y, m, d] = parts;
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
-}
+type GameWithCounts = GameSessionRow & {
+  driveCount: number;
+  playCount: number;
+  totalYards: number;
+  tds: number;
+  turnovers: number;
+};
 
 async function getGamesWithCounts(): Promise<GameWithCounts[]> {
-  const { data: games, error } = await supabase
+  const { data: games, error: gameError } = await supabase
     .from("game_sessions")
-    .select(
-      `
-    id,
-    my_playbook,
-    opponent_team,
-    my_score,
-    opponent_score,
-    result,
-    game_date,
-    created_at,
-    drives (
-      id,
-      logged_plays (id)
-    )
-  `,
-    )
+    .select("id, my_playbook, offensive_playbook, opponent_team, my_score, opponent_score, result, game_date, created_at")
     .order("created_at", { ascending: false });
 
-  if (error || !games) return [];
+  if (gameError || !games?.length) return [];
+
+  const gameIds = games.map((g) => g.id);
+  const { data: loggedPlays, error: playError } = await supabase
+    .from("logged_plays")
+    .select("game_session_id, drive_id, play_name, yards_gained, result_tag")
+    .in("game_session_id", gameIds);
+
+  if (playError) {
+    return (games as GameSessionRow[]).map((game) => ({
+      ...game,
+      driveCount: 0,
+      playCount: 0,
+      totalYards: 0,
+      tds: 0,
+      turnovers: 0,
+    }));
+  }
+
+  const byGame = new Map<
+    string,
+    { playCount: number; driveIds: Set<string>; totalYards: number; tds: number; turnovers: number }
+  >();
+
+  for (const play of (loggedPlays ?? []) as LoggedPlayStatsRow[]) {
+    const playName = String(play.play_name ?? "").trim().toLowerCase();
+    const resultTag = String(play.result_tag ?? "").trim().toLowerCase();
+    if (playName === "punt" || resultTag === "punt") continue;
+    const current = byGame.get(play.game_session_id) ?? {
+      playCount: 0,
+      driveIds: new Set<string>(),
+      totalYards: 0,
+      tds: 0,
+      turnovers: 0,
+    };
+    current.playCount += 1;
+    if (play.drive_id) current.driveIds.add(play.drive_id);
+    current.totalYards += play.yards_gained ?? 0;
+    if (play.result_tag === "TOUCHDOWN") current.tds += 1;
+    if (play.result_tag === "TURNOVER") current.turnovers += 1;
+    byGame.set(play.game_session_id, current);
+  }
 
   return (games as GameSessionRow[]).map((game) => {
-    const drives = game.drives ?? [];
-    const driveCount = drives.length;
-    const playCount = drives.reduce((sum, d) => sum + (d.logged_plays?.length ?? 0), 0);
-    return { ...game, driveCount, playCount };
+    const agg = byGame.get(game.id);
+    return {
+      ...game,
+      driveCount: agg?.driveIds.size ?? 0,
+      playCount: agg?.playCount ?? 0,
+      totalYards: agg?.totalYards ?? 0,
+      tds: agg?.tds ?? 0,
+      turnovers: agg?.turnovers ?? 0,
+    };
   });
 }
 
@@ -80,73 +117,23 @@ export default async function FilmRoomPage() {
       </header>
 
       {games.length === 0 ? (
-        <div className="app-card app-card-pad py-10 text-center sm:px-8">
-          <p className="font-body text-slate-300">No games logged yet.</p>
-          <p className="mt-1 font-body text-sm text-slate-500">Start a live game, or import one from CSV.</p>
+        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
+          <p className="font-body text-base font-medium text-white">Your game film starts here.</p>
+          <p className="mt-2 font-body text-sm text-slate-500">
+            Log your first game to start tracking plays and building tendencies.
+          </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/film/new" className="btn-primary text-sm">
-              + New game
+              + New Game
             </Link>
             <Link href="/film/import" className="btn-primary text-sm">
-              + Import from CSV
+              Import from CSV
             </Link>
           </div>
         </div>
       ) : (
         <ul className="space-y-4">
-          {games.map((game) => (
-            <li key={game.id}>
-              <Link
-                href={`/film/${game.id}`}
-                className="app-card-interactive block hover:border-slate-600"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="app-game-title leading-tight">
-                      {game.my_playbook}
-                      <span className="mx-2 font-body font-normal text-slate-500">vs</span>
-                      {game.opponent_team}
-                    </p>
-                  </div>
-                  {game.result === "W" ? (
-                    <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-700 bg-emerald-900/40 px-2.5 py-1 font-mono text-xs font-bold text-emerald-400">
-                      W
-                    </span>
-                  ) : null}
-                  {game.result === "L" ? (
-                    <span className="inline-flex shrink-0 items-center rounded-full border border-red-700 bg-red-900/40 px-2.5 py-1 font-mono text-xs font-bold text-red-400">
-                      L
-                    </span>
-                  ) : null}
-                </div>
-
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="font-mono text-2xl font-bold tabular-nums text-slate-100">
-                    {game.my_score ?? "—"} – {game.opponent_score ?? "—"}
-                  </span>
-                  <time className="font-body text-xs text-slate-500" dateTime={game.game_date}>
-                    {formatDate(game.game_date)}
-                  </time>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-4 font-body text-xs text-slate-400">
-                  <span>
-                    {game.driveCount} {game.driveCount === 1 ? "drive" : "drives"}
-                  </span>
-                  <span>·</span>
-                  <span>
-                    {game.playCount} {game.playCount === 1 ? "play" : "plays"}
-                  </span>
-                  {game.playCount > 0 && game.playCount < 10 ? (
-                    <>
-                      <span>·</span>
-                      <span className="text-amber-400">Partial log</span>
-                    </>
-                  ) : null}
-                </div>
-              </Link>
-            </li>
-          ))}
+          {games.map((game) => <FilmGameCard key={game.id} game={game} />)}
         </ul>
       )}
     </section>

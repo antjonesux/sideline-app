@@ -17,9 +17,9 @@ type Props = {
 function Card({ label, value, dense }: { label: string; value: string; dense?: boolean }) {
   return (
     <div className="app-card p-3">
-      <p className="app-field-label">{label}</p>
+      <p className="font-mono text-[10px] font-normal uppercase tracking-wide text-slate-500">{label}</p>
       <p
-        className={`font-mono mt-1 font-bold text-slate-100 ${dense ? "line-clamp-3 text-sm leading-snug sm:text-base" : "text-2xl tabular-nums sm:text-3xl"}`}
+        className={`font-barlow-condensed mt-1 text-slate-100 ${dense ? "line-clamp-2 text-base font-medium leading-snug" : "text-[20px] font-semibold leading-[1.05] tabular-nums"}`}
         title={value}
       >
         {value}

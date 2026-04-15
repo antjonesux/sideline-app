@@ -1,8 +1,10 @@
 "use client";
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useToastStore } from "@/store/toastStore";
 
 type PlaybookOption = { team_name: string };
 
@@ -21,6 +23,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
   const [busy, setBusy] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,10 +62,11 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       });
       const j = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
-        window.alert(j.error ?? "Could not create playbook");
+        addToast("Failed to save", "error");
         return;
       }
       if (j.id) {
+        addToast("Playbook created", "success");
         if (variant === "modal") onClose?.();
         router.push(`/playbook/${j.id}`);
       }
@@ -157,6 +161,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
   if (variant === "page") {
     return (
       <section className="space-y-6">
+        <Breadcrumb segments={[{ label: "Playbook", href: "/playbook" }, { label: "New" }]} />
         <h1 className="app-page-title">Create playbook</h1>
         {inner}
       </section>

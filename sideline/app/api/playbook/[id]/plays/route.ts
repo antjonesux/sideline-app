@@ -67,20 +67,26 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
-    .select("formation, play_name, yards_gained, is_success")
+    .select("formation, play_name, result_tag, yards_gained, is_success")
     .eq("scenario", scenarioName)
     .limit(25000);
 
   if (lErr) return NextResponse.json({ error: lErr.message }, { status: 400 });
 
-  const { byCombo, byFormation } = aggregateLoggedPlays(logged ?? []);
+  const nonPuntLogged = (logged ?? []).filter((row) => {
+    const playName = String(row.play_name ?? "").trim().toLowerCase();
+    const resultTag = String((row as { result_tag?: string }).result_tag ?? "").trim().toLowerCase();
+    return playName !== "punt" && resultTag !== "punt";
+  });
+
+  const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(nonPuntLogged);
 
   const sheetKeys = new Set<string>();
   for (const p of plays ?? []) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }
 
-  const suggestions = buildSuggestions(byCombo, sheetKeys, 3);
+  const suggestions = buildSuggestions(byCombo, sheetKeys, comboDisplay, 3);
 
   const scenarioStats: Record<string, { uses: number; avg_yards: number; success_rate: number }> = {};
   for (const [k, v] of byCombo) scenarioStats[k] = v;

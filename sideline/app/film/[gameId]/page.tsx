@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
+import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { PlayLogger } from "@/components/film/PlayLogger";
 import { ResultBadge } from "@/components/import/ResultBadge";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { useToastStore } from "@/store/toastStore";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
@@ -29,6 +31,13 @@ function normalizeResultTag(tag: string): string {
   return tag.trim().toUpperCase().replace(/_/g, " ");
 }
 
+function formatDate(isoDate: string): string {
+  const parts = isoDate.split("-").map(Number);
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return isoDate;
+  const [y, m, d] = parts;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
+}
+
 function PlayRowSeparator() {
   return (
     <span className="shrink-0 px-0.5 text-[12px] leading-none text-[#A0A3AD]/35" aria-hidden>
@@ -41,10 +50,12 @@ type DriveHeaderBadgeTone = "emerald" | "red" | "muted" | "amber";
 
 function getDriveHeaderBadge(
   drive: Drive,
+  opts: { isLastDrive: boolean; isGameEnded: boolean },
 ): { label: string; tone: DriveHeaderBadgeTone } | null {
   const plays = drive.plays ?? [];
   const outcome = getDriveResult(plays);
   const last = plays[plays.length - 1];
+  if (opts.isLastDrive && opts.isGameEnded) return { label: "GAME ENDED", tone: "muted" };
 
   if (outcome === "TOUCHDOWN") return { label: "TD", tone: "emerald" };
   if (outcome === "FIELD_GOAL") return { label: "FG", tone: "emerald" };
@@ -58,7 +69,8 @@ function getDriveHeaderBadge(
     if (norm === "NO GAIN") return { label: "NO GAIN", tone: "muted" };
   }
 
-  return { label: "ACTIVE", tone: "amber" };
+  if (opts.isLastDrive) return { label: "ACTIVE", tone: "amber" };
+  return { label: "RECORDED", tone: "muted" };
 }
 
 function DriveHeaderBadge({ label, tone }: { label: string; tone: DriveHeaderBadgeTone }) {
@@ -84,7 +96,6 @@ type GameLogPageProps = { params: Promise<{ gameId: string }> };
 
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [game, setGame] = useState<GameSession | null>(null);
@@ -95,7 +106,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [showLogger, setShowLogger] = useState(false);
   const [editPlay, setEditPlay] = useState<LoggedPlay | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [activeDriveMenuId, setActiveDriveMenuId] = useState<string | null>(null);
   const [pageReady, setPageReady] = useState(false);
+  const [endingGame, setEndingGame] = useState(false);
+  const [playRowMode, setPlayRowMode] = useState<"compact" | "expanded">("compact");
+  const addToast = useToastStore((s) => s.addToast);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
     if (!gameId) return;
@@ -137,8 +152,27 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     };
   }, [gameId]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("drive-log-row-mode");
+    if (stored === "compact" || stored === "expanded") {
+      setPlayRowMode(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("drive-log-row-mode", playRowMode);
+  }, [playRowMode]);
+
   async function addDrive() {
     if (!gameId) return;
+    if (game?.ended_at) {
+      await fetch(`/api/games/${gameId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ended_at: null }),
+      });
+      setGame((prev) => (prev ? { ...prev, ended_at: null } : prev));
+    }
 
     const { data: existingDrives } = await supabase.from("drives").select("id").eq("game_session_id", gameId);
 
@@ -157,6 +191,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
     if (error) {
       console.error("Drive insert error:", error.message, error.details, error.hint, error.code);
+      addToast("Failed to save", "error");
       return;
     }
 
@@ -166,10 +201,34 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setDrives((prev) => [...prev, newDrive]);
     setExpandedDriveIds((current) => [...new Set([...current, newDrive.id])]);
     setActiveDrive(newDrive.id);
+    addToast("Drive added", "success");
+  }
+
+  async function setGameEnded(nextEnded: boolean) {
+    if (!gameId || endingGame) return;
+    setEndingGame(true);
+    try {
+      const endedAt = nextEnded ? new Date().toISOString() : null;
+      const res = await fetch(`/api/games/${gameId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ended_at: endedAt }),
+      });
+      if (!res.ok) {
+        addToast("Failed to save", "error");
+        return;
+      }
+      const updated = (await res.json()) as GameSession;
+      setGame(updated);
+      setShowEndGameModal(false);
+      await refresh();
+    } finally {
+      setEndingGame(false);
+    }
   }
 
   async function saveDrive(drive: Drive) {
-    await fetch(`/api/drives/${drive.id}`, {
+    const res = await fetch(`/api/drives/${drive.id}`, {
       method: "PUT",
       body: JSON.stringify({
         score_mine: drive.score_mine ?? 0,
@@ -177,7 +236,30 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         note: drive.note ?? null,
       }),
     });
+    if (!res.ok) {
+      addToast("Failed to save", "error");
+      return;
+    }
+    addToast("Changes saved", "success");
     setEditingDriveId("");
+    await refresh();
+  }
+
+  async function deleteDrive(driveId: string) {
+    const ok = window.confirm("Delete this drive and all of its plays?");
+    if (!ok) return;
+    const prevDrives = drives;
+    setDrives((current) => current.filter((d) => d.id !== driveId));
+    const res = await fetch(`/api/drives/${driveId}`, { method: "DELETE" });
+    if (!res.ok) {
+      setDrives(prevDrives);
+      addToast("Failed to save", "error");
+      return;
+    }
+    setActiveDriveMenuId(null);
+    setExpandedDriveIds((current) => current.filter((id) => id !== driveId));
+    if (editingDriveId === driveId) setEditingDriveId("");
+    addToast("Drive deleted", "success");
     await refresh();
   }
 
@@ -196,17 +278,72 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   async function deletePlay(playId: string) {
     const ok = window.confirm("Delete this play?");
     if (!ok) return;
-    await fetch(`/api/plays/${playId}`, { method: "DELETE" });
+    const prevDrives = drives;
+    setDrives((current) =>
+      current.map((drive) => ({
+        ...drive,
+        plays: (drive.plays ?? []).filter((play) => play.id !== playId),
+      })),
+    );
+    const res = await fetch(`/api/plays/${playId}`, { method: "DELETE" });
+    if (!res.ok) {
+      setDrives(prevDrives);
+      addToast("Failed to save", "error");
+      return;
+    }
+    addToast("Play removed", "success");
     await refresh();
   }
 
-  const totalPlays = drives.reduce((sum, d) => sum + (d.plays?.length ?? 0), 0);
+  const totalPlays = drives.reduce(
+    (sum, d) =>
+      sum +
+      (d.plays ?? []).filter((p) => {
+        const playName = String(p.play_name ?? "").trim().toLowerCase();
+        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+        return playName !== "punt" && resultTag !== "punt";
+      }).length,
+    0,
+  );
   const totalDrives = drives.length;
+  const totalYards = drives.reduce(
+    (sum, d) =>
+      sum +
+      (d.plays ?? []).reduce((s, p) => {
+        const playName = String(p.play_name ?? "").trim().toLowerCase();
+        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+        if (playName === "punt" || resultTag === "punt") return s;
+        return s + (p.yards_gained ?? 0);
+      }, 0),
+    0,
+  );
+  const tds = drives.reduce(
+    (sum, d) =>
+      sum +
+      (d.plays ?? []).filter((p) => {
+        const playName = String(p.play_name ?? "").trim().toLowerCase();
+        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+        return playName !== "punt" && resultTag === "touchdown";
+      }).length,
+    0,
+  );
+  const turnovers = drives.reduce(
+    (sum, d) =>
+      sum +
+      (d.plays ?? []).filter((p) => {
+        const playName = String(p.play_name ?? "").trim().toLowerCase();
+        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+        return playName !== "punt" && resultTag === "turnover";
+      }).length,
+    0,
+  );
   const showPartialWarning = totalDrives > 0 && totalPlays < 10;
 
   const resultLabel = game?.result === "W" ? "W" : game?.result === "L" ? "L" : "—";
   const scoreMine = game?.my_score ?? "—";
   const scoreOpp = game?.opponent_score ?? "—";
+  const isGameEnded = Boolean(game?.ended_at);
+  const lastDriveId = drives[drives.length - 1]?.id ?? "";
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
@@ -215,6 +352,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   return (
     <section className="space-y-4 pb-28">
       <div className="space-y-3">
+        <Breadcrumb
+          segments={[
+            { label: "Film", href: "/film" },
+            { label: game ? `${game.my_playbook} vs ${game.opponent_team}` : "Game Details" },
+          ]}
+        />
         <BackToFilmLink />
 
         <div className="flex items-start justify-between gap-3">
@@ -242,35 +385,58 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
 
         <p className="font-body text-sm text-slate-400">
-          <span className="font-semibold text-slate-200">{resultLabel}</span>
+          <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
           <span className="mx-2 font-mono tabular-nums text-slate-200">
             {scoreMine} – {scoreOpp}
           </span>
-          <span className="mx-2 text-slate-600">·</span>
-          <span>
-            {totalDrives} {totalDrives === 1 ? "drive" : "drives"}
-          </span>
-          <span className="mx-2 text-slate-600">·</span>
-          <span>
-            {totalPlays} {totalPlays === 1 ? "play" : "plays"}
-          </span>
+          {game?.game_date ? (
+            <>
+              <span className="mx-2 text-slate-600">·</span>
+              <span>{formatDate(game.game_date)}</span>
+            </>
+          ) : null}
         </p>
+        <div className="overflow-x-auto">
+          <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
+        </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
           <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
             <button type="button" onClick={addDrive} className="btn-primary px-3 py-2 text-xs">
-              + Add drive
+              Add Drive
             </button>
             <Link
               href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
               className="btn-secondary px-3 py-2 text-xs"
             >
-              ↑ Upload CSV
+              Upload CSV
             </Link>
           </div>
-          <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-destructive w-full px-3 py-2 text-xs sm:w-auto">
-            ■ End game
-          </button>
+          {isGameEnded ? (
+            <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary w-full px-3 py-2 text-xs sm:w-auto">
+              Resume Game
+            </button>
+          ) : (
+            <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-destructive w-full px-3 py-2 text-xs sm:w-auto">
+              End Game
+            </button>
+          )}
+          <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1 text-xs">
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${playRowMode === "compact" ? "bg-slate-700 text-white" : "text-slate-400"}`}
+              onClick={() => setPlayRowMode("compact")}
+            >
+              Compact
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${playRowMode === "expanded" ? "bg-slate-700 text-white" : "text-slate-400"}`}
+              onClick={() => setPlayRowMode("expanded")}
+            >
+              Expanded
+            </button>
+          </div>
         </div>
       </div>
 
@@ -285,7 +451,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary flex-1">
                 Cancel
               </button>
-              <button type="button" onClick={() => router.push("/film")} className="btn-destructive-solid">
+              <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive-solid">
                 End game
               </button>
             </div>
@@ -297,7 +463,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
         const yardsLabel = yardsGained >= 0 ? `+${yardsGained}` : String(yardsGained);
-        const driveBadge = getDriveHeaderBadge(drive);
+        const driveBadge = getDriveHeaderBadge(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
         const isExpanded = expandedDriveIds.includes(drive.id);
         const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
         function toggleDriveExpanded() {
@@ -315,31 +481,75 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     Drive {drive.drive_number}
                   </span>
                   {driveBadge ? <DriveHeaderBadge label={driveBadge.label} tone={driveBadge.tone} /> : null}
-                  <span className="font-body min-w-0 text-[13px] leading-snug text-slate-400">
-                    <span className="whitespace-nowrap">{qLabel}</span>
+                  <span className="min-w-0 text-[13px] leading-snug text-slate-400">
+                    <span className="font-body whitespace-nowrap">{qLabel}</span>
                     <span className="mx-1.5 text-slate-500">·</span>
                     <span className="whitespace-nowrap">
-                      {playCount} {playCount === 1 ? "play" : "plays"}
+                      <span className="font-mono">{playCount}</span>
+                      <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
                     </span>
                     <span className="mx-1.5 text-slate-500">·</span>
-                    <span className="whitespace-nowrap">{yardsLabel} yds</span>
+                    <span className="whitespace-nowrap">
+                      <span className="font-mono">{yardsLabel}</span>
+                      <span className="font-body ml-1">yds</span>
+                    </span>
                   </span>
                 </div>
-                <p className="font-body mt-1 text-[12px] text-slate-400">
-                  {drive.score_mine ?? 0}-{drive.score_opponent ?? 0}
+                <p className="mt-1 text-[12px] text-slate-400">
+                  <span className="font-mono">{drive.score_mine ?? 0}</span>
+                  <span className="font-body">-</span>
+                  <span className="font-mono">{drive.score_opponent ?? 0}</span>
                 </p>
               </button>
-              <div className="flex shrink-0 items-center gap-1.5 self-center">
+              <div className="relative flex shrink-0 items-center gap-1.5 self-center">
                 <button
                   type="button"
-                  className="btn-secondary inline-flex items-center px-2.5 py-1.5 text-[12px]"
+                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0]"
+                  aria-haspopup="menu"
+                  aria-expanded={activeDriveMenuId === drive.id}
+                  aria-label="Drive actions"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setEditingDriveId(drive.id);
+                    setActiveDriveMenuId((prev) => (prev === drive.id ? null : drive.id));
                   }}
                 >
-                  Edit Drive
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <circle cx="12" cy="5" r="1.75" />
+                    <circle cx="12" cy="12" r="1.75" />
+                    <circle cx="12" cy="19" r="1.75" />
+                  </svg>
                 </button>
+                {activeDriveMenuId === drive.id ? (
+                  <ul className="absolute right-0 top-10 z-20 min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 py-1 text-sm shadow-lg" role="menu">
+                    <li>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full px-3 py-2 text-left font-barlow text-slate-200 hover:bg-slate-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDriveMenuId(null);
+                          setEditingDriveId(drive.id);
+                        }}
+                      >
+                        Edit Drive
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full px-3 py-2 text-left font-barlow text-red-300 hover:bg-slate-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void deleteDrive(drive.id);
+                        }}
+                      >
+                        Delete Drive
+                      </button>
+                    </li>
+                  </ul>
+                ) : null}
                 <button
                   type="button"
                   className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0]"
@@ -430,14 +640,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     <button
                       type="button"
                       key={p.id}
-                      className="flex w-full min-w-0 items-center justify-start gap-2 py-2.5 text-left transition-colors hover:bg-white/[0.02] sm:gap-3"
+                      className="flex w-full min-w-0 flex-col items-start justify-start gap-1 py-2.5 text-left transition-colors hover:bg-white/[0.02] sm:gap-2"
                       onClick={() => openForEdit(drive.id, p)}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         deletePlay(p.id);
                       }}
                     >
-                      <div className="flex min-w-0 flex-1 items-center justify-start gap-1 overflow-hidden sm:gap-1.5">
+                      <div className="flex min-w-0 w-full items-center justify-start gap-1 overflow-hidden sm:gap-1.5">
                         <span className="font-mono shrink-0 text-[12px] leading-none text-slate-400 tabular-nums">
                           {p.down}-{p.distance}
                         </span>
@@ -458,6 +668,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                           {ydsText}
                         </span>
                       </div>
+                      {playRowMode === "expanded" ? (
+                        <span className="font-body text-[11px] text-slate-500">
+                          {p.side} {p.yard_line} · {p.hash}
+                          {p.note ? ` · ${p.note}` : ""}
+                        </span>
+                      ) : null}
                     </button>
                   );
                 })}
@@ -467,7 +683,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     className="btn-secondary w-full border-dashed py-2 text-sm"
                     onClick={() => openForCreate(drive.id)}
                   >
-                    + Add Play
+                    Add Play
                   </button>
                 </div>
               </div>
@@ -482,6 +698,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           myPlaybook={game.my_playbook}
           opponentScheme={game.opponent_scheme}
           driveId={activeDrive}
+          previousPlay={(drives.find((d) => d.id === activeDrive)?.plays ?? []).slice(-1)[0] ?? null}
           editPlay={editPlay}
           onClose={() => {
             setShowLogger(false);

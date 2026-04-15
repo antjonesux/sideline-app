@@ -27,6 +27,7 @@ alter table game_sessions add column if not exists quarter_started_logging int c
 alter table game_sessions add column if not exists is_partial_log boolean default false;
 alter table game_sessions add column if not exists import_source text default 'live';
 alter table game_sessions add column if not exists offensive_playbook text;
+alter table game_sessions add column if not exists ended_at timestamptz;
 
 create table if not exists drives (
   id uuid primary key default gen_random_uuid(),

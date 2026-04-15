@@ -12,6 +12,7 @@ export type GameSession = {
   opponent_score: number | null;
   quarter_started_logging: number | null;
   import_source?: string | null;
+  ended_at?: string | null;
   drive_count?: number;
   play_count?: number;
 };

@@ -8,16 +8,18 @@ export type LoggedPlayStatRow = {
 };
 
 export function comboKey(formation: string, playName: string): string {
-  return `${formation.trim()}\t${playName.trim()}`;
+  return `${formation.trim().toLowerCase()}\t${playName.trim().toLowerCase()}`;
 }
 
 /** Aggregate by formation + play and by formation only (same scenario slice). */
 export function aggregateLoggedPlays(rows: LoggedPlayStatRow[]): {
   byCombo: Map<string, ComboStats>;
   byFormation: Map<string, { uses: number; success_rate: number }>;
+  comboDisplay: Map<string, { formation: string; play_name: string }>;
 } {
   const comboBuckets = new Map<string, { yards: number[]; successes: number }>();
   const formBuckets = new Map<string, { n: number; successes: number }>();
+  const comboDisplay = new Map<string, { formation: string; play_name: string }>();
 
   for (const r of rows) {
     const f = (r.formation ?? "").trim();
@@ -25,6 +27,9 @@ export function aggregateLoggedPlays(rows: LoggedPlayStatRow[]): {
     if (!f || !p) continue;
 
     const ck = comboKey(f, p);
+    if (!comboDisplay.has(ck)) {
+      comboDisplay.set(ck, { formation: f, play_name: p });
+    }
     const y = r.yards_gained ?? 0;
     const ok = Boolean(r.is_success);
     const cur = comboBuckets.get(ck) ?? { yards: [], successes: 0 };
@@ -54,7 +59,7 @@ export function aggregateLoggedPlays(rows: LoggedPlayStatRow[]): {
     });
   }
 
-  return { byCombo, byFormation };
+  return { byCombo, byFormation, comboDisplay };
 }
 
 export type SuggestionRow = { formation: string; play_name: string; uses: number; success_rate: number };
@@ -62,13 +67,15 @@ export type SuggestionRow = { formation: string; play_name: string; uses: number
 export function buildSuggestions(
   byCombo: Map<string, ComboStats>,
   sheetKeys: Set<string>,
+  comboDisplay?: Map<string, { formation: string; play_name: string }>,
   limit = 3,
 ): SuggestionRow[] {
   const out: SuggestionRow[] = [];
   for (const [k, s] of byCombo) {
     if (s.uses < 3 || s.success_rate < 60) continue;
     if (sheetKeys.has(k)) continue;
-    const [formation, play_name] = k.split("\t");
+    const display = comboDisplay?.get(k);
+    const [formation, play_name] = display ? [display.formation, display.play_name] : k.split("\t");
     if (!formation || !play_name) continue;
     out.push({ formation, play_name, uses: s.uses, success_rate: s.success_rate });
   }

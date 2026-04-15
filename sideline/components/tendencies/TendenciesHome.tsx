@@ -46,16 +46,16 @@ export function TendenciesHome() {
 
   if (games.length === 0) {
     return (
-      <section className="space-y-6 pb-8">
+      <section className="space-y-6 pb-16">
         <h1 className="app-page-title text-slate-100">Tendencies</h1>
-        <div className="app-card app-card-pad py-8 text-center sm:px-8">
-          <p className="font-body text-lg text-slate-200">No game data yet.</p>
+        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
+          <p className="font-body text-base font-medium text-white">No game data yet.</p>
           <p className="mt-2 font-body text-sm text-slate-500">
             Log plays during a game or import from CSV to start seeing your tendencies.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/film/new" className="btn-primary px-5 py-3 text-sm">
-              Start a game
+              + New Game
             </Link>
             <Link href="/film/import" className="btn-secondary px-5 py-3 text-sm">
               Import from CSV
@@ -67,7 +67,7 @@ export function TendenciesHome() {
   }
 
   return (
-    <section className="space-y-6 pb-8">
+    <section className="space-y-6 pb-16">
       <h1 className="app-page-title text-slate-100">Tendencies</h1>
 
       <div className="border-b border-slate-800">

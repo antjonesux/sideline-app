@@ -23,10 +23,10 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
     >
       <h2 className="font-heading text-lg font-bold tracking-wide text-white">{item.name}</h2>
       <p className="mt-1 font-body text-sm text-slate-400">{item.cfb26_playbook} playbook</p>
-      <p className="mt-2 font-mono text-xs text-slate-500">
+      <p className="mt-2 font-body text-xs text-slate-500">
         {item.scenario_filled}/{item.scenario_total} scenarios filled · {item.play_count} plays
       </p>
-      <p className="mt-1 font-mono text-[11px] text-slate-600">Last edited {formatRelative(item.updated_at)}</p>
+      <p className="mt-1 font-body text-[11px] text-slate-600">Last edited {formatRelative(item.updated_at)}</p>
     </Link>
   );
 }

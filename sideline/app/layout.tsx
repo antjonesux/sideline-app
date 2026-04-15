@@ -4,12 +4,13 @@ import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import BottomTabNav from "@/components/shared/BottomTabNav";
 import PrelineScriptWrapper from "@/components/shared/PrelineScriptWrapper";
+import { Toast } from "@/components/shared/Toast";
 
-const barlow = Barlow({ variable: "--font-barlow", weight: ["400"], subsets: ["latin"] });
-const barlowCondensed = Barlow_Condensed({ variable: "--font-barlow-condensed", weight: ["700"], subsets: ["latin"] });
+const barlow = Barlow({ variable: "--font-barlow", weight: ["400", "500", "600"], subsets: ["latin"] });
+const barlowCondensed = Barlow_Condensed({ variable: "--font-barlow-condensed", weight: ["600", "700"], subsets: ["latin"] });
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   subsets: ["latin"],
 });
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full bg-slate-950 text-white">
         <AppProviders>
           <main className="mx-auto max-w-5xl px-4 py-6 pb-24 sm:px-6 sm:py-8">{children}</main>
+          <Toast />
           <BottomTabNav />
           <PrelineScriptWrapper />
         </AppProviders>

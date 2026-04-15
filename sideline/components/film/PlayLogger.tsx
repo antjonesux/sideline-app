@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LoggedPlay } from "@/lib/types";
 import { FILM_RESULT_BUTTONS, type FilmResultTag, isFilmResultTag } from "@/lib/filmResultTags";
+import { useToastStore } from "@/store/toastStore";
 
 type Side = "OWN" | "OPP";
 type Hash = "LEFT" | "MIDDLE" | "RIGHT";
@@ -46,6 +47,27 @@ const PLAY_DEFAULT: PlayLoggerForm = {
   note: "",
 };
 
+function sideYardToAbsolute(side: Side, yardLine: number): number {
+  return side === "OWN" ? yardLine : 100 - yardLine;
+}
+
+function absoluteToSideYard(abs: number): { side: Side; yard_line: number } {
+  const clamped = Math.min(99, Math.max(1, Math.round(abs)));
+  if (clamped <= 50) return { side: "OWN", yard_line: clamped };
+  return { side: "OPP", yard_line: 100 - clamped };
+}
+
+function getNextFieldPosition(
+  side: Side,
+  yardLine: number,
+  yardsGained: number,
+  resultTag: string,
+): { side: Side; yard_line: number } {
+  if (resultTag === "TOUCHDOWN" || resultTag === "TURNOVER") return { side: "OWN", yard_line: 25 };
+  const current = sideYardToAbsolute(side, yardLine);
+  return absoluteToSideYard(current + yardsGained);
+}
+
 /** Next down & distance after a logged play; `null` = new drive / drive over → reset to 1st & 10. */
 function getNextDownDistance(
   currentDown: number,
@@ -54,6 +76,7 @@ function getNextDownDistance(
   resultTag: string,
 ): { down: number; distance: number } | null {
   if (["TOUCHDOWN", "TURNOVER", "PUNT", "FIELD_GOAL"].includes(resultTag)) return null;
+  if (resultTag === "FIRST_DOWN") return { down: 1, distance: 10 };
 
   const yardsToFirst = currentDistance - yardsGained;
 
@@ -67,29 +90,6 @@ function getNextDownDistance(
     down: currentDown + 1,
     distance: resultTag === "INCOMPLETE" ? currentDistance : Math.max(1, yardsToFirst),
   };
-}
-
-function PlayLoggedToast({ visible }: { visible: boolean }) {
-  return (
-    <div
-      className={`fixed top-4 left-1/2 z-[500] -translate-x-1/2 transition-all duration-300 ${
-        visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
-      }`}
-    >
-      <div className="flex items-center gap-2 rounded-lg border border-emerald-700 bg-emerald-900 px-4 py-2.5 shadow-lg">
-        <svg
-          className="size-4 shrink-0 text-emerald-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-        <span className="text-sm font-medium text-emerald-100">Play added to drive</span>
-      </div>
-    </div>
-  );
 }
 
 function resultColorClasses(color: (typeof FILM_RESULT_BUTTONS)[number]["color"], active: boolean): string {
@@ -115,20 +115,20 @@ type PlayLoggerProps = {
   myPlaybook: string;
   opponentScheme: string;
   driveId: string;
+  previousPlay: LoggedPlay | null;
   editPlay: LoggedPlay | null;
   onClose: () => void;
   onLogged: () => void | Promise<void>;
 };
 
-export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId, editPlay, onClose, onLogged }: PlayLoggerProps) {
+export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId, previousPlay, editPlay, onClose, onLogged }: PlayLoggerProps) {
   const [play, setPlay] = useState<PlayLoggerForm>(PLAY_DEFAULT);
   const [yardLine, setYardLine] = useState<number | null>(null);
   const [resultTag, setResultTag] = useState<FilmResultTag | null>(null);
   const [yardsInput, setYardsInput] = useState<string>("");
   const [distanceInput, setDistanceInput] = useState<string>("10");
   const [isLogging, setIsLogging] = useState(false);
-  const [toastVisible, setToastVisible] = useState(false);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addToast = useToastStore((s) => s.addToast);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerStep, setPickerStep] = useState<"formation" | "play">("formation");
@@ -146,20 +146,6 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
     setSearchQuery("");
     setSearchResults([]);
     setPlayRows([]);
-  }, []);
-
-  const showToast = useCallback(() => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    setToastVisible(true);
-    toastTimer.current = setTimeout(() => {
-      setToastVisible(false);
-    }, 2000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimer.current) clearTimeout(toastTimer.current);
-    };
   }, []);
 
   useEffect(() => {
@@ -184,17 +170,41 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
     } else {
       let nextYardLine: number | null = null;
       setPlay((prev) => {
-        const nextYard = prev.yard_line >= 1 && prev.yard_line <= 50 ? prev.yard_line : 0;
+        const basis = previousPlay
+          ? (() => {
+              const next = getNextFieldPosition(previousPlay.side, previousPlay.yard_line, previousPlay.yards_gained, previousPlay.result_tag);
+              const downDistance =
+                getNextDownDistance(previousPlay.down, previousPlay.distance, previousPlay.yards_gained, previousPlay.result_tag) ??
+                ({
+                  down: 1,
+                  distance: 10,
+                } as const);
+              return {
+                down: downDistance.down,
+                distance: downDistance.distance,
+                yard_line: next.yard_line,
+                side: next.side,
+                hash: previousPlay.hash,
+              };
+            })()
+          : {
+              down: prev.down,
+              distance: prev.distance,
+              yard_line: prev.yard_line,
+              side: prev.side,
+              hash: prev.hash,
+            };
+        const nextYard = basis.yard_line >= 1 && basis.yard_line <= 50 ? basis.yard_line : 0;
         nextYardLine = nextYard >= 1 && nextYard <= 50 ? nextYard : null;
         return {
           ...PLAY_DEFAULT,
-          down: prev.down,
-          distance: prev.distance,
+          down: basis.down,
+          distance: basis.distance,
           formation: prev.formation,
           play_name: prev.play_name,
           yard_line: nextYard,
-          side: prev.side,
-          hash: prev.hash,
+          side: basis.side,
+          hash: basis.hash,
         };
       });
       setYardLine(nextYardLine);
@@ -202,7 +212,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
       setResultTag(null);
       setYardsInput("");
     }
-  }, [editPlay, driveId]);
+  }, [editPlay, driveId, previousPlay]);
 
   const isGoalToGo = play.side === "OPP" && yardLine !== null && yardLine >= 1 && yardLine <= 10;
 
@@ -434,20 +444,20 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         if (!res.ok) {
           console.error("Play update error:", body.error ?? res.statusText);
-          window.alert(body.error ?? "Could not save play.");
+          addToast("Failed to save", "error");
           return;
         }
+        addToast("Changes saved", "success");
         onClose();
       } else {
         const res = await fetch(`/api/drives/${driveId}/plays`, { method: "POST", body: JSON.stringify(payload) });
         const body = (await res.json().catch(() => ({}))) as { error?: string } & Partial<LoggedPlay>;
         if (!res.ok) {
           console.error("Play log error:", body.error ?? res.statusText);
-          window.alert(body.error ?? "Could not log play.");
+          addToast("Failed to save", "error");
           return;
         }
-
-        showToast();
+        addToast("Play added", "success");
 
         const next = getNextDownDistance(play.down, dist, yards ?? 0, resolvedTag);
         const downDistance =
@@ -457,11 +467,12 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
             distance: 10,
           } as const);
 
+        const nextField = getNextFieldPosition(play.side, yardLine, yards ?? 0, resolvedTag);
         setPlay((prev) => ({
           ...prev,
           formation: prev.formation,
-          yard_line: prev.yard_line,
-          side: prev.side,
+          yard_line: nextField.yard_line,
+          side: nextField.side,
           hash: prev.hash,
           play_name: "",
           down: downDistance.down,
@@ -471,6 +482,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
           note: "",
         }));
         setDistanceInput(String(downDistance.distance));
+        setYardLine(nextField.yard_line);
         setResultTag(null);
         setYardsInput("");
       }
@@ -514,7 +526,6 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
 
   return (
     <>
-      <PlayLoggedToast visible={toastVisible} />
       <div className="fixed inset-0 z-40 flex items-end bg-slate-950/70 p-3">
       <div className="app-card max-h-[90vh] w-full overflow-y-auto p-4">
         <div className="mb-3 flex items-center justify-between">

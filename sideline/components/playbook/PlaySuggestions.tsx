@@ -27,7 +27,7 @@ export function PlaySuggestions({
                 <p className="font-mono text-xs font-medium uppercase text-white">
                   💡 {s.play_name}
                 </p>
-                <p className="mt-1 font-mono text-[11px] text-slate-500">
+                <p className="mt-1 font-body text-[11px] text-slate-500">
                   {s.success_rate}% success on {scenarioLabel} ({s.uses} uses) · {s.formation}
                 </p>
               </div>

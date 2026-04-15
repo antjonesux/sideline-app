@@ -3,8 +3,10 @@
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { supabase } from "@/lib/supabase";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
+import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -48,6 +50,7 @@ const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 export default function NewGamePage() {
   const router = useRouter();
   const { setLastGame } = useLastGamePrefsStore();
+  const addToast = useToastStore((s) => s.addToast);
 
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -182,7 +185,7 @@ export default function NewGamePage() {
     e.preventDefault();
     const setup = buildGameSetup();
     if (!setup) {
-      window.alert("Select your team, offensive playbook, and opponent so schemes and metadata are set.");
+      addToast("Failed to save", "error");
       return;
     }
 
@@ -205,10 +208,11 @@ export default function NewGamePage() {
       });
       const game = (await res.json()) as { id?: string; error?: string };
       if (!game.id) {
-        window.alert("Failed to create game: " + (game.error ?? JSON.stringify(game)));
+        addToast("Failed to save", "error");
         return;
       }
       setLastGame({ my_playbook: setup.offensive_team, my_scheme: setup.offensive_scheme });
+      addToast("Game saved", "success");
       router.push(`/film/${game.id}`);
     } finally {
       setSubmitBusy(false);
@@ -217,6 +221,7 @@ export default function NewGamePage() {
 
   return (
     <section className="space-y-8 pb-8">
+      <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "New Game" }]} />
       <BackToFilmLink />
 
       <div className="app-shell">
@@ -312,7 +317,7 @@ export default function NewGamePage() {
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, result: "W" }))}
-                className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${
+                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
                   form.result === "W" ? toggleOn : toggleOff
                 }`}
               >
@@ -321,7 +326,7 @@ export default function NewGamePage() {
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, result: "L" }))}
-                className={`rounded-lg border px-4 py-3 font-mono text-sm font-semibold transition-colors ${
+                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
                   form.result === "L" ? "border-red-500 bg-red-500/15 text-red-300" : toggleOff
                 }`}
               >
@@ -331,7 +336,7 @@ export default function NewGamePage() {
           </div>
 
           <button type="submit" disabled={!canContinue || submitBusy} className="btn-primary-block py-3 text-sm uppercase tracking-wide">
-            {submitBusy ? "Starting…" : "Start logging"}
+            {submitBusy ? "Starting…" : "Start Logging"}
           </button>
         </form>
         )}

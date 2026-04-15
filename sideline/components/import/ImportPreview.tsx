@@ -57,13 +57,15 @@ export function ImportPreview({ onReupload, onNext }: Props) {
         <div className="rounded-lg border border-red-800/30 bg-red-900/20 p-4 text-sm text-red-200" role="alert">
           <button type="button" className="flex w-full items-start justify-between gap-2 text-left" onClick={() => setExpandErrors((e) => !e)}>
             <span className="font-body">⚠ {issueRowCount} row(s) with issues (will be skipped on import)</span>
-            <span className="shrink-0 font-mono text-xs text-red-300/80">{expandErrors ? "▲" : "▼"}</span>
+            <span className="shrink-0 font-body text-xs text-red-300/80">{expandErrors ? "▲" : "▼"}</span>
           </button>
           {expandErrors ? (
-            <ul className="mt-3 list-inside list-disc space-y-1 font-mono text-xs text-red-100/90">
+            <ul className="mt-3 list-inside list-disc space-y-1 text-xs text-red-100/90">
               {firstErrors.map((e) => (
                 <li key={e.line}>
-                  Line {e.line}: {e.errors.join("; ")}
+                  <span className="font-body">Line </span>
+                  <span className="font-mono">{e.line}</span>
+                  <span className="font-body">: {e.errors.join("; ")}</span>
                 </li>
               ))}
               {validationErrors.length > 5 ? <li>…</li> : null}

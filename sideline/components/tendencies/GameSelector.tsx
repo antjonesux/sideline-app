@@ -25,7 +25,7 @@ export function GameSelector({ games, selectedId, onSelect }: Props) {
             }`}
           >
             <p className="font-body max-w-[200px] truncate text-sm font-medium text-slate-100">vs {g.opponent_team}</p>
-            <p className="font-mono mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">{g.game_date}</p>
+            <p className="font-body mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">{g.game_date}</p>
             <div className="mt-1 flex items-center gap-2">
               <span
                 className={`font-mono rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${

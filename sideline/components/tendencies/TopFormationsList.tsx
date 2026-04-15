@@ -12,9 +12,12 @@ export type TopFormationRow = {
 
 type Props = {
   rows: TopFormationRow[];
+  totalCount: number;
+  expanded: boolean;
+  onToggleExpand: () => void;
 };
 
-export function TopFormationsList({ rows }: Props) {
+export function TopFormationsList({ rows, totalCount, expanded, onToggleExpand }: Props) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-1 sm:px-4">
       {rows.map((r, i) => (
@@ -27,9 +30,9 @@ export function TopFormationsList({ rows }: Props) {
           avgYards={r.avg_yards}
           footer={
             r.best_play ? (
-              <p className="font-mono text-[11px] text-slate-500">
+              <p className="font-body text-[11px] text-slate-500">
                 Best play:{" "}
-                <span className="font-medium uppercase text-slate-300">
+                <span className="font-mono font-medium uppercase text-slate-300">
                   {r.best_play.play_name} ({r.best_play.success_rate}%)
                 </span>
               </p>
@@ -37,6 +40,11 @@ export function TopFormationsList({ rows }: Props) {
           }
         />
       ))}
+      {totalCount > 3 ? (
+        <button type="button" className="font-body py-2 text-sm text-emerald-400/90 hover:underline" onClick={onToggleExpand}>
+          {expanded ? "Show less" : "Show all"}
+        </button>
+      ) : null}
     </div>
   );
 }

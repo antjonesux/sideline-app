@@ -22,12 +22,14 @@ export function RankedRow({ rank, title, successRate, uses, avgYards, variant = 
           <div className="h-[6px] w-full overflow-hidden rounded-full bg-slate-700">
             <div className={`h-full rounded-full transition-all ${fill}`} style={{ width: `${pct}%` }} />
           </div>
-          <p className="font-mono text-[11px] text-slate-500">
-            <span className="tabular-nums text-slate-300">{successRate}%</span>
+          <p className="font-body text-[11px] text-slate-500">
+            <span className="font-mono tabular-nums text-slate-300">{successRate}%</span>
             <span className="mx-1.5 text-slate-600">·</span>
-            <span className="tabular-nums">{uses} uses</span>
+            <span className="font-mono tabular-nums">{uses}</span>
+            <span className="ml-1">uses</span>
             <span className="mx-1.5 text-slate-600">·</span>
-            <span className="tabular-nums">{avgYards} avg yds</span>
+            <span className="font-mono tabular-nums">{avgYards}</span>
+            <span className="ml-1">avg yds</span>
           </p>
           {footer ? <div className="pt-0.5">{footer}</div> : null}
         </div>

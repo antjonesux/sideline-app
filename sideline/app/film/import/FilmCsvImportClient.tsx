@@ -3,9 +3,11 @@
 import { CSVUploader } from "@/components/import/CSVUploader";
 import { TemplateDownload } from "@/components/import/TemplateDownload";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { validateAllRows, type ParsedCsvRow, type ValidatedImportPlay } from "@/lib/importCsv";
 import { IMPORT_SAMPLE_PLAYS } from "@/lib/importSamplePlays";
 import { useImportStore } from "@/store/importStore";
+import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,6 +43,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
   const setImportTargetSessionId = useImportStore((s) => s.setImportTargetSessionId);
   const reset = useImportStore((s) => s.reset);
   const [parseError, setParseError] = useState<string | null>(null);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     reset();
@@ -50,6 +53,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
 
   return (
     <section className="space-y-8 pb-8">
+      <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import" }]} />
       <BackToFilmLink />
 
       <div className="app-shell">
@@ -72,15 +76,20 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
                 if (valid.length === 0) {
                   setParsedData(parsed, valid, errors);
                   setParseError("No valid plays found. Fix CSV row issues and upload again.");
+                  addToast("Some rows had errors", "warning");
                   return;
                 }
+                if (errors.length > 0) addToast("Some rows had errors", "warning");
                 setParsedData(parsed, valid, errors);
                 setGameSetup(null);
                 setImportedSession(null);
                 setStep(2);
                 router.push("/film/import/preview");
               }}
-              onParseFatal={(msg) => setParseError(msg)}
+              onParseFatal={(msg) => {
+                setParseError(msg);
+                addToast("Import failed", "error");
+              }}
               onSample={() => {
                 const parsed = validatedToParsedRows(IMPORT_SAMPLE_PLAYS);
                 const { valid_rows, errors } = validateAllRows(parsed);
