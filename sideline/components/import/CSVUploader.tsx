@@ -37,6 +37,7 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
           yards: String(r.yards ?? ""),
           score_context: r.score_context != null ? String(r.score_context) : "",
           note: r.note != null ? String(r.note) : "",
+          zone: r.zone != null ? String(r.zone) : "",
           _line: i + 2,
         };
       });

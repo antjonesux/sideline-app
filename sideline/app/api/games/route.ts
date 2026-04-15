@@ -22,28 +22,51 @@ export async function GET() {
   return NextResponse.json(enriched);
 }
 
+type GameSessionInsert = {
+  my_playbook: string;
+  my_scheme: string;
+  offensive_playbook: string;
+  opponent_team: string;
+  opponent_scheme: string;
+  game_date: string;
+  my_score: number;
+  opponent_score: number;
+  result: "W" | "L";
+  import_source: "live";
+  quarter_started_logging?: number;
+};
+
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const body = (await req.json()) as Record<string, unknown>;
   const startedAtIso = new Date().toISOString();
   const gameDate = startedAtIso.slice(0, 10);
 
-  const { data, error } = await supabase
-    .from("game_sessions")
-    .insert({
-      my_playbook: body.my_playbook,
-      my_scheme: body.my_scheme,
-      offensive_playbook: body.offensive_playbook ?? body.my_playbook,
-      opponent_team: body.opponent_team,
-      opponent_scheme: body.opponent_scheme,
-      game_date: gameDate,
-      my_score: body.my_score,
-      opponent_score: body.opponent_score,
-      result: body.result,
-      quarter_started_logging: body.quarter_started_logging,
-      import_source: "live",
-    })
-    .select()
-    .single();
+  const offensivePlaybook =
+    typeof body.offensive_playbook === "string" && body.offensive_playbook.trim().length > 0
+      ? body.offensive_playbook.trim()
+      : typeof body.my_playbook === "string"
+        ? body.my_playbook.trim()
+        : "";
+
+  const insertPayload: GameSessionInsert = {
+    my_playbook: String(body.my_playbook ?? "").trim(),
+    my_scheme: String(body.my_scheme ?? "").trim(),
+    offensive_playbook: offensivePlaybook,
+    opponent_team: String(body.opponent_team ?? "").trim(),
+    opponent_scheme: String(body.opponent_scheme ?? "").trim(),
+    game_date: typeof body.game_date === "string" && body.game_date.trim() ? body.game_date.trim() : gameDate,
+    my_score: Number.isFinite(Number(body.my_score)) ? Number(body.my_score) : 0,
+    opponent_score: Number.isFinite(Number(body.opponent_score)) ? Number(body.opponent_score) : 0,
+    result: body.result === "L" ? "L" : "W",
+    import_source: "live",
+  };
+
+  const q = body.quarter_started_logging;
+  if (q === 1 || q === 2 || q === 3 || q === 4) {
+    insertPayload.quarter_started_logging = q;
+  }
+
+  const { data, error } = await supabase.from("game_sessions").insert(insertPayload).select().single();
 
   if (error) {
     console.error("Game insert error:", error);

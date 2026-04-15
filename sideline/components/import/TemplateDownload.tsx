@@ -16,6 +16,7 @@ const REQUIRED_COLS = [
 const OPTIONAL_COLS = [
   { key: "score_context", desc: "TIED, AHEAD, BEHIND" },
   { key: "note", desc: "Free text, 60 chars max" },
+  { key: "zone", desc: "Ball on field: left hash, right hash, middle (optional)" },
 ];
 
 function downloadClientTemplate() {
@@ -87,8 +88,8 @@ export function TemplateDownload({ embedded, compact }: Props) {
 
           <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 text-sm text-slate-300">
             <p>
-              <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, TURNOVER, NO GAIN,
-              PENALTY
+              <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, LOSS, TURNOVER
+              (INTERCEPTION), PUNT, NO GAIN, PENALTY
             </p>
             <p className="mt-2">
               <span className="font-semibold text-slate-200">Yard line format:</span> OWN 25, OPP 40, 50

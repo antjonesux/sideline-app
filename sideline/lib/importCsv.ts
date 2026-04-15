@@ -6,7 +6,9 @@ export const CSV_RESULT_LABELS = [
   "TOUCHDOWN",
   "INCOMPLETE",
   "SACK",
+  "LOSS",
   "TURNOVER",
+  "PUNT",
   "NO GAIN",
   "PENALTY",
 ] as const;
@@ -16,6 +18,11 @@ export type CsvResultLabel = (typeof CSV_RESULT_LABELS)[number];
 const RESULT_NORMALIZE = new Map<string, string>(
   CSV_RESULT_LABELS.map((label) => [label.replace(/\s+/g, "").toUpperCase(), label]),
 );
+
+/** Synonyms → canonical CSV label (keys are space-stripped uppercase). */
+const RESULT_ALIASES = new Map<string, CsvResultLabel>([["INTERCEPTION", "TURNOVER"]]);
+
+const ZERO_DEFAULT_YARD_RESULTS = new Set<CsvResultLabel>(["TURNOVER", "INCOMPLETE", "PUNT"]);
 
 /** DB `logged_plays.result_tag` values after import. */
 export function csvResultLabelToDbTag(label: CsvResultLabel): string {
@@ -31,6 +38,9 @@ export function csvResultLabelToDbTag(label: CsvResultLabel): string {
 
 export function normalizeCsvResult(raw: string): CsvResultLabel | null {
   const k = raw.trim().replace(/\s+/g, "").toUpperCase();
+  if (!k) return null;
+  const alias = RESULT_ALIASES.get(k);
+  if (alias) return alias;
   const label = RESULT_NORMALIZE.get(k);
   if (!label) return null;
   return label as CsvResultLabel;
@@ -49,6 +59,8 @@ export type CsvRowInput = {
   yards: string;
   score_context?: string;
   note?: string;
+  /** Optional field hash / ball placement from CSV (e.g. left hash, middle). */
+  zone?: string;
 };
 
 export type ValidatedImportPlay = {
@@ -65,21 +77,23 @@ export type ValidatedImportPlay = {
   yards: number;
   score_context?: string;
   note?: string | null;
+  /** Raw zone label from the CSV when present. */
+  zone?: string | null;
+  /** Resolved for `logged_plays.hash` when zone maps cleanly; omit for middle default. */
+  hash?: "LEFT" | "MIDDLE" | "RIGHT";
 };
 
 export type RowValidationIssue = { line: number; errors: string[] };
 
-const REQUIRED_KEYS: (keyof CsvRowInput)[] = [
+const REQUIRED_KEYS_NO_YARDS_DISTANCE: (keyof CsvRowInput)[] = [
   "drive_number",
   "play_number",
   "quarter",
   "down",
-  "distance",
   "yard_line",
   "formation",
   "play_name",
   "result",
-  "yards",
 ];
 
 const YARD_LINE_RE = /^(OWN\s+\d+|OPP\s+\d+|50)$/i;
@@ -111,6 +125,32 @@ export function parseQuarter(raw: string): number | null {
   return null;
 }
 
+/** Yards to go: supports 1st & 10 default, and inches as ~1 yard. */
+export function parseCsvDistance(raw: string, down: number): number | null {
+  const t = raw.trim();
+  if (t === "" && down === 1) return 10;
+  if (t === "") return null;
+  const lower = t.toLowerCase();
+  if (lower === "inches" || lower === "inch" || lower === "in") return 1;
+  const n = parseInt(t.replace(/,/g, ""), 10);
+  if (Number.isNaN(n) || n < 1) return null;
+  return n;
+}
+
+/** Map optional CSV zone text to DB hash; unknown values yield undefined (caller defaults MIDDLE). */
+export function normalizeCsvZoneToHash(raw: string | undefined): "LEFT" | "MIDDLE" | "RIGHT" | undefined {
+  if (raw == null) return undefined;
+  const k = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]+/g, "");
+  if (!k) return undefined;
+  if (k === "lefthash" || k === "left" || k === "lh") return "LEFT";
+  if (k === "righthash" || k === "right" || k === "rh") return "RIGHT";
+  if (k === "middle" || k === "mid" || k === "center") return "MIDDLE";
+  return undefined;
+}
+
 export function parseFinalScore(raw: string): { my_score: number; opponent_score: number } | null {
   const m = raw.trim().match(/^(\d+)\s*[-–]\s*(\d+)$/);
   if (!m) return null;
@@ -121,29 +161,48 @@ function nonEmpty(v: string | undefined): boolean {
   return v !== undefined && String(v).trim() !== "";
 }
 
+function parseCsvYards(raw: string, result: CsvResultLabel): number | null {
+  const t = raw.trim().replace(/,/g, "");
+  if (t === "" && ZERO_DEFAULT_YARD_RESULTS.has(result)) return 0;
+  if (t === "" && result === "LOSS") return -1;
+  if (t === "") return null;
+  const n = Number(t);
+  if (Number.isNaN(n)) return null;
+  if (result === "LOSS" && n > 0) return -n;
+  return n;
+}
+
 /** Field-level validation only (no cross-row rules). */
 export function validateRowFields(row: CsvRowInput): string[] {
   const errors: string[] = [];
-  for (const key of REQUIRED_KEYS) {
+  for (const key of REQUIRED_KEYS_NO_YARDS_DISTANCE) {
     if (!nonEmpty(row[key])) errors.push(`Missing ${key}`);
   }
   if (errors.length) return errors;
 
-  if (!normalizeCsvResult(row.result)) errors.push(`Invalid result "${row.result.trim()}"`);
+  const resultNorm = normalizeCsvResult(row.result);
+  if (!resultNorm) errors.push(`Invalid result "${row.result.trim()}"`);
 
   if (parseQuarter(row.quarter) === null) errors.push(`Invalid quarter "${row.quarter.trim()}"`);
 
   const down = parseInt(row.down, 10);
   if (Number.isNaN(down) || down < 1 || down > 4) errors.push(`Invalid down "${row.down}"`);
 
-  const distance = parseInt(row.distance, 10);
-  if (Number.isNaN(distance) || distance < 1) errors.push(`Invalid distance "${row.distance}"`);
+  const distance =
+    !Number.isNaN(down) && down >= 1 && down <= 4 ? parseCsvDistance(row.distance, down) : null;
+  if (distance === null) errors.push(`Invalid distance "${row.distance.trim()}"`);
 
   if (!YARD_LINE_RE.test(row.yard_line.trim())) errors.push("Invalid yard_line format");
   else if (!parseYardLineField(row.yard_line)) errors.push("Could not parse yard line");
 
-  const yardsStr = row.yards.trim().replace(/,/g, "");
-  if (yardsStr === "" || Number.isNaN(Number(yardsStr))) errors.push("Yards must be numeric");
+  if (resultNorm) {
+    const y = parseCsvYards(row.yards, resultNorm);
+    if (y === null) {
+      errors.push(
+        "Yards must be numeric (or leave blank for turnover / incomplete / punt → 0; blank loss → -1)",
+      );
+    }
+  }
 
   const dn = parseInt(row.drive_number, 10);
   const pn = parseInt(row.play_number, 10);
@@ -162,15 +221,17 @@ function rowToValidated(row: CsvRowInput): ValidatedImportPlay | null {
   const resultNorm = normalizeCsvResult(row.result);
   const q = parseQuarter(row.quarter);
   if (!resultNorm || q === null) return null;
-  const yardsStr = row.yards.trim().replace(/,/g, "");
-  const yards = Number(yardsStr);
-  if (Number.isNaN(yards)) return null;
   const dn = parseInt(row.drive_number, 10);
   const pn = parseInt(row.play_number, 10);
   const down = parseInt(row.down, 10);
-  const dist = parseInt(row.distance, 10);
-  if ([dn, pn, down, dist].some((n) => Number.isNaN(n))) return null;
+  if ([dn, pn, down].some((n) => Number.isNaN(n))) return null;
+  const dist = parseCsvDistance(row.distance, down);
+  if (dist === null) return null;
+  const yards = parseCsvYards(row.yards, resultNorm);
+  if (yards === null) return null;
   const noteTrim = row.note?.trim() ?? "";
+  const zoneTrim = row.zone?.trim() ?? "";
+  const hash = normalizeCsvZoneToHash(zoneTrim);
   return {
     drive_number: dn,
     play_number: pn,
@@ -185,6 +246,8 @@ function rowToValidated(row: CsvRowInput): ValidatedImportPlay | null {
     yards,
     score_context: row.score_context?.trim() || undefined,
     note: noteTrim.length ? noteTrim.slice(0, 60) : null,
+    zone: zoneTrim.length ? zoneTrim : null,
+    ...(hash ? { hash } : {}),
   };
 }
 

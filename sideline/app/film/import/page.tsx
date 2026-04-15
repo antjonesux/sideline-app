@@ -24,6 +24,7 @@ function validatedToParsedRows(plays: ValidatedImportPlay[]): ParsedCsvRow[] {
     yards: String(p.yards),
     score_context: p.score_context ?? "",
     note: p.note ?? "",
+    zone: p.zone ?? "",
   }));
 }
 

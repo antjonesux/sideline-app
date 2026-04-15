@@ -32,6 +32,7 @@ function playToRowInput(p: ValidatedImportPlay): CsvRowInput {
     yards: String(p.yards),
     score_context: p.score_context,
     note: p.note ?? "",
+    zone: p.zone ?? "",
   };
 }
 
@@ -147,7 +148,7 @@ export async function POST(req: NextRequest) {
         distance: p.distance,
         yard_line: pos.yard_line,
         side: pos.side,
-        hash: "MIDDLE",
+        hash: p.hash ?? "MIDDLE",
         field_zone,
         scenario,
         formation: p.formation,

@@ -26,10 +26,9 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   inputRef?: React.RefObject<HTMLInputElement | null>;
   getOptionLabel?: (item: T) => string;
   getSearchText?: (item: T) => string;
+  /** Stable React key for list rows (defaults to `team_name`). */
+  getOptionKey?: (item: T) => string;
 };
-
-const BROWSE_LIMIT = 24;
-const SEARCH_LIMIT = 12;
 
 function visibleTeams<T extends { team_name: string }>(
   options: T[],
@@ -37,8 +36,8 @@ function visibleTeams<T extends { team_name: string }>(
   getSearchText: (item: T) => string,
 ): T[] {
   const q = query.trim().toLowerCase();
-  if (!q) return options.slice(0, BROWSE_LIMIT);
-  return options.filter((o) => getSearchText(o).toLowerCase().includes(q)).slice(0, SEARCH_LIMIT);
+  if (!q) return options;
+  return options.filter((o) => getSearchText(o).toLowerCase().includes(q));
 }
 
 export function TeamCombobox<T extends { team_name: string }>({
@@ -53,9 +52,11 @@ export function TeamCombobox<T extends { team_name: string }>({
   inputRef: inputRefProp,
   getOptionLabel,
   getSearchText,
+  getOptionKey,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
+  const optionKey = useCallback((item: T) => getOptionKey?.(item) ?? item.team_name ?? "", [getOptionKey]);
   const optionLabel = useCallback((item: T) => getOptionLabel?.(item) ?? item.team_name ?? "", [getOptionLabel]);
   const optionSearchText = useCallback((item: T) => getSearchText?.(item) ?? optionLabel(item), [getSearchText, optionLabel]);
   const inputValue = filterText !== "" ? filterText : selected ? optionLabel(selected) : "";
@@ -93,6 +94,7 @@ export function TeamCombobox<T extends { team_name: string }>({
           <input
             ref={setInputRef}
             id={inputId}
+            name={inputId}
             type="text"
             autoComplete="off"
             value={inputValue}
@@ -139,7 +141,7 @@ export function TeamCombobox<T extends { team_name: string }>({
             ) : (
               filtered.map((item) => (
                 <button
-                  key={item.team_name}
+                  key={optionKey(item)}
                   type="button"
                   className="block w-full border-b border-slate-800 px-3 py-2.5 text-left text-sm last:border-b-0 hover:bg-slate-800/80"
                   onMouseDown={(e) => e.preventDefault()}

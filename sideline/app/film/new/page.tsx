@@ -46,7 +46,7 @@ const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 export default function NewGamePage() {
   const router = useRouter();
-  const { my_playbook, my_scheme, setLastGame } = useLastGamePrefsStore();
+  const { setLastGame } = useLastGamePrefsStore();
 
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -57,7 +57,8 @@ export default function NewGamePage() {
   const [setupError, setSetupError] = useState<string | null>(null);
   const [offensePick, setOffensePick] = useState<TeamOption | null>(null);
   const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
-  const [playbookRow, setPlaybookRow] = useState<OffensiveTeam | null>(null);
+  /** Store only the playbook id string — never an object from `playbookOptions` — so nothing can "default" to the first row. */
+  const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
   const [form, setForm] = useState({
     my_score: 0,
     opponent_score: 0,
@@ -79,8 +80,16 @@ export default function NewGamePage() {
       setSetupLoading(true);
       setSetupError(null);
       const [offRes, defRes, playbookRes] = await Promise.all([
-        supabase.from("team_offensive_playbooks").select("team_name, playbook_name, scheme_style").order("team_name"),
-        supabase.from("team_defensive_schemes").select("team_name, defensive_scheme").order("team_name"),
+        supabase
+          .from("team_offensive_playbooks")
+          .select("team_name, playbook_name, scheme_style")
+          .order("team_name", { ascending: true })
+          .limit(20000),
+        supabase
+          .from("team_defensive_schemes")
+          .select("team_name, defensive_scheme")
+          .order("team_name", { ascending: true })
+          .limit(20000),
         supabase.from("cfb26_plays").select("playbook").not("playbook", "is", null).order("playbook"),
       ]);
       if (cancelled) return;
@@ -122,48 +131,33 @@ export default function NewGamePage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (offensePick) return;
-    if (!my_playbook.trim()) return;
-    let cancelled = false;
-    void (async () => {
-      await new Promise((r) => setTimeout(r, 0));
-      if (cancelled || setupLoading || offensiveTeams.length === 0) return;
-      const o = defensiveTeams.find((t) => t.team_name === my_playbook.trim());
-      if (o) setOffensePick({ team_name: o.team_name });
-      if (my_scheme.trim()) {
-        setOffensePick((cur) => {
-          if (cur) return cur;
-          const match = offensiveTeams.find((t) => t.team_name === my_playbook.trim() && t.scheme_style === my_scheme.trim());
-          return match ? { team_name: match.team_name } : o ? { team_name: o.team_name } : null;
-        });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [offensePick, my_playbook, my_scheme, setupLoading, offensiveTeams, defensiveTeams]);
-
+  /** Full `team_defensive_schemes` team list (same rows as Opponent), sorted for stable combobox order. */
   const allTeamOptions = useMemo<TeamOption[]>(
-    () => Array.from(new Set(defensiveTeams.map((t) => t.team_name))).map((team_name) => ({ team_name })),
+    () =>
+      [...new Set(defensiveTeams.map((t) => t.team_name.trim()).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b))
+        .map((team_name) => ({ team_name })),
     [defensiveTeams],
   );
 
   const playbookOptions = useMemo<OffensiveTeam[]>(
-    () => uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, my_scheme.trim() || "Multiple"),
-    [offensiveTeams, fallbackPlaybooks, my_scheme],
+    () => uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, "Multiple"),
+    [offensiveTeams, fallbackPlaybooks],
   );
 
   const usePlaybookSelect = playbookOptions.length > 0 && !setupError;
 
+  const playbookRow = useMemo(() => {
+    if (!selectedPlaybookName) return null;
+    return playbookOptions.find((row) => row.playbook_name === selectedPlaybookName) ?? null;
+  }, [playbookOptions, selectedPlaybookName]);
+
   useEffect(() => {
-    setPlaybookRow((prev) => {
-      if (!playbookOptions.length) return null;
-      if (!prev) return playbookOptions[0] ?? null;
-      const match = playbookOptions.find((row) => row.playbook_name === prev.playbook_name);
-      return match ?? playbookOptions[0] ?? null;
-    });
-  }, [playbookOptions]);
+    if (!selectedPlaybookName || playbookOptions.length === 0) return;
+    if (!playbookOptions.some((row) => row.playbook_name === selectedPlaybookName)) {
+      setSelectedPlaybookName(null);
+    }
+  }, [playbookOptions, selectedPlaybookName]);
 
   const canContinue = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
 
@@ -245,7 +239,7 @@ export default function NewGamePage() {
               onSelect={setOffensePick}
               options={allTeamOptions}
               loading={setupLoading}
-              placeholder="Tap to browse or type to filter"
+              placeholder="Select your team"
               nextFocusRef={opponentInputRef}
             />
 
@@ -257,7 +251,7 @@ export default function NewGamePage() {
               onSelect={setDefensePick}
               options={defensiveTeams}
               loading={setupLoading}
-              placeholder="Tap to browse or type to filter"
+              placeholder="Select opponent"
               nextFocusRef={playbookInputRef}
             />
           </div>
@@ -268,11 +262,12 @@ export default function NewGamePage() {
               inputId="film-offensive-playbook"
               inputRef={playbookInputRef}
               selected={playbookRow}
-              onSelect={setPlaybookRow}
+              onSelect={(row) => setSelectedPlaybookName(row?.playbook_name ?? null)}
               options={playbookOptions}
               loading={setupLoading}
-              placeholder="Tap to browse or type to filter"
+              placeholder="Select playbook"
               getOptionLabel={playbookOptionLabel}
+              getOptionKey={(row) => row.playbook_name}
               getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
             />
             {!usePlaybookSelect ? <p className="text-xs text-slate-500">Playbook list is unavailable.</p> : null}
