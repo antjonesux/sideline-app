@@ -88,7 +88,7 @@ export function TeamCombobox<T extends { team_name: string }>({
 
   return (
     <div ref={rootRef} className="space-y-1">
-      <span className="block font-mono text-xs uppercase tracking-widest text-slate-500">{label}</span>
+      <span className="app-field-label block">{label}</span>
       <div className="relative">
         <div className="relative">
           <input
@@ -115,13 +115,8 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className="hs-input block w-full rounded-lg border py-2.5 ps-3 pe-10 text-slate-100 read-only:cursor-default dark:border-slate-700 dark:bg-slate-800"
+            className="hs-input app-input py-2.5 ps-3 pe-10 read-only:cursor-default"
           />
-          {loading ? (
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" aria-hidden>
-              <span className="inline-block size-4 animate-spin rounded-full border-2 border-slate-600 border-t-emerald-400" />
-            </span>
-          ) : null}
         </div>
 
         {showList ? (
@@ -131,7 +126,11 @@ export function TeamCombobox<T extends { team_name: string }>({
             }`}
           >
             {loading ? (
-              <div className="px-3 py-2 text-sm text-slate-400">Loading teams…</div>
+              <div className="space-y-2 p-3" aria-busy="true" aria-label="Loading teams">
+                <div className="app-skeleton h-3 w-[85%]" />
+                <div className="app-skeleton h-3 w-[70%]" />
+                <div className="app-skeleton h-3 w-[55%]" />
+              </div>
             ) : options.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">
                 No teams returned from Supabase. In ./sideline run npm run seed:teams (service role in .env.local), or check the browser Network tab for failed PostgREST requests.
@@ -143,7 +142,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                 <button
                   key={optionKey(item)}
                   type="button"
-                  className="block w-full border-b border-slate-800 px-3 py-2.5 text-left text-sm last:border-b-0 hover:bg-slate-800/80"
+                  className="block w-full border-b border-slate-800 px-3 py-2.5 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     onSelect(item);

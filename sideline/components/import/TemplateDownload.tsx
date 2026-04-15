@@ -74,7 +74,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
 
   return (
     <div className="space-y-6">
-      {embedded ? null : <h3 className="font-display text-2xl tracking-wide text-white">Download template</h3>}
+      {embedded ? null : <h3 className="app-section-title text-2xl">Download template</h3>}
 
       {compact ? null : (
         <>

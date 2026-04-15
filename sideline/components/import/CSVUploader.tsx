@@ -83,7 +83,7 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
 
   return (
     <div className="space-y-6">
-      {embedded ? null : <h3 className="font-display text-2xl tracking-wide text-white">Upload CSV</h3>}
+      {embedded ? null : <h3 className="app-section-title text-2xl">Upload CSV</h3>}
 
       <input ref={inputRef} type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && parseFile(e.target.files[0])} />
 
@@ -105,14 +105,14 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
           drag ? "border-emerald-500 bg-emerald-500/10" : "border-slate-600 bg-slate-900/50 hover:border-emerald-700/50"
         }`}
       >
-        <p className="font-mono text-sm text-slate-200">Drop your CSV here or click to browse</p>
+        <p className="font-body text-sm text-slate-200">Drop your CSV here or click to browse</p>
         <p className="mt-2 font-mono text-xs text-slate-500">sideline_game_template.csv</p>
       </button>
 
       <button
         type="button"
         onClick={onSample}
-        className="w-full py-2 text-center font-mono text-xs text-slate-500 transition-colors hover:text-slate-300"
+        className="w-full py-2 text-center font-body text-xs text-slate-500 transition-colors hover:text-slate-300"
       >
         Load sample data (11 plays) to preview the flow
       </button>

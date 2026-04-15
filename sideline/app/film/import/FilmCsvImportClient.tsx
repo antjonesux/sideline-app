@@ -52,11 +52,11 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
     <section className="space-y-8 pb-8">
       <BackToFilmLink />
 
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
+      <div className="app-shell">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1 space-y-2">
-            <h1 className="font-display text-3xl tracking-wide text-white">Import Game</h1>
-            <p className="text-sm text-slate-400">Upload your game plays as a CSV file.</p>
+            <h1 className="app-page-title">Import game</h1>
+            <p className="font-body text-sm text-slate-400">Upload your game plays as a CSV file.</p>
           </div>
           <div className="shrink-0 self-end sm:self-start">
             <TemplateDownload variant="headerInline" />
@@ -64,7 +64,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
         </div>
 
         <div className="mt-6">
-          <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
+          <div className="app-card app-card-pad">
             <CSVUploader
               embedded
               onParsed={(parsed, valid, errors) => {

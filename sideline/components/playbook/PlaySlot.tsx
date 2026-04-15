@@ -1,0 +1,204 @@
+"use client";
+
+import { comboKey } from "@/lib/loggedPlayStats";
+import type { SheetPlayRow } from "@/lib/types";
+import { useEffect, useRef, useState } from "react";
+
+type Stats = { uses: number; avg_yards: number; success_rate: number };
+
+function performanceDot(stats: Stats | null): { className: string; label: string } {
+  if (!stats || stats.uses === 0) {
+    return { className: "bg-slate-600", label: "No data" };
+  }
+  if (stats.uses < 3) {
+    return { className: "bg-[#F4A522]", label: "Limited sample" };
+  }
+  if (stats.success_rate >= 60) {
+    return { className: "bg-emerald-500", label: "Strong" };
+  }
+  if (stats.success_rate >= 40) {
+    return { className: "bg-[#F4A522]", label: "Average" };
+  }
+  return { className: "bg-[#C0392B]", label: "Below target" };
+}
+
+export function PlaySlot({
+  play,
+  slotIndex,
+  isScript,
+  scenarioStats,
+  atCapacity,
+  onAdd,
+  onRemove,
+  onEdit,
+  onScriptNote,
+  dragId,
+  setDragId,
+  onReorder,
+}: {
+  play: SheetPlayRow | null;
+  slotIndex: number;
+  isScript: boolean;
+  scenarioStats: Record<string, Stats>;
+  atCapacity: boolean;
+  onAdd: () => void;
+  onRemove: (id: string) => void;
+  onEdit: (id: string) => void;
+  onScriptNote?: (id: string, note: string) => void;
+  dragId: string | null;
+  setDragId: (id: string | null) => void;
+  onReorder: (fromId: string, toSlotIndex: number) => void;
+}) {
+  const [menu, setMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (!menuRef.current?.contains(e.target as Node)) setMenu(false);
+    }
+    if (menu) document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [menu]);
+
+  if (!play) {
+    return (
+      <div
+        onDragOver={(e) => {
+          if (!isScript) return;
+          e.preventDefault();
+        }}
+        onDrop={(e) => {
+          if (!isScript) return;
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/play-id");
+          if (id) onReorder(id, slotIndex);
+          setDragId(null);
+        }}
+        className="rounded-lg border border-dashed border-slate-700 bg-slate-950/40 p-3"
+      >
+        <button
+          type="button"
+          disabled={atCapacity}
+          onClick={onAdd}
+          className={`font-barlow w-full rounded-md border border-dashed py-2 text-sm ${
+            atCapacity
+              ? "cursor-not-allowed border-slate-800 text-slate-600"
+              : "border-slate-600 text-slate-300 hover:border-emerald-700/50 hover:bg-slate-900 hover:text-emerald-200"
+          }`}
+        >
+          + Add Play
+        </button>
+      </div>
+    );
+  }
+
+  const key = comboKey(play.formation, play.play_name);
+  const stats = scenarioStats[key] ?? null;
+  const dot = performanceDot(stats);
+  const statsLine =
+    stats && stats.uses > 0
+      ? `${stats.uses} uses · ${stats.avg_yards.toFixed(1)} avg yds · ${stats.success_rate}% success`
+      : "No data yet";
+
+  return (
+    <div
+      draggable={isScript}
+      onDragStart={(e) => {
+        if (!isScript) return;
+        e.dataTransfer.setData("text/play-id", play.id);
+        e.dataTransfer.effectAllowed = "move";
+        setDragId(play.id);
+      }}
+      onDragEnd={() => setDragId(null)}
+      onDragOver={(e) => {
+        if (!isScript) return;
+        e.preventDefault();
+      }}
+      onDrop={(e) => {
+        if (!isScript) return;
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/play-id");
+        if (id && id !== play.id) onReorder(id, slotIndex);
+        setDragId(null);
+      }}
+      className={`rounded-lg border border-slate-800 bg-slate-900/90 p-3 ${dragId === play.id ? "opacity-60" : ""}`}
+    >
+      <div className="flex items-start gap-2">
+        {isScript ? (
+          <span className="mt-0.5 cursor-grab select-none font-mono text-xs text-slate-500 active:cursor-grabbing" title="Drag to reorder">
+            ⋮⋮
+          </span>
+        ) : null}
+        {isScript ? (
+          <span className="mt-0.5 min-w-[1.25rem] font-mono text-xs text-emerald-500/90">{slotIndex + 1}.</span>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="min-w-0 leading-snug">
+              <span className="font-barlow text-[13px] text-white">{play.formation}</span>
+              <span className="font-barlow text-slate-500"> → </span>
+              <span className="font-mono text-[12px] font-medium uppercase text-white">{play.play_name}</span>
+            </p>
+            <div className="relative shrink-0" ref={menuRef}>
+              <button
+                type="button"
+                className="rounded px-1.5 font-mono text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                aria-expanded={menu}
+                aria-haspopup="menu"
+                onClick={() => setMenu((m) => !m)}
+              >
+                ···
+              </button>
+              {menu ? (
+                <ul
+                  className="absolute end-0 z-20 mt-1 min-w-[8rem] rounded-lg border border-slate-700 bg-slate-950 py-1 text-sm shadow-lg"
+                  role="menu"
+                >
+                  <li>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full px-3 py-2 text-start font-barlow text-slate-200 hover:bg-slate-800"
+                      onClick={() => {
+                        setMenu(false);
+                        onEdit(play.id);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full px-3 py-2 text-start font-barlow text-red-300 hover:bg-slate-800"
+                      onClick={() => {
+                        setMenu(false);
+                        onRemove(play.id);
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </li>
+                </ul>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-1.5 flex items-center justify-between gap-2">
+            <p className="font-mono text-[11px] text-slate-500">{statsLine}</p>
+            <span className={`size-2 shrink-0 rounded-full ${dot.className}`} title={dot.label} />
+          </div>
+          {isScript && onScriptNote ? (
+            <input
+              className="mt-2 w-full rounded border border-slate-800 bg-slate-950 px-2 py-1.5 font-barlow text-xs text-slate-200 placeholder:text-slate-600"
+              placeholder='e.g. Set up play action'
+              maxLength={40}
+              defaultValue={play.script_note ?? ""}
+              onBlur={(e) => onScriptNote(play.id, e.target.value.slice(0, 40))}
+            />
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -76,6 +76,9 @@ create table if not exists play_sheets (
   updated_at timestamptz default now()
 );
 
+alter table play_sheets add column if not exists cfb26_playbook text;
+update play_sheets set cfb26_playbook = playbook where cfb26_playbook is null;
+
 create table if not exists play_sheet_scenarios (
   id uuid primary key default gen_random_uuid(),
   play_sheet_id uuid not null references play_sheets(id) on delete cascade,

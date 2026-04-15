@@ -516,17 +516,17 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
     <>
       <PlayLoggedToast visible={toastVisible} />
       <div className="fixed inset-0 z-40 flex items-end bg-slate-950/70 p-3">
-      <div className="max-h-[90vh] w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 p-4">
+      <div className="app-card max-h-[90vh] w-full overflow-y-auto p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-2xl">Play Logger</h2>
-          <button type="button" onClick={onClose} className="text-sm text-slate-300">
+          <h2 className="app-section-title text-2xl">Play logger</h2>
+          <button type="button" onClick={onClose} className="btn-secondary px-3 py-1.5 text-xs">
             Close
           </button>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Down & Distance</p>
+            <p className="app-field-label text-slate-400">Down & distance</p>
             <div className="grid grid-cols-4 gap-2">
               {[1, 2, 3, 4].map((d) => (
                 <button
@@ -544,7 +544,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
 
             {isGoalToGo ? (
               <div className="space-y-1">
-                <span className="block text-xs uppercase tracking-wide text-slate-400">Distance</span>
+                <span className="app-field-label text-slate-400">Distance</span>
                 <div className="flex items-center">
                   <span className="inline-flex items-center rounded-full border border-amber-700 bg-amber-900/40 px-3 py-1.5 text-sm font-semibold text-amber-400">
                     GOAL TO GO
@@ -553,12 +553,12 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
               </div>
             ) : (
               <label className="space-y-1">
-                <span className="block text-xs uppercase tracking-wide text-slate-400">Yards to Go</span>
+                <span className="app-field-label text-slate-400">Yards to go</span>
                 <input
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  className="w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-center text-lg font-mono"
+                  className="hs-input app-input text-center text-lg font-mono"
                   value={distanceInput}
                   onChange={(e) => {
                     const v = e.target.value.replace(/[^0-9]/g, "");
@@ -572,7 +572,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Field Position</p>
+            <p className="app-field-label text-slate-400">Field position</p>
             <div className="grid grid-cols-2 gap-2">
               <div className="grid grid-cols-2 gap-2">
                 {(["OWN", "OPP"] as const).map((side) => (
@@ -590,7 +590,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-center text-lg font-mono"
+                className="hs-input app-input text-center text-lg font-mono"
                 value={yardLine ?? ""}
                 placeholder="1–50"
                 onChange={(e) => {
@@ -768,7 +768,7 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
           ) : null}
 
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Result</p>
+            <p className="app-field-label text-slate-400">Result</p>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {FILM_RESULT_BUTTONS.map(({ tag, label, color }) => {
                 const active = resultTag === tag || (!resultTag && isFilmResultTag(play.result_tag) && play.result_tag === tag);
@@ -788,12 +788,12 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
               <div className="space-y-1">
                 {showYardsInput ? (
                   <label>
-                    <span className="block text-xs uppercase tracking-wide text-slate-400">{yardsLabel}</span>
+                    <span className="app-field-label text-slate-400">{yardsLabel}</span>
                     <input
                       type="text"
                       inputMode="numeric"
                       pattern={resolvedTagForForm === "LOSS" ? undefined : "[0-9]*"}
-                      className="w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-center text-2xl font-mono"
+                      className="hs-input app-input text-center text-2xl font-mono"
                       value={yardsInput}
                       placeholder="0"
                       onChange={(e) => onYardsChange(e.target.value)}
@@ -805,33 +805,23 @@ export function PlayLogger({ gameSessionId, myPlaybook, opponentScheme, driveId,
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Note (optional)</p>
+            <p className="app-field-label text-slate-400">Note (optional)</p>
             <input
               maxLength={60}
               value={play.note}
               onChange={(e) => setPlay((p) => ({ ...p, note: e.target.value }))}
-              className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2"
+              className="hs-input app-input"
               placeholder="What happened? (optional)"
             />
           </div>
 
-          <button
-            type="button"
-            onClick={() => void savePlay()}
-            disabled={submitDisabled}
-            className={`w-full rounded-lg py-3 text-base font-semibold transition-colors ${
-              submitDisabled ? "cursor-not-allowed bg-slate-700 text-slate-500" : "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
-            }`}
-          >
+          <button type="button" onClick={() => void savePlay()} disabled={submitDisabled} className="btn-primary-block py-3 text-base">
             {isLogging ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="size-4 animate-spin rounded-full border-2 border-slate-600 border-t-slate-200" />
-                {editPlay ? "Saving…" : "Logging…"}
-              </span>
+              <span className="animate-pulse">{editPlay ? "Saving…" : "Logging…"}</span>
             ) : editPlay ? (
-              "Save Play"
+              "Save play"
             ) : (
-              "Log Play"
+              "Log play"
             )}
           </button>
         </div>

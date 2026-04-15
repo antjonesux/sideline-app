@@ -39,7 +39,7 @@ export function ImportPreviewDrives({ rows }: Props) {
         const expanded = openDrive === num;
 
         return (
-          <div key={num} className="rounded-xl border border-slate-700 bg-slate-900">
+          <div key={num} className="app-card overflow-hidden">
             <button
               type="button"
               aria-expanded={expanded}
@@ -47,7 +47,7 @@ export function ImportPreviewDrives({ rows }: Props) {
               className="flex w-full flex-wrap items-center justify-between gap-2 rounded-xl p-4 text-left transition-colors hover:bg-slate-800/60"
             >
               <div className="flex min-w-0 flex-wrap items-center gap-3">
-                <span className="font-display text-xl text-amber-400">Drive {num}</span>
+                <span className="font-heading text-xl font-bold uppercase tracking-wide text-amber-400">Drive {num}</span>
                 <span className="font-mono text-xs uppercase tracking-wide text-slate-500">{qLabel}</span>
               </div>
               <div className="flex shrink-0 flex-wrap items-center gap-2">

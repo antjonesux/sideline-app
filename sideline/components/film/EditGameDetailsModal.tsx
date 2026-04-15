@@ -232,7 +232,7 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
     <>
       <button
         type="button"
-        className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-emerald-700/50 hover:bg-slate-800 hover:text-emerald-300"
+        className="btn-secondary shrink-0 px-3 py-1.5 text-xs hover:border-emerald-600/50 hover:text-emerald-300"
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={MODAL_ID}
@@ -257,12 +257,15 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
             isOpen ? "mt-7 opacity-100 duration-500" : "mt-0 opacity-0"
           }`}
         >
-          <div className="pointer-events-auto flex flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="pointer-events-auto flex flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
-              <h2 id="hs-edit-game-modal-label" className="font-display text-xl text-slate-100">
+              <h2 id="hs-edit-game-modal-label" className="app-modal-title">
                 Edit game details
               </h2>
-              <p className="mt-1 text-sm text-slate-400">Update metadata only. Play-by-play is unchanged.</p>
+              <p className="mt-1 font-body text-sm text-slate-400">Update metadata only. Play-by-play is unchanged.</p>
             </div>
 
             <form onSubmit={onSubmit} className="space-y-5 px-4 py-5 sm:px-6">
@@ -315,9 +318,9 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-slate-500">My Score</span>
+                  <span className="app-field-label">My score</span>
                   <input
-                    className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                    className="hs-input app-input"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -329,9 +332,9 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-slate-500">Their Score</span>
+                  <span className="app-field-label">Their score</span>
                   <input
-                    className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                    className="hs-input app-input"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -345,7 +348,7 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
               </div>
 
               <div className="space-y-2">
-                <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Game Result</p>
+                <p className="app-field-label">Game result</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -367,19 +370,11 @@ export function EditGameDetailsModal({ gameId, game, onSaved }: Props) {
               </div>
 
               <div className="flex gap-3 border-t border-slate-800 pt-5">
-                <button
-                  type="button"
-                  className="flex-1 rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800"
-                  onClick={() => setIsOpen(false)}
-                >
+                <button type="button" className="btn-secondary flex-1" onClick={() => setIsOpen(false)}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={!canSave || saveBusy}
-                  className="flex-1 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
-                >
-                  {saveBusy ? "Saving…" : "Save Changes"}
+                <button type="submit" disabled={!canSave || saveBusy} className="btn-primary flex-1">
+                  {saveBusy ? "Saving…" : "Save changes"}
                 </button>
               </div>
             </form>

@@ -1,6 +1,7 @@
 "use client";
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { supabase } from "@/lib/supabase";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
@@ -214,19 +215,19 @@ export default function NewGamePage() {
     }
   }
 
-  const primaryActionClass =
-    "w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500";
-
   return (
     <section className="space-y-8 pb-8">
       <BackToFilmLink />
 
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
-        <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className="font-display text-3xl tracking-wide text-white">New Game Setup</h1>
+      <div className="app-shell">
+        {setupLoading ? (
+          <NewGameFormSkeleton />
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-6">
+          <h1 className="app-page-title">New game setup</h1>
 
           {setupError ? (
-            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 text-sm text-amber-100" role="alert">
+            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
               {setupError}
             </p>
           ) : null}
@@ -270,15 +271,15 @@ export default function NewGamePage() {
               getOptionKey={(row) => row.playbook_name}
               getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
             />
-            {!usePlaybookSelect ? <p className="text-xs text-slate-500">Playbook list is unavailable.</p> : null}
-            <p className="text-xs text-slate-500">You can use any playbook, not just your team&apos;s.</p>
+            {!usePlaybookSelect ? <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p> : null}
+            <p className="font-body text-xs text-slate-500">You can use any playbook, not just your team&apos;s.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <label className="space-y-1">
-              <span className="font-mono text-xs uppercase tracking-widest text-slate-500">My Score</span>
+              <span className="app-field-label">My score</span>
               <input
-                className="hs-input block w-full rounded-lg border dark:border-slate-700 dark:bg-slate-800 px-3 py-2.5 text-slate-100"
+                className="hs-input app-input"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -290,9 +291,9 @@ export default function NewGamePage() {
               />
             </label>
             <label className="space-y-1">
-              <span className="font-mono text-xs uppercase tracking-widest text-slate-500">Their Score</span>
+              <span className="app-field-label">Their score</span>
               <input
-                className="hs-input block w-full rounded-lg border dark:border-slate-700 dark:bg-slate-800 px-3 py-2.5 text-slate-100"
+                className="hs-input app-input"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -306,7 +307,7 @@ export default function NewGamePage() {
           </div>
 
           <div className="space-y-2">
-            <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Game Result</p>
+            <p className="app-field-label">Game result</p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -329,14 +330,11 @@ export default function NewGamePage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={!canContinue || submitBusy}
-            className={primaryActionClass}
-          >
-            {submitBusy ? "Starting…" : "START LOGGING"}
+          <button type="submit" disabled={!canContinue || submitBusy} className="btn-primary-block py-3 text-sm uppercase tracking-wide">
+            {submitBusy ? "Starting…" : "Start logging"}
           </button>
         </form>
+        )}
       </div>
     </section>
   );

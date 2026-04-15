@@ -52,3 +52,28 @@ export type PlayStatRow = {
   avg_yards: number;
   success_rate: number;
 };
+
+export type PlaybookSummary = {
+  id: string;
+  name: string;
+  cfb26_playbook: string;
+  scenario_filled: number;
+  scenario_total: number;
+  play_count: number;
+  updated_at: string | null;
+};
+
+export type SheetPlayRow = {
+  id: string;
+  play_order: number;
+  formation: string;
+  play_name: string;
+  script_note: string | null;
+};
+
+export type SheetScenarioBlock = {
+  id: string;
+  scenario: string;
+  scenario_order: number;
+  plays: SheetPlayRow[];
+};

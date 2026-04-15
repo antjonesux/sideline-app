@@ -1,18 +1,18 @@
 function classesForResult(raw: string): string {
   const u = raw.trim().toUpperCase().replace(/_/g, " ");
-  if (u === "FIRST DOWN" || u === "TOUCHDOWN") return "border-emerald-600 bg-emerald-900/40 text-emerald-300";
-  if (u === "GAIN") return "border-sky-600 bg-sky-900/35 text-sky-200";
-  if (u === "SACK" || u === "LOSS" || u === "TURNOVER") return "border-red-700 bg-red-900/35 text-red-300";
-  if (u === "INCOMPLETE" || u === "NO GAIN" || u === "PUNT") return "border-slate-600 bg-slate-800/80 text-slate-400";
-  if (u === "PENALTY") return "border-amber-600 bg-amber-900/35 text-amber-200";
-  return "border-slate-600 bg-slate-800 text-slate-300";
+  if (u === "FIRST DOWN" || u === "TOUCHDOWN" || u === "FIELD GOAL") return "border-emerald-600/80 bg-emerald-900/45 text-emerald-200";
+  if (u === "GAIN") return "border-sky-600/80 bg-sky-900/40 text-sky-200";
+  if (u === "SACK" || u === "LOSS" || u === "TURNOVER") return "border-red-700/80 bg-red-900/40 text-red-200";
+  if (u === "INCOMPLETE" || u === "NO GAIN" || u === "PUNT") return "border-[#2A2E3A] bg-[#1C1F28] text-[#A0A3AD]";
+  if (u === "PENALTY") return "border-amber-600/80 bg-amber-900/40 text-amber-200";
+  return "border-[#2A2E3A] bg-[#1C1F28] text-[#A0A3AD]";
 }
 
 export function ResultBadge({ label }: { label: string }) {
   const display = label.replace(/_/g, " ");
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${classesForResult(label)}`}
+      className={`font-mono inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${classesForResult(label)}`}
     >
       {display}
     </span>

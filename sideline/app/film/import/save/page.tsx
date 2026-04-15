@@ -1,9 +1,12 @@
 "use client";
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { supabase } from "@/lib/supabase";
 import { useImportStore } from "@/store/importStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
@@ -37,6 +40,7 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
 
 export default function FilmImportSavePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { parsedRows, validRows, setStep, setGameSetup, setImportedSession } = useImportStore();
 
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
@@ -166,6 +170,8 @@ export default function FilmImportSavePage() {
       }
 
       setImportedSession(body.session_id);
+      void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
       router.push("/film/import/complete");
     } finally {
       setSubmitBusy(false);
@@ -173,14 +179,12 @@ export default function FilmImportSavePage() {
   }
 
   const canSubmit = Boolean(myTeam && opponent && playbookRow && !setupLoading && validRows.length > 0);
-  const primaryActionClass =
-    "w-full rounded-lg bg-emerald-500 py-4 font-display text-xl tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500";
 
   if (parsedRows.length === 0) {
     return (
-      <section className="pb-8">
+      <section className="space-y-6 pb-8">
         <BackToFilmLink />
-        <p className="mt-6 text-sm text-slate-400">Loading game details…</p>
+        <NewGameFormSkeleton />
       </section>
     );
   }
@@ -189,12 +193,15 @@ export default function FilmImportSavePage() {
     <section className="space-y-8 pb-8">
       <BackToFilmLink />
 
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
-        <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className="font-display text-3xl tracking-wide text-white">Tag This Game</h1>
+      <div className="app-shell">
+        {setupLoading ? (
+          <NewGameFormSkeleton />
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-6">
+          <h1 className="app-page-title">Tag this game</h1>
 
           {setupError ? (
-            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 text-sm text-amber-100" role="alert">
+            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
               {setupError}
             </p>
           ) : null}
@@ -237,14 +244,14 @@ export default function FilmImportSavePage() {
               getOptionLabel={(row) => row.playbook_name}
               getSearchText={(row) => row.playbook_name}
             />
-            <p className="text-xs text-slate-500">All playbooks are available.</p>
+            <p className="font-body text-xs text-slate-500">All playbooks are available.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <label className="space-y-1">
-              <span className="font-mono text-xs uppercase tracking-widest text-slate-500">My Score</span>
+              <span className="app-field-label">My score</span>
               <input
-                className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                className="hs-input app-input"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -256,9 +263,9 @@ export default function FilmImportSavePage() {
               />
             </label>
             <label className="space-y-1">
-              <span className="font-mono text-xs uppercase tracking-widest text-slate-500">Their Score</span>
+              <span className="app-field-label">Their score</span>
               <input
-                className="hs-input block w-full rounded-lg border px-3 py-2.5 text-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                className="hs-input app-input"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -272,7 +279,7 @@ export default function FilmImportSavePage() {
           </div>
 
           <div className="space-y-2">
-            <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Game Result</p>
+            <p className="app-field-label">Game result</p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -295,8 +302,8 @@ export default function FilmImportSavePage() {
             </div>
           </div>
 
-          <button type="submit" disabled={!canSubmit || submitBusy} className={primaryActionClass}>
-            {submitBusy ? "Importing…" : `Import ${validRows.length} Plays`}
+          <button type="submit" disabled={!canSubmit || submitBusy} className="btn-primary-lg">
+            {submitBusy ? "Importing…" : `Import ${validRows.length} plays`}
           </button>
 
           <button
@@ -305,11 +312,12 @@ export default function FilmImportSavePage() {
               setStep(2);
               router.push("/film/import/preview");
             }}
-            className="w-full rounded-lg border border-slate-600 bg-transparent px-4 py-3 font-mono text-sm text-slate-300 hover:bg-slate-800"
+            className="btn-secondary-block py-3 text-sm"
           >
-            ← Back to Preview
+            ← Back to preview
           </button>
         </form>
+        )}
       </div>
     </section>
   );

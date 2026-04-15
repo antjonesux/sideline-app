@@ -36,32 +36,27 @@ export function ImportPreview({ onReupload, onNext }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-3xl tracking-wide text-white">Preview & Confirm</h2>
+      <h2 className="app-page-title">Preview & confirm</h2>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         {[
           { label: "Plays", value: stats.plays },
           { label: "Drives", value: stats.drives },
-          { label: "Total Yards", value: stats.yards },
+          { label: "Total yards", value: stats.yards },
           { label: "TDs", value: stats.tds },
           { label: "Turnovers", value: stats.to },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-slate-700 bg-slate-900 p-3 text-center">
-            <p className="font-display text-3xl text-white">{s.value}</p>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500">{s.label}</p>
+          <div key={s.label} className="app-card p-3 text-center">
+            <p className="font-mono text-3xl font-bold tabular-nums text-white">{s.value}</p>
+            <p className="app-field-label mt-1">{s.label}</p>
           </div>
         ))}
       </div>
 
       {issueRowCount > 0 ? (
-        <div
-          className="rounded-lg border border-red-800/30 bg-red-900/20 p-4 text-sm text-red-200"
-          role="alert"
-        >
+        <div className="rounded-lg border border-red-800/30 bg-red-900/20 p-4 text-sm text-red-200" role="alert">
           <button type="button" className="flex w-full items-start justify-between gap-2 text-left" onClick={() => setExpandErrors((e) => !e)}>
-            <span>
-              ⚠ {issueRowCount} row(s) with issues (will be skipped on import)
-            </span>
+            <span className="font-body">⚠ {issueRowCount} row(s) with issues (will be skipped on import)</span>
             <span className="shrink-0 font-mono text-xs text-red-300/80">{expandErrors ? "▲" : "▼"}</span>
           </button>
           {expandErrors ? (
@@ -77,24 +72,24 @@ export function ImportPreview({ onReupload, onNext }: Props) {
         </div>
       ) : null}
 
-      <div className="flex rounded-lg border border-slate-700 bg-slate-900 p-1">
+      <div className="app-card flex p-1">
         <button
           type="button"
           onClick={() => setTab("pbp")}
-          className={`flex-1 rounded-md py-2 font-mono text-xs font-semibold uppercase tracking-wide ${
+          className={`flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
             tab === "pbp" ? "bg-emerald-500/20 text-emerald-300" : "text-slate-500"
           }`}
         >
-          Play-by-Play
+          Play-by-play
         </button>
         <button
           type="button"
           onClick={() => setTab("drive")}
-          className={`flex-1 rounded-md py-2 font-mono text-xs font-semibold uppercase tracking-wide ${
+          className={`flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
             tab === "drive" ? "bg-emerald-500/20 text-emerald-300" : "text-slate-500"
           }`}
         >
-          By Drive
+          By drive
         </button>
       </div>
 
@@ -105,12 +100,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <button
-          type="button"
-          disabled={continueBusy}
-          onClick={onReupload}
-          className="rounded-lg border border-slate-600 bg-transparent px-4 py-3 font-mono text-sm text-slate-300 hover:bg-slate-800 disabled:opacity-50"
-        >
+        <button type="button" disabled={continueBusy} onClick={onReupload} className="btn-secondary py-3 sm:max-w-[200px]">
           ← Re-upload
         </button>
         <button
@@ -124,9 +114,9 @@ export function ImportPreview({ onReupload, onNext }: Props) {
               setContinueBusy(false);
             }
           }}
-          className="flex-1 rounded-lg bg-emerald-500 py-4 font-display text-xl tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
+          className="btn-primary-lg"
         >
-          {continueBusy ? "Working…" : importTargetSessionId ? "Import to current game" : "Next → Tag This Game"}
+          {continueBusy ? "Working…" : importTargetSessionId ? "Import to current game" : "Next → tag this game"}
         </button>
       </div>
     </div>

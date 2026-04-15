@@ -1,0 +1,180 @@
+"use client";
+
+import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+
+type PlaybookOption = { team_name: string };
+
+type Props = {
+  /** When true, render as a full page (no dim backdrop framing). */
+  variant?: "page" | "modal";
+  open?: boolean;
+  onClose?: () => void;
+};
+
+export function CreatePlaybookModal({ variant = "page", open = true, onClose }: Props) {
+  const router = useRouter();
+  const [step, setStep] = useState<1 | 2>(1);
+  const [name, setName] = useState("");
+  const [playbooks, setPlaybooks] = useState<string[]>([]);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
+  const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadErr(null);
+      const res = await fetch("/api/cfb26-playbooks");
+      const j = (await res.json()) as { playbooks?: string[]; error?: string };
+      if (!res.ok) {
+        if (!cancelled) setLoadErr(j.error ?? "Could not load playbooks");
+        return;
+      }
+      if (!cancelled) setPlaybooks(j.playbooks ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
+
+  const canStep1 = name.trim().length > 0 && Boolean(selectedPlaybook);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (step === 1) {
+      if (canStep1) setStep(2);
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/playbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), cfb26_playbook: selectedPlaybook!.team_name }),
+      });
+      const j = (await res.json()) as { id?: string; error?: string };
+      if (!res.ok) {
+        window.alert(j.error ?? "Could not create playbook");
+        return;
+      }
+      if (j.id) {
+        if (variant === "modal") onClose?.();
+        router.push(`/playbook/${j.id}`);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (variant === "modal" && !open) return null;
+
+  const inner = (
+    <div
+      className={`mx-auto flex flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-xl ${
+        variant === "page" ? "w-full max-w-lg" : "m-3 max-h-[90vh] overflow-y-auto sm:mt-0 sm:w-full sm:max-w-lg"
+      }`}
+    >
+      <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
+        <h2 className="app-modal-title">New playbook</h2>
+        <p className="mt-1 font-body text-sm text-slate-400">
+          {step === 1 ? "Step 1 of 2 — name and CFB26 playbook" : "Step 2 of 2 — start building"}
+        </p>
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-5 px-4 py-5 sm:px-6">
+        {loadErr ? (
+          <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
+            {loadErr}
+          </p>
+        ) : null}
+
+        {step === 1 ? (
+          <>
+            <label className="block space-y-1">
+              <span className="app-field-label">Playbook name</span>
+              <input
+                className="hs-input app-input"
+                placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="off"
+              />
+            </label>
+
+            <TeamCombobox<PlaybookOption>
+              label="Select CFB26 playbook"
+              inputId="create-cfb26-playbook"
+              selected={selectedPlaybook}
+              onSelect={setSelectedPlaybook}
+              options={options}
+              loading={playbooks.length === 0 && !loadErr}
+              placeholder="Search playbook"
+              getOptionLabel={(o) => o.team_name}
+              getOptionKey={(o) => o.team_name}
+              getSearchText={(o) => o.team_name}
+            />
+            <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
+          </>
+        ) : (
+          <div className="space-y-3 font-body text-sm text-slate-300">
+            <p>
+              <span className="text-slate-500">Name:</span> {name.trim()}
+            </p>
+            <p>
+              <span className="text-slate-500">CFB26 playbook:</span> {selectedPlaybook?.team_name}
+            </p>
+            <p className="text-slate-500">We will create 15 empty situation slots. You can add plays in the editor.</p>
+          </div>
+        )}
+
+        <div className="flex gap-3 border-t border-slate-800 pt-5">
+          {step === 2 ? (
+            <button type="button" className="btn-secondary flex-1" onClick={() => setStep(1)}>
+              Back
+            </button>
+          ) : variant === "modal" ? (
+            <button type="button" className="btn-secondary flex-1" onClick={() => onClose?.()}>
+              Cancel
+            </button>
+          ) : (
+            <button type="button" className="btn-secondary flex-1" onClick={() => router.push("/playbook")}>
+              Cancel
+            </button>
+          )}
+          <button type="submit" disabled={busy || (step === 1 && !canStep1)} className="btn-primary flex-1">
+            {step === 1 ? "Continue" : busy ? "Creating…" : "Create & open"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  if (variant === "page") {
+    return (
+      <section className="space-y-6">
+        <h1 className="app-page-title">Create playbook</h1>
+        {inner}
+      </section>
+    );
+  }
+
+  return (
+    <div
+      className={`hs-overlay fixed start-0 top-0 z-[80] size-full overflow-x-hidden overflow-y-auto ${
+        open ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"
+      }`}
+      role="dialog"
+      aria-modal={open}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      <div className={`flex min-h-full items-end justify-center sm:items-center ${open ? "py-4" : ""}`}>{inner}</div>
+    </div>
+  );
+}

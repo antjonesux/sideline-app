@@ -4,6 +4,13 @@
 @plugin "@tailwindcss/forms";
 @import "preline/css/themes/theme.css";
 
+@theme {
+  /* Next/font sets --font-barlow, --font-barlow-condensed, --font-jetbrains-mono on <html> */
+  --font-body: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-barlow-condensed), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -11,14 +18,106 @@
   }
 
   body {
-    font-family: var(--font-dm-mono), monospace;
+    font-family: var(--font-barlow), system-ui, sans-serif;
   }
 
-  h1,
-  h2,
-  h3,
-  .font-display {
-    font-family: var(--font-bebas), sans-serif;
-    letter-spacing: 0.02em;
+  .font-barlow {
+    font-family: var(--font-barlow), system-ui, sans-serif;
   }
+
+  .font-barlow-condensed {
+    font-family: var(--font-barlow-condensed), system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Surfaces */
+  .app-card {
+    @apply rounded-xl border border-slate-700 bg-slate-900;
+  }
+
+  .app-card-pad {
+    @apply p-4;
+  }
+
+  .app-card-interactive {
+    @apply rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70;
+  }
+
+  .app-shell {
+    @apply rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6;
+  }
+
+  /* Typography */
+  .app-page-title {
+    @apply font-heading text-3xl font-bold uppercase tracking-[0.14em] text-white sm:text-4xl;
+  }
+
+  .app-section-title {
+    @apply font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100;
+  }
+
+  .app-modal-title {
+    @apply font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100;
+  }
+
+  .app-card-title {
+    @apply font-heading text-lg font-bold uppercase tracking-wide text-white;
+  }
+
+  .app-game-title {
+    @apply font-heading text-lg font-bold tracking-wide text-slate-100;
+  }
+
+  .app-editor-title {
+    @apply font-heading mt-1 text-3xl font-bold uppercase tracking-[0.1em] text-white;
+  }
+
+  .app-field-label {
+    @apply font-body text-xs font-medium uppercase tracking-widest text-slate-500;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+  }
+
+  .btn-primary-block {
+    @apply inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+  }
+
+  .btn-primary-lg {
+    @apply inline-flex w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-body text-base font-semibold uppercase tracking-wide text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+  }
+
+  .btn-secondary-block {
+    @apply inline-flex w-full items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+  }
+
+  .btn-destructive {
+    @apply inline-flex items-center justify-center rounded-lg border border-red-700/70 bg-red-950/35 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-red-200 transition-colors hover:bg-red-950/55 disabled:opacity-50;
+  }
+
+  .btn-destructive-solid {
+    @apply inline-flex flex-1 items-center justify-center rounded-lg border border-red-800 bg-red-900/35 px-4 py-2.5 text-center font-body text-sm font-semibold text-red-300 transition-colors hover:bg-red-900/50;
+  }
+
+  /* Form controls */
+  .app-input {
+    @apply block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25;
+  }
+
+  .app-input-compact {
+    @apply block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25;
+  }
+
+  /* Skeleton */
+  .app-skeleton {
+    @apply animate-pulse rounded-md bg-slate-700/55;
+  }
+
 }

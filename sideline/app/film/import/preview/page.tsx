@@ -1,13 +1,17 @@
 "use client";
 
 import { ImportPreview } from "@/components/import/ImportPreview";
+import { ImportPreviewSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { useImportStore } from "@/store/importStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function FilmImportPreviewPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { parsedRows, setParsedData, setStep, reset } = useImportStore();
 
   useEffect(() => {
@@ -18,9 +22,9 @@ export default function FilmImportPreviewPage() {
 
   if (parsedRows.length === 0) {
     return (
-      <section className="pb-8">
+      <section className="space-y-6 pb-8">
         <BackToFilmLink />
-        <p className="mt-6 text-sm text-slate-400">Loading preview…</p>
+        <ImportPreviewSkeleton />
       </section>
     );
   }
@@ -29,7 +33,7 @@ export default function FilmImportPreviewPage() {
     <section className="space-y-8 pb-8">
       <BackToFilmLink />
 
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
+      <div className="app-shell">
         <ImportPreview
           onReupload={() => {
             const attachId = useImportStore.getState().importTargetSessionId;
@@ -51,6 +55,8 @@ export default function FilmImportPreviewPage() {
                 window.alert(body.error ?? "Import failed.");
                 return;
               }
+              void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
+              void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
               reset();
               router.push(`/film/${body.session_id}`);
               return;

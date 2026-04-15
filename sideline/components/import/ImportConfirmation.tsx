@@ -16,23 +16,17 @@ export function ImportConfirmation({ playCount, sessionId }: Props) {
         </svg>
       </div>
       <div>
-        <h2 className="font-display text-4xl tracking-wide text-white">{playCount} Plays Imported</h2>
-        <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">
+        <h2 className="font-heading text-4xl font-bold uppercase tracking-wide text-white">{playCount} plays imported</h2>
+        <p className="mx-auto mt-3 max-w-md font-body text-sm text-slate-400">
           Game data has been logged. Scenarios and field zones were auto-derived. Your analytics are ready.
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:mx-auto sm:max-w-md">
-        <Link
-          href={`/film/${sessionId}`}
-          className="rounded-lg border border-slate-600 py-3 font-mono text-sm text-slate-200 hover:bg-slate-800"
-        >
-          View Game Summary
+        <Link href={`/film/${sessionId}`} className="btn-secondary-block py-3 text-sm">
+          View game summary
         </Link>
-        <Link
-          href="/tendencies"
-          className="rounded-lg bg-emerald-500/20 py-3 font-mono text-sm font-semibold text-emerald-300 hover:bg-emerald-500/30"
-        >
-          View Tendencies →
+        <Link href="/tendencies" className="btn-primary-block py-3 text-sm">
+          View tendencies →
         </Link>
       </div>
     </div>
