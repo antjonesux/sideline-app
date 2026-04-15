@@ -137,20 +137,28 @@ ORDER BY total_plays DESC;
   console.info("[Tendencies] Play types found:", rawPlayTypeCounts);
   console.info("[Tendencies] Grouped play type counts:", counts);
   console.info('[Tendencies] "Other" plays:', otherPlays);
-  const play_type_distribution = (["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const)
-    .map((name) => ({
-      name,
-      pct: Math.round(((counts[name] ?? 0) * 1000) / total) / 10,
-      count: counts[name] ?? 0,
-    }))
-    .concat([
-      {
-        name: "Unclassified",
-        pct: Math.round((unclassifiedCount * 1000) / total) / 10,
-        count: unclassifiedCount,
-      },
-    ])
-    .filter((row) => row.name !== "Unclassified" || row.count > 0);
+  type PlayTypeDistributionName = "Run" | "Pass" | "Play Action" | "Screen" | "RPO" | "Option" | "Other" | "Unclassified";
+  type PlayTypeDistributionRow = { name: PlayTypeDistributionName; pct: number; count: number };
+  const distributionNames = ["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const;
+  const classifiedDistributionRows: PlayTypeDistributionRow[] = distributionNames.map((name): PlayTypeDistributionRow => ({
+    name,
+    pct: Math.round(((counts[name] ?? 0) * 1000) / total) / 10,
+    count: counts[name] ?? 0,
+  }));
+  const unclassifiedDistributionRows: PlayTypeDistributionRow[] =
+    unclassifiedCount > 0
+      ? [
+          {
+            name: "Unclassified",
+            pct: Math.round((unclassifiedCount * 1000) / total) / 10,
+            count: unclassifiedCount,
+          },
+        ]
+      : [];
+  const play_type_distribution: PlayTypeDistributionRow[] = [
+    ...classifiedDistributionRows,
+    ...unclassifiedDistributionRows,
+  ].filter((row) => row.name !== "Unclassified" || row.count > 0);
 
   const buckets = typedPlays.map((x) => x.bucket);
   const situation_tendencies = situationRunPassRows(plays, buckets);

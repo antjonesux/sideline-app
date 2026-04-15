@@ -130,7 +130,9 @@ export async function fetchCfbPlayTypeMap(
     const withPlayTypeResult = ilikeFilters ? await withPlayTypeQuery.or(ilikeFilters) : await withPlayTypeQuery.in("playbook", slice);
     data = (withPlayTypeResult.data as typeof data) ?? null;
     error = withPlayTypeResult.error as typeof error;
-    if (error && /play_type/i.test(error.message ?? "") && /column/i.test(error.message ?? "")) {
+    const errorMessage =
+      error && typeof error === "object" && "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+    if (errorMessage && /play_type/i.test(errorMessage) && /column/i.test(errorMessage)) {
       console.warn("[Tendencies] cfb26_plays.play_type missing; falling back to play_name-derived type.");
       const fallbackQuery = supabase.from("cfb26_plays").select("playbook, formation, play_name");
       const fallbackResult = ilikeFilters ? await fallbackQuery.or(ilikeFilters) : await fallbackQuery.in("playbook", slice);

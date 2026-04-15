@@ -7,12 +7,15 @@ export const dynamic = "force-dynamic";
 type GameSessionRow = {
   id: string;
   my_playbook: string;
+  my_scheme: string;
   offensive_playbook?: string | null;
   opponent_team: string;
+  opponent_scheme: string;
   my_score: number | null;
   opponent_score: number | null;
   result: "W" | "L" | null;
   game_date: string;
+  quarter_started_logging: number | null;
   created_at: string;
 };
 
@@ -35,7 +38,9 @@ type GameWithCounts = GameSessionRow & {
 async function getGamesWithCounts(): Promise<GameWithCounts[]> {
   const { data: games, error: gameError } = await supabase
     .from("game_sessions")
-    .select("id, my_playbook, offensive_playbook, opponent_team, my_score, opponent_score, result, game_date, created_at")
+    .select(
+      "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at",
+    )
     .order("created_at", { ascending: false });
 
   if (gameError || !games?.length) return [];
