@@ -107,6 +107,15 @@ create table if not exists cfb26_plays (
   is_new_in_26 boolean default false
 );
 
+-- Natural key for playbook seed upserts (fails if duplicate playbook/formation/play_name rows already exist).
+do $cfb26uniq$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'cfb26_plays_unique_play') then
+    alter table cfb26_plays add constraint cfb26_plays_unique_play unique (playbook, formation, play_name);
+  end if;
+end
+$cfb26uniq$;
+
 create table if not exists scheme_play_weights (
   id uuid primary key default gen_random_uuid(),
   scheme text not null,

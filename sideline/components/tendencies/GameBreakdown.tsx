@@ -71,6 +71,7 @@ type Props = {
 export function GameBreakdown({ data }: Props) {
   const { game, drives, stats, formation_breakdown } = data;
   const [expandedDriveIds, setExpandedDriveIds] = useState<string[]>([]);
+  const playbookUsed = (game.offensive_playbook ?? "").trim() || (game.my_playbook ?? "").trim() || "—";
 
   const title = useMemo(() => {
     const res = game.result === "W" ? "W" : game.result === "L" ? "L" : "—";
@@ -87,6 +88,10 @@ export function GameBreakdown({ data }: Props) {
     <div className="space-y-8">
       <header className="space-y-1">
         <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-slate-100 sm:text-3xl">{title.line}</h2>
+        <p className="font-body text-[11px] uppercase tracking-wide text-slate-500">
+          Offense Used:
+          <span className="ml-1 font-mono text-slate-300">{playbookUsed}</span>
+        </p>
         <div className="app-horizontal-scroll-strip">
           <GameStatsInline playCount={stats.play_count} driveCount={stats.drive_count} totalYards={stats.total_yards} tds={stats.tds} turnovers={stats.turnovers} />
         </div>

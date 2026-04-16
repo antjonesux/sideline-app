@@ -3,8 +3,13 @@
 import { PlayTypeDistribution } from "@/components/tendencies/PlayTypeDistribution";
 import { ScoutingReportSection } from "@/components/tendencies/ScoutingReportSection";
 import type { ScoutingFormationReportRow, ScoutingReportRow } from "@/lib/tendenciesServer";
-import { TendenciesFilters, buildTendenciesQueryString, type TendenciesFilterParams } from "@/components/tendencies/TendenciesFilters";
-import { TendenciesSectionSkeleton } from "@/components/shared/AppSkeleton";
+import {
+  TendenciesFilters,
+  buildTendenciesQueryString,
+  type TendenciesScopeParams,
+} from "@/components/tendencies/TendenciesFilters";
+import { TendenciesEmptyState } from "@/components/tendencies/TendenciesEmptyState";
+import { TendenciesPredictabilityBodySkeleton } from "@/components/shared/AppSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -27,7 +32,7 @@ type PredictApi = {
     third_down: { pct: number; conversions: number; plays: number };
   };
   motion: { user_pct: number; playbook_pct: number; playbook_name: string; underutilizing: boolean };
-  meta: { play_count: number; turnover_count: number; turnover_rate: number };
+  meta: { play_count: number; turnover_count: number; turnover_rate: number; game_count: number };
 };
 
 function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDisplay: string; description: string }) {
@@ -42,11 +47,15 @@ function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDis
 
 type Props = {
   opponents: string[];
+  playbook: string | null;
+  onPlaybookChange: (next: string | null) => void;
+  playbookOptions: string[];
+  playbookLoading?: boolean;
 };
 
-export function AmIPredictable({ opponents }: Props) {
-  const [filters, setFilters] = useState<TendenciesFilterParams>({ pill: "all", opponentTeam: opponents[0] ?? null, minUses: 3 });
-  const qs = useMemo(() => buildTendenciesQueryString(filters), [filters]);
+export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbookOptions, playbookLoading = false }: Props) {
+  const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
+  const qs = useMemo(() => buildTendenciesQueryString({ ...filters, playbook }), [filters, playbook]);
 
   const q = useQuery({
     queryKey: tendenciesQueryKeys.predictability(qs),
@@ -57,6 +66,10 @@ export function AmIPredictable({ opponents }: Props) {
     },
     staleTime: 10 * 60 * 1000,
   });
+
+  const dataLoading = q.isLoading;
+
+  const showPlaybookEmpty = Boolean(playbook) && !dataLoading && q.data && q.data.meta.game_count === 0;
 
   const unclassified = q.data?.play_type_distribution.find((r) => r.name === "Unclassified");
   /**
@@ -88,17 +101,21 @@ export function AmIPredictable({ opponents }: Props) {
 
   return (
     <div className="space-y-8">
-      <TendenciesFilters value={filters} onChange={setFilters} opponents={opponents} showMinUsesLine={false} />
+      <TendenciesFilters
+        value={filters}
+        onChange={setFilters}
+        opponents={opponents}
+        playbook={playbook}
+        onPlaybookChange={onPlaybookChange}
+        playbookOptions={playbookOptions}
+        playbookLoading={playbookLoading}
+        showMinUsesLine={false}
+      />
 
-      {q.isLoading ? (
-        <div className="space-y-6" aria-busy="true">
-          {[0, 1, 2].map((i) => (
-            <section key={i} className="space-y-3">
-              <div className="app-skeleton h-6 w-56 max-w-full" />
-              <TendenciesSectionSkeleton />
-            </section>
-          ))}
-        </div>
+      {showPlaybookEmpty && playbook ? <TendenciesEmptyState playbookName={playbook} /> : null}
+
+      {showPlaybookEmpty ? null : dataLoading ? (
+        <TendenciesPredictabilityBodySkeleton />
       ) : (
         <>
           <section className="space-y-3">
@@ -109,13 +126,13 @@ export function AmIPredictable({ opponents }: Props) {
                 {topTypeCards.map((row) => (
                   <div key={row.name} className="app-card p-3">
                     <p className="app-field-label">{row.name}</p>
-                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{row.pct}%</p>
+                                       <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(row.pct)}%</p>
                   </div>
                 ))}
                 {unclassified && unclassified.count > 0 ? (
                   <div className="app-card p-3">
                     <p className="app-field-label">Unclassified</p>
-                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{unclassified.pct}%</p>
+                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(unclassified.pct)}%</p>
                     <p className="mt-1 font-body text-[11px] text-slate-500">Plays not found in your playbook data.</p>
                   </div>
                 ) : null}
@@ -129,12 +146,12 @@ export function AmIPredictable({ opponents }: Props) {
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <KeyRateCard
                   label="TURNOVER RATE"
-                  pctDisplay={`${q.data.key_rates.turnover.pct}%`}
-                  description={`${q.data.key_rates.turnover.turnovers} turnovers in ${q.data.key_rates.turnover.total_plays} plays`}
+                  pctDisplay={`${Math.round(q.data.key_rates.turnover.pct)}%`}
+                  description={`${q.data.key_rates.turnover.turnovers.toLocaleString("en-US")} turnovers in ${q.data.key_rates.turnover.total_plays.toLocaleString("en-US")} plays`}
                 />
                 <KeyRateCard
                   label="MOTION USAGE"
-                  pctDisplay={`${q.data.key_rates.motion.pct}%`}
+                  pctDisplay={`${Math.round(q.data.key_rates.motion.pct)}%`}
                   description={(() => {
                     const m = q.data.key_rates.motion;
                     return `${m.motion_plays.toLocaleString("en-US")} motion plays on ${m.total_plays.toLocaleString("en-US")} snaps`;
@@ -142,20 +159,20 @@ export function AmIPredictable({ opponents }: Props) {
                 />
                 <KeyRateCard
                   label="RED ZONE TD%"
-                  pctDisplay={`${q.data.key_rates.red_zone_td.pct}%`}
+                  pctDisplay={`${Math.round(q.data.key_rates.red_zone_td.pct)}%`}
                   description={(() => {
                     const z = q.data.key_rates.red_zone_td;
                     if (z.plays === 0) return "No red zone plays in this filter.";
-                    return `${z.touchdowns} TDs on ${z.plays} red zone plays`;
+                    return `${z.touchdowns.toLocaleString("en-US")} TDs on ${z.plays.toLocaleString("en-US")} red zone plays`;
                   })()}
                 />
                 <KeyRateCard
                   label="3RD DOWN CONV%"
-                  pctDisplay={`${q.data.key_rates.third_down.pct}%`}
+                  pctDisplay={`${Math.round(q.data.key_rates.third_down.pct)}%`}
                   description={(() => {
                     const t = q.data.key_rates.third_down;
                     if (t.plays === 0) return "No third-down plays in this filter.";
-                    return `${t.conversions} conversions on ${t.plays} third downs`;
+                    return `${t.conversions.toLocaleString("en-US")} conversions on ${t.plays.toLocaleString("en-US")} third downs`;
                   })()}
                 />
               </div>

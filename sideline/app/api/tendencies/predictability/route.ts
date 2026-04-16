@@ -4,8 +4,11 @@ import {
   fetchCfbPlayTypeMap,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
+  filterGameRowsByOffensivePlaybook,
+  gamesWithOffensivePlaybookOnly,
   motionStatsForPlaybook,
   motionUsageStats,
+  parsePlaybookFilter,
   parseScope,
   playbookForGame,
   playTypeCounts,
@@ -21,6 +24,7 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
+  const playbook = parsePlaybookFilter(sp.get("playbook"));
   const escapedOpponent = opponent ? opponent.replace(/'/g, "''") : null;
 
   const debugSql = `
@@ -83,7 +87,8 @@ ORDER BY total_plays DESC;
   console.info("[predictability] debug SQL (reference for LOWER join path):\n" + debugSql);
 
   const games = await fetchGamesOrdered(supabase);
-  const gameIds = resolveFilteredGameIds(games, scope, opponent);
+  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const gameIds = resolveFilteredGameIds(pool, scope, opponent);
   const plays = await fetchLoggedPlaysForGames(supabase, gameIds);
   const gamesById = new Map(games.map((g) => [g.id, g]));
 
@@ -214,6 +219,7 @@ ORDER BY total_plays DESC;
     meta: {
       scope,
       opponent,
+      playbook,
       game_count: gameIds.length,
       play_count: plays.length,
       turnover_count: turnoverCount,

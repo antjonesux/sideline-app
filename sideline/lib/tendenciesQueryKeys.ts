@@ -5,4 +5,5 @@ export const tendenciesQueryKeys = {
   predictability: (params: string) => [...tendenciesQueryKeys.all, "predictability", params] as const,
   game: (gameId: string) => [...tendenciesQueryKeys.all, "game", gameId] as const,
   opponents: () => [...tendenciesQueryKeys.all, "opponents"] as const,
+  playbooksList: () => ["playbooks", "list"] as const,
 };

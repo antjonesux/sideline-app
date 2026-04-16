@@ -1,30 +1,39 @@
 "use client";
 
 import { ReconsiderPlays } from "@/components/tendencies/ReconsiderPlays";
-import { TendenciesFilters, buildTendenciesQueryString, type TendenciesFilterParams } from "@/components/tendencies/TendenciesFilters";
+import {
+  TendenciesFilters,
+  buildTendenciesQueryString,
+  type TendenciesScopeParams,
+} from "@/components/tendencies/TendenciesFilters";
+import { TendenciesEmptyState } from "@/components/tendencies/TendenciesEmptyState";
 import { TopFormationsList, type TopFormationRow } from "@/components/tendencies/TopFormationsList";
 import { TopPlaysList, type TopPlayRow } from "@/components/tendencies/TopPlaysList";
 import { WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
-import { TendenciesSectionSkeleton } from "@/components/shared/AppSkeleton";
+import { TendenciesWhatsWorkingBodySkeleton } from "@/components/shared/AppSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 type TopPlaysApi = {
   top_plays: TopPlayRow[];
   total_matching: number;
   reconsider_plays: TopPlayRow[];
-  meta: { play_count: number };
+  meta: { play_count: number; game_count: number };
 };
 
-type TopFormationsApi = { top_formations: TopFormationRow[]; total_matching: number; meta: { play_count: number } };
+type TopFormationsApi = { top_formations: TopFormationRow[]; total_matching: number; meta: { play_count: number; game_count: number } };
 
 type Props = {
   opponents: string[];
+  playbook: string | null;
+  onPlaybookChange: (next: string | null) => void;
+  playbookOptions: string[];
+  playbookLoading?: boolean;
 };
 
-export function WhatsWorking({ opponents }: Props) {
-  const [filters, setFilters] = useState<TendenciesFilterParams>({ pill: "all", opponentTeam: opponents[0] ?? null, minUses: 3 });
+export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOptions, playbookLoading = false }: Props) {
+  const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
   const [playsExpanded, setPlaysExpanded] = useState(false);
   const [playsPage, setPlaysPage] = useState(1);
   const [formationsExpanded, setFormationsExpanded] = useState(false);
@@ -33,11 +42,11 @@ export function WhatsWorking({ opponents }: Props) {
   const [reconsiderPage, setReconsiderPage] = useState(1);
 
   const qs = useMemo(() => {
-    const raw = buildTendenciesQueryString(filters);
+    const raw = buildTendenciesQueryString({ ...filters, playbook });
     const sp = new URLSearchParams(raw);
     sp.delete("min_uses");
     return sp.toString();
-  }, [filters]);
+  }, [filters, playbook]);
   const qsPlays = useMemo(() => {
     const sp = new URLSearchParams(qs);
     if (playsExpanded) sp.set("expand", "1");
@@ -66,7 +75,6 @@ export function WhatsWorking({ opponents }: Props) {
       return res.json() as Promise<TopPlaysApi>;
     },
     staleTime: 10 * 60 * 1000,
-    placeholderData: keepPreviousData,
   });
 
   const formationsQuery = useQuery({
@@ -77,7 +85,6 @@ export function WhatsWorking({ opponents }: Props) {
       return res.json() as Promise<TopFormationsApi>;
     },
     staleTime: 10 * 60 * 1000,
-    placeholderData: keepPreviousData,
   });
 
   const playsListRaw = playsQuery.data?.top_plays;
@@ -110,77 +117,101 @@ export function WhatsWorking({ opponents }: Props) {
 
   const reconsiderRankOffset = reconsiderExpanded ? (reconsiderPage - 1) * WORKING_LIST_PAGE_SIZE : 0;
 
+  const dataLoading = playsQuery.isLoading || formationsQuery.isLoading;
+
+  const showPlaybookEmpty =
+    Boolean(playbook) &&
+    !dataLoading &&
+    playsQuery.data &&
+    formationsQuery.data &&
+    playsQuery.data.meta.game_count === 0;
+
   return (
     <div className="space-y-8">
-      <TendenciesFilters value={filters} onChange={setFilters} opponents={opponents} showMinUsesLine={false} />
+      <TendenciesFilters
+        value={filters}
+        onChange={setFilters}
+        opponents={opponents}
+        playbook={playbook}
+        onPlaybookChange={onPlaybookChange}
+        playbookOptions={playbookOptions}
+        playbookLoading={playbookLoading}
+        showMinUsesLine={false}
+      />
 
-      <section className="space-y-3">
-        <h2 className="app-section-title">Top plays</h2>
-        {playsQuery.isLoading ? <TendenciesSectionSkeleton /> : null}
-        {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
-          <div className="app-card app-card-pad text-center">
-            <p className="font-body text-sm text-slate-300">No plays logged for this filter yet.</p>
-            <p className="mt-1 font-body text-sm text-slate-500">Log plays in Film to see top calls and formations here.</p>
-          </div>
-        ) : null}
-        {playsQuery.data && playsQuery.data.meta.play_count > 0 ? (
-          <TopPlaysList
-            rows={playsRows}
-            totalMatching={playsQuery.data.total_matching}
-            expanded={playsExpanded}
-            onToggleExpand={() => {
-              setPlaysExpanded((prev) => {
-                if (prev) setPlaysPage(1);
-                return !prev;
-              });
-            }}
-            rankOffset={playsRankOffset}
-            page={playsPage}
-            onPageChange={setPlaysPage}
-          />
-        ) : null}
-      </section>
+      {showPlaybookEmpty && playbook ? <TendenciesEmptyState playbookName={playbook} /> : null}
 
-      <section className="space-y-3">
-        <h2 className="app-section-title">Top formations</h2>
-        {formationsQuery.isLoading ? <TendenciesSectionSkeleton /> : null}
-        {formationsQuery.data?.top_formations?.length ? (
-          <TopFormationsList
-            rows={formationsRows}
-            totalCount={formationsQuery.data.total_matching}
-            expanded={formationsExpanded}
-            onToggleExpand={() => {
-              setFormationsExpanded((prev) => {
-                if (prev) setFormationsPage(1);
-                return !prev;
-              });
-            }}
-            rankOffset={formationsRankOffset}
-            page={formationsPage}
-            onPageChange={setFormationsPage}
-          />
-        ) : null}
-      </section>
+      {showPlaybookEmpty ? null : dataLoading ? (
+        <TendenciesWhatsWorkingBodySkeleton />
+      ) : (
+        <>
+          <section className="space-y-3">
+            <h2 className="app-section-title">Top plays</h2>
+            {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
+              <div className="app-card app-card-pad text-center">
+                <p className="font-body text-sm text-slate-300">No plays logged for this filter yet.</p>
+                <p className="mt-1 font-body text-sm text-slate-500">Log plays in Film to see top calls and formations here.</p>
+              </div>
+            ) : null}
+            {playsQuery.data && playsQuery.data.meta.play_count > 0 ? (
+              <TopPlaysList
+                rows={playsRows}
+                totalMatching={playsQuery.data.total_matching}
+                expanded={playsExpanded}
+                onToggleExpand={() => {
+                  setPlaysExpanded((prev) => {
+                    if (prev) setPlaysPage(1);
+                    return !prev;
+                  });
+                }}
+                rankOffset={playsRankOffset}
+                page={playsPage}
+                onPageChange={setPlaysPage}
+              />
+            ) : null}
+          </section>
 
-      {playsQuery.data?.reconsider_plays?.length ? (
-        <section className="space-y-3">
-          <h2 className="app-section-title">Plays to reconsider</h2>
-          <ReconsiderPlays
-            rows={reconsiderRows}
-            totalCount={playsQuery.data.reconsider_plays.length}
-            expanded={reconsiderExpanded}
-            onToggleExpand={() => {
-              setReconsiderExpanded((prev) => {
-                if (prev) setReconsiderPage(1);
-                return !prev;
-              });
-            }}
-            rankOffset={reconsiderRankOffset}
-            page={reconsiderPage}
-            onPageChange={setReconsiderPage}
-          />
-        </section>
-      ) : null}
+          <section className="space-y-3">
+            <h2 className="app-section-title">Top formations</h2>
+            {formationsQuery.data?.top_formations?.length ? (
+              <TopFormationsList
+                rows={formationsRows}
+                totalCount={formationsQuery.data.total_matching}
+                expanded={formationsExpanded}
+                onToggleExpand={() => {
+                  setFormationsExpanded((prev) => {
+                    if (prev) setFormationsPage(1);
+                    return !prev;
+                  });
+                }}
+                rankOffset={formationsRankOffset}
+                page={formationsPage}
+                onPageChange={setFormationsPage}
+              />
+            ) : null}
+          </section>
+
+          {playsQuery.data?.reconsider_plays?.length ? (
+            <section className="space-y-3">
+              <h2 className="app-section-title">Plays to reconsider</h2>
+              <ReconsiderPlays
+                rows={reconsiderRows}
+                totalCount={playsQuery.data.reconsider_plays.length}
+                expanded={reconsiderExpanded}
+                onToggleExpand={() => {
+                  setReconsiderExpanded((prev) => {
+                    if (prev) setReconsiderPage(1);
+                    return !prev;
+                  });
+                }}
+                rankOffset={reconsiderRankOffset}
+                page={reconsiderPage}
+                onPageChange={setReconsiderPage}
+              />
+            </section>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }

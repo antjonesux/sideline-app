@@ -4,6 +4,9 @@ import {
   bestPlayForFormation,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
+  filterGameRowsByOffensivePlaybook,
+  gamesWithOffensivePlaybookOnly,
+  parsePlaybookFilter,
   parseScope,
   resolveFilteredGameIds,
 } from "@/lib/tendenciesServer";
@@ -13,11 +16,13 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
+  const playbook = parsePlaybookFilter(sp.get("playbook"));
   const showAll = sp.get("expand") === "1" || sp.get("all") === "1";
   const limit = showAll ? 200 : 3;
 
   const games = await fetchGamesOrdered(supabase);
-  const gameIds = resolveFilteredGameIds(games, scope, opponent);
+  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const gameIds = resolveFilteredGameIds(pool, scope, opponent);
   const plays = await fetchLoggedPlaysForGames(supabase, gameIds);
 
   const allFormations = aggregateByFormation(plays, 1);
@@ -41,6 +46,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     top_formations: withBest,
     total_matching: allFormations.length,
-    meta: { scope, opponent, game_count: gameIds.length, play_count: plays.length },
+    meta: { scope, opponent, playbook, game_count: gameIds.length, play_count: plays.length },
   });
 }

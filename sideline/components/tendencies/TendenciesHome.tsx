@@ -4,10 +4,12 @@ import { AmIPredictable } from "@/components/tendencies/AmIPredictable";
 import { GameFilm } from "@/components/tendencies/GameFilm";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
+import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 
 type Tab = "working" | "predictable" | "film";
 
@@ -18,6 +20,22 @@ const tabs: { id: Tab; label: string }[] = [
 ];
 
 export function TendenciesHome() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const playbookParam = searchParams.get("playbook")?.trim() || null;
+
+  const setPlaybookInUrl = useCallback(
+    (next: string | null) => {
+      const sp = new URLSearchParams(searchParams.toString());
+      if (next?.trim()) sp.set("playbook", next.trim());
+      else sp.delete("playbook");
+      const q = sp.toString();
+      router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
   const [tab, setTab] = useState<Tab>("working");
 
   const gamesQuery = useQuery({
@@ -30,15 +48,30 @@ export function TendenciesHome() {
     staleTime: 60 * 1000,
   });
 
+  const playbooksQuery = useQuery({
+    queryKey: tendenciesQueryKeys.playbooksList(),
+    queryFn: async () => {
+      const res = await fetch("/api/playbooks/list");
+      if (!res.ok) throw new Error("playbooks list");
+      return res.json() as Promise<{ playbooks: string[] }>;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const games = gamesQuery.data ?? [];
+  const playbookOptions = playbooksQuery.data?.playbooks ?? [];
+
   const opponents = useMemo(() => {
     const s = new Set<string>();
     for (const g of games) {
+      if (!(g.offensive_playbook ?? "").trim()) continue;
       const o = (g.opponent_team ?? "").trim();
       if (o) s.add(o);
     }
     return [...s].sort((a, b) => a.localeCompare(b));
   }, [games]);
+
+  const gamesForFilm = useMemo(() => games, [games]);
 
   if (gamesQuery.isLoading) {
     return <FilmRoomSkeleton />;
@@ -91,9 +124,27 @@ export function TendenciesHome() {
       </div>
 
       <div key={tab} className="tab-content">
-        {tab === "working" ? <WhatsWorking opponents={opponents} /> : null}
-        {tab === "predictable" ? <AmIPredictable opponents={opponents} /> : null}
-        {tab === "film" ? <GameFilm games={games} /> : null}
+        {tab === "working" ? (
+          <WhatsWorking
+            opponents={opponents}
+            playbook={playbookParam}
+            onPlaybookChange={setPlaybookInUrl}
+            playbookOptions={playbookOptions}
+            playbookLoading={playbooksQuery.isLoading}
+          />
+        ) : null}
+        {tab === "predictable" ? (
+          <AmIPredictable
+            opponents={opponents}
+            playbook={playbookParam}
+            onPlaybookChange={setPlaybookInUrl}
+            playbookOptions={playbookOptions}
+            playbookLoading={playbooksQuery.isLoading}
+          />
+        ) : null}
+        {tab === "film" ? (
+          <GameFilm games={gamesForFilm} />
+        ) : null}
       </div>
     </section>
   );

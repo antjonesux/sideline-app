@@ -14,7 +14,9 @@ async function fetchGame(id: string): Promise<GameTendenciesPayload> {
   return res.json() as Promise<GameTendenciesPayload>;
 }
 
-type Props = { games: GameSession[] };
+type Props = {
+  games: GameSession[];
+};
 
 export function GameFilm({ games }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -39,12 +41,18 @@ export function GameFilm({ games }: Props) {
   });
 
   if (games.length === 0) {
-    return null;
+    return (
+      <div className="app-card app-card-pad text-center">
+        <p className="font-body text-sm text-slate-400">No games available in Game Film yet.</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <GameSelector games={games} selectedId={selectedId} onSelect={setSelectedId} />
+      <div className="min-w-0 flex-1 sm:flex-initial">
+        <GameSelector games={games} selectedId={selectedId} onSelect={setSelectedId} />
+      </div>
       {detailQuery.isLoading ? <TendenciesSectionSkeleton /> : null}
       {detailQuery.data ? <GameBreakdown data={detailQuery.data} /> : null}
     </div>

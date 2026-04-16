@@ -39,6 +39,75 @@ export function parseScope(raw: string | null): TendencyScope {
   return "all";
 }
 
+/** Optional `playbook` query param for tendencies APIs (exact `game_sessions.offensive_playbook` match). */
+export function parsePlaybookFilter(raw: string | null | undefined): string | null {
+  const t = raw?.trim();
+  return t ? t : null;
+}
+
+/** Tendencies analytics only include sessions with a non-null, non-empty offensive_playbook. */
+export function gamesWithOffensivePlaybookOnly(games: GameRow[]): GameRow[] {
+  return games.filter((g) => (g.offensive_playbook ?? "").trim().length > 0);
+}
+
+export function filterGameRowsByOffensivePlaybook(games: GameRow[], playbook: string | null): GameRow[] {
+  if (!playbook?.trim()) return games;
+  const p = playbook.trim();
+  return games.filter((g) => (g.offensive_playbook ?? "").trim() === p);
+}
+
+export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient): Promise<string[]> {
+  const { data, error } = await supabase.from("game_sessions").select("offensive_playbook").not("offensive_playbook", "is", null);
+  if (error) {
+    console.error("distinct offensive_playbook:", error);
+    return [];
+  }
+  const set = new Set<string>();
+  for (const row of data ?? []) {
+    const v = String((row as { offensive_playbook?: unknown }).offensive_playbook ?? "").trim();
+    if (v) set.add(v);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Dropdown source for tendencies playbook filter:
+ * - includes seeded/reference playbooks from `cfb26_plays`
+ * - includes any logged `game_sessions.offensive_playbook` values
+ */
+export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient): Promise<string[]> {
+  const names = new Set<string>();
+
+  // Add logged playbook values first (legacy behavior).
+  const logged = await fetchDistinctOffensivePlaybooks(supabase);
+  for (const name of logged) names.add(name);
+
+  // Add reference catalog values from cfb26 plays with pagination.
+  const pageSize = 1000;
+  for (let offset = 0; offset < 200000; offset += pageSize) {
+    const { data, error } = await supabase
+      .from("cfb26_plays")
+      .select("playbook")
+      .not("playbook", "is", null)
+      .range(offset, offset + pageSize - 1);
+
+    if (error) {
+      console.error("distinct cfb26 playbooks:", error);
+      break;
+    }
+
+    const rows = data ?? [];
+    for (const row of rows) {
+      const value = String((row as { playbook?: unknown }).playbook ?? "").trim();
+      if (value) names.add(value);
+    }
+
+    if (rows.length < pageSize) break;
+  }
+
+  return [...names].sort((a, b) => a.localeCompare(b));
+}
+
 export async function fetchGamesOrdered(supabase: SupabaseClient): Promise<GameRow[]> {
   const { data, error } = await supabase
     .from("game_sessions")

@@ -1,10 +1,27 @@
-import { isSuccessPlay } from "@/lib/tendenciesServer";
+import {
+  fetchGamesOrdered,
+  filterGameRowsByOffensivePlaybook,
+  gamesWithOffensivePlaybookOnly,
+  isSuccessPlay,
+  parsePlaybookFilter,
+  parseScope,
+  resolveFilteredGameIds,
+} from "@/lib/tendenciesServer";
 import { supabase } from "@/lib/supabase";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const scope = parseScope(sp.get("scope"));
+  const opponent = sp.get("opponent")?.trim() || null;
+  const playbook = parsePlaybookFilter(sp.get("playbook"));
+  const games = await fetchGamesOrdered(supabase);
+  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const allowedIds = new Set(resolveFilteredGameIds(pool, scope, opponent));
+
   const { data: plays } = await supabase.from("logged_plays").select("*").order("created_at", { ascending: false });
   const list = (plays ?? []).filter((p) => {
+    if (!allowedIds.has(String(p.game_session_id ?? ""))) return false;
     const playName = String(p.play_name ?? "").trim().toLowerCase();
     const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
     return playName !== "punt" && resultTag !== "punt";

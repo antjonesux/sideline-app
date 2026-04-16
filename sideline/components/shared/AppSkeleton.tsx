@@ -45,6 +45,78 @@ export function TendenciesSectionSkeleton() {
   );
 }
 
+/** Full “What’s Working” body below filters — fade-in respects global `prefers-reduced-motion`. */
+export function TendenciesWhatsWorkingBodySkeleton() {
+  return (
+    <div className="fade-in space-y-8" aria-busy="true" aria-label="Loading tendencies">
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-40 max-w-full" />
+        <TendenciesSectionSkeleton />
+      </section>
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-48 max-w-full" />
+        <TendenciesSectionSkeleton />
+      </section>
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-56 max-w-full" />
+        <div className="app-card app-card-pad space-y-3">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <SkeletonBlock key={i} className="h-4 w-full max-w-xl" />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/** Predictability tab: chart, stat cards, accordion-style rows. */
+export function TendenciesPredictabilityBodySkeleton() {
+  return (
+    <div className="fade-in space-y-8" aria-busy="true" aria-label="Loading predictability">
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-52 max-w-full" />
+        <div className="app-card h-56 w-full p-4 sm:h-64">
+          <SkeletonBlock className="h-full w-full rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="app-card p-3">
+              <SkeletonBlock className="h-3 w-16" />
+              <SkeletonBlock className="mt-2 h-8 w-14" />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-36 max-w-full" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="app-card flex min-h-[132px] flex-col p-4">
+              <SkeletonBlock className="h-3 w-24" />
+              <SkeletonBlock className="mt-3 h-8 w-16" />
+              <SkeletonBlock className="mt-auto h-3 w-full" />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="space-y-3">
+        <SkeletonBlock className="h-7 w-64 max-w-full" />
+        <div className="space-y-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="app-card app-card-pad flex gap-3">
+              <SkeletonBlock className="h-10 w-10 shrink-0 rounded" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <SkeletonBlock className="h-3 w-3/4 max-w-md" />
+                <SkeletonBlock className="h-3 w-1/2 max-w-sm" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function PlaybookEditorSkeleton() {
   return (
     <div className="space-y-4" aria-busy="true" aria-label="Loading playbook">

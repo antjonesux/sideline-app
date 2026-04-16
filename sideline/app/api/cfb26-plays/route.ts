@@ -1,16 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { sortFormationTypes } from "@/lib/playbooks/formation-types";
 import { NextRequest, NextResponse } from "next/server";
-
-const FORMATION_TYPE_ORDER = ["Pistol", "Gun", "Goal Line"];
-
-function sortFormationTypes(a: string, b: string) {
-  const ia = FORMATION_TYPE_ORDER.indexOf(a);
-  const ib = FORMATION_TYPE_ORDER.indexOf(b);
-  if (ia === -1 && ib === -1) return a.localeCompare(b);
-  if (ia === -1) return 1;
-  if (ib === -1) return -1;
-  return ia - ib;
-}
 
 function sanitizeIlikeTerm(raw: string): string {
   return raw.replace(/%/g, "").replace(/,/g, "");
