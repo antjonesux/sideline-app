@@ -108,7 +108,7 @@ export const TEAM_SCHEMES: Record<string, string> = {
   Temple: "Spread",
   Tennessee: "Veer & Shoot",
   Texas: "Spread",
-  "Texas A&M": "Power Spread",
+  "Texas A&M": "Pro Style",
   "Texas State": "Veer & Shoot",
   "Texas Tech": "Veer & Shoot",
   Toledo: "Spread",
