@@ -1,5 +1,14 @@
+"use client";
+
+import { EditPlaybookModal } from "@/components/playbook/EditPlaybookModal";
+import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
+import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
+import { useToastStore } from "@/store/toastStore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
@@ -16,17 +25,101 @@ function formatRelative(iso: string | null): string {
 }
 
 export function PlaybookCard({ item }: { item: PlaybookSummary }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const addToast = useToastStore((s) => s.addToast);
+
+  async function confirmDeletePlaybook() {
+    setDeleteBusy(true);
+    try {
+      const res = await fetch(`/api/playbook/${item.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        addToast("Failed to save", "error");
+        return;
+      }
+      setDeleteOpen(false);
+      setMenuOpen(false);
+      addToast("Play sheet deleted", "success");
+      await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+      router.refresh();
+    } finally {
+      setDeleteBusy(false);
+    }
+  }
+
   return (
-    <Link
-      href={`/playbook/${item.id}`}
-      className="app-card-interactive block hover:border-emerald-600/50"
-    >
-      <h2 className="font-heading text-lg font-bold tracking-wide text-white">{item.name}</h2>
-      <p className="mt-1 font-body text-sm text-slate-400">{item.cfb26_playbook} playbook</p>
-      <p className="mt-2 font-body text-xs text-slate-500">
-        {item.scenario_filled}/{item.scenario_total} scenarios filled · {item.play_count} plays
-      </p>
-      <p className="mt-1 font-body text-[11px] text-slate-600">Last edited {formatRelative(item.updated_at)}</p>
-    </Link>
+    <>
+      <Link href={`/playbook/${item.id}`} className="app-card-interactive block hover:border-emerald-600/50">
+        <div className="flex items-start justify-between gap-2 pr-14">
+          <h2 className="app-card-title">{item.name}</h2>
+        </div>
+        <p className="mt-1 font-body text-sm text-slate-400">Built from {item.cfb26_playbook} playbook</p>
+        <p className="mt-2 font-body text-xs text-slate-500">
+          {item.scenario_filled}/{item.scenario_total} scenarios filled · {item.play_count} plays
+        </p>
+        <p className="mt-1 font-body text-[11px] text-slate-600">Last edited {formatRelative(item.updated_at)}</p>
+      </Link>
+
+      <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Play sheet actions">
+        <li>
+          <button
+            type="button"
+            role="menuitem"
+            className="app-dropdown-item rounded-none"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenuOpen(false);
+              setEditOpen(true);
+            }}
+          >
+            Edit
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            role="menuitem"
+            className="app-dropdown-item-danger rounded-none"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenuOpen(false);
+              setDeleteOpen(true);
+            }}
+          >
+            Delete
+          </button>
+        </li>
+      </CardKebabMenu>
+
+      <EditPlaybookModal
+        playbook={item}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSaved={async () => {
+          await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+          router.refresh();
+        }}
+      />
+
+      <ConfirmDestructiveModal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete play sheet?"
+        message={
+          <>
+            This will permanently delete <strong className="font-semibold text-white">{item.name}</strong> and all its
+            plays. This can&apos;t be undone.
+          </>
+        }
+        busy={deleteBusy}
+        onConfirm={confirmDeletePlaybook}
+      />
+    </>
   );
 }

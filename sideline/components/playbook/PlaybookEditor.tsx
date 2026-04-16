@@ -7,7 +7,7 @@ import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import Link from "next/link";
+import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
@@ -52,6 +52,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [removePlayId, setRemovePlayId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const addToast = useToastStore((s) => s.addToast);
@@ -61,7 +62,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     queryFn: async () => {
       const res = await fetch(`/api/playbook/${sheetId}`);
       const j = (await res.json()) as SheetPayload & { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Failed to load playbook");
+      if (!res.ok) throw new Error(j.error ?? "Failed to load play sheet");
       return j;
     },
   });
@@ -82,7 +83,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     queryKey: ["film-setup"],
     queryFn: async () => {
       const res = await fetch("/api/film/setup");
-      if (!res.ok) throw new Error("Failed to load playbooks");
+      if (!res.ok) throw new Error("Failed to load CFB26 playbooks");
       return res.json() as Promise<SetupApi>;
     },
     staleTime: 60 * 60 * 1000,
@@ -201,7 +202,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         body: JSON.stringify(body),
       });
       const j = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Could not update playbook");
+      if (!res.ok) throw new Error(j.error ?? "Could not update play sheet");
       return j;
     },
     onSuccess: async () => {
@@ -213,7 +214,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     mutationFn: async () => {
       const res = await fetch(`/api/playbook/${sheetId}`, { method: "DELETE" });
       const j = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Could not delete playbook");
+      if (!res.ok) throw new Error(j.error ?? "Could not delete play sheet");
       return j;
     },
   });
@@ -294,10 +295,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   if (sheetQuery.error || !sheet) {
     return (
       <div className="space-y-3">
-        <p className="font-body text-red-300">{(sheetQuery.error as Error)?.message ?? "Playbook not found"}</p>
-        <Link href="/playbook" className="font-body text-emerald-400 hover:underline">
-          ← Back to playbooks
-        </Link>
+        <p className="font-body text-red-300">{(sheetQuery.error as Error)?.message ?? "Play sheet not found"}</p>
+        <BackToFilmLink href="/playbook" />
       </div>
     );
   }
@@ -311,7 +310,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     }
     try {
       await updateSheet.mutateAsync({ name: trimmedName, cfb26_playbook: trimmedPlaybook });
-      addToast("Playbook updated", "success");
+      addToast("Play sheet updated", "success");
       setEditorOpen(false);
     } catch (error) {
       addToast("Failed to save", "error");
@@ -321,9 +320,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const onDeleteSheet = async () => {
     try {
       await deleteSheet.mutateAsync();
-      addToast("Playbook deleted", "success");
+      setConfirmDeleteOpen(false);
+      addToast("Play sheet deleted", "success");
       router.push("/playbook");
-    } catch (error) {
+    } catch {
       addToast("Failed to save", "error");
     }
   };
@@ -333,19 +333,30 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const suggestions = scenarioPayload?.suggestions ?? [];
   const isScript = activeScenario === "Opening Script";
 
-  const slots: (SheetPlayRow | null)[] = Array.from({ length: maxSlots }, (_, i) => sortedPlays[i] ?? null);
+  const pendingRemovePlayRow = removePlayId ? sortedPlays.find((p) => p.id === removePlayId) : null;
+  const playSlotProps = {
+    isScript,
+    scenarioStats: stats,
+    onAdd: openAdd,
+    onRemove: (id: string) => setRemovePlayId(id),
+    onEdit: openSwap,
+    onScriptNote: isScript
+      ? (id: string, note: string) => {
+          scriptNote.mutate({ playId: id, note });
+        }
+      : undefined,
+    dragId,
+    setDragId,
+    onReorder,
+  } as const;
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Breadcrumb segments={[{ label: "Playbook", href: "/playbook" }, { label: sheet.name }]} />
-        <BackToFilmLink href="/playbook" />
+        <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
       </div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="app-editor-title">{sheet.name}</h1>
-          <p className="font-body text-sm text-slate-400">{cfb26} playbook · {sheet.scheme}</p>
-        </div>
+      <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">
+        <BackToFilmLink href="/playbook" />
         <button
           type="button"
           className="btn-secondary px-3 py-1.5 text-xs"
@@ -357,6 +368,12 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         >
           Edit
         </button>
+      </div>
+      <div>
+        <h1 className="app-editor-title">{sheet.name}</h1>
+        <p className="font-body text-sm text-slate-400">
+          Built from {cfb26} playbook · {sheet.scheme}
+        </p>
       </div>
 
       <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
@@ -391,36 +408,36 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 </div>
               ))}
             </div>
+          ) : filled === 0 ? (
+            <div className="app-card app-card-pad text-center">
+              <p className="font-body text-base font-medium text-white">No plays for this situation yet.</p>
+              <p className="mt-1 font-body text-sm text-slate-400">
+                Add plays to build your call sheet.
+              </p>
+              <button type="button" className="btn-primary mt-4 text-sm" onClick={openAdd}>
+                Add Play
+              </button>
+            </div>
           ) : (
             <div className="space-y-2">
-              {slots.map((play, slotIndex) => (
+              {sortedPlays.map((play, slotIndex) => (
                 <PlaySlot
-                  key={play?.id ?? `empty-${slotIndex}`}
+                  key={play.id}
                   play={play}
                   slotIndex={slotIndex}
-                  isScript={isScript}
-                  scenarioStats={stats}
+                  {...playSlotProps}
                   atCapacity={atCapacity && !play}
-                  onAdd={openAdd}
-                  onRemove={(id) => {
-                    deletePlay.mutate(id, {
-                      onSuccess: () => addToast("Play removed", "success"),
-                      onError: () => addToast("Failed to save", "error"),
-                    });
-                  }}
-                  onEdit={openSwap}
-                  onScriptNote={
-                    isScript
-                      ? (id, note) => {
-                          scriptNote.mutate({ playId: id, note });
-                        }
-                      : undefined
-                  }
-                  dragId={dragId}
-                  setDragId={setDragId}
-                  onReorder={onReorder}
                 />
               ))}
+              {filled < maxSlots ? (
+                <PlaySlot
+                  key="slot-add-next"
+                  play={null}
+                  slotIndex={filled}
+                  {...playSlotProps}
+                  atCapacity={atCapacity}
+                />
+              ) : null}
             </div>
           )}
 
@@ -430,17 +447,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             busyId={suggestBusy}
             onAdd={onSuggestAdd}
           />
-          {slots.every((slot) => !slot) ? (
-            <div className="app-card app-card-pad text-center">
-              <p className="font-body text-base font-medium text-white">No plays for this situation yet.</p>
-              <p className="mt-1 font-body text-sm text-slate-400">
-                Add plays from your playbook to build your call sheet.
-              </p>
-              <button type="button" className="btn-primary mt-4 text-sm" onClick={openAdd}>
-                + Add Play
-              </button>
-            </div>
-          ) : null}
         </section>
       </div>
 
@@ -459,13 +465,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       {editorOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
           <div className="app-card w-full max-w-md space-y-4 p-4">
-            <h2 className="app-section-title">Edit Playbook</h2>
+            <h2 className="app-section-title">Edit play sheet</h2>
             <label className="space-y-1">
-              <span className="app-field-label">Playbook name</span>
+              <span className="app-field-label">Play sheet name</span>
               <input value={editName} onChange={(e) => setEditName(e.target.value)} className="app-input" />
             </label>
             <label className="space-y-1">
-              <span className="app-field-label">CFB26 Playbook</span>
+              <span className="app-field-label">Select CFB26 Playbook</span>
               <input list="cfb26-playbook-options" value={editPlaybook} onChange={(e) => setEditPlaybook(e.target.value)} className="app-input" />
               <datalist id="cfb26-playbook-options">
                 {cfb26PlaybookOptions.map((opt) => (
@@ -474,7 +480,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               </datalist>
             </label>
             <button type="button" className="font-body text-sm text-red-300 hover:text-red-200" onClick={() => setConfirmDeleteOpen(true)}>
-              Delete Playbook
+              Delete play sheet
             </button>
             <div className="flex gap-2">
               <button type="button" className="btn-secondary flex-1" onClick={() => setEditorOpen(false)}>
@@ -487,22 +493,47 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </div>
         </div>
       ) : null}
-      {confirmDeleteOpen ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4">
-          <div className="app-card w-full max-w-md space-y-4 p-4">
-            <h3 className="app-section-title">Delete playbook?</h3>
-            <p className="font-body text-sm text-slate-300">Are you sure? This will delete the playbook and all its plays.</p>
-            <div className="flex gap-2">
-              <button type="button" className="btn-secondary flex-1" onClick={() => setConfirmDeleteOpen(false)}>
-                Cancel
-              </button>
-              <button type="button" className="btn-destructive-solid flex-1" onClick={() => void onDeleteSheet()}>
-                Delete Playbook
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <ConfirmDestructiveModal
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        title="Delete play sheet?"
+        message={
+          <>
+            This will permanently delete <strong className="font-semibold text-white">{sheet.name}</strong> and all its
+            plays. This can&apos;t be undone.
+          </>
+        }
+        confirmLabel="Delete play sheet"
+        busy={deleteSheet.isPending}
+        onConfirm={onDeleteSheet}
+      />
+
+      <ConfirmDestructiveModal
+        open={removePlayId !== null}
+        onClose={() => setRemovePlayId(null)}
+        title="Remove play?"
+        message={
+          <>
+            This will permanently remove{" "}
+            <strong className="font-mono font-semibold text-white">
+              {pendingRemovePlayRow ? `${pendingRemovePlayRow.formation} · ${pendingRemovePlayRow.play_name}` : "this play"}
+            </strong>{" "}
+            from this situation. This can&apos;t be undone.
+          </>
+        }
+        confirmLabel="Remove"
+        busy={deletePlay.isPending}
+        onConfirm={async () => {
+          if (!removePlayId) return;
+          try {
+            await deletePlay.mutateAsync(removePlayId);
+            addToast("Play removed", "success");
+            setRemovePlayId(null);
+          } catch {
+            addToast("Failed to save", "error");
+          }
+        }}
+      />
     </div>
   );
 }

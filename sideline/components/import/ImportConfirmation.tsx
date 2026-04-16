@@ -26,7 +26,7 @@ export function ImportConfirmation({ playCount, sessionId }: Props) {
           View game summary
         </Link>
         <Link href="/tendencies" className="btn-primary-block py-3 text-sm">
-          View tendencies →
+          View tendencies
         </Link>
       </div>
     </div>

@@ -46,7 +46,7 @@ export function TendenciesHome() {
 
   if (games.length === 0) {
     return (
-      <section className="space-y-6 pb-16">
+      <section className="space-y-6">
         <h1 className="app-page-title text-slate-100">Tendencies</h1>
         <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
           <p className="font-body text-base font-medium text-white">No game data yet.</p>
@@ -67,11 +67,11 @@ export function TendenciesHome() {
   }
 
   return (
-    <section className="space-y-6 pb-16">
+    <section className="space-y-6">
       <h1 className="app-page-title text-slate-100">Tendencies</h1>
 
       <div className="border-b border-slate-800">
-        <nav className="-mb-px flex gap-1 overflow-x-auto" aria-label="Tendencies views">
+        <nav className="app-horizontal-scroll-strip -mb-px flex gap-1" aria-label="Tendencies views">
           {tabs.map((t) => {
             const active = tab === t.id;
             return (
@@ -79,7 +79,7 @@ export function TendenciesHome() {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`font-body shrink-0 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`font-body min-h-11 shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
                   active ? "border-emerald-500 text-emerald-300" : "border-transparent text-slate-500 hover:text-slate-300"
                 }`}
               >
@@ -90,9 +90,11 @@ export function TendenciesHome() {
         </nav>
       </div>
 
-      {tab === "working" ? <WhatsWorking opponents={opponents} /> : null}
-      {tab === "predictable" ? <AmIPredictable opponents={opponents} /> : null}
-      {tab === "film" ? <GameFilm games={games} /> : null}
+      <div key={tab} className="tab-content">
+        {tab === "working" ? <WhatsWorking opponents={opponents} /> : null}
+        {tab === "predictable" ? <AmIPredictable opponents={opponents} /> : null}
+        {tab === "film" ? <GameFilm games={games} /> : null}
+      </div>
     </section>
   );
 }

@@ -3,9 +3,9 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["JetBrains Mono", "monospace"],
-        sans: ["Barlow", "sans-serif"],
-        display: ["Barlow Condensed", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
+        sans: ["var(--font-barlow)", "sans-serif"],
+        display: ["var(--font-barlow-condensed)", "sans-serif"],
       },
     },
   },

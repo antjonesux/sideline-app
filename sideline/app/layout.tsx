@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -19,12 +19,24 @@ export const metadata: Metadata = {
   description: "Personal OC journal and live play sheet",
 };
 
+/** Lets `env(safe-area-inset-*)` apply on notched devices (home indicator). */
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} h-full`}>
-      <body className="min-h-full bg-slate-950 text-white">
+    <html lang="en" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-slate-950 text-white">
         <AppProviders>
-          <main className="mx-auto max-w-5xl px-4 py-6 pb-24 sm:px-6 sm:py-8">{children}</main>
+          {/**
+           * Bottom padding must stay large at *all* breakpoints: `sm:py-8` previously overwrote `pb-24`
+           * and left only32px under the fixed tab bar (~60–72px + safe area).
+           * ~6.5rem + safe-area clears the nav with room to spare.
+           */}
+          <main className="mx-auto w-full max-w-5xl px-4 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-8">
+            {children}
+          </main>
           <Toast />
           <BottomTabNav />
           <PrelineScriptWrapper />

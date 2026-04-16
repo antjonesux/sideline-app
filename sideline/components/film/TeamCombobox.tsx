@@ -28,6 +28,8 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   getSearchText?: (item: T) => string;
   /** Stable React key for list rows (defaults to `team_name`). */
   getOptionKey?: (item: T) => string;
+  /** When false, no chevron on the input (e.g. Playbook tab comboboxes). Default true for Film flows. */
+  showTrailingChevron?: boolean;
 };
 
 function visibleTeams<T extends { team_name: string }>(
@@ -53,6 +55,7 @@ export function TeamCombobox<T extends { team_name: string }>({
   getOptionLabel,
   getSearchText,
   getOptionKey,
+  showTrailingChevron = true,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -115,33 +118,33 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className="hs-input app-input py-2.5 ps-3 pe-10 read-only:cursor-default"
+            className={`hs-input app-input py-2.5 ps-3 read-only:cursor-default ${showTrailingChevron ? "pe-10" : "pe-3"}`}
           />
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 inline-flex items-center pr-3 text-slate-400"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`transition-transform ${open ? "rotate-180" : ""}`}
+          {showTrailingChevron ? (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 right-0 inline-flex items-center pr-3 text-slate-400"
             >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`accordion-chevron text-current ${open ? "open" : ""}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
+          ) : null}
         </div>
 
         {showList ? (
           <div
-            className={`absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 shadow-lg ${
+            className={`app-dropdown-panel absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto ${
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             }`}
           >
@@ -162,7 +165,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                 <button
                   key={optionKey(item)}
                   type="button"
-                  className="block w-full border-b border-slate-800 px-3 py-2.5 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+                  className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     onSelect(item);

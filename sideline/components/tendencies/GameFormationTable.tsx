@@ -1,12 +1,17 @@
 "use client";
 
 import { ResultBadge } from "@/components/import/ResultBadge";
+import { DrivePlayTable, DRIVE_PLAY_TABLE_ROW } from "@/components/shared/DrivePlayTable";
 import { useState } from "react";
+
+/** Must match parent formation row + expanded play rows (Formation | Plays | Avg yds | Success | chevron). */
+const FORMATION_TABLE_GRID =
+  "grid w-full grid-cols-[minmax(0,1.4fr)_80px_90px_90px_28px] gap-3 px-4" as const;
 
 type PlayRow = {
   id: string;
-  down: number;
-  distance: number;
+  down: number | null;
+  distance: number | null;
   formation: string;
   play_name: string;
   yards_gained: number | null;
@@ -32,7 +37,7 @@ export function GameFormationTable({ rows }: Props) {
   }
   return (
     <div className="app-card overflow-hidden">
-      <div className="grid grid-cols-[minmax(0,1.4fr)_80px_90px_90px_28px] gap-3 border-b border-slate-800 bg-slate-900 px-4 py-3 font-mono text-[11px] font-normal uppercase tracking-wide text-slate-500">
+      <div className={`${FORMATION_TABLE_GRID} app-accordion-header-row py-3 font-mono text-[11px] font-normal uppercase tracking-wide text-slate-500`}>
         <span>Formation</span>
         <span className="text-right">Plays</span>
         <span className="text-right">Avg yds</span>
@@ -45,10 +50,10 @@ export function GameFormationTable({ rows }: Props) {
           <div key={r.formation} className="border-b border-slate-800/90 last:border-0">
             <button
               type="button"
-              className="grid w-full grid-cols-[minmax(0,1.4fr)_80px_90px_90px_28px] gap-3 px-4 py-3 text-left hover:bg-white/[0.02]"
+              className={`app-no-press-scale ${FORMATION_TABLE_GRID} py-3 text-left hover:bg-white/[0.02]`}
               onClick={() => setOpen(isOpen ? null : r.formation)}
             >
-              <span className="truncate font-barlow text-[14px] font-normal text-slate-200">{r.formation}</span>
+              <span className="truncate font-body text-[14px] font-normal text-slate-200">{r.formation}</span>
               <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.plays}</span>
               <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.avg_yards}</span>
               <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.success_rate}%</span>
@@ -70,39 +75,31 @@ export function GameFormationTable({ rows }: Props) {
               </span>
             </button>
             {isOpen ? (
-              <div className="border-t border-slate-800/80 bg-slate-950/40 px-3 py-1.5">
-                <div className="grid grid-cols-[minmax(0,1.3fr)_88px_88px] gap-3 border-b border-white/[0.05] px-1 py-1.5 font-mono text-[10px] uppercase tracking-wide text-slate-500">
-                  <span className="text-left">Play</span>
-                  <span className="text-right">Avg Yds</span>
-                  <span className="text-right">Success</span>
-                </div>
-                {r.play_rows.map((p) => {
-                  const yds = p.yards_gained ?? 0;
-                  const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
-                  const ydsText = yds > 0 ? `+${yds}` : String(yds);
-                  const isSuccess = p.result_tag === "TOUCHDOWN" || p.result_tag === "FIRST_DOWN";
-                  return (
-                    <div
-                      key={p.id}
-                      className="grid grid-cols-[minmax(0,1.3fr)_88px_88px] gap-3 border-b border-white/[0.04] px-1 py-2 last:border-0"
-                    >
-                      <div className="min-w-0 text-left">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <span className="font-mono shrink-0 text-[12px] tabular-nums text-[#A0A3AD]">
-                            {p.down}-{p.distance}
-                          </span>
-                          <span className="font-barlow min-w-0 truncate text-[13px] text-[#F5F5F0]">{p.play_name}</span>
-                        </div>
-                        <div className="mt-0.5 flex items-center gap-2">
-                          <span className="font-barlow text-[11px] text-slate-500">{p.formation}</span>
+              <div className="border-t border-slate-800/80 bg-slate-950/40">
+                <DrivePlayTable>
+                  {r.play_rows.map((p) => {
+                    const yds = p.yards_gained ?? 0;
+                    const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
+                    const ydsText = yds > 0 ? `+${yds}` : String(yds);
+                    return (
+                      <div key={p.id} className={DRIVE_PLAY_TABLE_ROW}>
+                        <span className="font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
+                          {p.down ?? "—"}-{p.distance ?? "—"}
+                        </span>
+                        <span className="min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0]">{p.formation}</span>
+                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                          {p.play_name}
+                        </span>
+                        <span className="min-w-0 overflow-hidden">
                           <ResultBadge label={p.result_tag} />
-                        </div>
+                        </span>
+                        <span className={`min-w-0 truncate font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                          {ydsText}
+                        </span>
                       </div>
-                      <span className={`font-mono text-right text-[12px] font-semibold tabular-nums ${ydsClass}`}>{ydsText}</span>
-                      <span className="font-mono text-right text-[12px] tabular-nums text-slate-300">{isSuccess ? "100%" : "0%"}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </DrivePlayTable>
               </div>
             ) : null}
           </div>

@@ -26,9 +26,9 @@ export default function FilmImportCompletePage() {
   }
 
   return (
-    <section className="space-y-8 pb-8">
+    <section className="space-y-8">
       <BackToFilmLink />
-      <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 sm:p-6">
+      <div className="app-shell">
         <ImportConfirmation playCount={validRows.length} sessionId={importedSessionId} />
       </div>
     </section>

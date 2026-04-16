@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
@@ -17,8 +18,8 @@ export type LoggedPlayRow = {
   game_session_id: string;
   drive_id: string;
   play_number: number;
-  down: number;
-  distance: number;
+  down: number | null;
+  distance: number | null;
   formation: string;
   play_name: string;
   yards_gained: number | null;
@@ -175,38 +176,99 @@ export function attachPlayTypes(
   });
 }
 
+/** Success = standard analytics rule (down-aware); see `isStandardSuccessfulPlay` in `loggedPlaySuccess.ts`. */
 export function isSuccessPlay(p: LoggedPlayRow): boolean {
-  if (p.is_success === true) return true;
-  const t = (p.result_tag ?? "").toUpperCase().replace(/\s+/g, "_");
-  return t === "FIRST_DOWN" || t === "TOUCHDOWN";
+  return isStandardSuccessfulPlay(p);
 }
 
-export function aggregateByFormationPlay(plays: LoggedPlayRow[], minUses: number) {
-  type Agg = { uses: number; yards: number; successes: number };
+export { isStandardSuccessfulPlay };
+
+function normalizedResultTag(p: LoggedPlayRow): string {
+  return (p.result_tag ?? "").toUpperCase().replace(/\s+/g, "_");
+}
+
+export function isTouchdownPlay(p: LoggedPlayRow): boolean {
+  return normalizedResultTag(p) === "TOUCHDOWN";
+}
+
+/** First-down result only (not tagged as touchdown). */
+export function isFirstDownResultPlay(p: LoggedPlayRow): boolean {
+  return normalizedResultTag(p) === "FIRST_DOWN";
+}
+
+export type FormationPlayAggSort = "composite" | "success_rate";
+
+/** Composite ranking: (TD×50) + (1st×5) + (total yards / uses). */
+export function compositePlayScore(touchdowns: number, firstDowns: number, totalYards: number, uses: number): number {
+  if (uses <= 0) return 0;
+  return touchdowns * 50 + firstDowns * 5 + totalYards / uses;
+}
+
+export function aggregateByFormationPlay(
+  plays: LoggedPlayRow[],
+  minUses: number,
+  sort: FormationPlayAggSort = "composite",
+  countSuccess: (p: LoggedPlayRow) => boolean = isSuccessPlay,
+) {
+  type Agg = { uses: number; yards: number; successes: number; touchdowns: number; first_downs: number };
   const m = new Map<string, Agg>();
   for (const p of plays) {
     const k = `${p.formation}\u0000${p.play_name}`;
-    const a = m.get(k) ?? { uses: 0, yards: 0, successes: 0 };
+    const a = m.get(k) ?? { uses: 0, yards: 0, successes: 0, touchdowns: 0, first_downs: 0 };
     a.uses += 1;
     a.yards += p.yards_gained ?? 0;
-    if (isSuccessPlay(p)) a.successes += 1;
+    if (countSuccess(p)) a.successes += 1;
+    if (isTouchdownPlay(p)) a.touchdowns += 1;
+    else if (isFirstDownResultPlay(p)) a.first_downs += 1;
     m.set(k, a);
   }
   const rows = [...m.entries()]
     .map(([key, a]) => {
       const [formation, play_name] = key.split("\u0000");
       const success_rate = a.uses ? Math.round((a.successes * 100) / a.uses) : 0;
+      const avg_yards = a.uses ? Math.round((a.yards / a.uses) * 10) / 10 : 0;
+      const composite_score = compositePlayScore(a.touchdowns, a.first_downs, a.yards, a.uses);
       return {
         formation,
         play_name,
         uses: a.uses,
-        avg_yards: a.uses ? Math.round((a.yards / a.uses) * 10) / 10 : 0,
+        avg_yards,
+        touchdowns: a.touchdowns,
+        first_downs: a.first_downs,
+        composite_score,
         success_rate,
       };
     })
     .filter((r) => r.uses >= minUses)
-    .sort((a, b) => b.success_rate - a.success_rate || b.uses - a.uses);
+    .sort((a, b) => {
+      if (sort === "success_rate") {
+        return b.success_rate - a.success_rate || b.uses - a.uses || b.composite_score - a.composite_score;
+      }
+      return (
+        b.composite_score - a.composite_score ||
+        b.touchdowns - a.touchdowns ||
+        b.first_downs - a.first_downs ||
+        b.uses - a.uses
+      );
+    });
   return rows;
+}
+
+export type ReconsiderAggRow = {
+  uses: number;
+  touchdowns: number;
+  first_downs: number;
+  avg_yards: number;
+};
+
+/**
+ * Plays to Reconsider: 3+ uses, 0 TD, under 3.0 yds/use — or 4+ uses with 0 TD and 0 first downs.
+ */
+export function qualifiesForReconsiderPlay(r: ReconsiderAggRow): boolean {
+  if (r.touchdowns !== 0) return false;
+  const lowMovement = r.uses >= 3 && r.avg_yards < 3.0;
+  const noConversions = r.uses >= 4 && r.first_downs === 0;
+  return lowMovement || noConversions;
 }
 
 export function mostCommonScenarioByFormationPlay(plays: LoggedPlayRow[]): Map<string, string> {
@@ -237,30 +299,45 @@ export function mostCommonScenarioByFormationPlay(plays: LoggedPlayRow[]): Map<s
 }
 
 export function aggregateByFormation(plays: LoggedPlayRow[], minUses: number) {
-  type Agg = { uses: number; yards: number; successes: number };
+  type Agg = { uses: number; yards: number; successes: number; touchdowns: number; first_downs: number };
   const m = new Map<string, Agg>();
   for (const p of plays) {
     const f = p.formation;
-    const a = m.get(f) ?? { uses: 0, yards: 0, successes: 0 };
+    const a = m.get(f) ?? { uses: 0, yards: 0, successes: 0, touchdowns: 0, first_downs: 0 };
     a.uses += 1;
     a.yards += p.yards_gained ?? 0;
     if (isSuccessPlay(p)) a.successes += 1;
+    if (isTouchdownPlay(p)) a.touchdowns += 1;
+    else if (isFirstDownResultPlay(p)) a.first_downs += 1;
     m.set(f, a);
   }
   return [...m.entries()]
-    .map(([formation, a]) => ({
-      formation,
-      uses: a.uses,
-      avg_yards: a.uses ? Math.round((a.yards / a.uses) * 10) / 10 : 0,
-      success_rate: a.uses ? Math.round((a.successes * 100) / a.uses) : 0,
-    }))
+    .map(([formation, a]) => {
+      const avg_yards = a.uses ? Math.round((a.yards / a.uses) * 10) / 10 : 0;
+      const composite_score = compositePlayScore(a.touchdowns, a.first_downs, a.yards, a.uses);
+      return {
+        formation,
+        uses: a.uses,
+        avg_yards,
+        touchdowns: a.touchdowns,
+        first_downs: a.first_downs,
+        composite_score,
+        success_rate: a.uses ? Math.round((a.successes * 100) / a.uses) : 0,
+      };
+    })
     .filter((r) => r.uses >= minUses)
-    .sort((a, b) => b.success_rate - a.success_rate || b.uses - a.uses);
+    .sort(
+      (a, b) =>
+        b.composite_score - a.composite_score ||
+        b.touchdowns - a.touchdowns ||
+        b.first_downs - a.first_downs ||
+        b.uses - a.uses,
+    );
 }
 
 export function bestPlayForFormation(plays: LoggedPlayRow[], formation: string, minUses: number) {
   const subset = plays.filter((p) => p.formation === formation);
-  const ranked = aggregateByFormationPlay(subset, minUses);
+  const ranked = aggregateByFormationPlay(subset, minUses, "composite");
   return ranked[0] ?? null;
 }
 
@@ -280,14 +357,46 @@ export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook:
   return { motionPlays: motion, totalPlays: total, motionPct };
 }
 
-export function userMotionRate(plays: LoggedPlayRow[]): number {
-  if (!plays.length) return 0;
+export function motionUsageStats(plays: LoggedPlayRow[]): { motion_plays: number; total_plays: number; pct: number } {
+  if (!plays.length) return { motion_plays: 0, total_plays: 0, pct: 0 };
   let m = 0;
   for (const p of plays) {
     const u = (p.play_name ?? "").trim().toUpperCase();
     if (u.startsWith("MTN") || u.startsWith("JET")) m += 1;
   }
-  return Math.round((m * 1000) / plays.length) / 10;
+  const total = plays.length;
+  return { motion_plays: m, total_plays: total, pct: Math.round((m * 1000) / total) / 10 };
+}
+
+export function userMotionRate(plays: LoggedPlayRow[]): number {
+  return motionUsageStats(plays).pct;
+}
+
+/** TDs only (not first downs) in Red Zone + Goal Line scenarios. */
+export function redZoneTdStats(plays: LoggedPlayRow[]): { touchdowns: number; plays: number; pct: number } {
+  const rz = plays.filter((p) => {
+    const s = (p.scenario ?? "").trim();
+    return s === "Red Zone" || s === "Goal Line";
+  });
+  const n = rz.length;
+  if (n === 0) return { touchdowns: 0, plays: 0, pct: 0 };
+  const td = rz.filter((p) => {
+    const t = (p.result_tag ?? "").toUpperCase().replace(/\s+/g, "_");
+    return t === "TOUCHDOWN";
+  }).length;
+  return { touchdowns: td, plays: n, pct: Math.round((td * 1000) / n) / 10 };
+}
+
+/** 3rd & Short / Medium / Long: standard success (conversion tags or down-aware rule). */
+export function thirdDownConvStats(plays: LoggedPlayRow[]): { conversions: number; plays: number; pct: number } {
+  const third = plays.filter((p) => {
+    const s = (p.scenario ?? "").trim();
+    return s === "3rd & Short" || s === "3rd & Medium" || s === "3rd & Long";
+  });
+  const n = third.length;
+  if (n === 0) return { conversions: 0, plays: 0, pct: 0 };
+  const conv = third.filter(isSuccessPlay).length;
+  return { conversions: conv, plays: n, pct: Math.round((conv * 1000) / n) / 10 };
 }
 
 const SCENARIO_ORDER = [
@@ -309,25 +418,148 @@ function scenarioSortKey(s: string): number {
   return i === -1 ? 999 : i;
 }
 
-export function situationRunPassRows(plays: LoggedPlayRow[], buckets: PlayTypeBucket[]) {
-  const map = new Map<string, { run: number; other: number }>();
+export type ScoutingReportRow = {
+  scenario: string;
+  total_plays: number;
+  run_pct: number;
+  pass_pct: number;
+  success_pct: number;
+  top_play: {
+    play_name: string;
+    formation: string;
+    success_rate: number;
+    uses: number;
+  } | null;
+};
+
+function scoutingReportTier(successPct: number): number {
+  if (successPct < 40) return 0;
+  if (successPct < 60) return 1;
+  return 2;
+}
+
+/** Situations with 5+ plays. Ordered: below-40% first (worst at top), then 40–59%, then 60%+ (best at bottom). */
+export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBucket[]): ScoutingReportRow[] {
+  const map = new Map<string, { run: number; other: number; success: number }>();
   for (let i = 0; i < plays.length; i++) {
-    const sc = plays[i]?.scenario ?? "Other";
+    const p = plays[i];
+    if (!p) continue;
+    const sc = p.scenario ?? "Other";
     const b = buckets[i] ?? "Other";
-    const row = map.get(sc) ?? { run: 0, other: 0 };
+    const row = map.get(sc) ?? { run: 0, other: 0, success: 0 };
     if (isRunLeanBucket(b)) row.run += 1;
     else row.other += 1;
+    if (isSuccessPlay(p)) row.success += 1;
     map.set(sc, row);
   }
-  return [...map.entries()]
-    .map(([scenario, { run, other }]) => {
-      const total = run + other;
-      const run_pct = total ? Math.round((run * 1000) / total) / 10 : 0;
-      const flag = run_pct > 75 || run_pct < 25;
-      return { scenario, run_pct, total_plays: total, warn: total > 0 && flag };
-    })
-    .filter((r) => r.total_plays > 0)
-    .sort((a, b) => scenarioSortKey(a.scenario) - scenarioSortKey(b.scenario));
+
+  const out: ScoutingReportRow[] = [];
+  for (const [scenario, { run, other, success }] of map.entries()) {
+    const total = run + other;
+    if (total < 5) continue;
+    const run_pct = Math.round((run * 1000) / total) / 10;
+    const pass_pct = Math.round((other * 1000) / total) / 10;
+    const success_pct = Math.round((success * 1000) / total) / 10;
+    const scenarioPlays = plays.filter((p) => (p.scenario ?? "Other") === scenario);
+    const ranked = aggregateByFormationPlay(scenarioPlays, 2, "success_rate");
+    const best = ranked[0];
+    const top_play = best
+      ? {
+          play_name: best.play_name,
+          formation: best.formation,
+          success_rate: best.success_rate,
+          uses: best.uses,
+        }
+      : null;
+    out.push({ scenario, total_plays: total, run_pct, pass_pct, success_pct, top_play });
+  }
+  return out.sort((a, b) => {
+    const ta = scoutingReportTier(a.success_pct);
+    const tb = scoutingReportTier(b.success_pct);
+    if (ta !== tb) return ta - tb;
+    return a.success_pct - b.success_pct || scenarioSortKey(a.scenario) - scenarioSortKey(b.scenario);
+  });
+}
+
+export type ScoutingFormationReportRow = {
+  formation: string;
+  uses: number;
+  snap_pct: number;
+  run_pct: number;
+  pass_pct: number;
+  success_pct: number;
+  flag_over_used: boolean;
+  flag_under_performing: boolean;
+  flag_one_dimensional: boolean;
+  top_play: {
+    play_name: string;
+    formation: string;
+    success_rate: number;
+    uses: number;
+  } | null;
+};
+
+/**
+ * Formations that need attention: over 15% of scoped snaps, or 5+ uses with success below 40%,
+ * or 5+ uses with ≥80% run or pass lean. Sorted by success rate ascending (worst first).
+ */
+export function scoutingFormationReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBucket[]): ScoutingFormationReportRow[] {
+  const scopeTotal = plays.length;
+  if (scopeTotal === 0) return [];
+
+  const map = new Map<string, { run: number; other: number; success: number }>();
+  for (let i = 0; i < plays.length; i++) {
+    const p = plays[i];
+    if (!p) continue;
+    const f = (p.formation ?? "").trim() || "(unknown formation)";
+    const b = buckets[i] ?? "Other";
+    const row = map.get(f) ?? { run: 0, other: 0, success: 0 };
+    if (isRunLeanBucket(b)) row.run += 1;
+    else row.other += 1;
+    if (isSuccessPlay(p)) row.success += 1;
+    map.set(f, row);
+  }
+
+  const out: ScoutingFormationReportRow[] = [];
+  for (const [formation, { run, other, success }] of map.entries()) {
+    const uses = run + other;
+    if (uses === 0) continue;
+    const snap_pct = Math.round((uses * 1000) / scopeTotal) / 10;
+    const run_pct = Math.round((run * 1000) / uses) / 10;
+    const pass_pct = Math.round((other * 1000) / uses) / 10;
+    const success_pct = Math.round((success * 1000) / uses) / 10;
+    const flag_over_used = snap_pct > 15;
+    const flag_under_performing = uses >= 5 && success_pct < 40;
+    const flag_one_dimensional = uses >= 5 && (run_pct >= 80 || pass_pct >= 80);
+    if (!flag_over_used && !flag_under_performing && !flag_one_dimensional) continue;
+
+    const subset = plays.filter((p) => ((p.formation ?? "").trim() || "(unknown formation)") === formation);
+    const ranked = aggregateByFormationPlay(subset, 1, "success_rate");
+    const best = ranked[0];
+    const top_play = best
+      ? {
+          play_name: best.play_name,
+          formation: best.formation,
+          success_rate: best.success_rate,
+          uses: best.uses,
+        }
+      : null;
+
+    out.push({
+      formation,
+      uses,
+      snap_pct,
+      run_pct,
+      pass_pct,
+      success_pct,
+      flag_over_used,
+      flag_under_performing,
+      flag_one_dimensional,
+      top_play,
+    });
+  }
+
+  return out.sort((a, b) => a.success_pct - b.success_pct);
 }
 
 export function playTypeCounts(buckets: PlayTypeBucket[]) {

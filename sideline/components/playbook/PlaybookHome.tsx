@@ -12,7 +12,7 @@ export function PlaybookHome() {
     queryFn: async () => {
       const res = await fetch("/api/playbook");
       const j = (await res.json()) as { playbooks?: PlaybookSummary[]; error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Failed to load playbooks");
+      if (!res.ok) throw new Error(j.error ?? "Failed to load play sheets");
       return j.playbooks ?? [];
     },
   });
@@ -34,26 +34,28 @@ export function PlaybookHome() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="app-page-title">Playbook</h1>
+        <h1 className="app-page-title">Game Plan</h1>
         <Link href="/playbook/new" className="btn-primary text-sm">
-          + Create playbook
+          New Play Sheet
         </Link>
       </div>
 
       {list.length === 0 ? (
         <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
-          <p className="font-body text-base font-medium text-white">Build your playbook.</p>
+          <p className="font-body text-base font-medium text-white">
+            Create your first play sheet to start building your game plan.
+          </p>
           <p className="mt-2 font-body text-sm text-slate-500">
-            Create a play sheet from any CFB26 playbook - your tendencies will show you what&apos;s working.
+            Pick a CFB26 playbook as the source — your tendencies will show you what&apos;s working.
           </p>
           <Link href="/playbook/new" className="btn-primary mt-6 inline-flex px-5 py-2.5 text-sm">
-            + Create Playbook
+            New Play Sheet
           </Link>
         </div>
       ) : (
         <ul className="space-y-3">
           {list.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} className="relative">
               <PlaybookCard item={item} />
             </li>
           ))}

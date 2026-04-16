@@ -64,9 +64,8 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
       <button
         type="button"
         onClick={() => downloadClientTemplate()}
-        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600/80 bg-transparent px-3 py-2 font-heading text-xs font-semibold uppercase tracking-[0.1em] text-emerald-400 transition-colors hover:bg-emerald-500/10 sm:w-auto"
+        className="btn-secondary min-h-11 px-3 py-2 text-xs sm:w-auto"
       >
-        <span aria-hidden>↓</span>
         Download Template
       </button>
     );
@@ -101,7 +100,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
             ))}
           </div>
 
-          <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 text-sm text-slate-300">
+          <div className="app-card app-card-pad text-sm text-slate-300">
             <p>
               <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, LOSS, TURNOVER
               (INTERCEPTION), PUNT, NO GAIN, PENALTY
@@ -116,12 +115,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
         </>
       )}
 
-      <button
-        type="button"
-        onClick={() => downloadClientTemplate()}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 bg-transparent py-3.5 font-heading text-sm font-semibold uppercase tracking-[0.1em] text-emerald-400 transition-colors hover:bg-emerald-500/10"
-      >
-        <span aria-hidden>↓</span>
+      <button type="button" onClick={() => downloadClientTemplate()} className="btn-secondary-block min-h-11 py-3.5 text-sm">
         Download CSV Template
       </button>
     </div>

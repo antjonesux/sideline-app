@@ -1,3 +1,4 @@
+import { isSuccessPlay } from "@/lib/tendenciesServer";
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
@@ -10,7 +11,7 @@ export async function GET() {
   });
 
   const total = list.length;
-  const successes = list.filter((p) => p.is_success).length;
+  const successes = list.filter((p) => isSuccessPlay(p)).length;
   const avgYards = total ? list.reduce((acc, p) => acc + (p.yards_gained ?? 0), 0) / total : 0;
 
   const formationMap = new Map<string, { plays: number; success: number }>();
@@ -20,17 +21,17 @@ export async function GET() {
   for (const p of list) {
     const f = formationMap.get(p.formation) ?? { plays: 0, success: 0 };
     f.plays += 1;
-    if (p.is_success) f.success += 1;
+    if (isSuccessPlay(p)) f.success += 1;
     formationMap.set(p.formation, f);
 
     const s = scenarioMap.get(p.scenario) ?? { plays: 0, success: 0 };
     s.plays += 1;
-    if (p.is_success) s.success += 1;
+    if (isSuccessPlay(p)) s.success += 1;
     scenarioMap.set(p.scenario, s);
 
     const h = hashMap.get(p.hash) ?? { plays: 0, success: 0, yards: 0 };
     h.plays += 1;
-    if (p.is_success) h.success += 1;
+    if (isSuccessPlay(p)) h.success += 1;
     h.yards += p.yards_gained ?? 0;
     hashMap.set(p.hash, h);
   }

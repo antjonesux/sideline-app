@@ -80,7 +80,7 @@ export function PlaySlot({
           type="button"
           disabled={atCapacity}
           onClick={onAdd}
-          className={`font-barlow w-full rounded-md border border-dashed py-2 text-sm ${
+          className={`font-body w-full rounded-md border border-dashed py-2 text-sm ${
             atCapacity
               ? "cursor-not-allowed border-slate-800 text-slate-600"
               : "border-slate-600 text-slate-300 hover:border-emerald-700/50 hover:bg-slate-900 hover:text-emerald-200"
@@ -130,20 +130,20 @@ export function PlaySlot({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="min-w-0 leading-snug">
-              <span className="font-barlow text-[13px] text-white">{play.formation}</span>
-              <span className="font-barlow text-slate-500"> → </span>
+              <span className="font-body text-[13px] text-white">{play.formation}</span>
+              <span className="font-body text-slate-500"> → </span>
               <span className="font-mono text-[12px] font-medium uppercase text-white">{play.play_name}</span>
             </p>
             <div className="relative shrink-0 self-start" ref={menuRef}>
               <button
                 type="button"
-                className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100"
                 aria-expanded={menu}
                 aria-haspopup="menu"
                 aria-label="Play actions"
                 onClick={() => setMenu((m) => !m)}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <circle cx="12" cy="5" r="1.75" />
                   <circle cx="12" cy="12" r="1.75" />
                   <circle cx="12" cy="19" r="1.75" />
@@ -151,14 +151,14 @@ export function PlaySlot({
               </button>
               {menu ? (
                 <ul
-                  className="absolute end-0 z-20 mt-1 min-w-[8rem] rounded-lg border border-slate-700 bg-slate-950 py-1 text-sm shadow-lg"
+                  className="app-dropdown-panel absolute end-0 z-20 mt-1 min-w-[8rem] py-1"
                   role="menu"
                 >
                   <li>
                     <button
                       type="button"
                       role="menuitem"
-                      className="block w-full px-3 py-2 text-start font-barlow text-slate-200 hover:bg-slate-800"
+                      className="app-dropdown-item rounded-none text-start"
                       onClick={() => {
                         setMenu(false);
                         onEdit(play.id);
@@ -171,7 +171,7 @@ export function PlaySlot({
                     <button
                       type="button"
                       role="menuitem"
-                      className="block w-full px-3 py-2 text-start font-barlow text-red-300 hover:bg-slate-800"
+                      className="app-dropdown-item-danger rounded-none text-start"
                       onClick={() => {
                         setMenu(false);
                         onRemove(play.id);
@@ -205,7 +205,7 @@ export function PlaySlot({
           </div>
           {isScript && onScriptNote ? (
             <input
-              className="mt-2 w-full rounded border border-slate-800 bg-slate-950 px-2 py-1.5 font-barlow text-xs text-slate-200 placeholder:text-slate-600"
+              className="mt-2 w-full rounded border border-slate-800 bg-slate-950 px-2 py-1.5 font-body text-xs text-slate-200 placeholder:text-slate-600"
               placeholder='e.g. Set up play action'
               maxLength={40}
               defaultValue={play.script_note ?? ""}

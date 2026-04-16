@@ -32,7 +32,7 @@ export function PlayTypeDistribution({ data }: Props) {
   }
 
   return (
-    <div className="app-card h-56 w-full p-2 sm:h-64">
+    <div className="app-card h-56 w-full p-4 sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
           <XAxis type="category" dataKey="name" tick={{ fill: "#e2e8f0", fontSize: 11, fontFamily: "var(--font-jetbrains-mono)" }} axisLine={false} tickLine={false} />
@@ -40,7 +40,7 @@ export function PlayTypeDistribution({ data }: Props) {
             type="number"
             domain={[0, 100]}
             tickFormatter={(v) => `${v}%`}
-            tick={{ fill: "#94a3b8", fontSize: 10 }}
+            tick={{ fill: "#94a3b8", fontSize: 10, fontFamily: "var(--font-jetbrains-mono)" }}
             axisLine={false}
             tickLine={false}
             width={36}

@@ -186,7 +186,7 @@ export function AddPlayDrawer({
                 className="btn-secondary px-2 py-1 text-xs"
                 onClick={() => setStep(1)}
               >
-                ← Formations
+                Back to formations
               </button>
               <input
                 className="hs-input app-input min-w-0 flex-1 py-2 text-sm text-white placeholder:text-[#A0A3AD]"

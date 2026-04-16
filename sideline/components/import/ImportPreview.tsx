@@ -36,9 +36,9 @@ export function ImportPreview({ onReupload, onNext }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="app-page-title">Preview & confirm</h2>
+      <h2 className="app-section-title">Preview & confirm</h2>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           { label: "Plays", value: stats.plays },
           { label: "Drives", value: stats.drives },
@@ -46,7 +46,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
           { label: "TDs", value: stats.tds },
           { label: "Turnovers", value: stats.to },
         ].map((s) => (
-          <div key={s.label} className="app-card p-3 text-center">
+          <div key={s.label} className="app-card app-card-pad text-center">
             <p className="font-mono text-3xl font-bold tabular-nums text-white">{s.value}</p>
             <p className="app-field-label mt-1">{s.label}</p>
           </div>
@@ -78,7 +78,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
         <button
           type="button"
           onClick={() => setTab("pbp")}
-          className={`flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
+          className={`app-no-press-scale min-h-11 flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
             tab === "pbp" ? "bg-emerald-500/20 text-emerald-300" : "text-slate-500"
           }`}
         >
@@ -87,7 +87,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
         <button
           type="button"
           onClick={() => setTab("drive")}
-          className={`flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
+          className={`app-no-press-scale min-h-11 flex-1 rounded-md py-2 font-body text-xs font-semibold uppercase tracking-wide ${
             tab === "drive" ? "bg-emerald-500/20 text-emerald-300" : "text-slate-500"
           }`}
         >
@@ -95,15 +95,17 @@ export function ImportPreview({ onReupload, onNext }: Props) {
         </button>
       </div>
 
-      {tab === "pbp" ? (
-        <ImportPreviewTable rows={parsedRows} errorByLine={errorByLine} />
-      ) : (
-        <ImportPreviewDrives rows={parsedRows} />
-      )}
+      <div key={tab} className="tab-content">
+        {tab === "pbp" ? (
+          <ImportPreviewTable rows={parsedRows} errorByLine={errorByLine} />
+        ) : (
+          <ImportPreviewDrives rows={parsedRows} />
+        )}
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button type="button" disabled={continueBusy} onClick={onReupload} className="btn-secondary py-3 sm:max-w-[200px]">
-          ← Re-upload
+          Re-upload
         </button>
         <button
           type="button"
@@ -118,7 +120,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
           }}
           className="btn-primary-lg"
         >
-          {continueBusy ? "Working…" : importTargetSessionId ? "Import to current game" : "Next → tag this game"}
+          {continueBusy ? "Working…" : importTargetSessionId ? "Import to current game" : "Next: tag this game"}
         </button>
       </div>
     </div>

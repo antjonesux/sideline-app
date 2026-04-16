@@ -67,7 +67,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
-    .select("formation, play_name, result_tag, yards_gained, is_success")
+    .select("formation, play_name, result_tag, yards_gained, down, distance")
     .eq("scenario", scenarioName)
     .limit(25000);
 

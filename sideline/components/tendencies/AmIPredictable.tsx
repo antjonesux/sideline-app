@@ -1,9 +1,8 @@
 "use client";
 
-import { FormationFrequency } from "@/components/tendencies/FormationFrequency";
-import { MotionUsage } from "@/components/tendencies/MotionUsage";
 import { PlayTypeDistribution } from "@/components/tendencies/PlayTypeDistribution";
-import { SituationTendencies } from "@/components/tendencies/SituationTendencies";
+import { ScoutingReportSection } from "@/components/tendencies/ScoutingReportSection";
+import type { ScoutingFormationReportRow, ScoutingReportRow } from "@/lib/tendenciesServer";
 import { TendenciesFilters, buildTendenciesQueryString, type TendenciesFilterParams } from "@/components/tendencies/TendenciesFilters";
 import { TendenciesSectionSkeleton } from "@/components/shared/AppSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -12,11 +11,34 @@ import { useMemo, useState } from "react";
 
 type PredictApi = {
   play_type_distribution: { name: string; pct: number; count: number }[];
-  situation_tendencies: { scenario: string; run_pct: number; total_plays: number; warn: boolean }[];
-  formation_frequency: { formation: string; count: number; pct: number }[];
+  scouting_report: ScoutingReportRow[];
+  scouting_formation_report?: ScoutingFormationReportRow[];
+  key_rates: {
+    turnover: { pct: number; turnovers: number; total_plays: number };
+    motion: {
+      pct: number;
+      motion_plays: number;
+      total_plays: number;
+      playbook_pct: number;
+      playbook_name: string;
+      underutilizing: boolean;
+    };
+    red_zone_td: { pct: number; touchdowns: number; plays: number };
+    third_down: { pct: number; conversions: number; plays: number };
+  };
   motion: { user_pct: number; playbook_pct: number; playbook_name: string; underutilizing: boolean };
   meta: { play_count: number; turnover_count: number; turnover_rate: number };
 };
+
+function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDisplay: string; description: string }) {
+  return (
+    <div className="app-card flex min-h-[132px] flex-col p-4">
+      <p className="font-mono text-[10px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-2 font-heading text-[28px] font-bold leading-none tracking-wide text-slate-100 tabular-nums">{pctDisplay}</p>
+      <p className="mt-auto pt-3 font-body text-[12px] font-normal leading-snug text-slate-500">{description}</p>
+    </div>
+  );
+}
 
 type Props = {
   opponents: string[];
@@ -37,18 +59,29 @@ export function AmIPredictable({ opponents }: Props) {
   });
 
   const unclassified = q.data?.play_type_distribution.find((r) => r.name === "Unclassified");
+  /**
+   * Uses the same rows as the bar chart. Run / RPO / Play Action use that row's `pct` (count / total plays).
+   * Pass is Pass + Play Action + Screen (counts summed, divided by meta.play_count) so it matches chart buckets without % rounding drift.
+   * Option, Other, Unclassified stay in the denominator only.
+   */
   const topTypeCards = q.data
     ? (() => {
-        const byName = new Map(q.data.play_type_distribution.map((row) => [row.name, row.pct]));
-        const run = (byName.get("Run") ?? 0) + (byName.get("Option") ?? 0);
-        const pass = (byName.get("Pass") ?? 0) + (byName.get("Play Action") ?? 0) + (byName.get("Screen") ?? 0);
-        const rpo = byName.get("RPO") ?? 0;
-        const other = byName.get("Other") ?? 0;
+        const byName = new Map(q.data.play_type_distribution.map((row) => [row.name, row]));
+        const total = q.data.meta.play_count || 1;
+        const pct = (name: string) => {
+          const row = byName.get(name);
+          return row ? Math.round(row.pct * 10) / 10 : 0;
+        };
+        const passCount =
+          (byName.get("Pass")?.count ?? 0) +
+          (byName.get("Play Action")?.count ?? 0) +
+          (byName.get("Screen")?.count ?? 0);
+        const passPct = Math.round((passCount * 1000) / total) / 10;
         return [
-          { name: "Run", pct: Math.round(run * 10) / 10 },
-          { name: "Pass", pct: Math.round(pass * 10) / 10 },
-          { name: "RPO", pct: Math.round(rpo * 10) / 10 },
-          { name: "Other", pct: Math.round(other * 10) / 10 },
+          { name: "Run", pct: pct("Run") },
+          { name: "Pass", pct: passPct },
+          { name: "RPO", pct: pct("RPO") },
+          { name: "Play Action", pct: pct("Play Action") },
         ];
       })()
     : [];
@@ -59,7 +92,7 @@ export function AmIPredictable({ opponents }: Props) {
 
       {q.isLoading ? (
         <div className="space-y-6" aria-busy="true">
-          {[0, 1, 2, 3].map((i) => (
+          {[0, 1, 2].map((i) => (
             <section key={i} className="space-y-3">
               <div className="app-skeleton h-6 w-56 max-w-full" />
               <TendenciesSectionSkeleton />
@@ -91,36 +124,50 @@ export function AmIPredictable({ opponents }: Props) {
           </section>
 
           <section className="space-y-3">
-            <h2 className="app-section-title">Turnover + Motion</h2>
+            <h2 className="app-section-title">Key Rates</h2>
             {q.data ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="app-card p-4">
-                  <p className="app-field-label">Turnover Rate</p>
-                  <p className="mt-1 font-barlow-condensed text-4xl font-bold leading-none text-slate-100">{q.data.meta.turnover_rate}%</p>
-                  <p className="mt-2 font-barlow text-[13px] font-normal leading-[1.35] text-slate-400">
-                    {q.data.meta.turnover_count} turnovers in {q.data.meta.play_count} plays
-                  </p>
-                </div>
-                <MotionUsage
-                  userPct={q.data.motion.user_pct}
-                  playbookPct={q.data.motion.playbook_pct}
-                  playbookName={q.data.motion.playbook_name}
-                  underutilizing={q.data.motion.underutilizing}
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <KeyRateCard
+                  label="TURNOVER RATE"
+                  pctDisplay={`${q.data.key_rates.turnover.pct}%`}
+                  description={`${q.data.key_rates.turnover.turnovers} turnovers in ${q.data.key_rates.turnover.total_plays} plays`}
+                />
+                <KeyRateCard
+                  label="MOTION USAGE"
+                  pctDisplay={`${q.data.key_rates.motion.pct}%`}
+                  description={(() => {
+                    const m = q.data.key_rates.motion;
+                    return `${m.motion_plays.toLocaleString("en-US")} motion plays on ${m.total_plays.toLocaleString("en-US")} snaps`;
+                  })()}
+                />
+                <KeyRateCard
+                  label="RED ZONE TD%"
+                  pctDisplay={`${q.data.key_rates.red_zone_td.pct}%`}
+                  description={(() => {
+                    const z = q.data.key_rates.red_zone_td;
+                    if (z.plays === 0) return "No red zone plays in this filter.";
+                    return `${z.touchdowns} TDs on ${z.plays} red zone plays`;
+                  })()}
+                />
+                <KeyRateCard
+                  label="3RD DOWN CONV%"
+                  pctDisplay={`${q.data.key_rates.third_down.pct}%`}
+                  description={(() => {
+                    const t = q.data.key_rates.third_down;
+                    if (t.plays === 0) return "No third-down plays in this filter.";
+                    return `${t.conversions} conversions on ${t.plays} third downs`;
+                  })()}
                 />
               </div>
             ) : null}
           </section>
 
-          <section className="space-y-3">
-            <h2 className="app-section-title">Situation tendencies</h2>
-            {q.data ? <SituationTendencies rows={q.data.situation_tendencies} /> : null}
-          </section>
-
-          <section className="space-y-3">
-            <h2 className="app-section-title">Formation frequency</h2>
-            {q.data ? <FormationFrequency rows={q.data.formation_frequency} /> : null}
-          </section>
-
+          {q.data ? (
+            <ScoutingReportSection
+              situationRows={q.data.scouting_report ?? []}
+              formationRows={q.data.scouting_formation_report ?? []}
+            />
+          ) : null}
         </>
       )}
     </div>

@@ -14,13 +14,23 @@
 }
 
 @layer base {
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
+  /**
+   * Root scroll: avoid `height: 100%` on html — it can pin the document to the viewport
+   * and clip content below the fold. `min-height: 100dvh` keeps a full-screen minimum
+   * while allowing the page to grow and scroll normally.
+   */
+  html {
+    min-height: 100dvh;
   }
 
   body {
+    min-height: 100dvh;
     font-family: var(--font-barlow), sans-serif;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   .font-barlow {
@@ -46,8 +56,7 @@
     border-radius: 4px;
   }
 
-  button:active,
-  [role="button"]:active {
+  button:active:not(:disabled):not(.app-no-press-scale) {
     transform: scale(0.97);
     transition: transform 100ms ease-out;
   }
@@ -102,31 +111,49 @@
 
   /* Buttons */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-primary-block {
-    @apply inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-primary-lg {
-    @apply inline-flex w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-heading text-base font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-heading text-base font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
   }
 
   .btn-secondary-block {
-    @apply inline-flex w-full items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
   }
 
   .btn-destructive {
-    @apply inline-flex items-center justify-center rounded-lg border border-red-700/70 bg-red-950/35 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-red-200 transition-colors hover:bg-red-950/55 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-red-700/70 bg-red-950/35 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-red-200 transition-colors hover:bg-red-950/55 disabled:opacity-50;
   }
 
   .btn-destructive-solid {
-    @apply inline-flex flex-1 items-center justify-center rounded-lg border border-red-800 bg-red-900/35 px-4 py-2.5 text-center font-body text-sm font-semibold text-red-300 transition-colors hover:bg-red-900/50;
+    @apply inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-red-800 bg-red-900/35 px-4 py-2.5 text-center font-body text-sm font-semibold text-red-300 transition-colors hover:bg-red-900/50;
+  }
+
+  /* Card kebab / drive menus — shared shell */
+  .app-dropdown-panel {
+    @apply min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg;
+  }
+
+  .app-dropdown-item {
+    @apply flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800;
+  }
+
+  .app-dropdown-item-danger {
+    @apply flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-red-300 transition-colors hover:bg-slate-800;
+  }
+
+  /* Drive / accordion strip: lighter header, darker body */
+  .app-accordion-header-row {
+    @apply border-b border-slate-800/90 bg-slate-800;
   }
 
   /* Form controls */
@@ -173,6 +200,23 @@
     transform: rotate(180deg);
   }
 
+  /**
+   * Horizontal scroll strips: touch momentum, no visible scrollbar.
+   * `.situation-strip` — Playbook editor mobile scenario tabs (name per product).
+   * `.app-horizontal-scroll-strip` — same behavior elsewhere (filters, stats rows, tables).
+   */
+  .situation-strip,
+  .app-horizontal-scroll-strip {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE / legacy Edge */
+  }
+
+  .situation-strip::-webkit-scrollbar,
+  .app-horizontal-scroll-strip::-webkit-scrollbar {
+    display: none; /* Chrome / Safari */
+  }
 }
 
 @keyframes fadeIn {

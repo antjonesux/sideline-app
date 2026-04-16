@@ -2,43 +2,80 @@
 
 import type { TopPlayRow } from "@/components/tendencies/TopPlaysList";
 import { RankedRow } from "@/components/tendencies/RankedRow";
+import { ReconsiderRankMetrics } from "@/components/tendencies/ReconsiderRankMetrics";
+import { WorkingListPagination, WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 
 type Props = {
   rows: TopPlayRow[];
   totalCount: number;
   expanded: boolean;
   onToggleExpand: () => void;
+  rankOffset?: number;
+  page?: number;
+  onPageChange?: (page: number) => void;
 };
 
-export function ReconsiderPlays({ rows, totalCount, expanded, onToggleExpand }: Props) {
-  if (rows.length === 0) return null;
+export function ReconsiderPlays({
+  rows,
+  totalCount,
+  expanded,
+  onToggleExpand,
+  rankOffset = 0,
+  page = 1,
+  onPageChange,
+}: Props) {
+  if (rows.length === 0 && !expanded) return null;
+  const showPagination = expanded && totalCount > WORKING_LIST_PAGE_SIZE && onPageChange;
+
   return (
     <div className="rounded-xl border border-red-800/20 bg-red-900/10 px-3 py-3 sm:px-4">
-      <p className="font-barlow mb-3 text-sm text-red-200/95">
-        <span className="mr-1 text-amber-400">⚠</span> Plays below 35% success rate with 4+ uses:
-      </p>
+      <p className="mb-3 font-body text-[13px] font-normal text-slate-500">Plays you keep calling that aren&apos;t producing results.</p>
       <div>
         {rows.map((r, i) => (
           <RankedRow
             key={`${r.formation}-${r.play_name}`}
-            rank={i + 1}
+            rank={rankOffset + i + 1}
             title={
               <>
-                <span className="font-barlow font-normal text-slate-200">{r.formation}</span>
+                <span className="font-body font-normal text-slate-200">{r.formation}</span>
                 <span className="text-slate-600"> → </span>
                 <span className="font-mono text-[12px] font-medium uppercase text-white">{r.play_name}</span>
               </>
             }
-            footer={<p className="font-barlow text-[11px] text-red-200/80">Mostly called on {r.common_scenario ?? "Unknown"}</p>}
-            successRate={r.success_rate}
-            uses={r.uses}
-            avgYards={r.avg_yards}
-            variant="red"
+            metrics={
+              <ReconsiderRankMetrics
+                touchdowns={r.touchdowns}
+                first_downs={r.first_downs}
+                uses={r.uses}
+                avg_yards={r.avg_yards}
+              />
+            }
+            footer={
+              <p className="font-body text-[11px] text-red-200/85">
+                Mostly called on: {r.common_scenario ?? "Unknown"}
+              </p>
+            }
           />
         ))}
-        {totalCount > 3 ? (
-          <button type="button" className="font-body mt-2 text-sm text-red-200/90 hover:underline" onClick={onToggleExpand}>
-            {expanded ? "Show less" : "Show all"}
+        {showPagination ? (
+          <WorkingListPagination page={page} totalItems={totalCount} onPageChange={onPageChange} />
+        ) : null}
+        {!expanded && totalCount > 3 ? (
+          <button
+            type="button"
+            className="font-body mt-2 min-h-[44px] text-sm text-red-200/90 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            onClick={onToggleExpand}
+          >
+            Show all
+          </button>
+        ) : null}
+        {expanded ? (
+          <button
+            type="button"
+            className="font-body mt-2 min-h-[44px] text-sm text-slate-400 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            onClick={onToggleExpand}
+          >
+            Show less
           </button>
         ) : null}
       </div>

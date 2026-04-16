@@ -17,7 +17,7 @@ export function SituationList({
 }) {
   if (variant === "mobile") {
     return (
-      <div className="flex gap-2 overflow-x-auto pb-2 lg:hidden">
+      <div className="situation-strip flex gap-2 pb-2 lg:hidden">
         {scenarios.map((s) => {
           const max = scenarioMaxSlots(s.scenario);
           const n = s.plays.length;
@@ -52,7 +52,7 @@ export function SituationList({
             key={s.id}
             type="button"
             onClick={() => onSelect(s.scenario)}
-            className={`flex w-full items-center justify-between rounded-md border px-2 py-2 text-start font-barlow text-sm transition-colors ${
+            className={`flex w-full items-center justify-between rounded-md border px-2 py-2 text-start font-body text-sm transition-colors ${
               active
                 ? "border-slate-800 border-l-4 border-l-emerald-500 bg-slate-900 text-emerald-400"
                 : "border-transparent text-slate-300 hover:bg-slate-900/80"

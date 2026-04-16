@@ -56,6 +56,11 @@ export function deriveCfbPlayTypeFromName(playName: string | null | undefined): 
   const name = normalizePlayName(playName);
   if (!name || !raw) return "";
 
+  // RPO — specific patterns before generic `rpo *` and before `mtn` / `bounce` run or pass branches
+  if (raw.includes("rpo bubble")) return "rpo_read";
+  if (raw.startsWith("mtn rpo")) return "rpo_read";
+  if (raw.startsWith("bounce rpo")) return "rpo_read";
+
   if (raw.startsWith("rpo alert") || raw.startsWith("rpo peek") || raw.startsWith("rpo read") || raw.startsWith("rpo zone")) return "rpo_read";
   if (raw.startsWith("pa ") || raw.startsWith("pa_")) return "play_action";
   if (raw.includes("screen")) return "screen";
@@ -69,20 +74,27 @@ export function deriveCfbPlayTypeFromName(playName: string | null | undefined): 
     raw.includes("rd opt")
   ) return "option_qb_run";
 
+  if (raw.startsWith("jet touch")) return "quick_pass";
+
   if (
     raw.startsWith("hb dive") ||
+    raw.startsWith("hb sting") ||
+    raw.startsWith("hb duo") ||
+    raw.startsWith("hb gut") ||
     raw.startsWith("hb stretch") ||
     raw.startsWith("inside zone") ||
     raw.startsWith("hb base") ||
     raw.includes("split dive") ||
     raw.startsWith("hb zone") ||
-    raw.startsWith("hb quick base")
+    raw.startsWith("hb quick base") ||
+    raw.startsWith("bounce inside")
   ) return "inside_run";
   if (
     raw.startsWith("hb sweep") ||
     raw.startsWith("outside zone") ||
     raw.startsWith("power o") ||
     raw.startsWith("power g") ||
+    raw.startsWith("hb power") ||
     raw.includes("strong power") ||
     raw.startsWith("hb counter") ||
     raw.includes("counter y") ||
@@ -93,7 +105,9 @@ export function deriveCfbPlayTypeFromName(playName: string | null | undefined): 
     raw.startsWith("jet power") ||
     raw.startsWith("jet hb") ||
     raw.startsWith("qb sneak") ||
-    raw.startsWith("qb blast")
+    raw.startsWith("qb blast") ||
+    raw.startsWith("qb g ") ||
+    raw.startsWith("bounce outside")
   ) return "outside_run";
 
   if (
@@ -123,7 +137,9 @@ export function deriveCfbPlayTypeFromName(playName: string | null | undefined): 
     raw.includes("angle") ||
     raw.includes("under") ||
     raw.includes("nod") ||
-    raw.includes("return")
+    raw.includes("return") ||
+    raw.includes("corner") ||
+    raw.includes("hitch")
   ) return "medium_pass";
   if (raw.startsWith("mtn pa") || raw.startsWith("mtn mesh") || raw.startsWith("mtn z") || raw.startsWith("mtn bench")) return "quick_pass";
 

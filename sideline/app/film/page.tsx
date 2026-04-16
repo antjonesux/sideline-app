@@ -108,7 +108,7 @@ export default async function FilmRoomPage() {
         <div className="flex items-center justify-between gap-4">
           <h1 className="app-page-title">Film room</h1>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <Link href="/film/new" className="app-card-interactive group block">
             <p className="app-card-title">New game</p>
             <p className="mt-1 font-body text-sm text-slate-400">Start a live sideline logging session.</p>
@@ -137,7 +137,7 @@ export default async function FilmRoomPage() {
           </div>
         </div>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {games.map((game) => <FilmGameCard key={game.id} game={game} />)}
         </ul>
       )}

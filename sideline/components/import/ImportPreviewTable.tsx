@@ -26,9 +26,9 @@ export function ImportPreviewTable({ rows, errorByLine }: Props) {
   const sorted = useMemo(() => [...rows].sort((a, b) => parseInt(a.play_number, 10) - parseInt(b.play_number, 10)), [rows]);
 
   return (
-    <div className="max-h-[340px] overflow-auto rounded-lg border border-slate-700">
+    <div className="app-card max-h-[340px] overflow-auto">
       <table className="min-w-full divide-y divide-slate-800 text-left text-xs">
-        <thead className="sticky top-0 z-10 bg-slate-900">
+        <thead className="app-accordion-header-row sticky top-0 z-10">
           <tr className="font-mono uppercase tracking-wide text-slate-500">
             <th className="px-2 py-2">#</th>
             <th className="px-2 py-2">Drv</th>

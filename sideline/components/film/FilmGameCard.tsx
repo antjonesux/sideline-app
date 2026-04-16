@@ -5,6 +5,9 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
+import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
+import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { useToastStore } from "@/store/toastStore";
 import type { GameSession } from "@/lib/types";
 
 type GameCardData = GameSession & {
@@ -17,7 +20,10 @@ type GameCardData = GameSession & {
 
 export function FilmGameCard({ game }: { game: GameCardData }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const router = useRouter();
+  const addToast = useToastStore((s) => s.addToast);
 
   const offensivePlaybook = useMemo(() => {
     const fallback = game.my_playbook?.trim() ? game.my_playbook : "—";
@@ -25,16 +31,21 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
     return offensive && offensive.length > 0 ? offensive : fallback;
   }, [game.my_playbook, game.offensive_playbook]);
 
-  async function deleteGame() {
-    const ok = window.confirm("Delete this game and all of its drives/plays?");
-    if (!ok) return;
-    const res = await fetch(`/api/games/${game.id}`, { method: "DELETE" });
-    if (!res.ok) {
-      window.alert("Could not delete game.");
-      return;
+  async function confirmDeleteGame() {
+    setDeleteBusy(true);
+    try {
+      const res = await fetch(`/api/games/${game.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        addToast("Failed to save", "error");
+        return;
+      }
+      setDeleteOpen(false);
+      setMenuOpen(false);
+      addToast("Game deleted", "success");
+      router.refresh();
+    } finally {
+      setDeleteBusy(false);
     }
-    setMenuOpen(false);
-    router.refresh();
   }
 
   const myScoreClass = game.result === "W" ? "text-[#10B981]" : game.result === "L" ? "text-[#C0392B]" : "text-slate-100";
@@ -42,7 +53,7 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
   return (
     <li className="relative">
       <Link href={`/film/${game.id}`} className="app-card-interactive block hover:border-slate-600">
-        <div className="flex items-start justify-between gap-2 pr-12">
+        <div className="flex items-start justify-between gap-2 pr-14">
           <div>
             <p className="app-game-title leading-tight">
               {game.my_playbook}
@@ -66,61 +77,61 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
           </span>
         </div>
 
-        <div className="mt-2 overflow-x-auto">
+        <div className="app-horizontal-scroll-strip mt-2">
           <GameStatsInline playCount={game.playCount} driveCount={game.driveCount} totalYards={game.totalYards} tds={game.tds} turnovers={game.turnovers} />
         </div>
       </Link>
 
-      <div className="absolute right-3 top-3 z-10">
-        <div className="relative">
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            aria-label="Game actions"
+      <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Game actions">
+        <li>
+          <div
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setMenuOpen((v) => !v);
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <circle cx="12" cy="5" r="1.75" />
-              <circle cx="12" cy="12" r="1.75" />
-              <circle cx="12" cy="19" r="1.75" />
-            </svg>
+            <EditGameDetailsModal
+              gameId={game.id}
+              game={game}
+              onSaved={() => router.refresh()}
+              triggerClassName="app-dropdown-item rounded-none"
+              triggerLabel="Edit Game Details"
+            />
+          </div>
+        </li>
+        <li>
+          <button
+            type="button"
+            role="menuitem"
+            className="app-dropdown-item-danger rounded-none"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenuOpen(false);
+              setDeleteOpen(true);
+            }}
+          >
+            Delete Game
           </button>
-          {menuOpen ? (
-            <ul className="absolute right-0 z-20 mt-1 min-w-[11rem] rounded-lg border border-slate-700 bg-slate-950 py-1 text-sm shadow-lg" role="menu">
-              <li>
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                >
-                  <EditGameDetailsModal gameId={game.id} game={game} onSaved={() => router.refresh()} triggerClassName="block w-full px-3 py-2 text-left font-barlow text-slate-200 hover:bg-slate-800" triggerLabel="Edit Game Details" />
-                </div>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="block w-full px-3 py-2 text-left font-barlow text-red-300 hover:bg-slate-800"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    void deleteGame();
-                  }}
-                >
-                  Delete Game
-                </button>
-              </li>
-            </ul>
-          ) : null}
-        </div>
-      </div>
+        </li>
+      </CardKebabMenu>
+
+      <ConfirmDestructiveModal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete game?"
+        message={
+          <>
+            This will permanently delete{" "}
+            <strong className="font-semibold text-white">
+              {game.my_playbook} vs {game.opponent_team}
+            </strong>{" "}
+            and all drives and plays. This can&apos;t be undone.
+          </>
+        }
+        busy={deleteBusy}
+        onConfirm={confirmDeleteGame}
+      />
     </li>
   );
 }

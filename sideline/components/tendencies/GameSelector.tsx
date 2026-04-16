@@ -11,7 +11,7 @@ type Props = {
 export function GameSelector({ games, selectedId, onSelect }: Props) {
   if (games.length === 0) return null;
   return (
-    <div className="-mx-1 flex gap-2 overflow-x-auto pb-1">
+    <div className="app-horizontal-scroll-strip -mx-1 flex gap-2 pb-1">
       {games.map((g) => {
         const active = g.id === selectedId;
         const w = g.result === "W";

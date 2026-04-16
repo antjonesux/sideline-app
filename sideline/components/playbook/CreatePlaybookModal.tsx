@@ -32,7 +32,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       const res = await fetch("/api/cfb26-playbooks");
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
       if (!res.ok) {
-        if (!cancelled) setLoadErr(j.error ?? "Could not load playbooks");
+        if (!cancelled) setLoadErr(j.error ?? "Could not load CFB26 playbooks");
         return;
       }
       if (!cancelled) setPlaybooks(j.playbooks ?? []);
@@ -66,7 +66,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         return;
       }
       if (j.id) {
-        addToast("Playbook created", "success");
+        addToast("Play sheet created", "success");
         if (variant === "modal") onClose?.();
         router.push(`/playbook/${j.id}`);
       }
@@ -84,9 +84,9 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       }`}
     >
       <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
-        <h2 className="app-modal-title">New playbook</h2>
+        <h2 className="app-modal-title">New play sheet</h2>
         <p className="mt-1 font-body text-sm text-slate-400">
-          {step === 1 ? "Step 1 of 2 — name and CFB26 playbook" : "Step 2 of 2 — start building"}
+          {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         {step === 1 ? (
           <>
             <label className="block space-y-1">
-              <span className="app-field-label">Playbook name</span>
+              <span className="app-field-label">Play sheet name</span>
               <input
                 className="hs-input app-input"
                 placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
@@ -111,16 +111,17 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
             </label>
 
             <TeamCombobox<PlaybookOption>
-              label="Select CFB26 playbook"
+              label="Select CFB26 Playbook"
               inputId="create-cfb26-playbook"
               selected={selectedPlaybook}
               onSelect={setSelectedPlaybook}
               options={options}
               loading={playbooks.length === 0 && !loadErr}
-              placeholder="Search playbook"
+              placeholder="Search CFB26 playbooks"
               getOptionLabel={(o) => o.team_name}
               getOptionKey={(o) => o.team_name}
               getSearchText={(o) => o.team_name}
+              showTrailingChevron={false}
             />
             <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
           </>
@@ -130,9 +131,9 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
               <span className="text-slate-500">Name:</span> {name.trim()}
             </p>
             <p>
-              <span className="text-slate-500">CFB26 playbook:</span> {selectedPlaybook?.team_name}
+              <span className="text-slate-500">CFB26 Playbook:</span> {selectedPlaybook?.team_name}
             </p>
-            <p className="text-slate-500">We will create 15 empty situation slots. You can add plays in the editor.</p>
+            <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add plays in the editor.</p>
           </div>
         )}
 
@@ -151,7 +152,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
             </button>
           )}
           <button type="submit" disabled={busy || (step === 1 && !canStep1)} className="btn-primary flex-1">
-            {step === 1 ? "Continue" : busy ? "Creating…" : "Create & open"}
+            {step === 1 ? "Continue" : busy ? "Creating…" : "Create play sheet & open"}
           </button>
         </div>
       </form>
@@ -162,7 +163,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
     return (
       <section className="space-y-6">
         <Breadcrumb segments={[{ label: "Playbook", href: "/playbook" }, { label: "New" }]} />
-        <h1 className="app-page-title">Create playbook</h1>
+        <h1 className="app-page-title">New Play Sheet</h1>
         {inner}
       </section>
     );

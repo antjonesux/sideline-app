@@ -44,13 +44,13 @@ export function TendenciesFilters({ value, onChange, opponents, showMinUsesLine 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className={`rounded-full border px-3 py-1.5 text-sm font-barlow ${pillClass(value.pill === "all")}`} onClick={() => setPill("all")}>
+        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "all")}`} onClick={() => setPill("all")}>
           All Games
         </button>
-        <button type="button" className={`rounded-full border px-3 py-1.5 text-sm font-barlow ${pillClass(value.pill === "last5")}`} onClick={() => setPill("last5")}>
+        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "last5")}`} onClick={() => setPill("last5")}>
           Last 5
         </button>
-        <button type="button" className={`rounded-full border px-3 py-1.5 text-sm font-barlow ${pillClass(value.pill === "last10")}`} onClick={() => setPill("last10")}>
+        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "last10")}`} onClick={() => setPill("last10")}>
           Last 10
         </button>
         <div className="relative">
@@ -60,7 +60,7 @@ export function TendenciesFilters({ value, onChange, opponents, showMinUsesLine 
             value={opponentValue}
             disabled={opponents.length === 0}
             aria-label="Filter by opponent"
-            className={`appearance-none rounded-full border px-3 py-1.5 text-sm font-barlow ${opponentPillClass} disabled:cursor-not-allowed disabled:opacity-70`}
+            className={`min-h-11 appearance-none rounded-full border px-3 py-2 pe-9 text-sm font-body ${opponentPillClass} disabled:cursor-not-allowed disabled:opacity-70`}
             onChange={(e) => {
               const nextOpponent = e.target.value || null;
               onChange({ ...value, pill: nextOpponent ? "vs" : "all", opponentTeam: nextOpponent });
@@ -84,14 +84,14 @@ export function TendenciesFilters({ value, onChange, opponents, showMinUsesLine 
         </div>
       </div>
       {showMinUsesLine ? (
-        <p className="font-barlow text-xs text-slate-500">
+        <p className="font-body text-xs text-slate-500">
           Minimum {value.minUses} logged uses per row.{" "}
           {value.minUses > 1 ? (
-            <button type="button" className="text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 1 })}>
+            <button type="button" className="min-h-11 text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 1 })}>
               Include all
             </button>
           ) : (
-            <button type="button" className="text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 3 })}>
+            <button type="button" className="min-h-11 text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 3 })}>
               Default threshold (3+)
             </button>
           )}

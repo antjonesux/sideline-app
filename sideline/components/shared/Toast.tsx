@@ -44,7 +44,7 @@ export function Toast() {
   if (!toasts.length) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-[120] flex justify-center px-4">
+    <div className="pointer-events-none fixed inset-x-0 z-[120] flex justify-center px-4 [bottom:calc(4.75rem+env(safe-area-inset-bottom,0px))]">
       <div className="flex w-full max-w-sm flex-col gap-2">
         {toasts.map((toast) => (
           <ToastCard key={toast.id} toast={toast} />

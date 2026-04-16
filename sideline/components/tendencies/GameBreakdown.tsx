@@ -4,6 +4,7 @@ import { ResultBadge } from "@/components/import/ResultBadge";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { GameFormationTable } from "@/components/tendencies/GameFormationTable";
 import { GameStatsGrid } from "@/components/tendencies/GameStatsGrid";
+import { DrivePlayTable, DRIVE_PLAY_TABLE_ROW } from "@/components/shared/DrivePlayTable";
 import type { PlayTypeBucket } from "@/lib/tendenciesPlayType";
 import type { GameSession } from "@/lib/types";
 import type { DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
@@ -86,7 +87,7 @@ export function GameBreakdown({ data }: Props) {
     <div className="space-y-8">
       <header className="space-y-1">
         <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-slate-100 sm:text-3xl">{title.line}</h2>
-        <div className="overflow-x-auto">
+        <div className="app-horizontal-scroll-strip">
           <GameStatsInline playCount={stats.play_count} driveCount={stats.drive_count} totalYards={stats.total_yards} tds={stats.tds} turnovers={stats.turnovers} />
         </div>
       </header>
@@ -98,7 +99,7 @@ export function GameBreakdown({ data }: Props) {
 
       <section className="space-y-3">
         <h3 className="app-section-title">Drive summary</h3>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-3">
           {drives.map((drive) => {
             const plays = drive.plays ?? [];
             const playCount = plays.length;
@@ -110,73 +111,83 @@ export function GameBreakdown({ data }: Props) {
             const isExpanded = expandedDriveIds.includes(drive.id);
             const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
             return (
-              <div key={drive.id} className="app-card px-3 py-3 sm:px-4">
-                <div className="flex items-center gap-2">
-                  <button type="button" className="min-w-0 flex-1 text-left" onClick={() => toggleDrive(drive.id)}>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="font-heading text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">
-                        Drive {drive.drive_number}
-                      </span>
-                      <span className="shrink-0">
-                        {badge === "ACTIVE" || badge === "NO PLAYS" ? (
-                          <span className="font-mono rounded-full border border-[#2A2E3A] bg-[#1C1F28] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#A0A3AD]">
-                            {badge}
-                          </span>
-                        ) : (
-                          <ResultBadge label={badge === "TD" ? "TOUCHDOWN" : badge === "FG" ? "FIELD_GOAL" : badge} />
-                        )}
-                      </span>
-                      <span className="text-[13px] text-slate-400">
-                        <span className="font-body whitespace-nowrap">{qLabel}</span>
-                        <span className="mx-1.5 text-slate-500">·</span>
-                        <span className="whitespace-nowrap">
-                          <span className="font-mono">{playCount}</span>
-                          <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
+              <div key={drive.id} className="app-card overflow-hidden">
+                <button
+                  type="button"
+                  className="app-no-press-scale app-accordion-header-row flex w-full min-w-0 items-center gap-3 py-3 pl-4 pr-3 text-left transition-colors hover:bg-slate-800/40"
+                  aria-expanded={isExpanded}
+                  aria-label={isExpanded ? "Collapse drive plays" : "Expand drive plays"}
+                  onClick={() => toggleDrive(drive.id)}
+                >
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-0 gap-y-1 text-[13px] text-slate-400">
+                    <span className="font-heading shrink-0 text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">
+                      Drive {drive.drive_number}
+                    </span>
+                    <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                    <span className="shrink-0">
+                      {badge === "ACTIVE" || badge === "NO PLAYS" ? (
+                        <span className="font-mono rounded-full border border-[#2A2E3A] bg-[#1C1F28] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#A0A3AD]">
+                          {badge}
                         </span>
-                        <span className="mx-1.5 text-slate-500">·</span>
-                        <span className="whitespace-nowrap">
-                          <span className="font-mono">{yardsLabel}</span>
-                          <span className="font-body ml-1">yds</span>
-                        </span>
-                      </span>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 hover:bg-white/5"
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                    onClick={() => toggleDrive(drive.id)}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={isExpanded ? "rotate-180" : ""}>
+                      ) : (
+                        <ResultBadge label={badge === "TD" ? "TOUCHDOWN" : badge === "FG" ? "FIELD_GOAL" : badge} />
+                      )}
+                    </span>
+                    <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                    <span className="font-body whitespace-nowrap">{qLabel}</span>
+                    <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                    <span className="whitespace-nowrap">
+                      <span className="font-mono tabular-nums text-slate-300">{playCount}</span>
+                      <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
+                    </span>
+                    <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                    <span className="whitespace-nowrap">
+                      <span className="font-mono tabular-nums text-slate-300">{yardsLabel}</span>
+                      <span className="font-body ml-1">yds</span>
+                    </span>
+                  </div>
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center text-slate-400" aria-hidden>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`accordion-chevron text-current ${isExpanded ? "open" : ""}`}
+                    >
                       <path d="m6 9 6 6 6-6" />
                     </svg>
-                  </button>
-                </div>
+                  </span>
+                </button>
                 {isExpanded ? (
-                  <div className="mt-3 space-y-0 border-t border-white/[0.06] pt-2">
-                    {plays.map((p) => {
-                      const yds = p.yards_gained ?? 0;
-                      const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
-                      const ydsText = yds > 0 ? `+${yds}` : String(yds);
-                      return (
-                        <div key={p.id} className="flex min-w-0 flex-wrap items-center gap-1 border-b border-white/[0.04] py-2 text-left last:border-0 sm:gap-1.5">
-                          <span className="font-mono shrink-0 text-[12px] tabular-nums text-slate-400">
-                            {p.down}-{p.distance}
-                          </span>
-                          <span className="text-[#A0A3AD]/35">→</span>
-                          <span className="font-body min-w-0 max-w-[40%] truncate text-[13px] text-slate-100">{p.formation}</span>
-                          <span className="text-[#A0A3AD]/35">→</span>
-                          <span className="font-mono min-w-0 max-w-[40%] truncate text-[12px] font-medium uppercase text-white">{p.play_name}</span>
-                          <span className="text-[#A0A3AD]/35">→</span>
-                          <span className="shrink-0">
-                            <ResultBadge label={p.result_tag} />
-                          </span>
-                          <span className="text-[#A0A3AD]/35">→</span>
-                          <span className={`font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>{ydsText}</span>
-                        </div>
-                      );
-                    })}
+                  <div className="border-t border-slate-800/80 bg-slate-950/40">
+                    <DrivePlayTable>
+                      {plays.map((p) => {
+                        const yds = p.yards_gained ?? 0;
+                        const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
+                        const ydsText = yds > 0 ? `+${yds}` : String(yds);
+                        return (
+                          <div key={p.id} className={DRIVE_PLAY_TABLE_ROW}>
+                            <span className="font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
+                              {p.down ?? "—"}-{p.distance ?? "—"}
+                            </span>
+                            <span className="min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0]">{p.formation}</span>
+                            <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                              {p.play_name}
+                            </span>
+                            <span className="min-w-0 overflow-hidden">
+                              <ResultBadge label={p.result_tag} />
+                            </span>
+                            <span className={`min-w-0 truncate font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                              {ydsText}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </DrivePlayTable>
                   </div>
                 ) : null}
               </div>

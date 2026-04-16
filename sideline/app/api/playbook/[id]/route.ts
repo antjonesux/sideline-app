@@ -46,8 +46,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   });
 }
 
-export async function PUT(req: NextRequest, ctx: Ctx) {
-  const { id } = await ctx.params;
+async function patchPlaySheet(req: NextRequest, id: string) {
   let body: { name?: string; cfb26_playbook?: string };
   try {
     body = await req.json();
@@ -61,6 +60,13 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     const pb = body.cfb26_playbook.trim();
     patch.cfb26_playbook = pb;
     patch.playbook = pb;
+    const { data: schemeRow } = await supabase
+      .from("team_offensive_playbooks")
+      .select("scheme_style")
+      .eq("playbook_name", pb)
+      .limit(1)
+      .maybeSingle();
+    patch.scheme = (schemeRow?.scheme_style as string | undefined)?.trim() || "Multiple";
   }
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ error: "No valid fields" }, { status: 400 });
@@ -73,6 +79,17 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json(data);
+}
+
+/** @deprecated Prefer PATCH — kept for older clients */
+export async function PUT(req: NextRequest, ctx: Ctx) {
+  const { id } = await ctx.params;
+  return patchPlaySheet(req, id);
+}
+
+export async function PATCH(req: NextRequest, ctx: Ctx) {
+  const { id } = await ctx.params;
+  return patchPlaySheet(req, id);
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {

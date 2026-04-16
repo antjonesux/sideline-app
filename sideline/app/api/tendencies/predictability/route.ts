@@ -4,14 +4,16 @@ import {
   fetchCfbPlayTypeMap,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
-  formationFrequency,
   motionStatsForPlaybook,
+  motionUsageStats,
   parseScope,
   playbookForGame,
   playTypeCounts,
+  redZoneTdStats,
   resolveFilteredGameIds,
-  situationRunPassRows,
-  userMotionRate,
+  scoutingFormationReportRows,
+  scoutingReportRows,
+  thirdDownConvStats,
 } from "@/lib/tendenciesServer";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -161,20 +163,48 @@ ORDER BY total_plays DESC;
   ].filter((row) => row.name !== "Unclassified" || row.count > 0);
 
   const buckets = typedPlays.map((x) => x.bucket);
-  const situation_tendencies = situationRunPassRows(plays, buckets);
-  const formation_frequency = formationFrequency(plays);
+  const scouting_report = scoutingReportRows(plays, buckets);
+  const scouting_formation_report = scoutingFormationReportRows(plays, buckets);
 
-  const userMotionPct = userMotionRate(plays);
+  const motionStats = motionUsageStats(plays);
+  const userMotionPct = motionStats.pct;
   const { motionPct: playbookMotionPct } = await motionStatsForPlaybook(supabase, dominantPlaybook);
   const underutilizing =
     Boolean(dominantPlaybook) && playbookMotionPct >= 10 && userMotionPct < playbookMotionPct - 5;
   const turnoverCount = plays.filter((p) => p.result_tag === "TURNOVER").length;
   const turnoverRate = plays.length > 0 ? Math.round((turnoverCount * 1000) / plays.length) / 10 : 0;
+  const redZone = redZoneTdStats(plays);
+  const thirdDown = thirdDownConvStats(plays);
 
   return NextResponse.json({
     play_type_distribution,
-    situation_tendencies,
-    formation_frequency,
+    scouting_report,
+    scouting_formation_report,
+    key_rates: {
+      turnover: {
+        pct: turnoverRate,
+        turnovers: turnoverCount,
+        total_plays: plays.length,
+      },
+      motion: {
+        pct: userMotionPct,
+        motion_plays: motionStats.motion_plays,
+        total_plays: motionStats.total_plays,
+        playbook_pct: playbookMotionPct,
+        playbook_name: dominantPlaybook,
+        underutilizing,
+      },
+      red_zone_td: {
+        pct: redZone.pct,
+        touchdowns: redZone.touchdowns,
+        plays: redZone.plays,
+      },
+      third_down: {
+        pct: thirdDown.pct,
+        conversions: thirdDown.conversions,
+        plays: thirdDown.plays,
+      },
+    },
     motion: {
       user_pct: userMotionPct,
       playbook_pct: playbookMotionPct,

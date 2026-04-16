@@ -1,10 +1,14 @@
+import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+
 export type ComboStats = { uses: number; avg_yards: number; success_rate: number };
 
 export type LoggedPlayStatRow = {
   formation: string;
   play_name: string;
   yards_gained: number | null;
-  is_success: boolean | null;
+  result_tag?: string | null;
+  down?: number | null;
+  distance?: number | null;
 };
 
 export function comboKey(formation: string, playName: string): string {
@@ -31,7 +35,7 @@ export function aggregateLoggedPlays(rows: LoggedPlayStatRow[]): {
       comboDisplay.set(ck, { formation: f, play_name: p });
     }
     const y = r.yards_gained ?? 0;
-    const ok = Boolean(r.is_success);
+    const ok = isStandardSuccessfulPlay(r);
     const cur = comboBuckets.get(ck) ?? { yards: [], successes: 0 };
     cur.yards.push(y);
     if (ok) cur.successes += 1;

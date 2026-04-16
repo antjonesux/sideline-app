@@ -8,6 +8,8 @@ import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { PlayLogger } from "@/components/film/PlayLogger";
 import { ResultBadge } from "@/components/import/ResultBadge";
+import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { DrivePlayTable, DRIVE_PLAY_TABLE_ROW } from "@/components/shared/DrivePlayTable";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -38,58 +40,42 @@ function formatDate(isoDate: string): string {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
 }
 
-function PlayRowSeparator() {
-  return (
-    <span className="shrink-0 px-0.5 text-[12px] leading-none text-[#A0A3AD]/35" aria-hidden>
-      →
-    </span>
-  );
-}
-
-type DriveHeaderBadgeTone = "emerald" | "red" | "muted" | "amber";
-
-function getDriveHeaderBadge(
+/** Drive summary header badge — same ResultBadge / muted pill split as Tendencies → Game Film. */
+function getDriveSummaryOutcomeLabel(
   drive: Drive,
   opts: { isLastDrive: boolean; isGameEnded: boolean },
-): { label: string; tone: DriveHeaderBadgeTone } | null {
+): string {
   const plays = drive.plays ?? [];
   const outcome = getDriveResult(plays);
   const last = plays[plays.length - 1];
-  if (opts.isLastDrive && opts.isGameEnded) return { label: "GAME ENDED", tone: "muted" };
+  if (opts.isLastDrive && opts.isGameEnded) return "GAME ENDED";
 
-  if (outcome === "TOUCHDOWN") return { label: "TD", tone: "emerald" };
-  if (outcome === "FIELD_GOAL") return { label: "FG", tone: "emerald" };
-  if (outcome === "TURNOVER") return { label: "TURNOVER", tone: "red" };
-  if (outcome === "PUNT") return { label: "PUNT", tone: "muted" };
-  if (outcome === "NO_PLAYS") return { label: "NO PLAYS", tone: "muted" };
+  if (outcome === "TOUCHDOWN") return "TD";
+  if (outcome === "FIELD_GOAL") return "FG";
+  if (outcome === "TURNOVER") return "TURNOVER";
+  if (outcome === "PUNT") return "PUNT";
+  if (outcome === "NO_PLAYS") return "NO PLAYS";
 
   if (last) {
     const norm = normalizeResultTag(last.result_tag);
-    if (norm === "FIRST DOWN") return { label: "FIRST DOWN", tone: "emerald" };
-    if (norm === "NO GAIN") return { label: "NO GAIN", tone: "muted" };
+    if (norm === "FIRST DOWN") return "FIRST DOWN";
+    if (norm === "NO GAIN") return "NO GAIN";
   }
 
-  if (opts.isLastDrive) return { label: "ACTIVE", tone: "amber" };
-  return { label: "RECORDED", tone: "muted" };
+  if (opts.isLastDrive) return "ACTIVE";
+  return "RECORDED";
 }
 
-function DriveHeaderBadge({ label, tone }: { label: string; tone: DriveHeaderBadgeTone }) {
-  const toneClass =
-    tone === "emerald"
-      ? "border-emerald-600/80 bg-emerald-900/45 text-emerald-200"
-      : tone === "red"
-        ? "border-red-700/80 bg-red-900/40 text-red-200"
-        : tone === "amber"
-          ? "border-amber-600/70 bg-amber-900/35 text-amber-200"
-          : "border-[#2A2E3A] bg-[#1C1F28] text-[#A0A3AD]";
-
-  return (
-    <span
-      className={`font-mono inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${toneClass}`}
-    >
-      {label}
-    </span>
-  );
+function DriveSummaryOutcomeBadge({ label }: { label: string }) {
+  if (label === "NO PLAYS" || label === "ACTIVE" || label === "RECORDED" || label === "GAME ENDED") {
+    return (
+      <span className="font-mono shrink-0 rounded-full border border-[#2A2E3A] bg-[#1C1F28] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#A0A3AD]">
+        {label}
+      </span>
+    );
+  }
+  const resultLabel = label === "TD" ? "TOUCHDOWN" : label === "FG" ? "FIELD_GOAL" : label;
+  return <ResultBadge label={resultLabel} />;
 }
 
 type GameLogPageProps = { params: Promise<{ gameId: string }> };
@@ -109,7 +95,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [activeDriveMenuId, setActiveDriveMenuId] = useState<string | null>(null);
   const [pageReady, setPageReady] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
-  const [playRowMode, setPlayRowMode] = useState<"compact" | "expanded">("compact");
+  const [pendingDriveDelete, setPendingDriveDelete] = useState<string | null>(null);
+  const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
@@ -151,17 +139,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       cancelled = true;
     };
   }, [gameId]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("drive-log-row-mode");
-    if (stored === "compact" || stored === "expanded") {
-      setPlayRowMode(stored);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("drive-log-row-mode", playRowMode);
-  }, [playRowMode]);
 
   async function addDrive() {
     if (!gameId) return;
@@ -245,9 +222,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     await refresh();
   }
 
-  async function deleteDrive(driveId: string) {
-    const ok = window.confirm("Delete this drive and all of its plays?");
-    if (!ok) return;
+  async function performDeleteDrive(driveId: string) {
     const prevDrives = drives;
     setDrives((current) => current.filter((d) => d.id !== driveId));
     const res = await fetch(`/api/drives/${driveId}`, { method: "DELETE" });
@@ -275,9 +250,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setShowLogger(true);
   }
 
-  async function deletePlay(playId: string) {
-    const ok = window.confirm("Delete this play?");
-    if (!ok) return;
+  async function performDeletePlay(playId: string) {
     const prevDrives = drives;
     setDrives((current) =>
       current.map((drive) => ({
@@ -293,6 +266,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
     addToast("Play removed", "success");
     await refresh();
+  }
+
+  function findPlayById(playId: string): LoggedPlay | undefined {
+    for (const d of drives) {
+      const p = (d.plays ?? []).find((x) => x.id === playId);
+      if (p) return p;
+    }
+    return undefined;
   }
 
   const totalPlays = drives.reduce(
@@ -344,13 +325,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const scoreOpp = game?.opponent_score ?? "—";
   const isGameEnded = Boolean(game?.ended_at);
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
+  const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
   }
 
   return (
-    <section className="space-y-4 pb-28">
+    <section className="space-y-4">
       <div className="space-y-3">
         <Breadcrumb
           segments={[
@@ -396,7 +378,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </>
           ) : null}
         </p>
-        <div className="overflow-x-auto">
+        <div className="app-horizontal-scroll-strip">
           <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
         </div>
 
@@ -421,22 +403,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               End Game
             </button>
           )}
-          <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1 text-xs">
-            <button
-              type="button"
-              className={`rounded px-2 py-1 ${playRowMode === "compact" ? "bg-slate-700 text-white" : "text-slate-400"}`}
-              onClick={() => setPlayRowMode("compact")}
-            >
-              Compact
-            </button>
-            <button
-              type="button"
-              className={`rounded px-2 py-1 ${playRowMode === "expanded" ? "bg-slate-700 text-white" : "text-slate-400"}`}
-              onClick={() => setPlayRowMode("expanded")}
-            >
-              Expanded
-            </button>
-          </div>
         </div>
       </div>
 
@@ -463,7 +429,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
         const yardsLabel = yardsGained >= 0 ? `+${yardsGained}` : String(yardsGained);
-        const driveBadge = getDriveHeaderBadge(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
+        const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
         const isExpanded = expandedDriveIds.includes(drive.id);
         const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
         function toggleDriveExpanded() {
@@ -473,38 +439,46 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         }
 
         return (
-          <div key={drive.id} className="app-card app-card-pad py-3.5">
-            <div className="flex items-center gap-3">
-              <button type="button" className="min-w-0 flex-1 text-left" onClick={toggleDriveExpanded}>
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="font-heading shrink-0 text-[16px] font-bold uppercase tracking-[1.5px] text-amber-400">
+          <div key={drive.id} className="app-card overflow-hidden">
+            <div className="app-accordion-header-row flex items-stretch">
+              <button
+                type="button"
+                className="app-no-press-scale flex min-w-0 flex-1 flex-col justify-center py-3 pl-4 pr-2 text-left transition-colors hover:bg-slate-800/40"
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? "Collapse drive plays" : "Expand drive plays"}
+                onClick={toggleDriveExpanded}
+              >
+                <div className="flex min-w-0 flex-wrap items-center gap-x-0 gap-y-1 text-[13px] text-slate-400">
+                  <span className="font-heading shrink-0 text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">
                     Drive {drive.drive_number}
                   </span>
-                  {driveBadge ? <DriveHeaderBadge label={driveBadge.label} tone={driveBadge.tone} /> : null}
-                  <span className="min-w-0 text-[13px] leading-snug text-slate-400">
-                    <span className="font-body whitespace-nowrap">{qLabel}</span>
-                    <span className="mx-1.5 text-slate-500">·</span>
-                    <span className="whitespace-nowrap">
-                      <span className="font-mono">{playCount}</span>
-                      <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
-                    </span>
-                    <span className="mx-1.5 text-slate-500">·</span>
-                    <span className="whitespace-nowrap">
-                      <span className="font-mono">{yardsLabel}</span>
-                      <span className="font-body ml-1">yds</span>
-                    </span>
+                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                  <span className="shrink-0">
+                    <DriveSummaryOutcomeBadge label={outcomeLabel} />
+                  </span>
+                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                  <span className="font-body whitespace-nowrap">{qLabel}</span>
+                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                  <span className="whitespace-nowrap">
+                    <span className="font-mono tabular-nums text-slate-300">{playCount}</span>
+                    <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
+                  </span>
+                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
+                  <span className="whitespace-nowrap">
+                    <span className="font-mono tabular-nums text-slate-300">{yardsLabel}</span>
+                    <span className="font-body ml-1">yds</span>
                   </span>
                 </div>
-                <p className="mt-1 text-[12px] text-slate-400">
-                  <span className="font-mono">{drive.score_mine ?? 0}</span>
+                <p className="mt-0.5 font-body text-[12px] text-slate-500">
+                  <span className="font-mono tabular-nums text-slate-400">{drive.score_mine ?? 0}</span>
                   <span className="font-body">-</span>
-                  <span className="font-mono">{drive.score_opponent ?? 0}</span>
+                  <span className="font-mono tabular-nums text-slate-400">{drive.score_opponent ?? 0}</span>
                 </p>
               </button>
-              <div className="relative flex shrink-0 items-center gap-1.5 self-center">
+              <div className="relative flex shrink-0 items-center self-center">
                 <button
                   type="button"
-                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0]"
+                  className="app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0]"
                   aria-haspopup="menu"
                   aria-expanded={activeDriveMenuId === drive.id}
                   aria-label="Drive actions"
@@ -520,12 +494,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   </svg>
                 </button>
                 {activeDriveMenuId === drive.id ? (
-                  <ul className="absolute right-0 top-10 z-20 min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 py-1 text-sm shadow-lg" role="menu">
+                  <ul className="app-dropdown-panel absolute right-0 top-12 z-20 py-1" role="menu">
                     <li>
                       <button
                         type="button"
                         role="menuitem"
-                        className="block w-full px-3 py-2 text-left font-barlow text-slate-200 hover:bg-slate-800"
+                        className="app-dropdown-item rounded-none"
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveDriveMenuId(null);
@@ -539,10 +513,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                       <button
                         type="button"
                         role="menuitem"
-                        className="block w-full px-3 py-2 text-left font-barlow text-red-300 hover:bg-slate-800"
+                        className="app-dropdown-item-danger rounded-none"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void deleteDrive(drive.id);
+                          setActiveDriveMenuId(null);
+                          setPendingDriveDelete(drive.id);
                         }}
                       >
                         Delete Drive
@@ -550,36 +525,36 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     </li>
                   </ul>
                 ) : null}
-                <button
-                  type="button"
-                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0]"
-                  aria-expanded={isExpanded}
-                  aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleDriveExpanded();
-                  }}
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                    aria-hidden
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </button>
               </div>
+              <button
+                type="button"
+                tabIndex={-1}
+                className="app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center self-center pr-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200"
+                aria-label={isExpanded ? "Collapse drive plays" : "Expand drive plays"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleDriveExpanded();
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`accordion-chevron text-current ${isExpanded ? "open" : ""}`}
+                  aria-hidden
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
             </div>
 
             {editingDriveId === drive.id ? (
-              <div className="mt-3 text-xs">
+              <div className="border-b border-slate-800/80 bg-slate-950/40 px-4 py-4 text-xs">
                 <div className="mb-3 grid grid-cols-2 gap-2">
                   <label>
                     <span className="app-field-label">My score</span>
@@ -630,57 +605,41 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             ) : null}
 
             {isExpanded ? (
-              <div className="mt-3 flex flex-col divide-y divide-[rgba(255,255,255,0.04)] border-t border-[rgba(255,255,255,0.04)]">
-                {(drive.plays ?? []).map((p) => {
-                  const yds = p.yards_gained;
-                  const ydsClass =
-                    yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
-                  const ydsText = yds > 0 ? `+${yds}` : String(yds);
-                  return (
-                    <button
-                      type="button"
-                      key={p.id}
-                      className="flex w-full min-w-0 flex-col items-start justify-start gap-1 py-2.5 text-left transition-colors hover:bg-white/[0.02] sm:gap-2"
-                      onClick={() => openForEdit(drive.id, p)}
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        deletePlay(p.id);
-                      }}
-                    >
-                      <div className="flex min-w-0 w-full items-center justify-start gap-1 overflow-hidden sm:gap-1.5">
-                        <span className="font-mono shrink-0 text-[12px] leading-none text-slate-400 tabular-nums">
+              <div className="border-t border-slate-800/80 bg-slate-950/40">
+                <DrivePlayTable>
+                  {(drive.plays ?? []).map((p) => {
+                    const yds = p.yards_gained;
+                    const ydsClass =
+                      yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
+                    const ydsText = yds > 0 ? `+${yds}` : String(yds);
+                    return (
+                      <button
+                        type="button"
+                        key={p.id}
+                        className={`${DRIVE_PLAY_TABLE_ROW} app-no-press-scale w-full text-left transition-colors hover:bg-white/[0.02]`}
+                        onClick={() => openForEdit(drive.id, p)}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          setPendingPlayDelete(p.id);
+                        }}
+                      >
+                        <span className="font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down}-{p.distance}
                         </span>
-                        <PlayRowSeparator />
-                        <span className="font-body min-w-0 shrink truncate text-[13px] text-slate-100">{p.formation}</span>
-                        <PlayRowSeparator />
-                        <span className="font-mono min-w-0 shrink truncate text-left text-[12px] font-medium uppercase text-white">
-                          {p.play_name}
-                        </span>
-                        <PlayRowSeparator />
-                        <span className="shrink-0">
+                        <span className="min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0]">{p.formation}</span>
+                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">{p.play_name}</span>
+                        <span className="min-w-0 overflow-hidden">
                           <ResultBadge label={p.result_tag} />
                         </span>
-                        <PlayRowSeparator />
-                        <span
-                          className={`font-mono min-w-[32px] shrink-0 text-left text-[13px] font-semibold tabular-nums ${ydsClass}`}
-                        >
-                          {ydsText}
-                        </span>
-                      </div>
-                      {playRowMode === "expanded" ? (
-                        <span className="font-body text-[11px] text-slate-500">
-                          {p.side} {p.yard_line} · {p.hash}
-                          {p.note ? ` · ${p.note}` : ""}
-                        </span>
-                      ) : null}
-                    </button>
-                  );
-                })}
-                <div className="pt-2">
+                        <span className={`min-w-0 truncate font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>{ydsText}</span>
+                      </button>
+                    );
+                  })}
+                </DrivePlayTable>
+                <div className="border-t border-slate-800/80 px-4 py-3">
                   <button
                     type="button"
-                    className="btn-secondary w-full border-dashed py-2 text-sm"
+                    className="btn-secondary w-full border-dashed py-3 text-sm"
                     onClick={() => openForCreate(drive.id)}
                   >
                     Add Play
@@ -709,11 +668,65 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       ) : null}
 
       {game && showPartialWarning ? (
-        <div className="rounded-lg border border-amber-800/50 bg-amber-500/10 p-4 text-sm text-amber-100" role="status" aria-live="polite">
+        <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">
           <p className="font-medium text-amber-200">Partial log notice</p>
           <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
         </div>
       ) : null}
+
+      <ConfirmDestructiveModal
+        open={pendingDriveDelete !== null}
+        onClose={() => setPendingDriveDelete(null)}
+        title="Delete drive?"
+        message={
+          <>
+            This will permanently delete{" "}
+            <strong className="font-semibold text-white">
+              Drive {drives.find((d) => d.id === pendingDriveDelete)?.drive_number ?? "—"}
+            </strong>{" "}
+            and all plays in this drive. This can&apos;t be undone.
+          </>
+        }
+        busy={deleteBusy}
+        onConfirm={async () => {
+          if (!pendingDriveDelete) return;
+          setDeleteBusy(true);
+          try {
+            await performDeleteDrive(pendingDriveDelete);
+            setPendingDriveDelete(null);
+          } finally {
+            setDeleteBusy(false);
+          }
+        }}
+      />
+
+      <ConfirmDestructiveModal
+        open={pendingPlayDelete !== null}
+        onClose={() => setPendingPlayDelete(null)}
+        title="Delete play?"
+        message={
+          <>
+            This will permanently delete{" "}
+            <strong className="font-mono font-semibold text-white">
+              {pendingPlayRowForModal
+                ? `${pendingPlayRowForModal.formation} · ${pendingPlayRowForModal.play_name}`
+                : "this play"}
+            </strong>
+            . This can&apos;t be undone.
+          </>
+        }
+        busy={deleteBusy}
+        onConfirm={async () => {
+          if (!pendingPlayDelete) return;
+          setDeleteBusy(true);
+          try {
+            await performDeletePlay(pendingPlayDelete);
+            setPendingPlayDelete(null);
+          } finally {
+            setDeleteBusy(false);
+          }
+        }}
+      />
     </section>
   );
 }
