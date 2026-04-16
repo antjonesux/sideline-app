@@ -65,7 +65,11 @@ export function TendenciesHome() {
   const opponents = useMemo(() => {
     const s = new Set<string>();
     for (const g of games) {
-      if (!playbookForGame(g).trim()) continue;
+      const playbook = playbookForGame({
+        offensive_playbook: g.offensive_playbook ?? null,
+        my_playbook: g.my_playbook ?? null,
+      });
+      if (!playbook.trim()) continue;
       const o = (g.opponent_team ?? "").trim();
       if (o) s.add(o);
     }
