@@ -5,6 +5,7 @@ import { GameFilm } from "@/components/tendencies/GameFilm";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import { playbookForGame } from "@/lib/tendenciesServer";
 import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -64,7 +65,7 @@ export function TendenciesHome() {
   const opponents = useMemo(() => {
     const s = new Set<string>();
     for (const g of games) {
-      if (!(g.offensive_playbook ?? "").trim()) continue;
+      if (!playbookForGame(g).trim()) continue;
       const o = (g.opponent_team ?? "").trim();
       if (o) s.add(o);
     }

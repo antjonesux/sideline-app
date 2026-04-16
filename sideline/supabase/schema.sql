@@ -116,6 +116,11 @@ begin
 end
 $cfb26uniq$;
 
+-- Reference playbook rows: readable by the anon key (film + tendencies). Service role used for seeding.
+alter table cfb26_plays enable row level security;
+drop policy if exists "Allow public read" on cfb26_plays;
+create policy "Allow public read" on cfb26_plays for select using (true);
+
 create table if not exists scheme_play_weights (
   id uuid primary key default gen_random_uuid(),
   scheme text not null,
