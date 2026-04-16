@@ -61,6 +61,7 @@ const GLOBAL_EXACT_OVERRIDES: Record<string, SeedPlayType> = {
   "MTN COUNTER Y": "Outside Run",
   "MTN HB COUNTER": "Outside Run",
   "WIDE ZONE": "Outside Run",
+  "ZONE WK": "Outside Run",
 
   "HB BASE": "Inside Run",
   "HB GUT": "Inside Run",

@@ -58,6 +58,18 @@ export const SCHEME_ARCHETYPE_WEIGHTS: Record<SchemeType, PlayTypeWeight[]> = {
     { playType: "Screen", weight: 0.5 },
     { playType: "RPO", weight: 0.45 },
   ],
+  "Multiple O": [
+    { playType: "Inside Run", weight: 0.65 },
+    { playType: "Outside Run", weight: 0.55 },
+    { playType: "QB Run", weight: 0.4 },
+    { playType: "Option", weight: 0.35 },
+    { playType: "Quick Pass", weight: 0.55 },
+    { playType: "Medium Pass", weight: 0.65 },
+    { playType: "Deep Pass", weight: 0.55 },
+    { playType: "Play Action", weight: 0.65 },
+    { playType: "Screen", weight: 0.45 },
+    { playType: "RPO", weight: 0.5 },
+  ],
   "Pro Style": [
     { playType: "Inside Run", weight: 0.8 },
     { playType: "Outside Run", weight: 0.65 },

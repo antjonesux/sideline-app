@@ -54,7 +54,7 @@ INSERT INTO team_offensive_playbooks (team_name, playbook_name, scheme_style) VA
 ('Jacksonville State', 'Jacksonville State', 'Spread'),
 ('James Madison', 'James Madison', 'Spread'),
 ('Kansas', 'Kansas', 'Spread'),
-('Kansas State', 'Kansas State', 'Power Spread'),
+('Kansas State', 'Kansas State', 'Multiple O'),
 ('Kennesaw State', 'Kennesaw State', 'Veer & Shoot'),
 ('Kent State', 'Kent State', 'Spread'),
 ('Kentucky', 'Kentucky', 'Pro Style'),
