@@ -20,6 +20,7 @@ export type GameSession = {
 export type LoggedPlay = {
   id: string;
   play_number?: number;
+  drive_number?: number | null;
   down: number;
   distance: number;
   side: "OWN" | "OPP";

@@ -140,7 +140,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     };
   }, [gameId]);
 
-  async function addDrive() {
+  async function addDrive(opts?: { toastStarted?: boolean }) {
     if (!gameId) return;
     if (game?.ended_at) {
       await fetch(`/api/games/${gameId}`, {
@@ -178,7 +178,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setDrives((prev) => [...prev, newDrive]);
     setExpandedDriveIds((current) => [...new Set([...current, newDrive.id])]);
     setActiveDrive(newDrive.id);
-    addToast("Drive added", "success");
+    addToast(opts?.toastStarted ? `Drive ${driveNumber} started` : "Drive added", "success");
   }
 
   async function setGameEnded(nextEnded: boolean) {
@@ -242,12 +242,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setActiveDrive(driveId);
     setEditPlay(null);
     setShowLogger(true);
+    setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
   }
 
   function openForEdit(driveId: string, playToEdit: LoggedPlay) {
     setActiveDrive(driveId);
     setEditPlay(playToEdit);
     setShowLogger(true);
+    setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
   }
 
   async function performDeletePlay(playId: string) {
@@ -326,13 +328,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const isGameEnded = Boolean(game?.ended_at);
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
+  const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 px-4 py-6 sm:px-6 sm:py-8 pb-24">
       <div className="space-y-3">
         <Breadcrumb
           segments={[
@@ -384,7 +387,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
           <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
-            <button type="button" onClick={addDrive} className="btn-primary px-3 py-2 text-xs">
+            <button type="button" onClick={() => void addDrive()} className="btn-primary px-3 py-2 text-xs">
               Add Drive
             </button>
             <Link
@@ -406,6 +409,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
       </div>
 
+      {game && drives.length === 0 ? (
+        <div className="app-card app-card-pad text-center font-sans text-sm text-slate-400">
+          Add a drive above to open the play logger.
+        </div>
+      ) : null}
+
       {showEndGameModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div className="app-shell w-full max-w-sm space-y-4">
@@ -425,6 +434,36 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
       ) : null}
 
+      {showLogger && game && activeDriveObj ? (
+        <div className="fixed inset-0 z-[70] flex items-end bg-slate-950/70 p-3 sm:items-center sm:justify-center">
+          <div className="app-card w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="app-section-title text-xl">Play Logger</h2>
+              <button
+                type="button"
+                className="btn-secondary min-h-11 px-3 py-2 text-xs"
+                onClick={() => {
+                  setShowLogger(false);
+                  setEditPlay(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+            <PlayLogger
+              gameSessionId={gameId}
+              myPlaybook={game.offensive_playbook ?? game.my_playbook}
+              opponentScheme={game.opponent_scheme}
+              drive={activeDriveObj}
+              editPlay={editPlay}
+              onEditPlayChange={setEditPlay}
+              onLogged={refresh}
+              onStartNewDrive={() => void addDrive({ toastStarted: true })}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
@@ -433,9 +472,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const isExpanded = expandedDriveIds.includes(drive.id);
         const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
         function toggleDriveExpanded() {
-          setExpandedDriveIds((current) =>
-            current.includes(drive.id) ? current.filter((id) => id !== drive.id) : [...current, drive.id],
-          );
+          setExpandedDriveIds((current) => {
+            const opening = !current.includes(drive.id);
+            if (opening) setActiveDrive(drive.id);
+            return opening ? [...current, drive.id] : current.filter((id) => id !== drive.id);
+          });
         }
 
         return (
@@ -650,22 +691,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </div>
         );
       })}
-
-      {showLogger && game && activeDrive ? (
-        <PlayLogger
-          gameSessionId={gameId}
-          myPlaybook={game.my_playbook}
-          opponentScheme={game.opponent_scheme}
-          driveId={activeDrive}
-          previousPlay={(drives.find((d) => d.id === activeDrive)?.plays ?? []).slice(-1)[0] ?? null}
-          editPlay={editPlay}
-          onClose={() => {
-            setShowLogger(false);
-            setEditPlay(null);
-          }}
-          onLogged={refresh}
-        />
-      ) : null}
 
       {game && showPartialWarning ? (
         <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">

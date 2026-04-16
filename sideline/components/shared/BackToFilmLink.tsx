@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const linkClass =
-  "inline-flex items-center rounded-lg border-0 bg-transparent px-2 py-2 align-middle text-sm font-medium text-slate-400 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500";
+  "inline-flex min-h-11 items-center gap-2 rounded-lg border-0 bg-transparent px-2 py-2 align-middle font-sans text-sm font-medium text-slate-400 hover:text-slate-200 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
 export function BackToFilmLink({ href = "/film", showIcon = true }: { href?: string; showIcon?: boolean }) {
   return (
