@@ -2,6 +2,7 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import type { PlaybookSummary } from "@/lib/types";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { FormEvent, useEffect, useId, useMemo, useState } from "react";
 
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
+  useScrollLock(open);
   const dialogId = useId();
   const [name, setName] = useState(playbook.name);
   const [playbooks, setPlaybooks] = useState<string[]>([]);
@@ -90,52 +92,62 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
+      <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
         <div
-          className="pointer-events-auto w-full max-h-[85vh] overflow-y-auto rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:max-w-lg sm:rounded-xl"
+          className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
-            <h2 id={`${dialogId}-title`} className="app-modal-title">
-              Edit play sheet
-            </h2>
-            <p className="mt-1 font-body text-sm text-slate-400">Update the name and CFB26 playbook source.</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id={`${dialogId}-title`} className="app-modal-title">
+                  Edit play sheet
+                </h2>
+                <p className="mt-1 font-body text-sm text-slate-400">Update the name and CFB26 playbook source.</p>
+              </div>
+              <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={onClose}>
+                <span aria-hidden>✕</span>
+                <span className="sr-only">Close</span>
+              </button>
+            </div>
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-5 px-4 py-5 sm:px-6">
-            {loadErr ? (
-              <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-                {loadErr}
-              </p>
-            ) : null}
+          <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+            <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+              {loadErr ? (
+                <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
+                  {loadErr}
+                </p>
+              ) : null}
 
-            <label className="block space-y-1">
-              <span className="app-field-label">Play sheet name</span>
-              <input
-                className="hs-input app-input"
-                placeholder="e.g. My Base Sheet"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="off"
+              <label className="block space-y-1">
+                <span className="app-field-label">Play sheet name</span>
+                <input
+                  className="hs-input app-input"
+                  placeholder="e.g. My Base Sheet"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
+                />
+              </label>
+
+              <TeamCombobox<PlaybookOption>
+                label="Select CFB26 Playbook"
+                inputId={`edit-playbook-cfb26-${playbook.id}`}
+                selected={selectedPlaybook}
+                onSelect={setSelectedPlaybook}
+                options={options}
+                loading={playbooks.length === 0 && !loadErr}
+                placeholder="Search CFB26 playbooks"
+                getOptionLabel={(o) => o.team_name}
+                getOptionKey={(o) => o.team_name}
+                getSearchText={(o) => o.team_name}
+                showTrailingChevron={false}
               />
-            </label>
+              <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
+            </div>
 
-            <TeamCombobox<PlaybookOption>
-              label="Select CFB26 Playbook"
-              inputId={`edit-playbook-cfb26-${playbook.id}`}
-              selected={selectedPlaybook}
-              onSelect={setSelectedPlaybook}
-              options={options}
-              loading={playbooks.length === 0 && !loadErr}
-              placeholder="Search CFB26 playbooks"
-              getOptionLabel={(o) => o.team_name}
-              getOptionKey={(o) => o.team_name}
-              getSearchText={(o) => o.team_name}
-              showTrailingChevron={false}
-            />
-            <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
-
-            <div className="flex gap-3 border-t border-slate-800 pt-5">
+            <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
               <button
                 type="button"
                 className="min-h-11 flex-1 rounded-lg px-4 py-2.5 text-center font-body text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-100"

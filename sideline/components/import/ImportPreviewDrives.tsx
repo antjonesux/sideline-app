@@ -116,10 +116,10 @@ export function ImportPreviewDrives({ rows }: Props) {
                           </span>
                         </span>
                         <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 justify-self-end overflow-hidden">
+                        <span className="min-w-0 overflow-hidden">
                           <ResultBadge label={canon ? csvResultLabelToDbTag(canon) : p.result} />
                         </span>
-                        <span className={`min-w-0 whitespace-nowrap text-right justify-self-end font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                        <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
                           {ydsText}
                         </span>
                       </div>

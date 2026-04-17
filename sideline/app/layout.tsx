@@ -29,17 +29,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-slate-950 text-white">
+        <BottomTabNav />
         <AppProviders>
           {/**
            * Bottom padding must stay large at *all* breakpoints: `sm:py-8` previously overwrote `pb-24`
            * and left only32px under the fixed tab bar (~60–72px + safe area).
            * ~6.5rem + safe-area clears the nav with room to spare.
            */}
-          <main className="mx-auto w-full max-w-5xl px-4 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-8">
+          <main className="mx-auto w-full max-w-3xl px-4 pt-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-6">
             {children}
           </main>
           <Toast />
-          <BottomTabNav />
           <PrelineScriptWrapper />
         </AppProviders>
       </body>

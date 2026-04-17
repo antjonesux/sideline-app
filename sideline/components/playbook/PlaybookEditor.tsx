@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import { useToastStore } from "@/store/toastStore";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { AddPlayDrawer } from "./AddPlayDrawer";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
@@ -56,6 +57,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const addToast = useToastStore((s) => s.addToast);
+  useScrollLock(editorOpen);
 
   const sheetQuery = useQuery({
     queryKey: ["playbook", sheetId],
@@ -65,6 +67,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       if (!res.ok) throw new Error(j.error ?? "Failed to load play sheet");
       return j;
     },
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   });
 
   const scenarioQuery = useQuery({
@@ -352,25 +356,25 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
-      </div>
-      <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">
         <BackToFilmLink href="/playbook" />
-        <button
-          type="button"
-          className="btn-secondary px-3 py-1.5 text-xs"
-          onClick={() => {
-            setEditName(sheet.name);
-            setEditPlaybook(cfb26);
-            setEditorOpen(true);
-          }}
-        >
-          Edit
-        </button>
       </div>
       <div>
-        <h1 className="app-editor-title">{sheet.name}</h1>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="app-editor-title mt-0">{sheet.name}</h1>
+          <button
+            type="button"
+            className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+            onClick={() => {
+              setEditName(sheet.name);
+              setEditPlaybook(cfb26);
+              setEditorOpen(true);
+            }}
+          >
+            Edit
+          </button>
+        </div>
         <p className="font-body text-sm text-slate-400">
           Built from {cfb26} playbook · {sheet.scheme}
         </p>
@@ -463,32 +467,42 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         onPick={onDrawerPick}
       />
       {editorOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="app-card w-full max-w-md space-y-4 p-4">
-            <h2 className="app-section-title">Edit play sheet</h2>
-            <label className="space-y-1">
-              <span className="app-field-label">Play sheet name</span>
-              <input value={editName} onChange={(e) => setEditName(e.target.value)} className="app-input" />
-            </label>
-            <label className="space-y-1">
-              <span className="app-field-label">Select CFB26 Playbook</span>
-              <input list="cfb26-playbook-options" value={editPlaybook} onChange={(e) => setEditPlaybook(e.target.value)} className="app-input" />
-              <datalist id="cfb26-playbook-options">
-                {cfb26PlaybookOptions.map((opt) => (
-                  <option key={opt} value={opt} />
-                ))}
-              </datalist>
-            </label>
-            <button type="button" className="font-body text-sm text-red-300 hover:text-red-200" onClick={() => setConfirmDeleteOpen(true)}>
-              Delete play sheet
-            </button>
-            <div className="flex gap-2">
-              <button type="button" className="btn-secondary flex-1" onClick={() => setEditorOpen(false)}>
-                Cancel
-              </button>
-              <button type="button" className="btn-primary flex-1" onClick={() => void saveSheetEdits()}>
-                Save Changes
-              </button>
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setEditorOpen(false)}>
+          <div className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl sm:rounded-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+                <h2 className="app-section-title text-lg">Edit play sheet</h2>
+                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setEditorOpen(false)}>
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="space-y-4 overflow-y-auto p-4">
+                <label className="space-y-1">
+                  <span className="app-field-label">Play sheet name</span>
+                  <input value={editName} onChange={(e) => setEditName(e.target.value)} className="app-input" />
+                </label>
+                <label className="space-y-1">
+                  <span className="app-field-label">Select CFB26 Playbook</span>
+                  <input list="cfb26-playbook-options" value={editPlaybook} onChange={(e) => setEditPlaybook(e.target.value)} className="app-input" />
+                  <datalist id="cfb26-playbook-options">
+                    {cfb26PlaybookOptions.map((opt) => (
+                      <option key={opt} value={opt} />
+                    ))}
+                  </datalist>
+                </label>
+                <button type="button" className="font-body text-sm text-red-300 hover:text-red-200" onClick={() => setConfirmDeleteOpen(true)}>
+                  Delete play sheet
+                </button>
+                <div className="flex gap-2">
+                  <button type="button" className="btn-secondary flex-1" onClick={() => setEditorOpen(false)}>
+                    Cancel
+                  </button>
+                  <button type="button" className="btn-primary flex-1" onClick={() => void saveSheetEdits()}>
+                    Save Changes
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { comboKey } from "@/lib/loggedPlayStats";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type FormationGroup = { formation_type: string; formations: string[] };
@@ -24,6 +25,7 @@ export function AddPlayDrawer({
   formationStats: Record<string, FormationAgg>;
   onPick: (formation: string, playName: string) => void;
 }) {
+  useScrollLock(open);
   const [step, setStep] = useState<1 | 2>(1);
   const [groups, setGroups] = useState<FormationGroup[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export function AddPlayDrawer({
       }}
     >
       <div
-        className="hs-overlay-animation-target pointer-events-auto absolute inset-x-0 bottom-0 max-h-[85vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:mx-auto sm:max-w-lg sm:rounded-xl"
+        className="hs-overlay-animation-target pointer-events-auto fixed inset-x-0 bottom-0 max-h-[90vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
@@ -122,8 +124,9 @@ export function AddPlayDrawer({
             </h2>
             <p className="app-field-label mt-0.5">{scenarioName}</p>
           </div>
-          <button type="button" className="btn-secondary px-3 py-1.5 text-xs" onClick={onClose}>
-            Close
+          <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={onClose}>
+            <span aria-hidden>✕</span>
+            <span className="sr-only">Close</span>
           </button>
         </div>
 

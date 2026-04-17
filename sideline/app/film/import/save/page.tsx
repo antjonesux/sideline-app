@@ -186,7 +186,7 @@ export default function FilmImportSavePage() {
 
   if (parsedRows.length === 0) {
     return (
-      <section className="space-y-6 pb-8">
+      <section className="space-y-6">
         <BackToFilmLink />
         <NewGameFormSkeleton />
       </section>
@@ -194,7 +194,7 @@ export default function FilmImportSavePage() {
   }
 
   return (
-    <section className="space-y-8 pb-8">
+    <section className="space-y-8">
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import", href: "/film/import" }, { label: "Tag Game" }]} />
       <BackToFilmLink />
 

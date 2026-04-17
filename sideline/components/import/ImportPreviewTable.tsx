@@ -40,7 +40,7 @@ export function ImportPreviewTable({ rows, errorByLine }: Props) {
             <th className="px-2 py-2">Result</th>
             <th className="px-2 py-2">Yds</th>
             <th className="px-2 py-2">Scenario</th>
-            <th className="px-2 py-2">Zone</th>
+            <th className="px-2 py-2 pr-4">Zone</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800 bg-slate-900/80">
@@ -73,7 +73,7 @@ export function ImportPreviewTable({ rows, errorByLine }: Props) {
                 </td>
                 <td className={`px-2 py-1.5 font-mono ${Number.isNaN(yards) ? "text-slate-500" : yardsClass(yards)}`}>{r.yards}</td>
                 <td className="px-2 py-1.5 text-slate-400">{scenario}</td>
-                <td className="px-2 py-1.5 text-slate-400">{zone}</td>
+                <td className="px-2 py-1.5 pr-4 text-slate-400">{zone}</td>
               </tr>
             );
           })}

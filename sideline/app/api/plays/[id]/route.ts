@@ -8,7 +8,9 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
   const payload = await req.json();
   const fieldZone = deriveFieldZone(Number(payload.yard_line), payload.side as "OWN" | "OPP");
-  const scenario = deriveScenario(Number(payload.down), Number(payload.distance), fieldZone);
+  const derivedScenario = deriveScenario(Number(payload.down), Number(payload.distance), fieldZone);
+  const scenarioOverride = typeof payload.situation_override === "string" ? payload.situation_override.trim() : "";
+  const scenario = scenarioOverride || derivedScenario;
 
   const { data, error } = await supabase
     .from("logged_plays")

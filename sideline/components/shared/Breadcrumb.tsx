@@ -15,7 +15,7 @@ export function Breadcrumb({ segments }: Props) {
   if (!segments.length) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="font-body flex items-center gap-1 text-xs text-[#A0A3AD]">
+    <nav aria-label="Breadcrumb" className="font-body hidden items-center gap-1 text-xs text-[#A0A3AD] sm:flex">
       {segments.map((segment, index) => {
         const isLast = index === segments.length - 1;
         const content = segment.href && !isLast ? (

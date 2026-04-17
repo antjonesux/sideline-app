@@ -107,8 +107,8 @@ export function CSVUploader({ onParsed, onParseFatal, embedded }: Props) {
           if (f) parseFile(f);
         }}
         onClick={() => inputRef.current?.click()}
-        className={`flex min-h-[180px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-10 text-center transition-colors ${
-          drag ? "border-emerald-500 bg-emerald-500/10" : "border-slate-600 bg-slate-900/50 hover:border-emerald-700/50"
+        className={`flex min-h-[180px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed bg-transparent px-4 py-10 text-center transition-colors ${
+          drag ? "border-emerald-500" : "border-slate-700 hover:border-emerald-500"
         }`}
       >
         <p className="font-body text-sm text-slate-200">Drop your CSV here or click to browse</p>

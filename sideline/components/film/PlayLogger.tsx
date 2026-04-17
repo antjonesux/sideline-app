@@ -30,6 +30,8 @@ type PlayLoggerProps = {
   onStartNewDrive: () => void | Promise<void>;
 };
 
+type SituationOverride = "2 Minute" | "4 Minute" | "2 Point" | null;
+
 function storedTagToUi(tag: string): UiResultTag | null {
   const u = tag.trim().toUpperCase().replace(/\s+/g, "_");
   if (u === "FIRST_DOWN") return "GAIN";
@@ -72,6 +74,8 @@ export function PlayLogger({
   const [uiResult, setUiResult] = useState<UiResultTag | null>(null);
   const [yardsText, setYardsText] = useState("");
   const [note, setNote] = useState("");
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [situationOverride, setSituationOverride] = useState<SituationOverride>(null);
   const [logging, setLogging] = useState(false);
   const [optimisticPlays, setOptimisticPlays] = useState<LoggedPlay[]>([]);
 
@@ -116,6 +120,7 @@ export function PlayLogger({
       if (t === "LOSS") setYardsText(String(Math.abs(y)));
       else setYardsText(String(Math.max(0, y)));
       setNote(editPlay.note ?? "");
+      setShowNoteInput(Boolean((editPlay.note ?? "").trim()));
       return;
     }
     if (wasEditingRef.current) {
@@ -124,6 +129,7 @@ export function PlayLogger({
       setUiResult(null);
       setYardsText("");
       setNote("");
+      setShowNoteInput(false);
     }
   }, [editPlay, drive.drive_number]);
 
@@ -141,7 +147,6 @@ export function PlayLogger({
     lastUiResult.current = uiResult;
     if (!uiResult) return;
     if (uiResult === "LOSS") setYardsText((t) => (t === "" ? "5" : t));
-    else if (uiResult === "PUNT") setYardsText((t) => (t === "" ? "40" : t));
     else if (uiResult === "NO_GAIN" || uiResult === "INCOMPLETE" || uiResult === "TURNOVER" || uiResult === "FIELD_GOAL") {
       setYardsText("0");
     } else if (uiResult === "GAIN") setYardsText("");
@@ -162,7 +167,7 @@ export function PlayLogger({
       uiResult === "TURNOVER";
     if (skipYards) {
       queueMicrotask(() => logBtnRef.current?.focus());
-    } else if (uiResult === "GAIN" || uiResult === "LOSS" || uiResult === "PUNT" || uiResult === "TOUCHDOWN") {
+    } else if (uiResult === "GAIN" || uiResult === "LOSS" || uiResult === "TOUCHDOWN") {
       queueMicrotask(() => yardsRef.current?.focus());
     }
   }, [uiResult, editPlay]);
@@ -177,6 +182,8 @@ export function PlayLogger({
     setUiResult(null);
     setYardsText("");
     setNote("");
+    setShowNoteInput(false);
+    setSituationOverride(null);
     lastUiResult.current = null;
     queueMicrotask(() => formationRef.current?.focus());
   }, []);
@@ -196,11 +203,6 @@ export function PlayLogger({
       const mag = Number.isNaN(n) || n < 1 ? 5 : n;
       return { yardsGainedDb: -mag, yardsForEngine: -mag };
     }
-    if (uiResult === "PUNT") {
-      const n = yardsText === "" ? 40 : parseInt(yardsText, 10);
-      const v = Number.isNaN(n) || n < 0 ? 40 : n;
-      return { yardsGainedDb: v, yardsForEngine: v };
-    }
     const n = parseInt(yardsText, 10);
     if (Number.isNaN(n)) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter yards." };
     if (uiResult === "GAIN" && n < 1) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Yards must be positive." };
@@ -210,11 +212,6 @@ export function PlayLogger({
 
   const canSubmit = useMemo(() => {
     if (!formationPlay?.formation || !formationPlay?.play_name || !uiResult) return false;
-    if (uiResult === "PUNT") {
-      if (yardsText.trim() === "") return true;
-      const n = parseInt(yardsText, 10);
-      return !Number.isNaN(n) && n >= 0;
-    }
     if (uiResult === "GAIN" || uiResult === "TOUCHDOWN" || uiResult === "LOSS") {
       if (yardsText.trim() === "") return false;
       const n = parseInt(yardsText, 10);
@@ -255,6 +252,7 @@ export function PlayLogger({
       game_session_id: gameSessionId,
       opponent_scheme: opponentScheme,
       drive_number: drive.drive_number,
+      situation_override: situationOverride,
     };
 
     setLogging(true);
@@ -341,44 +339,79 @@ export function PlayLogger({
         gameState={gameState}
         onChange={setManualGameState}
         onStartNewDrive={() => void onStartNewDrive()}
+        onEditToggle={() => {
+          if (plays.length === 0) {
+            addToast("No plays to edit yet", "warning");
+            return;
+          }
+          const latest = [...plays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0))[0];
+          if (latest) onEditPlayChange(latest);
+        }}
       />
 
-      <div className="app-card app-card-pad space-y-3">
-        <FormationPlaySearch
-          myPlaybook={myPlaybook}
-          value={formationPlay}
-          onChange={setFormationPlay}
-          inputRef={formationRef}
-        />
+      <div className="app-card flex max-h-[70vh] flex-col overflow-hidden p-0">
+        <div className="space-y-2 overflow-y-auto p-3">
+          <div>
+            <p className="app-field-label text-slate-500">SITUATION</p>
+            <div className="flex flex-wrap gap-2">
+              {(["2 Minute", "4 Minute", "2 Point"] as const).map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`rounded-full border px-3 py-1 font-mono text-xs uppercase ${
+                    situationOverride === tag
+                      ? "border-emerald-600 bg-emerald-600 text-white"
+                      : "border-slate-700 text-slate-300"
+                  }`}
+                  onClick={() => setSituationOverride((prev) => (prev === tag ? null : tag))}
+                >
+                  {tag === "2 Minute" ? "2 Min" : tag === "4 Minute" ? "4 Min" : "2 Point"}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <ResultGrid
-          value={uiResult}
-          onChange={(tag) => {
-            setUiResult(tag);
-          }}
-        />
-
-        <YardsInput uiResult={uiResult} yardsText={yardsText} onYardsTextChange={setYardsText} inputRef={yardsRef} />
-
-        <div>
-          <label htmlFor="play-logger-note" className="app-field-label text-slate-500">
-            Note (optional)
-          </label>
-          <input
-            id="play-logger-note"
-            maxLength={60}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-sans text-sm text-white placeholder:text-slate-500"
-            placeholder="What happened? (optional)"
+          <FormationPlaySearch
+            myPlaybook={myPlaybook}
+            value={formationPlay}
+            onChange={setFormationPlay}
+            inputRef={formationRef}
           />
-        </div>
 
-        <div className="flex flex-wrap gap-2">
+          <ResultGrid
+            value={uiResult}
+            onChange={(tag) => {
+              setUiResult(tag);
+            }}
+          />
+
+          <YardsInput uiResult={uiResult} yardsText={yardsText} onYardsTextChange={setYardsText} inputRef={yardsRef} />
+
+          {showNoteInput ? (
+            <div>
+              <label htmlFor="play-logger-note" className="app-field-label text-slate-500">
+                Note (optional)
+              </label>
+              <input
+                id="play-logger-note"
+                maxLength={60}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-sans text-sm text-white placeholder:text-slate-500"
+                placeholder="What happened? (optional)"
+              />
+            </div>
+          ) : (
+            <button type="button" className="font-body text-sm text-slate-400 underline-offset-2 hover:text-white hover:underline" onClick={() => setShowNoteInput(true)}>
+              Add note
+            </button>
+          )}
+        </div>
+        <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
           {editPlay ? (
             <button
               type="button"
-              className="min-h-[52px] min-w-[44px] flex-1 rounded-lg px-4 font-sans text-sm font-medium text-slate-400 hover:bg-white/[0.04] hover:text-slate-100"
+              className="min-h-11 rounded-lg px-3 font-sans text-sm font-medium text-slate-400 hover:bg-white/[0.04] hover:text-slate-100"
               onClick={() => onEditPlayChange(null)}
             >
               Cancel
@@ -388,8 +421,8 @@ export function PlayLogger({
             ref={logBtnRef}
             type="button"
             disabled={logging || !canSubmit}
-            className={`min-h-[52px] flex-[2] rounded-lg px-4 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors ${
-              logging || !canSubmit ? "cursor-not-allowed bg-slate-700 text-slate-500" : "bg-emerald-600 hover:bg-emerald-700"
+            className={`min-h-11 w-full rounded-lg px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors ${
+              logging || !canSubmit ? "cursor-not-allowed bg-slate-700 text-slate-500" : "bg-emerald-600 hover:bg-emerald-500"
             }`}
             onClick={() => void submitLog()}
           >

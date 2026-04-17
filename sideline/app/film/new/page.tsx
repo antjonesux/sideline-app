@@ -220,7 +220,7 @@ export default function NewGamePage() {
   }
 
   return (
-    <section className="space-y-8 pb-8">
+    <section className="space-y-8">
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "New Game" }]} />
       <BackToFilmLink />
 

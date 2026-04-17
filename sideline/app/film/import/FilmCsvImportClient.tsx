@@ -41,36 +41,34 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
             <h1 className="app-page-title">Import game</h1>
             <p className="font-body text-sm text-slate-400">Upload your game plays as a CSV file.</p>
           </div>
-          <div className="shrink-0 self-end sm:self-start">
+          <div className="w-full sm:w-auto">
             <TemplateDownload variant="headerInline" />
           </div>
         </div>
 
         <div className="mt-6">
-          <div className="app-card app-card-pad">
-            <CSVUploader
-              embedded
-              onParsed={(parsed, valid, errors) => {
-                setParseError(null);
-                if (valid.length === 0) {
-                  setParsedData(parsed, valid, errors);
-                  setParseError("No valid plays found. Fix CSV row issues and upload again.");
-                  addToast("Some rows had errors", "warning");
-                  return;
-                }
-                if (errors.length > 0) addToast("Some rows had errors", "warning");
+          <CSVUploader
+            embedded
+            onParsed={(parsed, valid, errors) => {
+              setParseError(null);
+              if (valid.length === 0) {
                 setParsedData(parsed, valid, errors);
-                setGameSetup(null);
-                setImportedSession(null);
-                setStep(2);
-                router.push("/film/import/preview");
-              }}
-              onParseFatal={(msg) => {
-                setParseError(msg);
-                addToast("Import failed", "error");
-              }}
-            />
-          </div>
+                setParseError("No valid plays found. Fix CSV row issues and upload again.");
+                addToast("Some rows had errors", "warning");
+                return;
+              }
+              if (errors.length > 0) addToast("Some rows had errors", "warning");
+              setParsedData(parsed, valid, errors);
+              setGameSetup(null);
+              setImportedSession(null);
+              setStep(2);
+              router.push("/film/import/preview");
+            }}
+            onParseFatal={(msg) => {
+              setParseError(msg);
+              addToast("Import failed", "error");
+            }}
+          />
         </div>
 
         {parseError ? (

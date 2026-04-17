@@ -9,6 +9,7 @@ export default function PrelineScript() {
   useEffect(() => {
     import("preline").then(() => {
       const methods = (window as Window & { HSStaticMethods?: { autoInit: () => void } }).HSStaticMethods;
+      console.log("[Preline] autoInit", path);
       methods?.autoInit();
     });
   }, [path]);

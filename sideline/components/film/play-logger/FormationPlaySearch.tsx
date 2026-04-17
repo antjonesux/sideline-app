@@ -147,27 +147,46 @@ export function FormationPlaySearch({ myPlaybook, value, onChange, inputRef }: F
       <label htmlFor={comboId} className="app-field-label text-slate-500">
         Formation + play
       </label>
-      <input
-        ref={ref}
-        id={comboId}
-        type="search"
+      <div className="relative">
+        <input
+          ref={ref}
+          id={comboId}
+          type="text"
         role="combobox"
         aria-expanded={open}
         aria-controls={listId}
         aria-autocomplete="list"
         autoComplete="off"
         placeholder="Search formation & play..."
-        className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono text-sm text-white placeholder:text-slate-500"
-        value={query}
-        onChange={(e) => {
-          const v = e.target.value;
-          setQuery(v);
-          setOpen(true);
-          if (v === "") onChange(null);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={onKeyDown}
-      />
+          className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 pr-12 font-mono text-sm text-white placeholder:text-slate-500"
+          value={query}
+          onChange={(e) => {
+            const v = e.target.value;
+            setQuery(v);
+            setOpen(true);
+            if (v === "") onChange(null);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={onKeyDown}
+        />
+        {query.trim().length > 0 ? (
+          <button
+            type="button"
+            aria-label="Clear formation and play search"
+            className="absolute bottom-0 right-0 inline-flex min-h-11 min-w-11 items-center justify-center p-2 text-slate-300 hover:text-white"
+            onClick={() => {
+              setQuery("");
+              onChange(null);
+              setOpen(true);
+              ref.current?.focus();
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        ) : null}
+      </div>
 
       {open && (searchActive || q.length > 0) ? (
         <ul

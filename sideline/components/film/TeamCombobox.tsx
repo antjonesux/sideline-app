@@ -118,8 +118,25 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className={`hs-input app-input py-2.5 ps-3 read-only:cursor-default ${showTrailingChevron ? "pe-10" : "pe-3"}`}
+            className={`hs-input app-input py-2.5 ps-3 read-only:cursor-default ${showTrailingChevron ? "pe-20" : "pe-12"}`}
           />
+          {inputValue.trim().length > 0 ? (
+            <button
+              type="button"
+              aria-label={`Clear ${label}`}
+              className={`absolute inset-y-0 ${showTrailingChevron ? "right-7" : "right-0"} inline-flex min-h-11 min-w-11 items-center justify-center p-2 text-slate-300 hover:text-white`}
+              onClick={() => {
+                setFilterText("");
+                onSelect(null);
+                setOpen(true);
+                innerInputRef.current?.focus();
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          ) : null}
           {showTrailingChevron ? (
             <span
               aria-hidden

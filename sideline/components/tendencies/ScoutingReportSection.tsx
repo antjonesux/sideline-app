@@ -10,9 +10,10 @@ type Tab = "situations" | "formations";
 type Props = {
   situationRows: ScoutingReportRow[];
   formationRows: ScoutingFormationReportRow[];
+  overallSuccessRate: number;
 };
 
-export function ScoutingReportSection({ situationRows, formationRows }: Props) {
+export function ScoutingReportSection({ situationRows, formationRows, overallSuccessRate }: Props) {
   const [tab, setTab] = useState<Tab>("situations");
 
   return (
@@ -44,7 +45,11 @@ export function ScoutingReportSection({ situationRows, formationRows }: Props) {
         </nav>
       </div>
 
-      {tab === "situations" ? <ScoutingReport rows={situationRows} /> : <ScoutingFormationsReport rows={formationRows} />}
+      {tab === "situations" ? (
+        <ScoutingReport rows={situationRows} overallSuccessRate={overallSuccessRate} />
+      ) : (
+        <ScoutingFormationsReport rows={formationRows} overallSuccessRate={overallSuccessRate} />
+      )}
     </section>
   );
 }

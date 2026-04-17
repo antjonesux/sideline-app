@@ -17,11 +17,23 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const { count } = await supabase.from("logged_plays").select("*", { count: "exact", head: true }).eq("drive_id", id);
 
   const fieldZone = deriveFieldZone(Number(payload.yard_line), payload.side as "OWN" | "OPP");
-  const scenario = deriveScenario(Number(payload.down), Number(payload.distance), fieldZone);
+  const derivedScenario = deriveScenario(Number(payload.down), Number(payload.distance), fieldZone);
+  const scenarioOverride = typeof payload.situation_override === "string" ? payload.situation_override.trim() : "";
+  const scenario = scenarioOverride || derivedScenario;
 
   const { data, error } = await supabase
     .from("logged_plays")
-    .insert({ ...payload, drive_id: id, play_number: (count ?? 0) + 1, field_zone: fieldZone, scenario, yards_gained: Number(payload.yards_gained), down: Number(payload.down), distance: Number(payload.distance), yard_line: Number(payload.yard_line) })
+    .insert({
+      ...payload,
+      drive_id: id,
+      play_number: (count ?? 0) + 1,
+      field_zone: fieldZone,
+      scenario,
+      yards_gained: Number(payload.yards_gained),
+      down: Number(payload.down),
+      distance: Number(payload.distance),
+      yard_line: Number(payload.yard_line),
+    })
     .select("*")
     .single();
 

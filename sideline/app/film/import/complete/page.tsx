@@ -18,7 +18,7 @@ export default function FilmImportCompletePage() {
 
   if (!importedSessionId) {
     return (
-      <section className="pb-8">
+      <section>
         <BackToFilmLink />
         <p className="mt-6 text-sm text-slate-400">Finalizing import…</p>
       </section>

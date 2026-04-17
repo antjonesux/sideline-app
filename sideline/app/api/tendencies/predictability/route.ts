@@ -8,6 +8,7 @@ import {
   gamesWithOffensivePlaybookOnly,
   motionStatsForPlaybook,
   motionUsageStats,
+  isSuccessPlay,
   parsePlaybookFilter,
   parseScope,
   playbookForGame,
@@ -178,6 +179,8 @@ ORDER BY total_plays DESC;
     Boolean(dominantPlaybook) && playbookMotionPct >= 10 && userMotionPct < playbookMotionPct - 5;
   const turnoverCount = plays.filter((p) => p.result_tag === "TURNOVER").length;
   const turnoverRate = plays.length > 0 ? Math.round((turnoverCount * 1000) / plays.length) / 10 : 0;
+  const overallSuccessRate =
+    plays.length > 0 ? Math.round((plays.filter((p) => isSuccessPlay(p)).length * 1000) / plays.length) / 10 : 0;
   const redZone = redZoneTdStats(plays);
   const thirdDown = thirdDownConvStats(plays);
 
@@ -224,6 +227,7 @@ ORDER BY total_plays DESC;
       play_count: plays.length,
       turnover_count: turnoverCount,
       turnover_rate: turnoverRate,
+      overall_success_rate: overallSuccessRate,
     },
   });
 }

@@ -2,6 +2,7 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import type { GameSession } from "@/lib/types";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { supabase } from "@/lib/supabase";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToastStore } from "@/store/toastStore";
@@ -59,9 +60,10 @@ export function EditGameDetailsModal({
   game,
   onSaved,
   triggerLabel = "Edit",
-  triggerClassName = "btn-secondary shrink-0 px-3 py-1.5 text-xs hover:border-emerald-600/50 hover:text-emerald-300",
+  triggerClassName = "shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white",
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  useScrollLock(isOpen);
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
   const [fallbackPlaybooks, setFallbackPlaybooks] = useState<string[]>(() => cachedFallbackPlaybooks ?? []);
@@ -263,24 +265,33 @@ export function EditGameDetailsModal({
           if (e.target === e.currentTarget) setIsOpen(false);
         }}
       >
-        <div className={`hs-overlay-animation-target flex min-h-full items-end justify-center p-0 transition-all ease-out sm:items-center sm:p-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
+        <div className={`hs-overlay-animation-target fixed inset-x-0 bottom-0 z-[61] transition-all ease-out sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
           <div
-            className="pointer-events-auto flex w-full max-h-[85vh] flex-col overflow-y-auto rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:max-w-lg sm:rounded-xl"
+            className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
-              <h2 id="hs-edit-game-modal-label" className="app-modal-title">
-                Edit game details
-              </h2>
-              <p className="mt-1 font-body text-sm text-slate-400">Update metadata only. Play-by-play is unchanged.</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 id="hs-edit-game-modal-label" className="app-modal-title">
+                    Edit game details
+                  </h2>
+                  <p className="mt-1 font-body text-sm text-slate-400">Update metadata only. Play-by-play is unchanged.</p>
+                </div>
+                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-5 px-4 py-5 sm:px-6">
-              {setupError ? (
-                <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 text-sm text-amber-100" role="alert">
-                  {setupError}
-                </p>
-              ) : null}
+            <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+              <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+                {setupError ? (
+                  <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 text-sm text-amber-100" role="alert">
+                    {setupError}
+                  </p>
+                ) : null}
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <TeamCombobox<TeamOption>
@@ -376,7 +387,8 @@ export function EditGameDetailsModal({
                 </div>
               </div>
 
-              <div className="flex gap-3 border-t border-slate-800 pt-5">
+              </div>
+              <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
                 <button type="button" className="btn-secondary flex-1" onClick={() => setIsOpen(false)}>
                   Cancel
                 </button>

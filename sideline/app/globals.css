@@ -21,6 +21,8 @@
    */
   html {
     min-height: 100dvh;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -35,10 +37,12 @@
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-color: rgb(2, 6, 23);
-    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
-    background-size: 24px 24px;
     pointer-events: none;
+    background-color: rgb(2, 6, 23);
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.12) 35%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.12) 35%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0) 100%);
   }
 
   button:not(:disabled),
@@ -72,6 +76,44 @@
   button:active:not(:disabled):not(.app-no-press-scale) {
     transform: scale(0.97);
     transition: transform 100ms ease-out;
+  }
+
+  /* WebKit (Chrome, Safari, Edge) — thin inset scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox — thin overlay scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
+  }
+
+  /* Hide horizontal bars on scroll strips/tables while preserving scroll */
+  .overflow-x-auto::-webkit-scrollbar,
+  .situation-strip::-webkit-scrollbar,
+  .app-horizontal-scroll-strip::-webkit-scrollbar {
+    height: 0;
   }
 }
 
@@ -124,31 +166,31 @@
 
   /* Buttons */
   .btn-primary {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:text-white;
   }
 
   .btn-primary-block {
-    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-center font-heading text-sm font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:text-white;
   }
 
   .btn-primary-lg {
-    @apply inline-flex min-h-11 w-full flex-1 items-center justify-center rounded-lg bg-emerald-500 px-4 py-4 text-center font-heading text-base font-semibold uppercase tracking-[0.1em] text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500;
+    @apply inline-flex min-h-11 w-full flex-1 items-center justify-center rounded-lg bg-emerald-600 px-4 py-4 text-center font-heading text-base font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:text-white;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-300 transition-colors hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-secondary-block {
-    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50;
+    @apply inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 text-center font-body text-sm font-medium tracking-wide text-slate-300 transition-colors hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-destructive {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-red-700/70 bg-red-950/35 px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-red-200 transition-colors hover:bg-red-950/55 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-red-500/50 bg-transparent px-4 py-2.5 text-center font-body text-sm font-semibold tracking-wide text-red-400 transition-colors hover:border-red-400 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-destructive-solid {
-    @apply inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-red-800 bg-red-900/35 px-4 py-2.5 text-center font-body text-sm font-semibold text-red-300 transition-colors hover:bg-red-900/50;
+    @apply inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-red-500/50 bg-transparent px-4 py-2.5 text-center font-body text-sm font-semibold text-red-400 transition-colors hover:border-red-400 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   /* Card kebab / drive menus — shared shell */
@@ -254,6 +296,16 @@
 }
 
 @media screen and (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  html,
+  body {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
   input,
   select,
   textarea {

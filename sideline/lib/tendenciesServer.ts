@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { TENDENCIES_SCENARIOS } from "@/lib/constants";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
@@ -436,19 +437,7 @@ export function thirdDownConvStats(plays: LoggedPlayRow[]): { conversions: numbe
   return { conversions: conv, plays: n, pct: Math.round((conv * 1000) / n) / 10 };
 }
 
-const SCENARIO_ORDER = [
-  "1st Down",
-  "2nd & Short",
-  "2nd & Medium",
-  "2nd & Long",
-  "3rd & Short",
-  "3rd & Medium",
-  "3rd & Long",
-  "4th Down",
-  "Red Zone",
-  "Goal Line",
-  "Backed Up",
-];
+const SCENARIO_ORDER = [...TENDENCIES_SCENARIOS, "2-Minute Drill", "4-Minute", "2-Point Conversion"];
 
 function scenarioSortKey(s: string): number {
   const i = SCENARIO_ORDER.indexOf(s);
@@ -467,15 +456,15 @@ export type ScoutingReportRow = {
     success_rate: number;
     uses: number;
   } | null;
+  top_plays: {
+    play_name: string;
+    formation: string;
+    success_rate: number;
+    uses: number;
+  }[];
 };
 
-function scoutingReportTier(successPct: number): number {
-  if (successPct < 40) return 0;
-  if (successPct < 60) return 1;
-  return 2;
-}
-
-/** Situations with 5+ plays. Ordered: below-40% first (worst at top), then 40–59%, then 60%+ (best at bottom). */
+/** Situation scouting rows for all canonical situations, including zero-play empty states. */
 export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBucket[]): ScoutingReportRow[] {
   const map = new Map<string, { run: number; other: number; success: number }>();
   for (let i = 0; i < plays.length; i++) {
@@ -491,31 +480,47 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
   }
 
   const out: ScoutingReportRow[] = [];
-  for (const [scenario, { run, other, success }] of map.entries()) {
+  for (const scenario of TENDENCIES_SCENARIOS) {
+    const counters = map.get(scenario) ?? { run: 0, other: 0, success: 0 };
+    const { run, other, success } = counters;
     const total = run + other;
-    if (total < 5) continue;
-    const run_pct = Math.round((run * 1000) / total) / 10;
-    const pass_pct = Math.round((other * 1000) / total) / 10;
-    const success_pct = Math.round((success * 1000) / total) / 10;
+    const run_pct = total > 0 ? Math.round((run * 1000) / total) / 10 : 0;
+    const pass_pct = total > 0 ? Math.round((other * 1000) / total) / 10 : 0;
+    const success_pct = total > 0 ? Math.round((success * 1000) / total) / 10 : 0;
     const scenarioPlays = plays.filter((p) => (p.scenario ?? "Other") === scenario);
-    const ranked = aggregateByFormationPlay(scenarioPlays, 2, "success_rate");
-    const best = ranked[0];
-    const top_play = best
+    const topMap = new Map<string, { uses: number; successes: number; formation: string; play_name: string }>();
+    for (const p of scenarioPlays) {
+      const key = `${p.formation}\u0000${p.play_name}`;
+      const cur = topMap.get(key) ?? { uses: 0, successes: 0, formation: p.formation, play_name: p.play_name };
+      cur.uses += 1;
+      if (isSuccessPlay(p)) cur.successes += 1;
+      topMap.set(key, cur);
+    }
+    const topRanked = [...topMap.values()].sort(
+      (a, b) =>
+        b.uses - a.uses ||
+        (b.uses > 0 ? Math.round((b.successes * 100) / b.uses) : 0) -
+          (a.uses > 0 ? Math.round((a.successes * 100) / a.uses) : 0) ||
+        a.play_name.localeCompare(b.play_name),
+    );
+    const top = topRanked[0];
+    const top_plays = topRanked.slice(0, 3).map((entry) => ({
+      play_name: entry.play_name,
+      formation: entry.formation,
+      success_rate: entry.uses > 0 ? Math.round((entry.successes * 100) / entry.uses) : 0,
+      uses: entry.uses,
+    }));
+    const top_play = top
       ? {
-          play_name: best.play_name,
-          formation: best.formation,
-          success_rate: best.success_rate,
-          uses: best.uses,
+          play_name: top.play_name,
+          formation: top.formation,
+          success_rate: top.uses > 0 ? Math.round((top.successes * 100) / top.uses) : 0,
+          uses: top.uses,
         }
       : null;
-    out.push({ scenario, total_plays: total, run_pct, pass_pct, success_pct, top_play });
+    out.push({ scenario, total_plays: total, run_pct, pass_pct, success_pct, top_play, top_plays });
   }
-  return out.sort((a, b) => {
-    const ta = scoutingReportTier(a.success_pct);
-    const tb = scoutingReportTier(b.success_pct);
-    if (ta !== tb) return ta - tb;
-    return a.success_pct - b.success_pct || scenarioSortKey(a.scenario) - scenarioSortKey(b.scenario);
-  });
+  return out.sort((a, b) => scenarioSortKey(a.scenario) - scenarioSortKey(b.scenario));
 }
 
 export type ScoutingFormationReportRow = {
@@ -534,6 +539,12 @@ export type ScoutingFormationReportRow = {
     success_rate: number;
     uses: number;
   } | null;
+  top_plays: {
+    play_name: string;
+    formation: string;
+    success_rate: number;
+    uses: number;
+  }[];
 };
 
 /**
@@ -571,8 +582,16 @@ export function scoutingFormationReportRows(plays: LoggedPlayRow[], buckets: Pla
     if (!flag_over_used && !flag_under_performing && !flag_one_dimensional) continue;
 
     const subset = plays.filter((p) => ((p.formation ?? "").trim() || "(unknown formation)") === formation);
-    const ranked = aggregateByFormationPlay(subset, 1, "success_rate");
-    const best = ranked[0];
+    const rankedByUsage = aggregateByFormationPlay(subset, 1, "success_rate").sort(
+      (a, b) => b.uses - a.uses || b.success_rate - a.success_rate || a.play_name.localeCompare(b.play_name),
+    );
+    const best = rankedByUsage[0];
+    const top_plays = rankedByUsage.slice(0, 3).map((row) => ({
+      play_name: row.play_name,
+      formation: row.formation,
+      success_rate: row.success_rate,
+      uses: row.uses,
+    }));
     const top_play = best
       ? {
           play_name: best.play_name,
@@ -593,6 +612,7 @@ export function scoutingFormationReportRows(plays: LoggedPlayRow[], buckets: Pla
       flag_under_performing,
       flag_one_dimensional,
       top_play,
+      top_plays,
     });
   }
 

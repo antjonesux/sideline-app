@@ -9,12 +9,13 @@ type CompactGameStateBarProps = {
   gameState: GameState;
   onChange: (next: GameState) => void;
   onStartNewDrive: () => void;
+  onEditToggle: () => void;
 };
 
 const motionPanel =
   "motion-safe:transition-[max-height,opacity] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none";
 
-export function CompactGameStateBar({ gameState, onChange, onStartNewDrive }: CompactGameStateBarProps) {
+export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEditToggle }: CompactGameStateBarProps) {
   const [expanded, setExpanded] = useState(false);
   const distId = useId();
   const yardNumId = useId();
@@ -66,35 +67,31 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive }: Co
   return (
     <div className="rounded-xl border border-slate-700 bg-slate-900">
       <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-700/80 px-3 py-2">
-        <span className="font-display text-sm font-semibold uppercase tracking-wide text-white">
+        <span className="font-mono text-xs font-medium uppercase tracking-wide text-white">
           {gameState.down === 1 ? "1ST" : gameState.down === 2 ? "2ND" : gameState.down === 3 ? "3RD" : "4TH"} & {displayDistance}
         </span>
-        <span className="font-mono text-sm text-slate-500" aria-hidden>
+        <span className="font-mono text-xs text-slate-500" aria-hidden>
           ·
         </span>
-        <span className="font-mono text-sm font-normal text-slate-400">{formatFieldPosition(gameState.absoluteYard)}</span>
-        <span className="font-mono text-sm text-slate-500" aria-hidden>
+        <span className="font-mono text-xs font-normal text-slate-400">{formatFieldPosition(gameState.absoluteYard)}</span>
+        <span className="font-mono text-xs text-slate-500" aria-hidden>
           ·
         </span>
-        <span className="font-mono text-sm font-medium text-amber-400">Drive {gameState.driveNumber}</span>
-        <div className="ml-auto flex flex-wrap items-center gap-1">
+        <span className="font-mono text-xs font-medium text-amber-400">Drive {gameState.driveNumber}</span>
+        <div className="ml-auto relative">
           <button
             type="button"
-            className="min-h-11 min-w-11 px-2 font-sans text-sm font-medium text-amber-400 hover:text-amber-300"
-            onClick={applyManualNewDrive}
+            className="app-no-press-scale inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
+            aria-expanded={expanded}
+            aria-haspopup="menu"
+            onClick={() => setExpanded((s) => !s)}
           >
-            + Drive
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <circle cx="12" cy="5" r="1.75" />
+              <circle cx="12" cy="12" r="1.75" />
+              <circle cx="12" cy="19" r="1.75" />
+            </svg>
           </button>
-          {!expanded ? (
-            <button
-              type="button"
-              className="min-h-11 min-w-11 px-2 font-sans text-sm text-slate-400 hover:text-slate-200"
-              onClick={() => setExpanded(true)}
-              aria-expanded={false}
-            >
-              Edit
-            </button>
-          ) : null}
         </div>
       </div>
 
@@ -187,12 +184,11 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive }: Co
             <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-3">
               <span className="font-sans text-xs text-slate-500">Drive</span>
               <span className="font-mono text-sm text-amber-400">{gameState.driveNumber}</span>
-              <button
-                type="button"
-                className="app-no-press-scale min-h-11 px-2 font-sans text-sm font-medium text-amber-400"
-                onClick={applyManualNewDrive}
-              >
+              <button type="button" className="app-no-press-scale min-h-11 px-2 font-sans text-sm font-medium text-amber-400" onClick={applyManualNewDrive}>
                 + Drive
+              </button>
+              <button type="button" className="app-no-press-scale min-h-11 px-2 font-sans text-sm text-slate-400 hover:text-slate-200" onClick={onEditToggle}>
+                Edit Play
               </button>
             </div>
 

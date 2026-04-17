@@ -17,8 +17,7 @@ export function YardsInput({ uiResult, yardsText, onYardsTextChange, inputRef }:
   const show =
     uiResult === "GAIN" ||
     uiResult === "TOUCHDOWN" ||
-    uiResult === "LOSS" ||
-    uiResult === "PUNT";
+    uiResult === "LOSS";
 
   if (!show) return null;
 

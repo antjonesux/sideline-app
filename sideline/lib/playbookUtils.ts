@@ -1,7 +1,11 @@
 import { SCENARIOS } from "@/lib/constants";
 
 export function scenarioMaxSlots(scenario: string): number {
-  return scenario === "Opening Script" ? 15 : 5;
+  if (scenario === "Opening Script") return 15;
+  if (scenario === "2 Minute" || scenario === "4 Minute" || scenario === "2-Minute Drill" || scenario === "4-Minute") {
+    return 10;
+  }
+  return 5;
 }
 
 export function isOpeningScript(scenario: string): boolean {

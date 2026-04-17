@@ -14,6 +14,7 @@ import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { useToastStore } from "@/store/toastStore";
+import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
@@ -99,6 +100,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
+  useScrollLock(showEndGameModal || showLogger);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
     if (!gameId) return;
@@ -335,7 +337,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   return (
-    <section className="space-y-4 px-4 py-6 sm:px-6 sm:py-8 pb-24">
+    <section className="space-y-4">
       <div className="space-y-3">
         <Breadcrumb
           segments={[
@@ -414,50 +416,77 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       ) : null}
 
       {showEndGameModal ? (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4">
-          <div className="app-shell w-full max-h-[85vh] overflow-y-auto rounded-t-2xl sm:max-w-sm sm:rounded-xl space-y-4">
-            <h2 className="app-modal-title">End game?</h2>
-            <p className="font-body text-sm text-slate-400">
-              This will close the game session and return you to the Film Room. You can come back to add more plays later.
-            </p>
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary flex-1">
-                Cancel
-              </button>
-              <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive-solid">
-                End game
-              </button>
+        <div className="fixed inset-0 z-[60] bg-black/60" onClick={() => setShowEndGameModal(false)}>
+          <div
+            className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="app-shell flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl sm:rounded-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+                <h2 className="app-modal-title text-lg">End game?</h2>
+                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="space-y-4 overflow-y-auto p-4">
+                <p className="font-body text-sm text-slate-400">
+                  This will close the game session and return you to the Film Room. You can come back to add more plays later.
+                </p>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary flex-1">
+                    Cancel
+                  </button>
+                  <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive-solid">
+                    End game
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       ) : null}
 
       {showLogger && game && activeDriveObj ? (
-        <div className="fixed inset-0 z-[60] flex items-end bg-slate-950/70 p-0 sm:items-center sm:justify-center sm:p-4">
-          <div className="app-card w-full max-h-[85vh] overflow-y-auto rounded-t-2xl p-4 sm:max-w-4xl sm:rounded-xl sm:p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="app-section-title text-xl">Play Logger</h2>
-              <button
-                type="button"
-                className="btn-secondary min-h-11 px-3 py-2 text-xs"
-                onClick={() => {
-                  setShowLogger(false);
-                  setEditPlay(null);
-                }}
-              >
-                Close
-              </button>
+        <div
+          className="fixed inset-0 z-[60] bg-slate-950/70"
+          onClick={() => {
+            setShowLogger(false);
+            setEditPlay(null);
+          }}
+        >
+          <div
+            className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl p-0 sm:rounded-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 p-4">
+                <h2 className="app-section-title text-lg">Play Logger</h2>
+                <button
+                  type="button"
+                  className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
+                  onClick={() => {
+                    setShowLogger(false);
+                    setEditPlay(null);
+                  }}
+                >
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="overflow-y-auto p-4 sm:p-5">
+                <PlayLogger
+                  gameSessionId={gameId}
+                  myPlaybook={game.offensive_playbook ?? game.my_playbook}
+                  opponentScheme={game.opponent_scheme}
+                  drive={activeDriveObj}
+                  editPlay={editPlay}
+                  onEditPlayChange={setEditPlay}
+                  onLogged={refresh}
+                  onStartNewDrive={() => void addDrive({ toastStarted: true })}
+                />
+              </div>
             </div>
-            <PlayLogger
-              gameSessionId={gameId}
-              myPlaybook={game.offensive_playbook ?? game.my_playbook}
-              opponentScheme={game.opponent_scheme}
-              drive={activeDriveObj}
-              editPlay={editPlay}
-              onEditPlayChange={setEditPlay}
-              onLogged={refresh}
-              onStartNewDrive={() => void addDrive({ toastStarted: true })}
-            />
           </div>
         </div>
       ) : null}
@@ -478,7 +507,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         }
 
         return (
-          <div key={drive.id} className="app-card overflow-hidden">
+          <div key={drive.id} className="app-card overflow-visible">
             <div className="app-accordion-header-row flex items-stretch">
               <button
                 type="button"
@@ -672,10 +701,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                           </span>
                         </span>
                         <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 justify-self-end overflow-hidden">
+                        <span className="min-w-0 overflow-hidden">
                           <ResultBadge label={p.result_tag} />
                         </span>
-                        <span className={`min-w-0 whitespace-nowrap text-right justify-self-end font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                        <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
                           {ydsText}
                         </span>
                       </button>

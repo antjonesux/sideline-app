@@ -2,6 +2,7 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useToastStore } from "@/store/toastStore";
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function CreatePlaybookModal({ variant = "page", open = true, onClose }: Props) {
+  useScrollLock(variant === "modal" && open);
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
@@ -86,60 +88,72 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       }`}
     >
       <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
-        <h2 className="app-modal-title">New play sheet</h2>
-        <p className="mt-1 font-body text-sm text-slate-400">
-          {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="app-modal-title">New play sheet</h2>
+            <p className="mt-1 font-body text-sm text-slate-400">
+              {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
+            </p>
+          </div>
+          {variant === "modal" ? (
+            <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => onClose?.()}>
+              <span aria-hidden>✕</span>
+              <span className="sr-only">Close</span>
+            </button>
+          ) : null}
+        </div>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5 px-4 py-5 sm:px-6">
-        {loadErr ? (
-          <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-            {loadErr}
-          </p>
-        ) : null}
+      <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+        <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+          {loadErr ? (
+            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
+              {loadErr}
+            </p>
+          ) : null}
 
-        {step === 1 ? (
-          <>
-            <label className="block space-y-1">
-              <span className="app-field-label">Play sheet name</span>
-              <input
-                className="hs-input app-input"
-                placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="off"
+          {step === 1 ? (
+            <>
+              <label className="block space-y-1">
+                <span className="app-field-label">Play sheet name</span>
+                <input
+                  className="hs-input app-input"
+                  placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
+                />
+              </label>
+
+              <TeamCombobox<PlaybookOption>
+                label="Select CFB26 Playbook"
+                inputId="create-cfb26-playbook"
+                selected={selectedPlaybook}
+                onSelect={setSelectedPlaybook}
+                options={options}
+                loading={playbooks.length === 0 && !loadErr}
+                placeholder="Search CFB26 playbooks"
+                getOptionLabel={(o) => o.team_name}
+                getOptionKey={(o) => o.team_name}
+                getSearchText={(o) => o.team_name}
+                showTrailingChevron={false}
               />
-            </label>
+              <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
+            </>
+          ) : (
+            <div className="space-y-3 font-body text-sm text-slate-300">
+              <p>
+                <span className="text-slate-500">Name:</span> {name.trim()}
+              </p>
+              <p>
+                <span className="text-slate-500">CFB26 Playbook:</span> {selectedPlaybook?.team_name}
+              </p>
+              <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add plays in the editor.</p>
+            </div>
+          )}
+        </div>
 
-            <TeamCombobox<PlaybookOption>
-              label="Select CFB26 Playbook"
-              inputId="create-cfb26-playbook"
-              selected={selectedPlaybook}
-              onSelect={setSelectedPlaybook}
-              options={options}
-              loading={playbooks.length === 0 && !loadErr}
-              placeholder="Search CFB26 playbooks"
-              getOptionLabel={(o) => o.team_name}
-              getOptionKey={(o) => o.team_name}
-              getSearchText={(o) => o.team_name}
-              showTrailingChevron={false}
-            />
-            <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
-          </>
-        ) : (
-          <div className="space-y-3 font-body text-sm text-slate-300">
-            <p>
-              <span className="text-slate-500">Name:</span> {name.trim()}
-            </p>
-            <p>
-              <span className="text-slate-500">CFB26 Playbook:</span> {selectedPlaybook?.team_name}
-            </p>
-            <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add plays in the editor.</p>
-          </div>
-        )}
-
-        <div className="flex gap-3 border-t border-slate-800 pt-5">
+        <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
           {step === 2 ? (
             <button type="button" className="btn-secondary flex-1" onClick={() => setStep(1)}>
               Back
@@ -182,7 +196,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
-      <div className={`flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 ${open ? "" : ""}`}>{inner}</div>
+      <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">{inner}</div>
     </div>
   );
 }

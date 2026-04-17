@@ -29,7 +29,7 @@ export function SituationList({
               type="button"
               onClick={() => onSelect(s.scenario)}
               className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-body text-xs ${
-                active ? "bg-emerald-600 text-slate-950" : "bg-slate-800 text-slate-300"
+                active ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-300"
               }`}
             >
               {short} {n}/{max}

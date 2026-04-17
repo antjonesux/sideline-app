@@ -32,7 +32,7 @@ type PredictApi = {
     third_down: { pct: number; conversions: number; plays: number };
   };
   motion: { user_pct: number; playbook_pct: number; playbook_name: string; underutilizing: boolean };
-  meta: { play_count: number; turnover_count: number; turnover_rate: number; game_count: number };
+  meta: { play_count: number; turnover_count: number; turnover_rate: number; game_count: number; overall_success_rate: number };
 };
 
 function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDisplay: string; description: string }) {
@@ -183,6 +183,7 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
             <ScoutingReportSection
               situationRows={q.data.scouting_report ?? []}
               formationRows={q.data.scouting_formation_report ?? []}
+              overallSuccessRate={q.data.meta.overall_success_rate ?? 0}
             />
           ) : null}
         </>

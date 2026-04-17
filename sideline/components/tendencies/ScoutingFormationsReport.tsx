@@ -1,18 +1,22 @@
 "use client";
 
 import type { ScoutingFormationReportRow } from "@/lib/tendenciesServer";
-import {
-  scoutingCardAccentClass,
-  scoutingFormationInsight,
-  scoutingFormationSnapFooter,
-  scoutingSuccessDotClass,
-} from "@/lib/scoutingCoachingCopy";
+import { useMemo, useState } from "react";
+
+function successRateClass(successRate: number): string {
+  if (successRate >= 60) return "text-emerald-400";
+  if (successRate >= 40) return "text-amber-400";
+  return "text-red-400";
+}
 
 type Props = {
   rows: ScoutingFormationReportRow[];
+  overallSuccessRate: number;
 };
 
-export function ScoutingFormationsReport({ rows }: Props) {
+export function ScoutingFormationsReport({ rows, overallSuccessRate }: Props) {
+  const [showAll, setShowAll] = useState(false);
+
   if (rows.length === 0) {
     return (
       <p className="font-body text-sm text-slate-400">
@@ -21,57 +25,62 @@ export function ScoutingFormationsReport({ rows }: Props) {
     );
   }
 
+  const sortedRows = useMemo(() => [...rows].sort((a, b) => b.uses - a.uses), [rows]);
+  const visibleRows = showAll ? sortedRows : sortedRows.slice(0, 5);
+
   return (
     <div className="space-y-3">
-      {rows.map((r) => {
-        const insight = scoutingFormationInsight(r);
-        const footer = scoutingFormationSnapFooter(r);
-        const dot = scoutingSuccessDotClass(r.success_pct);
-        const accent = scoutingCardAccentClass(r.success_pct);
+      {visibleRows.map((r) => {
+        if (r.uses === 0) {
+          return (
+            <div key={r.formation} className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <p className="font-heading text-base uppercase tracking-wider text-white">{r.formation}</p>
+              <div className="mt-3 space-y-1">
+                <p className="font-body text-sm text-slate-500">No plays logged in this formation yet.</p>
+                <p className="font-body text-sm text-slate-500">This card will populate as you log more games.</p>
+              </div>
+            </div>
+          );
+        }
+        const topCallSuccessRate = Math.round(r.top_plays[0]?.success_rate ?? r.top_play?.success_rate ?? r.success_pct);
+        const underperforming = topCallSuccessRate <= Math.round(overallSuccessRate - 10);
         return (
-          <div key={r.formation} className={`app-card app-card-pad ${accent}`}>
-            <div className="flex items-start justify-between gap-3">
-              <p className="font-heading text-[14px] font-semibold uppercase tracking-wide text-slate-100">{r.formation}</p>
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="font-mono text-base font-medium tabular-nums text-slate-200">{r.success_pct}% success</span>
-                <span className={`size-2 shrink-0 rounded-full ${dot}`} title="Success tier" />
-              </div>
+          <div key={r.formation} className="min-h-[140px] rounded-xl border border-slate-800 bg-slate-900 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-heading text-base uppercase tracking-wider text-white">{r.formation}</p>
             </div>
 
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-700">
-                <div className="flex h-full w-full">
-                  <div className="h-full bg-emerald-500" style={{ width: `${r.run_pct}%` }} />
-                  <div className="h-full bg-blue-500" style={{ width: `${r.pass_pct}%` }} />
-                </div>
+            <div className="mt-3 space-y-1.5">
+              <p className="font-body text-xs uppercase tracking-widest text-slate-500">TOP CALLS</p>
+              <div className="space-y-1">
+                {r.top_plays.slice(0, 3).map((play, idx) => (
+                  <div key={`${play.formation}-${play.play_name}-${idx}`} className="flex items-center justify-between gap-2">
+                    <p className="min-w-0 truncate font-mono text-sm text-white">
+                      <span className="mr-1 text-slate-500">{idx + 1}.</span>
+                      {play.play_name}
+                    </p>
+                    <p className="shrink-0 font-mono text-sm">
+                      <span className={successRateClass(play.success_rate)}>{play.success_rate}%</span>
+                      <span className="ml-1 text-xs text-slate-500">success</span>
+                    </p>
+                  </div>
+                ))}
               </div>
-              <p className="shrink-0 font-mono text-[11px] tabular-nums text-slate-400">
-                {r.run_pct}% run <span className="text-slate-600">·</span> {r.pass_pct}% pass
-              </p>
+              {underperforming ? <p className="font-body text-sm text-amber-400">⚠️ Below your average — consider adjusting</p> : null}
             </div>
 
-            <div className="mt-3 space-y-2">
-              {insight.split("\n\n").map((para, i) => (
-                <p key={i} className="font-body text-[13px] font-normal leading-snug text-slate-100">
-                  {para}
-                </p>
-              ))}
+            <div className="mt-3 space-y-1.5">
+              <p className="font-body text-xs uppercase tracking-widest text-slate-500">USAGE</p>
+              <p className="font-body text-sm text-slate-300">{Math.round(r.snap_pct)}% of your total plays</p>
             </div>
-
-            {r.top_play ? (
-              <div className="mt-3 inline-flex max-w-full flex-wrap items-baseline gap-x-3 gap-y-1 rounded-md bg-slate-800 px-3 py-2">
-                <span className="font-body text-[10px] font-medium uppercase tracking-wide text-slate-500">Top play</span>
-                <span className="font-mono text-[11px] font-medium uppercase text-white">{r.top_play.play_name}</span>
-                <span className="font-mono text-[11px] font-normal tabular-nums text-slate-500">
-                  {Math.round(r.top_play.success_rate)}% · {r.top_play.uses} uses
-                </span>
-              </div>
-            ) : null}
-
-            <p className="mt-2 font-body text-[12px] font-normal text-slate-500">{footer}</p>
           </div>
         );
       })}
+      {sortedRows.length > 5 ? (
+        <button type="button" className="btn-secondary w-full text-sm" onClick={() => setShowAll((prev) => !prev)}>
+          {showAll ? "Show top 5 formations" : `Show all formations (${sortedRows.length})`}
+        </button>
+      ) : null}
     </div>
   );
 }

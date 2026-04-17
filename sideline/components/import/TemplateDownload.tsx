@@ -64,7 +64,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
       <button
         type="button"
         onClick={() => downloadClientTemplate()}
-        className="btn-secondary min-h-11 w-full px-3 py-2 text-xs sm:w-auto"
+        className="btn-secondary min-h-11 !w-full px-3 py-2 text-xs sm:!w-auto"
       >
         Download Template
       </button>

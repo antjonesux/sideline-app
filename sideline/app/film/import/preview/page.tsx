@@ -22,7 +22,7 @@ export default function FilmImportPreviewPage() {
 
   if (parsedRows.length === 0) {
     return (
-      <section className="space-y-6 pb-8">
+      <section className="space-y-6">
         <BackToFilmLink />
         <ImportPreviewSkeleton />
       </section>
@@ -30,7 +30,7 @@ export default function FilmImportPreviewPage() {
   }
 
   return (
-    <section className="space-y-8 pb-8">
+    <section className="space-y-8">
       <BackToFilmLink />
 
       <div className="app-shell">
