@@ -90,3 +90,119 @@ Identical patterns must look and behave identically everywhere.
 - Positive yards: emerald. Negative yards: red. Zero: muted.
 - Success rate color coding: 60%+ emerald, 40-59% amber, below 40% red, no data gray
 - Tables use consistent column widths and alignment (numbers right-aligned, text left-aligned)
+
+# Additional Rules to Add to .cursorrules
+# Merge these below your existing Typography and UX/UI sections
+
+## Preline First
+
+Before building any UI component, check if Preline UI already provides it. Use Preline's component for: modals (`hs-overlay`), tabs (`hs-tabs`), dropdowns (`hs-dropdown`), accordions (`hs-accordion`), tooltips (`hs-tooltip`), toasts, badges, list groups, radio card groups, and comboboxes.
+
+Only build a custom component when Preline genuinely does not have one that fits. If you build custom, document why in a code comment.
+
+Every Preline component must include its dark variant classes. Never ship a Preline component using only light-mode defaults.
+
+## Dark Mode
+
+This app is dark-mode only. The `<html>` tag has `className="dark"`.
+
+Every background, border, and text color must use `dark:` variant classes or the app's custom CSS tokens (`--color-field-green`, `--color-chalk`, etc.). Never use raw Tailwind colors without `dark:` pairing (e.g., never `bg-white` — use `dark:bg-slate-950` or `bg-slate-950`).
+
+Do not add light-mode styling. Do not add a theme toggle. Dark only.
+
+## TypeScript Strict Mode
+
+All code must pass `npm run build` with zero errors before a task is considered complete. Never use `any` type — use `unknown` with type narrowing if the type is genuinely unclear. Never use `@ts-ignore` or `@ts-expect-error`.
+
+When adding values to a union type (e.g., play types, result tags), update the type definition AND every switch/if chain that handles that union. Missing cases in exhaustive checks have caused production deploy failures.
+
+Type all API response shapes explicitly. Type all Supabase query return values.
+
+## Page Layout Contract
+
+Every page component must follow this structure:
+
+```tsx
+<div className="px-4 py-6 pb-24 max-w-3xl mx-auto">
+  {/* page content */}
+</div>
+```
+
+- `pb-24` is mandatory — it prevents the fixed bottom nav from overlapping content
+- Never set `overflow: hidden` on any content container between `<body>` and the page content
+- Never set `height: 100vh` on content containers — use `min-h-screen` if a minimum height is needed
+- The scrollable container must be the `<body>` or a `flex-1 overflow-y-auto` child in the root layout
+
+If you create a new page route, verify that you can scroll to the last content element and it clears the bottom nav.
+
+## Supabase Query Patterns
+
+All Supabase queries must follow this pattern:
+
+```typescript
+const { data, error } = await supabase
+  .from('table_name')
+  .select('column1, column2, relation(column1, column2)')  // Always explicit columns, never select('*')
+  .eq('filter_column', value)
+
+if (error) {
+  console.error('Descriptive error context:', error)
+  return NextResponse.json({ error: error.message }, { status: 500 })
+}
+```
+
+Rules:
+- Always use explicit column names in `.select()`, never `select('*')`
+- Always handle the `error` return — never ignore it
+- Use `.single()` when expecting one row
+- Use `.maybeSingle()` when the row might not exist
+- Always return proper HTTP status codes from API routes (200, 201, 400, 404, 500)
+- Never make multiple sequential queries when a single query with joins would work (avoid N+1)
+
+## API Response Shape
+
+All API routes must return a consistent response shape:
+
+Success: `{ data: <result> }` with status 200 (GET) or 201 (POST)
+Error: `{ error: <message> }` with appropriate status code (400, 404, 500)
+
+Never return raw arrays or objects without wrapping them. Never return HTML or plain text from API routes.
+
+## File and Component Organization
+
+- One component per file. File name matches the component name (PascalCase).
+- Shared/reusable components go in `components/shared/`. Feature-specific components go in `components/[feature]/`.
+- API routes live in `app/api/[resource]/route.ts`. Nested resources use `app/api/[resource]/[id]/[sub-resource]/route.ts`.
+- Server-side logic (Supabase queries, data transforms) lives in `lib/`. Never put Supabase calls directly in components.
+- Seed data files live in `lib/seed/playbooks/[team-slug].ts`.
+- Types live in `lib/types.ts`. Add new types there, not inline in components.
+
+## Scaffolding Rule
+
+Never create a route or page that renders as a placeholder, skeleton, or "Coming Soon" state. If you create a route, build the full UI for that page in the same pass. If the full UI isn't part of the current task, don't create the route at all.
+
+When generating new pages, always populate them with real component structure, real data fetching, and real interactions. An empty page with a title and description is not acceptable output.
+
+## State Management
+
+- Local component state (`useState`) for UI-only state (open/closed, selected tab, form inputs)
+- Zustand stores for cross-component state that persists across navigation (active game session, user preferences)
+- TanStack Query for all server data (Supabase reads). Never use `useEffect` + `fetch` for data loading.
+- Zustand stores persist to localStorage where noted. TanStack Query handles cache invalidation.
+- After any mutation (POST, PUT, DELETE), invalidate the relevant TanStack Query cache so the UI updates immediately.
+
+## Error Handling
+
+- Every API call in a component must have error handling (try/catch or TanStack Query's `onError`)
+- Show an error toast on failure — never fail silently
+- Form submissions must disable the submit button while loading and re-enable on completion
+- Loading states use skeleton placeholders that match the shape of the content they replace — never a centered spinner on an otherwise blank page
+
+## Naming Conventions
+
+- Database columns: `snake_case` (e.g., `game_session_id`, `play_name`, `is_new_in_26`)
+- TypeScript types/interfaces: `PascalCase` (e.g., `GameSession`, `LoggedPlay`)
+- Component props: `camelCase` (e.g., `onSubmit`, `isLoading`, `gameId`)
+- API routes: kebab-case paths (e.g., `/api/top-plays`, `/api/game/[id]`)
+- CSS tokens: `--color-kebab-case` (e.g., `--color-field-green`)
+- Seed files: `kebab-case.ts` (e.g., `washington-state.ts`, `texas-am.ts`)
