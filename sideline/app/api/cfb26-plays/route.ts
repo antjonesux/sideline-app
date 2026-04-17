@@ -6,6 +6,15 @@ function sanitizeIlikeTerm(raw: string): string {
   return raw.replace(/%/g, "").replace(/,/g, "");
 }
 
+function normalizePlayNameForGroup(playName: string, formation: string): string {
+  const escaped = formation.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return playName
+    .trim()
+    .replace(new RegExp(`^${escaped}\\s*(?:[-:>]+)?\\s*`, "i"), "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export async function GET(req: NextRequest) {
   const playbook = req.nextUrl.searchParams.get("playbook");
   const formation = req.nextUrl.searchParams.get("formation");
@@ -23,7 +32,12 @@ export async function GET(req: NextRequest) {
       .order("play_name", { ascending: true });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ plays: data ?? [] });
+    const deduped = new Map<string, { play_name: string; is_new_in_26?: boolean | null }>();
+    for (const row of data ?? []) {
+      const normalized = normalizePlayNameForGroup(row.play_name, formation).toUpperCase().replace(/\s+/g, "");
+      if (!deduped.has(normalized)) deduped.set(normalized, row);
+    }
+    return NextResponse.json({ plays: Array.from(deduped.values()) });
   }
 
   if (searchRaw.length >= 2) {

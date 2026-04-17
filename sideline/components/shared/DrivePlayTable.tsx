@@ -19,14 +19,14 @@ const headerRowClass =
  */
 export function DrivePlayTable({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto -mx-4 px-4">
-      <div className="w-full min-w-[420px] sm:min-w-[560px]">
+    <div className="overflow-x-auto -mx-3 px-3">
+      <div className="min-w-full">
         <div className={headerRowClass}>
-          <span className="whitespace-nowrap">DN & DIST</span>
-          <span className="whitespace-nowrap">PLAY</span>
-          <span className="hidden whitespace-nowrap sm:block">FORMATION</span>
-          <span className="whitespace-nowrap">RESULT</span>
-          <span className="whitespace-nowrap">YDS</span>
+          <span className="whitespace-nowrap px-3 py-2">DN & DIST</span>
+          <span className="whitespace-nowrap px-3 py-2">PLAY</span>
+          <span className="hidden whitespace-nowrap px-3 py-2 sm:block">FORMATION</span>
+          <span className="whitespace-nowrap px-3 py-2">RESULT</span>
+          <span className="whitespace-nowrap px-3 py-2">YDS</span>
         </div>
         <div className="divide-y divide-white/[0.04]">{children}</div>
       </div>

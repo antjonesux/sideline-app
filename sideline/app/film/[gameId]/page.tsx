@@ -17,6 +17,7 @@ import { useToastStore } from "@/store/toastStore";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
+import { parseFieldPosition } from "@/lib/fieldPosition";
 
 function getDriveResult(
   plays: LoggedPlay[] | undefined | null,
@@ -207,11 +208,24 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   async function saveDrive(drive: Drive) {
+    const startingYardLine =
+      typeof drive.starting_yard_line === "number" && drive.starting_yard_line >= 1 && drive.starting_yard_line <= 50
+        ? drive.starting_yard_line
+        : null;
+    const startingSide = drive.starting_side === "OWN" || drive.starting_side === "OPP" ? drive.starting_side : null;
+    const startingAbsolute =
+      startingYardLine && startingSide ? parseFieldPosition(startingSide, startingYardLine) : null;
     const res = await fetch(`/api/drives/${drive.id}`, {
       method: "PUT",
       body: JSON.stringify({
         score_mine: drive.score_mine ?? 0,
         score_opponent: drive.score_opponent ?? 0,
+        quarter: drive.quarter ?? null,
+        starting_down: drive.starting_down ?? null,
+        starting_distance: drive.starting_distance ?? null,
+        starting_side: startingSide,
+        starting_yard_line: startingYardLine,
+        starting_absolute_yard: startingAbsolute,
         note: drive.note ?? null,
       }),
     });
@@ -448,20 +462,21 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       ) : null}
 
       {showLogger && game && activeDriveObj ? (
-        <div
-          className="fixed inset-0 z-[60] bg-slate-950/70"
-          onClick={() => {
-            setShowLogger(false);
-            setEditPlay(null);
-          }}
-        >
+        <>
+          <div
+            className="fixed inset-0 z-[60] bg-black/60"
+            onClick={() => {
+              setShowLogger(false);
+              setEditPlay(null);
+            }}
+          />
           <div
             className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl p-0 sm:rounded-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 p-4">
-                <h2 className="app-section-title text-lg">Play Logger</h2>
+            <div className="app-card flex w-full max-h-[85vh] flex-col overflow-hidden rounded-t-2xl p-0 sm:rounded-xl">
+              <div className="flex shrink-0 items-center justify-between border-b border-slate-800 p-3">
+                <h2 className="app-section-title text-base">Play Logger</h2>
                 <button
                   type="button"
                   className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
@@ -474,7 +489,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   <span className="sr-only">Close</span>
                 </button>
               </div>
-              <div className="overflow-y-auto p-4 sm:p-5">
+              <div className="flex-1 overflow-y-auto p-3">
                 <PlayLogger
                   gameSessionId={gameId}
                   myPlaybook={game.offensive_playbook ?? game.my_playbook}
@@ -488,7 +503,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               </div>
             </div>
           </div>
-        </div>
+        </>
       ) : null}
 
       {drives.map((drive) => {
@@ -507,7 +522,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         }
 
         return (
-          <div key={drive.id} className="app-card overflow-visible">
+          <div key={drive.id} className="app-card overflow-hidden rounded-xl">
             <div className="app-accordion-header-row flex items-stretch">
               <button
                 type="button"
@@ -622,8 +637,109 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </div>
 
             {editingDriveId === drive.id ? (
-              <div className="border-b border-slate-800/80 bg-slate-950/40 px-4 py-4 text-xs">
+              <div className="bg-slate-950/40 px-4 py-4 text-xs">
                 <div className="mb-3 grid grid-cols-2 gap-2">
+                  <label>
+                    <span className="app-field-label">Quarter</span>
+                    <select
+                      className="app-input-compact mt-0.5 w-full"
+                      value={String(drive.quarter ?? 1)}
+                      onChange={(e) =>
+                        setDrives((all) =>
+                          all.map((d) => (d.id === drive.id ? { ...d, quarter: parseInt(e.target.value, 10) || 1 } : d)),
+                        )
+                      }
+                    >
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span className="app-field-label">Down</span>
+                    <select
+                      className="app-input-compact mt-0.5 w-full"
+                      value={String(drive.starting_down ?? 1)}
+                      onChange={(e) =>
+                        setDrives((all) =>
+                          all.map((d) => (d.id === drive.id ? { ...d, starting_down: parseInt(e.target.value, 10) || 1 } : d)),
+                        )
+                      }
+                    >
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span className="app-field-label">Distance</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className="app-input-compact mt-0.5 w-full"
+                      value={String(drive.starting_distance ?? "")}
+                      onChange={(e) =>
+                        setDrives((all) =>
+                          all.map((d) =>
+                            d.id === drive.id
+                              ? {
+                                  ...d,
+                                  starting_distance:
+                                    e.target.value.trim() === ""
+                                      ? null
+                                      : Math.max(1, parseInt(e.target.value.replace(/\D/g, ""), 10) || 1),
+                                }
+                              : d,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span className="app-field-label">Field side</span>
+                    <select
+                      className="app-input-compact mt-0.5 w-full"
+                      value={drive.starting_side ?? "OWN"}
+                      onChange={(e) =>
+                        setDrives((all) =>
+                          all.map((d) =>
+                            d.id === drive.id ? { ...d, starting_side: e.target.value === "OPP" ? "OPP" : "OWN" } : d,
+                          ),
+                        )
+                      }
+                    >
+                      <option value="OWN">OWN</option>
+                      <option value="OPP">OPP</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span className="app-field-label">Field position</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className="app-input-compact mt-0.5 w-full"
+                      value={String(drive.starting_yard_line ?? "")}
+                      onChange={(e) =>
+                        setDrives((all) =>
+                          all.map((d) =>
+                            d.id === drive.id
+                              ? {
+                                  ...d,
+                                  starting_yard_line:
+                                    e.target.value.trim() === ""
+                                      ? null
+                                      : Math.max(1, Math.min(50, parseInt(e.target.value.replace(/\D/g, ""), 10) || 1)),
+                                }
+                              : d,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
                   <label>
                     <span className="app-field-label">My score</span>
                     <input
@@ -673,7 +789,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             ) : null}
 
             {isExpanded ? (
-              <div className="border-t border-slate-800/80 bg-slate-950/40">
+              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-950/40">
                 <DrivePlayTable>
                   {(drive.plays ?? []).map((p) => {
                     const yds = p.yards_gained;
@@ -694,14 +810,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                         <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down}-{p.distance}
                         </span>
-                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                        <span className="min-w-0 whitespace-nowrap truncate font-mono text-[12px] font-medium uppercase text-white">
                           {p.play_name}
                           <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
                             {p.formation}
                           </span>
                         </span>
-                        <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 overflow-hidden">
+                        <span className="hidden min-w-0 whitespace-nowrap truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
+                        <span className="min-w-0 overflow-hidden whitespace-nowrap">
                           <ResultBadge label={p.result_tag} />
                         </span>
                         <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>

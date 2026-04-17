@@ -17,10 +17,16 @@ const motionPanel =
 
 export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEditToggle }: CompactGameStateBarProps) {
   const [expanded, setExpanded] = useState(false);
+  const [distanceInput, setDistanceInput] = useState(String(gameState.distance));
+  const [yardInput, setYardInput] = useState("");
   const distId = useId();
   const yardNumId = useId();
 
   const { side, yard_line } = fromAbsoluteYard(gameState.absoluteYard);
+  useEffect(() => {
+    setDistanceInput(String(gameState.distance));
+    setYardInput(String(yard_line));
+  }, [gameState.distance, yard_line]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -66,7 +72,7 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEd
 
   return (
     <div className="rounded-xl border border-slate-700 bg-slate-900">
-      <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-700/80 px-3 py-2">
+      <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2">
         <span className="font-mono text-xs font-medium uppercase tracking-wide text-white">
           {gameState.down === 1 ? "1ST" : gameState.down === 2 ? "2ND" : gameState.down === 3 ? "3RD" : "4TH"} & {displayDistance}
         </span>
@@ -134,11 +140,14 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEd
                   inputMode="numeric"
                   maxLength={2}
                   className="mt-1.5 flex min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 text-center font-mono text-lg text-white"
-                  value={String(gameState.distance)}
+                  value={distanceInput}
                   onChange={(e) => {
                     const v = e.target.value.replace(/\D/g, "");
-                    if (v === "") return;
-                    const n = parseInt(v, 10);
+                    setDistanceInput(v);
+                  }}
+                  onBlur={() => {
+                    if (distanceInput === "") return;
+                    const n = parseInt(distanceInput, 10);
                     if (!Number.isNaN(n) && n >= 1) patch({ distance: Math.min(99, n) });
                   }}
                 />
@@ -169,11 +178,14 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEd
                     maxLength={2}
                     aria-label="Yard line 1 to 50"
                     className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 text-center font-mono text-lg text-white"
-                    value={String(yard_line)}
+                    value={yardInput}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/\D/g, "");
-                      if (raw === "") return;
-                      const n = parseInt(raw, 10);
+                      setYardInput(raw);
+                    }}
+                    onBlur={() => {
+                      if (yardInput === "") return;
+                      const n = parseInt(yardInput, 10);
                       setYardNumber(n);
                     }}
                   />
@@ -181,7 +193,7 @@ export function CompactGameStateBar({ gameState, onChange, onStartNewDrive, onEd
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-3">
+            <div className="flex flex-wrap items-center gap-2 pt-3">
               <span className="font-sans text-xs text-slate-500">Drive</span>
               <span className="font-mono text-sm text-amber-400">{gameState.driveNumber}</span>
               <button type="button" className="app-no-press-scale min-h-11 px-2 font-sans text-sm font-medium text-amber-400" onClick={applyManualNewDrive}>

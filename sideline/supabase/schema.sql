@@ -34,6 +34,9 @@ create table if not exists drives (
   game_session_id uuid not null references game_sessions(id) on delete cascade,
   drive_number int not null,
   quarter int,
+  starting_down int check (starting_down between 1 and 4),
+  starting_distance int check (starting_distance >= 1),
+  starting_absolute_yard int check (starting_absolute_yard between 1 and 99),
   time_remaining text,
   starting_yard_line int,
   starting_side text check (starting_side in ('OWN', 'OPP')),
@@ -66,6 +69,10 @@ create table if not exists logged_plays (
 );
 
 alter table logged_plays add column if not exists drive_number int;
+alter table logged_plays add column if not exists situation_override text;
+alter table drives add column if not exists starting_down int check (starting_down between 1 and 4);
+alter table drives add column if not exists starting_distance int check (starting_distance >= 1);
+alter table drives add column if not exists starting_absolute_yard int check (starting_absolute_yard between 1 and 99);
 
 create table if not exists play_sheets (
   id uuid primary key default gen_random_uuid(),

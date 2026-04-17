@@ -37,11 +37,11 @@ export function GameFormationTable({ rows }: Props) {
   }
   return (
     <div className="app-card overflow-hidden">
-      <div className={`${FORMATION_TABLE_GRID} app-accordion-header-row py-3 font-mono text-[11px] font-normal uppercase tracking-wide text-slate-500`}>
+      <div className={`${FORMATION_TABLE_GRID} app-accordion-header-row py-3 font-sans text-xs font-medium uppercase tracking-wider text-slate-500`}>
         <span>Formation</span>
-        <span className="text-right">Plays</span>
-        <span className="text-right">Avg yds</span>
-        <span className="text-right">Success</span>
+        <span>Plays</span>
+        <span>Avg yds</span>
+        <span>Success</span>
         <span aria-hidden />
       </div>
       {rows.map((r) => {
@@ -54,9 +54,9 @@ export function GameFormationTable({ rows }: Props) {
               onClick={() => setOpen(isOpen ? null : r.formation)}
             >
               <span className="truncate font-body text-[14px] font-normal text-slate-200">{r.formation}</span>
-              <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.plays}</span>
-              <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.avg_yards}</span>
-              <span className="font-mono text-right text-[13px] tabular-nums text-slate-300">{r.success_rate}%</span>
+              <span className="font-mono text-[13px] tabular-nums text-slate-300">{r.plays}</span>
+              <span className="font-mono text-[13px] tabular-nums text-slate-300">{r.avg_yards}</span>
+              <span className="font-mono text-[13px] tabular-nums text-slate-300">{r.success_rate}%</span>
               <span className="inline-flex items-center justify-end">
                 <svg
                   width="16"
@@ -86,17 +86,17 @@ export function GameFormationTable({ rows }: Props) {
                         <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down ?? "—"}-{p.distance ?? "—"}
                         </span>
-                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                        <span className="min-w-0 whitespace-nowrap truncate font-mono text-[12px] font-medium uppercase text-white">
                           {p.play_name}
                           <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
                             {p.formation}
                           </span>
                         </span>
-                        <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 justify-self-end overflow-hidden">
+                        <span className="hidden min-w-0 whitespace-nowrap truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
+                        <span className="min-w-0 overflow-hidden whitespace-nowrap">
                           <ResultBadge label={p.result_tag} />
                         </span>
-                        <span className={`min-w-0 whitespace-nowrap text-right justify-self-end font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                        <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
                           {ydsText}
                         </span>
                       </div>

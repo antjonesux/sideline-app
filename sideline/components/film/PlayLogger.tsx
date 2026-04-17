@@ -5,7 +5,6 @@ import type { Drive, LoggedPlay } from "@/lib/types";
 import { CompactGameStateBar } from "@/components/film/play-logger/CompactGameStateBar";
 import { FormationPlaySearch, type FormationPlayValue } from "@/components/film/play-logger/FormationPlaySearch";
 import { ResultGrid } from "@/components/film/play-logger/ResultGrid";
-import { YardsInput } from "@/components/film/play-logger/YardsInput";
 import { PlayLogFeed } from "@/components/film/play-logger/PlayLogFeed";
 import {
   advanceGameState,
@@ -73,6 +72,8 @@ export function PlayLogger({
   const [formationPlay, setFormationPlay] = useState<FormationPlayValue | null>(null);
   const [uiResult, setUiResult] = useState<UiResultTag | null>(null);
   const [yardsText, setYardsText] = useState("");
+  const [ballAtSide, setBallAtSide] = useState<"OWN" | "OPP">("OWN");
+  const [ballAtYard, setBallAtYard] = useState("");
   const [note, setNote] = useState("");
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [situationOverride, setSituationOverride] = useState<SituationOverride>(null);
@@ -119,6 +120,10 @@ export function PlayLogger({
       const y = editPlay.yards_gained ?? 0;
       if (t === "LOSS") setYardsText(String(Math.abs(y)));
       else setYardsText(String(Math.max(0, y)));
+      const postPlayAbs = Math.min(99, Math.max(1, gs.absoluteYard + y));
+      const postPlay = fromAbsoluteYard(postPlayAbs);
+      setBallAtSide(postPlay.side);
+      setBallAtYard(String(postPlay.yard_line));
       setNote(editPlay.note ?? "");
       setShowNoteInput(Boolean((editPlay.note ?? "").trim()));
       return;
@@ -128,6 +133,8 @@ export function PlayLogger({
       setFormationPlay(null);
       setUiResult(null);
       setYardsText("");
+      setBallAtSide(side);
+      setBallAtYard(String(yard_line));
       setNote("");
       setShowNoteInput(false);
     }
@@ -172,6 +179,13 @@ export function PlayLogger({
     }
   }, [uiResult, editPlay]);
 
+  useEffect(() => {
+    if (!editPlay) {
+      setBallAtSide(side);
+      setBallAtYard(String(yard_line));
+    }
+  }, [side, yard_line, editPlay]);
+
   const mergedPlays = useMemo(() => {
     const base = [...plays].sort((a, b) => (a.play_number ?? 0) - (b.play_number ?? 0));
     return [...base, ...optimisticPlays];
@@ -181,12 +195,14 @@ export function PlayLogger({
     setFormationPlay(null);
     setUiResult(null);
     setYardsText("");
+    setBallAtSide(side);
+    setBallAtYard(String(yard_line));
     setNote("");
     setShowNoteInput(false);
     setSituationOverride(null);
     lastUiResult.current = null;
     queueMicrotask(() => formationRef.current?.focus());
-  }, []);
+  }, [side, yard_line]);
 
   function parseYardsForSubmit(): { yardsGainedDb: number; yardsForEngine: number; error?: string } {
     if (!uiResult) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Select a result." };
@@ -198,30 +214,42 @@ export function PlayLogger({
     ) {
       return { yardsGainedDb: 0, yardsForEngine: 0 };
     }
-    if (uiResult === "LOSS") {
-      const n = parseInt(yardsText, 10);
-      const mag = Number.isNaN(n) || n < 1 ? 5 : n;
-      return { yardsGainedDb: -mag, yardsForEngine: -mag };
+    const needsBallAt = uiResult === "GAIN" || uiResult === "LOSS";
+    if (needsBallAt) {
+      const nextYard = parseInt(ballAtYard, 10);
+      if (Number.isNaN(nextYard) || nextYard < 1 || nextYard > 50) {
+        return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter Ball At yard line (1-50)." };
+      }
+      const newAbsolute = toAbsoluteYard(ballAtSide, nextYard);
+      const yards = newAbsolute - gameState.absoluteYard;
+      if (uiResult === "GAIN" && yards <= 0) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Ball At must be ahead of current spot." };
+      if (uiResult === "LOSS" && yards >= 0) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Ball At must be behind current spot." };
+      return { yardsGainedDb: yards, yardsForEngine: yards };
     }
     const n = parseInt(yardsText, 10);
     if (Number.isNaN(n)) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter yards." };
-    if (uiResult === "GAIN" && n < 1) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Yards must be positive." };
     if (uiResult === "TOUCHDOWN" && n < 1) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter touchdown yards." };
     return { yardsGainedDb: n, yardsForEngine: n };
   }
 
   const canSubmit = useMemo(() => {
     if (!formationPlay?.formation || !formationPlay?.play_name || !uiResult) return false;
-    if (uiResult === "GAIN" || uiResult === "TOUCHDOWN" || uiResult === "LOSS") {
+    if (uiResult === "GAIN" || uiResult === "LOSS") {
+      const n = parseInt(ballAtYard, 10);
+      if (Number.isNaN(n) || n < 1 || n > 50) return false;
+      const newAbsolute = toAbsoluteYard(ballAtSide, n);
+      const yards = newAbsolute - gameState.absoluteYard;
+      if (uiResult === "GAIN" && yards <= 0) return false;
+      if (uiResult === "LOSS" && yards >= 0) return false;
+    }
+    if (uiResult === "TOUCHDOWN") {
       if (yardsText.trim() === "") return false;
       const n = parseInt(yardsText, 10);
       if (Number.isNaN(n)) return false;
-      if (uiResult === "GAIN" && n < 1) return false;
       if (uiResult === "TOUCHDOWN" && n < 1) return false;
-      if (uiResult === "LOSS" && n < 1) return false;
     }
     return true;
-  }, [formationPlay, uiResult, yardsText]);
+  }, [formationPlay, uiResult, yardsText, ballAtYard, ballAtSide, gameState.absoluteYard]);
 
   async function submitLog() {
     if (!formationPlay || !uiResult || logging) return;
@@ -349,7 +377,7 @@ export function PlayLogger({
         }}
       />
 
-      <div className="app-card flex max-h-[70vh] flex-col overflow-hidden p-0">
+      <div className="app-card flex max-h-[70vh] flex-col overflow-hidden rounded-xl p-0">
         <div className="space-y-2 overflow-y-auto p-3">
           <div>
             <p className="app-field-label text-slate-500">SITUATION</p>
@@ -385,7 +413,55 @@ export function PlayLogger({
             }}
           />
 
-          <YardsInput uiResult={uiResult} yardsText={yardsText} onYardsTextChange={setYardsText} inputRef={yardsRef} />
+          {uiResult === "GAIN" || uiResult === "LOSS" ? (
+            <div>
+              <label className="app-field-label text-slate-500">Ball At</label>
+              <div className="mt-1.5 flex items-center gap-2">
+                <select
+                  value={ballAtSide}
+                  onChange={(e) => setBallAtSide(e.target.value === "OPP" ? "OPP" : "OWN")}
+                  className="min-h-11 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-mono text-white"
+                >
+                  <option value="OWN">OWN</option>
+                  <option value="OPP">OPP</option>
+                </select>
+                <input
+                  ref={yardsRef}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="yard line"
+                  value={ballAtYard}
+                  onChange={(e) => setBallAtYard(e.target.value.replace(/\D/g, ""))}
+                  className="min-h-11 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white"
+                />
+              </div>
+              {ballAtYard.trim() !== "" ? (
+                <p className="mt-1 text-xs font-mono text-slate-400">
+                  {(() => {
+                    const n = parseInt(ballAtYard, 10);
+                    if (Number.isNaN(n) || n < 1 || n > 50) return "Enter 1-50";
+                    const calc = toAbsoluteYard(ballAtSide, n) - gameState.absoluteYard;
+                    return calc >= 0 ? `+${calc} yards` : `${calc} yards`;
+                  })()}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+          {uiResult === "TOUCHDOWN" ? (
+            <div>
+              <label className="app-field-label text-slate-500">Yards</label>
+              <input
+                ref={yardsRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={yardsText}
+                onChange={(e) => setYardsText(e.target.value.replace(/\D/g, ""))}
+                className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 text-center font-mono text-lg text-white"
+              />
+            </div>
+          ) : null}
 
           {showNoteInput ? (
             <div>

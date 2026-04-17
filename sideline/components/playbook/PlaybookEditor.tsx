@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import { useToastStore } from "@/store/toastStore";
@@ -44,7 +43,6 @@ type SetupApi = {
 };
 
 export function PlaybookEditor({ sheetId }: { sheetId: string }) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [activeScenario, setActiveScenario] = useState("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -52,7 +50,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [replacePlayId, setReplacePlayId] = useState<string | null>(null);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [removePlayId, setRemovePlayId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
@@ -214,14 +211,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
     },
   });
-  const deleteSheet = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/playbook/${sheetId}`, { method: "DELETE" });
-      const j = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Could not delete play sheet");
-      return j;
-    },
-  });
 
   const onReorder = useCallback(
     (fromId: string, toSlotIndex: number) => {
@@ -321,17 +310,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     }
   };
 
-  const onDeleteSheet = async () => {
-    try {
-      await deleteSheet.mutateAsync();
-      setConfirmDeleteOpen(false);
-      addToast("Play sheet deleted", "success");
-      router.push("/playbook");
-    } catch {
-      addToast("Failed to save", "error");
-    }
-  };
-
   const stats = scenarioPayload?.scenarioStats ?? {};
   const formationStats = scenarioPayload?.formationStats ?? {};
   const suggestions = scenarioPayload?.suggestions ?? [];
@@ -376,7 +354,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </button>
         </div>
         <p className="font-body text-sm text-slate-400">
-          Built from {cfb26} playbook · {sheet.scheme}
+          Built from {cfb26} playbook
         </p>
       </div>
 
@@ -491,9 +469,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                     ))}
                   </datalist>
                 </label>
-                <button type="button" className="font-body text-sm text-red-300 hover:text-red-200" onClick={() => setConfirmDeleteOpen(true)}>
-                  Delete play sheet
-                </button>
                 <div className="flex gap-2">
                   <button type="button" className="btn-secondary flex-1" onClick={() => setEditorOpen(false)}>
                     Cancel
@@ -507,21 +482,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </div>
         </div>
       ) : null}
-      <ConfirmDestructiveModal
-        open={confirmDeleteOpen}
-        onClose={() => setConfirmDeleteOpen(false)}
-        title="Delete play sheet?"
-        message={
-          <>
-            This will permanently delete <strong className="font-semibold text-white">{sheet.name}</strong> and all its
-            plays. This can&apos;t be undone.
-          </>
-        }
-        confirmLabel="Delete play sheet"
-        busy={deleteSheet.isPending}
-        onConfirm={onDeleteSheet}
-      />
-
       <ConfirmDestructiveModal
         open={removePlayId !== null}
         onClose={() => setRemovePlayId(null)}

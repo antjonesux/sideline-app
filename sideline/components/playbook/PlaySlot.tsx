@@ -74,16 +74,16 @@ export function PlaySlot({
           if (id) onReorder(id, slotIndex);
           setDragId(null);
         }}
-        className="rounded-lg border border-dashed border-slate-700 bg-slate-950/40 p-3"
+        className="rounded-lg bg-slate-950/40 p-3"
       >
         <button
           type="button"
           disabled={atCapacity}
           onClick={onAdd}
-          className={`font-body w-full rounded-md border border-dashed py-2 text-sm ${
+          className={`font-body w-full rounded-lg border-2 border-dashed py-2 text-sm ${
             atCapacity
               ? "cursor-not-allowed border-slate-800 text-slate-600"
-              : "border-slate-600 text-slate-300 hover:border-emerald-700/50 hover:bg-slate-900 hover:text-emerald-200"
+              : "border-slate-700 text-slate-300 hover:border-emerald-500 hover:bg-slate-900 hover:text-emerald-200"
           }`}
         >
           Add Play

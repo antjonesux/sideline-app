@@ -38,6 +38,9 @@ export type Drive = {
   drive_number: number;
   quarter: number | null;
   time_remaining: string | null;
+  starting_down?: number | null;
+  starting_distance?: number | null;
+  starting_absolute_yard?: number | null;
   starting_yard_line: number | null;
   starting_side: "OWN" | "OPP" | null;
   score_mine: number | null;

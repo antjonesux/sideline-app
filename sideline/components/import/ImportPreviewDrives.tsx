@@ -109,14 +109,14 @@ export function ImportPreviewDrives({ rows }: Props) {
                         <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down}-{p.distance}
                         </span>
-                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                        <span className="min-w-0 whitespace-nowrap truncate font-mono text-[12px] font-medium uppercase text-white">
                           {p.play_name}
                           <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
                             {p.formation}
                           </span>
                         </span>
-                        <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 overflow-hidden">
+                        <span className="hidden min-w-0 whitespace-nowrap truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
+                        <span className="min-w-0 overflow-hidden whitespace-nowrap">
                           <ResultBadge label={canon ? csvResultLabelToDbTag(canon) : p.result} />
                         </span>
                         <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>

@@ -8,6 +8,14 @@ type FormationGroup = { formation_type: string; formations: string[] };
 type Stats = { uses: number; avg_yards: number; success_rate: number };
 type FormationAgg = { uses: number; success_rate: number };
 
+function normalizePlayLabel(playName: string, formation: string | null): string {
+  const raw = playName.trim();
+  if (!formation) return raw;
+  const escaped = formation.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const withoutPrefix = raw.replace(new RegExp(`^${escaped}\\s*(?:[-:>]+)?\\s*`, "i"), "");
+  return withoutPrefix.trim() || raw;
+}
+
 export function AddPlayDrawer({
   open,
   onClose,
@@ -72,7 +80,14 @@ export function AddPlayDrawer({
           setLoadErr(j.error ?? "Could not load plays");
           return;
         }
-        setPlays(j.plays ?? []);
+        const deduped = new Map<string, { play_name: string; is_new_in_26?: boolean | null }>();
+        for (const row of j.plays ?? []) {
+          const normalizedName = normalizePlayLabel(row.play_name, formation).replace(/\s+/g, " ").trim().toUpperCase();
+          if (!deduped.has(normalizedName)) {
+            deduped.set(normalizedName, row);
+          }
+        }
+        setPlays(Array.from(deduped.values()));
       } finally {
         setPlaysLoading(false);
       }
@@ -114,9 +129,10 @@ export function AddPlayDrawer({
       }}
     >
       <div
-        className="hs-overlay-animation-target pointer-events-auto fixed inset-x-0 bottom-0 max-h-[90vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
+        className="hs-overlay-animation-target pointer-events-auto fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
         onClick={(e) => e.stopPropagation()}
       >
+      <div className="max-h-[85vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:rounded-xl">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>
             <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-white">
@@ -163,7 +179,7 @@ export function AddPlayDrawer({
                         <li key={f}>
                           <button
                             type="button"
-                            className="app-card flex w-full items-center justify-between px-3 py-3 text-start transition-colors hover:border-emerald-600/50"
+                            className="app-card flex w-full items-center justify-between px-3 py-3 text-start transition-colors hover:border-emerald-600/50 active:bg-slate-800"
                             onClick={() => {
                               setSelectedFormation(f);
                               setStep(2);
@@ -221,7 +237,9 @@ export function AddPlayDrawer({
                           }}
                         >
                           <div className="flex w-full items-center justify-between gap-2">
-                            <span className="font-mono text-[12px] font-medium uppercase text-white">{p.play_name}</span>
+                            <span className="font-mono text-[12px] font-medium uppercase text-white">
+                              {normalizePlayLabel(p.play_name, selectedFormation)}
+                            </span>
                             {newBadge ? (
                               <span className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[9px] uppercase text-slate-400">
                                 New
@@ -250,6 +268,7 @@ export function AddPlayDrawer({
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
