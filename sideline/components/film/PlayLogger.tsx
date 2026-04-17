@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import { CompactGameStateBar } from "@/components/film/play-logger/CompactGameStateBar";
-import type { DropdownMenuItem } from "@/components/shared/DropdownMenu";
 import { FormationPlaySearch, type FormationPlayValue } from "@/components/shared/FormationPlaySearch";
 import { ResultGrid } from "@/components/film/play-logger/ResultGrid";
 import { PlayLogFeed } from "@/components/film/play-logger/PlayLogFeed";
@@ -32,7 +31,6 @@ type PlayLoggerProps = {
   onEditPlayChange: (p: LoggedPlay | null) => void;
   onLogged: () => void | Promise<void>;
   onStartNewDrive: () => void | Promise<void>;
-  driveMenuItems?: DropdownMenuItem[];
 };
 
 type SituationOverride = "2 Minute" | "4 Minute" | "2 Point" | null;
@@ -66,7 +64,6 @@ export function PlayLogger({
   onEditPlayChange,
   onLogged,
   onStartNewDrive,
-  driveMenuItems,
 }: PlayLoggerProps) {
   const plays = drive.plays ?? [];
   const replayState = useMemo(
@@ -87,11 +84,10 @@ export function PlayLogger({
   const [yardsText, setYardsText] = useState("");
   const [ballAtSide, setBallAtSide] = useState<"OWN" | "OPP">("OWN");
   const [ballAtYard, setBallAtYard] = useState("");
-  const [note, setNote] = useState("");
-  const [showNoteInput, setShowNoteInput] = useState(false);
   const [situationOverride, setSituationOverride] = useState<SituationOverride>(null);
   const [logging, setLogging] = useState(false);
   const [optimisticPlays, setOptimisticPlays] = useState<LoggedPlay[]>([]);
+  const submitLockRef = useRef(false);
 
   const formationRef = useRef<HTMLInputElement>(null);
   const yardsRef = useRef<HTMLInputElement>(null);
@@ -140,8 +136,6 @@ export function PlayLogger({
       const postPlay = fromAbsoluteYard(postPlayAbs);
       setBallAtSide(postPlay.side);
       setBallAtYard(String(postPlay.yard_line));
-      setNote(editPlay.note ?? "");
-      setShowNoteInput(Boolean((editPlay.note ?? "").trim()));
       return;
     }
     if (wasEditingRef.current) {
@@ -151,8 +145,6 @@ export function PlayLogger({
       setYardsText("");
       setBallAtSide(side);
       setBallAtYard(String(yard_line));
-      setNote("");
-      setShowNoteInput(false);
     }
   }, [editPlay, drive.drive_number]);
 
@@ -237,18 +229,17 @@ export function PlayLogger({
     };
   }, [loggedPlaysForGameStats]);
 
-  const resetFormAfterLog = useCallback(() => {
+  const resetFormAfterLog = useCallback((stateForBall: GameState) => {
+    const pos = fromAbsoluteYard(stateForBall.absoluteYard);
     setFormationPlay(null);
     setUiResult(null);
     setYardsText("");
-    setBallAtSide(side);
-    setBallAtYard(String(yard_line));
-    setNote("");
-    setShowNoteInput(false);
+    setBallAtSide(pos.side);
+    setBallAtYard(String(pos.yard_line));
     setSituationOverride(null);
     lastUiResult.current = null;
     queueMicrotask(() => formationRef.current?.focus());
-  }, [side, yard_line]);
+  }, []);
 
   function parseYardsForSubmit(): { yardsGainedDb: number; yardsForEngine: number; error?: string } {
     if (!uiResult) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Select a result." };
@@ -303,7 +294,9 @@ export function PlayLogger({
   }, [formationPlay, uiResult, yardsText, ballAtYard, ballAtSide, gameState.absoluteYard]);
 
   async function submitLog() {
-    if (!uiResult || logging) return;
+    if (!uiResult) return;
+    if (editPlay && logging) return;
+    if (!editPlay && submitLockRef.current) return;
     const { yardsGainedDb, yardsForEngine, error } = parseYardsForSubmit();
     if (error) {
       addToast(error, "error");
@@ -350,15 +343,15 @@ export function PlayLogger({
       play_name: playName,
       result_tag: storedTag,
       yards_gained: yardsGainedDb,
-      note: note.trim() || null,
+      note: editPlay ? (editPlay.note ?? null) : null,
       game_session_id: gameSessionId,
       opponent_scheme: opponentScheme,
       drive_number: drive.drive_number,
       situation_override: situationOverride,
     };
 
-    setLogging(true);
     if (editPlay) {
+      setLogging(true);
       try {
         const res = await fetch(`/api/plays/${editPlay.id}`, {
           method: "PUT",
@@ -372,7 +365,7 @@ export function PlayLogger({
         }
         addToast("Play updated", "success");
         onEditPlayChange(null);
-        resetFormAfterLog();
+        resetFormAfterLog(gameState);
         await onLogged();
       } finally {
         setLogging(false);
@@ -395,11 +388,14 @@ export function PlayLogger({
       play_name: playName,
       result_tag: storedTag,
       yards_gained: yardsGainedDb,
-      note: note.trim() || null,
+      note: null,
     };
     const nextState = advanceGameState(gameState, storedTag, yardsForEngine);
+    submitLockRef.current = true;
     setManualGameState(nextState);
     setOptimisticPlays((o) => [...o, optimistic]);
+    resetFormAfterLog(nextState);
+    addToast("Play logged", "success");
 
     try {
       const res = await fetch(`/api/drives/${drive.id}/plays`, {
@@ -414,12 +410,10 @@ export function PlayLogger({
         addToast(body.error ?? "Failed to save play — tap to retry", "error");
         return;
       }
-      addToast("Play logged", "success");
       setOptimisticPlays((o) => o.filter((x) => x.id !== optimistic.id));
-      resetFormAfterLog();
       await onLogged();
     } finally {
-      setLogging(false);
+      submitLockRef.current = false;
     }
   }
 
@@ -438,20 +432,30 @@ export function PlayLogger({
 
   return (
     <div className="space-y-3">
-      <CompactGameStateBar
-        gameState={gameState}
-        onChange={setManualGameState}
-        onStartNewDrive={() => void onStartNewDrive()}
-        onEditToggle={() => {
-          if (plays.length === 0) {
-            addToast("No plays to edit yet", "warning");
-            return;
-          }
-          const latest = [...plays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0))[0];
-          if (latest) onEditPlayChange(latest);
-        }}
-        driveMenuItems={driveMenuItems}
-      />
+      <CompactGameStateBar gameState={gameState} />
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className="min-h-11 rounded-lg px-3 font-sans text-sm font-medium text-amber-400 hover:bg-white/[0.04] hover:text-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+          onClick={() => void onStartNewDrive()}
+        >
+          + New drive
+        </button>
+        <button
+          type="button"
+          className="min-h-11 rounded-lg px-3 font-sans text-sm text-slate-400 hover:bg-white/[0.04] hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+          onClick={() => {
+            if (plays.length === 0) {
+              addToast("No plays to edit yet", "warning");
+              return;
+            }
+            const latest = [...plays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0))[0];
+            if (latest) onEditPlayChange(latest);
+          }}
+        >
+          Edit last play
+        </button>
+      </div>
 
       <div className="app-card flex max-h-[70vh] flex-col overflow-hidden rounded-xl p-0">
         <div className="space-y-3 overflow-y-auto p-3">
@@ -493,16 +497,30 @@ export function PlayLogger({
 
           {uiResult === "GAIN" || uiResult === "LOSS" ? (
             <div>
-              <label className="app-field-label text-slate-500">Ball At</label>
-              <div className="mt-1.5 flex items-center gap-2">
-                <select
-                  value={ballAtSide}
-                  onChange={(e) => setBallAtSide(e.target.value === "OPP" ? "OPP" : "OWN")}
-                  className="min-h-11 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-mono text-white"
+              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Ball At</p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                    ballAtSide === "OWN"
+                      ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                      : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                  }`}
+                  onClick={() => setBallAtSide("OWN")}
                 >
-                  <option value="OWN">OWN</option>
-                  <option value="OPP">OPP</option>
-                </select>
+                  OWN
+                </button>
+                <button
+                  type="button"
+                  className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                    ballAtSide === "OPP"
+                      ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                      : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                  }`}
+                  onClick={() => setBallAtSide("OPP")}
+                >
+                  OPP
+                </button>
                 <input
                   ref={yardsRef}
                   type="text"
@@ -511,7 +529,7 @@ export function PlayLogger({
                   placeholder="yard line"
                   value={ballAtYard}
                   onChange={(e) => setBallAtYard(e.target.value.replace(/\D/g, ""))}
-                  className="min-h-11 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white"
+                  className="min-h-11 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </div>
               {ballAtYard.trim() !== "" ? (
@@ -541,25 +559,6 @@ export function PlayLogger({
             </div>
           ) : null}
 
-          {showNoteInput ? (
-            <div>
-              <label htmlFor="play-logger-note" className="app-field-label text-slate-500">
-                Note (optional)
-              </label>
-              <input
-                id="play-logger-note"
-                maxLength={60}
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-sans text-sm text-white placeholder:text-slate-500"
-                placeholder="What happened? (optional)"
-              />
-            </div>
-          ) : (
-            <button type="button" className="font-body text-sm text-slate-400 underline-offset-2 hover:text-white hover:underline" onClick={() => setShowNoteInput(true)}>
-              Add note
-            </button>
-          )}
         </div>
         <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
           {editPlay ? (
@@ -574,13 +573,15 @@ export function PlayLogger({
           <button
             ref={logBtnRef}
             type="button"
-            disabled={logging || !canSubmit}
-            className={`min-h-11 w-full rounded-lg px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors ${
-              logging || !canSubmit ? "cursor-not-allowed bg-slate-700 text-slate-500" : "bg-emerald-600 hover:bg-emerald-500"
+            disabled={editPlay ? logging || !canSubmit : !canSubmit}
+            className={`min-h-11 w-full rounded-lg px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors motion-safe:active:scale-[0.97] motion-safe:duration-100 ${
+              editPlay ? logging || !canSubmit : !canSubmit
+                ? "cursor-not-allowed bg-slate-700 text-slate-500"
+                : "bg-emerald-600 hover:bg-emerald-500"
             }`}
             onClick={() => void submitLog()}
           >
-            {logging ? "Saving…" : editPlay ? "Update play" : "Log play"}
+            {editPlay && logging ? "Saving…" : editPlay ? "Update play" : "Log play"}
           </button>
         </div>
       </div>

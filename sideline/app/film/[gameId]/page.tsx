@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useCallback, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
@@ -93,8 +93,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [game, setGame] = useState<GameSession | null>(null);
   const [drives, setDrives] = useState<Drive[]>([]);
   const [expandedDriveIds, setExpandedDriveIds] = useState<string[]>([]);
-  const [editingDriveId, setEditingDriveId] = useState<string>("");
   const [activeDrive, setActiveDrive] = useState<string>("");
+  const [noteEditDriveId, setNoteEditDriveId] = useState<string>("");
+  const [noteDraft, setNoteDraft] = useState("");
+  const drivePersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showLogger, setShowLogger] = useState(false);
   const [editPlay, setEditPlay] = useState<LoggedPlay | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
@@ -128,6 +130,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   useEffect(() => {
     if (showLogger) closeAllDropdownMenus();
   }, [showLogger]);
+
+  useEffect(() => {
+    if (!noteEditDriveId) setNoteDraft("");
+  }, [noteEditDriveId]);
+
+  useEffect(() => {
+    return () => {
+      if (drivePersistTimerRef.current) clearTimeout(drivePersistTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!gameId) return;
@@ -166,14 +178,19 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     const { data: existingDrives } = await supabase.from("drives").select("id").eq("game_session_id", gameId);
 
     const driveNumber = (existingDrives?.length ?? 0) + 1;
+    const prevDrive = drives[drives.length - 1];
+    const prevQuarter = prevDrive?.quarter != null && prevDrive.quarter >= 1 ? prevDrive.quarter : 1;
+    const prevMine = Math.max(0, Number(prevDrive?.score_mine ?? 0)) || 0;
+    const prevOpp = Math.max(0, Number(prevDrive?.score_opponent ?? 0)) || 0;
 
     const { data, error } = await supabase
       .from("drives")
       .insert({
         game_session_id: gameId,
         drive_number: driveNumber,
-        score_mine: 0,
-        score_opponent: 0,
+        quarter: prevQuarter,
+        score_mine: prevMine,
+        score_opponent: prevOpp,
       })
       .select()
       .single();
@@ -216,7 +233,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
   }
 
-  async function saveDrive(drive: Drive) {
+  async function saveDrive(drive: Drive, opts?: { silent?: boolean }) {
     const startingYardLine =
       typeof drive.starting_yard_line === "number" && drive.starting_yard_line >= 1 && drive.starting_yard_line <= 50
         ? drive.starting_yard_line
@@ -245,9 +262,27 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       addToast(saveBody.error ?? "Failed to save drive", "error");
       return;
     }
-    addToast("Changes saved", "success");
-    setEditingDriveId("");
+    if (!opts?.silent) addToast("Changes saved", "success");
     await refresh();
+  }
+
+  function scheduleDrivePersist(drive: Drive) {
+    if (drivePersistTimerRef.current) clearTimeout(drivePersistTimerRef.current);
+    drivePersistTimerRef.current = setTimeout(() => {
+      void saveDrive(drive, { silent: true });
+    }, 400);
+  }
+
+  function patchDriveAndPersist(id: string, partial: Partial<Drive>) {
+    let merged: Drive | null = null;
+    setDrives((all) =>
+      all.map((d) => {
+        if (d.id !== id) return d;
+        merged = { ...d, ...partial };
+        return merged;
+      }),
+    );
+    if (merged) scheduleDrivePersist(merged);
   }
 
   async function performDeleteDrive(driveId: string) {
@@ -260,7 +295,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       return;
     }
     setExpandedDriveIds((current) => current.filter((id) => id !== driveId));
-    if (editingDriveId === driveId) setEditingDriveId("");
+    setNoteEditDriveId((id) => (id === driveId ? "" : id));
     addToast("Drive deleted", "success");
     await refresh();
   }
@@ -511,25 +546,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   onEditPlayChange={setEditPlay}
                   onLogged={refresh}
                   onStartNewDrive={() => void addDrive({ toastStarted: true })}
-                  driveMenuItems={[
-                    {
-                      label: "Edit Drive",
-                      onClick: () => {
-                        setEditingDriveId(activeDriveObj.id);
-                        setShowLogger(false);
-                        setEditPlay(null);
-                      },
-                    },
-                    {
-                      label: "Delete Drive",
-                      destructive: true,
-                      onClick: () => {
-                        setPendingDriveDelete(activeDriveObj.id);
-                        setShowLogger(false);
-                        setEditPlay(null);
-                      },
-                    },
-                  ]}
                 />
               </div>
             </div>
@@ -544,10 +560,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
         const isExpanded = expandedDriveIds.includes(drive.id);
         const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
+        const mine = drive.score_mine ?? 0;
+        const theirs = drive.score_opponent ?? 0;
+        const qScoreSummary = `${qLabel} · ${mine}-${theirs}`;
         function toggleDriveExpanded() {
           setExpandedDriveIds((current) => {
             const opening = !current.includes(drive.id);
             if (opening) setActiveDrive(drive.id);
+            else {
+              setNoteEditDriveId((id) => (id === drive.id ? "" : id));
+            }
             return opening ? [...current, drive.id] : current.filter((id) => id !== drive.id);
           });
         }
@@ -571,7 +593,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     <DriveSummaryOutcomeBadge label={outcomeLabel} />
                   </span>
                   <span className="mx-1.5 shrink-0 text-slate-500">·</span>
-                  <span className="font-body whitespace-nowrap">{qLabel}</span>
+                  <span className="font-mono whitespace-nowrap tabular-nums text-slate-300 dark:text-slate-300">{qScoreSummary}</span>
                   <span className="mx-1.5 shrink-0 text-slate-500">·</span>
                   <span className="whitespace-nowrap">
                     <span className="font-mono tabular-nums text-slate-300">{playCount}</span>
@@ -583,21 +605,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     <span className="font-body ml-1">yds</span>
                   </span>
                 </div>
-                <p className="mt-0.5 font-body text-[12px] text-slate-500">
-                  <span className="font-mono tabular-nums text-slate-400">{drive.score_mine ?? 0}</span>
-                  <span className="font-body">-</span>
-                  <span className="font-mono tabular-nums text-slate-400">{drive.score_opponent ?? 0}</span>
-                </p>
               </button>
               <DropdownMenu
                 aria-label="Drive actions"
                 items={[
-                  {
-                    label: "Edit Drive",
-                    onClick: () => {
-                      setEditingDriveId(drive.id);
-                    },
-                  },
                   {
                     label: "Delete Drive",
                     destructive: true,
@@ -634,190 +645,119 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               </button>
             </div>
 
-            {editingDriveId === drive.id ? (
-              <div className="bg-slate-950/40 px-4 py-4 text-xs">
-                <div className="mb-3 grid grid-cols-2 gap-2">
-                  <label>
-                    <span className="app-field-label">Quarter</span>
-                    <select
-                      className="app-input-compact mt-0.5 w-full"
-                      value={String(drive.quarter ?? 1)}
-                      onChange={(e) =>
-                        setDrives((all) =>
-                          all.map((d) => (d.id === drive.id ? { ...d, quarter: parseInt(e.target.value, 10) || 1 } : d)),
-                        )
-                      }
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span className="app-field-label">Down</span>
-                    <select
-                      className="app-input-compact mt-0.5 w-full"
-                      value={String(drive.starting_down ?? 1)}
-                      onChange={(e) =>
-                        setDrives((all) =>
-                          all.map((d) => (d.id === drive.id ? { ...d, starting_down: parseInt(e.target.value, 10) || 1 } : d)),
-                        )
-                      }
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span className="app-field-label">Distance</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="app-input-compact mt-0.5 w-full"
-                      value={String(drive.starting_distance ?? "")}
-                      onChange={(e) =>
-                        setDrives((all) =>
-                          all.map((d) => {
-                            if (d.id !== drive.id) return d;
-                            const nextDist =
-                              e.target.value.trim() === ""
-                                ? null
-                                : Math.max(1, parseInt(e.target.value.replace(/\D/g, ""), 10) || 1);
-                            return {
-                              ...d,
-                              starting_distance: nextDist,
-                              is_inches: nextDist === 1 ? d.is_inches : false,
-                            };
-                          }),
-                        )
-                      }
-                    />
-                  </label>
-                  {drive.starting_distance === 1 ? (
-                    <div className="col-span-2">
-                      <span className="app-field-label">Short yardage</span>
-                      <div className="mt-1.5 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase ${
-                            !drive.is_inches ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-600 text-slate-300"
-                          }`}
-                          onClick={() =>
-                            setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, is_inches: false } : d)))
-                          }
-                        >
-                          1 yd
-                        </button>
-                        <button
-                          type="button"
-                          className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase ${
-                            drive.is_inches ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-600 text-slate-300"
-                          }`}
-                          onClick={() =>
-                            setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, is_inches: true } : d)))
-                          }
-                        >
-                          {"\u0026 inches"}
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-                  <label>
-                    <span className="app-field-label">Field side</span>
-                    <select
-                      className="app-input-compact mt-0.5 w-full"
-                      value={drive.starting_side ?? "OWN"}
-                      onChange={(e) =>
-                        setDrives((all) =>
-                          all.map((d) =>
-                            d.id === drive.id ? { ...d, starting_side: e.target.value === "OPP" ? "OPP" : "OWN" } : d,
-                          ),
-                        )
-                      }
-                    >
-                      <option value="OWN">OWN</option>
-                      <option value="OPP">OPP</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span className="app-field-label">Field position</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="app-input-compact mt-0.5 w-full"
-                      value={String(drive.starting_yard_line ?? "")}
-                      onChange={(e) =>
-                        setDrives((all) =>
-                          all.map((d) =>
-                            d.id === drive.id
-                              ? {
-                                  ...d,
-                                  starting_yard_line:
-                                    e.target.value.trim() === ""
-                                      ? null
-                                      : Math.max(1, Math.min(50, parseInt(e.target.value.replace(/\D/g, ""), 10) || 1)),
-                                }
-                              : d,
-                          ),
-                        )
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span className="app-field-label">My score</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="app-input-compact mt-0.5 w-full"
-                      value={drive.score_mine ?? ""}
-                      onChange={(e) =>
-                        setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_mine: parseInt(e.target.value, 10) || 0 } : d)))
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span className="app-field-label">Their score</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="app-input-compact mt-0.5 w-full"
-                      value={drive.score_opponent ?? ""}
-                      onChange={(e) =>
-                        setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, score_opponent: parseInt(e.target.value, 10) || 0 } : d)))
-                      }
-                    />
-                  </label>
-                </div>
-                <label className="mb-3 block">
-                  <span className="app-field-label">Drive note (optional)</span>
-                  <input
-                    type="text"
-                    className="app-input-compact mt-0.5 w-full"
-                    placeholder="e.g. opened with tempo"
-                    value={drive.note ?? ""}
-                    onChange={(e) => setDrives((all) => all.map((d) => (d.id === drive.id ? { ...d, note: e.target.value } : d)))}
-                  />
-                </label>
-                <div className="mt-8 flex gap-3">
-                  <button type="button" className="btn-secondary flex-1 py-3" onClick={() => setEditingDriveId("")}>
-                    Cancel
-                  </button>
-                  <button type="button" className="btn-primary flex-1 py-3" onClick={() => saveDrive(drive)}>
-                    Save drive
-                  </button>
-                </div>
-              </div>
-            ) : null}
-
             {isExpanded ? (
-              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-950/40 px-3 py-1 sm:px-4">
+              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-950/40 px-3 py-3 sm:px-4">
+                <div className="mb-3 flex flex-col gap-3">
+                  <div>
+                    <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Quarter</p>
+                    <div className="flex flex-wrap gap-2">
+                      {([1, 2, 3, 4] as const).map((q) => {
+                        const effQ = drive.quarter == null ? 1 : drive.quarter;
+                        const selected = effQ === q && effQ < 5;
+                        return (
+                          <button
+                            key={q}
+                            type="button"
+                            className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                              selected
+                                ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                                : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                            }`}
+                            onClick={() => patchDriveAndPersist(drive.id, { quarter: q })}
+                          >
+                            {q}
+                          </button>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                          drive.quarter != null && drive.quarter >= 5
+                            ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                            : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                        }`}
+                        onClick={() => patchDriveAndPersist(drive.id, { quarter: 5 })}
+                      >
+                        OT
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-end gap-3">
+                    <label className="min-w-0 flex-1">
+                      <span className="app-field-label text-slate-500 dark:text-slate-500">My score</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value={String(drive.score_mine ?? 0)}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          const n = raw === "" ? 0 : Math.min(999, parseInt(raw, 10) || 0);
+                          patchDriveAndPersist(drive.id, { score_mine: n });
+                        }}
+                      />
+                    </label>
+                    <span className="pb-2 font-mono text-slate-500 dark:text-slate-500" aria-hidden>
+                      -
+                    </span>
+                    <label className="min-w-0 flex-1">
+                      <span className="app-field-label text-slate-500 dark:text-slate-500">Their score</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value={String(drive.score_opponent ?? 0)}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          const n = raw === "" ? 0 : Math.min(999, parseInt(raw, 10) || 0);
+                          patchDriveAndPersist(drive.id, { score_opponent: n });
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex min-h-11 flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3">
+                    {noteEditDriveId === drive.id ? (
+                      <input
+                        type="text"
+                        className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 font-sans text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value={noteDraft}
+                        onChange={(e) => setNoteDraft(e.target.value)}
+                        onBlur={() => {
+                          patchDriveAndPersist(drive.id, { note: noteDraft.trim() || null });
+                          setNoteEditDriveId("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                        }}
+                        aria-label="Drive note"
+                        autoFocus
+                      />
+                    ) : (
+                      <>
+                        <p className="min-w-0 flex-1 truncate font-body text-sm text-slate-300 dark:text-slate-300">
+                          <span className="text-slate-500 dark:text-slate-500">Drive note: </span>
+                          {drive.note?.trim() ? (
+                            drive.note
+                          ) : (
+                            <span className="text-slate-500 dark:text-slate-500">none</span>
+                          )}
+                        </p>
+                        <button
+                          type="button"
+                          className="shrink-0 font-sans text-sm font-medium text-emerald-400 hover:text-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                          onClick={() => {
+                            setNoteEditDriveId(drive.id);
+                            setNoteDraft(drive.note ?? "");
+                          }}
+                        >
+                          Edit
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <DataTable
                   columns={drivePlayCols}
                   rows={drive.plays ?? []}
