@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+[ "${HUSKY:-}" = "0" ] && exit 0

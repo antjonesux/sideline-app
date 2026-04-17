@@ -13,7 +13,8 @@
     "seed:teams": "NODE_PATH=./node_modules tsx ./supabase/seed-teams.ts",
     "seed:playbook": "NODE_PATH=./node_modules tsx ./scripts/seed-playbooks.ts",
     "seed:scheme-weights": "NODE_PATH=./node_modules tsx ./scripts/seed-scheme-weights.ts",
-    "verify:playbook": "NODE_PATH=./node_modules tsx ./scripts/verify-playbook-seed.ts"
+    "verify:playbook": "NODE_PATH=./node_modules tsx ./scripts/verify-playbook-seed.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
@@ -36,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

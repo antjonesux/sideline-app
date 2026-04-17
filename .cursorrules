@@ -206,3 +206,24 @@ When generating new pages, always populate them with real component structure, r
 - API routes: kebab-case paths (e.g., `/api/top-plays`, `/api/game/[id]`)
 - CSS tokens: `--color-kebab-case` (e.g., `--color-field-green`)
 - Seed files: `kebab-case.ts` (e.g., `washington-state.ts`, `texas-am.ts`)
+
+# Commit & Changelog - Enforced on Every Push
+
+## Commit Messages
+Every commit must follow the format: type(scope): description
+
+Types: feat | fix | refactor | data | ui | perf | chore | docs
+Scopes: film | playbook | tendencies | import | api | db | seed | shell | engine | build
+
+The description must be at least 10 characters and explain WHAT changed.
+The commit body must explain WHY - what problem was solved or what decision was made.
+Never commit with messages like "update stuff", "fix bug", or "add files".
+
+## Changelog
+Before pushing, add an entry to the top of CHANGELOG.md with four sections:
+- What: 1-2 sentences on what changed
+- Why: 1-2 sentences on the problem solved
+- Decisions: any non-obvious choices (skip if straightforward)
+- Status after this push: where the app stands now
+
+Never create daily changelog files (CHANGELOG-YYYY-MM-DD.md). Use the single CHANGELOG.md only.

@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Validate commit message format: type(scope): description
+commit_msg=$(cat "$1")
+
+# Allow merge commits
+if echo "$commit_msg" | grep -qE "^Merge "; then
+  exit 0
+fi
+
+# Check format: type(scope): message
+if ! echo "$commit_msg" | head -1 | grep -qE "^(feat|fix|refactor|data|ui|perf|chore|docs)\((film|playbook|tendencies|import|api|db|seed|shell|engine|build)\): .{10,}$"; then
+  echo ""
+  echo "Commit message rejected."
+  echo ""
+  echo "Required format: type(scope): description (min 10 chars)"
+  echo ""
+  echo "Types:  feat | fix | refactor | data | ui | perf | chore | docs"
+  echo "Scopes: film | playbook | tendencies | import | api | db | seed | shell | engine | build"
+  echo ""
+  echo "Example: feat(import): add fumble alias to CSV normalizer"
+  echo ""
+  exit 1
+fi
