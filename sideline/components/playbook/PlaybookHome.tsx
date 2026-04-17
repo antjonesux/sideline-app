@@ -7,7 +7,7 @@ import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { PlaybookCard } from "./PlaybookCard";
 
 export function PlaybookHome() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["playbooks", "list"],
     queryFn: async () => {
       const res = await fetch("/api/playbook");
@@ -15,13 +15,18 @@ export function PlaybookHome() {
       if (!res.ok) throw new Error(j.error ?? "Failed to load play sheets");
       return j.playbooks ?? [];
     },
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   });
 
   if (error) {
     return (
-      <p className="rounded-lg border border-red-900/40 bg-red-950/30 p-3 font-body text-sm text-red-200" role="alert">
-        {(error as Error).message}
-      </p>
+      <div className="app-card app-card-pad space-y-3" role="alert">
+        <p className="font-body text-sm text-red-200">{(error as Error).message}</p>
+        <button type="button" className="btn-secondary w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
+          {isFetching ? "Retrying..." : "Try Again"}
+        </button>
+      </div>
     );
   }
 

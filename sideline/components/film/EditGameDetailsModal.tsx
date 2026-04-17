@@ -254,7 +254,7 @@ export function EditGameDetailsModal({
 
       <div
         id={MODAL_ID}
-        className={`hs-overlay fixed start-0 top-0 z-[80] size-full overflow-x-hidden overflow-y-auto ${isOpen ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"}`}
+        className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${isOpen ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"}`}
         role="dialog"
         tabIndex={-1}
         aria-modal={isOpen}
@@ -263,16 +263,12 @@ export function EditGameDetailsModal({
           if (e.target === e.currentTarget) setIsOpen(false);
         }}
       >
-        <div
-          className={`hs-overlay-animation-target m-3 transition-all ease-out sm:mx-auto sm:mt-8 sm:w-full sm:max-w-lg ${
-            isOpen ? "mt-7 opacity-100 duration-500 sm:mt-8" : "mt-0 opacity-0 sm:mt-5"
-          }`}
-        >
+        <div className={`hs-overlay-animation-target flex min-h-full items-end justify-center p-0 transition-all ease-out sm:items-center sm:p-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
           <div
-            className="pointer-events-auto flex flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
+            className="pointer-events-auto flex w-full max-h-[85vh] flex-col overflow-y-auto rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:max-w-lg sm:rounded-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
+            <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
               <h2 id="hs-edit-game-modal-label" className="app-modal-title">
                 Edit game details
               </h2>

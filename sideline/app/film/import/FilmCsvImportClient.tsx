@@ -4,31 +4,10 @@ import { CSVUploader } from "@/components/import/CSVUploader";
 import { TemplateDownload } from "@/components/import/TemplateDownload";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { validateAllRows, type ParsedCsvRow, type ValidatedImportPlay } from "@/lib/importCsv";
-import { IMPORT_SAMPLE_PLAYS } from "@/lib/importSamplePlays";
 import { useImportStore } from "@/store/importStore";
 import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-function validatedToParsedRows(plays: ValidatedImportPlay[]): ParsedCsvRow[] {
-  return plays.map((p, i) => ({
-    _line: i + 2,
-    drive_number: String(p.drive_number),
-    play_number: String(p.play_number),
-    quarter: p.quarter >= 5 ? "OT" : String(p.quarter),
-    down: String(p.down),
-    distance: String(p.distance),
-    yard_line: p.yard_line,
-    formation: p.formation,
-    play_name: p.play_name,
-    result: p.result,
-    yards: String(p.yards),
-    score_context: p.score_context ?? "",
-    note: p.note ?? "",
-    zone: p.zone ?? "",
-  }));
-}
 
 type Props = {
   initialAttachSessionId: string | null;
@@ -89,15 +68,6 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
               onParseFatal={(msg) => {
                 setParseError(msg);
                 addToast("Import failed", "error");
-              }}
-              onSample={() => {
-                const parsed = validatedToParsedRows(IMPORT_SAMPLE_PLAYS);
-                const { valid_rows, errors } = validateAllRows(parsed);
-                setParsedData(parsed, valid_rows, errors);
-                setGameSetup(null);
-                setImportedSession(null);
-                setStep(2);
-                router.push("/film/import/preview");
               }}
             />
           </div>

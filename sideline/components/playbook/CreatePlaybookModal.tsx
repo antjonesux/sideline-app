@@ -79,11 +79,13 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
 
   const inner = (
     <div
-      className={`mx-auto flex flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-xl ${
-        variant === "page" ? "w-full max-w-lg" : "m-3 max-h-[90vh] overflow-y-auto sm:mt-0 sm:w-full sm:max-w-lg"
+      className={`mx-auto flex flex-col border border-slate-700 bg-slate-900 shadow-xl ${
+        variant === "page"
+          ? "w-full max-w-lg rounded-xl"
+          : "m-0 max-h-[85vh] w-full overflow-y-auto rounded-t-2xl sm:w-full sm:max-w-lg sm:rounded-xl"
       }`}
     >
-      <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
+      <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
         <h2 className="app-modal-title">New play sheet</h2>
         <p className="mt-1 font-body text-sm text-slate-400">
           {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
@@ -171,7 +173,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
 
   return (
     <div
-      className={`hs-overlay fixed start-0 top-0 z-[80] size-full overflow-x-hidden overflow-y-auto ${
+      className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${
         open ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"
       }`}
       role="dialog"
@@ -180,7 +182,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
-      <div className={`flex min-h-full items-end justify-center sm:items-center ${open ? "py-4" : ""}`}>{inner}</div>
+      <div className={`flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 ${open ? "" : ""}`}>{inner}</div>
     </div>
   );
 }

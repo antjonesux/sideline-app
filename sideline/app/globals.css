@@ -26,6 +26,19 @@
   body {
     min-height: 100dvh;
     font-family: var(--font-barlow), sans-serif;
+    position: relative;
+    background-color: rgb(2, 6, 23);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: rgb(2, 6, 23);
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
   }
 
   button:not(:disabled),
@@ -237,5 +250,13 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

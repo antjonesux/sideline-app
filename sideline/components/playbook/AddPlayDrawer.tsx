@@ -103,7 +103,7 @@ export function AddPlayDrawer({
 
   return (
     <div
-      className="hs-overlay pointer-events-auto fixed inset-0 z-[85] bg-black/70"
+      className="hs-overlay pointer-events-auto fixed inset-0 z-[60] bg-black/70"
       role="dialog"
       aria-modal
       aria-label="Add play"
@@ -112,7 +112,7 @@ export function AddPlayDrawer({
       }}
     >
       <div
-        className="hs-overlay-animation-target pointer-events-auto absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:mx-auto sm:max-w-lg"
+        className="hs-overlay-animation-target pointer-events-auto absolute inset-x-0 bottom-0 max-h-[85vh] overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:mx-auto sm:max-w-lg sm:rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">

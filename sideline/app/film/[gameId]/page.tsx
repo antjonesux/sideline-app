@@ -385,27 +385,25 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
-            <button type="button" onClick={() => void addDrive()} className="btn-primary px-3 py-2 text-xs">
-              Add Drive
-            </button>
-            <Link
-              href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
-              className="btn-secondary px-3 py-2 text-xs"
-            >
-              Upload CSV
-            </Link>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => void addDrive()} className="btn-primary px-3 py-2 text-xs">
+            Add Drive
+          </button>
           {isGameEnded ? (
-            <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary w-full px-3 py-2 text-xs sm:w-auto">
+            <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary px-3 py-2 text-xs">
               Resume Game
             </button>
           ) : (
-            <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-destructive w-full px-3 py-2 text-xs sm:w-auto">
+            <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-secondary px-3 py-2 text-xs">
               End Game
             </button>
           )}
+          <Link
+            href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
+            className="min-h-11 inline-flex items-center px-3 py-2 font-body text-xs text-slate-400 hover:text-slate-200"
+          >
+            Upload CSV
+          </Link>
         </div>
       </div>
 
@@ -416,8 +414,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       ) : null}
 
       {showEndGameModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div className="app-shell w-full max-w-sm space-y-4">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4">
+          <div className="app-shell w-full max-h-[85vh] overflow-y-auto rounded-t-2xl sm:max-w-sm sm:rounded-xl space-y-4">
             <h2 className="app-modal-title">End game?</h2>
             <p className="font-body text-sm text-slate-400">
               This will close the game session and return you to the Film Room. You can come back to add more plays later.
@@ -435,8 +433,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       ) : null}
 
       {showLogger && game && activeDriveObj ? (
-        <div className="fixed inset-0 z-[70] flex items-end bg-slate-950/70 p-3 sm:items-center sm:justify-center">
-          <div className="app-card w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
+        <div className="fixed inset-0 z-[60] flex items-end bg-slate-950/70 p-0 sm:items-center sm:justify-center sm:p-4">
+          <div className="app-card w-full max-h-[85vh] overflow-y-auto rounded-t-2xl p-4 sm:max-w-4xl sm:rounded-xl sm:p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="app-section-title text-xl">Play Logger</h2>
               <button
@@ -664,15 +662,22 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                           setPendingPlayDelete(p.id);
                         }}
                       >
-                        <span className="font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
+                        <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down}-{p.distance}
                         </span>
-                        <span className="min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0]">{p.formation}</span>
-                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">{p.play_name}</span>
-                        <span className="min-w-0 overflow-hidden">
+                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                          {p.play_name}
+                          <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
+                            {p.formation}
+                          </span>
+                        </span>
+                        <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
+                        <span className="min-w-0 justify-self-end overflow-hidden">
                           <ResultBadge label={p.result_tag} />
                         </span>
-                        <span className={`min-w-0 truncate font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>{ydsText}</span>
+                        <span className={`min-w-0 whitespace-nowrap text-right justify-self-end font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                          {ydsText}
+                        </span>
                       </button>
                     );
                   })}

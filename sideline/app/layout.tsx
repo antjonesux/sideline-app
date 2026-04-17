@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 /** Lets `env(safe-area-inset-*)` apply on notched devices (home indicator). */
 export const viewport: Viewport = {
   viewportFit: "cover",
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

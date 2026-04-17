@@ -7,12 +7,11 @@ import { useCallback, useRef, useState } from "react";
 type Props = {
   onParsed: (parsed: ParsedCsvRow[], valid: ValidatedImportPlay[], errors: RowValidationIssue[]) => void;
   onParseFatal: (message: string) => void;
-  onSample: () => void;
   /** Omit section title when nested in a larger layout. */
   embedded?: boolean;
 };
 
-export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Props) {
+export function CSVUploader({ onParsed, onParseFatal, embedded }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -50,8 +49,9 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
 
   const parseFile = useCallback(
     (file: File) => {
-      if (!file.name.toLowerCase().endsWith(".csv")) {
-        onParseFatal("Please choose a .csv file.");
+      const fileName = file.name.toLowerCase();
+      if (!(fileName.endsWith(".csv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt"))) {
+        onParseFatal("Please choose a CSV-compatible file (.csv, .tsv, .txt).");
         return;
       }
       Papa.parse<Record<string, string>>(file, {
@@ -85,7 +85,13 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
     <div className="space-y-6">
       {embedded ? null : <h3 className="app-section-title text-2xl">Upload CSV</h3>}
 
-      <input ref={inputRef} type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && parseFile(e.target.files[0])} />
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain,application/vnd.ms-excel"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && parseFile(e.target.files[0])}
+      />
 
       <button
         type="button"
@@ -109,13 +115,6 @@ export function CSVUploader({ onParsed, onParseFatal, onSample, embedded }: Prop
         <p className="mt-2 font-body text-xs text-slate-500">sideline_game_template.csv</p>
       </button>
 
-      <button
-        type="button"
-        onClick={onSample}
-        className="w-full py-2 text-center font-body text-xs text-slate-500 transition-colors hover:text-slate-300"
-      >
-        Load sample data (11 plays) to preview the flow
-      </button>
     </div>
   );
 }

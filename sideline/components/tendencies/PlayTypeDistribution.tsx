@@ -1,16 +1,16 @@
 "use client";
 
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useMemo, useState } from "react";
 
 const COLORS: Record<string, string> = {
-  Run: "#10B981",
-  Pass: "#3B82F6",
-  "Play Action": "#06B6D4",
-  Screen: "#8B5CF6",
-  RPO: "#F4A522",
-  Option: "#94A3B8",
-  Other: "#334155",
-  Unclassified: "#334155",
+  Run: "bg-emerald-500",
+  Pass: "bg-blue-500",
+  "Play Action": "bg-cyan-500",
+  Screen: "bg-violet-500",
+  RPO: "bg-amber-500",
+  Option: "bg-slate-400",
+  Other: "bg-slate-600",
+  Unclassified: "bg-slate-600",
 };
 
 type Row = { name: string; pct: number; count: number };
@@ -20,52 +20,42 @@ type Props = {
 };
 
 export function PlayTypeDistribution({ data }: Props) {
-  const chartData = data
-    .filter((d) => d.name !== "Unclassified" || d.count > 0)
-    .filter((d) => d.count > 0 || d.pct > 0)
-    .map((d) => ({
-      ...d,
-      name: d.name === "Unclassified" ? `Unclassified (${d.count})` : d.name,
-    }));
-  if (chartData.length === 0) {
+  const [showAll, setShowAll] = useState(false);
+  const rows = useMemo(
+    () =>
+      data
+        .filter((d) => d.name !== "Unclassified" || d.count > 0)
+        .filter((d) => d.count > 0 || d.pct > 0)
+        .sort((a, b) => b.pct - a.pct),
+    [data],
+  );
+  const visibleRows = showAll ? rows : rows.slice(0, 8);
+
+  if (rows.length === 0) {
     return <p className="font-body text-sm text-slate-500">Not enough plays to chart play types.</p>;
   }
 
   return (
-    <div className="app-card h-56 w-full p-4 sm:h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
-          <XAxis type="category" dataKey="name" tick={{ fill: "#e2e8f0", fontSize: 11, fontFamily: "var(--font-jetbrains-mono)" }} axisLine={false} tickLine={false} />
-          <YAxis
-            type="number"
-            domain={[0, 100]}
-            tickFormatter={(v) => `${v}%`}
-            tick={{ fill: "#94a3b8", fontSize: 10, fontFamily: "var(--font-jetbrains-mono)" }}
-            axisLine={false}
-            tickLine={false}
-            width={36}
-          />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.[0]) return null;
-              const row = payload[0].payload as Row;
-              return (
-                <div className="rounded-lg border border-slate-600 bg-slate-950 px-2 py-1.5 shadow-lg">
-                  <p className="font-mono text-[11px] text-slate-200">{label}</p>
-                  <p className="font-mono text-[11px] text-slate-400">
-                    {row.pct}% · {row.count} plays
-                  </p>
-                </div>
-              );
-            }}
-          />
-          <Bar dataKey="pct" radius={[6, 6, 0, 0]} maxBarSize={48}>
-            {chartData.map((entry) => (
-              <Cell key={entry.name} fill={COLORS[entry.name.replace(/\s+\(\d+\)$/, "")] ?? "#64748b"} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="app-card p-4">
+      <div className="space-y-2">
+        {visibleRows.map((row) => {
+          const width = Math.max(4, Math.min(100, row.pct));
+          return (
+            <div key={row.name} className="grid min-h-8 grid-cols-[minmax(110px,1fr)_minmax(120px,2fr)_48px] items-center gap-2 py-1">
+              <span className="truncate font-body text-sm text-slate-200">{row.name}</span>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                <div className={`h-full ${COLORS[row.name] ?? "bg-slate-500"}`} style={{ width: `${width}%` }} />
+              </div>
+              <span className="w-12 text-right font-mono text-sm tabular-nums text-slate-300">{Math.round(row.pct)}%</span>
+            </div>
+          );
+        })}
+      </div>
+      {rows.length > 8 ? (
+        <button type="button" className="mt-3 font-body text-sm text-emerald-300 hover:text-emerald-200" onClick={() => setShowAll((v) => !v)}>
+          {showAll ? "Show top 8" : `Show all (${rows.length})`}
+        </button>
+      ) : null}
     </div>
   );
 }

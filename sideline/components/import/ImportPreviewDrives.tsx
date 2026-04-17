@@ -106,15 +106,22 @@ export function ImportPreviewDrives({ rows }: Props) {
                     const canon = normalizeCsvResult(p.result);
                     return (
                       <div key={p._line} className={DRIVE_PLAY_TABLE_ROW}>
-                        <span className="font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
+                        <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
                           {p.down}-{p.distance}
                         </span>
-                        <span className="min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0]">{p.formation}</span>
-                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">{p.play_name}</span>
-                        <span className="min-w-0 overflow-hidden">
+                        <span className="min-w-0 truncate font-mono text-[12px] font-medium uppercase text-white">
+                          {p.play_name}
+                          <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
+                            {p.formation}
+                          </span>
+                        </span>
+                        <span className="hidden min-w-0 truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
+                        <span className="min-w-0 justify-self-end overflow-hidden">
                           <ResultBadge label={canon ? csvResultLabelToDbTag(canon) : p.result} />
                         </span>
-                        <span className={`min-w-0 truncate font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>{ydsText}</span>
+                        <span className={`min-w-0 whitespace-nowrap text-right justify-self-end font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
+                          {ydsText}
+                        </span>
                       </div>
                     );
                   })}

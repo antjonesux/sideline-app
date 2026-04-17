@@ -79,7 +79,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   return (
     <div
       id={dialogId}
-      className={`hs-overlay fixed start-0 top-0 z-[80] size-full overflow-x-hidden overflow-y-auto ${
+      className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${
         open ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"
       }`}
       role="dialog"
@@ -90,12 +90,12 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex min-h-full items-end justify-center py-4 sm:items-center">
+      <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
         <div
-          className="pointer-events-auto m-3 w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 shadow-xl sm:m-0"
+          className="pointer-events-auto w-full max-h-[85vh] overflow-y-auto rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:max-w-lg sm:rounded-xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="border-b border-slate-800 px-4 py-4 sm:px-6">
+          <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
             <h2 id={`${dialogId}-title`} className="app-modal-title">
               Edit play sheet
             </h2>

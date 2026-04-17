@@ -5,13 +5,13 @@ import type { ReactNode } from "react";
  * Dn & Dist 70px | Formation 1fr | Play 150px (sm: 200px) | Result 100px | Yds 50px; all left-aligned.
  */
 export const DRIVE_PLAY_TABLE_GRID =
-  "grid w-full min-w-0 grid-cols-[70px_1fr_150px_100px_50px] sm:grid-cols-[70px_1fr_200px_100px_50px] gap-x-3 gap-y-1 px-4 items-center justify-items-start text-left" as const;
+  "grid w-full min-w-0 grid-cols-[56px_minmax(170px,1fr)_92px_56px] sm:grid-cols-[70px_minmax(150px,1fr)_minmax(140px,1fr)_110px_72px] gap-x-2 sm:gap-x-3 gap-y-1 px-3 items-center justify-items-start text-left" as const;
 
 /** One play row inside `<DrivePlayTable>` (uses divide-y between rows). */
 export const DRIVE_PLAY_TABLE_ROW = `${DRIVE_PLAY_TABLE_GRID} py-2` as const;
 
 const headerRowClass =
-  `${DRIVE_PLAY_TABLE_GRID} border-b border-slate-800/80 py-2 font-mono text-[11px] font-normal uppercase tracking-wide text-slate-500`;
+  `${DRIVE_PLAY_TABLE_GRID} border-b border-slate-800/80 py-2 font-sans text-xs font-medium uppercase tracking-wider text-slate-400`;
 
 /**
  * Scrollable play table: column header + `children` (row elements).
@@ -19,14 +19,14 @@ const headerRowClass =
  */
 export function DrivePlayTable({ children }: { children: ReactNode }) {
   return (
-    <div className="app-horizontal-scroll-strip min-w-0">
-      <div className="w-full min-w-[500px] sm:min-w-[560px]">
+    <div className="overflow-x-auto -mx-4 px-4">
+      <div className="w-full min-w-[420px] sm:min-w-[560px]">
         <div className={headerRowClass}>
-          <span>DN & DIST</span>
-          <span>Formation</span>
-          <span>Play</span>
-          <span>Result</span>
-          <span>Yds</span>
+          <span className="whitespace-nowrap">DN & DIST</span>
+          <span className="whitespace-nowrap">PLAY</span>
+          <span className="hidden whitespace-nowrap sm:block">FORMATION</span>
+          <span className="whitespace-nowrap text-right justify-self-end">RESULT</span>
+          <span className="whitespace-nowrap text-right justify-self-end">YDS</span>
         </div>
         <div className="divide-y divide-white/[0.04]">{children}</div>
       </div>
