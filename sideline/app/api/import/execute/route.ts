@@ -7,6 +7,7 @@ import {
 } from "@/lib/importCsv";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { supabase } from "@/lib/supabase";
+import { normalizePlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 type GamePayload = {
@@ -27,7 +28,7 @@ function playToRowInput(p: ValidatedImportPlay): CsvRowInput {
     distance: String(p.distance),
     yard_line: p.yard_line,
     formation: p.formation,
-    play_name: p.play_name,
+    play_name: normalizePlayName(p.play_name),
     result: p.result,
     yards: String(p.yards),
     score_context: p.score_context,
@@ -115,7 +116,7 @@ async function insertDrivesAndPlaysForSession(
         field_zone,
         scenario,
         formation: p.formation,
-        play_name: p.play_name,
+        play_name: normalizePlayName(p.play_name),
         result_tag: p.result_db,
         yards_gained: p.yards,
         note: p.note,

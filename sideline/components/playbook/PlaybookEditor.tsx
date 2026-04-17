@@ -10,6 +10,7 @@ import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
+import { normalizePlayName } from "@/lib/utils";
 import { useToastStore } from "@/store/toastStore";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { AddPlayDrawer } from "./AddPlayDrawer";
@@ -490,7 +491,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           <>
             This will permanently remove{" "}
             <strong className="font-mono font-semibold text-white">
-              {pendingRemovePlayRow ? `${pendingRemovePlayRow.formation} · ${pendingRemovePlayRow.play_name}` : "this play"}
+              {pendingRemovePlayRow
+                ? `${pendingRemovePlayRow.formation} · ${normalizePlayName(pendingRemovePlayRow.play_name)}`
+                : "this play"}
             </strong>{" "}
             from this situation. This can&apos;t be undone.
           </>

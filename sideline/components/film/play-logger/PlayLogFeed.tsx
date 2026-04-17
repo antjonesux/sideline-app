@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { LoggedPlay } from "@/lib/types";
+import { normalizePlayName } from "@/lib/utils";
 import { PlayLogFeedRow } from "@/components/film/play-logger/PlayLogFeedRow";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 
@@ -80,7 +81,7 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
             <>
               Remove{" "}
               <span className="font-mono text-white">
-                {pendingDelete.formation} → {pendingDelete.play_name}
+                {pendingDelete.formation} → {normalizePlayName(pendingDelete.play_name)}
               </span>{" "}
               from this drive?
             </>

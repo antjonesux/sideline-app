@@ -825,7 +825,7 @@ export const GEORGIA_TECH_SEED: TeamPlaybookSeed = {
           playType: "Deep Pass",
         },
         {
-          playName: "BOOMERANG 0 1 TRAP",
+          playName: "BOOMERANG 01 TRAP",
           isNewIn26: true,
         },
         {

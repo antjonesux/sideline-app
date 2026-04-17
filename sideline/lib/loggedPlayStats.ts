@@ -1,4 +1,5 @@
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { normalizePlayName } from "@/lib/utils";
 
 export type ComboStats = { uses: number; avg_yards: number; success_rate: number };
 
@@ -12,7 +13,7 @@ export type LoggedPlayStatRow = {
 };
 
 export function comboKey(formation: string, playName: string): string {
-  return `${formation.trim().toLowerCase()}\t${playName.trim().toLowerCase()}`;
+  return `${formation.trim().toLowerCase()}\t${normalizePlayName(playName).toLowerCase()}`;
 }
 
 /** Aggregate by formation + play and by formation only (same scenario slice). */

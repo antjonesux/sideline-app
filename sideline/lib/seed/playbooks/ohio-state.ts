@@ -51,7 +51,7 @@ export const OHIO_STATE_SEED: TeamPlaybookSeed = {
       formation: "Singleback Deuce Close",
       formationType: "Singleback",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "BENCH", isNewIn26: false },
         { playName: "FLOOD TRAIL", isNewIn26: false, playType: "Deep Pass" },
         { playName: "HB STRETCH", isNewIn26: false, playType: "Outside Run" },

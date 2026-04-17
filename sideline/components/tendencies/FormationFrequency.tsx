@@ -22,7 +22,7 @@ export function FormationFrequency({ rows }: Props) {
           <div className="h-[6px] min-w-0 flex-1 overflow-hidden rounded-full bg-slate-700">
             <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.min(100, r.pct)}%` }} />
           </div>
-          <span className="font-mono w-14 shrink-0 text-right text-[11px] tabular-nums text-slate-400">{r.pct}%</span>
+          <span className="font-mono w-14 shrink-0 text-left text-[11px] tabular-nums text-slate-400">{r.pct}%</span>
           {r.pct > 20 ? (
             <span className="font-mono hidden text-[10px] text-amber-400 sm:inline sm:max-w-[120px]" title="High concentration">
               ⚠

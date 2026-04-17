@@ -1,15 +1,32 @@
 "use client";
 
-import type { ParsedCsvRow } from "@/lib/importCsv";
+import { DataTable } from "@/components/shared/DataTable";
+import { drivePlayTableColumns, type DrivePlayTableRow } from "@/components/shared/drivePlayTableColumns";
 import { csvResultLabelToDbTag, normalizeCsvResult } from "@/lib/importCsv";
-import { DrivePlayTable, DRIVE_PLAY_TABLE_ROW } from "@/components/shared/DrivePlayTable";
+import type { ParsedCsvRow } from "@/lib/importCsv";
 import { useMemo, useState } from "react";
 import { ResultBadge } from "./ResultBadge";
 
 type Props = { rows: ParsedCsvRow[] };
 
+function csvRowToDrivePlay(p: ParsedCsvRow): DrivePlayTableRow & { id: string } {
+  const y = parseInt(p.yards.replace(/,/g, ""), 10);
+  const canon = normalizeCsvResult(p.result);
+  return {
+    id: `csv-${p._line}`,
+    formation: p.formation,
+    play_name: p.play_name,
+    result_tag: canon ? csvResultLabelToDbTag(canon) : p.result,
+    yards_gained: Number.isNaN(y) ? 0 : y,
+    down: parseInt(p.down, 10),
+    distance: parseInt(p.distance, 10),
+    is_inches: undefined,
+  };
+}
+
 export function ImportPreviewDrives({ rows }: Props) {
   const [openDrive, setOpenDrive] = useState<number | null>(null);
+  const driveCols = useMemo(() => drivePlayTableColumns(), []);
 
   const drives = useMemo(() => {
     const map = new Map<number, ParsedCsvRow[]>();
@@ -96,36 +113,12 @@ export function ImportPreviewDrives({ rows }: Props) {
               </span>
             </button>
             {expanded ? (
-              <div className="border-t border-slate-800/80 bg-slate-950/40">
-                <DrivePlayTable>
-                  {plays.map((p) => {
-                    const y = parseInt(p.yards.replace(/,/g, ""), 10);
-                    const yds = Number.isNaN(y) ? 0 : y;
-                    const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
-                    const ydsText = yds > 0 ? `+${yds}` : String(yds);
-                    const canon = normalizeCsvResult(p.result);
-                    return (
-                      <div key={p._line} className={DRIVE_PLAY_TABLE_ROW}>
-                        <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
-                          {p.down}-{p.distance}
-                        </span>
-                        <span className="min-w-0 whitespace-nowrap truncate font-mono text-[12px] font-medium uppercase text-white">
-                          {p.play_name}
-                          <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
-                            {p.formation}
-                          </span>
-                        </span>
-                        <span className="hidden min-w-0 whitespace-nowrap truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                        <span className="min-w-0 overflow-hidden whitespace-nowrap">
-                          <ResultBadge label={canon ? csvResultLabelToDbTag(canon) : p.result} />
-                        </span>
-                        <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
-                          {ydsText}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </DrivePlayTable>
+              <div className="border-t border-slate-800/80 bg-slate-950/40 px-3 py-1 sm:px-4">
+                <DataTable
+                  columns={driveCols}
+                  rows={plays.map(csvRowToDrivePlay)}
+                  getRowKey={(p) => p.id}
+                />
               </div>
             ) : null}
           </div>

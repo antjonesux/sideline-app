@@ -51,7 +51,7 @@ export const BYU_SEED: TeamPlaybookSeed = {
       formation: "Gun Deuce",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "BENCH SWAP", isNewIn26: false },
         { playName: "CHIP POCO X DIG", isNewIn26: false, playType: "Medium Pass" },
         { playName: "CORNER GOS FLAT", isNewIn26: false, playType: "Deep Pass" },
@@ -527,7 +527,7 @@ export const BYU_SEED: TeamPlaybookSeed = {
       formation: "Gun Y Off Trio Close",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: true },
+        { playName: "01 TRAP", isNewIn26: true },
         { playName: "COUNTER Y", isNewIn26: true },
         { playName: "DASH FLOOD", isNewIn26: true, playType: "Deep Pass" },
         { playName: "FLOOD", isNewIn26: true, playType: "Deep Pass" },

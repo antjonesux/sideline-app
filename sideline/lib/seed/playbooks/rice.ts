@@ -312,7 +312,7 @@ export const RICE_SEED: TeamPlaybookSeed = {
       formation: "Gun Wing Slot Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "DOUBLE CROSS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "DRAGON SPACING", isNewIn26: false },
@@ -450,7 +450,7 @@ export const RICE_SEED: TeamPlaybookSeed = {
       formation: "Gun Wingback Tight X Split",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "HB ATTACK", isNewIn26: false },
         { playName: "MTN INSIDE ZONE", isNewIn26: false, playType: "Inside Run" },
         { playName: "MTN PA WHEEL", isNewIn26: false },

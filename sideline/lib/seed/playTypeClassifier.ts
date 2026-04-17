@@ -1,3 +1,5 @@
+import { normalizePlayName } from "../utils";
+
 export const PLAY_TYPES = [
   "Inside Run",
   "Outside Run",
@@ -67,7 +69,6 @@ const GLOBAL_EXACT_OVERRIDES: Record<string, SeedPlayType> = {
   "HB GUT": "Inside Run",
   "HB DRAW": "Inside Run",
   "HB MID DRAW": "Inside Run",
-  "0 1 TRAP": "Inside Run",
   "01 TRAP": "Inside Run",
   "MTN 01 TRAP": "Inside Run",
   "MTN O 1 TRAP": "Inside Run",
@@ -86,10 +87,6 @@ const GLOBAL_EXACT_OVERRIDES: Record<string, SeedPlayType> = {
 };
 
 const TEAM_EXACT_OVERRIDES: Record<string, Record<string, SeedPlayType>> = {};
-
-function normalizePlayName(playName: string): string {
-  return playName.trim().toUpperCase().replace(/\s+/g, " ");
-}
 
 function hasAny(name: string, patterns: readonly string[]): boolean {
   return patterns.some((pattern) => name.includes(pattern));

@@ -447,7 +447,7 @@ export const ARMY_SEED: TeamPlaybookSeed = {
       formation: "Gun Trips Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "CURLS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "FAKE BUBBLE POST", isNewIn26: false, playType: "Screen" },
         { playName: "FAKE SCREEN WHEEL", isNewIn26: false, playType: "Screen" },
@@ -525,7 +525,7 @@ export const ARMY_SEED: TeamPlaybookSeed = {
       formation: "Gun Wingback Tight X Split",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: true },
+        { playName: "01 TRAP", isNewIn26: true },
         { playName: "HB ATTACK", isNewIn26: true },
         { playName: "MTN INSIDE ZONE", isNewIn26: true, playType: "Inside Run" },
         { playName: "MTN PA WHEEL", isNewIn26: true },

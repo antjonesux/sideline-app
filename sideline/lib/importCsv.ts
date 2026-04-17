@@ -1,4 +1,5 @@
 import type { Side } from "@/lib/derivePlayContext";
+import { normalizePlayName } from "@/lib/utils";
 
 export const CSV_RESULT_LABELS = [
   "GAIN",
@@ -256,7 +257,7 @@ function rowToValidated(row: CsvRowInput): ValidatedImportPlay | null {
     distance_goal_to_go_alias: distanceInfo.goalToGoAlias,
     yard_line: row.yard_line.trim(),
     formation: row.formation.trim(),
-    play_name: row.play_name.trim(),
+    play_name: normalizePlayName(row.play_name),
     result: resultNorm,
     result_db: csvResultLabelToDbTag(resultNorm),
     yards,

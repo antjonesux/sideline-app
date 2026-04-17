@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import { CompactGameStateBar } from "@/components/film/play-logger/CompactGameStateBar";
-import { FormationPlaySearch, type FormationPlayValue } from "@/components/film/play-logger/FormationPlaySearch";
+import type { DropdownMenuItem } from "@/components/shared/DropdownMenu";
+import { FormationPlaySearch, type FormationPlayValue } from "@/components/shared/FormationPlaySearch";
 import { ResultGrid } from "@/components/film/play-logger/ResultGrid";
 import { PlayLogFeed } from "@/components/film/play-logger/PlayLogFeed";
 import {
@@ -15,6 +16,8 @@ import {
   type ResultTag,
 } from "@/lib/gameStateEngine";
 import { fromAbsoluteYard, toAbsoluteYard, yardsToEndZone } from "@/lib/fieldPosition";
+import { aggregateLoggedPlays } from "@/lib/loggedPlayStats";
+import { normalizePlayName } from "@/lib/utils";
 import { useToastStore } from "@/store/toastStore";
 import { useGameStore } from "@/store/gameStore";
 
@@ -23,13 +26,21 @@ type PlayLoggerProps = {
   myPlaybook: string;
   opponentScheme: string;
   drive: Drive;
+  /** All plays in this game — used for formation/play usage stats in search results. */
+  loggedPlaysForGameStats: LoggedPlay[];
   editPlay: LoggedPlay | null;
   onEditPlayChange: (p: LoggedPlay | null) => void;
   onLogged: () => void | Promise<void>;
   onStartNewDrive: () => void | Promise<void>;
+  driveMenuItems?: DropdownMenuItem[];
 };
 
 type SituationOverride = "2 Minute" | "4 Minute" | "2 Point" | null;
+
+function resultRequiresFormationPlay(ui: UiResultTag | null): boolean {
+  if (!ui) return false;
+  return ui === "GAIN" || ui === "LOSS" || ui === "NO_GAIN" || ui === "INCOMPLETE" || ui === "TOUCHDOWN";
+}
 
 function storedTagToUi(tag: string): UiResultTag | null {
   const u = tag.trim().toUpperCase().replace(/\s+/g, "_");
@@ -50,10 +61,12 @@ export function PlayLogger({
   myPlaybook,
   opponentScheme,
   drive,
+  loggedPlaysForGameStats,
   editPlay,
   onEditPlayChange,
   onLogged,
   onStartNewDrive,
+  driveMenuItems,
 }: PlayLoggerProps) {
   const plays = drive.plays ?? [];
   const replayState = useMemo(
@@ -90,10 +103,11 @@ export function PlayLogger({
 
   useEffect(() => {
     if (prefillPlay) {
+      const pn = normalizePlayName(prefillPlay.play_name);
       setFormationPlay({
         formation: prefillPlay.formation,
-        play_name: prefillPlay.play_name,
-        label: `${prefillPlay.formation} → ${prefillPlay.play_name}`,
+        play_name: pn,
+        label: `${prefillPlay.formation} → ${pn}`,
       });
       setPrefillPlay(null);
     }
@@ -105,15 +119,17 @@ export function PlayLogger({
       const gs: GameState = {
         down: Math.min(4, Math.max(1, editPlay.down)) as 1 | 2 | 3 | 4,
         distance: Math.max(1, editPlay.distance),
+        isInches: Boolean(editPlay.is_inches) && editPlay.distance <= 1,
         absoluteYard: toAbsoluteYard(editPlay.side, editPlay.yard_line),
         driveNumber: editPlay.drive_number ?? drive.drive_number,
         playNumber: Math.max(0, (editPlay.play_number ?? 1) - 1),
       };
       setManualGameState(gs);
+      const pn = normalizePlayName(editPlay.play_name);
       setFormationPlay({
         formation: editPlay.formation,
-        play_name: editPlay.play_name,
-        label: `${editPlay.formation} → ${editPlay.play_name}`,
+        play_name: pn,
+        label: `${editPlay.formation} → ${pn}`,
       });
       setUiResult(storedTagToUi(editPlay.result_tag));
       const t = storedTagToUi(editPlay.result_tag);
@@ -154,7 +170,13 @@ export function PlayLogger({
     lastUiResult.current = uiResult;
     if (!uiResult) return;
     if (uiResult === "LOSS") setYardsText((t) => (t === "" ? "5" : t));
-    else if (uiResult === "NO_GAIN" || uiResult === "INCOMPLETE" || uiResult === "TURNOVER" || uiResult === "FIELD_GOAL") {
+    else if (
+      uiResult === "NO_GAIN" ||
+      uiResult === "INCOMPLETE" ||
+      uiResult === "TURNOVER" ||
+      uiResult === "FIELD_GOAL" ||
+      uiResult === "PUNT"
+    ) {
       setYardsText("0");
     } else if (uiResult === "GAIN") setYardsText("");
   }, [uiResult, editPlay]);
@@ -171,7 +193,8 @@ export function PlayLogger({
       uiResult === "NO_GAIN" ||
       uiResult === "INCOMPLETE" ||
       uiResult === "FIELD_GOAL" ||
-      uiResult === "TURNOVER";
+      uiResult === "TURNOVER" ||
+      uiResult === "PUNT";
     if (skipYards) {
       queueMicrotask(() => logBtnRef.current?.focus());
     } else if (uiResult === "GAIN" || uiResult === "LOSS" || uiResult === "TOUCHDOWN") {
@@ -190,6 +213,29 @@ export function PlayLogger({
     const base = [...plays].sort((a, b) => (a.play_number ?? 0) - (b.play_number ?? 0));
     return [...base, ...optimisticPlays];
   }, [plays, optimisticPlays]);
+
+  const { scenarioStatsRecord, formationStatsRecord } = useMemo(() => {
+    const { byCombo, byFormation } = aggregateLoggedPlays(
+      loggedPlaysForGameStats.map((p) => ({
+        formation: p.formation,
+        play_name: p.play_name,
+        yards_gained: p.yards_gained,
+        result_tag: p.result_tag,
+        down: p.down,
+        distance: p.distance,
+      })),
+    );
+    return {
+      scenarioStatsRecord: Object.fromEntries(byCombo.entries()) as Record<
+        string,
+        { uses: number; avg_yards: number; success_rate: number }
+      >,
+      formationStatsRecord: Object.fromEntries(byFormation.entries()) as Record<
+        string,
+        { uses: number; success_rate: number }
+      >,
+    };
+  }, [loggedPlaysForGameStats]);
 
   const resetFormAfterLog = useCallback(() => {
     setFormationPlay(null);
@@ -210,7 +256,8 @@ export function PlayLogger({
       uiResult === "NO_GAIN" ||
       uiResult === "INCOMPLETE" ||
       uiResult === "TURNOVER" ||
-      uiResult === "FIELD_GOAL"
+      uiResult === "FIELD_GOAL" ||
+      uiResult === "PUNT"
     ) {
       return { yardsGainedDb: 0, yardsForEngine: 0 };
     }
@@ -233,7 +280,11 @@ export function PlayLogger({
   }
 
   const canSubmit = useMemo(() => {
-    if (!formationPlay?.formation || !formationPlay?.play_name || !uiResult) return false;
+    if (!uiResult) return false;
+    const needsFp = resultRequiresFormationPlay(uiResult);
+    if (needsFp) {
+      if (!formationPlay?.formation?.trim() || !formationPlay?.play_name?.trim()) return false;
+    }
     if (uiResult === "GAIN" || uiResult === "LOSS") {
       const n = parseInt(ballAtYard, 10);
       if (Number.isNaN(n) || n < 1 || n > 50) return false;
@@ -252,10 +303,30 @@ export function PlayLogger({
   }, [formationPlay, uiResult, yardsText, ballAtYard, ballAtSide, gameState.absoluteYard]);
 
   async function submitLog() {
-    if (!formationPlay || !uiResult || logging) return;
+    if (!uiResult || logging) return;
     const { yardsGainedDb, yardsForEngine, error } = parseYardsForSubmit();
     if (error) {
       addToast(error, "error");
+      return;
+    }
+
+    const needsFp = resultRequiresFormationPlay(uiResult);
+    let formation = formationPlay?.formation?.trim() ?? "";
+    let playName = normalizePlayName(formationPlay?.play_name ?? "");
+    if (!needsFp) {
+      if (uiResult === "PUNT" && (!formation || !playName)) {
+        formation = "PUNT";
+        playName = "PUNT";
+      } else if (uiResult === "FIELD_GOAL" && (!formation || !playName)) {
+        formation = "FIELD GOAL";
+        playName = "FIELD GOAL";
+      } else if (uiResult === "TURNOVER" && (!formation || !playName)) {
+        formation = "TURNOVER";
+        playName = "TURNOVER";
+      }
+    }
+    if (needsFp && (!formation || !playName)) {
+      addToast("Select formation and play.", "error");
       return;
     }
 
@@ -266,14 +337,17 @@ export function PlayLogger({
       storedTag = uiResult as ResultTag;
     }
 
+    const inchesSnap = Boolean(gameState.isInches) && distanceAtSnap <= 1;
+
     const payload = {
       down: gameState.down,
       distance: distanceAtSnap,
+      is_inches: inchesSnap,
       yard_line,
       side,
       hash: "MIDDLE" as const,
-      formation: formationPlay.formation,
-      play_name: formationPlay.play_name,
+      formation,
+      play_name: playName,
       result_tag: storedTag,
       yards_gained: yardsGainedDb,
       note: note.trim() || null,
@@ -313,11 +387,12 @@ export function PlayLogger({
       drive_number: drive.drive_number,
       down: gameState.down,
       distance: distanceAtSnap,
+      is_inches: inchesSnap,
       side,
       yard_line,
       hash: "MIDDLE",
-      formation: formationPlay.formation,
-      play_name: formationPlay.play_name,
+      formation,
+      play_name: playName,
       result_tag: storedTag,
       yards_gained: yardsGainedDb,
       note: note.trim() || null,
@@ -375,12 +450,13 @@ export function PlayLogger({
           const latest = [...plays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0))[0];
           if (latest) onEditPlayChange(latest);
         }}
+        driveMenuItems={driveMenuItems}
       />
 
       <div className="app-card flex max-h-[70vh] flex-col overflow-hidden rounded-xl p-0">
-        <div className="space-y-2 overflow-y-auto p-3">
+        <div className="space-y-3 overflow-y-auto p-3">
           <div>
-            <p className="app-field-label text-slate-500">SITUATION</p>
+            <p className="app-field-label mb-1 text-slate-500">SITUATION</p>
             <div className="flex flex-wrap gap-2">
               {(["2 Minute", "4 Minute", "2 Point"] as const).map((tag) => (
                 <button
@@ -400,10 +476,12 @@ export function PlayLogger({
           </div>
 
           <FormationPlaySearch
-            myPlaybook={myPlaybook}
+            dataSource={{ type: "api", playbook: myPlaybook }}
             value={formationPlay}
             onChange={setFormationPlay}
             inputRef={formationRef}
+            scenarioStats={scenarioStatsRecord}
+            formationStats={formationStatsRecord}
           />
 
           <ResultGrid

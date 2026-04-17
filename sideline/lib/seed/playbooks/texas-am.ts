@@ -252,7 +252,7 @@ export const TEXAS_AM_SEED: TeamPlaybookSeed = {
       formation: "Gun Ace",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "BENCH", isNewIn26: false },
         { playName: "CORNER STRIKE", isNewIn26: false, playType: "Deep Pass" },
         { playName: "FLANKER CURL", isNewIn26: false, playType: "Medium Pass" },

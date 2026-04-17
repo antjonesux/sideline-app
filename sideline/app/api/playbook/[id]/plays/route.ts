@@ -1,4 +1,5 @@
 import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPlayStats";
+import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, scenarioMaxSlots } from "@/lib/playbookUtils";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -73,16 +74,25 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   if (lErr) return NextResponse.json({ error: lErr.message }, { status: 400 });
 
-  const nonPuntLogged = (logged ?? []).filter((row) => {
-    const playName = String(row.play_name ?? "").trim().toLowerCase();
-    const resultTag = String((row as { result_tag?: string }).result_tag ?? "").trim().toLowerCase();
-    return playName !== "punt" && resultTag !== "punt";
-  });
+  const nonPuntLogged = (logged ?? [])
+    .map((row) => ({
+      ...row,
+      play_name: normalizePlayName(String((row as { play_name?: string }).play_name ?? "")),
+    }))
+    .filter((row) => {
+      const playName = String(row.play_name ?? "").trim().toLowerCase();
+      const resultTag = String((row as { result_tag?: string }).result_tag ?? "").trim().toLowerCase();
+      return playName !== "punt" && resultTag !== "punt";
+    });
 
   const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(nonPuntLogged);
 
   const sheetKeys = new Set<string>();
-  for (const p of plays ?? []) {
+  const playsOut = (plays ?? []).map((p) => ({
+    ...p,
+    play_name: normalizePlayName(String(p.play_name ?? "")),
+  }));
+  for (const p of playsOut) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }
 
@@ -97,7 +107,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   return NextResponse.json({
     scenarioId: scenarioRow.id,
     scenario: scenarioName,
-    plays: plays ?? [],
+    plays: playsOut,
     scenarioStats,
     formationStats,
     suggestions,
@@ -115,7 +125,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
   const scenarioId = String(body.scenarioId ?? "").trim();
   const formation = String(body.formation ?? "").trim();
-  const play_name = String(body.play_name ?? "").trim();
+  const play_name = normalizePlayName(String(body.play_name ?? ""));
   if (!scenarioId || !formation || !play_name) {
     return NextResponse.json({ error: "scenarioId, formation, and play_name are required" }, { status: 400 });
   }
@@ -259,7 +269,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   if (action === "swap") {
     const playId = String(body.playId ?? "").trim();
     const formation = String(body.formation ?? "").trim();
-    const play_name = String(body.play_name ?? "").trim();
+    const play_name = normalizePlayName(String(body.play_name ?? ""));
     if (!playId || !formation || !play_name) {
       return NextResponse.json({ error: "playId, formation, and play_name are required" }, { status: 400 });
     }

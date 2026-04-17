@@ -46,7 +46,7 @@ export function PlayTypeDistribution({ data }: Props) {
               <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                 <div className={`h-full ${COLORS[row.name] ?? "bg-slate-500"}`} style={{ width: `${width}%` }} />
               </div>
-              <span className="w-12 text-right font-mono text-sm tabular-nums text-slate-300">{Math.round(row.pct)}%</span>
+              <span className="w-12 text-left font-mono text-sm tabular-nums text-slate-300">{Math.round(row.pct)}%</span>
             </div>
           );
         })}

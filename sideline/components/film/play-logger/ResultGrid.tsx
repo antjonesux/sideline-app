@@ -21,8 +21,8 @@ type ResultGridProps = {
 export function ResultGrid({ value, onChange }: ResultGridProps) {
   return (
     <div>
-      <p className="app-field-label text-slate-500">Result</p>
-      <div className="mt-1.5 grid grid-cols-2 gap-2">
+      <p className="app-field-label mb-1 text-slate-500">Result</p>
+      <div className="grid grid-cols-2 gap-2">
         {ROWS.map(([tag, label]) => {
           const active = value === tag;
           return (

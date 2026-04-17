@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { withNormalizedPlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import type { PostgrestError } from "@supabase/supabase-js";
 
@@ -25,7 +26,7 @@ export async function GET(_: NextRequest, ctx: Ctx) {
   const withPlays = await Promise.all(
     (data ?? []).map(async (drive) => {
       const { data: plays } = await supabase.from("logged_plays").select("*").eq("drive_id", drive.id).order("play_number", { ascending: true });
-      return { ...drive, plays: plays ?? [] };
+      return { ...drive, plays: (plays ?? []).map(withNormalizedPlayName) };
     }),
   );
 

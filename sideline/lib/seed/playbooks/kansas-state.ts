@@ -228,7 +228,7 @@ export const KANSAS_STATE_SEED: TeamPlaybookSeed = {
       formation: "Gun Ace",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "BENCH", isNewIn26: false, playType: "Medium Pass" },
         { playName: "CORNER STRIKE", isNewIn26: false, playType: "Deep Pass" },
         { playName: "FLANKER CURL", isNewIn26: false, playType: "Medium Pass" },

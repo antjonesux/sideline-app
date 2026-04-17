@@ -30,7 +30,7 @@ export const TEXAS_STATE_SEED: TeamPlaybookSeed = {
       formation: "Gun Ace Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "BUCK SWEEP", isNewIn26: false, playType: "Outside Run" },
         { playName: "CORNER STRIKE", isNewIn26: false, playType: "Deep Pass" },
         { playName: "DAGGER", isNewIn26: false },
@@ -327,7 +327,7 @@ export const TEXAS_STATE_SEED: TeamPlaybookSeed = {
       formation: "Gun Wide Doubles Y Off Stack",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: true },
+        { playName: "01 TRAP", isNewIn26: true },
         { playName: "COUNTER Y", isNewIn26: true },
         { playName: "DEEP CHOICE", isNewIn26: true, playType: "Deep Pass" },
         { playName: "GT COUNTER", isNewIn26: true },

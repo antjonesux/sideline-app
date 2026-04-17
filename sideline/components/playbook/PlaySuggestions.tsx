@@ -1,6 +1,7 @@
 "use client";
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
+import { normalizePlayName } from "@/lib/utils";
 
 export function PlaySuggestions({
   scenarioLabel,
@@ -24,7 +25,7 @@ export function PlaySuggestions({
           return (
             <li key={id} className="app-card app-card-pad flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="font-mono text-xs font-medium uppercase text-white">{s.play_name}</p>
+                <p className="font-mono text-xs font-medium uppercase text-white">{normalizePlayName(s.play_name)}</p>
                 <p className="mt-1 font-body text-[11px] text-slate-500">
                   {s.success_rate}% success on {scenarioLabel} ({s.uses} uses) · {s.formation}
                 </p>

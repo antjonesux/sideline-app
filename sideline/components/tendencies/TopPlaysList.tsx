@@ -1,6 +1,7 @@
 "use client";
 
 import { RankedRow } from "@/components/tendencies/RankedRow";
+import { normalizePlayName } from "@/lib/utils";
 import { WorkingListPagination, WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 import { WorkingRankMetrics } from "@/components/tendencies/WorkingRankMetrics";
 
@@ -47,7 +48,7 @@ export function TopPlaysList({
             <>
               <span className="font-body font-normal text-slate-200">{r.formation}</span>
               <span className="text-slate-600"> → </span>
-              <span className="font-mono text-[12px] font-medium uppercase text-white">{r.play_name}</span>
+              <span className="font-mono text-[12px] font-medium uppercase text-white">{normalizePlayName(r.play_name)}</span>
             </>
           }
           metrics={

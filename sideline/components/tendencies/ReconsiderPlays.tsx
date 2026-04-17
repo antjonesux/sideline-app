@@ -2,6 +2,7 @@
 
 import type { TopPlayRow } from "@/components/tendencies/TopPlaysList";
 import { RankedRow } from "@/components/tendencies/RankedRow";
+import { normalizePlayName } from "@/lib/utils";
 import { ReconsiderRankMetrics } from "@/components/tendencies/ReconsiderRankMetrics";
 import { WorkingListPagination, WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 
@@ -39,7 +40,7 @@ export function ReconsiderPlays({
               <>
                 <span className="font-body font-normal text-slate-200">{r.formation}</span>
                 <span className="text-slate-600"> → </span>
-                <span className="font-mono text-[12px] font-medium uppercase text-white">{r.play_name}</span>
+                <span className="font-mono text-[12px] font-medium uppercase text-white">{normalizePlayName(r.play_name)}</span>
               </>
             }
             metrics={

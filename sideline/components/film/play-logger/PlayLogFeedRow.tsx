@@ -1,11 +1,9 @@
 "use client";
 
 import type { LoggedPlay } from "@/lib/types";
+import { formatPlaySnapDnDist } from "@/lib/formatDownDistance";
 import { formatFieldPosition, toAbsoluteYard } from "@/lib/fieldPosition";
-
-function formatDownDist(down: number, dist: number): string {
-  return `${down}&${dist}`;
-}
+import { normalizePlayName } from "@/lib/utils";
 
 function yardsDisplay(y: number): string {
   if (y > 0) return `+${y.toLocaleString("en-US")}`;
@@ -46,7 +44,7 @@ export function PlayLogFeedRow({ play, driveFallback, showDriveRule, onSelect, o
   const pos = formatFieldPosition(abs);
   const y = play.yards_gained ?? 0;
   const badge = resultBadge(play.result_tag);
-  const label = `${play.formation} → ${play.play_name}`;
+  const label = `${play.formation} → ${normalizePlayName(play.play_name)}`;
 
   return (
     <div
@@ -58,7 +56,9 @@ export function PlayLogFeedRow({ play, driveFallback, showDriveRule, onSelect, o
         onClick={onSelect}
       >
         <span className="shrink-0 font-medium text-amber-400">D{dn}</span>
-        <span className="shrink-0 text-slate-400">{formatDownDist(play.down, play.distance)}</span>
+        <span className="shrink-0 text-slate-400">
+          {formatPlaySnapDnDist(play.down, play.distance, play.is_inches).replace("-", "&")}
+        </span>
         <span className="shrink-0 text-slate-400">{pos}</span>
         <span className="min-w-0 flex-1 truncate text-white">{label}</span>
         <span className={`shrink-0 font-medium tabular-nums ${yardsClass(y)}`}>{yardsDisplay(y)}</span>

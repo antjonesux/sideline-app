@@ -343,7 +343,7 @@ export const AIR_RAID_SEED: TeamPlaybookSeed = {
       formationType: "Gun",
       plays: [
         { playName: "6", isNewIn26: false },
-        { playName: "6 7-FOX", isNewIn26: false },
+        { playName: "67-FOX", isNewIn26: false },
         { playName: "618", isNewIn26: false },
         { playName: "618 PST WHL", isNewIn26: false },
         { playName: "8", isNewIn26: false },

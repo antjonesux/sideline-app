@@ -2,6 +2,8 @@
 
 import { deriveFieldZoneForPreview, deriveScenarioForPreview } from "@/lib/csvImportPreview";
 import type { ParsedCsvRow } from "@/lib/importCsv";
+import { normalizePlayName } from "@/lib/utils";
+import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { useMemo } from "react";
 import { ResultBadge } from "./ResultBadge";
 
@@ -14,7 +16,7 @@ function quarterLabel(q: string): string {
 function yardsClass(y: number): string {
   if (y > 0) return "text-emerald-400";
   if (y < 0) return "text-red-400";
-  return "text-slate-500";
+  return "text-slate-500 dark:text-slate-500";
 }
 
 type Props = {
@@ -25,60 +27,127 @@ type Props = {
 export function ImportPreviewTable({ rows, errorByLine }: Props) {
   const sorted = useMemo(() => [...rows].sort((a, b) => parseInt(a.play_number, 10) - parseInt(b.play_number, 10)), [rows]);
 
+  const columns: DataTableColumn<ParsedCsvRow & { _borderTop?: boolean }>[] = useMemo(
+    () => [
+      {
+        key: "play_number",
+        header: "#",
+        width: "w-[44px]",
+        render: (r) => <span className="font-mono text-xs text-slate-300">{r.play_number}</span>,
+      },
+      {
+        key: "drive_number",
+        header: "DRV",
+        width: "w-[44px]",
+        render: (r) => (
+          <span className={`font-mono text-xs ${r._borderTop ? "text-amber-400" : "text-slate-300"}`}>{r.drive_number}</span>
+        ),
+      },
+      {
+        key: "quarter",
+        header: "Q",
+        width: "w-[40px]",
+        render: (r) => <span className="font-mono text-xs text-slate-400">{quarterLabel(r.quarter)}</span>,
+      },
+      {
+        key: "dn_dist",
+        header: "DN & DIST",
+        width: "w-[72px]",
+        render: (r) => (
+          <span className="font-mono text-xs text-slate-300">
+            {r.down} & {r.distance}
+          </span>
+        ),
+      },
+      {
+        key: "yard_line",
+        header: "YARD LINE",
+        width: "w-[88px]",
+        render: (r) => <span className="font-mono text-xs text-slate-300">{r.yard_line}</span>,
+      },
+      {
+        key: "formation",
+        header: "FORMATION",
+        width: "min-w-[100px]",
+        render: (r) => (
+          <span className="max-w-[140px] truncate font-sans text-xs text-slate-300" title={r.formation}>
+            {r.formation}
+          </span>
+        ),
+      },
+      {
+        key: "play_name",
+        header: "PLAY",
+        width: "min-w-[120px]",
+        render: (r) => (
+          <span className="max-w-[160px] truncate font-mono text-xs text-slate-200" title={normalizePlayName(r.play_name)}>
+            {normalizePlayName(r.play_name)}
+          </span>
+        ),
+      },
+      {
+        key: "result",
+        header: "RESULT",
+        width: "min-w-[100px]",
+        render: (r) => <ResultBadge label={r.result} />,
+      },
+      {
+        key: "yards",
+        header: "YDS",
+        width: "w-[52px]",
+        render: (r) => {
+          const y = parseInt(r.yards.replace(/,/g, ""), 10);
+          return (
+            <span className={`font-mono text-xs ${Number.isNaN(y) ? "text-slate-500" : yardsClass(y)}`}>{r.yards}</span>
+          );
+        },
+      },
+      {
+        key: "scenario",
+        header: "SCENARIO",
+        width: "min-w-[88px]",
+        render: (r) => {
+          const down = parseInt(r.down, 10);
+          const dist = parseInt(r.distance, 10);
+          const scenario =
+            !Number.isNaN(down) && !Number.isNaN(dist) ? deriveScenarioForPreview(down, dist) : "—";
+          return <span className="font-sans text-xs text-slate-400">{scenario}</span>;
+        },
+      },
+      {
+        key: "zone",
+        header: "ZONE",
+        width: "min-w-[72px]",
+        render: (r) => {
+          const zone = r.yard_line ? deriveFieldZoneForPreview(r.yard_line) : "—";
+          return <span className="font-sans text-xs text-slate-400">{zone}</span>;
+        },
+      },
+    ],
+    [],
+  );
+
+  const tableRows = useMemo(() => {
+    return sorted.map((r, i) => ({
+      ...r,
+      _borderTop: i > 0 && r.drive_number !== sorted[i - 1]?.drive_number,
+    }));
+  }, [sorted]);
+
   return (
     <div className="app-card max-h-[340px] overflow-auto">
-      <table className="min-w-full divide-y divide-slate-800 text-left text-xs">
-        <thead className="app-accordion-header-row sticky top-0 z-10">
-          <tr className="font-mono uppercase tracking-wide text-slate-500">
-            <th className="px-2 py-2">#</th>
-            <th className="px-2 py-2">Drv</th>
-            <th className="px-2 py-2">Q</th>
-            <th className="px-2 py-2">Dn &amp; Dist</th>
-            <th className="px-2 py-2">Yard Line</th>
-            <th className="px-2 py-2">Formation</th>
-            <th className="px-2 py-2">Play</th>
-            <th className="px-2 py-2">Result</th>
-            <th className="px-2 py-2">Yds</th>
-            <th className="px-2 py-2">Scenario</th>
-            <th className="px-2 py-2 pr-4">Zone</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-800 bg-slate-900/80">
-          {sorted.map((r, i) => {
-            const isNewDrive = i > 0 && r.drive_number !== sorted[i - 1].drive_number;
-            const errs = errorByLine.get(r._line);
-            const down = parseInt(r.down, 10);
-            const dist = parseInt(r.distance, 10);
-            const yards = parseInt(r.yards.replace(/,/g, ""), 10);
-            const scenario =
-              !Number.isNaN(down) && !Number.isNaN(dist) ? deriveScenarioForPreview(down, dist) : "—";
-            const zone = r.yard_line ? deriveFieldZoneForPreview(r.yard_line) : "—";
-            const borderTop = isNewDrive ? "border-t-2 border-amber-500" : "";
-
-            return (
-              <tr key={`${r._line}-${r.play_number}`} className={`${borderTop} ${errs?.length ? "bg-red-950/25" : ""}`}>
-                <td className="px-2 py-1.5 font-mono text-slate-300">{r.play_number}</td>
-                <td className={`px-2 py-1.5 font-mono ${isNewDrive ? "text-amber-400" : "text-slate-300"}`}>{r.drive_number}</td>
-                <td className="px-2 py-1.5 font-mono text-slate-400">{quarterLabel(r.quarter)}</td>
-                <td className="px-2 py-1.5 font-mono text-slate-300">{`${r.down} & ${r.distance}`}</td>
-                <td className="px-2 py-1.5 font-mono text-slate-300">{r.yard_line}</td>
-                <td className="max-w-[100px] truncate px-2 py-1.5 text-slate-300" title={r.formation}>
-                  {r.formation}
-                </td>
-                <td className="max-w-[120px] truncate px-2 py-1.5 text-slate-200" title={r.play_name}>
-                  {r.play_name}
-                </td>
-                <td className="px-2 py-1.5">
-                  <ResultBadge label={r.result} />
-                </td>
-                <td className={`px-2 py-1.5 font-mono ${Number.isNaN(yards) ? "text-slate-500" : yardsClass(yards)}`}>{r.yards}</td>
-                <td className="px-2 py-1.5 text-slate-400">{scenario}</td>
-                <td className="px-2 py-1.5 pr-4 text-slate-400">{zone}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <DataTable
+        stickyHeader
+        wrapperClassName="-mx-0 overflow-x-auto px-0"
+        columns={columns}
+        rows={tableRows}
+        getRowKey={(r) => `${r._line}-${r.play_number}`}
+        rowClassName={(r) => {
+          const errs = errorByLine.get(r._line);
+          const top = r._borderTop ? "border-t-2 border-amber-500" : "";
+          return `${top} ${errs?.length ? "bg-red-950/25" : ""}`.trim();
+        }}
+      />
     </div>
   );
 }

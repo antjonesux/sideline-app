@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { normalizePlayName } from "@/lib/utils";
 import { TENDENCIES_SCENARIOS } from "@/lib/constants";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
@@ -21,6 +22,7 @@ export type LoggedPlayRow = {
   play_number: number;
   down: number | null;
   distance: number | null;
+  is_inches?: boolean | null;
   formation: string;
   play_name: string;
   yards_gained: number | null;
@@ -122,13 +124,20 @@ export async function fetchLoggedPlaysForGames(
     const slice = gameIds.slice(i, i + chunkSize);
     const { data, error } = await supabase
       .from("logged_plays")
-      .select("id, game_session_id, drive_id, play_number, down, distance, formation, play_name, yards_gained, result_tag, scenario, is_success")
+      .select(
+        "id, game_session_id, drive_id, play_number, down, distance, is_inches, formation, play_name, yards_gained, result_tag, scenario, is_success",
+      )
       .in("game_session_id", slice);
     if (error) {
       console.error("tendencies fetch plays:", error);
       continue;
     }
-    out.push(...((data ?? []) as LoggedPlayRow[]));
+    out.push(
+      ...((data ?? []) as LoggedPlayRow[]).map((row) => ({
+        ...row,
+        play_name: normalizePlayName(row.play_name ?? ""),
+      })),
+    );
   }
   return out.filter((play) => !isPunt(play));
 }
@@ -144,7 +153,7 @@ function sanitizeIlikeTerm(raw: string): string {
 }
 
 function lookupKey(playbook: string, formation: string, playName: string): PlayLookupKey {
-  return `${normalizeLookupPart(playbook)}|${normalizeLookupPart(formation)}|${normalizeLookupPart(playName)}`;
+  return `${normalizeLookupPart(playbook)}|${normalizeLookupPart(formation)}|${normalizePlayName(playName).toLowerCase()}`;
 }
 
 export async function fetchCfbPlayTypeMap(
@@ -188,7 +197,7 @@ export async function fetchCfbPlayTypeMap(
     for (const row of data ?? []) {
       const pb = String(row.playbook ?? "").trim();
       const f = String(row.formation ?? "").trim();
-      const n = String(row.play_name ?? "").trim();
+      const n = normalizePlayName(String(row.play_name ?? ""));
       const pt = String(row.play_type ?? "").trim();
       if (!pb || !f || !n) continue;
       map.set(lookupKey(pb, f, n), pt);
@@ -251,7 +260,8 @@ export function aggregateByFormationPlay(
   type Agg = { uses: number; yards: number; successes: number; touchdowns: number; first_downs: number };
   const m = new Map<string, Agg>();
   for (const p of plays) {
-    const k = `${p.formation}\u0000${p.play_name}`;
+    const pn = normalizePlayName(p.play_name ?? "");
+    const k = `${p.formation}\u0000${pn}`;
     const a = m.get(k) ?? { uses: 0, yards: 0, successes: 0, touchdowns: 0, first_downs: 0 };
     a.uses += 1;
     a.yards += p.yards_gained ?? 0;
@@ -312,7 +322,7 @@ export function qualifiesForReconsiderPlay(r: ReconsiderAggRow): boolean {
 export function mostCommonScenarioByFormationPlay(plays: LoggedPlayRow[]): Map<string, string> {
   const scenarioCounts = new Map<string, Map<string, number>>();
   for (const p of plays) {
-    const key = `${p.formation}\u0000${p.play_name}`;
+    const key = `${p.formation}\u0000${normalizePlayName(p.play_name ?? "")}`;
     const sc = p.scenario?.trim() || "Unknown";
     if (!scenarioCounts.has(key)) {
       scenarioCounts.set(key, new Map<string, number>());
@@ -384,7 +394,7 @@ export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook:
   if (!pb) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const { data, error } = await supabase.from("cfb26_plays").select("play_name").eq("playbook", pb);
   if (error) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
-  const names = (data ?? []).map((r) => String(r.play_name ?? ""));
+  const names = (data ?? []).map((r) => normalizePlayName(String(r.play_name ?? "")));
   let motion = 0;
   for (const n of names) {
     const u = n.trim().toUpperCase();
@@ -399,7 +409,7 @@ export function motionUsageStats(plays: LoggedPlayRow[]): { motion_plays: number
   if (!plays.length) return { motion_plays: 0, total_plays: 0, pct: 0 };
   let m = 0;
   for (const p of plays) {
-    const u = (p.play_name ?? "").trim().toUpperCase();
+    const u = normalizePlayName(p.play_name ?? "");
     if (u.startsWith("MTN") || u.startsWith("JET")) m += 1;
   }
   const total = plays.length;
@@ -490,8 +500,9 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
     const scenarioPlays = plays.filter((p) => (p.scenario ?? "Other") === scenario);
     const topMap = new Map<string, { uses: number; successes: number; formation: string; play_name: string }>();
     for (const p of scenarioPlays) {
-      const key = `${p.formation}\u0000${p.play_name}`;
-      const cur = topMap.get(key) ?? { uses: 0, successes: 0, formation: p.formation, play_name: p.play_name };
+      const pn = normalizePlayName(p.play_name ?? "");
+      const key = `${p.formation}\u0000${pn}`;
+      const cur = topMap.get(key) ?? { uses: 0, successes: 0, formation: p.formation, play_name: pn };
       cur.uses += 1;
       if (isSuccessPlay(p)) cur.successes += 1;
       topMap.set(key, cur);

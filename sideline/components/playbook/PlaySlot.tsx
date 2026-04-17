@@ -1,6 +1,7 @@
 "use client";
 
 import { comboKey } from "@/lib/loggedPlayStats";
+import { normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -74,16 +75,16 @@ export function PlaySlot({
           if (id) onReorder(id, slotIndex);
           setDragId(null);
         }}
-        className="rounded-lg bg-slate-950/40 p-3"
+        className="rounded-lg border border-slate-800 bg-slate-900/90 p-3"
       >
         <button
           type="button"
           disabled={atCapacity}
           onClick={onAdd}
-          className={`font-body w-full rounded-lg border-2 border-dashed py-2 text-sm ${
+          className={`font-sans w-full rounded-lg border-2 border-dashed py-3 text-sm ${
             atCapacity
               ? "cursor-not-allowed border-slate-800 text-slate-600"
-              : "border-slate-700 text-slate-300 hover:border-emerald-500 hover:bg-slate-900 hover:text-emerald-200"
+              : "border-slate-700 text-slate-400 hover:border-emerald-500 hover:text-emerald-400"
           }`}
         >
           Add Play
@@ -132,7 +133,7 @@ export function PlaySlot({
             <p className="min-w-0 leading-snug">
               <span className="font-body text-[13px] text-white">{play.formation}</span>
               <span className="font-body text-slate-500"> → </span>
-              <span className="font-mono text-[12px] font-medium uppercase text-white">{play.play_name}</span>
+              <span className="font-mono text-[12px] font-medium uppercase text-white">{normalizePlayName(play.play_name)}</span>
             </p>
             <div className="relative shrink-0 self-start" ref={menuRef}>
               <button

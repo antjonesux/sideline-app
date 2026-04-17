@@ -30,7 +30,7 @@ export const HOUSTON_SEED: TeamPlaybookSeed = {
       formation: "Singleback Wing Flex",
       formationType: "Singleback",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "COUNTER WEAK", isNewIn26: false },
         { playName: "HB DIVE", isNewIn26: false, playType: "Inside Run" },
@@ -41,7 +41,6 @@ export const HOUSTON_SEED: TeamPlaybookSeed = {
         { playName: "INSIDE ZONE SPLIT", isNewIn26: false, playType: "Inside Run" },
         { playName: "MESH SPOT", isNewIn26: false, playType: "Quick Pass" },
         { playName: "MTN INSIDE ZONE", isNewIn26: false, playType: "Inside Run" },
-        { playName: "MTN O 1 TRAP", isNewIn26: false },
         { playName: "PA BOOT SCREEN", isNewIn26: false, playType: "Play Action" },
         { playName: "PA CTR WAGGLE", isNewIn26: false, playType: "Play Action" },
         { playName: "PA DOUBLE POST", isNewIn26: false, playType: "Play Action" },
@@ -428,7 +427,7 @@ export const HOUSTON_SEED: TeamPlaybookSeed = {
       formation: "Gun Trio Unbalanced",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false },
+        { playName: "01 TRAP", isNewIn26: false },
         { playName: "HB SWING", isNewIn26: false, playType: "Screen" },
         { playName: "INSIDE ZONE", isNewIn26: false, playType: "Inside Run" },
         { playName: "PA FK BUBBLE WHEEL", isNewIn26: false, playType: "Play Action" },

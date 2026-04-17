@@ -518,7 +518,7 @@ export const NOTRE_DAME_SEED: TeamPlaybookSeed = {
       formation: "Gun Wing Tight Z",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "DUO", isNewIn26: false, playType: "Inside Run" },
         { playName: "GOAL LINE FADE", isNewIn26: false, playType: "Deep Pass" },
         { playName: "HB PUNCH", isNewIn26: false, playType: "Medium Pass" },
@@ -580,7 +580,7 @@ export const NOTRE_DAME_SEED: TeamPlaybookSeed = {
       formation: "Gun Y Trips Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "COMEBACKS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "COUNTER TREY", isNewIn26: false, playType: "Medium Pass" },

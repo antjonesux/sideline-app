@@ -342,7 +342,7 @@ export const MARYLAND_SEED: TeamPlaybookSeed = {
       formation: "Gun Trey Open Offset",
       formationType: "Gun",
       plays: [
-        { playName: "5 6 TRAP", isNewIn26: false },
+        { playName: "56 TRAP", isNewIn26: false },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "COUNTER", isNewIn26: false },
         { playName: "FL DIG", isNewIn26: false, playType: "Medium Pass" },

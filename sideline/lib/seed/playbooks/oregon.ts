@@ -648,7 +648,7 @@ export const OREGON_SEED: TeamPlaybookSeed = {
       formationType: "Gun",
       plays: [
         {
-          playName: "0 1 TRAP",
+          playName: "01 TRAP",
           isNewIn26: false,
         },
         {
@@ -1893,7 +1893,7 @@ export const OREGON_SEED: TeamPlaybookSeed = {
       formationType: "Gun",
       plays: [
         {
-          playName: "0 1 TRAP",
+          playName: "01 TRAP",
           isNewIn26: false,
         },
         {
@@ -1983,7 +1983,7 @@ export const OREGON_SEED: TeamPlaybookSeed = {
       formationType: "Gun",
       plays: [
         {
-          playName: "0 1 TRAP",
+          playName: "01 TRAP",
           isNewIn26: false,
         },
         {

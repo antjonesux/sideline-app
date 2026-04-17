@@ -153,7 +153,7 @@ export const MIAMI_SEED: TeamPlaybookSeed = {
       formation: "Gun Doubles Offset Wk",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "H SHALLOW CROSS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "INSIDE ZONE", isNewIn26: false, playType: "Inside Run" },
@@ -225,7 +225,7 @@ export const MIAMI_SEED: TeamPlaybookSeed = {
       formation: "Gun Flex Y Off Wk",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "7 DAGGER", isNewIn26: false, playType: "Medium Pass" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "COUNTER Y", isNewIn26: false, playType: "Outside Run" },
@@ -405,7 +405,7 @@ export const MIAMI_SEED: TeamPlaybookSeed = {
       formation: "Gun Trips Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "CURLS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "FAKE BUBBLE SLANT", isNewIn26: false, playType: "Screen" },
@@ -540,7 +540,7 @@ export const MIAMI_SEED: TeamPlaybookSeed = {
       formation: "Gun Y Off Trips",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Inside Run" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Inside Run" },
         { playName: "ALL CURL", isNewIn26: true, playType: "Medium Pass" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "COUNTER Y", isNewIn26: false, playType: "Outside Run" },

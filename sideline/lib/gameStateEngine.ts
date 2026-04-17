@@ -18,6 +18,8 @@ export type UiResultTag = Exclude<ResultTag, "FIRST_DOWN">;
 export interface GameState {
   down: 1 | 2 | 3 | 4;
   distance: number;
+  /** When distance is 1, coach-facing "& inches" — still stored as 1 in DB. */
+  isInches?: boolean;
   /** Absolute 1–99 from own goal */
   absoluteYard: number;
   driveNumber: number;
@@ -36,20 +38,21 @@ function firstDownDistance(abs: number): number {
   return base;
 }
 
-function newDriveAfterScore(): Pick<GameState, "down" | "distance" | "absoluteYard"> {
+function newDriveAfterScore(): Pick<GameState, "down" | "distance" | "absoluteYard" | "isInches"> {
   return {
     down: 1,
     distance: 10,
+    isInches: false,
     absoluteYard: parseFieldPosition("OWN", 25),
   };
 }
 
 function turnoverDriveState(prevAbs: number, prevDrive: number): GameState {
   const flippedAbs = 100 - prevAbs;
-  const { side, yard_line } = fromAbsoluteYard(flippedAbs);
   return {
     down: 1,
     distance: firstDownDistance(flippedAbs),
+    isInches: false,
     absoluteYard: flippedAbs,
     driveNumber: prevDrive + 1,
     playNumber: 0,
@@ -93,6 +96,7 @@ export function advanceGameState(
       return {
         down: 1,
         distance: firstDownDistance(newAbs),
+        isInches: false,
         absoluteYard: newAbs,
         driveNumber: driveNumber + 1,
         playNumber,
@@ -103,6 +107,7 @@ export function advanceGameState(
       return {
         down: 1,
         distance: firstDownDistance(newAbs),
+        isInches: false,
         absoluteYard: newAbs,
         driveNumber,
         playNumber,
@@ -114,6 +119,7 @@ export function advanceGameState(
         return {
           down: 1,
           distance: firstDownDistance(newAbs),
+          isInches: false,
           absoluteYard: newAbs,
           driveNumber,
           playNumber,
@@ -128,6 +134,7 @@ export function advanceGameState(
       return {
         down: nextDown,
         distance: clampDistanceToGoal(newAbs, nextDist),
+        isInches: false,
         absoluteYard: newAbs,
         driveNumber,
         playNumber,
@@ -143,6 +150,7 @@ export function advanceGameState(
       return {
         down: nextDown,
         distance: clampDistanceToGoal(abs, distance),
+        isInches: false,
         absoluteYard: abs,
         driveNumber,
         playNumber,
@@ -160,6 +168,7 @@ export function advanceGameState(
       return {
         down: nextDown,
         distance: clampDistanceToGoal(newAbs, nextDist),
+        isInches: false,
         absoluteYard: newAbs,
         driveNumber,
         playNumber,
@@ -174,6 +183,7 @@ export function defaultGameState(driveNumber: number): GameState {
   return {
     down: 1,
     distance: 10,
+    isInches: false,
     absoluteYard: parseFieldPosition("OWN", 25),
     driveNumber,
     playNumber: 0,
@@ -188,6 +198,7 @@ export function snapStateFromPlay(
     yard_line: number;
     play_number?: number;
     drive_number?: number | null;
+    is_inches?: boolean | null;
   },
   fallbackDriveNumber: number,
 ): GameState {
@@ -195,6 +206,7 @@ export function snapStateFromPlay(
   return {
     down: Math.min(4, Math.max(1, play.down)) as 1 | 2 | 3 | 4,
     distance: Math.max(1, play.distance),
+    isInches: Boolean(play.is_inches) && play.distance <= 1,
     absoluteYard: toAbsoluteYard(play.side, play.yard_line),
     driveNumber: play.drive_number ?? fallbackDriveNumber,
     playNumber: Math.max(0, pn - 1),
@@ -227,6 +239,7 @@ export function replayGameStateFromPlays(
     yard_line: number;
     play_number?: number;
     drive_number?: number | null;
+    is_inches?: boolean | null;
     result_tag: string;
     yards_gained: number | null | undefined;
   }>,

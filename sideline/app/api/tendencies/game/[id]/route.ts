@@ -1,4 +1,5 @@
 import { buildTendenciesGamePayload, type DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
+import { withNormalizedPlayName } from "@/lib/utils";
 import { fetchCfbPlayTypeMap, playbookForGame, type GameRow } from "@/lib/tendenciesServer";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -31,11 +32,13 @@ export async function GET(_: NextRequest, ctx: Ctx) {
       score_mine: d.score_mine,
       score_opponent: d.score_opponent,
       note: d.note,
-      plays: ((plays ?? []) as DriveWithPlays["plays"]).filter((p) => {
-        const playName = String(p.play_name ?? "").trim().toLowerCase();
-        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
-        return playName !== "punt" && resultTag !== "punt";
-      }),
+      plays: ((plays ?? []) as DriveWithPlays["plays"])
+        .map(withNormalizedPlayName)
+        .filter((p) => {
+          const playName = String(p.play_name ?? "").trim().toLowerCase();
+          const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+          return playName !== "punt" && resultTag !== "punt";
+        }),
     });
   }
 

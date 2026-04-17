@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { normalizePlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -12,16 +13,17 @@ export async function GET(req: NextRequest) {
     .order("formation", { ascending: true })
     .order("play_name", { ascending: true });
 
-  const formationMap = new Map<string, string[]>();
+  const formationMap = new Map<string, Set<string>>();
   for (const row of data ?? []) {
-    const plays = formationMap.get(row.formation) ?? [];
-    plays.push(row.play_name);
-    formationMap.set(row.formation, plays);
+    const fn = row.formation ?? "";
+    const canon = normalizePlayName(String(row.play_name ?? ""));
+    if (!formationMap.has(fn)) formationMap.set(fn, new Set());
+    formationMap.get(fn)!.add(canon);
   }
 
-  const formations = Array.from(formationMap.entries()).map(([formation, plays]) => ({
+  const formations = Array.from(formationMap.entries()).map(([formation, set]) => ({
     formation,
-    plays,
+    plays: [...set].sort((a, b) => a.localeCompare(b)),
   }));
 
   return NextResponse.json({ formations });

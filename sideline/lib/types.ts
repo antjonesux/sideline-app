@@ -31,6 +31,8 @@ export type LoggedPlay = {
   yards_gained: number;
   result_tag: string;
   note?: string | null;
+  /** UX flag when distance is 1 — stored as distance 1; same scenario buckets as 1 yard. */
+  is_inches?: boolean | null;
 };
 
 export type Drive = {
@@ -40,6 +42,8 @@ export type Drive = {
   time_remaining: string | null;
   starting_down?: number | null;
   starting_distance?: number | null;
+  /** When starting distance is 1, true means "& inches" display. */
+  is_inches?: boolean | null;
   starting_absolute_yard?: number | null;
   starting_yard_line: number | null;
   starting_side: "OWN" | "OPP" | null;

@@ -364,7 +364,7 @@ export const BOWLING_GREEN_SEED: TeamPlaybookSeed = {
       formation: "Gun Trips Offset",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, playType: "Medium Pass" },
+        { playName: "01 TRAP", isNewIn26: false, playType: "Medium Pass" },
         { playName: "ALL GO", isNewIn26: false, playType: "Deep Pass" },
         { playName: "CURLS", isNewIn26: false, playType: "Medium Pass" },
         { playName: "FAKE BUBBLE POST", isNewIn26: false, playType: "Screen" },

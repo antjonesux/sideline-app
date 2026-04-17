@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScoutingFormationReportRow } from "@/lib/tendenciesServer";
+import { normalizePlayName } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
 function successRateClass(successRate: number): string {
@@ -57,7 +58,7 @@ export function ScoutingFormationsReport({ rows, overallSuccessRate }: Props) {
                   <div key={`${play.formation}-${play.play_name}-${idx}`} className="flex items-center justify-between gap-2">
                     <p className="min-w-0 truncate font-mono text-sm text-white">
                       <span className="mr-1 text-slate-500">{idx + 1}.</span>
-                      {play.play_name}
+                      {normalizePlayName(play.play_name)}
                     </p>
                     <p className="shrink-0 font-mono text-sm">
                       <span className={successRateClass(play.success_rate)}>{play.success_rate}%</span>

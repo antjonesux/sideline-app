@@ -14,6 +14,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { normalizePlayName } from "../lib/utils";
 import { ALL_SCHEMES, getSchemeForTeam } from "../lib/playbooks/scheme-classifications";
 import { resolveSeedPlayType } from "../lib/seed/playTypeClassifier";
 import type { TeamPlaybookSeed } from "../lib/seed/types";
@@ -115,7 +116,7 @@ function validateSeed(seed: TeamPlaybookSeed, slug: string): string[] {
         errors.push(`Empty play name in formation "${fn}".`);
         continue;
       }
-      const pk = pn.toLowerCase();
+      const pk = normalizePlayName(pn);
       if (playNames.has(pk)) {
         errors.push(`Duplicate play "${pn}" in formation "${fn}".`);
       }
@@ -149,10 +150,10 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
         playbook,
         formation,
         formation_type: formationType,
-        play_name: p.playName.trim(),
+        play_name: normalizePlayName(p.playName.trim()),
         play_type: resolveSeedPlayType({
           team: playbook,
-          playName: p.playName,
+          playName: normalizePlayName(p.playName.trim()),
           explicitPlayType: p.playType,
         }),
         is_new_in_26: Boolean(p.isNewIn26),

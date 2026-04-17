@@ -4,7 +4,8 @@ import { ResultBadge } from "@/components/import/ResultBadge";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { GameFormationTable } from "@/components/tendencies/GameFormationTable";
 import { GameStatsGrid } from "@/components/tendencies/GameStatsGrid";
-import { DrivePlayTable, DRIVE_PLAY_TABLE_ROW } from "@/components/shared/DrivePlayTable";
+import { DataTable } from "@/components/shared/DataTable";
+import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
 import type { PlayTypeBucket } from "@/lib/tendenciesPlayType";
 import type { GameSession } from "@/lib/types";
 import type { DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
@@ -72,6 +73,7 @@ export function GameBreakdown({ data }: Props) {
   const { game, drives, stats, formation_breakdown } = data;
   const [expandedDriveIds, setExpandedDriveIds] = useState<string[]>([]);
   const playbookUsed = (game.offensive_playbook ?? "").trim() || (game.my_playbook ?? "").trim() || "—";
+  const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
 
   const title = useMemo(() => {
     const res = game.result === "W" ? "W" : game.result === "L" ? "L" : "—";
@@ -168,34 +170,12 @@ export function GameBreakdown({ data }: Props) {
                   </span>
                 </button>
                 {isExpanded ? (
-                  <div className="border-t border-slate-800/80 bg-slate-950/40">
-                    <DrivePlayTable>
-                      {plays.map((p) => {
-                        const yds = p.yards_gained ?? 0;
-                        const ydsClass = yds > 0 ? "text-[#10B981]" : yds < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
-                        const ydsText = yds > 0 ? `+${yds}` : String(yds);
-                        return (
-                          <div key={p.id} className={DRIVE_PLAY_TABLE_ROW}>
-                            <span className="whitespace-nowrap font-mono text-[12px] font-normal tabular-nums text-[#A0A3AD]">
-                              {p.down ?? "—"}-{p.distance ?? "—"}
-                            </span>
-                            <span className="min-w-0 whitespace-nowrap truncate font-mono text-[12px] font-medium uppercase text-white">
-                              {p.play_name}
-                              <span className="mt-0.5 block truncate font-body text-[11px] normal-case text-slate-400 sm:hidden">
-                                {p.formation}
-                              </span>
-                            </span>
-                            <span className="hidden min-w-0 whitespace-nowrap truncate font-body text-[13px] font-normal text-[#F5F5F0] sm:block">{p.formation}</span>
-                            <span className="min-w-0 overflow-hidden whitespace-nowrap">
-                              <ResultBadge label={p.result_tag} />
-                            </span>
-                            <span className={`min-w-0 whitespace-nowrap font-mono text-[13px] font-semibold tabular-nums ${ydsClass}`}>
-                              {ydsText}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </DrivePlayTable>
+                  <div className="border-t border-slate-800/80 bg-slate-950/40 px-3 py-1 sm:px-4 dark:border-slate-800/80">
+                    <DataTable
+                      columns={drivePlayCols}
+                      rows={plays}
+                      getRowKey={(p) => p.id}
+                    />
                   </div>
                 ) : null}
               </div>

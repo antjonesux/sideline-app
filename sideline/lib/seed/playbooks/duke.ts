@@ -69,7 +69,7 @@ export const DUKE_SEED: TeamPlaybookSeed = {
       formation: "Gun Wide Doubles Y Off Stack",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: true },
+        { playName: "01 TRAP", isNewIn26: true },
         { playName: "COUNTER Y", isNewIn26: true },
         { playName: "DEEP CHOICE", isNewIn26: true, playType: "Deep Pass" },
         { playName: "GT COUNTER", isNewIn26: true },
@@ -141,7 +141,7 @@ export const DUKE_SEED: TeamPlaybookSeed = {
       formation: "Gun Wide Y Off Trips Stack",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: true },
+        { playName: "01 TRAP", isNewIn26: true },
         { playName: "COUNTER Y", isNewIn26: true },
         { playName: "DEEP CHOICE", isNewIn26: true, playType: "Deep Pass" },
         { playName: "DUO", isNewIn26: true, playType: "Inside Run" },
