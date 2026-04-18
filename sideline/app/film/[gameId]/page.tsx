@@ -545,7 +545,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   editPlay={editPlay}
                   onEditPlayChange={setEditPlay}
                   onLogged={refresh}
-                  onStartNewDrive={() => void addDrive({ toastStarted: true })}
                   onPersistDriveFields={(partial) => patchDriveAndPersist(activeDriveObj.id, partial)}
                 />
               </div>

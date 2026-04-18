@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-17 (play logger header card)
+
+**What:** Snap editors (down, distance, short yardage, and first-play field position) now live inside the same card as the down/distance/field/drive summary; the summary row toggles that section with a chevron and starts collapsed. Removed the modal “+ New drive” and “Edit last play” actions and the `onStartNewDrive` prop—new drives stay on the game log screen.
+
+**Why:** The logger felt crowded with duplicate cards and always-visible fields; coaches only need snap edits occasionally and should see the live line at a glance first.
+
+**Decisions:** `CompactGameStateBar` remounts on `drive.id` plus edit target so each context opens with editors hidden again; the expandable region uses the shared `fade-in` and `accordion-chevron` patterns.
+
+**Status after this push:** Film play logging opens with a compact state strip and optional tap-to-edit snap controls without extra chrome in the modal.
+
+---
+
 ## 2026-04-17 (film play snap editing)
 
 **What:** The play logger adds a “Snap for this play” / “Snap (this play)” panel so coaches can set down, distance, and “1 yd” vs “& inches” when editing any logged play or before logging the next play on a drive, and clears manual snap overrides only when the drive’s play chain changes (not on stray array re-renders).

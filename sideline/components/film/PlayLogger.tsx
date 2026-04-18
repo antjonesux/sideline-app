@@ -30,7 +30,6 @@ type PlayLoggerProps = {
   editPlay: LoggedPlay | null;
   onEditPlayChange: (p: LoggedPlay | null) => void;
   onLogged: () => void | Promise<void>;
-  onStartNewDrive: () => void | Promise<void>;
   /** Persist starting field / down before the first play (merged into drive row). */
   onPersistDriveFields?: (partial: Partial<Drive>) => void;
 };
@@ -65,7 +64,6 @@ export function PlayLogger({
   editPlay,
   onEditPlayChange,
   onLogged,
-  onStartNewDrive,
   onPersistDriveFields,
 }: PlayLoggerProps) {
   const plays = drive.plays ?? [];
@@ -481,223 +479,208 @@ export function PlayLogger({
 
   return (
     <div className="space-y-3">
-      <CompactGameStateBar gameState={gameState} />
-      {showPlaySnapControls ? (
-        <div className="rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-900/80">
-          <p className="app-field-label mb-2 text-slate-500 dark:text-slate-500">
-            {editPlay ? "Snap for this play" : "Snap (this play)"}
-          </p>
-          <p className="mb-3 font-body text-xs text-slate-500 dark:text-slate-500">
-            {editPlay
-              ? "Change down, distance, or short-yardage before saving."
-              : "Override down and distance for this snap if the chain above is off."}
-          </p>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {([1, 2, 3, 4] as const).map((d) => {
-              const selected = gameState.down === d;
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                    selected
-                      ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                      : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                  }`}
-                  onClick={() => patchPlaySnapContext({ down: d })}
-                >
-                  {d}
-                </button>
-              );
-            })}
-          </div>
-          <label className="mb-3 block">
-            <span className="app-field-label text-slate-500 dark:text-slate-500">Distance</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-              value={String(gameState.distance)}
-              onChange={(e) => {
-                const raw = e.target.value.replace(/\D/g, "");
-                const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
-                patchPlaySnapContext({ distance: n });
-              }}
-            />
-          </label>
-          {gameState.distance <= 1 ? (
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                  !gameState.isInches
-                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                }`}
-                onClick={() => patchPlaySnapContext({ isInches: false })}
-              >
-                1 yd
-              </button>
-              <button
-                type="button"
-                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                  Boolean(gameState.isInches)
-                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                }`}
-                onClick={() => patchPlaySnapContext({ isInches: true })}
-              >
-                {"\u0026 inches"}
-              </button>
+      <CompactGameStateBar key={`${drive.id}-${editPlay?.id ?? "log"}`} gameState={gameState}>
+        {showPlaySnapControls || showSnapSpotEditor ? (
+          <>
+            {showPlaySnapControls ? (
+              <>
+            <div>
+              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Down</p>
+              <div className="flex flex-wrap gap-2">
+                {([1, 2, 3, 4] as const).map((d) => {
+                  const selected = gameState.down === d;
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                        selected
+                          ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                          : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                      }`}
+                      onClick={() => patchPlaySnapContext({ down: d })}
+                    >
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          ) : null}
-        </div>
-      ) : null}
-      {showSnapSpotEditor ? (
-        <div className="rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-900/80">
-          <p className="app-field-label mb-2 text-slate-500 dark:text-slate-500">Spot at snap (first play)</p>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {([1, 2, 3, 4] as const).map((d) => {
-              const selected = gameState.down === d;
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                    selected
-                      ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                      : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                  }`}
-                  onClick={() => onPersistDriveFields?.({ starting_down: d })}
-                >
-                  {d}
-                </button>
-              );
-            })}
-          </div>
-          <label className="mb-3 block">
-            <span className="app-field-label text-slate-500 dark:text-slate-500">Distance</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-              value={String(gameState.distance)}
-              onChange={(e) => {
-                const raw = e.target.value.replace(/\D/g, "");
-                const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
-                onPersistDriveFields?.({
-                  starting_distance: n,
-                  is_inches: n <= 1 ? Boolean(drive.is_inches) : false,
-                });
-              }}
-            />
-          </label>
-          {gameState.distance <= 1 ? (
-            <div className="mb-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                  !drive.is_inches
-                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                }`}
-                onClick={() => onPersistDriveFields?.({ is_inches: false })}
-              >
-                1 yd
-              </button>
-              <button
-                type="button"
-                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                  Boolean(drive.is_inches)
-                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                }`}
-                onClick={() => onPersistDriveFields?.({ is_inches: true })}
-              >
-                {"\u0026 inches"}
-              </button>
+            <label className="block">
+              <span className="app-field-label text-slate-500 dark:text-slate-500">Distance</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                value={String(gameState.distance)}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
+                  patchPlaySnapContext({ distance: n });
+                }}
+              />
+            </label>
+            {gameState.distance <= 1 ? (
+              <div>
+                <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Short yardage</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                      !gameState.isInches
+                        ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => patchPlaySnapContext({ isInches: false })}
+                  >
+                    1 yd
+                  </button>
+                  <button
+                    type="button"
+                    className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                      Boolean(gameState.isInches)
+                        ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => patchPlaySnapContext({ isInches: true })}
+                  >
+                    {"\u0026 inches"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+              </>
+            ) : null}
+            {showSnapSpotEditor ? (
+              <>
+            <div>
+              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Down</p>
+              <div className="flex flex-wrap gap-2">
+                {([1, 2, 3, 4] as const).map((d) => {
+                  const selected = gameState.down === d;
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                        selected
+                          ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                          : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                      }`}
+                      onClick={() => onPersistDriveFields?.({ starting_down: d })}
+                    >
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          ) : null}
-          <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Field position</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              disabled={!canExpressOwn}
-              title={!canExpressOwn ? "Ball is past midfield — use opponent side for this spot." : undefined}
-              className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
-                fromAbsoluteYard(absForSnap).side === "OWN"
-                  ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                  : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-              }`}
-              onClick={() => {
-                if (!canExpressOwn || !onPersistDriveFields) return;
-                onPersistDriveFields({ starting_side: "OWN", starting_yard_line: absForSnap });
-              }}
-            >
-              OWN
-            </button>
-            <button
-              type="button"
-              disabled={!canExpressOpp}
-              title={!canExpressOpp ? "Ball is inside your own 50 — use own side for this spot." : undefined}
-              className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
-                fromAbsoluteYard(absForSnap).side === "OPP"
-                  ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                  : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-              }`}
-              onClick={() => {
-                if (!canExpressOpp || !onPersistDriveFields) return;
-                onPersistDriveFields({ starting_side: "OPP", starting_yard_line: 100 - absForSnap });
-              }}
-            >
-              OPP
-            </button>
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              aria-label="Yard line (1–50)"
-              className="min-h-11 min-w-[5rem] flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-              value={snapYardDraft}
-              onFocus={() => setSnapYardEditing(true)}
-              onChange={(e) => setSnapYardDraft(e.target.value.replace(/\D/g, ""))}
-              onBlur={() => {
-                setSnapYardEditing(false);
-                const raw = snapYardDraft.trim();
-                const n = raw === "" ? fromAbsoluteYard(absForSnap).yard_line : Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
-                const side = fromAbsoluteYard(absForSnap).side;
-                onPersistDriveFields?.({ starting_side: side, starting_yard_line: n });
-              }}
-            />
-          </div>
-          <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-500">{formatFieldPosition(absForSnap)}</p>
-        </div>
-      ) : null}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className="min-h-11 rounded-lg px-3 font-sans text-sm font-medium text-amber-400 hover:bg-white/[0.04] hover:text-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-          onClick={() => void onStartNewDrive()}
-        >
-          + New drive
-        </button>
-        <button
-          type="button"
-          className="min-h-11 rounded-lg px-3 font-sans text-sm text-slate-400 hover:bg-white/[0.04] hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-          onClick={() => {
-            if (plays.length === 0) {
-              addToast("No plays to edit yet", "warning");
-              return;
-            }
-            const latest = [...plays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0))[0];
-            if (latest) onEditPlayChange(latest);
-          }}
-        >
-          Edit last play
-        </button>
-      </div>
+            <label className="block">
+              <span className="app-field-label text-slate-500 dark:text-slate-500">Distance</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                value={String(gameState.distance)}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
+                  onPersistDriveFields?.({
+                    starting_distance: n,
+                    is_inches: n <= 1 ? Boolean(drive.is_inches) : false,
+                  });
+                }}
+              />
+            </label>
+            {gameState.distance <= 1 ? (
+              <div>
+                <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Short yardage</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                      !drive.is_inches
+                        ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => onPersistDriveFields?.({ is_inches: false })}
+                  >
+                    1 yd
+                  </button>
+                  <button
+                    type="button"
+                    className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                      Boolean(drive.is_inches)
+                        ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => onPersistDriveFields?.({ is_inches: true })}
+                  >
+                    {"\u0026 inches"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Field position</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!canExpressOwn}
+                    title={!canExpressOwn ? "Ball is past midfield — use opponent side for this spot." : undefined}
+                    className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
+                      fromAbsoluteYard(absForSnap).side === "OWN"
+                        ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => {
+                      if (!canExpressOwn || !onPersistDriveFields) return;
+                      onPersistDriveFields({ starting_side: "OWN", starting_yard_line: absForSnap });
+                    }}
+                  >
+                    OWN
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!canExpressOpp}
+                    title={!canExpressOpp ? "Ball is inside your own 50 — use own side for this spot." : undefined}
+                    className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
+                      fromAbsoluteYard(absForSnap).side === "OPP"
+                        ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                        : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                    onClick={() => {
+                      if (!canExpressOpp || !onPersistDriveFields) return;
+                      onPersistDriveFields({ starting_side: "OPP", starting_yard_line: 100 - absForSnap });
+                    }}
+                  >
+                    OPP
+                  </button>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    aria-label="Yard line (1–50)"
+                    className="min-h-11 min-w-[5rem] flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    value={snapYardDraft}
+                    onFocus={() => setSnapYardEditing(true)}
+                    onChange={(e) => setSnapYardDraft(e.target.value.replace(/\D/g, ""))}
+                    onBlur={() => {
+                      setSnapYardEditing(false);
+                      const raw = snapYardDraft.trim();
+                      const n = raw === "" ? fromAbsoluteYard(absForSnap).yard_line : Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
+                      const side = fromAbsoluteYard(absForSnap).side;
+                      onPersistDriveFields?.({ starting_side: side, starting_yard_line: n });
+                    }}
+                  />
+                </div>
+                <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-500">{formatFieldPosition(absForSnap)}</p>
+              </>
+            ) : null}
+          </>
+        ) : null}
+      </CompactGameStateBar>
 
       <div className="app-card flex max-h-[70vh] flex-col overflow-hidden rounded-xl p-0">
         <div className="space-y-3 overflow-y-auto p-3">
