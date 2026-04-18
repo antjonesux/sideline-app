@@ -1,5 +1,6 @@
 import { fromAbsoluteYard, parseFieldPosition, toAbsoluteYard } from "@/lib/fieldPosition";
 import type { Side } from "@/lib/derivePlayContext";
+import type { Drive } from "@/lib/types";
 
 export type ResultTag =
   | "FIRST_DOWN"
@@ -190,6 +191,38 @@ export function defaultGameState(driveNumber: number): GameState {
   };
 }
 
+/** Next snap before any plays are logged — uses drive starting fields when set, else own 25 / 1st & 10. */
+export function snapStateFromDriveStarting(drive: Drive): GameState {
+  const driveNumber = drive.drive_number;
+  const down = Math.min(4, Math.max(1, drive.starting_down ?? 1)) as 1 | 2 | 3 | 4;
+  const distance = Math.max(1, drive.starting_distance ?? 10);
+  const isInches = Boolean(drive.is_inches) && distance <= 1;
+
+  const absStored = drive.starting_absolute_yard;
+  let absoluteYard: number;
+  if (typeof absStored === "number" && absStored >= 1 && absStored <= 99) {
+    absoluteYard = absStored;
+  } else if (
+    (drive.starting_side === "OWN" || drive.starting_side === "OPP") &&
+    drive.starting_yard_line != null &&
+    drive.starting_yard_line >= 1 &&
+    drive.starting_yard_line <= 50
+  ) {
+    absoluteYard = toAbsoluteYard(drive.starting_side, drive.starting_yard_line);
+  } else {
+    absoluteYard = parseFieldPosition("OWN", 25);
+  }
+
+  return {
+    down,
+    distance,
+    isInches,
+    absoluteYard,
+    driveNumber,
+    playNumber: 0,
+  };
+}
+
 export function snapStateFromPlay(
   play: {
     down: number;
@@ -244,8 +277,15 @@ export function replayGameStateFromPlays(
     yards_gained: number | null | undefined;
   }>,
   driveNumber: number,
+  /** When the drive has no plays yet, use this row’s starting_* fields (falls back to own 25 / 1st & 10). */
+  driveWhenEmpty: Drive | null = null,
 ): GameState {
-  if (!plays.length) return defaultGameState(driveNumber);
+  if (!plays.length) {
+    if (driveWhenEmpty && driveWhenEmpty.drive_number === driveNumber) {
+      return snapStateFromDriveStarting(driveWhenEmpty);
+    }
+    return defaultGameState(driveNumber);
+  }
   let state = defaultGameState(driveNumber);
   plays.forEach((p, i) => {
     const row = { ...p, play_number: p.play_number ?? i + 1 };

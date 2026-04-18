@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-17 (film starting spot in play logger)
+
+**What:** Empty-drive replay now builds the next snap from the drive row’s `starting_*` fields via `snapStateFromDriveStarting`, and the play logger shows a “Spot at snap (first play)” panel (down, distance, inches, OWN/OPP, yard line) that debounces through the existing drive patch so opening field position is not stuck at own 25.
+
+**Why:** New drives stopped saving starting field context in the simplified drive UI, while `replayGameStateFromPlays` always defaulted to own 25 when no plays existed, so coaches could not log drives that began elsewhere without a place to edit it.
+
+**Decisions:** OWN and OPP toggles disable when that notation cannot represent the current absolute yard line, with tooltips pointing users to adjust the yard number first; yard line uses blur-to-save so multi-digit entry does not thrash the drive row on each keypress.
+
+**Status after this push:** First-play field position and down-and-distance align with stored drive starts and remain editable from the logger until the first play is logged.
+
+---
+
 ## 2026-04-17 (film drive sheet and play logger)
 
 **What:** Reworked the game log drive accordion so quarter, score, and drive note edit inline with debounced silent saves, new drives inherit the prior drive’s quarter and score, and simplified the play logger chrome: read-only compact state bar, explicit “New drive” and “Edit last play” actions, OWN/OPP toggles instead of a select, and stricter submit locking so rapid taps cannot double-post plays.
