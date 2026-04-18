@@ -75,10 +75,43 @@ export function PlayLogger({
   }, [drive]);
 
   const [manualGameState, setManualGameState] = useState<GameState | null>(null);
+
+  const playChainFingerprint = useMemo(() => {
+    const row = drive.plays ?? [];
+    const last = row.length > 0 ? row[row.length - 1] : null;
+    return `${drive.id}:${String(row.length)}:${last?.id ?? "none"}`;
+  }, [drive.id, drive.plays]);
+
   useEffect(() => {
     if (editPlay) return;
     setManualGameState(null);
-  }, [drive.id, plays, editPlay]);
+  }, [editPlay, playChainFingerprint]);
+
+  const patchPlaySnapContext = useCallback(
+    (partial: { down?: 1 | 2 | 3 | 4; distance?: number; isInches?: boolean }) => {
+      setManualGameState((prev) => {
+        const rowPlays = drive.plays ?? [];
+        const replay = replayGameStateFromPlays(rowPlays, drive.drive_number, drive);
+        const base = prev ?? replay;
+        const nextDown = (partial.down !== undefined ? partial.down : base.down) as 1 | 2 | 3 | 4;
+        const distSrc = partial.distance !== undefined ? partial.distance : base.distance;
+        const nextDist = Math.max(1, Math.min(99, Math.round(Number(distSrc)) || 1));
+        const nextInches =
+          partial.isInches !== undefined
+            ? Boolean(partial.isInches) && nextDist <= 1
+            : nextDist > 1
+              ? false
+              : Boolean(base.isInches) && nextDist <= 1;
+        return {
+          ...base,
+          down: Math.min(4, Math.max(1, nextDown)) as 1 | 2 | 3 | 4,
+          distance: nextDist,
+          isInches: nextInches,
+        };
+      });
+    },
+    [drive],
+  );
 
   const gameState = manualGameState ?? replayState;
 
@@ -444,9 +477,83 @@ export function PlayLogger({
     if (!snapYardEditing) setSnapYardDraft(String(fromAbsoluteYard(absForSnap).yard_line));
   }, [absForSnap, snapYardEditing]);
 
+  const showPlaySnapControls = Boolean(editPlay || plays.length > 0);
+
   return (
     <div className="space-y-3">
       <CompactGameStateBar gameState={gameState} />
+      {showPlaySnapControls ? (
+        <div className="rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-900/80">
+          <p className="app-field-label mb-2 text-slate-500 dark:text-slate-500">
+            {editPlay ? "Snap for this play" : "Snap (this play)"}
+          </p>
+          <p className="mb-3 font-body text-xs text-slate-500 dark:text-slate-500">
+            {editPlay
+              ? "Change down, distance, or short-yardage before saving."
+              : "Override down and distance for this snap if the chain above is off."}
+          </p>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {([1, 2, 3, 4] as const).map((d) => {
+              const selected = gameState.down === d;
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  className={`min-h-11 min-w-[2.75rem] rounded-lg border px-2 font-mono text-xs font-medium uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                    selected
+                      ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                      : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                  }`}
+                  onClick={() => patchPlaySnapContext({ down: d })}
+                >
+                  {d}
+                </button>
+              );
+            })}
+          </div>
+          <label className="mb-3 block">
+            <span className="app-field-label text-slate-500 dark:text-slate-500">Distance</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              value={String(gameState.distance)}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\D/g, "");
+                const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
+                patchPlaySnapContext({ distance: n });
+              }}
+            />
+          </label>
+          {gameState.distance <= 1 ? (
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                  !gameState.isInches
+                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                }`}
+                onClick={() => patchPlaySnapContext({ isInches: false })}
+              >
+                1 yd
+              </button>
+              <button
+                type="button"
+                className={`min-h-11 rounded-lg border px-3 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+                  Boolean(gameState.isInches)
+                    ? "border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                    : "border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+                }`}
+                onClick={() => patchPlaySnapContext({ isInches: true })}
+              >
+                {"\u0026 inches"}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {showSnapSpotEditor ? (
         <div className="rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-900/80">
           <p className="app-field-label mb-2 text-slate-500 dark:text-slate-500">Spot at snap (first play)</p>

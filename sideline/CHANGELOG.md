@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-17 (film play snap editing)
+
+**What:** The play logger adds a “Snap for this play” / “Snap (this play)” panel so coaches can set down, distance, and “1 yd” vs “& inches” when editing any logged play or before logging the next play on a drive, and clears manual snap overrides only when the drive’s play chain changes (not on stray array re-renders).
+
+**Why:** Down and distance were implied by replay or the first-drive panel only, so corrections for short yardage or a wrong chain required awkward workarounds and inches-to-go could not be set when revising plays.
+
+**Decisions:** Overrides live in `manualGameState` with a fingerprint of drive id, play count, and last play id so pre-submit edits are not wiped unintentionally.
+
+**Status after this push:** Film play edits and next-play logs can align with the real scoreboard situation including inches-to-go.
+
+---
+
 ## 2026-04-17 (film starting spot in play logger)
 
 **What:** Empty-drive replay now builds the next snap from the drive row’s `starting_*` fields via `snapStateFromDriveStarting`, and the play logger shows a “Spot at snap (first play)” panel (down, distance, inches, OWN/OPP, yard line) that debounces through the existing drive patch so opening field position is not stuck at own 25.
