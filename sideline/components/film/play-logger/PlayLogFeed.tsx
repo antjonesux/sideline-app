@@ -67,7 +67,7 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
             className="mt-3 font-sans text-sm font-medium text-emerald-400 hover:text-emerald-300"
             onClick={() => setShowAll((s) => !s)}
           >
-            {showAll ? "Show fewer" : `Show all (${sorted.length} plays)`}
+            {showAll ? "Show fewer" : `Show all (${sorted.length} calls)`}
           </button>
         ) : null}
       </div>
@@ -75,15 +75,16 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
       <ConfirmDestructiveModal
         open={pendingDelete !== null}
         onClose={() => setPendingDelete(null)}
-        title="Delete this play?"
+        title="Delete play"
+        confirmLabel="Delete play"
         message={
           pendingDelete ? (
             <>
-              Remove{" "}
+              Drops{" "}
               <span className="font-mono text-white">
                 {pendingDelete.formation} → {normalizePlayName(pendingDelete.play_name)}
               </span>{" "}
-              from this drive?
+              from this drive. Can&apos;t be undone.
             </>
           ) : null
         }

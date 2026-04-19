@@ -1,4 +1,16 @@
 import { SCENARIOS } from "@/lib/constants";
+import type { SheetScenarioBlock } from "@/lib/types";
+
+const SCENARIO_ORDER_INDEX = new Map(SCENARIOS.map((label, index) => [label, index]));
+
+/** Order situation badges like `SCENARIOS` even if the API returns another order. */
+export function sortScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
+  return [...blocks].sort((a, b) => {
+    const ia = SCENARIO_ORDER_INDEX.get(a.scenario as (typeof SCENARIOS)[number]) ?? 999;
+    const ib = SCENARIO_ORDER_INDEX.get(b.scenario as (typeof SCENARIOS)[number]) ?? 999;
+    return ia - ib;
+  });
+}
 
 export function scenarioMaxSlots(scenario: string): number {
   if (scenario === "Opening Script") return 15;
@@ -19,6 +31,6 @@ export function sheetCfb26Playbook(row: { cfb26_playbook?: string | null; playbo
   return (row.playbook ?? "").trim();
 }
 
-export function orderedScenarioList(): readonly string[] {
+export function orderedScenarioList(): typeof SCENARIOS {
   return SCENARIOS;
 }

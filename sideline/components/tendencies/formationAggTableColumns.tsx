@@ -1,4 +1,5 @@
 import type { DataTableColumn } from "@/components/shared/DataTable";
+import { successRateTextClass } from "@/lib/successRateTextClass";
 
 export type FormationAggRow = {
   formation: string;
@@ -27,13 +28,22 @@ export function formationAggTableColumns(
       key: "avg_yds",
       header: "AVG YDS",
       width: "w-[70px]",
-      render: (r) => <span className="font-mono text-sm tabular-nums text-slate-300">{r.avg_yards}</span>,
+      render: (r) => {
+        const y = r.avg_yards;
+        const tone = y > 0 ? "text-emerald-400" : y < 0 ? "text-red-400" : "text-slate-500";
+        const text = y > 0 ? `+${y.toFixed(1)}` : y.toFixed(1);
+        return <span className={`font-mono text-sm font-medium tabular-nums ${tone}`}>{text}</span>;
+      },
     },
     {
       key: "success",
       header: "SUCCESS",
       width: "w-[70px]",
-      render: (r) => <span className="font-mono text-sm tabular-nums text-slate-300">{r.success_rate}%</span>,
+      render: (r) => (
+        <span className={`font-mono text-sm font-medium tabular-nums ${successRateTextClass(r.success_rate)}`}>
+          {r.success_rate}%
+        </span>
+      ),
     },
     {
       key: "expand",

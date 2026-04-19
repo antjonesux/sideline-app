@@ -4,6 +4,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { IMPORT_FAILED } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { supabase } from "@/lib/supabase";
 import { useImportStore } from "@/store/importStore";
@@ -168,12 +169,12 @@ export default function FilmImportSavePage() {
       });
       const body = (await res.json().catch(() => ({}))) as { session_id?: string; error?: string };
       if (!res.ok || !body.session_id) {
-        addToast("Import failed", "error");
+        addToast(IMPORT_FAILED, "error");
         return;
       }
 
       setImportedSession(body.session_id);
-      addToast(`${validRows.length} plays imported`, "success");
+      addToast(`${validRows.length} calls logged.`, "success");
       void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
       void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
       router.push("/film/import/complete");

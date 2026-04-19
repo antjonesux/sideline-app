@@ -22,7 +22,7 @@ export function ReconsiderRankMetrics({ touchdowns, first_downs, uses, avg_yards
       {first_downs === 1 ? "1st Down" : "1st Downs"}
     </span>,
     <span key="uses" className="text-slate-400">
-      <span className="tabular-nums">{uses.toLocaleString("en-US")}</span> uses
+      <span className="tabular-nums">{uses.toLocaleString("en-US")}</span> calls
     </span>,
     <span key="avg" className={avgClass}>
       <span className="tabular-nums">{avg_yards.toFixed(1)}</span> avg yds

@@ -10,45 +10,48 @@ type Tab = "situations" | "formations";
 type Props = {
   situationRows: ScoutingReportRow[];
   formationRows: ScoutingFormationReportRow[];
-  overallSuccessRate: number;
 };
 
-export function ScoutingReportSection({ situationRows, formationRows, overallSuccessRate }: Props) {
+export function ScoutingReportSection({ situationRows, formationRows }: Props) {
   const [tab, setTab] = useState<Tab>("situations");
 
   return (
     <section className="space-y-3">
       <div className="space-y-2">
         <h2 className="app-section-title">Scouting Report</h2>
-        <p className="font-body text-[13px] font-normal leading-snug text-slate-400">
-          What an opposing staff might say about your tendencies.
+        <p className="font-sans text-[13px] font-normal leading-snug text-slate-400">
+          Opponent read on your tendencies.
         </p>
-        <nav className="inline-flex gap-1 border-b border-slate-800" aria-label="Scouting report views">
+        <div className="grid grid-cols-2 border-b border-slate-800" role="tablist" aria-label="Scouting report views">
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === "situations"}
             onClick={() => setTab("situations")}
-            className={`font-body shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-              tab === "situations" ? "border-emerald-500 text-emerald-300" : "border-transparent text-slate-500 hover:text-slate-300"
+            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
+              tab === "situations" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
             }`}
           >
             Situations
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === "formations"}
             onClick={() => setTab("formations")}
-            className={`font-body shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-              tab === "formations" ? "border-emerald-500 text-emerald-300" : "border-transparent text-slate-500 hover:text-slate-300"
+            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
+              tab === "formations" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
             }`}
           >
             Formations
           </button>
-        </nav>
+        </div>
       </div>
 
       {tab === "situations" ? (
-        <ScoutingReport rows={situationRows} overallSuccessRate={overallSuccessRate} />
+        <ScoutingReport rows={situationRows} />
       ) : (
-        <ScoutingFormationsReport rows={formationRows} overallSuccessRate={overallSuccessRate} />
+        <ScoutingFormationsReport rows={formationRows} />
       )}
     </section>
   );

@@ -48,6 +48,7 @@ Show the minimum information needed, let users drill deeper on demand.
 No screen, section, or component may render blank when it has no data.
 - Every empty state must include: a clear message explaining why it's empty, and a CTA button pointing the user to the action that fills it
 - Never show just "No data" or a blank container
+- Wording, banned phrases, and example lines: follow **# UX Copy & Terminology — Enforced Globally** (later in this file)
 
 ## Consistency
 Identical patterns must look and behave identically everywhere.
@@ -90,6 +91,7 @@ Identical patterns must look and behave identically everywhere.
 - Positive yards: emerald. Negative yards: red. Zero: muted.
 - Success rate color coding: 60%+ emerald, 40-59% amber, below 40% red, no data gray
 - Tables use consistent column widths and alignment (numbers right-aligned, text left-aligned)
+- How stats are *labeled* in UI (fragments vs. sentences, word choice): follow **# UX Copy & Terminology — Enforced Globally** → **Stats Format** in this file
 
 # Additional Rules to Add to .cursorrules
 # Merge these below your existing Typography and UX/UI sections
@@ -195,6 +197,7 @@ When generating new pages, always populate them with real component structure, r
 
 - Every API call in a component must have error handling (try/catch or TanStack Query's `onError`)
 - Show an error toast on failure — never fail silently
+- User-visible error copy: follow **# UX Copy & Terminology — Enforced Globally** (human, actionable; never expose DB columns, table names, HTTP codes, or stack traces)
 - Form submissions must disable the submit button while loading and re-enable on completion
 - Loading states use skeleton placeholders that match the shape of the content they replace — never a centered spinner on an otherwise blank page
 
@@ -206,6 +209,80 @@ When generating new pages, always populate them with real component structure, r
 - API routes: kebab-case paths (e.g., `/api/top-plays`, `/api/game/[id]`)
 - CSS tokens: `--color-kebab-case` (e.g., `--color-field-green`)
 - Seed files: `kebab-case.ts` (e.g., `washington-state.ts`, `texas-am.ts`)
+
+# UX Copy & Terminology — Enforced Globally
+
+Every piece of user-facing text must follow these rules. No exceptions.
+
+## Voice
+
+Write like a coach's clipboard, not a developer's console.
+- Fragments over sentences. Labels and stats are never full sentences.
+- Direct, never hedging. "62% pass" not "You pass about 62% of the time here."
+- No developer language. Never show "data," "records," "entries," "items," "null," "undefined," "N/A," "query," "fetch," or "no results found" to users.
+- No redundancy. If context already tells the user what something is, don't repeat it in the label.
+
+## Terminology
+
+Use ONE word for each concept. Never mix synonyms.
+
+| Concept | Always use | Never use |
+|---|---|---|
+| A play that was run | call | use, entry, instance, play event |
+| Number of times run | calls | uses, times used, count |
+| A sequence of plays | drive | drive session, possession |
+| The game | game | session, match, game session |
+| Recording play data | logging | tracking, recording, entering data |
+| Play sheet / call sheet | play sheet | playbook sheet, sheet, call list |
+| Success metric | success | success rate, win rate, effectiveness |
+| User's pattern | tendency | trend, habit, pattern, behavior |
+| Game situation | situation | scenario, context, game state |
+| Where the ball is | field position | yard line position, ball position |
+| The other team | opponent | enemy, other team, opposition |
+
+## Stats Format
+
+Stats are always fragments: label + number + unit. Never wrap a stat in a sentence.
+- "127 plays" not "Total Plays: 127"
+- "8.3 avg yds" not "Average Yards Per Play: 8.3"
+- "56% success" not "Your success rate in this situation: 56%"
+- "3 calls" not "Number of calls: 3"
+- "+39 yds" not "Total Yards Gained: +39"
+- "2 TD · 1 TO" not "Touchdown count: 2, Turnover count: 1"
+
+## Empty States
+
+Every empty state needs: a human message + a CTA telling the user what to do.
+- "No games logged yet." + [Log Your First Game]
+- "No drives yet." + [Add Drive]
+- "No plays added." + [Add Play]
+- Never: "No data found," "No results," "No items to display," "No records match"
+
+Also satisfies **Empty States** under UX/UI Systematic Principles (visible zero-state, never blank).
+
+## Error Messages
+
+Errors are human and actionable. Never expose database details.
+- "Couldn't save. Check your connection and try again." not "Failed to save"
+- "Something went wrong. Try again." not "Error: 500 Internal Server Error"
+- Never show column names, table names, HTTP status codes, or stack traces to users
+
+Also satisfies **Error Handling** under Additional Rules (toasts, no silent failures).
+
+## Button Labels
+
+1-2 words. Verb matches the action. Confirmation buttons repeat the action name.
+- "Log Play" not "Submit"
+- "Add Drive" not "Add New Drive"
+- "Save" not "Save Changes"
+- "Delete Drive" not "Confirm" or "OK" or "Are you sure?"
+
+## Navigation Labels
+
+These are the exact labels. No variations.
+- Bottom nav: Film Room | Game Plan | Tendencies
+- Game details tabs: Drive Summary | Tendencies
+- Tendencies sub-tabs: What's Working | Am I Predictable?
 
 # Commit & Changelog - Enforced on Every Push
 

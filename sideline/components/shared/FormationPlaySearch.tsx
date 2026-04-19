@@ -3,6 +3,7 @@
 import { comboKey } from "@/lib/loggedPlayStats";
 import { dedupePlaysByDisplayInFormation, normalizePlayLabel } from "@/lib/normalizePlayLabel";
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
+import { successRateTextClass } from "@/lib/successRateTextClass";
 import { normalizePlayName } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -56,15 +57,17 @@ export function FormationPlaySearchResultsGrouped({
 }: FormationPlaySearchResultsGroupedProps) {
   if (loading) {
     return (
-      <div className="p-3 font-body text-xs text-slate-500" aria-busy="true">
-        Loading…
+      <div className="space-y-2 p-3" aria-busy="true">
+        <span className="sr-only">Updating list</span>
+        <div className="app-skeleton h-8 w-full rounded-lg" />
+        <div className="app-skeleton h-8 max-w-[85%] rounded-lg" />
       </div>
     );
   }
 
   if (sortedFormationNames.length === 0) {
     if (hideWhenEmpty) return null;
-    return <p className="p-3 font-body text-sm text-slate-500">No plays match this search.</p>;
+    return <p className="p-3 font-sans text-sm text-slate-500">No plays match this search.</p>;
   }
 
   return (
@@ -74,13 +77,14 @@ export function FormationPlaySearchResultsGrouped({
         const fs = formationStats[formationName];
         const sub =
           fs && fs.uses > 0 ? (
-            <span className="font-mono text-[11px] font-normal text-[#A0A3AD]">
-              {fs.uses} uses
+            <span className="font-mono text-[11px] font-normal text-slate-400">
+              {fs.uses} calls
               <span className="mx-1 text-slate-600">·</span>
-              {fs.success_rate}% success
+              <span className={successRateTextClass(fs.success_rate)}>{fs.success_rate}%</span>
+              <span className="text-slate-400"> success</span>
             </span>
           ) : (
-            <span className="font-mono text-[11px] font-normal text-[#A0A3AD]">No data yet</span>
+            <span className="font-mono text-[11px] font-normal text-slate-400">No calls yet</span>
           );
         const isOpen = !showAccordionBrowse || expandedFormations.has(formationName);
         return (
@@ -93,7 +97,7 @@ export function FormationPlaySearchResultsGrouped({
               }}
               aria-expanded={isOpen}
             >
-              <span className="min-w-0 font-body text-[14px] font-normal text-[#F5F5F0]">{formationName}</span>
+              <span className="min-w-0 font-sans text-[14px] font-normal text-slate-100">{formationName}</span>
               <span className="flex shrink-0 items-center gap-2">
                 {sub}
                 {showAccordionBrowse ? (
@@ -137,17 +141,21 @@ export function FormationPlaySearchResultsGrouped({
                           ) : null}
                         </div>
                         {st && st.uses > 0 ? (
-                          <span className="mt-1 text-[10px] text-slate-500">
-                            <span className="font-mono">{st.uses}</span>
-                            <span className="font-body ml-1">uses</span>
+                          <span className="mt-1 font-mono text-[10px] text-slate-500">
+                            {st.uses} calls
                             <span className="mx-1 text-slate-600">·</span>
-                            <span className="font-mono">{st.avg_yards.toFixed(1)}</span>
-                            <span className="font-body ml-1">yds</span>
+                            {st.avg_yards > 0 ? (
+                              <span className="text-emerald-400">+{st.avg_yards.toFixed(1)} yds</span>
+                            ) : st.avg_yards < 0 ? (
+                              <span className="text-red-400">{st.avg_yards.toFixed(1)} yds</span>
+                            ) : (
+                              <span className="text-slate-500">0.0 yds</span>
+                            )}
                             <span className="mx-1 text-slate-600">·</span>
-                            <span className="font-mono">{st.success_rate}%</span>
+                            <span className={successRateTextClass(st.success_rate)}>{st.success_rate}%</span>
                           </span>
                         ) : (
-                          <span className="mt-1 font-body text-[10px] text-slate-500">No logged data</span>
+                          <span className="mt-1 font-mono text-[10px] text-slate-500">No calls logged</span>
                         )}
                       </button>
                     </li>
@@ -413,7 +421,7 @@ export function FormationPlaySearch({
       className={resultsLayout === "stacked" ? "flex min-h-0 flex-1 flex-col" : "relative"}
       ref={rootRef}
     >
-      <label htmlFor={comboId} className="app-field-label mb-1 block text-slate-500">
+      <label htmlFor={comboId} className="app-field-label block text-slate-500">
         FORMATION + PLAY
       </label>
       <div className="relative shrink-0">
@@ -465,16 +473,16 @@ export function FormationPlaySearch({
         <div
           id={listId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-[min(70vh,28rem)] w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-2 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          className="absolute z-50 mt-1 max-h-[50vh] w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-2 shadow-xl dark:border-slate-700 dark:bg-slate-900"
         >
           {!loading && searchActive && !isLocal && filteredByKeyword.length === 0 ? (
-            <p className="px-3 py-2 font-body text-xs text-slate-400">
-              No matches — press Enter to use &quot;{q}&quot; as custom text
+            <p className="px-3 py-2 font-sans text-xs text-slate-400">
+              No hits. Tap Enter to log &quot;{q}&quot; as typed.
             </p>
           ) : null}
           {!loading && searchActive && isLocal && sortedFormationNames.length === 0 ? (
-            <p className="px-3 py-2 font-body text-xs text-slate-400">
-              No matches — press Enter to use &quot;{q}&quot; as custom text
+            <p className="px-3 py-2 font-sans text-xs text-slate-400">
+              No hits. Tap Enter to log &quot;{q}&quot; as typed.
             </p>
           ) : null}
           {resultsGrouped}
@@ -484,10 +492,11 @@ export function FormationPlaySearch({
       {showStackedPanel ? (
         <div id={listId} className="mt-2 min-h-0 flex-1 overflow-y-auto" role="listbox">
           {!loading && isLocal && localPlays.length === 0 ? (
-            <p className="px-1 py-2 font-body text-sm text-slate-500">No plays loaded.</p>
+            <p className="px-1 py-2 font-sans text-sm text-slate-500">No plays on this sheet.</p>
           ) : null}
           {loading && isLocal ? (
-            <div className="space-y-2 p-1" aria-busy="true" aria-label="Loading plays">
+            <div className="space-y-2 p-1" aria-busy="true">
+              <span className="sr-only">Updating list</span>
               {[0, 1, 2, 3, 4].map((i) => (
                 <div key={i} className="app-skeleton h-14 w-full rounded-lg" />
               ))}

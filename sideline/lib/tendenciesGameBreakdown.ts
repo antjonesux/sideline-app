@@ -1,5 +1,7 @@
+import { SCENARIO_SHORT } from "@/lib/constants";
 import type { PlayTypeBucket } from "@/lib/tendenciesPlayType";
-import { attachPlayTypes, fetchCfbPlayTypeMap, isSuccessPlay, playbookForGame, type GameRow, type LoggedPlayRow } from "@/lib/tendenciesServer";
+import { attachPlayTypes, isSuccessPlay, playTypeCounts, type GameRow, type LoggedPlayRow } from "@/lib/tendenciesServer";
+import type { GameSession } from "@/lib/types";
 
 export type DriveWithPlays = {
   id: string;
@@ -9,6 +11,40 @@ export type DriveWithPlays = {
   score_opponent: number | null;
   note: string | null;
   plays: LoggedPlayRow[];
+};
+
+export type GameTendencyStats = {
+  play_count: number;
+  drive_count: number;
+  total_yards: number;
+  tds: number;
+  turnovers: number;
+  success_rate: number;
+  avg_yards_per_play: number;
+  run_pct: number;
+  pass_pct: number;
+  most_used_formation: string;
+  best_play: { label: string; success_rate: number; uses: number } | null;
+  worst_play: { label: string; success_rate: number; uses: number } | null;
+};
+
+export type GameFormationAggItem = {
+  formation: string;
+  plays: number;
+  avg_yards: number;
+  success_rate: number;
+  play_rows: LoggedPlayRow[];
+};
+
+export type GameTendenciesPayload = {
+  game: GameSession;
+  drives: DriveWithPlays[];
+  stats: GameTendencyStats;
+  formation_breakdown: GameFormationAggItem[];
+  run_pass: { run_pct: number; pass_pct: number };
+  play_type_buckets: PlayTypeBucket[];
+  play_type_distribution: { name: string; pct: number; count: number }[];
+  scenario_breakdown: { situation: string; plays: number; success_rate: number }[];
 };
 
 function aggregateFormationGame(plays: LoggedPlayRow[]) {
@@ -63,7 +99,37 @@ function formatPlayLine(f: string, n: string) {
 export function buildTendenciesGamePayload(game: GameRow, drives: DriveWithPlays[], cfbTypes: Map<string, string>) {
   const plays = drives.flatMap((d) => d.plays);
   const gamesById = new Map<string, GameRow>([[game.id, game]]);
-  const buckets = attachPlayTypes(plays, gamesById, cfbTypes).map((b) => b.bucket);
+  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes);
+  const buckets = typedPlays.map((b) => b.bucket);
+
+  const classifiedBuckets = typedPlays.filter((row) => row.matched).map((row) => row.bucket);
+  const classifiedCount = Math.max(0, typedPlays.length - typedPlays.filter((row) => !row.matched).length);
+  const classifiedPctDenom = classifiedCount > 0 ? classifiedCount : 1;
+  const counts = playTypeCounts(classifiedBuckets);
+  const distributionNames = ["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const;
+  const play_type_distribution = distributionNames.map((name) => ({
+    name,
+    pct: Math.round(((counts[name] ?? 0) * 1000) / classifiedPctDenom) / 10,
+    count: counts[name] ?? 0,
+  }));
+
+  const scenarioMap = new Map<string, { plays: number; success: number }>();
+  for (const p of plays) {
+    const raw = (p.scenario ?? "").trim();
+    if (!raw) continue;
+    const situation = SCENARIO_SHORT[raw] ?? raw;
+    const s = scenarioMap.get(situation) ?? { plays: 0, success: 0 };
+    s.plays += 1;
+    if (isSuccessPlay(p)) s.success += 1;
+    scenarioMap.set(situation, s);
+  }
+  const scenario_breakdown = [...scenarioMap.entries()]
+    .map(([situation, s]) => ({
+      situation,
+      plays: s.plays,
+      success_rate: s.plays ? Math.round((s.success * 1000) / s.plays) / 10 : 0,
+    }))
+    .sort((a, b) => b.plays - a.plays);
   let run = 0;
   for (const b of buckets) {
     if (b === "Run") run += 1;
@@ -125,11 +191,25 @@ export function buildTendenciesGamePayload(game: GameRow, drives: DriveWithPlays
       run_pct: runPct,
       pass_pct: passPct,
       most_used_formation: mostUsed,
-      best_play: best ? { label: formatPlayLine(best.formation, best.play_name), ...best } : null,
-      worst_play: worst ? { label: formatPlayLine(worst.formation, worst.play_name), ...worst } : null,
+      best_play: best
+        ? {
+            label: formatPlayLine(best.formation, best.play_name),
+            success_rate: best.success_rate,
+            uses: best.uses,
+          }
+        : null,
+      worst_play: worst
+        ? {
+            label: formatPlayLine(worst.formation, worst.play_name),
+            success_rate: worst.success_rate,
+            uses: worst.uses,
+          }
+        : null,
     },
     formation_breakdown,
     run_pass: { run_pct: runPct, pass_pct: passPct } satisfies { run_pct: number; pass_pct: number },
     play_type_buckets: buckets,
+    play_type_distribution,
+    scenario_breakdown,
   };
 }

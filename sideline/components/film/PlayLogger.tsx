@@ -19,6 +19,8 @@ import { aggregateLoggedPlays } from "@/lib/loggedPlayStats";
 import { normalizePlayName } from "@/lib/utils";
 import { useToastStore } from "@/store/toastStore";
 import { useGameStore } from "@/store/gameStore";
+import { COULDNT_DELETE, COULDNT_SAVE } from "@/lib/coachCopy";
+import { getDrivePossessionOutcome, possessionEndedFromSnapAndTag } from "@/lib/driveOutcome";
 
 type PlayLoggerProps = {
   gameSessionId: string;
@@ -111,17 +113,38 @@ export function PlayLogger({
     [drive],
   );
 
+  const patchSnapFieldPosition = useCallback(
+    (nextSide: "OWN" | "OPP", yardLine1to50: number) => {
+      const y = Math.min(50, Math.max(1, Math.round(yardLine1to50)));
+      const abs = toAbsoluteYard(nextSide, y);
+      setManualGameState((prev) => {
+        const rowPlays = drive.plays ?? [];
+        const replay = replayGameStateFromPlays(rowPlays, drive.drive_number, drive);
+        const base = prev ?? replay;
+        return { ...base, absoluteYard: abs };
+      });
+      if ((drive.plays?.length ?? 0) === 0) {
+        onPersistDriveFields?.({ starting_side: nextSide, starting_yard_line: y });
+      }
+    },
+    [drive, onPersistDriveFields],
+  );
+
   const gameState = manualGameState ?? replayState;
 
   const [formationPlay, setFormationPlay] = useState<FormationPlayValue | null>(null);
   const [uiResult, setUiResult] = useState<UiResultTag | null>(null);
   const [yardsText, setYardsText] = useState("");
+  /** Line of scrimmage (next snap) — OWN/OPP + yard 1–50. */
   const [ballAtSide, setBallAtSide] = useState<"OWN" | "OPP">("OWN");
   const [ballAtYard, setBallAtYard] = useState("");
+  const [distanceStr, setDistanceStr] = useState("");
   const [situationOverride, setSituationOverride] = useState<SituationOverride>(null);
   const [logging, setLogging] = useState(false);
   const [optimisticPlays, setOptimisticPlays] = useState<LoggedPlay[]>([]);
   const submitLockRef = useRef(false);
+  const distanceFieldFocusedRef = useRef(false);
+  const snapYardFocusedRef = useRef(false);
 
   const formationRef = useRef<HTMLInputElement>(null);
   const yardsRef = useRef<HTMLInputElement>(null);
@@ -165,11 +188,11 @@ export function PlayLogger({
       const t = storedTagToUi(editPlay.result_tag);
       const y = editPlay.yards_gained ?? 0;
       if (t === "LOSS") setYardsText(String(Math.abs(y)));
+      else if (t === "GAIN") setYardsText(String(Math.max(0, y)));
       else setYardsText(String(Math.max(0, y)));
-      const postPlayAbs = Math.min(99, Math.max(1, gs.absoluteYard + y));
-      const postPlay = fromAbsoluteYard(postPlayAbs);
-      setBallAtSide(postPlay.side);
-      setBallAtYard(String(postPlay.yard_line));
+      const snap = fromAbsoluteYard(gs.absoluteYard);
+      setBallAtSide(snap.side);
+      setBallAtYard(String(snap.yard_line));
       return;
     }
     if (wasEditingRef.current) {
@@ -177,14 +200,11 @@ export function PlayLogger({
       setFormationPlay(null);
       setUiResult(null);
       setYardsText("");
-      setBallAtSide(side);
-      setBallAtYard(String(yard_line));
     }
   }, [editPlay, drive.drive_number]);
 
   const { side, yard_line } = fromAbsoluteYard(gameState.absoluteYard);
   const isGoalToGo = side === "OPP" && yard_line >= 1 && yard_line <= 10;
-  const distanceAtSnap = isGoalToGo ? yard_line : gameState.distance;
 
   const lastUiResult = useRef<UiResultTag | null>(null);
   useEffect(() => {
@@ -229,11 +249,24 @@ export function PlayLogger({
   }, [uiResult, editPlay]);
 
   useEffect(() => {
-    if (!editPlay) {
-      setBallAtSide(side);
-      setBallAtYard(String(yard_line));
+    if (editPlay) return;
+    if (snapYardFocusedRef.current) return;
+    setBallAtSide(side);
+    setBallAtYard(String(yard_line));
+  }, [side, yard_line, editPlay, playChainFingerprint]);
+
+  useEffect(() => {
+    if (distanceFieldFocusedRef.current) return;
+    if (editPlay) {
+      setDistanceStr(String(Math.max(1, editPlay.distance)));
+      return;
     }
-  }, [side, yard_line, editPlay]);
+    setDistanceStr(String(gameState.distance));
+  }, [playChainFingerprint, editPlay]);
+
+  const drivePossessionOutcome = useMemo(() => getDrivePossessionOutcome(plays), [plays]);
+  const drivePossessionEnded =
+    !editPlay && plays.length > 0 && drivePossessionOutcome !== "ACTIVE" && drivePossessionOutcome !== "NO_PLAYS";
 
   const mergedPlays = useMemo(() => {
     const base = [...plays].sort((a, b) => (a.play_number ?? 0) - (b.play_number ?? 0));
@@ -276,7 +309,7 @@ export function PlayLogger({
   }, []);
 
   function parseYardsForSubmit(): { yardsGainedDb: number; yardsForEngine: number; error?: string } {
-    if (!uiResult) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Select a result." };
+    if (!uiResult) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Pick a result." };
     if (
       uiResult === "NO_GAIN" ||
       uiResult === "INCOMPLETE" ||
@@ -286,21 +319,20 @@ export function PlayLogger({
     ) {
       return { yardsGainedDb: 0, yardsForEngine: 0 };
     }
-    const needsBallAt = uiResult === "GAIN" || uiResult === "LOSS";
-    if (needsBallAt) {
-      const nextYard = parseInt(ballAtYard, 10);
-      if (Number.isNaN(nextYard) || nextYard < 1 || nextYard > 50) {
-        return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter Ball At yard line (1-50)." };
+    if (uiResult === "GAIN" || uiResult === "LOSS") {
+      const raw = yardsText.trim();
+      const n = parseInt(raw, 10);
+      if (raw === "" || Number.isNaN(n) || n < 1) {
+        return { yardsGainedDb: 0, yardsForEngine: 0, error: "Whole yards only (1–99)." };
       }
-      const newAbsolute = toAbsoluteYard(ballAtSide, nextYard);
-      const yards = newAbsolute - gameState.absoluteYard;
-      if (uiResult === "GAIN" && yards <= 0) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Ball At must be ahead of current spot." };
-      if (uiResult === "LOSS" && yards >= 0) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Ball At must be behind current spot." };
-      return { yardsGainedDb: yards, yardsForEngine: yards };
+      if (uiResult === "GAIN") {
+        return { yardsGainedDb: n, yardsForEngine: n };
+      }
+      return { yardsGainedDb: -n, yardsForEngine: n };
     }
     const n = parseInt(yardsText, 10);
-    if (Number.isNaN(n)) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter yards." };
-    if (uiResult === "TOUCHDOWN" && n < 1) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter touchdown yards." };
+    if (Number.isNaN(n)) return { yardsGainedDb: 0, yardsForEngine: 0, error: "Enter whole yards." };
+    if (uiResult === "TOUCHDOWN" && n < 1) return { yardsGainedDb: 0, yardsForEngine: 0, error: "TD needs whole yards." };
     return { yardsGainedDb: n, yardsForEngine: n };
   }
 
@@ -311,12 +343,9 @@ export function PlayLogger({
       if (!formationPlay?.formation?.trim() || !formationPlay?.play_name?.trim()) return false;
     }
     if (uiResult === "GAIN" || uiResult === "LOSS") {
-      const n = parseInt(ballAtYard, 10);
-      if (Number.isNaN(n) || n < 1 || n > 50) return false;
-      const newAbsolute = toAbsoluteYard(ballAtSide, n);
-      const yards = newAbsolute - gameState.absoluteYard;
-      if (uiResult === "GAIN" && yards <= 0) return false;
-      if (uiResult === "LOSS" && yards >= 0) return false;
+      const raw = yardsText.trim();
+      const n = parseInt(raw, 10);
+      if (raw === "" || Number.isNaN(n) || n < 1) return false;
     }
     if (uiResult === "TOUCHDOWN") {
       if (yardsText.trim() === "") return false;
@@ -325,7 +354,7 @@ export function PlayLogger({
       if (uiResult === "TOUCHDOWN" && n < 1) return false;
     }
     return true;
-  }, [formationPlay, uiResult, yardsText, ballAtYard, ballAtSide, gameState.absoluteYard]);
+  }, [formationPlay, uiResult, yardsText]);
 
   async function submitLog() {
     if (!uiResult) return;
@@ -353,22 +382,34 @@ export function PlayLogger({
       }
     }
     if (needsFp && (!formation || !playName)) {
-      addToast("Select formation and play.", "error");
+      addToast("Pick formation and play.", "error");
       return;
     }
 
+    const rawDist = distanceStr.trim();
+    const parsedFieldDist = rawDist === "" ? null : Number.parseInt(rawDist, 10);
+    const snapBase =
+      parsedFieldDist != null && !Number.isNaN(parsedFieldDist)
+        ? Math.max(1, Math.min(99, parsedFieldDist))
+        : gameState.distance;
+    const distanceAtSubmit = isGoalToGo ? yard_line : snapBase;
+    const inchesSnap = Boolean(gameState.isInches) && distanceAtSubmit <= 1;
+    const stateForSubmit: GameState = {
+      ...gameState,
+      distance: distanceAtSubmit,
+      isInches: inchesSnap,
+    };
+
     let storedTag: ResultTag;
     if (uiResult === "GAIN") {
-      storedTag = deriveStoredResultTag("GAIN", Math.max(0, yardsGainedDb), distanceAtSnap);
+      storedTag = deriveStoredResultTag("GAIN", Math.max(0, yardsGainedDb), distanceAtSubmit);
     } else {
       storedTag = uiResult as ResultTag;
     }
 
-    const inchesSnap = Boolean(gameState.isInches) && distanceAtSnap <= 1;
-
     const payload = {
-      down: gameState.down,
-      distance: distanceAtSnap,
+      down: stateForSubmit.down,
+      distance: distanceAtSubmit,
       is_inches: inchesSnap,
       yard_line,
       side,
@@ -394,12 +435,12 @@ export function PlayLogger({
         });
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         if (!res.ok) {
-          addToast(body.error ?? "Failed to save play — tap to retry", "error");
+          addToast(COULDNT_SAVE, "error");
           return;
         }
-        addToast("Play updated", "success");
+        addToast("Call updated.", "success");
         onEditPlayChange(null);
-        resetFormAfterLog(gameState);
+        resetFormAfterLog(stateForSubmit);
         await onLogged();
       } finally {
         setLogging(false);
@@ -412,8 +453,8 @@ export function PlayLogger({
       id: `optimistic-${Date.now()}`,
       play_number: nextPlayNo,
       drive_number: drive.drive_number,
-      down: gameState.down,
-      distance: distanceAtSnap,
+      down: stateForSubmit.down,
+      distance: distanceAtSubmit,
       is_inches: inchesSnap,
       side,
       yard_line,
@@ -424,12 +465,13 @@ export function PlayLogger({
       yards_gained: yardsGainedDb,
       note: null,
     };
-    const nextState = advanceGameState(gameState, storedTag, yardsForEngine);
+    const nextState = advanceGameState(stateForSubmit, storedTag, yardsForEngine);
     submitLockRef.current = true;
     setManualGameState(nextState);
     setOptimisticPlays((o) => [...o, optimistic]);
     resetFormAfterLog(nextState);
-    addToast("Play logged", "success");
+    const ended = possessionEndedFromSnapAndTag(stateForSubmit.down, storedTag);
+    addToast(ended ? "Call logged. Drive closed — add a drive from the log to keep going." : "Call logged.", "success");
 
     try {
       const res = await fetch(`/api/drives/${drive.id}/plays`, {
@@ -441,7 +483,7 @@ export function PlayLogger({
       if (!res.ok) {
         setOptimisticPlays((o) => o.filter((x) => x.id !== optimistic.id));
         setManualGameState(null);
-        addToast(body.error ?? "Failed to save play — tap to retry", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       setOptimisticPlays((o) => o.filter((x) => x.id !== optimistic.id));
@@ -455,37 +497,51 @@ export function PlayLogger({
     if (p.id.startsWith("optimistic-")) return;
     const res = await fetch(`/api/plays/${p.id}`, { method: "DELETE" });
     if (!res.ok) {
-      addToast("Failed to delete play", "error");
+      addToast(COULDNT_DELETE, "error");
       throw new Error("delete failed");
     }
-    addToast("Play deleted", "success");
+    addToast("Call removed.", "success");
     if (editPlay?.id === p.id) onEditPlayChange(null);
     setManualGameState(null);
     await onLogged();
   }
 
   const showSnapSpotEditor = Boolean(!editPlay && plays.length === 0 && onPersistDriveFields);
-  const absForSnap = gameState.absoluteYard;
-  const canExpressOwn = absForSnap >= 1 && absForSnap <= 50;
-  const canExpressOpp = absForSnap >= 50 && absForSnap <= 99;
-
-  const [snapYardDraft, setSnapYardDraft] = useState("");
-  const [snapYardEditing, setSnapYardEditing] = useState(false);
-  useEffect(() => {
-    if (!snapYardEditing) setSnapYardDraft(String(fromAbsoluteYard(absForSnap).yard_line));
-  }, [absForSnap, snapYardEditing]);
 
   const showPlaySnapControls = Boolean(editPlay || plays.length > 0);
 
+  const commitDistanceInput = useCallback(() => {
+    distanceFieldFocusedRef.current = false;
+    const raw = distanceStr.trim();
+    if (raw === "") {
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    if (Number.isNaN(parsed)) return;
+    const n = Math.max(1, Math.min(99, parsed));
+    setDistanceStr(String(n));
+    if (editPlay || plays.length > 0) {
+      patchPlaySnapContext({ distance: n });
+    } else {
+      onPersistDriveFields?.({
+        starting_distance: n,
+        is_inches: n <= 1 ? Boolean(drive.is_inches) : false,
+      });
+    }
+  }, [distanceStr, editPlay, plays.length, patchPlaySnapContext, onPersistDriveFields, drive.is_inches]);
+
+  const downOrdinal = (d: 1 | 2 | 3 | 4) => (["1ST", "2ND", "3RD", "4TH"] as const)[d - 1];
+
   return (
-    <div className="space-y-3">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
       <CompactGameStateBar key={`${drive.id}-${editPlay?.id ?? "log"}`} gameState={gameState}>
         {showPlaySnapControls || showSnapSpotEditor ? (
           <>
             {showPlaySnapControls ? (
               <>
             <div>
-              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Down</p>
+              <p className="app-field-label text-slate-500 dark:text-slate-500">Down</p>
               <div className="flex flex-wrap gap-2">
                 {([1, 2, 3, 4] as const).map((d) => {
                   const selected = gameState.down === d;
@@ -500,7 +556,7 @@ export function PlayLogger({
                       }`}
                       onClick={() => patchPlaySnapContext({ down: d })}
                     >
-                      {d}
+                      {downOrdinal(d)}
                     </button>
                   );
                 })}
@@ -513,17 +569,21 @@ export function PlayLogger({
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                value={String(gameState.distance)}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/\D/g, "");
-                  const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
-                  patchPlaySnapContext({ distance: n });
+                value={distanceStr}
+                placeholder="10"
+                onFocus={() => {
+                  distanceFieldFocusedRef.current = true;
                 }}
+                onChange={(e) => {
+                  distanceFieldFocusedRef.current = true;
+                  setDistanceStr(e.target.value.replace(/\D/g, ""));
+                }}
+                onBlur={() => commitDistanceInput()}
               />
             </label>
             {gameState.distance <= 1 ? (
               <div>
-                <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Short yardage</p>
+                <p className="app-field-label text-slate-500 dark:text-slate-500">Short yardage</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -555,7 +615,7 @@ export function PlayLogger({
             {showSnapSpotEditor ? (
               <>
             <div>
-              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Down</p>
+              <p className="app-field-label text-slate-500 dark:text-slate-500">Down</p>
               <div className="flex flex-wrap gap-2">
                 {([1, 2, 3, 4] as const).map((d) => {
                   const selected = gameState.down === d;
@@ -570,7 +630,7 @@ export function PlayLogger({
                       }`}
                       onClick={() => onPersistDriveFields?.({ starting_down: d })}
                     >
-                      {d}
+                      {downOrdinal(d)}
                     </button>
                   );
                 })}
@@ -583,20 +643,21 @@ export function PlayLogger({
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                value={String(gameState.distance)}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/\D/g, "");
-                  const n = raw === "" ? 10 : Math.min(99, Math.max(1, parseInt(raw, 10) || 1));
-                  onPersistDriveFields?.({
-                    starting_distance: n,
-                    is_inches: n <= 1 ? Boolean(drive.is_inches) : false,
-                  });
+                value={distanceStr}
+                placeholder="10"
+                onFocus={() => {
+                  distanceFieldFocusedRef.current = true;
                 }}
+                onChange={(e) => {
+                  distanceFieldFocusedRef.current = true;
+                  setDistanceStr(e.target.value.replace(/\D/g, ""));
+                }}
+                onBlur={() => commitDistanceInput()}
               />
             </label>
             {gameState.distance <= 1 ? (
               <div>
-                <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Short yardage</p>
+                <p className="app-field-label text-slate-500 dark:text-slate-500">Short yardage</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -623,69 +684,89 @@ export function PlayLogger({
                 </div>
               </div>
             ) : null}
-            <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Field position</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={!canExpressOwn}
-                    title={!canExpressOwn ? "Ball is past midfield — use opponent side for this spot." : undefined}
-                    className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
-                      fromAbsoluteYard(absForSnap).side === "OWN"
-                        ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                        : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                    }`}
-                    onClick={() => {
-                      if (!canExpressOwn || !onPersistDriveFields) return;
-                      onPersistDriveFields({ starting_side: "OWN", starting_yard_line: absForSnap });
-                    }}
-                  >
-                    OWN
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!canExpressOpp}
-                    title={!canExpressOpp ? "Ball is inside your own 50 — use own side for this spot." : undefined}
-                    className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 ${
-                      fromAbsoluteYard(absForSnap).side === "OPP"
-                        ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                        : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                    }`}
-                    onClick={() => {
-                      if (!canExpressOpp || !onPersistDriveFields) return;
-                      onPersistDriveFields({ starting_side: "OPP", starting_yard_line: 100 - absForSnap });
-                    }}
-                  >
-                    OPP
-                  </button>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    aria-label="Yard line (1–50)"
-                    className="min-h-11 min-w-[5rem] flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    value={snapYardDraft}
-                    onFocus={() => setSnapYardEditing(true)}
-                    onChange={(e) => setSnapYardDraft(e.target.value.replace(/\D/g, ""))}
-                    onBlur={() => {
-                      setSnapYardEditing(false);
-                      const raw = snapYardDraft.trim();
-                      const n = raw === "" ? fromAbsoluteYard(absForSnap).yard_line : Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
-                      const side = fromAbsoluteYard(absForSnap).side;
-                      onPersistDriveFields?.({ starting_side: side, starting_yard_line: n });
-                    }}
-                  />
-                </div>
-                <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-500">{formatFieldPosition(absForSnap)}</p>
               </>
             ) : null}
           </>
         ) : null}
       </CompactGameStateBar>
 
-      <div className="app-card flex max-h-[70vh] flex-col overflow-hidden rounded-xl p-0">
-        <div className="space-y-3 overflow-y-auto p-3">
+      {plays.length > 0 || editPlay ? (
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p className="app-field-label text-slate-500 dark:text-slate-500">FIELD POSITION</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+              ballAtSide === "OWN"
+                ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+            }`}
+            onClick={() => {
+              const yParsed = parseInt(ballAtYard, 10);
+              const curLos = fromAbsoluteYard(gameState.absoluteYard);
+              const y = Number.isFinite(yParsed) && yParsed >= 1 && yParsed <= 50 ? yParsed : curLos.yard_line;
+              setBallAtSide("OWN");
+              patchSnapFieldPosition("OWN", y);
+            }}
+          >
+            OWN
+          </button>
+          <button
+            type="button"
+            className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+              ballAtSide === "OPP"
+                ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
+                : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
+            }`}
+            onClick={() => {
+              const yParsed = parseInt(ballAtYard, 10);
+              const curLos = fromAbsoluteYard(gameState.absoluteYard);
+              const y = Number.isFinite(yParsed) && yParsed >= 1 && yParsed <= 50 ? yParsed : curLos.yard_line;
+              setBallAtSide("OPP");
+              patchSnapFieldPosition("OPP", y);
+            }}
+          >
+            OPP
+          </button>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            aria-label="Yard line (1–50)"
+            className="min-h-11 min-w-[5rem] flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            value={ballAtYard}
+            onFocus={() => {
+              snapYardFocusedRef.current = true;
+            }}
+            onChange={(e) => {
+              snapYardFocusedRef.current = true;
+              setBallAtYard(e.target.value.replace(/\D/g, ""));
+            }}
+            onBlur={() => {
+              snapYardFocusedRef.current = false;
+              const raw = ballAtYard.trim();
+              const curLos = fromAbsoluteYard(gameState.absoluteYard);
+              const n = raw === "" ? curLos.yard_line : Math.min(50, Math.max(1, parseInt(raw, 10) || curLos.yard_line));
+              setBallAtYard(String(n));
+              patchSnapFieldPosition(ballAtSide, n);
+            }}
+          />
+        </div>
+        <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-500">{formatFieldPosition(gameState.absoluteYard)}</p>
+      </div>
+      ) : null}
+
+      {drivePossessionEnded ? (
+        <div
+          className="rounded-xl border border-amber-700/50 bg-amber-950/40 px-3 py-2 font-body text-sm text-amber-100 dark:border-amber-700/50"
+          role="status"
+        >
+          Drive closed. Add a drive from the log to keep going.
+        </div>
+      ) : null}
+
           <div>
-            <p className="app-field-label mb-1 text-slate-500">SITUATION</p>
+            <p className="app-field-label text-slate-500">SITUATION</p>
             <div className="flex flex-wrap gap-2">
               {(["2 Minute", "4 Minute", "2 Point"] as const).map((tag) => (
                 <button
@@ -722,51 +803,19 @@ export function PlayLogger({
 
           {uiResult === "GAIN" || uiResult === "LOSS" ? (
             <div>
-              <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Ball At</p>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                    ballAtSide === "OWN"
-                      ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                      : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                  }`}
-                  onClick={() => setBallAtSide("OWN")}
-                >
-                  OWN
-                </button>
-                <button
-                  type="button"
-                  className={`min-h-11 rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
-                    ballAtSide === "OPP"
-                      ? "border border-transparent bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                      : "border border-slate-700 text-slate-400 dark:border-slate-700 dark:text-slate-400"
-                  }`}
-                  onClick={() => setBallAtSide("OPP")}
-                >
-                  OPP
-                </button>
-                <input
-                  ref={yardsRef}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder="yard line"
-                  value={ballAtYard}
-                  onChange={(e) => setBallAtYard(e.target.value.replace(/\D/g, ""))}
-                  className="min-h-11 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-              {ballAtYard.trim() !== "" ? (
-                <p className="mt-1 text-xs font-mono text-slate-400">
-                  {(() => {
-                    const n = parseInt(ballAtYard, 10);
-                    if (Number.isNaN(n) || n < 1 || n > 50) return "Enter 1-50";
-                    const calc = toAbsoluteYard(ballAtSide, n) - gameState.absoluteYard;
-                    return calc >= 0 ? `+${calc} yards` : `${calc} yards`;
-                  })()}
-                </p>
-              ) : null}
+              <label className="app-field-label text-slate-500 dark:text-slate-500">
+                Yards {uiResult === "GAIN" ? "gained" : "lost"}
+              </label>
+              <input
+                ref={yardsRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder={uiResult === "GAIN" ? "e.g. 8" : "e.g. 3"}
+                value={yardsText}
+                onChange={(e) => setYardsText(e.target.value.replace(/\D/g, ""))}
+                className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-center font-mono text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              />
             </div>
           ) : null}
           {uiResult === "TOUCHDOWN" ? (
@@ -784,42 +833,33 @@ export function PlayLogger({
             </div>
           ) : null}
 
-        </div>
-        <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
-          {editPlay ? (
-            <button
-              type="button"
-              className="min-h-11 rounded-lg px-3 font-sans text-sm font-medium text-slate-400 hover:bg-white/[0.04] hover:text-slate-100"
-              onClick={() => onEditPlayChange(null)}
-            >
-              Cancel
-            </button>
-          ) : null}
-          <button
-            ref={logBtnRef}
-            type="button"
-            disabled={editPlay ? logging || !canSubmit : !canSubmit}
-            className={`min-h-11 w-full rounded-lg px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors motion-safe:active:scale-[0.97] motion-safe:duration-100 ${
-              editPlay ? logging || !canSubmit : !canSubmit
-                ? "cursor-not-allowed bg-slate-700 text-slate-500"
-                : "bg-emerald-600 hover:bg-emerald-500"
-            }`}
-            onClick={() => void submitLog()}
-          >
-            {editPlay && logging ? "Saving…" : editPlay ? "Update play" : "Log play"}
-          </button>
-        </div>
+        <PlayLogFeed
+          plays={mergedPlays}
+          driveNumber={drive.drive_number}
+          onSelectPlay={(p) => {
+            if (p.id.startsWith("optimistic-")) return;
+            onEditPlayChange(p);
+          }}
+          onDeletePlay={deletePlay}
+        />
       </div>
 
-      <PlayLogFeed
-        plays={mergedPlays}
-        driveNumber={drive.drive_number}
-        onSelectPlay={(p) => {
-          if (p.id.startsWith("optimistic-")) return;
-          onEditPlayChange(p);
-        }}
-        onDeletePlay={deletePlay}
-      />
+      <div className="flex flex-shrink-0 flex-col gap-2 border-t border-slate-800 pt-3">
+        {editPlay ? (
+          <button type="button" className="btn-secondary-block w-full" onClick={() => onEditPlayChange(null)}>
+            Cancel
+          </button>
+        ) : null}
+        <button
+          ref={logBtnRef}
+          type="button"
+          disabled={editPlay ? logging || !canSubmit : !canSubmit}
+          className="btn-primary-block motion-safe:active:scale-[0.97] motion-safe:duration-100"
+          onClick={() => void submitLog()}
+        >
+          {editPlay && logging ? "Saving…" : editPlay ? "Update play" : "Log play"}
+        </button>
+      </div>
     </div>
   );
 }

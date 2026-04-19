@@ -4,6 +4,7 @@ import { EditPlaybookModal } from "@/components/playbook/EditPlaybookModal";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
+import { COULDNT_DELETE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,12 +39,12 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
     try {
       const res = await fetch(`/api/playbook/${item.id}`, { method: "DELETE" });
       if (!res.ok) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_DELETE, "error");
         return;
       }
       setDeleteOpen(false);
       setMenuOpen(false);
-      addToast("Play sheet deleted", "success");
+      addToast("Play sheet removed.", "success");
       await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
       router.refresh();
     } finally {
@@ -110,11 +111,12 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
       <ConfirmDestructiveModal
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        title="Delete play sheet?"
+        title="Delete play sheet"
+        confirmLabel="Delete play sheet"
         message={
           <>
-            This will permanently delete <strong className="font-semibold text-white">{item.name}</strong> and all its
-            plays. This can&apos;t be undone.
+            Drops <strong className="font-semibold text-white">{item.name}</strong> and every play on it. Can&apos;t be
+            undone.
           </>
         }
         busy={deleteBusy}

@@ -1,3 +1,4 @@
+/** Master order for play sheets (Game Plan editor) and DB `scenario_order`. */
 export const SCENARIOS = [
   "Opening Script",
   "1st Down",
@@ -16,22 +17,12 @@ export const SCENARIOS = [
   "2 Point",
 ] as const;
 
-export const TENDENCIES_SCENARIOS = [
-  "1st Down",
-  "2nd & Short",
-  "2nd & Medium",
-  "2nd & Long",
-  "3rd & Short",
-  "3rd & Medium",
-  "3rd & Long",
-  "4th Down",
-  "Red Zone",
-  "Goal Line",
-  "Backed Up",
-  "2 Minute",
-  "4 Minute",
-  "2 Point",
-] as const;
+export type PlaySheetScenario = (typeof SCENARIOS)[number];
+
+/** Same order as the play sheet, minus Opening Script (not shown in Tendencies scouting). */
+export const TENDENCIES_SCENARIOS = SCENARIOS.filter(
+  (s): s is Exclude<PlaySheetScenario, "Opening Script"> => s !== "Opening Script",
+);
 
 export const SCENARIO_SHORT: Record<string, string> = {
   "Opening Script": "Opening Script",

@@ -27,7 +27,7 @@ export default function BottomTabNav() {
                 title={tab.label}
                 aria-label={tab.label}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-xs font-medium ${active ? "text-emerald-400" : "text-slate-500"}`}
+                className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 font-sans text-xs font-medium ${active ? "text-emerald-400" : "text-slate-500"}`}
               >
                 <span aria-hidden>{tab.icon}</span>
                 <span>{tab.label}</span>

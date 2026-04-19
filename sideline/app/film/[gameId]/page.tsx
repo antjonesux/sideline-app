@@ -8,31 +8,27 @@ import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { PlayLogger } from "@/components/film/PlayLogger";
+import { DriveInlineScores } from "@/components/film/DriveInlineScores";
+import { DriveStartingFieldPanel } from "@/components/film/DriveStartingFieldPanel";
 import { ResultBadge } from "@/components/import/ResultBadge";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
+import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
-import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { useToastStore } from "@/store/toastStore";
+import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
+import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 
-function getDriveResult(
-  plays: LoggedPlay[] | undefined | null,
-): "TOUCHDOWN" | "TURNOVER" | "PUNT" | "FIELD_GOAL" | "ACTIVE" | "NO_PLAYS" {
-  if (!plays || plays.length === 0) return "NO_PLAYS";
-  const lastPlay = plays[plays.length - 1];
-  if (lastPlay.result_tag === "TOUCHDOWN") return "TOUCHDOWN";
-  if (lastPlay.result_tag === "TURNOVER") return "TURNOVER";
-  if (lastPlay.result_tag === "PUNT") return "PUNT";
-  if (lastPlay.result_tag === "FIELD_GOAL") return "FIELD_GOAL";
-  return "ACTIVE";
+function getDriveResult(plays: LoggedPlay[] | undefined | null): DrivePossessionOutcome {
+  return getDrivePossessionOutcome(plays);
 }
 
 function normalizeResultTag(tag: string): string {
@@ -46,7 +42,7 @@ function formatDate(isoDate: string): string {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
 }
 
-/** Drive summary header badge — same ResultBadge / muted pill split as Tendencies → Game Film. */
+/** Drive summary header badge — same ResultBadge / muted pill split as the game Tendencies tab. */
 function getDriveSummaryOutcomeLabel(
   drive: Drive,
   opts: { isLastDrive: boolean; isGameEnded: boolean },
@@ -60,6 +56,7 @@ function getDriveSummaryOutcomeLabel(
   if (outcome === "FIELD_GOAL") return "FG";
   if (outcome === "TURNOVER") return "TURNOVER";
   if (outcome === "PUNT") return "PUNT";
+  if (outcome === "TURNOVER_ON_DOWNS") return "TOD";
   if (outcome === "NO_PLAYS") return "NO PLAYS";
 
   if (last) {
@@ -80,15 +77,19 @@ function DriveSummaryOutcomeBadge({ label }: { label: string }) {
       </span>
     );
   }
-  const resultLabel = label === "TD" ? "TOUCHDOWN" : label === "FG" ? "FIELD_GOAL" : label;
+  const resultLabel =
+    label === "TD" ? "TOUCHDOWN" : label === "FG" ? "FIELD_GOAL" : label === "TOD" ? "TURNOVER ON DOWNS" : label;
   return <ResultBadge label={resultLabel} />;
 }
 
 type GameLogPageProps = { params: Promise<{ gameId: string }> };
 
+type DetailTab = "drives" | "tendencies";
+
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
   const queryClient = useQueryClient();
+  const [detailTab, setDetailTab] = useState<DetailTab>("drives");
 
   const [game, setGame] = useState<GameSession | null>(null);
   const [drives, setDrives] = useState<Drive[]>([]);
@@ -97,6 +98,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [noteEditDriveId, setNoteEditDriveId] = useState<string>("");
   const [noteDraft, setNoteDraft] = useState("");
   const drivePersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const drivesRef = useRef<Drive[]>([]);
+  drivesRef.current = drives;
   const [showLogger, setShowLogger] = useState(false);
   const [editPlay, setEditPlay] = useState<LoggedPlay | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
@@ -140,6 +143,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       if (drivePersistTimerRef.current) clearTimeout(drivePersistTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    setDetailTab("drives");
+  }, [gameId]);
 
   useEffect(() => {
     if (!gameId) return;
@@ -197,7 +204,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
     if (error) {
       console.error("Drive insert error:", error.message, error.details, error.hint, error.code);
-      addToast("Failed to save", "error");
+      addToast(COULDNT_SAVE, "error");
       return;
     }
 
@@ -221,7 +228,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         body: JSON.stringify({ ended_at: endedAt }),
       });
       if (!res.ok) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       const updated = (await res.json()) as GameSession;
@@ -259,30 +266,24 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     });
     const saveBody = (await res.json().catch(() => ({}))) as { error?: string };
     if (!res.ok) {
-      addToast(saveBody.error ?? "Failed to save drive", "error");
+      addToast(COULDNT_SAVE, "error");
       return;
     }
-    if (!opts?.silent) addToast("Changes saved", "success");
+    if (!opts?.silent) addToast("Saved.", "success");
     await refresh();
   }
 
-  function scheduleDrivePersist(drive: Drive) {
+  function scheduleDrivePersist(driveId: string) {
     if (drivePersistTimerRef.current) clearTimeout(drivePersistTimerRef.current);
     drivePersistTimerRef.current = setTimeout(() => {
-      void saveDrive(drive, { silent: true });
-    }, 400);
+      const row = drivesRef.current.find((d) => d.id === driveId);
+      if (row) void saveDrive(row, { silent: true });
+    }, 500);
   }
 
   function patchDriveAndPersist(id: string, partial: Partial<Drive>) {
-    let merged: Drive | null = null;
-    setDrives((all) =>
-      all.map((d) => {
-        if (d.id !== id) return d;
-        merged = { ...d, ...partial };
-        return merged;
-      }),
-    );
-    if (merged) scheduleDrivePersist(merged);
+    setDrives((all) => all.map((d) => (d.id === id ? { ...d, ...partial } : d)));
+    scheduleDrivePersist(id);
   }
 
   async function performDeleteDrive(driveId: string) {
@@ -291,12 +292,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     const res = await fetch(`/api/drives/${driveId}`, { method: "DELETE" });
     if (!res.ok) {
       setDrives(prevDrives);
-      addToast("Failed to save", "error");
+      addToast(COULDNT_SAVE, "error");
       return;
     }
     setExpandedDriveIds((current) => current.filter((id) => id !== driveId));
     setNoteEditDriveId((id) => (id === driveId ? "" : id));
-    addToast("Drive deleted", "success");
+      addToast("Drive removed.", "success");
     await refresh();
   }
 
@@ -325,10 +326,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     const res = await fetch(`/api/plays/${playId}`, { method: "DELETE" });
     if (!res.ok) {
       setDrives(prevDrives);
-      addToast("Failed to save", "error");
+      addToast(COULDNT_SAVE, "error");
       return;
     }
-    addToast("Play removed", "success");
+      addToast("Call removed.", "success");
     await refresh();
   }
 
@@ -397,172 +398,114 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   return (
-    <section className="space-y-4">
-      <div className="space-y-3">
-        <Breadcrumb
-          segments={[
-            { label: "Film", href: "/film" },
-            { label: game ? `${game.my_playbook} vs ${game.opponent_team}` : "Game Details" },
-          ]}
-        />
-        <BackToFilmLink />
+    <section className="space-y-0">
+      <div className="sticky top-0 z-10 -mx-4 bg-slate-950 px-4 sm:-mx-6 sm:px-6">
+        <div className="max-w-none space-y-2 pb-2 pt-1">
+          <BackToFilmLink />
 
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="app-game-title min-w-0 text-xl sm:text-2xl">
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="app-game-title min-w-0 text-lg leading-snug sm:text-xl">
+              {game ? (
+                <>
+                  {game.my_playbook}
+                  <span className="mx-2 font-body font-normal text-slate-500">vs</span>
+                  {game.opponent_team}
+                </>
+              ) : (
+                "…"
+              )}
+            </h1>
             {game ? (
+              <EditGameDetailsModal
+                gameId={gameId}
+                game={game}
+                onSaved={async (g) => {
+                  setGame(g);
+                  await refresh();
+                }}
+              />
+            ) : null}
+          </div>
+
+          <p className="font-body text-sm text-slate-400">
+            <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
+            <span className="mx-2 font-mono tabular-nums text-slate-200">
+              {scoreMine} – {scoreOpp}
+            </span>
+            {game?.game_date ? (
               <>
-                {game.my_playbook}
-                <span className="mx-2 font-body font-normal text-slate-500">vs</span>
-                {game.opponent_team}
+                <span className="mx-2 text-slate-600">·</span>
+                <span>{formatDate(game.game_date)}</span>
               </>
-            ) : (
-              "…"
-            )}
-          </h1>
-          {game ? (
-            <EditGameDetailsModal
-              gameId={gameId}
-              game={game}
-              onSaved={async (g) => {
-                setGame(g);
-                await refresh();
-              }}
-            />
-          ) : null}
+            ) : null}
+          </p>
+          <div className="app-horizontal-scroll-strip">
+            <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
+          </div>
         </div>
 
-        <p className="font-body text-sm text-slate-400">
-          <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
-          <span className="mx-2 font-mono tabular-nums text-slate-200">
-            {scoreMine} – {scoreOpp}
-          </span>
-          {game?.game_date ? (
-            <>
-              <span className="mx-2 text-slate-600">·</span>
-              <span>{formatDate(game.game_date)}</span>
-            </>
-          ) : null}
-        </p>
-        <div className="app-horizontal-scroll-strip">
-          <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => void addDrive()} className="btn-primary px-3 py-2 text-xs">
-            Add Drive
-          </button>
-          {isGameEnded ? (
-            <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary px-3 py-2 text-xs">
-              Resume Game
-            </button>
-          ) : (
-            <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-secondary px-3 py-2 text-xs">
-              End Game
-            </button>
-          )}
-          <Link
-            href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
-            className="min-h-11 inline-flex items-center px-3 py-2 font-body text-xs text-slate-400 hover:text-slate-200"
+        <div className="grid grid-cols-2 border-b border-slate-800" role="tablist" aria-label="Game detail views">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={detailTab === "drives"}
+            onClick={() => setDetailTab("drives")}
+            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
+              detailTab === "drives" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
+            }`}
           >
-            Upload CSV
-          </Link>
+            Drive Summary
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={detailTab === "tendencies"}
+            onClick={() => setDetailTab("tendencies")}
+            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
+              detailTab === "tendencies" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
+            }`}
+          >
+            Tendencies
+          </button>
         </div>
       </div>
 
-      {game && drives.length === 0 ? (
-        <div className="app-card app-card-pad text-center font-sans text-sm text-slate-400">
-          Add a drive above to open the play logger.
-        </div>
-      ) : null}
-
-      {showEndGameModal ? (
-        <div className="fixed inset-0 z-[190] bg-black/60" onClick={() => setShowEndGameModal(false)}>
-          <div
-            className="fixed inset-x-0 bottom-0 z-[191] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="app-shell flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl sm:rounded-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="app-modal-title text-lg">End game?</h2>
-                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
-                  <span aria-hidden>✕</span>
-                  <span className="sr-only">Close</span>
+      <div className="pt-3">
+        {detailTab === "drives" ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => void addDrive()} className="btn-primary min-h-11 px-4 py-2.5 text-sm">
+                Add Drive
+              </button>
+              {isGameEnded ? (
+                <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary min-h-11 px-4 py-2.5 text-sm">
+                  Resume Game
                 </button>
-              </div>
-              <div className="space-y-4 overflow-y-auto p-4">
-                <p className="font-body text-sm text-slate-400">
-                  This will close the game session and return you to the Film Room. You can come back to add more plays later.
-                </p>
-                <div className="flex gap-3">
-                  <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary flex-1">
-                    Cancel
-                  </button>
-                  <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive-solid">
-                    End game
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {showLogger && game && activeDriveObj ? (
-        <>
-          <div
-            className="fixed inset-0 z-[200] bg-black/60"
-            onClick={() => {
-              setShowLogger(false);
-              setEditPlay(null);
-            }}
-          />
-          <div
-            className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="app-card flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border border-slate-800 p-0 sm:max-h-[85vh] sm:rounded-xl">
-              <div className="flex shrink-0 items-center justify-between border-b border-slate-800 p-3">
-                <h2 className="app-section-title text-base">Play Logger</h2>
-                <button
-                  type="button"
-                  className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
-                  onClick={() => {
-                    setShowLogger(false);
-                    setEditPlay(null);
-                  }}
-                >
-                  <span aria-hidden>✕</span>
-                  <span className="sr-only">Close</span>
+              ) : (
+                <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-secondary min-h-11 px-4 py-2.5 text-sm">
+                  End Game
                 </button>
-              </div>
-              <div className="min-h-0 flex-1 overflow-y-auto p-3 pb-6">
-                <PlayLogger
-                  gameSessionId={gameId}
-                  myPlaybook={game.offensive_playbook ?? game.my_playbook}
-                  opponentScheme={game.opponent_scheme}
-                  drive={activeDriveObj}
-                  loggedPlaysForGameStats={drives.flatMap((d) => d.plays ?? [])}
-                  editPlay={editPlay}
-                  onEditPlayChange={setEditPlay}
-                  onLogged={refresh}
-                  onPersistDriveFields={(partial) => patchDriveAndPersist(activeDriveObj.id, partial)}
-                />
-              </div>
+              )}
+              <Link
+                href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
+                className="inline-flex min-h-11 items-center px-3 text-sm text-slate-400 hover:text-white"
+              >
+                Upload CSV
+              </Link>
             </div>
-          </div>
-        </>
-      ) : null}
 
-      {drives.map((drive) => {
+            {game && drives.length === 0 ? (
+              <div className="app-card app-card-pad text-center font-sans text-sm text-slate-400">No drives yet.</div>
+            ) : null}
+
+            {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
         const yardsLabel = yardsGained >= 0 ? `+${yardsGained}` : String(yardsGained);
         const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
         const isExpanded = expandedDriveIds.includes(drive.id);
-        const qLabel = drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "—";
         const mine = drive.score_mine ?? 0;
         const theirs = drive.score_opponent ?? 0;
-        const qScoreSummary = `${qLabel} · ${mine}-${theirs}`;
         function toggleDriveExpanded() {
           setExpandedDriveIds((current) => {
             const opening = !current.includes(drive.id);
@@ -574,37 +517,32 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           });
         }
 
+        const quarterMeta =
+          drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "Q1";
+        const row2Parts = [
+          quarterMeta,
+          `${mine}-${theirs}`,
+          `${playCount} ${playCount === 1 ? "call" : "calls"}`,
+          ...(playCount > 0 ? [`${yardsLabel} yds`] : []),
+        ];
+
         return (
           <div key={drive.id} className="app-card overflow-hidden rounded-xl">
-            <div className="app-accordion-header-row flex items-stretch">
+            <div className="app-accordion-header-row flex items-center border-b border-slate-800/60">
               <button
                 type="button"
-                className="app-no-press-scale flex min-w-0 flex-1 flex-col justify-center py-3 pl-4 pr-2 text-left transition-colors hover:bg-slate-800/40"
+                className="app-no-press-scale flex min-w-0 flex-1 flex-col justify-center gap-1 py-3 pl-4 pr-2 text-left transition-colors hover:bg-slate-800/40"
                 aria-expanded={isExpanded}
-                aria-label={isExpanded ? "Collapse drive plays" : "Expand drive plays"}
+                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={toggleDriveExpanded}
               >
-                <div className="flex min-w-0 flex-wrap items-center gap-x-0 gap-y-1 text-[13px] text-slate-400">
-                  <span className="font-heading shrink-0 text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="app-drive-number font-display shrink-0 text-sm font-semibold uppercase tracking-wide">
                     Drive {drive.drive_number}
                   </span>
-                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
-                  <span className="shrink-0">
-                    <DriveSummaryOutcomeBadge label={outcomeLabel} />
-                  </span>
-                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
-                  <span className="font-mono whitespace-nowrap tabular-nums text-slate-300 dark:text-slate-300">{qScoreSummary}</span>
-                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
-                  <span className="whitespace-nowrap">
-                    <span className="font-mono tabular-nums text-slate-300">{playCount}</span>
-                    <span className="font-body ml-1">{playCount === 1 ? "play" : "plays"}</span>
-                  </span>
-                  <span className="mx-1.5 shrink-0 text-slate-500">·</span>
-                  <span className="whitespace-nowrap">
-                    <span className="font-mono tabular-nums text-slate-300">{yardsLabel}</span>
-                    <span className="font-body ml-1">yds</span>
-                  </span>
+                  <DriveSummaryOutcomeBadge label={outcomeLabel} />
                 </div>
+                <p className="font-mono text-xs text-slate-400">{row2Parts.join(" · ")}</p>
               </button>
               <DropdownMenu
                 aria-label="Drive actions"
@@ -621,8 +559,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <button
                 type="button"
                 tabIndex={-1}
-                className="app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center self-center pr-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200"
-                aria-label={isExpanded ? "Collapse drive plays" : "Expand drive plays"}
+                className="app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center pr-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200"
+                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleDriveExpanded();
@@ -646,10 +584,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </div>
 
             {isExpanded ? (
-              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-950/40 px-3 py-3 sm:px-4">
+              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-800/50 p-4">
                 <div className="mb-3 flex flex-col gap-3">
                   <div>
-                    <p className="app-field-label mb-1.5 text-slate-500 dark:text-slate-500">Quarter</p>
+                    <p className="app-field-label text-slate-500 dark:text-slate-500">Quarter</p>
                     <div className="flex flex-wrap gap-2">
                       {([1, 2, 3, 4] as const).map((q) => {
                         const effQ = drive.quarter == null ? 1 : drive.quarter;
@@ -682,41 +620,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                       </button>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-end gap-3">
-                    <label className="min-w-0 flex-1">
-                      <span className="app-field-label text-slate-500 dark:text-slate-500">My score</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        value={String(drive.score_mine ?? 0)}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, "");
-                          const n = raw === "" ? 0 : Math.min(999, parseInt(raw, 10) || 0);
-                          patchDriveAndPersist(drive.id, { score_mine: n });
-                        }}
-                      />
-                    </label>
-                    <span className="pb-2 font-mono text-slate-500 dark:text-slate-500" aria-hidden>
-                      -
-                    </span>
-                    <label className="min-w-0 flex-1">
-                      <span className="app-field-label text-slate-500 dark:text-slate-500">Their score</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        value={String(drive.score_opponent ?? 0)}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, "");
-                          const n = raw === "" ? 0 : Math.min(999, parseInt(raw, 10) || 0);
-                          patchDriveAndPersist(drive.id, { score_opponent: n });
-                        }}
-                      />
-                    </label>
-                  </div>
+                  <DriveInlineScores
+                    key={drive.id}
+                    driveId={drive.id}
+                    scoreMine={drive.score_mine}
+                    scoreOpponent={drive.score_opponent}
+                    onSaveBoth={(mine, theirs) => patchDriveAndPersist(drive.id, { score_mine: mine, score_opponent: theirs })}
+                  />
+                  <DriveStartingFieldPanel drive={drive} onPersist={(partial) => patchDriveAndPersist(drive.id, partial)} />
                   <div className="flex min-h-11 flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3">
                     {noteEditDriveId === drive.id ? (
                       <input
@@ -784,24 +695,108 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         );
       })}
 
-      {game && showPartialWarning ? (
-        <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">
-          <p className="font-medium text-amber-200">Partial log notice</p>
-          <p className="mt-1 text-amber-100/90">This looks like a partial log. Incomplete data may affect recommendations.</p>
+            {game && showPartialWarning ? (
+              <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">
+                <p className="font-medium text-amber-200">Partial film</p>
+                <p className="mt-1 text-amber-100/90">Partial film may skew tendencies.</p>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <FilmGameTendenciesBody gameId={gameId} />
+        )}
+      </div>
+
+      {showEndGameModal ? (
+        <div className="fixed inset-0 z-[190] bg-black/60" onClick={() => setShowEndGameModal(false)}>
+          <div
+            className="fixed inset-x-0 bottom-0 z-[191] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 sm:max-h-[85vh] sm:rounded-xl">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
+                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">End game</h2>
+                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                <p className="font-sans text-sm text-slate-400">
+                  Ends this game. Open it again anytime from Film Room.
+                </p>
+              </div>
+              <div className="flex flex-shrink-0 flex-col gap-3 border-t border-slate-800 p-3">
+                <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive w-full">
+                  End game
+                </button>
+                <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary-block w-full">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      ) : null}
+
+      {showLogger && game && activeDriveObj ? (
+        <>
+          <div
+            className="fixed inset-0 z-[200] bg-black/60"
+            onClick={() => {
+              setShowLogger(false);
+              setEditPlay(null);
+            }}
+          />
+          <div
+            className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border border-slate-800 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
+                <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">Play Logger</h2>
+                <button
+                  type="button"
+                  className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
+                  onClick={() => {
+                    setShowLogger(false);
+                    setEditPlay(null);
+                  }}
+                >
+                  <span aria-hidden>✕</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
+                <PlayLogger
+                  gameSessionId={gameId}
+                  myPlaybook={game.offensive_playbook ?? game.my_playbook}
+                  opponentScheme={game.opponent_scheme}
+                  drive={activeDriveObj}
+                  loggedPlaysForGameStats={drives.flatMap((d) => d.plays ?? [])}
+                  editPlay={editPlay}
+                  onEditPlayChange={setEditPlay}
+                  onLogged={refresh}
+                  onPersistDriveFields={(partial) => patchDriveAndPersist(activeDriveObj.id, partial)}
+                />
+              </div>
+            </div>
+          </div>
+        </>
       ) : null}
 
       <ConfirmDestructiveModal
         open={pendingDriveDelete !== null}
         onClose={() => setPendingDriveDelete(null)}
-        title="Delete drive?"
+        title="Delete drive"
+        confirmLabel="Delete drive"
         message={
           <>
-            This will permanently delete{" "}
+            Removes drive{" "}
             <strong className="font-semibold text-white">
-              Drive {drives.find((d) => d.id === pendingDriveDelete)?.drive_number ?? "—"}
+              {drives.find((d) => d.id === pendingDriveDelete)?.drive_number ?? "—"}
             </strong>{" "}
-            and all plays in this drive. This can&apos;t be undone.
+            and every call on it. Can&apos;t be undone.
           </>
         }
         busy={deleteBusy}
@@ -820,16 +815,17 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       <ConfirmDestructiveModal
         open={pendingPlayDelete !== null}
         onClose={() => setPendingPlayDelete(null)}
-        title="Delete play?"
+        title="Delete play"
+        confirmLabel="Delete play"
         message={
           <>
-            This will permanently delete{" "}
+            Drops this call:{" "}
             <strong className="font-mono font-semibold text-white">
               {pendingPlayRowForModal
                 ? `${pendingPlayRowForModal.formation} · ${normalizePlayName(pendingPlayRowForModal.play_name)}`
-                : "this play"}
+                : "—"}
             </strong>
-            . This can&apos;t be undone.
+            . Can&apos;t be undone.
           </>
         }
         busy={deleteBusy}

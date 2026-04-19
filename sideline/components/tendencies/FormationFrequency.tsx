@@ -11,14 +11,14 @@ type Props = {
 export function FormationFrequency({ rows }: Props) {
   const [expanded, setExpanded] = useState(false);
   if (rows.length === 0) {
-    return <p className="font-body text-sm text-slate-500">No formation data.</p>;
+    return <p className="font-sans text-sm text-slate-500">No formation tallies yet.</p>;
   }
   const top = expanded ? rows : rows.slice(0, 5);
   return (
     <div className="space-y-2">
       {top.map((r) => (
         <div key={r.formation} className="flex items-center gap-3">
-          <span className="font-body min-w-0 max-w-[48%] truncate text-sm text-slate-200 sm:max-w-[52%]">{r.formation}</span>
+          <span className="font-sans min-w-0 max-w-[48%] truncate text-sm text-slate-200 sm:max-w-[52%]">{r.formation}</span>
           <div className="h-[6px] min-w-0 flex-1 overflow-hidden rounded-full bg-slate-700">
             <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.min(100, r.pct)}%` }} />
           </div>

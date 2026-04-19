@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { normalizePlayName } from "@/lib/utils";
-import { TENDENCIES_SCENARIOS } from "@/lib/constants";
+import { SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
@@ -447,11 +447,60 @@ export function thirdDownConvStats(plays: LoggedPlayRow[]): { conversions: numbe
   return { conversions: conv, plays: n, pct: Math.round((conv * 1000) / n) / 10 };
 }
 
-const SCENARIO_ORDER = [...TENDENCIES_SCENARIOS, "2-Minute Drill", "4-Minute", "2-Point Conversion"];
+/** Map legacy / alternate scenario labels onto canonical `TENDENCIES_SCENARIOS` keys. */
+function tendenciesScenarioKey(raw: string | null | undefined): string {
+  const t = (raw ?? "").trim();
+  if (!t) return "Other";
+  if (Object.prototype.hasOwnProperty.call(SCENARIO_SHORT, t)) {
+    return SCENARIO_SHORT[t as keyof typeof SCENARIO_SHORT];
+  }
+  return t;
+}
 
-function scenarioSortKey(s: string): number {
-  const i = SCENARIO_ORDER.indexOf(s);
-  return i === -1 ? 999 : i;
+export type ScoutingTopPlayRow = {
+  play_name: string;
+  formation: string;
+  success_rate: number;
+  uses: number;
+};
+
+/**
+ * Top calls for scouting: group by normalized `play_name` only (same call from different formations rolls up).
+ * Sort by call count descending. `formation` is the most frequent formation paired with that play in the slice.
+ */
+export function aggregateTopPlaysByPlayNameFrequency(plays: LoggedPlayRow[], topN: number): ScoutingTopPlayRow[] {
+  type Bucket = { uses: number; successes: number; formationCounts: Map<string, number> };
+  const m = new Map<string, Bucket>();
+  for (const p of plays) {
+    const pn = normalizePlayName(p.play_name ?? "");
+    if (!pn) continue;
+    const f = (p.formation ?? "").trim();
+    const b = m.get(pn) ?? { uses: 0, successes: 0, formationCounts: new Map<string, number>() };
+    b.uses += 1;
+    if (isSuccessPlay(p)) b.successes += 1;
+    if (f) b.formationCounts.set(f, (b.formationCounts.get(f) ?? 0) + 1);
+    m.set(pn, b);
+  }
+  const rows: ScoutingTopPlayRow[] = [...m.entries()].map(([play_name, b]) => {
+    let formation = "";
+    let maxC = -1;
+    for (const [fname, c] of b.formationCounts) {
+      if (c > maxC) {
+        maxC = c;
+        formation = fname;
+      } else if (c === maxC && fname.localeCompare(formation) < 0) {
+        formation = fname;
+      }
+    }
+    return {
+      play_name,
+      formation,
+      uses: b.uses,
+      success_rate: b.uses > 0 ? Math.round((b.successes * 100) / b.uses) : 0,
+    };
+  });
+  rows.sort((a, b) => b.uses - a.uses || a.play_name.localeCompare(b.play_name));
+  return rows.slice(0, topN);
 }
 
 export type ScoutingReportRow = {
@@ -480,7 +529,8 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
   for (let i = 0; i < plays.length; i++) {
     const p = plays[i];
     if (!p) continue;
-    const sc = p.scenario ?? "Other";
+    const sc = tendenciesScenarioKey(p.scenario);
+    if (sc === "Opening Script") continue;
     const b = buckets[i] ?? "Other";
     const row = map.get(sc) ?? { run: 0, other: 0, success: 0 };
     if (isRunLeanBucket(b)) row.run += 1;
@@ -497,41 +547,26 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
     const run_pct = total > 0 ? Math.round((run * 1000) / total) / 10 : 0;
     const pass_pct = total > 0 ? Math.round((other * 1000) / total) / 10 : 0;
     const success_pct = total > 0 ? Math.round((success * 1000) / total) / 10 : 0;
-    const scenarioPlays = plays.filter((p) => (p.scenario ?? "Other") === scenario);
-    const topMap = new Map<string, { uses: number; successes: number; formation: string; play_name: string }>();
-    for (const p of scenarioPlays) {
-      const pn = normalizePlayName(p.play_name ?? "");
-      const key = `${p.formation}\u0000${pn}`;
-      const cur = topMap.get(key) ?? { uses: 0, successes: 0, formation: p.formation, play_name: pn };
-      cur.uses += 1;
-      if (isSuccessPlay(p)) cur.successes += 1;
-      topMap.set(key, cur);
-    }
-    const topRanked = [...topMap.values()].sort(
-      (a, b) =>
-        b.uses - a.uses ||
-        (b.uses > 0 ? Math.round((b.successes * 100) / b.uses) : 0) -
-          (a.uses > 0 ? Math.round((a.successes * 100) / a.uses) : 0) ||
-        a.play_name.localeCompare(b.play_name),
-    );
+    const scenarioPlays = plays.filter((p) => tendenciesScenarioKey(p.scenario) === scenario);
+    const topRanked = aggregateTopPlaysByPlayNameFrequency(scenarioPlays, 3);
     const top = topRanked[0];
-    const top_plays = topRanked.slice(0, 3).map((entry) => ({
+    const top_plays = topRanked.map((entry) => ({
       play_name: entry.play_name,
       formation: entry.formation,
-      success_rate: entry.uses > 0 ? Math.round((entry.successes * 100) / entry.uses) : 0,
+      success_rate: entry.success_rate,
       uses: entry.uses,
     }));
     const top_play = top
       ? {
           play_name: top.play_name,
           formation: top.formation,
-          success_rate: top.uses > 0 ? Math.round((top.successes * 100) / top.uses) : 0,
+          success_rate: top.success_rate,
           uses: top.uses,
         }
       : null;
     out.push({ scenario, total_plays: total, run_pct, pass_pct, success_pct, top_play, top_plays });
   }
-  return out.sort((a, b) => scenarioSortKey(a.scenario) - scenarioSortKey(b.scenario));
+  return out;
 }
 
 export type ScoutingFormationReportRow = {
@@ -593,13 +628,11 @@ export function scoutingFormationReportRows(plays: LoggedPlayRow[], buckets: Pla
     if (!flag_over_used && !flag_under_performing && !flag_one_dimensional) continue;
 
     const subset = plays.filter((p) => ((p.formation ?? "").trim() || "(unknown formation)") === formation);
-    const rankedByUsage = aggregateByFormationPlay(subset, 1, "success_rate").sort(
-      (a, b) => b.uses - a.uses || b.success_rate - a.success_rate || a.play_name.localeCompare(b.play_name),
-    );
-    const best = rankedByUsage[0];
-    const top_plays = rankedByUsage.slice(0, 3).map((row) => ({
+    const rankedByFrequency = aggregateTopPlaysByPlayNameFrequency(subset, 3);
+    const best = rankedByFrequency[0];
+    const top_plays = rankedByFrequency.map((row) => ({
       play_name: row.play_name,
-      formation: row.formation,
+      formation: row.formation || formation,
       success_rate: row.success_rate,
       uses: row.uses,
     }));

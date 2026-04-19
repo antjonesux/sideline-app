@@ -21,7 +21,7 @@ export function GameFormationTable({ rows }: Props) {
   const formationCols = useMemo(() => formationAggTableColumns(open), [open]);
 
   if (rows.length === 0) {
-    return <p className="font-body text-sm text-slate-500">No formations logged this game.</p>;
+    return <p className="font-sans text-sm text-slate-500">No formations logged in this game.</p>;
   }
 
   return (
@@ -34,7 +34,7 @@ export function GameFormationTable({ rows }: Props) {
         onRowClick={(r) => setOpen(open === r.formation ? null : r.formation)}
         renderAfterRow={(r) =>
           open === r.formation ? (
-            <div className="border-t border-slate-800/80 bg-slate-950/40 px-3 py-2 dark:border-slate-800/80">
+            <div className="border-t border-slate-800/80 bg-slate-800/50 p-4 dark:border-slate-800/80">
               <DataTable
                 wrapperClassName="overflow-x-auto px-0"
                 columns={driveCols}

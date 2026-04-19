@@ -24,7 +24,7 @@ export function PlayTypeDistribution({ data }: Props) {
   const rows = useMemo(
     () =>
       data
-        .filter((d) => d.name !== "Unclassified" || d.count > 0)
+        .filter((d) => d.name !== "Unclassified")
         .filter((d) => d.count > 0 || d.pct > 0)
         .sort((a, b) => b.pct - a.pct),
     [data],
@@ -32,7 +32,7 @@ export function PlayTypeDistribution({ data }: Props) {
   const visibleRows = showAll ? rows : rows.slice(0, 8);
 
   if (rows.length === 0) {
-    return <p className="font-body text-sm text-slate-500">Not enough plays to chart play types.</p>;
+    return <p className="font-sans text-sm text-slate-500">Need more logged calls to split play types.</p>;
   }
 
   return (

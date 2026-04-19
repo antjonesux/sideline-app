@@ -7,6 +7,7 @@ import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { COULDNT_DELETE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import type { GameSession } from "@/lib/types";
 
@@ -36,12 +37,12 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
     try {
       const res = await fetch(`/api/games/${game.id}`, { method: "DELETE" });
       if (!res.ok) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_DELETE, "error");
         return;
       }
       setDeleteOpen(false);
       setMenuOpen(false);
-      addToast("Game deleted", "success");
+      addToast("Game removed.", "success");
       router.refresh();
     } finally {
       setDeleteBusy(false);
@@ -119,14 +120,15 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
       <ConfirmDestructiveModal
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        title="Delete game?"
+        title="Delete game"
+        confirmLabel="Delete game"
         message={
           <>
-            This will permanently delete{" "}
+            Removes{" "}
             <strong className="font-semibold text-white">
               {game.my_playbook} vs {game.opponent_team}
             </strong>{" "}
-            and all drives and plays. This can&apos;t be undone.
+            and all film on file. Can&apos;t be undone.
           </>
         }
         busy={deleteBusy}

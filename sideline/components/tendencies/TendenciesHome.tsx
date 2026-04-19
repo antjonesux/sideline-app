@@ -1,7 +1,6 @@
 "use client";
 
 import { AmIPredictable } from "@/components/tendencies/AmIPredictable";
-import { GameFilm } from "@/components/tendencies/GameFilm";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -12,12 +11,11 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
-type Tab = "working" | "predictable" | "film";
+type Tab = "working" | "predictable";
 
 const tabs: { id: Tab; label: string }[] = [
   { id: "working", label: "What's Working" },
   { id: "predictable", label: "Am I Predictable?" },
-  { id: "film", label: "Game Film" },
 ];
 
 export function TendenciesHome() {
@@ -44,7 +42,8 @@ export function TendenciesHome() {
     queryFn: async () => {
       const res = await fetch("/api/games");
       if (!res.ok) return [] as GameSession[];
-      return res.json() as Promise<GameSession[]>;
+      const j: unknown = await res.json();
+      return Array.isArray(j) ? (j as GameSession[]) : [];
     },
     staleTime: 60 * 1000,
   });
@@ -59,8 +58,8 @@ export function TendenciesHome() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const games = gamesQuery.data ?? [];
-  const playbookOptions = playbooksQuery.data?.playbooks ?? [];
+  const games = Array.isArray(gamesQuery.data) ? gamesQuery.data : [];
+  const playbookOptions = Array.isArray(playbooksQuery.data?.playbooks) ? playbooksQuery.data.playbooks : [];
 
   const opponents = useMemo(() => {
     const s = new Set<string>();
@@ -76,8 +75,6 @@ export function TendenciesHome() {
     return [...s].sort((a, b) => a.localeCompare(b));
   }, [games]);
 
-  const gamesForFilm = useMemo(() => games, [games]);
-
   if (gamesQuery.isLoading) {
     return <FilmRoomSkeleton />;
   }
@@ -87,13 +84,11 @@ export function TendenciesHome() {
       <section className="space-y-6">
         <h1 className="app-page-title text-slate-100">Tendencies</h1>
         <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
-          <p className="font-body text-base font-medium text-white">No game data yet.</p>
-          <p className="mt-2 font-body text-sm text-slate-500">
-            Log plays during a game or import from CSV to start seeing your tendencies.
-          </p>
+          <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
+          <p className="mt-2 font-sans text-sm text-slate-500">Log some games to see your tendencies.</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/film/new" className="btn-primary px-5 py-3 text-sm">
-              + New Game
+              Log your first game
             </Link>
             <Link href="/film/import" className="btn-secondary px-5 py-3 text-sm">
               Import from CSV
@@ -109,7 +104,7 @@ export function TendenciesHome() {
       <h1 className="app-page-title text-slate-100">Tendencies</h1>
 
       <div className="border-b border-slate-800">
-        <nav className="app-horizontal-scroll-strip -mb-px flex gap-1" aria-label="Tendencies views">
+        <nav className="grid w-full grid-cols-2" aria-label="Tendencies views">
           {tabs.map((t) => {
             const active = tab === t.id;
             return (
@@ -117,8 +112,8 @@ export function TendenciesHome() {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`font-body min-h-11 shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
-                  active ? "border-emerald-500 text-emerald-300" : "border-transparent text-slate-500 hover:text-slate-300"
+                className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
+                  active ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
                 }`}
               >
                 {t.label}
@@ -146,9 +141,6 @@ export function TendenciesHome() {
             playbookOptions={playbookOptions}
             playbookLoading={playbooksQuery.isLoading}
           />
-        ) : null}
-        {tab === "film" ? (
-          <GameFilm games={gamesForFilm} />
         ) : null}
       </div>
     </section>

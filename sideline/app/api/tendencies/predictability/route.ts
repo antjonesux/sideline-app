@@ -135,9 +135,9 @@ ORDER BY total_plays DESC;
   const otherPlays = Object.values(otherPlayCounts).sort((a, b) => b.count - a.count || a.formation.localeCompare(b.formation) || a.play.localeCompare(b.play));
   const classifiedBuckets = typedPlays.filter((row) => row.matched).map((row) => row.bucket);
   const counts = playTypeCounts(classifiedBuckets);
-  const total = plays.length || 1;
   const unclassifiedCount = typedPlays.filter((row) => !row.matched).length;
-  const classifiedCount = typedPlays.length - unclassifiedCount;
+  const classifiedCount = Math.max(0, typedPlays.length - unclassifiedCount);
+  const classifiedPctDenom = classifiedCount > 0 ? classifiedCount : 1;
   const playbooksInScope = [...playbookCounts.keys()].sort((a, b) => a.localeCompare(b));
   console.info(
     `[Tendencies] Games: ${gameIds.length} | Playbooks: ${JSON.stringify(playbooksInScope)} | Total plays: ${plays.length} | Classified: ${classifiedCount} | Unclassified: ${unclassifiedCount}`,
@@ -145,28 +145,15 @@ ORDER BY total_plays DESC;
   console.info("[Tendencies] Play types found:", rawPlayTypeCounts);
   console.info("[Tendencies] Grouped play type counts:", counts);
   console.info('[Tendencies] "Other" plays:', otherPlays);
-  type PlayTypeDistributionName = "Run" | "Pass" | "Play Action" | "Screen" | "RPO" | "Option" | "Other" | "Unclassified";
+  type PlayTypeDistributionName = "Run" | "Pass" | "Play Action" | "Screen" | "RPO" | "Option" | "Other";
   type PlayTypeDistributionRow = { name: PlayTypeDistributionName; pct: number; count: number };
   const distributionNames = ["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const;
   const classifiedDistributionRows: PlayTypeDistributionRow[] = distributionNames.map((name): PlayTypeDistributionRow => ({
     name,
-    pct: Math.round(((counts[name] ?? 0) * 1000) / total) / 10,
+    pct: Math.round(((counts[name] ?? 0) * 1000) / classifiedPctDenom) / 10,
     count: counts[name] ?? 0,
   }));
-  const unclassifiedDistributionRows: PlayTypeDistributionRow[] =
-    unclassifiedCount > 0
-      ? [
-          {
-            name: "Unclassified",
-            pct: Math.round((unclassifiedCount * 1000) / total) / 10,
-            count: unclassifiedCount,
-          },
-        ]
-      : [];
-  const play_type_distribution: PlayTypeDistributionRow[] = [
-    ...classifiedDistributionRows,
-    ...unclassifiedDistributionRows,
-  ].filter((row) => row.name !== "Unclassified" || row.count > 0);
+  const play_type_distribution: PlayTypeDistributionRow[] = classifiedDistributionRows;
 
   const buckets = typedPlays.map((x) => x.bucket);
   const scouting_report = scoutingReportRows(plays, buckets);
@@ -225,6 +212,7 @@ ORDER BY total_plays DESC;
       playbook,
       game_count: gameIds.length,
       play_count: plays.length,
+      classified_play_count: classifiedCount,
       turnover_count: turnoverCount,
       turnover_rate: turnoverRate,
       overall_success_rate: overallSuccessRate,

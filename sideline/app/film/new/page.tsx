@@ -4,6 +4,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { supabase } from "@/lib/supabase";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
@@ -185,7 +186,7 @@ export default function NewGamePage() {
     e.preventDefault();
     const setup = buildGameSetup();
     if (!setup) {
-      addToast("Failed to save", "error");
+      addToast("Set offense, defense, and play sheet first.", "error");
       return;
     }
 
@@ -208,11 +209,11 @@ export default function NewGamePage() {
       });
       const game = (await res.json()) as { id?: string; error?: string };
       if (!game.id) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       setLastGame({ my_playbook: setup.offensive_team, my_scheme: setup.offensive_scheme });
-      addToast("Game saved", "success");
+      addToast("Game ready.", "success");
       router.push(`/film/${game.id}`);
     } finally {
       setSubmitBusy(false);

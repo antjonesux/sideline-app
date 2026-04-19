@@ -11,9 +11,9 @@ type Props = {
 
 export function GameStatsInline({ playCount, driveCount, totalYards, tds, turnovers, className }: Props) {
   return (
-    <p className={className ?? "font-body text-[11px] uppercase tracking-wide text-slate-500"}>
+    <p className={className ?? "font-sans text-[11px] uppercase tracking-wide text-slate-500"}>
       <span className="font-mono tabular-nums text-slate-300">{playCount}</span>
-      <span className="ml-1">{playCount === 1 ? "play" : "plays"}</span>
+      <span className="ml-1">{playCount === 1 ? "call" : "calls"}</span>
       <span className="mx-1.5 text-slate-600">·</span>
       <span className="font-mono tabular-nums">{driveCount}</span>
       <span className="ml-1">{driveCount === 1 ? "drive" : "drives"}</span>

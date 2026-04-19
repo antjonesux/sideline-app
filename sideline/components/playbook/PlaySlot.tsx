@@ -9,7 +9,7 @@ type Stats = { uses: number; avg_yards: number; success_rate: number };
 
 function performanceDot(stats: Stats | null): { className: string; label: string } {
   if (!stats || stats.uses === 0) {
-    return { className: "bg-slate-600", label: "No data" };
+    return { className: "bg-slate-600", label: "No calls" };
   }
   if (stats.uses < 3) {
     return { className: "bg-[#F4A522]", label: "Limited sample" };
@@ -191,16 +191,16 @@ export function PlaySlot({
               {stats && stats.uses > 0 ? (
                 <p className="min-w-0 truncate text-[11px] text-slate-500">
                   <span className="font-mono">{stats.uses}</span>
-                  <span className="font-body ml-1">uses</span>
+                  <span className="font-sans ml-1">calls</span>
                   <span className="mx-1 text-slate-600">·</span>
                   <span className="font-mono">{stats.avg_yards.toFixed(1)}</span>
-                  <span className="font-body ml-1">avg yds</span>
+                  <span className="font-sans ml-1">avg yds</span>
                   <span className="mx-1 text-slate-600">·</span>
                   <span className="font-mono">{stats.success_rate}%</span>
-                  <span className="font-body ml-1">success</span>
+                  <span className="font-sans ml-1">success</span>
                 </p>
               ) : (
-                <p className="min-w-0 truncate font-body text-[11px] text-slate-500">No data yet</p>
+                <p className="min-w-0 truncate font-sans text-[11px] text-slate-500">No calls yet</p>
               )}
             </div>
           </div>

@@ -4,6 +4,7 @@ import { CSVUploader } from "@/components/import/CSVUploader";
 import { TemplateDownload } from "@/components/import/TemplateDownload";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { IMPORT_FAILED, IMPORT_PARTIAL } from "@/lib/coachCopy";
 import { useImportStore } from "@/store/importStore";
 import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
@@ -38,8 +39,8 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
       <div className="app-shell">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1 space-y-2">
-            <h1 className="app-page-title">Import game</h1>
-            <p className="font-body text-sm text-slate-400">Upload your game plays as a CSV file.</p>
+            <h1 className="app-page-title">Import film</h1>
+            <p className="font-sans text-sm text-slate-400">Upload calls as a CSV.</p>
           </div>
           <div className="w-full sm:w-auto">
             <TemplateDownload variant="headerInline" />
@@ -53,11 +54,11 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
               setParseError(null);
               if (valid.length === 0) {
                 setParsedData(parsed, valid, errors);
-                setParseError("No valid plays found. Fix CSV row issues and upload again.");
-                addToast("Some rows had errors", "warning");
+                setParseError("No clean rows in that file. Fix the sheet and upload again.");
+                addToast(IMPORT_PARTIAL, "warning");
                 return;
               }
-              if (errors.length > 0) addToast("Some rows had errors", "warning");
+              if (errors.length > 0) addToast(IMPORT_PARTIAL, "warning");
               setParsedData(parsed, valid, errors);
               setGameSetup(null);
               setImportedSession(null);
@@ -66,7 +67,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
             }}
             onParseFatal={(msg) => {
               setParseError(msg);
-              addToast("Import failed", "error");
+              addToast(IMPORT_FAILED, "error");
             }}
           />
         </div>

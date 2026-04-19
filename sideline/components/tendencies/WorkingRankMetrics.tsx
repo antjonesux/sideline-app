@@ -25,7 +25,7 @@ export function WorkingRankMetrics({ touchdowns, first_downs, uses, avg_yards }:
   );
   parts.push(
     <span key="uses">
-      <span className="tabular-nums">{uses.toLocaleString("en-US")}</span> uses
+      <span className="tabular-nums">{uses.toLocaleString("en-US")}</span> calls
     </span>,
   );
   parts.push(

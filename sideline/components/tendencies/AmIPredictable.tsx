@@ -32,7 +32,14 @@ type PredictApi = {
     third_down: { pct: number; conversions: number; plays: number };
   };
   motion: { user_pct: number; playbook_pct: number; playbook_name: string; underutilizing: boolean };
-  meta: { play_count: number; turnover_count: number; turnover_rate: number; game_count: number; overall_success_rate: number };
+  meta: {
+    play_count: number;
+    classified_play_count?: number;
+    turnover_count: number;
+    turnover_rate: number;
+    game_count: number;
+    overall_success_rate: number;
+  };
 };
 
 function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDisplay: string; description: string }) {
@@ -64,23 +71,22 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
       if (!res.ok) throw new Error("predictability");
       return res.json() as Promise<PredictApi>;
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 
   const dataLoading = q.isLoading;
 
   const showPlaybookEmpty = Boolean(playbook) && !dataLoading && q.data && q.data.meta.game_count === 0;
 
-  const unclassified = q.data?.play_type_distribution.find((r) => r.name === "Unclassified");
   /**
-   * Uses the same rows as the bar chart. Run / RPO / Play Action use that row's `pct` (count / total plays).
-   * Pass is Pass + Play Action + Screen (counts summed, divided by meta.play_count) so it matches chart buckets without % rounding drift.
-   * Option, Other, Unclassified stay in the denominator only.
+   * Uses the same rows as the bar chart. Denominator matches the API: classified plays only (unclassified excluded).
    */
   const topTypeCards = q.data
     ? (() => {
         const byName = new Map(q.data.play_type_distribution.map((row) => [row.name, row]));
-        const total = q.data.meta.play_count || 1;
+        const denom = (q.data.meta.classified_play_count ?? q.data.meta.play_count) || 1;
         const pct = (name: string) => {
           const row = byName.get(name);
           return row ? Math.round(row.pct * 10) / 10 : 0;
@@ -89,7 +95,7 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
           (byName.get("Pass")?.count ?? 0) +
           (byName.get("Play Action")?.count ?? 0) +
           (byName.get("Screen")?.count ?? 0);
-        const passPct = Math.round((passCount * 1000) / total) / 10;
+        const passPct = Math.round((passCount * 1000) / denom) / 10;
         return [
           { name: "Run", pct: pct("Run") },
           { name: "Pass", pct: passPct },
@@ -126,16 +132,9 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
                 {topTypeCards.map((row) => (
                   <div key={row.name} className="app-card p-3">
                     <p className="app-field-label">{row.name}</p>
-                                       <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(row.pct)}%</p>
+                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(row.pct)}%</p>
                   </div>
                 ))}
-                {unclassified && unclassified.count > 0 ? (
-                  <div className="app-card p-3">
-                    <p className="app-field-label">Unclassified</p>
-                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(unclassified.pct)}%</p>
-                    <p className="mt-1 font-body text-[11px] text-slate-500">Plays not found in your playbook data.</p>
-                  </div>
-                ) : null}
               </div>
             ) : null}
           </section>
@@ -147,14 +146,14 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
                 <KeyRateCard
                   label="TURNOVER RATE"
                   pctDisplay={`${Math.round(q.data.key_rates.turnover.pct)}%`}
-                  description={`${q.data.key_rates.turnover.turnovers.toLocaleString("en-US")} turnovers in ${q.data.key_rates.turnover.total_plays.toLocaleString("en-US")} plays`}
+                  description={`${q.data.key_rates.turnover.turnovers.toLocaleString("en-US")} TO · ${q.data.key_rates.turnover.total_plays.toLocaleString("en-US")} calls`}
                 />
                 <KeyRateCard
                   label="MOTION USAGE"
                   pctDisplay={`${Math.round(q.data.key_rates.motion.pct)}%`}
                   description={(() => {
                     const m = q.data.key_rates.motion;
-                    return `${m.motion_plays.toLocaleString("en-US")} motion plays on ${m.total_plays.toLocaleString("en-US")} snaps`;
+                    return `${m.motion_plays.toLocaleString("en-US")} motion · ${m.total_plays.toLocaleString("en-US")} calls`;
                   })()}
                 />
                 <KeyRateCard
@@ -162,8 +161,8 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
                   pctDisplay={`${Math.round(q.data.key_rates.red_zone_td.pct)}%`}
                   description={(() => {
                     const z = q.data.key_rates.red_zone_td;
-                    if (z.plays === 0) return "No red zone plays in this filter.";
-                    return `${z.touchdowns.toLocaleString("en-US")} TDs on ${z.plays.toLocaleString("en-US")} red zone plays`;
+                    if (z.plays === 0) return "No red zone calls in this filter.";
+                    return `${z.touchdowns.toLocaleString("en-US")} TD · ${z.plays.toLocaleString("en-US")} red zone calls`;
                   })()}
                 />
                 <KeyRateCard
@@ -171,8 +170,8 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
                   pctDisplay={`${Math.round(q.data.key_rates.third_down.pct)}%`}
                   description={(() => {
                     const t = q.data.key_rates.third_down;
-                    if (t.plays === 0) return "No third-down plays in this filter.";
-                    return `${t.conversions.toLocaleString("en-US")} conversions on ${t.plays.toLocaleString("en-US")} third downs`;
+                    if (t.plays === 0) return "No third-down calls in this filter.";
+                    return `${t.conversions.toLocaleString("en-US")} conversions · ${t.plays.toLocaleString("en-US")} third-down calls`;
                   })()}
                 />
               </div>
@@ -183,7 +182,6 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
             <ScoutingReportSection
               situationRows={q.data.scouting_report ?? []}
               formationRows={q.data.scouting_formation_report ?? []}
-              overallSuccessRate={q.data.meta.overall_success_rate ?? 0}
             />
           ) : null}
         </>

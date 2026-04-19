@@ -61,21 +61,11 @@ export function ConfirmDestructiveModal({
             <div className="font-body text-sm leading-relaxed text-slate-300">{message}</div>
           </div>
           <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
-            <button
-              type="button"
-              className="flex-1 rounded-lg border border-slate-700 py-3 text-slate-300"
-              disabled={busy}
-              onClick={onClose}
-            >
+            <button type="button" className="btn-secondary flex-1 py-3" disabled={busy} onClick={onClose}>
               Cancel
             </button>
-            <button
-              type="button"
-              className="flex-1 rounded-lg bg-emerald-600 py-3 text-white"
-              disabled={busy}
-              onClick={() => void onConfirm()}
-            >
-              {busy ? "Deleting…" : confirmLabel}
+            <button type="button" className="btn-destructive-solid flex-1 py-3" disabled={busy} onClick={() => void onConfirm()}>
+              {busy ? "Working…" : confirmLabel}
             </button>
           </div>
         </div>

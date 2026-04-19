@@ -4,6 +4,14 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-18 (design system + coach copy + cursorrules)
+
+**What:** Design-system alignment (tabs, tables, modals, surfaces, fonts), coach-facing copy and `coachCopy`/`successRateTextClass` helpers, and **UX Copy & Terminology** added to repo root `.cursorrules`.
+
+**Why:** One visual and verbal standard across film, tendencies, scouting, and playbook after the game-details and logger restructure.
+
+**Status after this push:** See root `CHANGELOG.md` for full status; app builds clean with shared primitives and enforced copy rules.
+
 ## 2026-04-17 (play logger header card)
 
 **What:** Snap editors (down, distance, short yardage, and first-play field position) now live inside the same card as the down/distance/field/drive summary; the summary row toggles that section with a chevron and starts collapsed. Removed the modal “+ New drive” and “Edit last play” actions and the `onStartNewDrive` prop—new drives stay on the game log screen.

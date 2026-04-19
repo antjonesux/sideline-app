@@ -6,11 +6,11 @@
 
 @theme {
   /* Next/font sets --font-barlow, --font-barlow-condensed, --font-jetbrains-mono on <html> */
-  --font-body: var(--font-barlow), sans-serif;
-  --font-heading: var(--font-barlow-condensed), sans-serif;
-  --font-display: var(--font-barlow-condensed), sans-serif;
-  --font-sans: var(--font-barlow), sans-serif;
-  --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-body: var(--font-barlow);
+  --font-heading: var(--font-barlow-condensed);
+  --font-display: var(--font-barlow-condensed);
+  --font-sans: var(--font-barlow);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 @layer base {
@@ -27,7 +27,7 @@
 
   body {
     min-height: 100dvh;
-    font-family: var(--font-barlow), sans-serif;
+    font-family: var(--font-barlow);
     position: relative;
     background-color: rgb(2, 6, 23);
   }
@@ -51,17 +51,17 @@
   }
 
   .font-barlow {
-    font-family: var(--font-barlow), sans-serif;
+    font-family: var(--font-barlow);
   }
 
   .font-barlow-condensed {
-    font-family: var(--font-barlow-condensed), sans-serif;
+    font-family: var(--font-barlow-condensed);
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-barlow-condensed), sans-serif;
+    font-family: var(--font-barlow-condensed);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-weight: 700;
@@ -161,7 +161,12 @@
   }
 
   .app-field-label {
-    @apply font-body text-xs font-semibold uppercase tracking-[0.12em] text-slate-500;
+    @apply mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500;
+  }
+
+  /** Warm yellow — drive labels (film, import, play logger); same hue as `text-amber-400` */
+  .app-drive-number {
+    @apply text-amber-400;
   }
 
   /* Buttons */

@@ -2,6 +2,7 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import type { PlaybookSummary } from "@/lib/types";
+import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { FormEvent, useEffect, useId, useMemo, useState } from "react";
@@ -37,7 +38,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
       const res = await fetch("/api/cfb26-playbooks");
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
       if (!res.ok) {
-        if (!cancelled) setLoadErr(j.error ?? "Could not load CFB26 playbooks");
+        if (!cancelled) setLoadErr(COULDNT_LOAD);
         return;
       }
       if (!cancelled) setPlaybooks(j.playbooks ?? []);
@@ -67,11 +68,11 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
       });
       const j = (await res.json()) as { error?: string };
       if (!res.ok || j.error) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       await onSaved();
-      addToast("Changes saved", "success");
+      addToast("Saved.", "success");
       onClose();
     } finally {
       setBusy(false);

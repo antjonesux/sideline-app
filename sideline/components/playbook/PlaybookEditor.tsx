@@ -1,8 +1,7 @@
 "use client";
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { sheetCfb26Playbook } from "@/lib/playbookUtils";
-import { scenarioMaxSlots } from "@/lib/playbookUtils";
+import { sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
@@ -10,6 +9,7 @@ import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
+import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { normalizePlayName } from "@/lib/utils";
 import { useToastStore } from "@/store/toastStore";
 import { useScrollLock } from "@/lib/useScrollLock";
@@ -92,7 +92,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   });
 
   const sheet = sheetQuery.data;
-  const scenarios = sheet?.scenarios ?? [];
+  const scenarios = useMemo(
+    () => sortScenariosByCanonicalOrder(sheet?.scenarios ?? []),
+    [sheet?.scenarios],
+  );
   const scenarioPayload = scenarioQuery.data;
 
   useEffect(() => {
@@ -228,7 +231,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const openAdd = useCallback(() => {
     if (atCapacity) {
-      addToast(`Scenario is full (${maxSlots}/${maxSlots} plays)`, "warning");
+      addToast(`Situation full (${maxSlots}/${maxSlots} slots).`, "warning");
       return;
     }
     setReplacePlayId(null);
@@ -245,13 +248,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       try {
         if (replacePlayId) {
           await swapPlay.mutateAsync({ playId: replacePlayId, formation, play_name });
-          addToast("Play added", "success");
+          addToast("Added to sheet.", "success");
         } else if (scenarioPayload?.scenarioId) {
           await postPlay.mutateAsync({ scenarioId: scenarioPayload.scenarioId, formation, play_name });
-          addToast("Play added", "success");
+          addToast("Added to sheet.", "success");
         }
       } catch (e) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
       } finally {
         setDrawerOpen(false);
         setReplacePlayId(null);
@@ -271,10 +274,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             formation: s.formation,
             play_name: s.play_name,
           });
-          addToast("Play added", "success");
+          addToast("Added to sheet.", "success");
         }
       } catch (e) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
       } finally {
         setSuggestBusy(null);
       }
@@ -299,15 +302,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     const trimmedName = editName.trim();
     const trimmedPlaybook = editPlaybook.trim();
     if (!trimmedName || !trimmedPlaybook) {
-      addToast("Failed to save", "error");
+      addToast(COULDNT_SAVE, "error");
       return;
     }
     try {
       await updateSheet.mutateAsync({ name: trimmedName, cfb26_playbook: trimmedPlaybook });
-      addToast("Play sheet updated", "success");
+      addToast("Play sheet saved.", "success");
       setEditorOpen(false);
     } catch (error) {
-      addToast("Failed to save", "error");
+      addToast(COULDNT_SAVE, "error");
     }
   };
 
@@ -475,7 +478,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                     Cancel
                   </button>
                   <button type="button" className="btn-primary flex-1" onClick={() => void saveSheetEdits()}>
-                    Save Changes
+                    Save
                   </button>
                 </div>
               </div>
@@ -486,28 +489,28 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       <ConfirmDestructiveModal
         open={removePlayId !== null}
         onClose={() => setRemovePlayId(null)}
-        title="Remove play?"
+        title="Remove play"
+        confirmLabel="Remove play"
         message={
           <>
-            This will permanently remove{" "}
+            Pulls{" "}
             <strong className="font-mono font-semibold text-white">
               {pendingRemovePlayRow
                 ? `${pendingRemovePlayRow.formation} · ${normalizePlayName(pendingRemovePlayRow.play_name)}`
-                : "this play"}
+                : "—"}
             </strong>{" "}
-            from this situation. This can&apos;t be undone.
+            off this situation. Can&apos;t be undone.
           </>
         }
-        confirmLabel="Remove"
         busy={deletePlay.isPending}
         onConfirm={async () => {
           if (!removePlayId) return;
           try {
             await deletePlay.mutateAsync(removePlayId);
-            addToast("Play removed", "success");
+            addToast("Removed from sheet.", "success");
             setRemovePlayId(null);
           } catch {
-            addToast("Failed to save", "error");
+            addToast(COULDNT_SAVE, "error");
           }
         }}
       />

@@ -52,7 +52,7 @@ export function RankedRow({
             <span className="font-mono tabular-nums text-slate-300">{successRate}%</span>
             <span className="mx-1.5 text-slate-600">·</span>
             <span className="font-mono tabular-nums">{uses}</span>
-            <span className="ml-1">uses</span>
+            <span className="ml-1">calls</span>
             <span className="mx-1.5 text-slate-600">·</span>
             <span className="font-mono tabular-nums">{avgYards}</span>
             <span className="ml-1">avg yds</span>

@@ -165,15 +165,15 @@ export function TendenciesFilters({
         />
       </div>
       {showMinUsesLine ? (
-        <p className="font-body text-xs text-slate-500">
-          Minimum {value.minUses} logged uses per row.{" "}
+        <p className="font-sans text-xs text-slate-500">
+          At least {value.minUses} calls per row.{" "}
           {value.minUses > 1 ? (
             <button type="button" className="min-h-11 text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 1 })}>
-              Include all
+              Show all
             </button>
           ) : (
             <button type="button" className="min-h-11 text-emerald-400/90 underline-offset-2 hover:underline" onClick={() => onChange({ ...value, minUses: 3 })}>
-              Default threshold (3+)
+              3+ calls (default)
             </button>
           )}
         </p>

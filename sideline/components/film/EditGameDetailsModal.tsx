@@ -1,6 +1,7 @@
 "use client";
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { COULDNT_SAVE } from "@/lib/coachCopy";
 import type { GameSession } from "@/lib/types";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { supabase } from "@/lib/supabase";
@@ -230,11 +231,11 @@ export function EditGameDetailsModal({
       });
       const data = (await res.json()) as GameSession & { error?: string };
       if (!res.ok || (data as { error?: string }).error) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       await onSaved(data as GameSession);
-      addToast("Changes saved", "success");
+      addToast("Saved.", "success");
       setIsOpen(false);
     } finally {
       setSaveBusy(false);

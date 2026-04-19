@@ -5,6 +5,7 @@ import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 
 type PlaybookOption = { team_name: string };
@@ -34,7 +35,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       const res = await fetch("/api/cfb26-playbooks");
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
       if (!res.ok) {
-        if (!cancelled) setLoadErr(j.error ?? "Could not load CFB26 playbooks");
+        if (!cancelled) setLoadErr(COULDNT_LOAD);
         return;
       }
       if (!cancelled) setPlaybooks(j.playbooks ?? []);
@@ -64,7 +65,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       });
       const j = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
-        addToast("Failed to save", "error");
+        addToast(COULDNT_SAVE, "error");
         return;
       }
       if (j.id) {
