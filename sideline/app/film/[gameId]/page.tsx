@@ -105,6 +105,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [showLogger, setShowLogger] = useState(false);
   const [showDriveSetup, setShowDriveSetup] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [showEndDriveEmptyConfirm, setShowEndDriveEmptyConfirm] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
   const [pendingDriveDelete, setPendingDriveDelete] = useState<string | null>(null);
@@ -822,15 +823,28 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   driveId={activeDriveObj.id}
                   playbook={game.offensive_playbook ?? game.my_playbook}
                   drive={activeDriveObj}
-                  initialGameState={replayGameStateFromPlays(activeDriveObj.plays ?? [], activeDriveObj.drive_number, activeDriveObj)}
                   onClose={() => setShowLogger(false)}
                   onRefresh={refresh}
+                  onRequestEmptyEndDrive={() => setShowEndDriveEmptyConfirm(true)}
                 />
               </div>
             </div>
           </div>
         </>
       ) : null}
+
+      <ConfirmDestructiveModal
+        open={showEndDriveEmptyConfirm}
+        onClose={() => setShowEndDriveEmptyConfirm(false)}
+        title="End drive"
+        confirmLabel="End drive"
+        message={<>End drive with no plays?</>}
+        busy={false}
+        onConfirm={async () => {
+          setShowEndDriveEmptyConfirm(false);
+          setShowLogger(false);
+        }}
+      />
 
       <ConfirmDestructiveModal
         open={pendingDriveDelete !== null}

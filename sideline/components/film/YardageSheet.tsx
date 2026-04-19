@@ -22,6 +22,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   const [directInput, setDirectInput] = useState(false);
   const [directValue, setDirectValue] = useState("");
   const [busy, setBusy] = useState(false);
+  const selectedChip = yards != null && CHIPS.includes(yards) ? yards : null;
 
   useEffect(() => {
     window.history.pushState({ filmOverlay: "yards-sheet" }, "");
@@ -106,7 +107,8 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
                   value={directValue}
                   onChange={(e) => setDirectValue(e.target.value)}
                   onBlur={() => {
-                    setYards(Number.parseInt(directValue, 10) || 0);
+                    const parsed = Number.parseInt(directValue, 10);
+                    setYards(Number.isNaN(parsed) ? 0 : parsed);
                     setDirectInput(false);
                   }}
                   className="min-h-11 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 text-center font-mono text-white"
@@ -123,6 +125,9 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
                 +
               </button>
             </div>
+            {selectedChip == null && yards != null ? (
+              <p className="mt-1 font-mono text-[10px] text-slate-500">Custom yards: {yards >= 0 ? "+" : ""}{yards}</p>
+            ) : null}
           </>
         ) : (
           <p className="mt-2 font-sans text-sm text-slate-400">No yards gained</p>

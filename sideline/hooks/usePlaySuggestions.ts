@@ -12,6 +12,8 @@ type Args = {
   playbook: string;
 };
 
+type RecentLoggedPlay = LoggedPlay & { created_at?: string | null };
+
 function biasTerms(down: number, distance: number, fieldPos: number): string[] {
   if (fieldPos >= 85) return ["power", "inside zone", "iso", "stick", "spot", "curl flat"];
   if (down === 1 && distance === 10) return ["inside zone", "outside zone", "rpo", "hb dive"];
@@ -24,7 +26,7 @@ function biasTerms(down: number, distance: number, fieldPos: number): string[] {
 
 export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook }: Args) {
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
-  const [recentRows, setRecentRows] = useState<LoggedPlay[]>([]);
+  const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
 
   useEffect(() => {
     if (!playbook) {
@@ -59,13 +61,16 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
     let cancelled = false;
     void (async () => {
       const res = await fetch(`/api/games/${gameId}/drives`, { cache: "no-store" });
-      const drives = (await res.json()) as Array<{ plays?: LoggedPlay[] }>;
+      const drives = (await res.json()) as Array<{ plays?: RecentLoggedPlay[] }>;
       if (!res.ok || cancelled) return;
-      const desc = drives
+      const desc: RecentLoggedPlay[] = drives
         .flatMap((d) => d.plays ?? [])
-        .sort((a, b) => new Date((b as LoggedPlay & { created_at?: string }).created_at ?? 0).getTime() - new Date((a as LoggedPlay & { created_at?: string }).created_at ?? 0).getTime());
+        .sort(
+          (a, b) =>
+            new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
+        );
       const seen = new Set<string>();
-      const out: LoggedPlay[] = [];
+      const out: RecentLoggedPlay[] = [];
       for (const play of desc) {
         const key = `${play.formation}::${play.play_name}`.toLowerCase();
         if (seen.has(key)) continue;
@@ -80,6 +85,7 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
     };
   }, [gameId]);
 
+  const situationKey = `${down}:${distance}:${fieldPos}`;
   const suggestions = useMemo(() => {
     const terms = biasTerms(down, distance, fieldPos);
     const scored = playbookEntries
@@ -92,7 +98,7 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
       .sort((a, b) => b.score - a.score || a.entry.play_name.localeCompare(b.entry.play_name))
       .map((item) => item.entry);
     return scored.slice(0, 6);
-  }, [down, distance, fieldPos, playbookEntries]);
+  }, [situationKey, playbookEntries]);
 
   const recentPlays = useMemo(() => {
     const suggestionIds = new Set(suggestions.map((s) => s.play_id));

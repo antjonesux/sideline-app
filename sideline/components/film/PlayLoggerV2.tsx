@@ -5,22 +5,21 @@ import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
-import { advanceGameState, deriveStoredResultTag, replayGameStateFromPlays, type GameState } from "@/lib/gameStateEngine";
+import { deriveStoredResultTag, replayGameStateFromPlays, type GameState } from "@/lib/gameStateEngine";
 import { formatFieldPosition } from "@/lib/fieldPosition";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
-import { getDrivePossessionOutcome } from "@/lib/driveOutcome";
 
 interface PlayLoggerV2Props {
   gameId: string;
   driveId: string;
   playbook: string;
   drive: Drive;
-  initialGameState: GameState;
   onClose: () => void;
   onRefresh: () => Promise<void>;
+  onRequestEmptyEndDrive: () => void;
 }
 
 function toOrdinal(down: number) {
@@ -30,7 +29,7 @@ function toOrdinal(down: number) {
   return "4TH";
 }
 
-export function PlayLoggerV2({ gameId, driveId, playbook, drive, initialGameState, onClose, onRefresh }: PlayLoggerV2Props) {
+export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefresh, onRequestEmptyEndDrive }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
@@ -71,7 +70,6 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, initialGameStat
                       : "GAIN";
 
     const storedTag = uiTag === "GAIN" ? deriveStoredResultTag("GAIN", Math.max(0, yards), currentGameState.distance) : uiTag;
-    const next = advanceGameState(currentGameState, storedTag, Math.abs(yards));
     const snap = {
       down: currentGameState.down,
       distance: currentGameState.distance,
@@ -123,7 +121,6 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, initialGameStat
     }
     setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
     await onRefresh();
-    void next;
   }
 
   const stream = [...mergedPlays].slice(-3).reverse();
@@ -137,9 +134,10 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, initialGameStat
           type="button"
           className="min-h-11 px-2 font-sans text-sm text-slate-300"
           onClick={() => {
-            if ((drive.plays ?? []).length === 0 && !window.confirm("End drive with no plays?")) return;
-            const outcome = getDrivePossessionOutcome(drive.plays ?? []);
-            void outcome;
+            if ((drive.plays ?? []).length === 0) {
+              onRequestEmptyEndDrive();
+              return;
+            }
             onClose();
           }}
         >
