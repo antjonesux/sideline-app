@@ -4,6 +4,29 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-19 — Film Room fast logging default flow
+
+### What
+
+- Replaced the legacy `PlayLogger` path with `PlayLoggerV2`, added `PlayBrowser`, `YardageSheet`, and shared `PlayRow`, and wired Add Drive through drive setup into the new fast logging flow.
+- Added `useFormationGroups` and `usePlaySuggestions` hooks for grouped formation browsing, situation-based suggestions, and recent call dedupe.
+- Removed window-confirm end-drive handling in favor of shared confirm modal behavior and tightened optimistic log/refresh behavior in the film game details screen.
+
+### Why
+
+- The old multi-step logger slowed live entry; coaches need faster call logging with suggestions, quick browser drill-down, and immediate yard/result entry.
+
+### Decisions
+
+- Kept existing API routes, schema, query patterns, and game-state engine contracts unchanged; implemented the fast flow by reusing those pathways instead of introducing new persistence layers.
+- Mapped FG miss behavior through existing result tags/engine semantics because `FG_MISS` is not a first-class schema tag.
+
+### Status after this push
+
+- Fast logging is now the default Film Room interaction path on game details, old logger references are removed, and production build remains clean.
+
+---
+
 ## 2026-04-18 — Film game details QA16 (sticky menu, drives, actions, tendencies order)
 
 ### What

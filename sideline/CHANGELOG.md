@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-19 (film fast logging default flow)
+
+**What:** Replaced legacy `PlayLogger` with `PlayLoggerV2` and added `PlayBrowser`, `YardageSheet`, shared `PlayRow`, plus `useFormationGroups`/`usePlaySuggestions` for grouped browse, context suggestions, and recent-call dedupe. Drive setup now opens before new drive logging and empty-drive end uses shared confirm modal behavior.
+
+**Why:** The multi-step logger slowed live sideline entry; fast suggestions + quick browse + immediate yard/result capture are the default path now.
+
+**Decisions:** Kept existing API routes, mutation flow, schema, and game-state engine contracts unchanged; implemented behavior through existing persistence paths. FG miss continues through existing result-tag semantics because there is no dedicated `FG_MISS` schema tag.
+
+**Status after this push:** Film game details now defaults to the fast logger flow; old logger file and references are removed; build is clean.
+
+---
+
 ## 2026-04-18 (game details QA16)
 
 **What:** Film game details page fixes: drive kebab `DropdownMenu` portals above the sticky header via `z-[70]` and optional below-header top clamp; drive summary cards get clearer row spacing and `gap-3` between cards; Add Drive / End or Resume Game / Upload CSV sit in a compact secondary row under the stats strip (aligned with Edit); Tendencies tab sections are reordered (game stats → play types → by situation → formations) with `font-display` section headers.
