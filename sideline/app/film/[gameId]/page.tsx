@@ -7,7 +7,8 @@ import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
-import { PlayLogger } from "@/components/film/PlayLogger";
+import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
+import { DriveSetupForm } from "@/components/film/DriveSetupForm";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
 import { DriveStartingFieldPanel } from "@/components/film/DriveStartingFieldPanel";
 import { ResultBadge } from "@/components/import/ResultBadge";
@@ -26,6 +27,7 @@ import { normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
+import { replayGameStateFromPlays } from "@/lib/gameStateEngine";
 
 function getDriveResult(plays: LoggedPlay[] | undefined | null): DrivePossessionOutcome {
   return getDrivePossessionOutcome(plays);
@@ -101,7 +103,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const drivesRef = useRef<Drive[]>([]);
   drivesRef.current = drives;
   const [showLogger, setShowLogger] = useState(false);
-  const [editPlay, setEditPlay] = useState<LoggedPlay | null>(null);
+  const [showDriveSetup, setShowDriveSetup] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
@@ -171,7 +173,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     };
   }, [gameId]);
 
-  async function addDrive(opts?: { toastStarted?: boolean }) {
+  async function createDrive(payload?: Partial<Drive>) {
     if (!gameId) return;
     if (game?.ended_at) {
       await fetch(`/api/games/${gameId}`, {
@@ -195,9 +197,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       .insert({
         game_session_id: gameId,
         drive_number: driveNumber,
-        quarter: prevQuarter,
-        score_mine: prevMine,
-        score_opponent: prevOpp,
+        quarter: payload?.quarter ?? prevQuarter,
+        score_mine: payload?.score_mine ?? prevMine,
+        score_opponent: payload?.score_opponent ?? prevOpp,
+        starting_down: payload?.starting_down ?? 1,
+        starting_distance: payload?.starting_distance ?? 10,
+        starting_side: payload?.starting_side ?? "OWN",
+        starting_yard_line: payload?.starting_yard_line ?? 25,
+        starting_absolute_yard: parseFieldPosition(payload?.starting_side ?? "OWN", payload?.starting_yard_line ?? 25),
       })
       .select()
       .single();
@@ -214,7 +221,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setDrives((prev) => [...prev, newDrive]);
     setExpandedDriveIds((current) => [...new Set([...current, newDrive.id])]);
     setActiveDrive(newDrive.id);
-    addToast(opts?.toastStarted ? `Drive ${driveNumber} started` : "Drive added", "success");
+    addToast(`Drive ${driveNumber} started`, "success");
+    return newDrive;
   }
 
   async function setGameEnded(nextEnded: boolean) {
@@ -303,14 +311,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
   function openForCreate(driveId: string) {
     setActiveDrive(driveId);
-    setEditPlay(null);
-    setShowLogger(true);
-    setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
-  }
-
-  function openForEdit(driveId: string, playToEdit: LoggedPlay) {
-    setActiveDrive(driveId);
-    setEditPlay(playToEdit);
     setShowLogger(true);
     setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
   }
@@ -451,7 +451,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
 
         <div className="mt-3 mb-4 flex flex-wrap gap-2">
-          <button type="button" onClick={() => void addDrive()} className={filmGameSecondaryActionClass}>
+          <button type="button" onClick={() => setShowDriveSetup(true)} className={filmGameSecondaryActionClass}>
             Add Drive
           </button>
           {isGameEnded ? (
@@ -693,7 +693,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   rows={drive.plays ?? []}
                   getRowKey={(p) => p.id}
                   rowClassName="app-no-press-scale hover:bg-white/[0.02]"
-                  onRowClick={(p) => openForEdit(drive.id, p)}
+                  onRowClick={undefined}
                   onRowContextMenu={(e, p) => {
                     e.preventDefault();
                     setPendingPlayDelete(p.id);
@@ -759,13 +759,43 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
       ) : null}
 
+      {showDriveSetup && game ? (
+        <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
+          <div className="fixed inset-x-0 bottom-0 z-[196] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+            <div className="overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 sm:rounded-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 p-3">
+                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Drive Setup</h2>
+                <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>✕</button>
+              </div>
+              <DriveSetupForm
+                defaultValues={{
+                  quarter: Math.max(1, Number(drives[drives.length - 1]?.quarter ?? 1)),
+                  score_mine: Math.max(0, Number(drives[drives.length - 1]?.score_mine ?? 0)),
+                  score_opponent: Math.max(0, Number(drives[drives.length - 1]?.score_opponent ?? 0)),
+                  starting_side: "OWN",
+                  starting_yard_line: 25,
+                  starting_down: 1,
+                  starting_distance: 10,
+                }}
+                onCancel={() => setShowDriveSetup(false)}
+                onSubmit={async (values) => {
+                  const created = await createDrive(values);
+                  if (!created) return;
+                  setShowDriveSetup(false);
+                  openForCreate(created.id);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {showLogger && game && activeDriveObj ? (
         <>
           <div
             className="fixed inset-0 z-[200] bg-black/60"
             onClick={() => {
               setShowLogger(false);
-              setEditPlay(null);
             }}
           />
           <div
@@ -780,7 +810,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
                   onClick={() => {
                     setShowLogger(false);
-                    setEditPlay(null);
                   }}
                 >
                   <span aria-hidden>✕</span>
@@ -788,16 +817,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 </button>
               </div>
               <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
-                <PlayLogger
-                  gameSessionId={gameId}
-                  myPlaybook={game.offensive_playbook ?? game.my_playbook}
-                  opponentScheme={game.opponent_scheme}
+                <PlayLoggerV2
+                  gameId={gameId}
+                  driveId={activeDriveObj.id}
+                  playbook={game.offensive_playbook ?? game.my_playbook}
                   drive={activeDriveObj}
-                  loggedPlaysForGameStats={drives.flatMap((d) => d.plays ?? [])}
-                  editPlay={editPlay}
-                  onEditPlayChange={setEditPlay}
-                  onLogged={refresh}
-                  onPersistDriveFields={(partial) => patchDriveAndPersist(activeDriveObj.id, partial)}
+                  initialGameState={replayGameStateFromPlays(activeDriveObj.plays ?? [], activeDriveObj.drive_number, activeDriveObj)}
+                  onClose={() => setShowLogger(false)}
+                  onRefresh={refresh}
                 />
               </div>
             </div>
