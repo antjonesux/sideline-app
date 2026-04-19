@@ -133,11 +133,12 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefr
         <button
           type="button"
           className="min-h-11 px-2 font-sans text-sm text-slate-300"
-          onClick={() => {
+          onClick={async () => {
             if ((drive.plays ?? []).length === 0) {
               onRequestEmptyEndDrive();
               return;
             }
+            await onRefresh();
             onClose();
           }}
         >

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { LoggedPlay } from "@/lib/types";
 import { inferPlayType, deriveFormationGroup, type PlaybookEntry } from "@/lib/playbook";
+import { supabase } from "@/lib/supabase";
 
 type Args = {
   down: number;
@@ -60,15 +61,14 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
     }
     let cancelled = false;
     void (async () => {
-      const res = await fetch(`/api/games/${gameId}/drives`, { cache: "no-store" });
-      const drives = (await res.json()) as Array<{ plays?: RecentLoggedPlay[] }>;
-      if (!res.ok || cancelled) return;
-      const desc: RecentLoggedPlay[] = drives
-        .flatMap((d) => d.plays ?? [])
-        .sort(
-          (a, b) =>
-            new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
-        );
+      const { data, error } = await supabase
+        .from("logged_plays")
+        .select("id, play_number, drive_number, down, distance, side, yard_line, hash, formation, play_name, yards_gained, result_tag, note, is_inches, created_at")
+        .eq("game_session_id", gameId)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error || cancelled) return;
+      const desc: RecentLoggedPlay[] = (data ?? []) as RecentLoggedPlay[];
       const seen = new Set<string>();
       const out: RecentLoggedPlay[] = [];
       for (const play of desc) {
