@@ -15,6 +15,11 @@ type Props = {
   /** Extra classes on the trigger button (icon). */
   triggerClassName?: string;
   "aria-label"?: string;
+  /**
+   * When set, menu `top` is at least `getBoundingClientRect().bottom + 4` of the first matching
+   * element (e.g. sticky game header) so the portal menu clears fixed/sticky chrome.
+   */
+  clampMenuBelowSelector?: string;
 };
 
 /**
@@ -24,7 +29,12 @@ type Props = {
  */
 const BOTTOM_UI_RESERVE = 80;
 
-export function DropdownMenu({ items, triggerClassName = "", "aria-label": ariaLabel = "Open menu" }: Props) {
+export function DropdownMenu({
+  items,
+  triggerClassName = "",
+  "aria-label": ariaLabel = "Open menu",
+  clampMenuBelowSelector,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -76,14 +86,18 @@ export function DropdownMenu({ items, triggerClassName = "", "aria-label": ariaL
     const right = window.innerWidth - rect.right;
     const estimatedMenuHeight = Math.min(320, items.length * 48 + 16);
     const spaceBelow = window.innerHeight - rect.bottom;
+    const clampEl = clampMenuBelowSelector ? document.querySelector(clampMenuBelowSelector) : null;
+    const clampBottom = clampEl instanceof HTMLElement ? clampEl.getBoundingClientRect().bottom : null;
     if (spaceBelow < estimatedMenuHeight + BOTTOM_UI_RESERVE) {
       setPosition({
         bottom: window.innerHeight - rect.top + 4,
         right,
       });
     } else {
+      const desiredTop = rect.bottom + 4;
+      const minTop = clampBottom != null ? clampBottom + 4 : desiredTop;
       setPosition({
-        top: rect.bottom + 4,
+        top: Math.max(desiredTop, minTop),
         right,
       });
     }
@@ -91,7 +105,7 @@ export function DropdownMenu({ items, triggerClassName = "", "aria-label": ariaL
   }
 
   return (
-    <div className="relative z-10 flex shrink-0 items-center self-center">
+    <div className="inline-flex shrink-0 items-center">
       <button
         ref={buttonRef}
         type="button"
@@ -112,7 +126,7 @@ export function DropdownMenu({ items, triggerClassName = "", "aria-label": ariaL
         ? createPortal(
             <div
               ref={menuRef}
-              className="fixed z-[210] max-h-[min(50dvh,20rem)] min-w-[160px] overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+              className="fixed z-[70] max-h-[min(50dvh,20rem)] min-w-[160px] overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800"
               style={{
                 ...(position.top != null ? { top: position.top } : {}),
                 ...(position.bottom != null ? { bottom: position.bottom } : {}),

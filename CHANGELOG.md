@@ -4,6 +4,20 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-18 — Film game details QA16 (sticky menu, drives, actions, tendencies order)
+
+### What
+
+- Game log sticky header: drive kebab menu uses shared `DropdownMenu` with `z-[70]` and clamps open position below the sticky header; compact secondary action row (Add Drive, End/Resume Game, Upload CSV) under stats, matching Edit; drive cards use clearer padding and spacing; game tendencies tab sections reordered with display-font headers.
+
+### Why
+
+- QA16: menu vs. sticky chrome, visual hierarchy vs. tabs, coach-first tendencies scan order.
+
+### Status after this push
+
+- See `sideline/CHANGELOG.md` for detail; `npm run build` in `sideline/` passes.
+
 ## 2026-04-18 — Design system pass, coach-facing copy, and `.cursorrules` copy standards
 
 ### What

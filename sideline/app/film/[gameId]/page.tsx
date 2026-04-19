@@ -397,9 +397,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     return <GameDetailSkeleton />;
   }
 
+  const filmGameSecondaryActionClass =
+    "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white";
+
   return (
     <section className="space-y-0">
-      <div className="sticky top-0 z-10 -mx-4 bg-slate-950 px-4 sm:-mx-6 sm:px-6">
+      <div
+        className="sticky top-0 z-10 -mx-4 bg-slate-950 px-4 sm:-mx-6 sm:px-6"
+        data-sticky-game-header
+      >
         <div className="max-w-none space-y-2 pb-2 pt-1">
           <BackToFilmLink />
 
@@ -444,6 +450,27 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </div>
         </div>
 
+        <div className="mt-3 mb-4 flex flex-wrap gap-2">
+          <button type="button" onClick={() => void addDrive()} className={filmGameSecondaryActionClass}>
+            Add Drive
+          </button>
+          {isGameEnded ? (
+            <button type="button" onClick={() => void setGameEnded(false)} className={filmGameSecondaryActionClass}>
+              Resume Game
+            </button>
+          ) : (
+            <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
+              End Game
+            </button>
+          )}
+          <Link
+            href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
+            className={filmGameSecondaryActionClass}
+          >
+            Upload CSV
+          </Link>
+        </div>
+
         <div className="grid grid-cols-2 border-b border-slate-800" role="tablist" aria-label="Game detail views">
           <button
             type="button"
@@ -473,31 +500,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       <div className="pt-3">
         {detailTab === "drives" ? (
           <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => void addDrive()} className="btn-primary min-h-11 px-4 py-2.5 text-sm">
-                Add Drive
-              </button>
-              {isGameEnded ? (
-                <button type="button" onClick={() => void setGameEnded(false)} className="btn-secondary min-h-11 px-4 py-2.5 text-sm">
-                  Resume Game
-                </button>
-              ) : (
-                <button type="button" onClick={() => setShowEndGameModal(true)} className="btn-secondary min-h-11 px-4 py-2.5 text-sm">
-                  End Game
-                </button>
-              )}
-              <Link
-                href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
-                className="inline-flex min-h-11 items-center px-3 text-sm text-slate-400 hover:text-white"
-              >
-                Upload CSV
-              </Link>
-            </div>
-
             {game && drives.length === 0 ? (
               <div className="app-card app-card-pad text-center font-sans text-sm text-slate-400">No drives yet.</div>
             ) : null}
 
+            <div className="flex flex-col gap-3">
             {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
         const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
@@ -528,59 +535,71 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
         return (
           <div key={drive.id} className="app-card overflow-hidden rounded-xl">
-            <div className="app-accordion-header-row flex items-center border-b border-slate-800/60">
-              <button
-                type="button"
-                className="app-no-press-scale flex min-w-0 flex-1 flex-col justify-center gap-1 py-3 pl-4 pr-2 text-left transition-colors hover:bg-slate-800/40"
-                aria-expanded={isExpanded}
-                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                onClick={toggleDriveExpanded}
-              >
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="app-drive-number font-display shrink-0 text-sm font-semibold uppercase tracking-wide">
-                    Drive {drive.drive_number}
-                  </span>
-                  <DriveSummaryOutcomeBadge label={outcomeLabel} />
+            <div className="app-accordion-header-row border-b border-slate-800/60 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <button
+                    type="button"
+                    className="app-no-press-scale flex w-full min-w-0 flex-wrap items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                    onClick={toggleDriveExpanded}
+                  >
+                    <span className="app-drive-number font-display shrink-0 text-sm font-semibold uppercase tracking-wide">
+                      Drive {drive.drive_number}
+                    </span>
+                    <span className="shrink-0">
+                      <DriveSummaryOutcomeBadge label={outcomeLabel} />
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="app-no-press-scale w-full text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-500"
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                    onClick={toggleDriveExpanded}
+                  >
+                    <span className="font-mono text-xs text-slate-400">{row2Parts.join(" · ")}</span>
+                  </button>
                 </div>
-                <p className="font-mono text-xs text-slate-400">{row2Parts.join(" · ")}</p>
-              </button>
-              <DropdownMenu
-                aria-label="Drive actions"
-                items={[
-                  {
-                    label: "Delete Drive",
-                    destructive: true,
-                    onClick: () => {
-                      setPendingDriveDelete(drive.id);
-                    },
-                  },
-                ]}
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                className="app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center pr-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200"
-                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleDriveExpanded();
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={`accordion-chevron text-current ${isExpanded ? "open" : ""}`}
-                  aria-hidden
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <DropdownMenu
+                    clampMenuBelowSelector="[data-sticky-game-header]"
+                    aria-label="Drive actions"
+                    items={[
+                      {
+                        label: "Delete Drive",
+                        destructive: true,
+                        onClick: () => {
+                          setPendingDriveDelete(drive.id);
+                        },
+                      },
+                    ]}
+                  />
+                  <button
+                    type="button"
+                    className="app-no-press-scale inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                    onClick={toggleDriveExpanded}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`accordion-chevron size-4 shrink-0 text-current ${isExpanded ? "open" : ""}`}
+                      aria-hidden
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {isExpanded ? (
@@ -694,6 +713,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </div>
         );
       })}
+            </div>
 
             {game && showPartialWarning ? (
               <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">

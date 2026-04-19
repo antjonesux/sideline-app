@@ -59,18 +59,20 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
       {
         key: "situation",
         header: "SITUATION",
-        render: (r) => <span className="font-sans text-sm text-slate-200">{r.situation}</span>,
+        render: (r) => <span className="font-mono text-sm text-slate-200">{r.situation}</span>,
       },
       {
         key: "plays",
         header: "PLAYS",
-        render: (r) => <span className="tabular-nums text-slate-300">{r.plays}</span>,
+        render: (r) => <span className="font-mono tabular-nums text-sm text-slate-300">{r.plays}</span>,
       },
       {
         key: "success",
         header: "SUCCESS",
         render: (r) => (
-          <span className={`font-medium tabular-nums ${successRateTextClass(r.success_rate)}`}>{r.success_rate}%</span>
+          <span className={`font-mono text-sm font-medium tabular-nums ${successRateTextClass(r.success_rate)}`}>
+            {r.success_rate}%
+          </span>
         ),
       },
     ],
@@ -97,18 +99,22 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
 
   return (
     <div className="space-y-8">
-      <section className="space-y-3">
-        <h2 className="app-section-title">Stats</h2>
+      <section>
+        <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">GAME STATS</h2>
         <CoreStatsGrid stats={data.stats} />
       </section>
 
-      <section className="space-y-3">
-        <h2 className="app-section-title">Formations</h2>
-        <GameFormationTable rows={data.formation_breakdown} />
+      <section>
+        <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">PLAY TYPES</h2>
+        {hasPlays ? (
+          <PlayTypeDistribution data={data.play_type_distribution} />
+        ) : (
+          <p className="font-sans text-sm text-slate-500">Log plays to see run, pass, and RPO splits.</p>
+        )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="app-section-title">Situations</h2>
+      <section>
+        <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">BY SITUATION</h2>
         {!hasPlays || data.scenario_breakdown.length === 0 ? (
           <p className="font-sans text-sm text-slate-500">No situations tagged on this log yet.</p>
         ) : (
@@ -122,13 +128,9 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="app-section-title">Play types</h2>
-        {hasPlays ? (
-          <PlayTypeDistribution data={data.play_type_distribution} />
-        ) : (
-          <p className="font-sans text-sm text-slate-500">Log plays to see run, pass, and RPO splits.</p>
-        )}
+      <section>
+        <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">FORMATIONS</h2>
+        <GameFormationTable rows={data.formation_breakdown} />
       </section>
     </div>
   );

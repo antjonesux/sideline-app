@@ -4,6 +4,14 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-18 (game details QA16)
+
+**What:** Film game details page fixes: drive kebab `DropdownMenu` portals above the sticky header via `z-[70]` and optional below-header top clamp; drive summary cards get clearer row spacing and `gap-3` between cards; Add Drive / End or Resume Game / Upload CSV sit in a compact secondary row under the stats strip (aligned with Edit); Tendencies tab sections are reordered (game stats → play types → by situation → formations) with `font-display` section headers.
+
+**Why:** The drive menu was fighting the sticky chrome and felt buried; drive rows read cramped; primary-styled actions competed with tabs; coaches want headline stats and play-type context before situation and formation detail.
+
+**Status after this push:** `npm run build` is clean; game details layout matches the shared button tier and tendencies reading order from QA16.
+
 ## 2026-04-18 (design system + coach copy + cursorrules)
 
 **What:** Design-system alignment (tabs, tables, modals, surfaces, fonts), coach-facing copy and `coachCopy`/`successRateTextClass` helpers, and **UX Copy & Terminology** added to repo root `.cursorrules`.

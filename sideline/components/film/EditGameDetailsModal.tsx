@@ -61,7 +61,7 @@ export function EditGameDetailsModal({
   game,
   onSaved,
   triggerLabel = "Edit",
-  triggerClassName = "shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white",
+  triggerClassName = "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white",
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   useScrollLock(isOpen);
