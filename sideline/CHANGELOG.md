@@ -4,9 +4,21 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-19 (film QA18 + QA19 — logger, browser, play types)
+
+**What:** `PlayLoggerV2` drive chrome: removed in-header close and End Drive (drive completion is implicit via modal back; unmount refreshes data, with a TODO for a future persisted drive outcome when the schema supports it); single compressed sticky situation row (QA19) with amber `DRIVE {N}`, inline down/distance + field, call-count accordion chevron, full-width `bg-slate-900` header and emerald flash on the whole bar; accordion stream below with shared chevron rotation. `PlayBrowser`: single scroll with sticky formation-group headers; two-column formation chips (no play-count rows or chevrons); shared full-width slate header for Back + search; plays drill-down hides search and matches Back styling with centered formation title; removed top gaps under headers. `PlayRow` + `inferPlayType`: dropped `OTHER` badge path, dev warn + `RUN` fallback, migration `cfb26_plays_play_type_check` plus data cleanup for `RUN`/`PASS`/`RPO`. Film game details: removed empty-drive confirm modal tied to the old End Drive control.
+
+**Why:** QA18 removed redundant drive actions, aligned icons and full-bleed headers, simplified browse (no group drill-down), and normalized playbook play types so badges never show `OTHER`. QA19 reclaimed vertical space in the logger and tightened browser density to match coach expectations.
+
+**Decisions:** No `drives.result` column in the current schema, so drive outcome is not written on close—refresh only until a column and API exist. Migration targets `cfb26_plays` (not a separate `playbook_plays` table).
+
+**Status after this push:** Film fast logger and browser match QA18/QA19; run the new Supabase migration on staging before production.
+
+---
+
 ## 2026-04-19 (film fast logging default flow)
 
-**What:** Replaced legacy `PlayLogger` with `PlayLoggerV2` and added `PlayBrowser`, `YardageSheet`, shared `PlayRow`, plus `useFormationGroups`/`usePlaySuggestions` for grouped browse, context suggestions, and recent-call dedupe. Drive setup now opens before new drive logging and empty-drive end uses shared confirm modal behavior.
+**What:** Replaced legacy `PlayLogger` with `PlayLoggerV2` and added `PlayBrowser`, `YardageSheet`, shared `PlayRow`, plus `useFormationGroups`/`usePlaySuggestions` for grouped browse, context suggestions, and recent-call dedupe. Drive setup now opens before new drive logging. (Follow-up QA18 removed separate End Drive / empty-drive confirm—see the QA18 + QA19 changelog entry above.)
 
 **Why:** The multi-step logger slowed live sideline entry; fast suggestions + quick browse + immediate yard/result capture are the default path now.
 

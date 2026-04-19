@@ -3,7 +3,7 @@ export type PlaybookEntry = {
   formation: string;
   group: string;
   play_name: string;
-  play_type: "RUN" | "PASS" | "RPO" | "OTHER";
+  play_type: "RUN" | "PASS" | "RPO";
 };
 
 export function inferPlayType(name: string): PlaybookEntry["play_type"] {
@@ -36,7 +36,7 @@ export function inferPlayType(name: string): PlaybookEntry["play_type"] {
   ) {
     return "RUN";
   }
-  return "OTHER";
+  return "RUN";
 }
 
 export function deriveFormationGroup(formation: string): string {

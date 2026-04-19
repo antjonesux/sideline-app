@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
-import { deriveStoredResultTag, replayGameStateFromPlays, type GameState } from "@/lib/gameStateEngine";
+import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
 import { formatFieldPosition } from "@/lib/fieldPosition";
+import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
@@ -17,28 +18,44 @@ interface PlayLoggerV2Props {
   driveId: string;
   playbook: string;
   drive: Drive;
-  onClose: () => void;
   onRefresh: () => Promise<void>;
-  onRequestEmptyEndDrive: () => void;
 }
 
-function toOrdinal(down: number) {
-  if (down === 1) return "1ST";
-  if (down === 2) return "2ND";
-  if (down === 3) return "3RD";
-  return "4TH";
-}
-
-export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefresh, onRequestEmptyEndDrive }: PlayLoggerV2Props) {
+export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
   const [optimistic, setOptimistic] = useState<LoggedPlay[]>([]);
   const [flashOk, setFlashOk] = useState(false);
+  const [accordionExpanded, setAccordionExpanded] = useState(false);
+  const [locallyHiddenPlayIds, setLocallyHiddenPlayIds] = useState<Set<string>>(() => new Set());
+  const [pendingDeletePlayId, setPendingDeletePlayId] = useState<string | null>(null);
 
-  const logged = drive.plays ?? [];
-  const mergedPlays = [...logged, ...optimistic];
-  const currentGameState = useMemo(() => replayGameStateFromPlays(mergedPlays, drive.drive_number, drive), [mergedPlays, drive]);
+  const onRefreshRef = useRef(onRefresh);
+  onRefreshRef.current = onRefresh;
+
+  useEffect(() => {
+    return () => {
+      void onRefreshRef.current();
+      // TODO: QA18 — When `drives` exposes a persisted outcome + PUT accepts it, write
+      // `deriveDriveResult(lastLoggedPlay)` here instead of refresh-only.
+    };
+  }, [driveId]);
+
+  const loggedVisible = useMemo(
+    () => (drive.plays ?? []).filter((p) => !locallyHiddenPlayIds.has(p.id)),
+    [drive.plays, locallyHiddenPlayIds],
+  );
+
+  const mergedPlays = useMemo(() => {
+    const combined = [...loggedVisible, ...optimistic];
+    return combined.sort((a, b) => (a.play_number ?? 0) - (b.play_number ?? 0));
+  }, [loggedVisible, optimistic]);
+
+  const currentGameState = useMemo(
+    () => replayGameStateFromPlays(mergedPlays, drive.drive_number, drive),
+    [mergedPlays, drive],
+  );
 
   const { suggestions } = usePlaySuggestions({
     down: currentGameState.down,
@@ -47,6 +64,11 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefr
     gameId,
     playbook,
   });
+
+  const streamPlaysDesc = useMemo(
+    () => [...mergedPlays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0)),
+    [mergedPlays],
+  );
 
   async function handleLog(yards: number, result: PlayResult | null) {
     if (!selectedPlay) return;
@@ -123,54 +145,110 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefr
     await onRefresh();
   }
 
-  const stream = [...mergedPlays].slice(-3).reverse();
+  async function handleConfirmDeletePlay(play: LoggedPlay) {
+    setPendingDeletePlayId(null);
+    if (play.id.startsWith("optimistic-")) {
+      setOptimistic((o) => o.filter((x) => x.id !== play.id));
+      return;
+    }
+    setLocallyHiddenPlayIds((prev) => new Set(prev).add(play.id));
+    const res = await fetch(`/api/plays/${play.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setLocallyHiddenPlayIds((prev) => {
+        const next = new Set(prev);
+        next.delete(play.id);
+        return next;
+      });
+      addToast(COULDNT_SAVE, "error");
+      return;
+    }
+    await onRefresh();
+    setLocallyHiddenPlayIds((prev) => {
+      const next = new Set(prev);
+      next.delete(play.id);
+      return next;
+    });
+    addToast("Call removed.", "success");
+  }
+
+  const situationLine = formatDownDistanceLabel(currentGameState.down, currentGameState.distance, {
+    isGoalToGo: false,
+    yardLine: currentGameState.absoluteYard,
+    isInches: currentGameState.isInches,
+  });
+  const fieldLine = formatFieldPosition(currentGameState.absoluteYard);
 
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col bg-slate-950">
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-950 px-3 py-2">
-        <button type="button" className="min-h-11 px-2 font-sans text-sm text-slate-300" onClick={onClose}>‹ Back</button>
-        <p className="font-mono text-xs text-slate-400">Drive {drive.drive_number}</p>
-        <button
-          type="button"
-          className="min-h-11 px-2 font-sans text-sm text-slate-300"
-          onClick={async () => {
-            if ((drive.plays ?? []).length === 0) {
-              onRequestEmptyEndDrive();
-              return;
-            }
-            await onRefresh();
-            onClose();
-          }}
-        >
-          End Drive
-        </button>
-      </div>
+      <div
+        className={`sticky top-0 z-10 -mx-3 border-b border-slate-700 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}
+      >
+        <div className="flex w-full items-center gap-3 px-4 py-3">
+          <span className="whitespace-nowrap font-mono text-[13px] font-semibold uppercase tracking-widest text-amber-400">
+            DRIVE {drive.drive_number}
+          </span>
 
-      <div className={`sticky top-[56px] z-10 flex items-center justify-between border-b border-slate-800 px-3 py-2 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}>
-        <div>
-          <p className="font-sans text-xl font-bold text-slate-100">{toOrdinal(currentGameState.down)} & {currentGameState.distance}</p>
-          <p className="font-mono text-[10px] uppercase text-slate-500">{formatFieldPosition(currentGameState.absoluteYard)}</p>
+          <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0">
+            <span className="font-sans text-lg font-bold leading-none text-white">{situationLine}</span>
+            <span className="font-mono text-xs text-slate-400">· {fieldLine}</span>
+          </div>
+
+          <button
+            type="button"
+            className="app-no-press-scale flex min-h-11 shrink-0 items-center gap-1 text-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            onClick={() => setAccordionExpanded((e) => !e)}
+            aria-expanded={accordionExpanded}
+          >
+            <span className="font-mono text-xs font-medium uppercase tracking-widest">
+              {mergedPlays.length} {mergedPlays.length === 1 ? "CALL" : "CALLS"}
+            </span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`size-4 shrink-0 transition-transform motion-reduce:transition-none ${accordionExpanded ? "rotate-180" : ""}`}
+              aria-hidden
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
-        <p className="font-mono text-[10px] uppercase text-slate-500">{mergedPlays.length} calls</p>
-      </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 pb-28">
-        {stream.length > 0 ? (
-          <div className="space-y-2">
-            {stream.map((play, idx) => (
-              <div key={play.id} className={`rounded-lg border border-slate-800 bg-slate-900 px-2 py-2 ${idx === 1 ? "opacity-60" : idx === 2 ? "opacity-30" : "opacity-100"}`}>
-                <div className="flex items-center gap-2">
-                  <span className="w-8 font-mono text-[10px] text-slate-500">#{play.play_number}</span>
-                  <span className="w-[72px] truncate font-mono text-[10px] text-slate-500">{play.formation}</span>
-                  <span className="min-w-0 flex-1 truncate font-sans text-sm text-slate-100">{play.play_name}</span>
-                  <span className="font-mono text-xs text-slate-400">{play.yards_gained >= 0 ? "+" : ""}{play.yards_gained}</span>
+        {accordionExpanded && streamPlaysDesc.length > 0 ? (
+          <div className="max-h-48 overflow-y-auto border-t border-slate-800/80 px-4 pb-3 pt-0">
+            <div className="space-y-2">
+              {streamPlaysDesc.map((play, idx) => (
+                <div
+                  key={play.id}
+                  className={idx === 0 ? "motion-safe:animate-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-200" : ""}
+                >
+                  <PlayRow
+                    variant="stream"
+                    play={play}
+                    streamIndex={idx}
+                    isConfirmingDelete={pendingDeletePlayId === play.id}
+                    onDeletePress={() => setPendingDeletePlayId(play.id)}
+                    onConfirmDelete={() => void handleConfirmDeletePlay(play)}
+                    onCancelDelete={() => setPendingDeletePlayId(null)}
+                  />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : null}
+      </div>
 
-        <button type="button" className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 text-left" onClick={() => setBrowserOpen(true)}>
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pt-0 pb-28">
+        <button
+          type="button"
+          className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 text-left"
+          onClick={() => setBrowserOpen(true)}
+        >
           <span>
             <span className="block font-sans text-sm text-slate-400">Search plays & formations</span>
             <span className="block font-mono text-[10px] text-slate-500">Browse playbook</span>
@@ -180,7 +258,9 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onClose, onRefr
 
         <section>
           <p className="font-mono text-[9px] uppercase tracking-wide text-slate-500">You&apos;ve been calling…</p>
-          <p className="mt-1 font-sans text-[11px] text-slate-400">Based on {toOrdinal(currentGameState.down)} & {currentGameState.distance} at {formatFieldPosition(currentGameState.absoluteYard)}</p>
+          <p className="mt-1 font-sans text-[11px] text-slate-400">
+            Based on {situationLine} at {fieldLine}
+          </p>
           <div className="mt-2 space-y-2">
             {suggestions.map((play) => (
               <PlayRow key={play.play_id} play={play} onSelect={(picked) => setSelectedPlay(picked)} />

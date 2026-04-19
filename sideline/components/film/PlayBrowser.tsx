@@ -5,17 +5,22 @@ import { PlayRow } from "@/components/film/atoms/PlayRow";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useFormationGroups } from "@/hooks/useFormationGroups";
 
+type BrowserStep = "formations" | "plays";
+
 interface PlayBrowserProps {
   playbook: string;
   onSelect: (play: PlaybookEntry) => void;
   onClose: () => void;
 }
 
+const browserBackButtonClass =
+  "min-h-11 shrink-0 rounded-lg border border-slate-700 px-3 font-sans text-sm text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+
 export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
   const { groups, entries } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
-  const [groupIdx, setGroupIdx] = useState<number | null>(null);
-  const [formationIdx, setFormationIdx] = useState<number | null>(null);
+  const [step, setStep] = useState<BrowserStep>("formations");
+  const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
 
   useEffect(() => {
     window.history.pushState({ filmOverlay: "play-browser" }, "");
@@ -23,10 +28,6 @@ export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [onClose]);
-
-  const selectedGroup = groupIdx == null ? null : groups[groupIdx] ?? null;
-  const selectedFormation =
-    selectedGroup && formationIdx != null ? selectedGroup.formations[formationIdx] ?? null : null;
 
   const searching = query.trim().length > 0;
   const filtered = useMemo(() => {
@@ -42,75 +43,96 @@ export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
     });
   }, [query, entries]);
 
-  return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-slate-950 px-4 py-4 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200">
-      <div className="mb-3 flex items-center gap-2">
-        <button type="button" className="min-h-11 rounded-lg border border-slate-700 px-3 font-sans text-sm text-slate-300" onClick={onClose}>
-          Back
-        </button>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search plays & formations"
-          className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500"
-        />
-      </div>
+  const selectedPlays = useMemo(() => {
+    if (!selectedFormation) return [];
+    const g = groups.find((x) => x.group === selectedFormation.group);
+    return g?.formations.find((f) => f.name === selectedFormation.name)?.plays ?? [];
+  }, [groups, selectedFormation]);
 
+  const level1Header = (
+    <div className="flex w-full items-center gap-2 border-b border-slate-700 bg-slate-900 px-4 py-3">
+      <button type="button" className={browserBackButtonClass} onClick={onClose}>
+        ‹ Back
+      </button>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search plays & formations"
+        className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500"
+      />
+    </div>
+  );
+
+  const playsViewHeader = selectedFormation ? (
+    <div className="flex w-full items-center gap-2 border-b border-slate-700 bg-slate-900 px-4 py-3">
+      <button
+        type="button"
+        className={browserBackButtonClass}
+        onClick={() => {
+          setSelectedFormation(null);
+          setStep("formations");
+        }}
+      >
+        ‹ Back
+      </button>
+      <span className="min-w-0 flex-1 truncate text-center font-sans text-sm font-semibold text-slate-100">
+        {selectedFormation.name}
+      </span>
+      <span className={`${browserBackButtonClass} pointer-events-none invisible shrink-0`} aria-hidden>
+        ‹ Back
+      </span>
+    </div>
+  ) : null;
+
+  return (
+    <div className="absolute inset-0 z-30 flex min-h-0 flex-col bg-slate-950 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200">
       {searching ? (
-        <div className="space-y-2 overflow-y-auto pb-4">
-          {filtered.map((play) => (
-            <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
-          ))}
-        </div>
-      ) : groupIdx == null ? (
-        <div className="space-y-2 overflow-y-auto pb-4">
-          {groups.map((group, idx) => {
-            const playCount = group.formations.reduce((sum, f) => sum + f.plays.length, 0);
-            return (
-              <button
-                key={group.group}
-                type="button"
-                className="flex min-h-[44px] w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left"
-                onClick={() => setGroupIdx(idx)}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate font-sans text-sm font-bold text-slate-100">{group.group}</span>
-                  <span className="block truncate font-mono text-[10px] text-slate-500">
-                    {group.formations.length} formations · {playCount} plays
-                  </span>
-                </span>
-                <span className="font-mono text-xs text-slate-500">›</span>
-              </button>
-            );
-          })}
-        </div>
-      ) : formationIdx == null && selectedGroup ? (
-        <div className="space-y-2 overflow-y-auto pb-4">
-          <button type="button" className="min-h-11 text-left font-sans text-sm text-slate-300" onClick={() => setGroupIdx(null)}>
-            ‹ Back {selectedGroup.group}
-          </button>
-          {selectedGroup.formations.map((formation, idx) => (
-            <button
-              key={formation.name}
-              type="button"
-              className="flex min-h-[44px] w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left"
-              onClick={() => setFormationIdx(idx)}
-            >
-              <span className="truncate font-sans text-sm text-slate-100">{formation.name}</span>
-              <span className="font-mono text-xs text-slate-500">{formation.plays.length} plays ›</span>
-            </button>
-          ))}
-        </div>
+        <>
+          {level1Header}
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 pt-0 pb-4">
+            {filtered.map((play) => (
+              <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
+            ))}
+          </div>
+        </>
+      ) : step === "formations" ? (
+        <>
+          {level1Header}
+          <div className="min-h-0 flex-1 overflow-y-auto pt-0 pb-4">
+            {groups.map((group) => (
+              <div key={group.group}>
+                <div className="sticky top-0 z-[1] bg-slate-950 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+                  {group.group.toUpperCase()}
+                </div>
+                <div className="grid grid-cols-2 gap-2 px-4 pb-2">
+                  {group.formations.map((formation) => (
+                    <button
+                      key={`${group.group}::${formation.name}`}
+                      type="button"
+                      className="min-h-[44px] truncate rounded-lg border border-slate-700 bg-slate-800 px-3 py-3 text-left text-sm font-medium text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                      onClick={() => {
+                        setSelectedFormation({ group: group.group, name: formation.name });
+                        setStep("plays");
+                      }}
+                    >
+                      {formation.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : selectedFormation ? (
-        <div className="space-y-2 overflow-y-auto pb-4">
-          <button type="button" className="min-h-11 text-left font-sans text-sm text-slate-300" onClick={() => setFormationIdx(null)}>
-            ‹ Back {selectedFormation.name}
-          </button>
-          {selectedFormation.plays.map((play) => (
-            <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
-          ))}
-        </div>
+        <>
+          {playsViewHeader}
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 pt-0 pb-4">
+            {selectedPlays.map((play) => (
+              <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
+            ))}
+          </div>
+        </>
       ) : null}
     </div>
   );
