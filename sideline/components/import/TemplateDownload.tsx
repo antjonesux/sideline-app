@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 const REQUIRED_COLS = [
   { key: "drive_number", desc: "Sequential drive number, starting at 1." },
@@ -85,7 +86,9 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
                 className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 font-body text-[10px] uppercase tracking-wide text-emerald-200"
               >
                 {c.key}
-                <span className="text-emerald-500">✓</span>
+                <svg className="h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
               </span>
             ))}
             {OPTIONAL_COLS.map((c) => (

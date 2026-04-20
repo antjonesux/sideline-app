@@ -31,6 +31,8 @@ export type LoggedPlay = {
   yards_gained: number;
   result_tag: string;
   note?: string | null;
+  /** Canonical RUN | PASS | RPO from `cfb26_plays`, kept in sync on write. */
+  play_type?: "RUN" | "PASS" | "RPO" | null;
   /** UX flag when distance is 1 — stored as distance 1; same scenario buckets as 1 yard. */
   is_inches?: boolean | null;
 };
@@ -78,6 +80,8 @@ export type SheetPlayRow = {
   formation: string;
   play_name: string;
   script_note: string | null;
+  /** Joined from `cfb26_plays` for the sheet's CFB26 playbook (same source as Tendencies). */
+  play_type?: string | null;
 };
 
 export type SheetScenarioBlock = {

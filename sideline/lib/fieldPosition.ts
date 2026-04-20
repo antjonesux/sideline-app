@@ -32,3 +32,11 @@ export function parseFieldPosition(side: Side, number: number): number {
 export function yardsToEndZone(absYard: number): number {
   return Math.max(1, 100 - Math.min(99, Math.max(1, Math.round(absYard))));
 }
+
+/** Net yards toward the opponent goal from pre-snap absolute yard to ending OWN/OPP yard line (1–50). */
+export function deriveYards(startFP: number, endSide: "OWN" | "OPP", endYard: number): number {
+  const clampedYard = Math.min(50, Math.max(1, Math.round(endYard)));
+  const endFP = endSide === "OWN" ? clampedYard : 100 - clampedYard;
+  const start = Math.min(99, Math.max(1, Math.round(startFP)));
+  return endFP - start;
+}

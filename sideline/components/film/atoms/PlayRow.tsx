@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { LoggedPlay } from "@/lib/types";
@@ -102,9 +103,9 @@ export function PlayRow(props: PlayRowProps) {
                 onDeletePress();
               }}
             >
-              <span className="text-[12px]" aria-hidden>
-                ✕
-              </span>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                <path d="M6 6 18 18M18 6 6 18" />
+              </svg>
             </button>
           )}
         </div>
@@ -113,6 +114,7 @@ export function PlayRow(props: PlayRowProps) {
   }
 
   const { play, onSelect } = props;
+  // QA24: Badge uses `play.play_type` on PlaybookEntry — populated from `cfb26_plays` + `resolveCfbDisplayPlayType` (same ladder as Tendencies `attachPlayTypes`), not name-only inference.
   const playType = getPlayType(play.play_type);
   return (
     <button

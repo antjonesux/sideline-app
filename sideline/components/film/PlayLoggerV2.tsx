@@ -78,7 +78,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
     setView("yardage");
   }
 
-  async function handleLog(yards: number, result: PlayResult | null) {
+  async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number) {
     if (!selectedPlay) return;
     const uiTag =
       result === "PUNT"
@@ -257,17 +257,30 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
       >
         {view === "suggestions" ? (
           <>
-            <div className="px-4 mb-3">
+            <div className="mb-3 px-4">
               <button
                 type="button"
-                className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-950 px-3 text-left"
+                className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
                 onClick={() => setBrowserOpen(true)}
               >
-                <span>
-                  <span className="block font-sans text-sm text-slate-400">Search plays & formations</span>
-                  <span className="block font-mono text-[10px] text-slate-500">Browse playbook</span>
-                </span>
-                <span className="font-mono text-xs text-slate-500">›</span>
+                <div>
+                  <p className="font-sans text-sm font-medium text-slate-300">Search plays & formations</p>
+                  <p className="mt-0.5 font-mono text-[10px] text-slate-500">Browse playbook</p>
+                </div>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-4 shrink-0 -rotate-90 text-slate-500"
+                  aria-hidden
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
               </button>
             </div>
 

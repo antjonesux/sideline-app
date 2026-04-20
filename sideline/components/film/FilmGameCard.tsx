@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -49,7 +50,7 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
     }
   }
 
-  const myScoreClass = game.result === "W" ? "text-[#10B981]" : game.result === "L" ? "text-[#C0392B]" : "text-slate-100";
+  const myScoreClass = game.result === "W" ? "text-emerald-500" : game.result === "L" ? "text-red-600" : "text-slate-100";
 
   return (
     <li className="relative">

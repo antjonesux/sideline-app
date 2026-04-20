@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -85,7 +86,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       className={`mx-auto flex flex-col border border-slate-700 bg-slate-900 shadow-xl ${
         variant === "page"
           ? "w-full max-w-lg rounded-xl"
-          : "m-0 max-h-[85vh] w-full overflow-y-auto rounded-t-2xl sm:w-full sm:max-w-lg sm:rounded-xl"
+          : "m-0 max-h-[85vh] w-full overflow-y-auto rounded-xl sm:w-full sm:max-w-lg"
       }`}
     >
       <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
@@ -98,7 +99,9 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
           </div>
           {variant === "modal" ? (
             <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => onClose?.()}>
-              <span aria-hidden>✕</span>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                <path d="M6 6 18 18M18 6 6 18" />
+              </svg>
               <span className="sr-only">Close</span>
             </button>
           ) : null}

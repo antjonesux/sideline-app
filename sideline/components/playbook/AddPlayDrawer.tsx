@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { useScrollLock } from "@/lib/useScrollLock";
@@ -37,12 +38,12 @@ export function AddPlayDrawer({
         aria-labelledby="add-play-drawer-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border border-slate-800 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
+        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh]">
           <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
             <div className="min-w-0">
               <h2
                 id="add-play-drawer-title"
-                className="font-display text-base font-bold uppercase tracking-wider text-white"
+                className="font-display text-base font-bold uppercase tracking-wider text-slate-100"
               >
                 Add play
               </h2>
@@ -55,7 +56,9 @@ export function AddPlayDrawer({
                 onClose();
               }}
             >
-              <span aria-hidden>✕</span>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                <path d="M6 6 18 18M18 6 6 18" />
+              </svg>
               <span className="sr-only">Close</span>
             </button>
           </div>
@@ -63,6 +66,7 @@ export function AddPlayDrawer({
             <PlayBrowser
               playbook={cfb26Playbook}
               onClose={onClose}
+              showTopLevelBack={false}
               onSelect={(play) => {
                 void onPick(play.formation, normalizePlayName(play.play_name));
                 onClose();

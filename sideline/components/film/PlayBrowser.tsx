@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useMemo, useState } from "react";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
@@ -11,6 +12,8 @@ interface PlayBrowserProps {
   playbook: string;
   onSelect: (play: PlaybookEntry) => void;
   onClose: () => void;
+  /** Level 1 only: hides the header Back that dismisses the overlay (e.g. Game Plan modal uses close icon). Level 2 always shows Back to formations. */
+  showTopLevelBack?: boolean;
 }
 
 const browserBackButtonClass =
@@ -24,7 +27,7 @@ function stripGroupPrefix(formationName: string, groupName: string): string {
   return formationName;
 }
 
-export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
+export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = true }: PlayBrowserProps) {
   const { groups, entries } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
@@ -60,9 +63,11 @@ export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
   const level1Header = (
     <div className="w-full border-b border-slate-700 bg-slate-900">
       <div className="flex w-full items-center gap-3 px-4 py-3">
-        <button type="button" className={browserBackButtonClass} onClick={onClose}>
-          Back
-        </button>
+        {showTopLevelBack ? (
+          <button type="button" className={browserBackButtonClass} onClick={onClose}>
+            Back
+          </button>
+        ) : null}
         <input
           type="text"
           value={query}
@@ -123,7 +128,7 @@ export function PlayBrowser({ playbook, onSelect, onClose }: PlayBrowserProps) {
                 >
                   {group.group.toUpperCase()}
                 </div>
-                <div className="grid w-full grid-cols-2 gap-2 px-4 pb-2 pt-2">
+                <div className="grid w-full grid-cols-2 gap-2 px-4">
                   {group.formations.map((formation) => (
                     <button
                       key={`${group.group}::${formation.name}`}

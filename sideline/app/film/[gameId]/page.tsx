@@ -1,10 +1,10 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
-import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
@@ -81,7 +81,7 @@ function getDriveSummaryOutcomeLabel(
 function DriveSummaryOutcomeBadge({ label }: { label: string }) {
   if (label === "NO PLAYS" || label === "ACTIVE" || label === "RECORDED" || label === "GAME ENDED") {
     return (
-      <span className="font-mono shrink-0 rounded-full border border-[#2A2E3A] bg-[#1C1F28] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#A0A3AD]">
+      <span className="font-mono shrink-0 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-400">
         {label}
       </span>
     );
@@ -169,7 +169,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         if (cancelled) return;
         setGame(g);
         setDrives(d);
-        setExpandedDriveIds([]);
+        const lastId = d[d.length - 1]?.id;
+        setExpandedDriveIds(lastId ? [lastId] : []);
         setActiveDrive((current) => current || d[0]?.id || "");
       } finally {
         if (!cancelled) setPageReady(true);
@@ -405,75 +406,48 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   const filmGameSecondaryActionClass =
-    "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white";
+    "inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
   return (
     <section className="space-y-0">
-      <div
-        className="sticky top-0 z-10 -mx-4 bg-slate-950 px-4 sm:-mx-6 sm:px-6"
-        data-sticky-game-header
-      >
-        <div className="max-w-none space-y-2 pb-2 pt-1">
-          <BackToFilmLink />
+      <div className="space-y-3 pb-4">
+        <BackToFilmLink />
+        <h1 className="app-game-title w-full min-w-0 text-lg leading-snug sm:text-xl">
+          {game ? (
+            <>
+              {game.my_playbook}
+              <span className="mx-2 font-body font-normal text-slate-500">vs</span>
+              {game.opponent_team}
+            </>
+          ) : (
+            "…"
+          )}
+        </h1>
 
-          <div className="flex items-start justify-between gap-3">
-            <h1 className="app-game-title min-w-0 text-lg leading-snug sm:text-xl">
-              {game ? (
-                <>
-                  {game.my_playbook}
-                  <span className="mx-2 font-body font-normal text-slate-500">vs</span>
-                  {game.opponent_team}
-                </>
-              ) : (
-                "…"
-              )}
-            </h1>
-            {game ? (
-              <EditGameDetailsModal
-                gameId={gameId}
-                game={game}
-                onSaved={async (g) => {
-                  setGame(g);
-                  await refresh();
-                }}
-              />
-            ) : null}
-          </div>
-
-          <p className="font-body text-sm text-slate-400">
-            <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
-            <span className="mx-2 font-mono tabular-nums text-slate-200">
-              {scoreMine} – {scoreOpp}
-            </span>
-            {game?.game_date ? (
-              <>
-                <span className="mx-2 text-slate-600">·</span>
-                <span>{formatDate(game.game_date)}</span>
-              </>
-            ) : null}
-          </p>
-          <div className="app-horizontal-scroll-strip">
-            <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
-          </div>
+        <p className="font-body text-sm text-slate-400">
+          <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
+          <span className="mx-2 font-mono tabular-nums text-slate-200">
+            {scoreMine} – {scoreOpp}
+          </span>
+          {game?.game_date ? (
+            <>
+              <span className="mx-2 text-slate-600">·</span>
+              <span>{formatDate(game.game_date)}</span>
+            </>
+          ) : null}
+        </p>
+        <div className="app-horizontal-scroll-strip">
+          <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
         </div>
-
-        <div className="mt-3 mb-4 flex flex-wrap gap-2">
+        <div className="flex min-h-11 flex-wrap gap-2">
           <button type="button" onClick={() => setShowDriveSetup(true)} className={filmGameSecondaryActionClass}>
+            <span className="mr-2 inline-flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" aria-hidden />
             Add Drive
           </button>
-          {isGameEnded ? (
-            <button type="button" onClick={() => void setGameEnded(false)} className={filmGameSecondaryActionClass}>
-              Resume Game
-            </button>
-          ) : (
-            <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
-              End Game
-            </button>
-          )}
-          <Link
-            href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`}
-            className={filmGameSecondaryActionClass}
-          >
+          <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
+            End Game
+          </button>
+          <Link href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`} className={filmGameSecondaryActionClass}>
             Upload CSV
           </Link>
         </div>
@@ -485,7 +459,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             aria-selected={detailTab === "drives"}
             onClick={() => setDetailTab("drives")}
             className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
-              detailTab === "drives" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
+              detailTab === "drives" ? "border-emerald-500 text-slate-100" : "border-transparent text-slate-400"
             }`}
           >
             Drive Summary
@@ -496,7 +470,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             aria-selected={detailTab === "tendencies"}
             onClick={() => setDetailTab("tendencies")}
             className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
-              detailTab === "tendencies" ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
+              detailTab === "tendencies" ? "border-emerald-500 text-slate-100" : "border-transparent text-slate-400"
             }`}
           >
             Tendencies
@@ -514,8 +488,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             <div className="flex flex-col gap-3">
             {drives.map((drive) => {
         const playCount = drive.plays?.length ?? 0;
-        const yardsGained = (drive.plays ?? []).reduce((sum, p) => sum + p.yards_gained, 0);
-        const yardsLabel = yardsGained >= 0 ? `+${yardsGained}` : String(yardsGained);
         const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
         const isExpanded = expandedDriveIds.includes(drive.id);
         const mine = drive.score_mine ?? 0;
@@ -533,80 +505,56 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
         const quarterMeta =
           drive.quarter != null && drive.quarter >= 5 ? "OT" : drive.quarter != null ? `Q${drive.quarter}` : "Q1";
-        const row2Parts = [
-          quarterMeta,
-          `${mine}-${theirs}`,
-          `${playCount} ${playCount === 1 ? "call" : "calls"}`,
-          ...(playCount > 0 ? [`${yardsLabel} yds`] : []),
-        ];
+        const metaLine = `${quarterMeta} · ${mine}-${theirs} · ${playCount} ${playCount === 1 ? "call" : "calls"}`;
 
         return (
           <div key={drive.id} className="app-card overflow-hidden rounded-xl">
-            <div className="app-accordion-header-row border-b border-slate-800/60 p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <button
-                    type="button"
-                    className="app-no-press-scale flex w-full min-w-0 flex-wrap items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                    onClick={toggleDriveExpanded}
-                  >
-                    <span className="app-drive-number font-display shrink-0 text-sm font-semibold uppercase tracking-wide">
-                      Drive {drive.drive_number}
-                    </span>
-                    <span className="shrink-0">
-                      <DriveSummaryOutcomeBadge label={outcomeLabel} />
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className="app-no-press-scale w-full text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-500"
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                    onClick={toggleDriveExpanded}
-                  >
-                    <span className="font-mono text-xs text-slate-400">{row2Parts.join(" · ")}</span>
-                  </button>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <DropdownMenu
-                    clampMenuBelowSelector="[data-sticky-game-header]"
-                    aria-label="Drive actions"
-                    items={[
-                      {
-                        label: "Delete Drive",
-                        destructive: true,
-                        onClick: () => {
-                          setPendingDriveDelete(drive.id);
-                        },
-                      },
-                    ]}
-                  />
-                  <button
-                    type="button"
-                    className="app-no-press-scale inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
-                    onClick={toggleDriveExpanded}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`accordion-chevron size-4 shrink-0 text-current ${isExpanded ? "open" : ""}`}
-                      aria-hidden
-                    >
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 border-b border-slate-800/60 px-4 py-3">
+              <button
+                type="button"
+                className="app-no-press-scale flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                onClick={toggleDriveExpanded}
+              >
+                <span className="shrink-0 font-mono text-sm font-bold uppercase tracking-wide text-amber-400">
+                  DRIVE {drive.drive_number}
+                </span>
+                <span className="shrink-0">
+                  <DriveSummaryOutcomeBadge label={outcomeLabel} />
+                </span>
+                <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-500">{metaLine}</span>
+              </button>
+              <DropdownMenu
+                aria-label="Drive actions"
+                items={[
+                  {
+                    label: "Delete Drive",
+                    destructive: true,
+                    onClick: () => {
+                      setPendingDriveDelete(drive.id);
+                    },
+                  },
+                ]}
+              />
+              <button
+                type="button"
+                className="app-no-press-scale inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
+                onClick={toggleDriveExpanded}
+              >
+                <svg
+                  className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  aria-hidden
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
             </div>
 
             {isExpanded ? (
@@ -720,6 +668,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </div>
         );
       })}
+              {drives.length > 0 ? (
+                <button
+                  type="button"
+                  className="btn-secondary w-full border-dashed py-3 text-sm"
+                  onClick={() => setShowDriveSetup(true)}
+                >
+                  Add Drive
+                </button>
+              ) : null}
             </div>
 
             {game && showPartialWarning ? (
@@ -740,11 +697,13 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             className="fixed inset-x-0 bottom-0 z-[191] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 sm:max-h-[85vh] sm:rounded-xl">
+            <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:max-h-[85vh]">
               <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">End game</h2>
                 <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
-                  <span aria-hidden>✕</span>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
                   <span className="sr-only">Close</span>
                 </button>
               </div>
@@ -769,10 +728,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       {showDriveSetup && game ? (
         <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
           <div className="fixed inset-x-0 bottom-0 z-[196] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 sm:rounded-xl">
+            <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-800 p-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Drive Setup</h2>
-                <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>✕</button>
+                <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
+                  <span className="sr-only">Close</span>
+                </button>
               </div>
               <DriveSetupForm
                 defaultValues={{
@@ -817,9 +781,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border border-slate-800 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh]">
               <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">Play Logger</h2>
+                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Play Logger</h2>
                 <button
                   type="button"
                   className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
@@ -827,7 +791,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     setShowLogger(false);
                   }}
                 >
-                  <span aria-hidden>✕</span>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
                   <span className="sr-only">Close</span>
                 </button>
               </div>

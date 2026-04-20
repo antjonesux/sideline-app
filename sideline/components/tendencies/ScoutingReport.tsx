@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TENDENCIES_SCENARIOS } from "@/lib/constants";
 import type { ScoutingReportRow } from "@/lib/tendenciesServer";
@@ -108,8 +109,12 @@ export function ScoutingReport({ rows }: Props) {
                             </span>
                           </p>
                           {underVsSituation ? (
-                            <p className="font-sans text-xs text-amber-400">
-                              ⚠️ Below your {r.scenario} avg
+                            <p className="inline-flex items-center gap-1 font-sans text-xs text-amber-400">
+                              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                                <path d="M12 8v5m0 4h.01" />
+                                <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
+                              </svg>
+                              Below your {r.scenario} avg
                             </p>
                           ) : null}
                         </div>

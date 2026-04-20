@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { LoggedPlay } from "@/lib/types";
 import { formatPlaySnapDnDist } from "@/lib/formatDownDistance";
@@ -18,8 +19,8 @@ function yardsClass(y: number): string {
 
 function resultBadge(tag: string): { label: string; className: string } {
   const u = tag.toUpperCase();
-  if (u === "FIRST_DOWN") return { label: "1ST ↓", className: "border-emerald-700 bg-emerald-900/50 text-emerald-300" };
-  if (u === "TOUCHDOWN") return { label: "TD ↑", className: "border-emerald-700 bg-emerald-900/50 text-emerald-300" };
+  if (u === "FIRST_DOWN") return { label: "1ST DOWN", className: "border-emerald-700 bg-emerald-900/50 text-emerald-300" };
+  if (u === "TOUCHDOWN") return { label: "TD", className: "border-emerald-700 bg-emerald-900/50 text-emerald-300" };
   if (u === "GAIN") return { label: "GAIN", className: "border-blue-700 bg-blue-900/50 text-blue-300" };
   if (u === "NO_GAIN") return { label: "NO GAIN", className: "border-slate-600 bg-slate-700/50 text-slate-200" };
   if (u === "LOSS") return { label: "LOSS", className: "border-red-700 bg-red-900/50 text-red-300" };
@@ -60,7 +61,7 @@ export function PlayLogFeedRow({ play, driveFallback, showDriveRule, onSelect, o
           {formatPlaySnapDnDist(play.down, play.distance, play.is_inches).replace("-", "&")}
         </span>
         <span className="shrink-0 text-slate-400">{pos}</span>
-        <span className="min-w-0 flex-1 truncate text-white">{label}</span>
+        <span className="min-w-0 flex-1 truncate text-slate-100">{label}</span>
         <span className={`shrink-0 font-medium tabular-nums ${yardsClass(y)}`}>{yardsDisplay(y)}</span>
         <span
           className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badge.className}`}
@@ -77,7 +78,7 @@ export function PlayLogFeedRow({ play, driveFallback, showDriveRule, onSelect, o
           onDelete();
         }}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
           <path d="M3 6h18M8 6V4h8v2m-1 0v14H9V6h6z" />
         </svg>
       </button>

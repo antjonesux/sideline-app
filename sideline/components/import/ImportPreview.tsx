@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useImportStore } from "@/store/importStore";
 import { useMemo, useState } from "react";
@@ -56,8 +57,14 @@ export function ImportPreview({ onReupload, onNext }: Props) {
       {issueRowCount > 0 ? (
         <div className="rounded-lg border border-red-800/30 bg-red-900/20 p-4 text-sm text-red-200" role="alert">
           <button type="button" className="flex w-full items-start justify-between gap-2 text-left" onClick={() => setExpandErrors((e) => !e)}>
-            <span className="font-body">⚠ {issueRowCount} row(s) with issues (will be skipped on import)</span>
-            <span className="shrink-0 font-body text-xs text-red-300/80">{expandErrors ? "▲" : "▼"}</span>
+            <span className="inline-flex items-center gap-1 font-body">
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M12 8v5m0 4h.01" />
+                <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
+              </svg>
+              {issueRowCount} row(s) with issues (will be skipped on import)
+            </span>
+            <span className="shrink-0 font-body text-xs text-red-300/80">{expandErrors ? "Collapse" : "Expand"}</span>
           </button>
           {expandErrors ? (
             <ul className="mt-3 list-inside list-disc space-y-1 text-xs text-red-100/90">

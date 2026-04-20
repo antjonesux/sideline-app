@@ -1,3 +1,4 @@
+import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { supabase } from "@/lib/supabase";
 import { normalizePlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
   const { data } = await supabase
     .from("cfb26_plays")
     .select("formation, play_name")
-    .eq("playbook", playbook)
+    .ilike("playbook", playbookIlikeExactPattern(playbook))
     .order("formation", { ascending: true })
     .order("play_name", { ascending: true });
 

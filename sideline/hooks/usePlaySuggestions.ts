@@ -1,8 +1,9 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useMemo, useState } from "react";
 import type { LoggedPlay } from "@/lib/types";
-import { inferPlayType, deriveFormationGroup, type PlaybookEntry } from "@/lib/playbook";
+import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
 import { supabase } from "@/lib/supabase";
 
 type Args = {
@@ -26,6 +27,28 @@ function biasTerms(down: number, distance: number, fieldPos: number): string[] {
 }
 
 export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook }: Args) {
+  /**
+   * usePlaySuggestions
+   *
+   * Returns context-aware suggestions from the selected CFB26 playbook plus a short
+   * "recent calls" list from this game.
+   *
+   * ALGORITHM:
+   * - Pull all plays for the active playbook from `/api/cfb26-plays`.
+   * - Build situation bias terms from `(down, distance, fieldPos)` using `biasTerms`.
+   * - Score each play by how many bias terms appear in the lowercased play name.
+   * - Keep plays with score > 0, sort by score desc then name asc, return top 6.
+   * - Pull up to 200 recent `logged_plays` rows, then keep the latest 8 unique
+   *   `formation + play_name` combinations.
+   * - Hide recent rows that are already present in the suggestion list.
+   *
+   * FUTURE IMPROVEMENTS (not yet implemented):
+   * - Weight by historical efficiency/usage across similar situations
+   * - Exclude plays already called on the current drive
+   * - Add opponent-adjusted weighting once opponent tendency context is available
+   *
+   * Suggestions re-derive when `(down, distance, fieldPos)` changes.
+   */
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
   const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
 
@@ -37,15 +60,18 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
     let cancelled = false;
     void (async () => {
       const res = await fetch(`/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`, { cache: "no-store" });
-      const json = (await res.json()) as { rows?: Array<{ formation: string; play_name: string }> };
+      const json = (await res.json()) as {
+        rows?: Array<{ formation: string; play_name: string; play_type?: string | null }>;
+      };
       if (!res.ok || cancelled) return;
+      // Suggestions badges should mirror PlayBrowser/canonical CFB play type resolution.
       setPlaybookEntries(
         (json.rows ?? []).map((row) => ({
           play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
           formation: row.formation,
           group: deriveFormationGroup(row.formation),
           play_name: row.play_name,
-          play_type: inferPlayType(row.play_name),
+          play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
         })),
       );
     })();

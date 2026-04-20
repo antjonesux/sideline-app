@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { closeAllDropdownMenusExcept, registerDropdownMenuCloser } from "@/lib/dropdownMenuRegistry";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -113,9 +114,9 @@ export function DropdownMenu({
         aria-expanded={isOpen}
         aria-label={ariaLabel}
         onClick={handleToggle}
-        className={`app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-[#A0A3AD] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${triggerClassName}`}
+        className={`app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${triggerClassName}`}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
           <circle cx="12" cy="5" r="1.75" />
           <circle cx="12" cy="12" r="1.75" />
           <circle cx="12" cy="19" r="1.75" />

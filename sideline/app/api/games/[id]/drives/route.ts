@@ -1,3 +1,4 @@
+import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
 import { supabase } from "@/lib/supabase";
 import { withNormalizedPlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -23,10 +24,33 @@ export async function GET(_: NextRequest, ctx: Ctx) {
   const { data, error } = await supabase.from("drives").select("*").eq("game_session_id", id).order("drive_number", { ascending: true });
   if (error) return NextResponse.json([], { status: 200 });
 
+  const { data: gameSession } = await supabase
+    .from("game_sessions")
+    .select("id, my_playbook, offensive_playbook")
+    .eq("id", id)
+    .maybeSingle();
+  const pb = gameSession ? playbookForGame(gameSession as GameRow) : "";
+  const typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []);
+
   const withPlays = await Promise.all(
     (data ?? []).map(async (drive) => {
       const { data: plays } = await supabase.from("logged_plays").select("*").eq("drive_id", drive.id).order("play_number", { ascending: true });
-      return { ...drive, plays: (plays ?? []).map(withNormalizedPlayName) };
+      return {
+        ...drive,
+        plays: (plays ?? []).map((p) => {
+          const normalized = withNormalizedPlayName(p);
+          return {
+            ...normalized,
+            play_type: storedPlayTypeFromMap(
+              pb,
+              normalized.formation,
+              normalized.play_name,
+              typeMap,
+              (normalized as { play_type?: string | null }).play_type,
+            ),
+          };
+        }),
+      };
     }),
   );
 

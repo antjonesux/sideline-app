@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
+import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
 import { SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
@@ -152,7 +154,8 @@ function sanitizeIlikeTerm(raw: string): string {
   return raw.replace(/[%_"]/g, (m) => `\\${m}`).trim();
 }
 
-function lookupKey(playbook: string, formation: string, playName: string): PlayLookupKey {
+/** Normalized (playbook, formation, play_name) key — must match SQL `LOWER(TRIM(...))` join semantics via the same normalization ladder. */
+export function playTypeLookupKey(playbook: string, formation: string, playName: string): PlayLookupKey {
   return `${normalizeLookupPart(playbook)}|${normalizeLookupPart(formation)}|${normalizePlayName(playName).toLowerCase()}`;
 }
 
@@ -200,7 +203,7 @@ export async function fetchCfbPlayTypeMap(
       const n = normalizePlayName(String(row.play_name ?? ""));
       const pt = String(row.play_type ?? "").trim();
       if (!pb || !f || !n) continue;
-      map.set(lookupKey(pb, f, n), pt);
+      map.set(playTypeLookupKey(pb, f, n), pt);
     }
   }
   return map;
@@ -214,11 +217,15 @@ export function attachPlayTypes(
   return plays.map((p) => {
     const g = gamesById.get(p.game_session_id);
     const pb = g ? playbookForGame(g) : "";
-    const key = pb ? lookupKey(pb, p.formation, p.play_name) : "";
+    const key = pb ? playTypeLookupKey(pb, p.formation, p.play_name) : "";
     const matched = key ? cfbTypes.has(key) : false;
+    // QA24: Tendencies prefer `cfb26_plays.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Game Plan UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
     const fromLookup = matched ? (cfbTypes.get(key) ?? "").trim() : "";
     const derived = deriveCfbPlayTypeFromName(p.play_name);
-    const raw = fromLookup || derived;
+    let raw = fromLookup || derived;
+    if (fromLookup && shouldOverrideCfbPassLabelToRun(p.play_name, fromLookup)) {
+      raw = "inside_run";
+    }
     return { bucket: categorizeCfbPlayType(raw), matched, rawType: raw };
   });
 }
@@ -392,7 +399,7 @@ export function bestPlayForFormation(plays: LoggedPlayRow[], formation: string, 
 export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook: string) {
   const pb = playbook.trim();
   if (!pb) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
-  const { data, error } = await supabase.from("cfb26_plays").select("play_name").eq("playbook", pb);
+  const { data, error } = await supabase.from("cfb26_plays").select("play_name").ilike("playbook", playbookIlikeExactPattern(pb));
   if (error) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const names = (data ?? []).map((r) => normalizePlayName(String(r.play_name ?? "")));
   let motion = 0;

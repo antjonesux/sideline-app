@@ -1,7 +1,8 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useMemo, useState } from "react";
-import { deriveFormationGroup, inferPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
 
 export type FormationGroup = {
   group: string;
@@ -28,16 +29,17 @@ export function useFormationGroups(playbook: string) {
           cache: "no-store",
         });
         const json = (await res.json()) as {
-          rows?: Array<{ formation: string; play_name: string }>;
+          rows?: Array<{ formation: string; play_name: string; play_type?: string | null }>;
         };
         if (!res.ok || cancelled) return;
+        // PlayBrowser badges must reflect canonical `cfb26_plays.play_type` (no numbered-call override).
         setRows(
           (json.rows ?? []).map((row) => ({
             play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
             formation: row.formation,
             group: deriveFormationGroup(row.formation),
             play_name: row.play_name,
-            play_type: inferPlayType(row.play_name),
+            play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
           })),
         );
       } finally {

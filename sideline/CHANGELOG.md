@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-20 (play type resolution parity + logged play backfill + dedupe migration)
+
+**What:** Added shared play-type resolution utilities (`playTypeResolution`) so Film and Playbook paths use the same lookup and fallback ladder as Tendencies (`cfb26_plays` map first, then stored type, then name-based fallback). Updated APIs and UI surfaces to consume normalized `RUN`/`PASS`/`RPO` output consistently across play rows, suggestions, browser flows, import preview, and tendencies displays. Added Supabase migrations to (1) create and backfill `logged_plays.play_type` from `cfb26_plays` with canonical constraints, (2) map granular CFB labels to badge categories, (3) override numbered personnel calls that should render as run, and (4) deduplicate normalized play names in `play_sheet_plays`.
+
+**Why:** Live logging, tendencies reports, and playbook browse showed drift when play-type data came from different paths or mixed-case playbook labels; historical logs also needed a canonical play-type value for reliable badges and filtering.
+
+**Decisions:** Keep the canonical badge domain strict (`RUN`/`PASS`/`RPO`) and force safe `RUN` fallback for null/unknown values; preserve numbered-call run semantics even when source metadata labels a call as pass-family.
+
+**Status after this push:** App code and database migrations are aligned on one play-type resolution path; apply the 2026-04-19/2026-04-20 Supabase migrations on staging before production.
+
+---
+
 ## 2026-04-19 (film QA22 + Play Logger modal + Game Plan add play + drive setup)
 
 **What:** Film `PlayLoggerV2`: single horizontal system (`w-full`, `px-4` wrappers, no `mx-*`); removed sticky header `-mx-3` so drive chrome aligns with body; `LoggerView` toggles suggestions vs inline `YardageSheet` (no bottom sheet / overlay); sticky drive row stays visible in yardage view; `+20` yard chip label fixed. `PlayBrowser`: scroll content and headers share `px-4`; section labels no longer use `bg-slate-950` or sticky (avoids transparent overlap). Film game details: Play Logger modal body uses full width under the title row (`overflow-hidden` wrapper, no extra `p-3`). `DriveSetupForm`: quarter as `Quarter` union with preset chip row (1–4, OT), grouped score and field labels, clearer layout for new-drive setup. Game Plan `AddPlayDrawer`: same modal shell as film Play Logger (`bg-black/60`, `z-[200]`/`[201]`, full-height mobile, `sm:max-w-4xl`), embeds shared `PlayBrowser` for pick flow; `PlaybookEditor` stops passing stats props into the drawer.

@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns, type DrivePlayTableRow } from "@/components/shared/drivePlayTableColumns";
@@ -59,7 +60,7 @@ export function ImportPreviewDrives({ rows }: Props) {
 
         const playCount = plays.length;
         const yardsLabel = yards >= 0 ? `+${yards}` : String(yards);
-        const yardsClass = yards > 0 ? "text-[#10B981]" : yards < 0 ? "text-[#C0392B]" : "text-[#A0A3AD]";
+        const yardsClass = yards > 0 ? "text-emerald-500" : yards < 0 ? "text-red-600" : "text-slate-400";
         const lastResultCanon = last ? normalizeCsvResult(last.result) : null;
 
         return (

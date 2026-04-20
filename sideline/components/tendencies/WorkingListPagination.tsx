@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 export const WORKING_LIST_PAGE_SIZE = 20;
 
@@ -24,7 +25,7 @@ export function WorkingListPagination({ page, totalItems, onPageChange }: Props)
           onClick={() => canPrev && onPageChange(page - 1)}
           className="min-h-[44px] min-w-[44px] shrink-0 px-2 font-body text-sm text-slate-400 hover:text-slate-200 disabled:cursor-not-allowed disabled:text-slate-600 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
         >
-          ← Previous
+          Previous
         </button>
         <span className="shrink-0 font-mono text-[11px] tabular-nums text-slate-500">
           Page {page} of {totalPages}
@@ -35,7 +36,7 @@ export function WorkingListPagination({ page, totalItems, onPageChange }: Props)
           onClick={() => canNext && onPageChange(page + 1)}
           className="min-h-[44px] min-w-[44px] shrink-0 px-2 font-body text-sm text-slate-400 hover:text-slate-200 disabled:cursor-not-allowed disabled:text-slate-600 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
         >
-          Next →
+          Next
         </button>
       </div>
     </div>

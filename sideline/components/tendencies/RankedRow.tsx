@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 type Props = {
   rank: number;
@@ -37,7 +38,7 @@ export function RankedRow({
     );
   }
 
-  const fill = variant === "emerald" ? "bg-emerald-500" : "bg-[#C0392B]";
+  const fill = variant === "emerald" ? "text-emerald-500" : "text-red-600";
   const pct = Math.max(0, Math.min(100, successRate));
   return (
     <div className="border-b border-slate-800/90 py-3 last:border-0">
@@ -46,7 +47,9 @@ export function RankedRow({
         <div className="min-w-0 flex-1 space-y-2">
           <div className="font-body text-[15px] leading-snug text-slate-100">{title}</div>
           <div className="h-[6px] w-full overflow-hidden rounded-full bg-slate-700">
-            <div className={`h-full rounded-full transition-all ${fill}`} style={{ width: `${pct}%` }} />
+            <svg className={`h-full w-full ${fill}`} viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden>
+              <rect x="0" y="0" width={pct} height="6" rx="3" fill="currentColor" />
+            </svg>
           </div>
           <p className="font-body text-[11px] text-slate-500">
             <span className="font-mono tabular-nums text-slate-300">{successRate}%</span>

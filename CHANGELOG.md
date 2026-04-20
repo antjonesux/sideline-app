@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-20 — Play type resolution parity, logged-play backfill, and dedupe migration
+
+### What
+
+- Added shared play-type resolution helpers so Film and Playbook use the same matching ladder as Tendencies (`cfb26_plays` lookup by normalized keys, then stored value, then safe fallback).
+- Updated affected Film, Playbook, Import, and Tendencies surfaces to consistently render canonical `RUN` / `PASS` / `RPO` badges from the unified resolver.
+- Added Supabase migrations to populate and constrain `logged_plays.play_type`, map granular CFB labels into badge categories, apply numbered-call run overrides, and deduplicate normalized `play_sheet_plays.play_name` entries.
+
+### Why
+
+- Play-type values drifted across features because different routes and components used different lookup and fallback paths; historical logged plays also lacked a consistent canonical type.
+
+### Status after this push
+
+- App and DB now share one play-type normalization contract. Run the new 2026-04-20 migrations on staging before production.
+
+---
+
 ## 2026-04-19 — Film QA22, Play Logger modal width, Game Plan add play, drive setup
 
 ### What

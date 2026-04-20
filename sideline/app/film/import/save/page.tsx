@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
@@ -320,7 +321,7 @@ export default function FilmImportSavePage() {
             }}
             className="btn-secondary-block py-3 text-sm"
           >
-            ← Back to preview
+            Back to preview
           </button>
         </form>
         )}

@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { ScoutingFormationReportRow } from "@/lib/tendenciesServer";
 import { successRateTextClass } from "@/lib/successRateTextClass";
@@ -96,7 +97,13 @@ export function ScoutingFormationsReport({ rows }: Props) {
             <div className="border-t border-slate-800/80 bg-slate-800/40 px-4 py-3">
               <p className="font-sans text-sm text-slate-400">{snapRounded}% of your total plays</p>
               {highUsage ? (
-                <p className="mt-1.5 font-sans text-xs text-amber-400">⚠️ Opponents may key on this formation</p>
+                <p className="mt-1.5 inline-flex items-center gap-1 font-sans text-xs text-amber-400">
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <path d="M12 8v5m0 4h.01" />
+                    <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
+                  </svg>
+                  Opponents may key on this formation
+                </p>
               ) : null}
             </div>
           </article>

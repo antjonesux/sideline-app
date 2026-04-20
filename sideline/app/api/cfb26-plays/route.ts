@@ -1,5 +1,6 @@
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { normalizePlayLabel } from "@/lib/normalizePlayLabel";
+import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { sortFormationTypes } from "@/lib/playbooks/formation-types";
@@ -26,6 +27,7 @@ type Cfb26PlayRow = {
   play_name: string;
   formation_type: string | null;
   is_new_in_26: boolean | null;
+  play_type: string | null;
 };
 
 /** One row per formation + **display** play (prefix-stripped label); merges sheet spacing + redundant formation-in-name duplicates. */
@@ -38,18 +40,25 @@ function dedupeCfb26Rows(rows: Cfb26PlayRow[]): Cfb26PlayRow[] {
     const pn = normalizePlayName(row.play_name);
     const existing = map.get(key);
     if (!existing) {
-      map.set(key, { ...row, formation: f, play_name: pn });
+      map.set(key, {
+        ...row,
+        formation: f,
+        play_name: pn,
+        play_type: row.play_type?.trim() ? row.play_type.trim() : null,
+      });
       continue;
     }
     const pnA = normalizePlayName(existing.play_name);
     const pnB = pn;
     const play_name = pnA.length <= pnB.length ? pnA : pnB;
+    const mergedType = existing.play_type?.trim() || row.play_type?.trim() || null;
     map.set(key, {
       ...existing,
       formation: f,
       play_name,
       is_new_in_26: Boolean(existing.is_new_in_26) || Boolean(row.is_new_in_26),
       formation_type: existing.formation_type ?? row.formation_type,
+      play_type: mergedType,
     });
   }
   return Array.from(map.values());
@@ -67,8 +76,8 @@ export async function GET(req: NextRequest) {
   if (listAll && !formation) {
     const { data, error } = await supabase
       .from("cfb26_plays")
-      .select("formation, play_name, formation_type, is_new_in_26")
-      .eq("playbook", playbook)
+      .select("formation, play_name, formation_type, is_new_in_26, play_type")
+      .ilike("playbook", playbookIlikeExactPattern(playbook))
       .order("formation", { ascending: true })
       .order("play_name", { ascending: true })
       .limit(12000);
@@ -80,6 +89,7 @@ export async function GET(req: NextRequest) {
         play_name: normalizePlayName(String(r.play_name ?? "")),
         formation_type: r.formation_type ?? null,
         is_new_in_26: r.is_new_in_26 ?? null,
+        play_type: String((r as { play_type?: string }).play_type ?? "").trim() || null,
       })),
     ).sort((a, b) => {
       const fc = a.formation.localeCompare(b.formation);
@@ -93,7 +103,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from("cfb26_plays")
       .select("play_name, is_new_in_26")
-      .eq("playbook", playbook)
+      .ilike("playbook", playbookIlikeExactPattern(playbook))
       .eq("formation", formation)
       .order("play_name", { ascending: true });
 
@@ -118,8 +128,8 @@ export async function GET(req: NextRequest) {
 
     let searchQuery = supabase
       .from("cfb26_plays")
-      .select("formation, play_name, formation_type, is_new_in_26")
-      .eq("playbook", playbook);
+      .select("formation, play_name, formation_type, is_new_in_26, play_type")
+      .ilike("playbook", playbookIlikeExactPattern(playbook));
     for (const term of terms) {
       const pattern = `%${term}%`.replace(/"/g, '""');
       searchQuery = searchQuery.or(`play_name.ilike."${pattern}",formation.ilike."${pattern}"`);
@@ -138,6 +148,7 @@ export async function GET(req: NextRequest) {
           play_name: normalizePlayName(String(row.play_name ?? "")),
           formation_type: row.formation_type ?? null,
           is_new_in_26: row.is_new_in_26 ?? null,
+          play_type: String((row as { play_type?: string }).play_type ?? "").trim() || null,
         }))
         .filter((row) => matchesFormationPlaySearch(searchRaw, row.formation, row.play_name)),
     );
@@ -158,7 +169,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from("cfb26_plays")
     .select("formation, formation_type")
-    .eq("playbook", playbook);
+    .ilike("playbook", playbookIlikeExactPattern(playbook));
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400, headers: NO_STORE });
 

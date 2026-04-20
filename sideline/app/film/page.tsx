@@ -108,14 +108,10 @@ export default async function FilmRoomPage() {
         <div className="flex items-center justify-between gap-4">
           <h1 className="app-page-title">Film room</h1>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3">
           <Link href="/film/new" className="app-card-interactive group block">
             <p className="app-card-title">New game</p>
             <p className="mt-1 font-sans text-sm text-slate-400">Log plays live during a game.</p>
-          </Link>
-          <Link href="/film/import" className="app-card-interactive group block">
-            <p className="app-card-title">Import from CSV</p>
-            <p className="mt-1 font-sans text-sm text-slate-400">Bring finished film in from a CSV.</p>
           </Link>
         </div>
         <div className="border-b border-slate-700" aria-hidden />
@@ -124,13 +120,10 @@ export default async function FilmRoomPage() {
       {games.length === 0 ? (
         <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
-          <p className="mt-2 font-sans text-sm text-slate-500">Log plays or import film to build tendencies.</p>
+          <p className="mt-2 font-sans text-sm text-slate-500">Log plays from a game to build tendencies.</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/film/new" className="btn-primary text-sm">
               Log your first game
-            </Link>
-            <Link href="/film/import" className="btn-primary text-sm">
-              Import from CSV
             </Link>
           </div>
         </div>

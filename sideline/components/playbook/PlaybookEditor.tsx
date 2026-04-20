@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
@@ -6,11 +7,10 @@ import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
-import { normalizePlayName } from "@/lib/utils";
 import { useToastStore } from "@/store/toastStore";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { AddPlayDrawer } from "./AddPlayDrawer";
@@ -48,10 +48,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [activeScenario, setActiveScenario] = useState("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [replacePlayId, setReplacePlayId] = useState<string | null>(null);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [removePlayId, setRemovePlayId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const addToast = useToastStore((s) => s.addToast);
@@ -172,33 +170,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onSuccess: () => invalidateScenario(),
   });
 
-  const scriptNote = useMutation({
-    mutationFn: async ({ playId, note }: { playId: string; note: string }) => {
-      const res = await fetch(`/api/playbook/${sheetId}/plays`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "script_note", playId, script_note: note }),
-      });
-      const j = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Could not save note");
-      return j;
-    },
-    onSuccess: () => invalidateScenario(),
-  });
-
-  const swapPlay = useMutation({
-    mutationFn: async ({ playId, formation, play_name }: { playId: string; formation: string; play_name: string }) => {
-      const res = await fetch(`/api/playbook/${sheetId}/plays`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "swap", playId, formation, play_name }),
-      });
-      const j = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(j.error ?? "Could not update play");
-      return j;
-    },
-    onSuccess: () => invalidateScenario(),
-  });
   const updateSheet = useMutation({
     mutationFn: async (body: { name: string; cfb26_playbook: string }) => {
       const res = await fetch(`/api/playbook/${sheetId}`, {
@@ -234,22 +205,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       addToast(`Situation full (${maxSlots}/${maxSlots} slots).`, "warning");
       return;
     }
-    setReplacePlayId(null);
     setDrawerOpen(true);
   }, [addToast, atCapacity, maxSlots]);
-
-  const openSwap = useCallback((playId: string) => {
-    setReplacePlayId(playId);
-    setDrawerOpen(true);
-  }, []);
 
   const onDrawerPick = useCallback(
     async (formation: string, play_name: string) => {
       try {
-        if (replacePlayId) {
-          await swapPlay.mutateAsync({ playId: replacePlayId, formation, play_name });
-          addToast("Added to sheet.", "success");
-        } else if (scenarioPayload?.scenarioId) {
+        if (scenarioPayload?.scenarioId) {
           await postPlay.mutateAsync({ scenarioId: scenarioPayload.scenarioId, formation, play_name });
           addToast("Added to sheet.", "success");
         }
@@ -257,10 +219,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         addToast(COULDNT_SAVE, "error");
       } finally {
         setDrawerOpen(false);
-        setReplacePlayId(null);
       }
     },
-    [replacePlayId, scenarioPayload?.scenarioId, postPlay, swapPlay],
+    [scenarioPayload?.scenarioId, postPlay, addToast],
   );
 
   const onSuggestAdd = useCallback(
@@ -314,23 +275,16 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     }
   };
 
-  const stats = scenarioPayload?.scenarioStats ?? {};
-  const formationStats = scenarioPayload?.formationStats ?? {};
   const suggestions = scenarioPayload?.suggestions ?? [];
-  const isScript = activeScenario === "Opening Script";
 
-  const pendingRemovePlayRow = removePlayId ? sortedPlays.find((p) => p.id === removePlayId) : null;
   const playSlotProps = {
-    isScript,
-    scenarioStats: stats,
     onAdd: openAdd,
-    onRemove: (id: string) => setRemovePlayId(id),
-    onEdit: openSwap,
-    onScriptNote: isScript
-      ? (id: string, note: string) => {
-          scriptNote.mutate({ playId: id, note });
-        }
-      : undefined,
+    onRemove: (id: string) => {
+      deletePlay
+        .mutateAsync(id)
+        .then(() => addToast("Removed from sheet.", "success"))
+        .catch(() => addToast(COULDNT_SAVE, "error"));
+    },
     dragId,
     setDragId,
     onReorder,
@@ -371,14 +325,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         </aside>
 
         <section className="min-w-0 space-y-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
-              Plays for: <span className="text-white">{activeScenario}</span>
-            </h2>
-            <span className="font-body text-xs text-slate-500">
-              {filled}/{maxSlots}
-            </span>
-          </div>
+          <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
+            Plays for: <span className="text-white">{activeScenario}</span>
+          </h2>
 
           {scenarioQuery.isError ? (
             <p className="font-body text-sm text-red-300">{(scenarioQuery.error as Error).message}</p>
@@ -405,25 +354,28 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               </button>
             </div>
           ) : (
-            <div className="space-y-2">
-              {sortedPlays.map((play, slotIndex) => (
-                <PlaySlot
-                  key={play.id}
-                  play={play}
-                  slotIndex={slotIndex}
-                  {...playSlotProps}
-                  atCapacity={atCapacity && !play}
-                />
-              ))}
-              {filled < maxSlots ? (
-                <PlaySlot
-                  key="slot-add-next"
-                  play={null}
-                  slotIndex={filled}
-                  {...playSlotProps}
-                  atCapacity={atCapacity}
-                />
-              ) : null}
+            <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900/90">
+              <PlayTableHeader />
+              <div>
+                {sortedPlays.map((play, slotIndex) => (
+                  <PlaySlot
+                    key={play.id}
+                    play={play}
+                    slotIndex={slotIndex}
+                    {...playSlotProps}
+                    atCapacity={atCapacity && !play}
+                  />
+                ))}
+                {filled < maxSlots ? (
+                  <PlaySlot
+                    key="slot-add-next"
+                    play={null}
+                    slotIndex={filled}
+                    {...playSlotProps}
+                    atCapacity={atCapacity}
+                  />
+                ) : null}
+              </div>
             </div>
           )}
 
@@ -440,7 +392,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         open={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
-          setReplacePlayId(null);
         }}
         cfb26Playbook={cfb26}
         scenarioName={activeScenario}
@@ -449,11 +400,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       {editorOpen ? (
         <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setEditorOpen(false)}>
           <div className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl sm:rounded-xl">
+            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl">
               <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="app-section-title text-lg">Edit play sheet</h2>
                 <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setEditorOpen(false)}>
-                  <span aria-hidden>✕</span>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
                   <span className="sr-only">Close</span>
                 </button>
               </div>
@@ -471,6 +424,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                     ))}
                   </datalist>
                 </label>
+                <div className="pt-4">
                 <div className="flex gap-2">
                   <button type="button" className="btn-secondary flex-1" onClick={() => setEditorOpen(false)}>
                     Cancel
@@ -479,39 +433,12 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                     Save
                   </button>
                 </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       ) : null}
-      <ConfirmDestructiveModal
-        open={removePlayId !== null}
-        onClose={() => setRemovePlayId(null)}
-        title="Remove play"
-        confirmLabel="Remove play"
-        message={
-          <>
-            Pulls{" "}
-            <strong className="font-mono font-semibold text-white">
-              {pendingRemovePlayRow
-                ? `${pendingRemovePlayRow.formation} · ${normalizePlayName(pendingRemovePlayRow.play_name)}`
-                : "—"}
-            </strong>{" "}
-            off this situation. Can&apos;t be undone.
-          </>
-        }
-        busy={deletePlay.isPending}
-        onConfirm={async () => {
-          if (!removePlayId) return;
-          try {
-            await deletePlay.mutateAsync(removePlayId);
-            addToast("Removed from sheet.", "success");
-            setRemovePlayId(null);
-          } catch {
-            addToast(COULDNT_SAVE, "error");
-          }
-        }}
-      />
     </div>
   );
 }

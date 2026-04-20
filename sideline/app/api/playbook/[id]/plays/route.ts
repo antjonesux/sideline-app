@@ -1,6 +1,8 @@
 import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPlayStats";
+import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { normalizePlayNameForComparison } from "@/lib/utils/normalizePlayName";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -14,6 +16,8 @@ type PlayRow = {
   play_name: string;
   script_note: string | null;
 };
+
+type PlayRowWithCfbType = PlayRow & { play_type: string | null };
 
 async function assertScenarioOnSheet(sheetId: string, scenarioId: string) {
   const { data, error } = await supabase
@@ -66,6 +70,16 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   if (pErr) return NextResponse.json({ error: pErr.message }, { status: 400 });
 
+  const { data: sheetMeta, error: sheetMetaErr } = await supabase
+    .from("play_sheets")
+    .select("cfb26_playbook, playbook")
+    .eq("id", sheetId)
+    .maybeSingle();
+  if (sheetMetaErr) return NextResponse.json({ error: sheetMetaErr.message }, { status: 400 });
+
+  const cfbBook = String(sheetMeta?.cfb26_playbook ?? sheetMeta?.playbook ?? "").trim();
+  const typeByKey = cfbBook ? await fetchCfbPlayTypeMap(supabase, [cfbBook]) : new Map<string, string>();
+
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
     .select("formation, play_name, result_tag, yards_gained, down, distance")
@@ -88,10 +102,21 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(nonPuntLogged);
 
   const sheetKeys = new Set<string>();
-  const playsOut = (plays ?? []).map((p) => ({
-    ...p,
-    play_name: normalizePlayName(String(p.play_name ?? "")),
-  }));
+  const playsOut: PlayRowWithCfbType[] = (plays ?? []).map((p) => {
+    const play_name = normalizePlayName(String(p.play_name ?? ""));
+    const formation = String(p.formation ?? "").trim() || "Other";
+    const key = cfbBook ? playTypeLookupKey(cfbBook, formation, play_name) : "";
+    const play_type = key && typeByKey.has(key) ? (typeByKey.get(key) ?? null) : null;
+    return {
+      id: p.id,
+      scenario_id: p.scenario_id,
+      play_order: p.play_order,
+      formation,
+      play_name,
+      script_note: p.script_note,
+      play_type,
+    };
+  });
   for (const p of playsOut) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }
@@ -125,7 +150,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
   const scenarioId = String(body.scenarioId ?? "").trim();
   const formation = String(body.formation ?? "").trim();
-  const play_name = normalizePlayName(String(body.play_name ?? ""));
+  const play_name = String(body.play_name ?? "").trim();
   if (!scenarioId || !formation || !play_name) {
     return NextResponse.json({ error: "scenarioId, formation, and play_name are required" }, { status: 400 });
   }
@@ -144,16 +169,23 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: "Scenario is at max capacity" }, { status: 400 });
   }
 
-  const { data: dup } = await supabase
+  const { data: existingPlays, error: existingErr } = await supabase
     .from("play_sheet_plays")
-    .select("id")
+    .select("id, play_name")
     .eq("scenario_id", scenarioId)
-    .eq("formation", formation)
-    .eq("play_name", play_name)
-    .maybeSingle();
+    .eq("formation", formation);
 
-  if (dup) {
-    return NextResponse.json({ error: "This play is already on the sheet for this scenario" }, { status: 400 });
+  if (existingErr) return NextResponse.json({ error: existingErr.message }, { status: 400 });
+
+  const incomingNormalized = normalizePlayNameForComparison(play_name);
+  const duplicate = (existingPlays ?? []).find(
+    (row) => normalizePlayNameForComparison(String(row.play_name ?? "")) === incomingNormalized,
+  );
+  if (duplicate) {
+    return NextResponse.json(
+      { error: `This play already exists in your plan (matched: ${duplicate.play_name})` },
+      { status: 409 },
+    );
   }
 
   const { data: maxOrderRow } = await supabase
@@ -223,10 +255,6 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
     const sc = await assertScenarioOnSheet(sheetId, scenarioId);
     if ("error" in sc) return NextResponse.json({ error: sc.error }, { status: 404 });
-    if (!isOpeningScript(sc.scenario.scenario)) {
-      return NextResponse.json({ error: "Reorder is only allowed for Opening Script" }, { status: 400 });
-    }
-
     const { data: existing, error: exErr } = await supabase
       .from("play_sheet_plays")
       .select("id")
@@ -269,7 +297,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   if (action === "swap") {
     const playId = String(body.playId ?? "").trim();
     const formation = String(body.formation ?? "").trim();
-    const play_name = normalizePlayName(String(body.play_name ?? ""));
+    const play_name = String(body.play_name ?? "").trim();
     if (!playId || !formation || !play_name) {
       return NextResponse.json({ error: "playId, formation, and play_name are required" }, { status: 400 });
     }
@@ -279,17 +307,23 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
     const scenarioId = chk.play.scenario_id;
 
-    const { data: conflict } = await supabase
+    const { data: scenarioPlays, error: scenarioErr } = await supabase
       .from("play_sheet_plays")
-      .select("id")
+      .select("id, play_name")
       .eq("scenario_id", scenarioId)
       .eq("formation", formation)
-      .eq("play_name", play_name)
-      .neq("id", playId)
-      .maybeSingle();
+      .neq("id", playId);
 
+    if (scenarioErr) return NextResponse.json({ error: scenarioErr.message }, { status: 400 });
+    const incomingNormalized = normalizePlayNameForComparison(play_name);
+    const conflict = (scenarioPlays ?? []).find(
+      (row) => normalizePlayNameForComparison(String(row.play_name ?? "")) === incomingNormalized,
+    );
     if (conflict) {
-      return NextResponse.json({ error: "That play is already on the sheet for this scenario" }, { status: 400 });
+      return NextResponse.json(
+        { error: `This play already exists in your plan (matched: ${conflict.play_name})` },
+        { status: 409 },
+      );
     }
 
     const { error } = await supabase.from("play_sheet_plays").update({ formation, play_name }).eq("id", playId);

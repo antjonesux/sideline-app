@@ -1,4 +1,5 @@
 "use client";
+// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import type { PlaybookSummary } from "@/lib/types";
@@ -95,7 +96,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
     >
       <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
         <div
-          className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-t-2xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl"
+          className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
@@ -107,7 +108,9 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
                 <p className="mt-1 font-body text-sm text-slate-400">Update the name and CFB26 playbook source.</p>
               </div>
               <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={onClose}>
-                <span aria-hidden>✕</span>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                  <path d="M6 6 18 18M18 6 6 18" />
+                </svg>
                 <span className="sr-only">Close</span>
               </button>
             </div>

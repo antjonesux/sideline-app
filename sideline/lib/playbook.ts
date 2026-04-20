@@ -1,3 +1,43 @@
+import { categorizeCfbPlayType, deriveCfbPlayTypeFromName } from "@/lib/tendenciesPlayType";
+
+/** Personnel / numbered calls like "94 WILL" — often runs even when `cfb26_plays.play_type` says pass. */
+export function playNameLooksLikeNumberedPersonnelCall(name: string): boolean {
+  return /^(0[1-9]|[1-9][0-9]?)\s+/i.test(name.trim());
+}
+
+/** Pass/RPO tokens in the call name; if present we trust CFB over the numbered-call heuristic. */
+export function nameHasExplicitPassOrRpoSignal(name: string): boolean {
+  const n = name.toLowerCase();
+  if (n.includes("rpo")) return true;
+  return (
+    n.includes("pass") ||
+    n.includes("mesh") ||
+    n.includes("slant") ||
+    n.includes("stick") ||
+    n.includes("spot") ||
+    n.includes("drive") ||
+    n.includes("flood") ||
+    n.includes("curl") ||
+    n.includes("vert") ||
+    n.includes("cross") ||
+    n.includes("spacing") ||
+    n.includes("post")
+  );
+}
+
+/**
+ * When the sheet labels a numbered personnel call as pass family but the name has no pass/RPO cues,
+ * treat it as a run (coaching convention; `cfb26_plays.play_type` is often wrong here).
+ */
+export function shouldOverrideCfbPassLabelToRun(playName: string, cfbPlayType: string | null | undefined): boolean {
+  const cfb = (cfbPlayType ?? "").trim();
+  if (!cfb) return false;
+  if (!playNameLooksLikeNumberedPersonnelCall(playName)) return false;
+  if (nameHasExplicitPassOrRpoSignal(playName)) return false;
+  const bucket = categorizeCfbPlayType(cfb);
+  return bucket === "Pass" || bucket === "Play Action" || bucket === "Screen";
+}
+
 export type PlaybookEntry = {
   play_id: string;
   formation: string;
@@ -37,6 +77,55 @@ export function inferPlayType(name: string): PlaybookEntry["play_type"] {
     return "RUN";
   }
   return "RUN";
+}
+
+/**
+ * Maps `cfb26_plays.play_type` (and seed labels) to RUN | PASS | RPO using the same ladder as
+ * Tendencies (`attachPlayTypes` / `deriveCfbPlayTypeFromName` + `categorizeCfbPlayType`).
+ */
+export function resolveCfbDisplayPlayType(
+  playName: string,
+  dbPlayType: string | null | undefined,
+): PlaybookEntry["play_type"] {
+  const trimmed = (dbPlayType ?? "").trim();
+  const upper = trimmed.toUpperCase();
+  if (upper === "RUN" || upper === "PASS" || upper === "RPO") {
+    if (upper === "PASS" && shouldOverrideCfbPassLabelToRun(playName, trimmed)) {
+      return "RUN";
+    }
+    return upper as PlaybookEntry["play_type"];
+  }
+
+  if (shouldOverrideCfbPassLabelToRun(playName, trimmed)) {
+    return "RUN";
+  }
+
+  const raw = trimmed || deriveCfbPlayTypeFromName(playName);
+  const bucket = categorizeCfbPlayType(raw);
+  if (bucket === "RPO") return "RPO";
+  if (bucket === "Run" || bucket === "Option") return "RUN";
+  if (bucket === "Pass" || bucket === "Play Action" || bucket === "Screen") return "PASS";
+  return inferPlayType(playName);
+}
+
+/**
+ * UI browser/suggestion strict resolver: trust `cfb26_plays.play_type` first and
+ * avoid name-based PASS->RUN overrides so pre-log badges match canonical CFB data.
+ */
+export function resolveCfbBrowserPlayType(
+  playName: string,
+  dbPlayType: string | null | undefined,
+): PlaybookEntry["play_type"] {
+  const trimmed = (dbPlayType ?? "").trim();
+  const upper = trimmed.toUpperCase();
+  if (upper === "RUN" || upper === "PASS" || upper === "RPO") {
+    return upper as PlaybookEntry["play_type"];
+  }
+  const bucket = categorizeCfbPlayType(trimmed);
+  if (bucket === "RPO") return "RPO";
+  if (bucket === "Pass" || bucket === "Play Action" || bucket === "Screen") return "PASS";
+  if (bucket === "Run" || bucket === "Option") return "RUN";
+  return inferPlayType(playName);
 }
 
 export function deriveFormationGroup(formation: string): string {

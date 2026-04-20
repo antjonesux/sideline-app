@@ -6,6 +6,7 @@ import {
   type ValidatedImportPlay,
 } from "@/lib/importCsv";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
+import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
 import { supabase } from "@/lib/supabase";
 import { normalizePlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -51,6 +52,14 @@ async function insertDrivesAndPlaysForSession(
   plays: ValidatedImportPlay[],
   opts: { rollbackSessionOnFailure: boolean },
 ): Promise<{ ok: true } | { ok: false; message: string; status: number }> {
+  const { data: sessionRow } = await supabase
+    .from("game_sessions")
+    .select("offensive_playbook, my_playbook")
+    .eq("id", sessionId)
+    .maybeSingle();
+  const offensivePb = sessionRow ? playbookForGame(sessionRow as GameRow) : "";
+  const typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, offensivePb ? [offensivePb] : []);
+
   const sorted = [...plays].sort((a, b) => a.play_number - b.play_number);
   const driveNums = [...new Set(sorted.map((p) => p.drive_number))].sort((a, b) => a - b);
   const driveIdByNum = new Map<number, string>();
@@ -104,6 +113,8 @@ async function insertDrivesAndPlaysForSession(
       const field_zone = deriveFieldZone(pos.yard_line, pos.side);
       const scenario = p.distance_goal_to_go_alias ? "Goal Line" : deriveScenario(p.down, p.distance, field_zone);
 
+      const play_name = normalizePlayName(p.play_name);
+      const play_type = storedPlayTypeFromMap(offensivePb, p.formation, play_name, typeMap, null);
       const { error: playErr } = await supabase.from("logged_plays").insert({
         drive_id: driveId,
         game_session_id: sessionId,
@@ -116,12 +127,13 @@ async function insertDrivesAndPlaysForSession(
         field_zone,
         scenario,
         formation: p.formation,
-        play_name: normalizePlayName(p.play_name),
+        play_name,
         result_tag: p.result_db,
         yards_gained: p.yards,
         note: p.note,
         opponent_scheme: opponentScheme,
         drive_number: p.drive_number,
+        play_type,
       });
 
       if (playErr) {
