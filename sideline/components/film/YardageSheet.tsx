@@ -1,7 +1,7 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { advanceGameState, type GameState, type ResultTag } from "@/lib/gameStateEngine";
 import { deriveYards, formatFieldPosition, fromAbsoluteYard, parseFieldPosition } from "@/lib/fieldPosition";
 import type { PlaybookEntry } from "@/lib/playbook";
@@ -35,6 +35,22 @@ function computeDelta(startFP: number, endFP: number): number {
   return endFP - startFP;
 }
 
+/**
+ * Touchdown yards: field positions are 1–99 (goal line is conceptually 100), so a TD that
+ * reaches the plane needs an extra yard when the spot is OPP 1 (abs 99). Same LOS and spot
+ * with no forward delta still scores from short range — credit yards-to-goal inside OPP 4.
+ */
+function touchdownYardsFromSpots(startFP: number, endFP: number): number {
+  const d = endFP - startFP;
+  if (d === 0) {
+    return startFP >= 96 ? 100 - startFP : 0;
+  }
+  if (d > 0 && endFP >= 99) {
+    return d + 1;
+  }
+  return d;
+}
+
 type PlayOutcome = "gain" | "loss" | "no_gain";
 
 function deriveOutcome(delta: number | null): PlayOutcome | null {
@@ -59,7 +75,7 @@ const RESULT_AVAILABILITY: Record<SheetResultKey, Record<PlayOutcome, boolean>> 
   Sack: { gain: false, loss: true, no_gain: true },
   Turnover: { gain: true, loss: true, no_gain: true },
   Penalty: { gain: true, loss: true, no_gain: true },
-  TD: { gain: true, loss: false, no_gain: false },
+  TD: { gain: true, loss: true, no_gain: true },
   Punt: { gain: false, loss: false, no_gain: false },
   "FG Made": { gain: false, loss: false, no_gain: false },
   "FG Miss": { gain: false, loss: false, no_gain: false },
@@ -85,7 +101,7 @@ const SPECIALS = [
   { label: "Sack", key: "Sack" as const, playResult: "SACK" as const, colorClass: "red-400" as const },
   { label: "Turnover", key: "Turnover" as const, playResult: "TURNOVER" as const, colorClass: "red-400" as const },
   { label: "Penalty", key: "Penalty" as const, playResult: "PENALTY" as const, colorClass: "amber-400" as const },
-  { label: "TD", key: "TD" as const, playResult: "TOUCHDOWN" as const, colorClass: "amber-400" as const },
+  { label: "TD", key: "TD" as const, playResult: "TOUCHDOWN" as const, colorClass: "emerald-400" as const },
   { label: "Punt", key: "Punt" as const, playResult: "PUNT" as const, colorClass: "slate-400" as const },
   { label: "FG Made", key: "FG Made" as const, playResult: "FIELD_GOAL" as const, colorClass: "emerald-400" as const },
   { label: "FG Miss", key: "FG Miss" as const, playResult: "FG_MISS" as const, colorClass: "red-400" as const },
@@ -134,10 +150,6 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   const [endYardStr, setEndYardStr] = useState("");
   const [selectedResult, setSelectedResult] = useState<PlayResult | null>(null);
   const [busy, setBusy] = useState(false);
-  const [fieldPosLocked, setFieldPosLocked] = useState(false);
-
-  const prevEndSideRef = useRef<"OWN" | "OPP">("OWN");
-  const prevEndYardStrRef = useRef("");
 
   useEffect(() => {
     window.history.pushState({ filmOverlay: "yards-sheet" }, "");
@@ -150,7 +162,6 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     const { side, yard_line } = fromAbsoluteYard(startFP);
     setEndSide(side);
     setEndYardStr(String(yard_line));
-    setFieldPosLocked(false);
     setSelectedResult(null);
   }, [play.play_name, play.formation, startFP]);
 
@@ -158,22 +169,20 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   const endYardNum = !Number.isNaN(parsedEndYard) && parsedEndYard >= 1 && parsedEndYard <= 50 ? parsedEndYard : null;
   const inputProvided = endYardNum !== null;
   const endFP = endYardNum !== null ? computeEndFP(endSide, endYardNum) : null;
-  const delta = endFP !== null ? computeDelta(startFP, endFP) : null;
-  const outcome = deriveOutcome(delta);
+  const spotDelta = endFP !== null ? computeDelta(startFP, endFP) : null;
+  const outcome = deriveOutcome(spotDelta);
+  const displayYards =
+    endFP !== null && selectedResult === "TOUCHDOWN"
+      ? touchdownYardsFromSpots(startFP, endFP)
+      : spotDelta;
 
   useEffect(() => {
     if (selectedResult && !isResultAvailable(sheetKeyForPlayResult(selectedResult), outcome, inputProvided)) {
-      if (selectedResult === "TOUCHDOWN") {
-        setEndSide(prevEndSideRef.current);
-        setEndYardStr(prevEndYardStrRef.current);
-        setFieldPosLocked(false);
-      }
       setSelectedResult(null);
     }
   }, [outcome, inputProvided, selectedResult]);
 
   const endingAbs = useMemo(() => {
-    if (selectedResult === "TOUCHDOWN") return 100;
     if (selectedResult === "INCOMPLETE" || selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return startFP;
     if (!inputProvided) return startFP;
     return parseFieldPosition(endSide, endYardNum!);
@@ -182,8 +191,8 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   const derivedYards = useMemo(() => {
     if (!inputProvided || endYardNum === null) return null as number | null;
     if (selectedResult === "INCOMPLETE") return 0;
-    if (selectedResult === "TOUCHDOWN") return 100 - Math.min(99, Math.max(1, Math.round(startFP)));
     if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
+    if (selectedResult === "TOUCHDOWN") return touchdownYardsFromSpots(startFP, computeEndFP(endSide, endYardNum));
     return deriveYards(startFP, endSide, endYardNum);
   }, [selectedResult, startFP, inputProvided, endSide, endYardNum]);
 
@@ -195,11 +204,11 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     if (selectedResult === "TOUCHDOWN") return "TOUCHDOWN";
     if (selectedResult === "INCOMPLETE") return "INCOMPLETE";
     if (selectedResult === "SACK") return "LOSS";
-    const y = derivedYards ?? delta ?? 0;
+    const y = derivedYards ?? spotDelta ?? 0;
     if (y < 0) return "LOSS";
     if (y === 0) return "NO_GAIN";
     return "GAIN";
-  }, [selectedResult, derivedYards, delta]);
+  }, [selectedResult, derivedYards, spotDelta]);
 
   const needsSpot =
     selectedResult != null &&
@@ -210,7 +219,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     if (needsSpot && (derivedYards === null || !inputProvided)) {
       return "Enter ball spot to preview.";
     }
-    const y = derivedYards ?? delta ?? 0;
+    const y = derivedYards ?? spotDelta ?? 0;
     const advanceYards = inferredTag === "LOSS" ? Math.abs(y) : Math.max(0, y);
     let next = advanceGameState(currentGameState, inferredTag, advanceYards);
     if (inferredTag === "GAIN" || inferredTag === "LOSS" || inferredTag === "NO_GAIN") {
@@ -221,23 +230,22 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     }
     const downTxt = next.down === 1 ? "1st" : next.down === 2 ? "2nd" : next.down === 3 ? "3rd" : "4th";
     return `Next: ${downTxt} & ${next.distance} · ${formatFieldPosition(next.absoluteYard)}`;
-  }, [currentGameState, inferredTag, derivedYards, delta, endingAbs, needsSpot, inputProvided]);
+  }, [currentGameState, inferredTag, derivedYards, spotDelta, endingAbs, needsSpot, inputProvided]);
 
   const logReady = inputProvided && !busy;
 
   function yardsForSubmit(): number {
     if (!inputProvided || endYardNum === null) return 0;
-    const d = delta ?? 0;
+    const d = spotDelta ?? 0;
     if (!selectedResult) return d;
     if (selectedResult === "INCOMPLETE") return 0;
-    if (selectedResult === "TOUCHDOWN") return 100 - Math.min(99, Math.max(1, Math.round(startFP)));
     if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
     if (selectedResult === "PUNT") return Math.max(0, d);
+    if (selectedResult === "TOUCHDOWN") return touchdownYardsFromSpots(startFP, endFP!);
     return d;
   }
 
   function endingFieldForSubmit(): number {
-    if (selectedResult === "TOUCHDOWN") return 100;
     return endFP ?? startFP;
   }
 
@@ -251,27 +259,8 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     const active = selectedResult === play;
 
     if (active) {
-      if (play === "TOUCHDOWN") {
-        setEndSide(prevEndSideRef.current);
-        setEndYardStr(prevEndYardStrRef.current);
-        setFieldPosLocked(false);
-      }
       setSelectedResult(null);
       return;
-    }
-
-    if (selectedResult === "TOUCHDOWN") {
-      setEndSide(prevEndSideRef.current);
-      setEndYardStr(prevEndYardStrRef.current);
-      setFieldPosLocked(false);
-    }
-
-    if (play === "TOUCHDOWN") {
-      prevEndSideRef.current = endSide;
-      prevEndYardStrRef.current = endYardStr;
-      setEndSide("OPP");
-      setEndYardStr("1");
-      setFieldPosLocked(true);
     }
 
     if (play === "INCOMPLETE") {
@@ -292,8 +281,6 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
       setBusy(false);
     }
   }
-
-  const spotControlsDisabled = fieldPosLocked;
 
   return (
     <div className="w-full border-t border-slate-800 bg-slate-900 p-4">
@@ -329,8 +316,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
         <div className="mt-2 flex items-center gap-2">
           <button
             type="button"
-            disabled={spotControlsDisabled}
-            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors ${
               endSide === "OWN"
                 ? "border-transparent bg-emerald-600 text-slate-100"
                 : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
@@ -341,8 +327,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
           </button>
           <button
             type="button"
-            disabled={spotControlsDisabled}
-            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors ${
               endSide === "OPP"
                 ? "border-transparent bg-emerald-600 text-slate-100"
                 : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
@@ -358,22 +343,22 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
               inputMode="numeric"
               min={1}
               max={50}
-              disabled={spotControlsDisabled}
               placeholder="0"
-              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white [-moz-appearance:textfield] [appearance:textfield] focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white [-moz-appearance:textfield] [appearance:textfield] focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               value={endYardStr}
               onChange={(e) => setEndYardStr(e.target.value)}
             />
           </label>
         </div>
-        {selectedResult === "TOUCHDOWN" ? (
-          <p className="mt-2 font-mono text-xs text-amber-400">Touchdown — end zone</p>
-        ) : null}
         {endYardNum !== null ? (
           <div className="mt-1 mb-3 font-mono text-xs text-slate-400">
-            {delta === 0 ? "No gain — line of scrimmage" : null}
-            {delta !== null && delta > 0 ? <span className="text-emerald-400">{`+${delta} yards`}</span> : null}
-            {delta !== null && delta < 0 ? <span className="text-red-400">{`${delta} yards`}</span> : null}
+            {displayYards === 0 ? "No gain — line of scrimmage" : null}
+            {displayYards !== null && displayYards > 0 ? (
+              <span className="text-emerald-400">{`+${displayYards} yards`}</span>
+            ) : null}
+            {displayYards !== null && displayYards < 0 ? (
+              <span className="text-red-400">{`${displayYards} yards`}</span>
+            ) : null}
           </div>
         ) : null}
       </div>

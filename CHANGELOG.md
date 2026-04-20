@@ -4,12 +4,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-20 — Film YardageSheet TD follow-up (yards, chip, no field lock)
+
+### What
+
+- **TD** stays available whenever a valid ball spot is entered (same outcome gating pattern as Turnover / Penalty); the OWN/OPP row is never locked for touchdowns, and submit uses the coach’s spotted field position instead of forcing the end zone.
+- **Touchdown yards** use a dedicated helper so the 1–99 field grid matches real scoring: forward TDs spotted at **OPP 1** (abs 99) add the extra goal-plane yard; same-line goal-line TDs inside **OPP 4** credit `100 − startFP`; same-spot TDs farther out stay **0** yards (e.g. OPP 15).
+- **Selected TD chip** uses the same emerald active styling as **FG Made**.
+- **Spot vs tag:** `spotDelta` still drives gain/loss/no-gain availability; TD logging and preview use the adjusted touchdown yardage.
+
+### Why
+
+- Coaches tag TD from any field position and expect logged yards to match the end zone (grid stops at 99; the goal is 100); removing the TD field lock matches how long scores are spotted.
+
+### Status after this push
+
+- Production build is clean. See `sideline/CHANGELOG.md` for file-level notes (`YardageSheet.tsx`).
+
+---
+
 ## 2026-04-20 — Film YardageSheet outcome gating, log-on-spot, and UI QA
 
 ### What
 
 - **YardageSheet** ties special-result availability to field-position delta (gain / loss / no gain), keeps Punt and FG outcomes available whenever a valid spot is entered, dims blocked chips instead of hiding them, supports tap-to-deselect, and enables logging from the ball spot alone (result optional).
-- **TD flow** locks the end spot to end zone, shows the touchdown helper copy, and restores the user’s prior OWN/OPP + yard when TD is cleared.
 - **QA:** Single bold yard input beside OWN/OPP with spinners suppressed on that control; result grid uses uniform `text-xs` mono chips with `whitespace-nowrap`; section labels (LOGGING PLAY, BALL SPOTTED AT, RESULT) share one typography preset.
 
 ### Why

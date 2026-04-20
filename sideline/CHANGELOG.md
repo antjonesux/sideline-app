@@ -4,15 +4,25 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
-## 2026-04-20 (film YardageSheet — outcome rules, log gate, TD lock, QA polish)
+## 2026-04-20 (film YardageSheet — TD yards, availability, chip color)
 
-**What:** `YardageSheet` now derives gain / loss / no gain from start vs end field position (`absoluteYard` ↔ OWN/OPP yard), gates special-result chips with a single `RESULT_AVAILABILITY` map plus drive-ender overrides (Punt, FG Made, FG Miss), auto-clears a blocked selection when the outcome changes, and enables **Log** from a valid ball spot with result optional. TD selects locks the row to end-zone semantics, shows the amber helper line, saves prior spot in refs, and restores on deselect or auto-clear. Result chips use fixed Tailwind active maps (no dynamic class strings), toggle-off on second tap, and blocked states stay visible but disabled. QA pass: plain yard `input` in the OWN/OPP row (no native stepper affordance—WebKit/Mozilla appearance suppressed on that control), `text-xs` + `whitespace-nowrap` + `w-full` grid chips so labels like Incomplete fit, and identical mono section labels for LOGGING PLAY / BALL SPOTTED AT / RESULT.
+**What:** `YardageSheet` keeps `spotDelta` for gain/loss/no-gain gating; **TD** is available on any valid spot (same map pattern as Turnover/Penalty). TD no longer locks OWN/OPP or forces OPP 1; ending field on submit follows the spotted line. `touchdownYardsFromSpots` adjusts logged/preview yards for the goal plane (e.g. +1 when the spot is OPP 1 / abs 99; same-line short-field TDs inside OPP 4 use `100 − startFP`; same-spot TDs at OPP 15 stay 0). TD active chip styling matches **FG Made** (emerald). Prior QA polish unchanged: mono section labels, yard input without steppers, result grid chips.
 
-**Why:** Coaches need the logger to reflect where the ball was spotted before picking a result, with impossible combinations dimmed instead of hidden; logging must not require a result tag. Follow-up QA aligned typography and the yard control with the rest of the film logger.
+**Why:** Touchdowns can happen from any field position; the internal 1–99 grid omits the goal line at 100, so TD yardage needs explicit rules; selected TD should read as a scoring state consistent with FG Made.
 
-**Decisions:** Kept `PlayResult` / `onLog` contracts so `PlayLoggerV2` unchanged; ending field for TD submit stays at 100 to match prior engine expectations.
+**Decisions:** `PlayResult` / `onLog` contracts unchanged; touchdown yards are computed in the sheet so `yards_gained` matches coach intent without changing `fieldPosition` helpers.
 
-**Status after this push:** `npm run build` is clean; film yardage flow only touches `YardageSheet.tsx` for this slice.
+**Status after this push:** `npm run build` is clean; changes in `sideline/components/film/YardageSheet.tsx`.
+
+---
+
+## 2026-04-20 (film YardageSheet — outcome rules, log gate, QA polish)
+
+**What:** `YardageSheet` derives gain / loss / no gain from start vs end field position (`absoluteYard` ↔ OWN/OPP yard), gates special-result chips with `RESULT_AVAILABILITY` plus drive-ender overrides (Punt, FG Made, FG Miss), auto-clears a blocked selection when the outcome changes, and enables **Log** from a valid ball spot with result optional. Result chips use fixed Tailwind active maps, toggle-off on second tap, and blocked states stay visible but disabled. QA pass: plain yard `input` in the OWN/OPP row (WebKit/Mozilla stepper appearance suppressed), `text-xs` + `whitespace-nowrap` + `w-full` grid chips, identical mono section labels for LOGGING PLAY / BALL SPOTTED AT / RESULT.
+
+**Why:** Coaches spot the ball before tagging results; impossible combinations stay visible but disabled; logging must not require a result tag.
+
+**Status after this push:** Superseded for TD field lock / ending-100 behavior by the TD follow-up entry above; build remains clean.
 
 ---
 
