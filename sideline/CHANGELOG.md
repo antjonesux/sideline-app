@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-20 (film YardageSheet — outcome rules, log gate, TD lock, QA polish)
+
+**What:** `YardageSheet` now derives gain / loss / no gain from start vs end field position (`absoluteYard` ↔ OWN/OPP yard), gates special-result chips with a single `RESULT_AVAILABILITY` map plus drive-ender overrides (Punt, FG Made, FG Miss), auto-clears a blocked selection when the outcome changes, and enables **Log** from a valid ball spot with result optional. TD selects locks the row to end-zone semantics, shows the amber helper line, saves prior spot in refs, and restores on deselect or auto-clear. Result chips use fixed Tailwind active maps (no dynamic class strings), toggle-off on second tap, and blocked states stay visible but disabled. QA pass: plain yard `input` in the OWN/OPP row (no native stepper affordance—WebKit/Mozilla appearance suppressed on that control), `text-xs` + `whitespace-nowrap` + `w-full` grid chips so labels like Incomplete fit, and identical mono section labels for LOGGING PLAY / BALL SPOTTED AT / RESULT.
+
+**Why:** Coaches need the logger to reflect where the ball was spotted before picking a result, with impossible combinations dimmed instead of hidden; logging must not require a result tag. Follow-up QA aligned typography and the yard control with the rest of the film logger.
+
+**Decisions:** Kept `PlayResult` / `onLog` contracts so `PlayLoggerV2` unchanged; ending field for TD submit stays at 100 to match prior engine expectations.
+
+**Status after this push:** `npm run build` is clean; film yardage flow only touches `YardageSheet.tsx` for this slice.
+
+---
+
 ## 2026-04-20 (play type resolution parity + logged play backfill + dedupe migration)
 
 **What:** Added shared play-type resolution utilities (`playTypeResolution`) so Film and Playbook paths use the same lookup and fallback ladder as Tendencies (`cfb26_plays` map first, then stored type, then name-based fallback). Updated APIs and UI surfaces to consume normalized `RUN`/`PASS`/`RPO` output consistently across play rows, suggestions, browser flows, import preview, and tendencies displays. Added Supabase migrations to (1) create and backfill `logged_plays.play_type` from `cfb26_plays` with canonical constraints, (2) map granular CFB labels to badge categories, (3) override numbered personnel calls that should render as run, and (4) deduplicate normalized play names in `play_sheet_plays`.

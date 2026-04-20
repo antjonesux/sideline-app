@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-20 — Film YardageSheet outcome gating, log-on-spot, and UI QA
+
+### What
+
+- **YardageSheet** ties special-result availability to field-position delta (gain / loss / no gain), keeps Punt and FG outcomes available whenever a valid spot is entered, dims blocked chips instead of hiding them, supports tap-to-deselect, and enables logging from the ball spot alone (result optional).
+- **TD flow** locks the end spot to end zone, shows the touchdown helper copy, and restores the user’s prior OWN/OPP + yard when TD is cleared.
+- **QA:** Single bold yard input beside OWN/OPP with spinners suppressed on that control; result grid uses uniform `text-xs` mono chips with `whitespace-nowrap`; section labels (LOGGING PLAY, BALL SPOTTED AT, RESULT) share one typography preset.
+
+### Why
+
+- Sideline entry should match how coaches think about spot-then-tag, without impossible result combinations active; polish removes spinner clutter and label inconsistency in the yardage pane.
+
+### Status after this push
+
+- Production build is clean. See `sideline/CHANGELOG.md` for file-level notes (`YardageSheet.tsx`).
+
+---
+
 ## 2026-04-20 — Play type resolution parity, logged-play backfill, and dedupe migration
 
 ### What

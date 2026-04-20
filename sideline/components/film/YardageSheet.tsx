@@ -1,9 +1,9 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { advanceGameState, type GameState, type ResultTag } from "@/lib/gameStateEngine";
-import { deriveYards, formatFieldPosition, formatFieldPositionFromAbsolute, fromAbsoluteYard, parseFieldPosition } from "@/lib/fieldPosition";
+import { deriveYards, formatFieldPosition, fromAbsoluteYard, parseFieldPosition } from "@/lib/fieldPosition";
 import type { PlaybookEntry } from "@/lib/playbook";
 
 type PlayResult = "INCOMPLETE" | "SACK" | "TURNOVER" | "PENALTY" | "TOUCHDOWN" | "PUNT" | "FIELD_GOAL" | "FG_MISS";
@@ -23,6 +23,102 @@ function playTypeBadgeClass(type: NormalizedPlayType): string {
   return "border-amber-700/70 bg-amber-900/30 text-amber-300";
 }
 
+function cn(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
+
+function computeEndFP(side: "OWN" | "OPP", yard: number): number {
+  return side === "OWN" ? yard : 100 - yard;
+}
+
+function computeDelta(startFP: number, endFP: number): number {
+  return endFP - startFP;
+}
+
+type PlayOutcome = "gain" | "loss" | "no_gain";
+
+function deriveOutcome(delta: number | null): PlayOutcome | null {
+  if (delta === null) return null;
+  if (delta > 0) return "gain";
+  if (delta < 0) return "loss";
+  return "no_gain";
+}
+
+type SheetResultKey =
+  | "Incomplete"
+  | "Sack"
+  | "Turnover"
+  | "Penalty"
+  | "TD"
+  | "Punt"
+  | "FG Made"
+  | "FG Miss";
+
+const RESULT_AVAILABILITY: Record<SheetResultKey, Record<PlayOutcome, boolean>> = {
+  Incomplete: { gain: false, loss: false, no_gain: true },
+  Sack: { gain: false, loss: true, no_gain: true },
+  Turnover: { gain: true, loss: true, no_gain: true },
+  Penalty: { gain: true, loss: true, no_gain: true },
+  TD: { gain: true, loss: false, no_gain: false },
+  Punt: { gain: false, loss: false, no_gain: false },
+  "FG Made": { gain: false, loss: false, no_gain: false },
+  "FG Miss": { gain: false, loss: false, no_gain: false },
+};
+
+const DRIVE_ENDERS = ["Punt", "FG Made", "FG Miss"] as const satisfies readonly SheetResultKey[];
+type DriveEnderKey = (typeof DRIVE_ENDERS)[number];
+
+function isDriveEnderKey(key: string): key is DriveEnderKey {
+  return (DRIVE_ENDERS as readonly string[]).includes(key);
+}
+
+function isResultAvailable(resultKey: string, outcome: PlayOutcome | null, inputProvided: boolean): boolean {
+  if (isDriveEnderKey(resultKey)) {
+    return inputProvided;
+  }
+  if (!inputProvided || outcome === null) return false;
+  return RESULT_AVAILABILITY[resultKey as SheetResultKey]?.[outcome] ?? false;
+}
+
+const SPECIALS = [
+  { label: "Incomplete", key: "Incomplete" as const, playResult: "INCOMPLETE" as const, colorClass: "slate-400" as const },
+  { label: "Sack", key: "Sack" as const, playResult: "SACK" as const, colorClass: "red-400" as const },
+  { label: "Turnover", key: "Turnover" as const, playResult: "TURNOVER" as const, colorClass: "red-400" as const },
+  { label: "Penalty", key: "Penalty" as const, playResult: "PENALTY" as const, colorClass: "amber-400" as const },
+  { label: "TD", key: "TD" as const, playResult: "TOUCHDOWN" as const, colorClass: "amber-400" as const },
+  { label: "Punt", key: "Punt" as const, playResult: "PUNT" as const, colorClass: "slate-400" as const },
+  { label: "FG Made", key: "FG Made" as const, playResult: "FIELD_GOAL" as const, colorClass: "emerald-400" as const },
+  { label: "FG Miss", key: "FG Miss" as const, playResult: "FG_MISS" as const, colorClass: "red-400" as const },
+] as const;
+
+const RESULT_ACTIVE_CLASSES: Record<(typeof SPECIALS)[number]["colorClass"], string> = {
+  "slate-400": "border-2 border-slate-400 bg-slate-400/20 text-slate-400",
+  "red-400": "border-2 border-red-400 bg-red-400/20 text-red-400",
+  "amber-400": "border-2 border-amber-400 bg-amber-400/20 text-amber-400",
+  "emerald-400": "border-2 border-emerald-400 bg-emerald-400/20 text-emerald-400",
+};
+
+function sheetKeyForPlayResult(r: PlayResult): SheetResultKey {
+  switch (r) {
+    case "INCOMPLETE":
+      return "Incomplete";
+    case "SACK":
+      return "Sack";
+    case "TURNOVER":
+      return "Turnover";
+    case "PENALTY":
+      return "Penalty";
+    case "TOUCHDOWN":
+      return "TD";
+    case "PUNT":
+      return "Punt";
+    case "FIELD_GOAL":
+      return "FG Made";
+    case "FG_MISS":
+      return "FG Miss";
+  }
+}
+
 interface YardageSheetProps {
   play: PlaybookEntry;
   currentGameState: GameState;
@@ -36,8 +132,12 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
 
   const [endSide, setEndSide] = useState<"OWN" | "OPP">("OWN");
   const [endYardStr, setEndYardStr] = useState("");
-  const [result, setResult] = useState<PlayResult | null>(null);
+  const [selectedResult, setSelectedResult] = useState<PlayResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [fieldPosLocked, setFieldPosLocked] = useState(false);
+
+  const prevEndSideRef = useRef<"OWN" | "OPP">("OWN");
+  const prevEndYardStrRef = useRef("");
 
   useEffect(() => {
     window.history.pushState({ filmOverlay: "yards-sheet" }, "");
@@ -50,52 +150,67 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     const { side, yard_line } = fromAbsoluteYard(startFP);
     setEndSide(side);
     setEndYardStr(String(yard_line));
+    setFieldPosLocked(false);
+    setSelectedResult(null);
   }, [play.play_name, play.formation, startFP]);
 
   const parsedEndYard = Number.parseInt(endYardStr.trim(), 10);
-  const hasValidEndYard = !Number.isNaN(parsedEndYard) && parsedEndYard >= 1 && parsedEndYard <= 50;
+  const endYardNum = !Number.isNaN(parsedEndYard) && parsedEndYard >= 1 && parsedEndYard <= 50 ? parsedEndYard : null;
+  const inputProvided = endYardNum !== null;
+  const endFP = endYardNum !== null ? computeEndFP(endSide, endYardNum) : null;
+  const delta = endFP !== null ? computeDelta(startFP, endFP) : null;
+  const outcome = deriveOutcome(delta);
+
+  useEffect(() => {
+    if (selectedResult && !isResultAvailable(sheetKeyForPlayResult(selectedResult), outcome, inputProvided)) {
+      if (selectedResult === "TOUCHDOWN") {
+        setEndSide(prevEndSideRef.current);
+        setEndYardStr(prevEndYardStrRef.current);
+        setFieldPosLocked(false);
+      }
+      setSelectedResult(null);
+    }
+  }, [outcome, inputProvided, selectedResult]);
 
   const endingAbs = useMemo(() => {
-    if (!result) return startFP;
-    if (result === "INCOMPLETE" || result === "FIELD_GOAL" || result === "FG_MISS") return startFP;
-    if (result === "TOUCHDOWN") return 100;
-    if (!hasValidEndYard) return startFP;
-    return parseFieldPosition(endSide, parsedEndYard);
-  }, [result, startFP, hasValidEndYard, endSide, parsedEndYard]);
+    if (selectedResult === "TOUCHDOWN") return 100;
+    if (selectedResult === "INCOMPLETE" || selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return startFP;
+    if (!inputProvided) return startFP;
+    return parseFieldPosition(endSide, endYardNum!);
+  }, [selectedResult, startFP, inputProvided, endSide, endYardNum]);
 
   const derivedYards = useMemo(() => {
-    if (!result) return null as number | null;
-    if (result === "INCOMPLETE") return 0;
-    if (result === "TOUCHDOWN") return 100 - Math.min(99, Math.max(1, Math.round(startFP)));
-    if (result === "FIELD_GOAL" || result === "FG_MISS") return 0;
-    if (!hasValidEndYard) return null;
-    return deriveYards(startFP, endSide, parsedEndYard);
-  }, [result, startFP, hasValidEndYard, endSide, parsedEndYard]);
+    if (!inputProvided || endYardNum === null) return null as number | null;
+    if (selectedResult === "INCOMPLETE") return 0;
+    if (selectedResult === "TOUCHDOWN") return 100 - Math.min(99, Math.max(1, Math.round(startFP)));
+    if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
+    return deriveYards(startFP, endSide, endYardNum);
+  }, [selectedResult, startFP, inputProvided, endSide, endYardNum]);
 
   const inferredTag = useMemo<ResultTag>(() => {
-    if (result === "PUNT") return "PUNT";
-    if (result === "FIELD_GOAL") return "FIELD_GOAL";
-    if (result === "FG_MISS") return "TURNOVER";
-    if (result === "TURNOVER") return "TURNOVER";
-    if (result === "TOUCHDOWN") return "TOUCHDOWN";
-    if (result === "INCOMPLETE") return "INCOMPLETE";
-    if (result === "SACK") return "LOSS";
-    const y = derivedYards ?? 0;
+    if (selectedResult === "PUNT") return "PUNT";
+    if (selectedResult === "FIELD_GOAL") return "FIELD_GOAL";
+    if (selectedResult === "FG_MISS") return "TURNOVER";
+    if (selectedResult === "TURNOVER") return "TURNOVER";
+    if (selectedResult === "TOUCHDOWN") return "TOUCHDOWN";
+    if (selectedResult === "INCOMPLETE") return "INCOMPLETE";
+    if (selectedResult === "SACK") return "LOSS";
+    const y = derivedYards ?? delta ?? 0;
     if (y < 0) return "LOSS";
     if (y === 0) return "NO_GAIN";
     return "GAIN";
-  }, [result, derivedYards]);
+  }, [selectedResult, derivedYards, delta]);
 
   const needsSpot =
-    result != null &&
-    !["INCOMPLETE", "TOUCHDOWN", "FIELD_GOAL", "FG_MISS"].includes(result);
+    selectedResult != null &&
+    !["INCOMPLETE", "TOUCHDOWN", "FIELD_GOAL", "FG_MISS"].includes(selectedResult);
 
   const preview = useMemo(() => {
-    if (!result) return "";
-    if (needsSpot && (!hasValidEndYard || derivedYards === null)) {
+    if (!inputProvided) return "";
+    if (needsSpot && (derivedYards === null || !inputProvided)) {
       return "Enter ball spot to preview.";
     }
-    const y = derivedYards ?? 0;
+    const y = derivedYards ?? delta ?? 0;
     const advanceYards = inferredTag === "LOSS" ? Math.abs(y) : Math.max(0, y);
     let next = advanceGameState(currentGameState, inferredTag, advanceYards);
     if (inferredTag === "GAIN" || inferredTag === "LOSS" || inferredTag === "NO_GAIN") {
@@ -106,56 +221,79 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     }
     const downTxt = next.down === 1 ? "1st" : next.down === 2 ? "2nd" : next.down === 3 ? "3rd" : "4th";
     return `Next: ${downTxt} & ${next.distance} · ${formatFieldPosition(next.absoluteYard)}`;
-  }, [currentGameState, inferredTag, derivedYards, endingAbs, result, needsSpot, hasValidEndYard]);
+  }, [currentGameState, inferredTag, derivedYards, delta, endingAbs, needsSpot, inputProvided]);
 
-  const canLog =
-    result != null &&
-    !busy &&
-    (result === "INCOMPLETE" ||
-      result === "TOUCHDOWN" ||
-      result === "FIELD_GOAL" ||
-      result === "FG_MISS" ||
-      (needsSpot && hasValidEndYard && derivedYards !== null));
+  const logReady = inputProvided && !busy;
 
-  const spotControlsDisabled = result === "INCOMPLETE" || result === "TOUCHDOWN";
+  function yardsForSubmit(): number {
+    if (!inputProvided || endYardNum === null) return 0;
+    const d = delta ?? 0;
+    if (!selectedResult) return d;
+    if (selectedResult === "INCOMPLETE") return 0;
+    if (selectedResult === "TOUCHDOWN") return 100 - Math.min(99, Math.max(1, Math.round(startFP)));
+    if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
+    if (selectedResult === "PUNT") return Math.max(0, d);
+    return d;
+  }
 
-  const yardsConfirmation = useMemo(() => {
-    if (!result || result === "FIELD_GOAL" || result === "FG_MISS") return null;
-    if (result === "INCOMPLETE") return null;
-    if (result === "TOUCHDOWN") return <p className="font-mono text-[11px] text-emerald-400">Touchdown</p>;
-    if (!hasValidEndYard && needsSpot) return null;
-    const y = derivedYards ?? 0;
-    if (y === 0) return <p className="font-mono text-[11px] text-slate-500">No gain</p>;
-    if (y > 0) return <p className="font-mono text-[11px] text-emerald-400">{`+${y} yards`}</p>;
-    return <p className="font-mono text-[11px] text-red-400">{`${y} yards`}</p>;
-  }, [result, derivedYards, hasValidEndYard, needsSpot]);
-
-  const spotLabelMono = useMemo(() => {
-    if (result === "INCOMPLETE") return null;
-    if (result === "TOUCHDOWN") return null;
-    if (!hasValidEndYard && needsSpot) return null;
-    return <p className="font-mono text-[11px] text-slate-500">{formatFieldPositionFromAbsolute(endingAbs)}</p>;
-  }, [result, endingAbs, hasValidEndYard, needsSpot]);
+  function endingFieldForSubmit(): number {
+    if (selectedResult === "TOUCHDOWN") return 100;
+    return endFP ?? startFP;
+  }
 
   function logCtaLabel(): string {
-    if (!result) return "Select result";
-    if (!canLog && needsSpot) return "Enter ball spot";
-    if (result === "TOUCHDOWN") return `Log ${play.play_name} · Touchdown`;
-    if (result === "INCOMPLETE") return `Log ${play.play_name} · Incomplete`;
-    if (result === "FIELD_GOAL") return `Log ${play.play_name} · FG Made`;
-    if (result === "FG_MISS") return `Log ${play.play_name} · FG Miss`;
-    return `Log ${play.play_name} · ${formatFieldPositionFromAbsolute(endingAbs)}`;
+    if (!logReady) return "Select result";
+    return `Log ${play.play_name} · ${endSide} ${endYardNum ?? endYardStr}`;
+  }
+
+  function onResultButton(play: PlayResult, available: boolean) {
+    if (!available) return;
+    const active = selectedResult === play;
+
+    if (active) {
+      if (play === "TOUCHDOWN") {
+        setEndSide(prevEndSideRef.current);
+        setEndYardStr(prevEndYardStrRef.current);
+        setFieldPosLocked(false);
+      }
+      setSelectedResult(null);
+      return;
+    }
+
+    if (selectedResult === "TOUCHDOWN") {
+      setEndSide(prevEndSideRef.current);
+      setEndYardStr(prevEndYardStrRef.current);
+      setFieldPosLocked(false);
+    }
+
+    if (play === "TOUCHDOWN") {
+      prevEndSideRef.current = endSide;
+      prevEndYardStrRef.current = endYardStr;
+      setEndSide("OPP");
+      setEndYardStr("1");
+      setFieldPosLocked(true);
+    }
+
+    if (play === "INCOMPLETE") {
+      const { side, yard_line } = fromAbsoluteYard(startFP);
+      setEndSide(side);
+      setEndYardStr(String(yard_line));
+    }
+
+    setSelectedResult(play);
   }
 
   async function submit() {
-    if (!canLog || busy) return;
+    if (!logReady) return;
     setBusy(true);
     try {
-      await onLog(derivedYards ?? 0, result, endingAbs);
+      await onLog(yardsForSubmit(), selectedResult, endingFieldForSubmit());
     } finally {
       setBusy(false);
     }
   }
+
+  const spotControlsDisabled = fieldPosLocked;
 
   return (
     <div className="w-full border-t border-slate-800 bg-slate-900 p-4">
@@ -170,7 +308,9 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
       </div>
 
       <div className="mb-4 border-b border-slate-700 pb-4">
-        <p className="mb-1 font-mono text-xs uppercase tracking-widest text-slate-500">Logging Play</p>
+        <div className="mb-1">
+          <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">LOGGING PLAY</p>
+        </div>
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-lg font-bold text-slate-100">{play.play_name}</p>
@@ -185,95 +325,92 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
       </div>
 
       <div className="mt-3">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Ball spotted at</p>
-        {result === "INCOMPLETE" ? (
-          <p className="mt-2 font-sans text-sm text-slate-400">No gain — line of scrimmage</p>
-        ) : result === "TOUCHDOWN" ? (
-          <p className="mt-2 font-mono text-xs text-slate-400">{formatFieldPosition(startFP)} → end zone</p>
-        ) : (
-          <>
-            <div className="mt-2 flex flex-wrap items-stretch gap-2">
-              <button
-                type="button"
-                disabled={spotControlsDisabled}
-                className={`min-h-11 flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                  endSide === "OWN"
-                    ? "border-transparent bg-emerald-600 text-slate-100"
-                    : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
-                }`}
-                onClick={() => setEndSide("OWN")}
-              >
-                OWN
-              </button>
-              <button
-                type="button"
-                disabled={spotControlsDisabled}
-                className={`min-h-11 flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                  endSide === "OPP"
-                    ? "border-transparent bg-emerald-600 text-slate-100"
-                    : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
-                }`}
-                onClick={() => setEndSide("OPP")}
-              >
-                OPP
-              </button>
-              <label className="min-h-11 min-w-[5rem] flex-1">
-                <span className="sr-only">Yard line 1 to 50</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  disabled={spotControlsDisabled}
-                  className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 text-center font-mono text-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={endYardStr}
-                  onChange={(e) => setEndYardStr(e.target.value)}
-                />
-              </label>
-            </div>
-            {spotLabelMono ? <div className="mt-2">{spotLabelMono}</div> : null}
-            {yardsConfirmation ? <div className="mt-1">{yardsConfirmation}</div> : null}
-          </>
-        )}
+        <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">BALL SPOTTED AT</p>
+        <div className="mt-2 flex items-center gap-2">
+          <button
+            type="button"
+            disabled={spotControlsDisabled}
+            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              endSide === "OWN"
+                ? "border-transparent bg-emerald-600 text-slate-100"
+                : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
+            }`}
+            onClick={() => setEndSide("OWN")}
+          >
+            OWN
+          </button>
+          <button
+            type="button"
+            disabled={spotControlsDisabled}
+            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              endSide === "OPP"
+                ? "border-transparent bg-emerald-600 text-slate-100"
+                : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
+            }`}
+            onClick={() => setEndSide("OPP")}
+          >
+            OPP
+          </button>
+          <label className="flex min-h-[44px] min-w-0 flex-1">
+            <span className="sr-only">Yard line 1 to 50</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              disabled={spotControlsDisabled}
+              placeholder="0"
+              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white [-moz-appearance:textfield] [appearance:textfield] focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              value={endYardStr}
+              onChange={(e) => setEndYardStr(e.target.value)}
+            />
+          </label>
+        </div>
+        {selectedResult === "TOUCHDOWN" ? (
+          <p className="mt-2 font-mono text-xs text-amber-400">Touchdown — end zone</p>
+        ) : null}
+        {endYardNum !== null ? (
+          <div className="mt-1 mb-3 font-mono text-xs text-slate-400">
+            {delta === 0 ? "No gain — line of scrimmage" : null}
+            {delta !== null && delta > 0 ? <span className="text-emerald-400">{`+${delta} yards`}</span> : null}
+            {delta !== null && delta < 0 ? <span className="text-red-400">{`${delta} yards`}</span> : null}
+          </div>
+        ) : null}
       </div>
 
-      <p className="mt-4 font-mono text-[10px] uppercase text-slate-500">Result</p>
+      <div className="mt-4">
+        <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">RESULT</p>
+      </div>
       <div className="mt-2 grid grid-cols-4 gap-2">
-        {(
-          [
-            ["INCOMPLETE", "Incomplete"],
-            ["SACK", "Sack"],
-            ["TURNOVER", "Turnover"],
-            ["PENALTY", "Penalty"],
-            ["TOUCHDOWN", "TD"],
-            ["PUNT", "Punt"],
-            ["FIELD_GOAL", "FG Made"],
-            ["FG_MISS", "FG Miss"],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            className={`min-h-11 rounded-lg border px-2 font-sans text-xs ${result === value ? "border-amber-600 bg-amber-900/30 text-amber-200" : "border-slate-700 text-slate-300"}`}
-            onClick={() => {
-              setResult(value);
-              if (value === "INCOMPLETE") {
-                const { side, yard_line } = fromAbsoluteYard(startFP);
-                setEndSide(side);
-                setEndYardStr(String(yard_line));
-              }
-            }}
-          >
-            {label}
-          </button>
-        ))}
+        {SPECIALS.map((s) => {
+          const available = isResultAvailable(s.key, outcome, inputProvided);
+          const active = selectedResult === s.playResult;
+          return (
+            <button
+              key={s.key}
+              type="button"
+              disabled={!available}
+              onClick={() => onResultButton(s.playResult, available)}
+              className={cn(
+                "min-h-[44px] w-full flex-1 rounded-lg border px-2 py-2.5 font-mono text-xs font-semibold whitespace-nowrap transition-colors",
+                active ? RESULT_ACTIVE_CLASSES[s.colorClass] : available
+                  ? "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
+                  : "border-slate-800 bg-transparent text-slate-600 opacity-50 cursor-not-allowed",
+              )}
+            >
+              {s.label}
+            </button>
+          );
+        })}
       </div>
 
       <button
         type="button"
-        disabled={!canLog || busy}
-        className={`mt-4 min-h-11 w-full rounded-lg border px-3 font-sans text-sm font-semibold ${
-          canLog ? "border-transparent bg-emerald-600 text-slate-100" : "border-slate-700 text-slate-500"
-        }`}
+        disabled={!logReady}
+        className={cn(
+          "mt-4 w-full rounded-lg py-3 text-sm font-semibold transition-all min-h-[44px]",
+          logReady ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-slate-800 text-slate-600 cursor-not-allowed",
+        )}
         onClick={() => void submit()}
       >
         {logCtaLabel()}
