@@ -4,6 +4,18 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-19 (film QA22 + Play Logger modal + Game Plan add play + drive setup)
+
+**What:** Film `PlayLoggerV2`: single horizontal system (`w-full`, `px-4` wrappers, no `mx-*`); removed sticky header `-mx-3` so drive chrome aligns with body; `LoggerView` toggles suggestions vs inline `YardageSheet` (no bottom sheet / overlay); sticky drive row stays visible in yardage view; `+20` yard chip label fixed. `PlayBrowser`: scroll content and headers share `px-4`; section labels no longer use `bg-slate-950` or sticky (avoids transparent overlap). Film game details: Play Logger modal body uses full width under the title row (`overflow-hidden` wrapper, no extra `p-3`). `DriveSetupForm`: quarter as `Quarter` union with preset chip row (1–4, OT), grouped score and field labels, clearer layout for new-drive setup. Game Plan `AddPlayDrawer`: same modal shell as film Play Logger (`bg-black/60`, `z-[200]`/`[201]`, full-height mobile, `sm:max-w-4xl`), embeds shared `PlayBrowser` for pick flow; `PlaybookEditor` stops passing stats props into the drawer.
+
+**Why:** QA22 removed visible width mismatch between logger header and suggestions; yardage behaves as a second logger screen; browser group headers no longer read as heavy bars; coaches asked Game Plan add/swap play to mirror film browse; drive setup matches the quarter control pattern used on expanded drives.
+
+**Decisions:** Add play no longer shows scenario or formation aggregate stats inside the picker (browse matches film; suggestions on the sheet editor still surface tendencies).
+
+**Status after this push:** `npm run build` is clean; film and playbook flows share the same browser component and modal framing.
+
+---
+
 ## 2026-04-19 (film QA18 + QA19 — logger, browser, play types)
 
 **What:** `PlayLoggerV2` drive chrome: removed in-header close and End Drive (drive completion is implicit via modal back; unmount refreshes data, with a TODO for a future persisted drive outcome when the schema supports it); single compressed sticky situation row (QA19) with amber `DRIVE {N}`, inline down/distance + field, call-count accordion chevron, full-width `bg-slate-900` header and emerald flash on the whole bar; accordion stream below with shared chevron rotation. `PlayBrowser`: single scroll with sticky formation-group headers; two-column formation chips (no play-count rows or chevrons); shared full-width slate header for Back + search; plays drill-down hides search and matches Back styling with centered formation title; removed top gaps under headers. `PlayRow` + `inferPlayType`: dropped `OTHER` badge path, dev warn + `RUN` fallback, migration `cfb26_plays_play_type_check` plus data cleanup for `RUN`/`PASS`/`RPO`. Film game details: removed empty-drive confirm modal tied to the old End Drive control.

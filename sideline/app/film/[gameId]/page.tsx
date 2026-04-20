@@ -8,7 +8,7 @@ import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
-import { DriveSetupForm } from "@/components/film/DriveSetupForm";
+import { DriveSetupForm, type Quarter } from "@/components/film/DriveSetupForm";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
 import { DriveStartingFieldPanel } from "@/components/film/DriveStartingFieldPanel";
 import { ResultBadge } from "@/components/import/ResultBadge";
@@ -28,6 +28,13 @@ import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 import { replayGameStateFromPlays } from "@/lib/gameStateEngine";
+
+function quarterFromDriveForSetup(q: number | null | undefined): Quarter {
+  if (q == null || q < 1) return "1";
+  if (q >= 5) return "OT";
+  const clamped = Math.min(4, Math.floor(q)) as 1 | 2 | 3 | 4;
+  return String(clamped) as Quarter;
+}
 
 function getDriveResult(plays: LoggedPlay[] | undefined | null): DrivePossessionOutcome {
   return getDrivePossessionOutcome(plays);
@@ -769,7 +776,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               </div>
               <DriveSetupForm
                 defaultValues={{
-                  quarter: Math.max(1, Number(drives[drives.length - 1]?.quarter ?? 1)),
+                  quarter: quarterFromDriveForSetup(drives[drives.length - 1]?.quarter),
                   score_mine: Math.max(0, Number(drives[drives.length - 1]?.score_mine ?? 0)),
                   score_opponent: Math.max(0, Number(drives[drives.length - 1]?.score_opponent ?? 0)),
                   starting_side: "OWN",
@@ -779,7 +786,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 }}
                 onCancel={() => setShowDriveSetup(false)}
                 onSubmit={async (values) => {
-                  const created = await createDrive(values);
+                  const created = await createDrive({
+                    quarter: values.quarter === "OT" ? 5 : Number(values.quarter),
+                    score_mine: values.score_mine,
+                    score_opponent: values.score_opponent,
+                    starting_side: values.starting_side,
+                    starting_yard_line: values.starting_yard_line,
+                    starting_down: values.starting_down,
+                    starting_distance: values.starting_distance,
+                  });
                   if (!created) return;
                   setShowDriveSetup(false);
                   openForCreate(created.id);
@@ -803,7 +818,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border border-slate-800 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
-              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">Play Logger</h2>
                 <button
                   type="button"
@@ -816,7 +831,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   <span className="sr-only">Close</span>
                 </button>
               </div>
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <PlayLoggerV2
                   gameId={gameId}
                   driveId={activeDriveObj.id}

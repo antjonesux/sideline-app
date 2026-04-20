@@ -13,6 +13,8 @@ import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 
+type LoggerView = "suggestions" | "yardage";
+
 interface PlayLoggerV2Props {
   gameId: string;
   driveId: string;
@@ -24,6 +26,7 @@ interface PlayLoggerV2Props {
 export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
+  const [view, setView] = useState<LoggerView>("suggestions");
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
   const [optimistic, setOptimistic] = useState<LoggedPlay[]>([]);
   const [flashOk, setFlashOk] = useState(false);
@@ -69,6 +72,11 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
     () => [...mergedPlays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0)),
     [mergedPlays],
   );
+
+  function handlePlaySelect(play: PlaybookEntry) {
+    setSelectedPlay(play);
+    setView("yardage");
+  }
 
   async function handleLog(yards: number, result: PlayResult | null) {
     if (!selectedPlay) return;
@@ -127,6 +135,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
 
     setOptimistic((p) => [...p, optimisticPlay]);
     setSelectedPlay(null);
+    setView("suggestions");
     setFlashOk(true);
     setTimeout(() => setFlashOk(false), 350);
 
@@ -181,7 +190,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col bg-slate-950">
       <div
-        className={`sticky top-0 z-10 -mx-3 border-b border-slate-700 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}
+        className={`sticky top-0 z-10 w-full border-b border-slate-700 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}
       >
         <div className="flex w-full items-center gap-3 px-4 py-3">
           <span className="whitespace-nowrap font-mono text-[13px] font-semibold uppercase tracking-widest text-amber-400">
@@ -189,7 +198,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
           </span>
 
           <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0">
-            <span className="font-sans text-lg font-bold leading-none text-white">{situationLine}</span>
+            <span className="font-mono text-[13px] font-semibold text-white">{situationLine}</span>
             <span className="font-mono text-xs text-slate-400">· {fieldLine}</span>
           </div>
 
@@ -243,30 +252,51 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pt-0 pb-28">
-        <button
-          type="button"
-          className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 text-left"
-          onClick={() => setBrowserOpen(true)}
-        >
-          <span>
-            <span className="block font-sans text-sm text-slate-400">Search plays & formations</span>
-            <span className="block font-mono text-[10px] text-slate-500">Browse playbook</span>
-          </span>
-          <span className="font-mono text-xs text-slate-500">›</span>
-        </button>
+      <div
+        className={`min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-28 ${view === "suggestions" ? "pt-3" : ""}`}
+      >
+        {view === "suggestions" ? (
+          <>
+            <div className="px-4 mb-3">
+              <button
+                type="button"
+                className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-950 px-3 text-left"
+                onClick={() => setBrowserOpen(true)}
+              >
+                <span>
+                  <span className="block font-sans text-sm text-slate-400">Search plays & formations</span>
+                  <span className="block font-mono text-[10px] text-slate-500">Browse playbook</span>
+                </span>
+                <span className="font-mono text-xs text-slate-500">›</span>
+              </button>
+            </div>
 
-        <section>
-          <p className="font-mono text-[9px] uppercase tracking-wide text-slate-500">You&apos;ve been calling…</p>
-          <p className="mt-1 font-sans text-[11px] text-slate-400">
-            Based on {situationLine} at {fieldLine}
-          </p>
-          <div className="mt-2 space-y-2">
-            {suggestions.map((play) => (
-              <PlayRow key={play.play_id} play={play} onSelect={(picked) => setSelectedPlay(picked)} />
-            ))}
-          </div>
-        </section>
+            <div className="px-4 mb-2">
+              <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>
+              <p className="mt-0.5 font-sans text-xs text-slate-400">
+                Based on {situationLine} at {fieldLine}
+              </p>
+            </div>
+
+            <div className="px-4 flex flex-col gap-2">
+              {suggestions.map((play) => (
+                <PlayRow key={play.play_id} play={play} onSelect={handlePlaySelect} />
+              ))}
+            </div>
+          </>
+        ) : null}
+
+        {view === "yardage" && selectedPlay ? (
+          <YardageSheet
+            play={selectedPlay}
+            currentGameState={currentGameState}
+            onLog={handleLog}
+            onCancel={() => {
+              setView("suggestions");
+              setSelectedPlay(null);
+            }}
+          />
+        ) : null}
       </div>
 
       {browserOpen ? (
@@ -275,17 +305,8 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
           onClose={() => setBrowserOpen(false)}
           onSelect={(play) => {
             setBrowserOpen(false);
-            setSelectedPlay(play);
+            handlePlaySelect(play);
           }}
-        />
-      ) : null}
-
-      {selectedPlay ? (
-        <YardageSheet
-          play={selectedPlay}
-          currentGameState={currentGameState}
-          onCancel={() => setSelectedPlay(null)}
-          onLog={handleLog}
         />
       ) : null}
     </div>

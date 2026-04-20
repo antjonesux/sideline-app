@@ -444,8 +444,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         }}
         cfb26Playbook={cfb26}
         scenarioName={activeScenario}
-        scenarioStats={stats}
-        formationStats={formationStats}
         onPick={onDrawerPick}
       />
       {editorOpen ? (
