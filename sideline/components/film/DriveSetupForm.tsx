@@ -27,12 +27,18 @@ export function DriveSetupForm({
   onSubmit: (values: DriveSetupValues) => Promise<void>;
 }) {
   const [values, setValues] = useState<DriveSetupValues>(defaultValues);
+  const [startingYardStr, setStartingYardStr] = useState(() => String(defaultValues.starting_yard_line));
   const [busy, setBusy] = useState(false);
 
+  const parsedStartingYard = Number.parseInt(startingYardStr.trim(), 10);
+  const startingYardValid =
+    !Number.isNaN(parsedStartingYard) && parsedStartingYard >= 1 && parsedStartingYard <= 50;
+
   async function submit() {
+    if (!startingYardValid) return;
     setBusy(true);
     try {
-      await onSubmit(values);
+      await onSubmit({ ...values, starting_yard_line: parsedStartingYard });
     } finally {
       setBusy(false);
     }
@@ -116,13 +122,18 @@ export function DriveSetupForm({
             OPP
           </button>
           <input
-            type="number"
-            min={1}
-            max={50}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
             aria-label="Yard line (1–50)"
-            className="min-h-11 min-w-[4.5rem] flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 text-center font-mono tabular-nums text-slate-100 focus:border-emerald-500 focus:outline-none"
-            value={values.starting_yard_line}
-            onChange={(e) => setValues((v) => ({ ...v, starting_yard_line: Math.max(1, Math.min(50, Number(e.target.value) || 25)) }))}
+            placeholder="1–50"
+            className={`min-h-11 min-w-[4.5rem] flex-1 rounded-lg border bg-slate-800 px-3 text-center font-mono tabular-nums text-slate-100 focus:outline-none ${
+              startingYardStr.trim() !== "" && !startingYardValid
+                ? "border-amber-600/80 focus:border-amber-500"
+                : "border-slate-700 focus:border-emerald-500"
+            }`}
+            value={startingYardStr}
+            onChange={(e) => setStartingYardStr(e.target.value)}
           />
         </div>
       </div>
@@ -156,7 +167,7 @@ export function DriveSetupForm({
         <button type="button" className="btn-secondary flex-1" onClick={onCancel}>
           Cancel
         </button>
-        <button type="button" disabled={busy} className="btn-primary flex-1" onClick={() => void submit()}>
+        <button type="button" disabled={!startingYardValid || busy} className="btn-primary flex-1" onClick={() => void submit()}>
           Start Drive
         </button>
       </div>

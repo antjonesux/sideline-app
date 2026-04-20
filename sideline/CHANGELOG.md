@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-21 (film Drive setup — starting yard input)
+
+**What:** `DriveSetupForm` starting yard line uses controlled **text** (`inputMode="numeric"`) plus `startingYardStr` state so an empty field stays empty while typing; validation requires **1–50** before **Start Drive** enables. Submit merges the parsed yard into `DriveSetupValues`. Removed the old `Number(e.target.value) || 25` coercion and per-keystroke `min`/`max` clamp on that control.
+
+**Why:** Clearing the yard field immediately refilled **25**, which made it hard to enter a different line from scratch.
+
+**Status after this push:** `npm run build` is clean; `sideline/components/film/DriveSetupForm.tsx`.
+
+---
+
 ## 2026-04-20 (film YardageSheet — TD yards, availability, chip color)
 
 **What:** `YardageSheet` keeps `spotDelta` for gain/loss/no-gain gating; **TD** is available on any valid spot (same map pattern as Turnover/Penalty). TD no longer locks OWN/OPP or forces OPP 1; ending field on submit follows the spotted line. `touchdownYardsFromSpots` adjusts logged/preview yards for the goal plane (e.g. +1 when the spot is OPP 1 / abs 99; same-line short-field TDs inside OPP 4 use `100 − startFP`; same-spot TDs at OPP 15 stay 0). TD active chip styling matches **FG Made** (emerald). Prior QA polish unchanged: mono section labels, yard input without steppers, result grid chips.

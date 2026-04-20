@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-21 — Film Drive setup: starting yard line free typing
+
+### What
+
+- **`DriveSetupForm`** keeps the starting yard line in a **string** field so clearing it no longer snaps back to **25** (or clamps mid-edit via `Number("") || 25`). Coaches can empty the box and type **1–50** at their own pace.
+- **Start Drive** stays disabled until the yard parses to a valid integer in range; invalid non-empty input shows an amber field border.
+
+### Why
+
+- The previous `type="number"` handler coerced empty input to the default yard, which blocked natural editing.
+
+### Status after this push
+
+- Production build is clean. See `sideline/CHANGELOG.md` for file-level notes (`DriveSetupForm.tsx`).
+
+---
+
 ## 2026-04-20 — Film YardageSheet TD follow-up (yards, chip, no field lock)
 
 ### What
