@@ -22,6 +22,7 @@ type GameCardData = GameSession & {
 
 export function FilmGameCard({ game }: { game: GameCardData }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const router = useRouter();
@@ -86,20 +87,19 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
 
       <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Game actions">
         <li>
-          <div
+          <button
+            type="button"
+            role="menuitem"
+            className="app-dropdown-item rounded-none"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              setMenuOpen(false);
+              setEditOpen(true);
             }}
           >
-            <EditGameDetailsModal
-              gameId={game.id}
-              game={game}
-              onSaved={() => router.refresh()}
-              triggerClassName="app-dropdown-item rounded-none"
-              triggerLabel="Edit Game Details"
-            />
-          </div>
+            Edit Game Details
+          </button>
         </li>
         <li>
           <button
@@ -117,6 +117,15 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
           </button>
         </li>
       </CardKebabMenu>
+
+      <EditGameDetailsModal
+        gameId={game.id}
+        game={game}
+        onSaved={() => router.refresh()}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        hideTrigger
+      />
 
       <ConfirmDestructiveModal
         open={deleteOpen}

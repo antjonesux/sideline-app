@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-21 (film game card modal controls + turnover normalization + delete cascade fallback)
+
+**What:** `app/api/games/[id]/route.ts` now performs a defensive manual delete cascade (`logged_plays` -> `drives` -> `game_sessions`) so game deletion still succeeds when FK cascades are missing/drifted. `FilmGameCard` now opens `EditGameDetailsModal` in controlled mode (`open` / `onOpenChange`) from a plain menu button instead of nesting the modal trigger in the dropdown item. `EditGameDetailsModal` adds controlled/open lifecycle props (`open`, `onOpenChange`, `hideTrigger`, optional `onOpen`) and renders through `createPortal` with higher overlay z-index to avoid nav/menu stacking collisions. `driveOutcome` now treats `INTERCEPTION` and `FUMBLE` as turnover tags everywhere turnover checks are used, and `PlayLoggerV2` keeps explicit `TURNOVER` mapping in drive outcome derivation. `BottomTabNav` z-index is lowered (`z-50` -> `z-40`) so overlays win layering consistently.
+
+**Why:** Film game-card actions were vulnerable to dropdown/modal interaction and z-index issues, turnover-related tags were not fully normalized in outcome helpers, and delete behavior needed a safe fallback in environments where relational cascade assumptions are not guaranteed.
+
+**Status after this push:** Film edit/delete interactions are more robust, turnover outcome handling is consistent across tags, and game delete no longer depends solely on FK cascade behavior.
+
+---
+
 ## 2026-04-21 (film drive play table — SPOT, TD yards, mobile scroll, badges)
 
 **What:** `YardageSheet` treats **TD** as ending past the goal plane: `effectiveEndFP` **100** so `yards_gained` and `onLog` ending position match coach intent (removes the old `touchdownYardsFromSpots` helper). `lib/fieldPosition.ts` adds **`formatBallSpot`**; `lib/gameStateEngine.ts` adds **`absoluteYardAfterLoggedPlay`** (engine-consistent ending yard, **100** → **EZ** for offensive **TD** / **FIELD_GOAL**). Drive play **`DataTable`** adds a **SPOT** column (`drivePlayTableColumns`); `film/[gameId]` maps rows with `ending_absolute_yard` until a persisted `ending_field_position` exists (`LoggedPlay` optional field). **`DataTable`**: `equalColumns` layout, scroll wrapper `min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x`, table `min-w-[520px]` when equal / `min-w-full w-max` otherwise; parents (`drive` accordion, tendencies scenario card, formation nested panel, import previews) get **`min-w-0`** so horizontal scroll works on small screens. **`ResultBadge`**: **`whitespace-nowrap`** and **`shrink-0`** so labels do not wrap in table cells.

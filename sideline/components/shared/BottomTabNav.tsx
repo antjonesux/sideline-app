@@ -41,7 +41,7 @@ export default function BottomTabNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-800 bg-slate-950 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]"
       aria-label="Main navigation"
     >
       <ul className="mx-auto grid max-w-3xl grid-cols-3 gap-2">

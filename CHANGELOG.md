@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-21 — Film game card modal/control fixes, turnover tagging, and delete cascade hardening
+
+### What
+
+- **Game delete API (`/api/games/[id]`)** now performs a defensive manual cascade by deleting `logged_plays` and `drives` before removing the `game_sessions` row, so game removal succeeds even if FK cascade drift exists.
+- **Film game card edit flow** was refactored so the kebab menu launches `EditGameDetailsModal` as a controlled modal (separate trigger, explicit open state) rather than nesting a trigger inside a menu item.
+- **Edit game details modal** now supports controlled props (`open`, `onOpenChange`, `hideTrigger`, `onOpen`) and renders via `createPortal` at a higher overlay layer to avoid stacking conflicts with navigation and menu chrome.
+- **Drive outcome logic** now treats `INTERCEPTION` and `FUMBLE` as turnover tags in the same path as `TURNOVER`, including possession-ended checks and final drive outcome mapping.
+- **Play logger result mapping** now preserves explicit `TURNOVER` outcomes (instead of collapsing through `FG_MISS` handling), and the bottom nav z-index was lowered to keep modal overlays on top.
+
+### Why
+
+- Coaches were hitting modal/menu layering issues in game-card actions and inconsistent turnover semantics for drive outcomes; deletion also needed to remain reliable across database environments where cascade constraints may differ.
+
+### Status after this push
+
+- Film game card interactions and edit modal layering are consistent, turnover outcomes are normalized, and game deletion is resilient to FK drift.
+
+---
+
 ## 2026-04-21 — Film Drive setup: starting yard line free typing
 
 ### What

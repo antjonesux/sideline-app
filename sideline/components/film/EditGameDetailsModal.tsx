@@ -7,6 +7,7 @@ import type { GameSession } from "@/lib/types";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { supabase } from "@/lib/supabase";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useToastStore } from "@/store/toastStore";
 
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
@@ -55,6 +56,10 @@ type Props = {
   onSaved: (updated: GameSession) => void | Promise<void>;
   triggerLabel?: string;
   triggerClassName?: string;
+  onOpen?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 };
 
 export function EditGameDetailsModal({
@@ -63,8 +68,22 @@ export function EditGameDetailsModal({
   onSaved,
   triggerLabel = "Edit",
   triggerClassName = "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white",
+  onOpen,
+  open,
+  onOpenChange,
+  hideTrigger = false,
 }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const isControlled = typeof open === "boolean";
+  const isOpen = isControlled ? open : internalOpen;
+  const setIsOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) setInternalOpen(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange],
+  );
   useScrollLock(isOpen);
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
@@ -197,6 +216,10 @@ export function EditGameDetailsModal({
   }, [isOpen, hydrateFromGame]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setIsOpen(false);
@@ -245,33 +268,40 @@ export function EditGameDetailsModal({
 
   return (
     <>
-      <button
-        type="button"
-        className={triggerClassName}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        aria-controls={MODAL_ID}
-        onClick={() => setIsOpen(true)}
-      >
-        {triggerLabel}
-      </button>
+      {hideTrigger ? null : (
+        <button
+          type="button"
+          className={triggerClassName}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-controls={MODAL_ID}
+          onClick={() => {
+            onOpen?.();
+            setIsOpen(true);
+          }}
+        >
+          {triggerLabel}
+        </button>
+      )}
 
-      <div
-        id={MODAL_ID}
-        className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${isOpen ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"}`}
-        role="dialog"
-        tabIndex={-1}
-        aria-modal={isOpen}
-        aria-labelledby="hs-edit-game-modal-label"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) setIsOpen(false);
-        }}
-      >
-        <div className={`hs-overlay-animation-target fixed inset-x-0 bottom-0 z-[61] transition-all ease-out sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
-          <div
-            className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {mounted
+        ? createPortal(
+            <div
+              id={MODAL_ID}
+              className={`hs-overlay fixed inset-0 z-[200] overflow-x-hidden overflow-y-auto ${isOpen ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"}`}
+              role="dialog"
+              tabIndex={-1}
+              aria-modal={isOpen}
+              aria-labelledby="hs-edit-game-modal-label"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setIsOpen(false);
+              }}
+            >
+              <div className={`hs-overlay-animation-target fixed inset-x-0 bottom-0 z-[201] transition-all ease-out sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
+                <div
+                  className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
             <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -401,9 +431,12 @@ export function EditGameDetailsModal({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      </div>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }

@@ -85,6 +85,8 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
         ? "PUNT"
         : result === "FIELD_GOAL"
           ? "FIELD_GOAL"
+          : result === "TURNOVER"
+            ? "TURNOVER"
           : result === "FG_MISS"
             ? "TURNOVER"
             : result === "TOUCHDOWN"
