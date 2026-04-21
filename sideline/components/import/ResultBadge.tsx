@@ -14,7 +14,7 @@ export function ResultBadge({ label }: { label: string }) {
   const display = label.replace(/_/g, " ");
   return (
     <span
-      className={`font-mono inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${classesForResult(label)}`}
+      className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wide ${classesForResult(label)}`}
     >
       {display}
     </span>

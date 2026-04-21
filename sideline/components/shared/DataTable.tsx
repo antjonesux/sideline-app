@@ -14,8 +14,10 @@ export type DataTableProps<T> = {
   getRowKey: (row: T, index: number) => string;
   /** Sticky header inside a scroll parent (e.g. import preview). */
   stickyHeader?: boolean;
-  /** Outer scroll wrapper (default aligns with accordion `px-4` padding). */
+  /** Extra classes merged onto the horizontal scroll wrapper (always gets `min-w-0 overflow-x-auto`). */
   wrapperClassName?: string;
+  /** Equal fractional width per column (`table-layout: fixed` + colgroup). */
+  equalColumns?: boolean;
   onRowClick?: (row: T) => void;
   onRowContextMenu?: (e: React.MouseEvent<HTMLTableRowElement>, row: T) => void;
   /** If returned, a full-width row is rendered immediately after this data row. */
@@ -28,7 +30,8 @@ export function DataTable<T>({
   rows,
   getRowKey,
   stickyHeader = false,
-  wrapperClassName = "overflow-x-auto",
+  wrapperClassName = "",
+  equalColumns = false,
   onRowClick,
   onRowContextMenu,
   renderAfterRow,
@@ -36,17 +39,30 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const colCount = columns.length;
   const headerSticky = stickyHeader ? "sticky top-0 z-10 bg-slate-900 dark:bg-slate-900" : "";
+  const colPct = colCount > 0 ? 100 / colCount : 100;
+  const cellLayout = equalColumns ? "min-w-0" : "whitespace-nowrap";
+
+  const wrapperClasses = ["min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x", wrapperClassName].filter(Boolean).join(" ");
 
   return (
-    <div className={wrapperClassName}>
-      <table className="w-full border-collapse">
+    <div className={wrapperClasses}>
+      <table
+        className={`border-collapse ${equalColumns ? "w-full table-fixed min-w-[520px]" : "min-w-full w-max"}`}
+      >
+        {equalColumns && colCount > 0 ? (
+          <colgroup>
+            {columns.map((col) => (
+              <col key={col.key} style={{ width: `${colPct}%` }} />
+            ))}
+          </colgroup>
+        ) : null}
         <thead>
           <tr className={`border-b border-slate-700 dark:border-slate-700 ${headerSticky}`}>
             {columns.map((col) => (
               <th
                 key={col.key}
                 scope="col"
-                className={`text-left align-top text-xs font-sans font-medium uppercase tracking-wider text-slate-500 dark:text-slate-500 px-4 py-2 ${col.width ?? ""}`}
+                className={`text-left align-top text-xs font-sans font-medium uppercase tracking-wider text-slate-500 dark:text-slate-500 px-4 py-2 ${cellLayout} ${equalColumns ? "" : col.width ?? ""}`}
               >
                 {col.header}
               </th>
@@ -67,7 +83,7 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`whitespace-nowrap text-left align-top px-4 py-3 text-sm font-mono ${col.width ?? ""}`}
+                      className={`${cellLayout} text-left align-top px-4 py-3 text-sm font-mono ${equalColumns ? "" : col.width ?? ""}`}
                     >
                       {col.render(row)}
                     </td>

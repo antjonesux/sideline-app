@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-21 (film drive play table — SPOT, TD yards, mobile scroll, badges)
+
+**What:** `YardageSheet` treats **TD** as ending past the goal plane: `effectiveEndFP` **100** so `yards_gained` and `onLog` ending position match coach intent (removes the old `touchdownYardsFromSpots` helper). `lib/fieldPosition.ts` adds **`formatBallSpot`**; `lib/gameStateEngine.ts` adds **`absoluteYardAfterLoggedPlay`** (engine-consistent ending yard, **100** → **EZ** for offensive **TD** / **FIELD_GOAL**). Drive play **`DataTable`** adds a **SPOT** column (`drivePlayTableColumns`); `film/[gameId]` maps rows with `ending_absolute_yard` until a persisted `ending_field_position` exists (`LoggedPlay` optional field). **`DataTable`**: `equalColumns` layout, scroll wrapper `min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x`, table `min-w-[520px]` when equal / `min-w-full w-max` otherwise; parents (`drive` accordion, tendencies scenario card, formation nested panel, import previews) get **`min-w-0`** so horizontal scroll works on small screens. **`ResultBadge`**: **`whitespace-nowrap`** and **`shrink-0`** so labels do not wrap in table cells.
+
+**Why:** Same-line TD spots logged **0** yards; coaches need post-play field readout; equal-width columns need a wider minimum table width plus scroll containers that can shrink inside `overflow-hidden` cards; result pills must stay single-line in narrow columns.
+
+**Status after this push:** `npm run build` is clean; `YardageSheet.tsx`, `fieldPosition.ts`, `gameStateEngine.ts`, `types.ts`, `drivePlayTableColumns.tsx`, `DataTable.tsx`, `ResultBadge.tsx`, `film/[gameId]/page.tsx`, `FilmGameTendenciesBody.tsx`, `GameFormationTable.tsx`, `ImportPreviewDrives.tsx`, `ImportPreviewTable.tsx`.
+
+---
+
 ## 2026-04-21 (film Drive setup — starting yard input)
 
 **What:** `DriveSetupForm` starting yard line uses controlled **text** (`inputMode="numeric"`) plus `startingYardStr` state so an empty field stays empty while typing; validation requires **1–50** before **Start Drive** enables. Submit merges the parsed yard into `DriveSetupValues`. Removed the old `Number(e.target.value) || 25` coercion and per-keystroke `min`/`max` clamp on that control.

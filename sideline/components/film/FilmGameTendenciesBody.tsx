@@ -118,9 +118,10 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
         {!hasPlays || data.scenario_breakdown.length === 0 ? (
           <p className="font-sans text-sm text-slate-500">No situations tagged on this log yet.</p>
         ) : (
-          <div className="app-card overflow-hidden">
+          <div className="app-card min-w-0 overflow-hidden">
             <DataTable
               columns={scenarioColumns}
+              equalColumns
               rows={data.scenario_breakdown}
               getRowKey={(r) => r.situation}
             />

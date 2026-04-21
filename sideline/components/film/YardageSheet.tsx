@@ -35,21 +35,8 @@ function computeDelta(startFP: number, endFP: number): number {
   return endFP - startFP;
 }
 
-/**
- * Touchdown yards: field positions are 1–99 (goal line is conceptually 100), so a TD that
- * reaches the plane needs an extra yard when the spot is OPP 1 (abs 99). Same LOS and spot
- * with no forward delta still scores from short range — credit yards-to-goal inside OPP 4.
- */
-function touchdownYardsFromSpots(startFP: number, endFP: number): number {
-  const d = endFP - startFP;
-  if (d === 0) {
-    return startFP >= 96 ? 100 - startFP : 0;
-  }
-  if (d > 0 && endFP >= 99) {
-    return d + 1;
-  }
-  return d;
-}
+/** Past the goal plane in the same 1–99 absolute encoding as `toAbsoluteYard` / `yardsToEndZone` (goal line = 100). */
+const END_ZONE_FP = 100;
 
 type PlayOutcome = "gain" | "loss" | "no_gain";
 
@@ -169,12 +156,14 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   const endYardNum = !Number.isNaN(parsedEndYard) && parsedEndYard >= 1 && parsedEndYard <= 50 ? parsedEndYard : null;
   const inputProvided = endYardNum !== null;
   const endFP = endYardNum !== null ? computeEndFP(endSide, endYardNum) : null;
-  const spotDelta = endFP !== null ? computeDelta(startFP, endFP) : null;
+  // When TD is selected, the play ends in the end zone. `endFP` from input is the snap / ball
+  // spot, not the scoring plane — override so yards and logged ending position are correct.
+  const effectiveEndFP =
+    selectedResult === "TOUCHDOWN" && endFP !== null ? END_ZONE_FP : endFP;
+  const spotDelta =
+    effectiveEndFP !== null ? computeDelta(startFP, effectiveEndFP) : null;
   const outcome = deriveOutcome(spotDelta);
-  const displayYards =
-    endFP !== null && selectedResult === "TOUCHDOWN"
-      ? touchdownYardsFromSpots(startFP, endFP)
-      : spotDelta;
+  const displayYards = spotDelta;
 
   useEffect(() => {
     if (selectedResult && !isResultAvailable(sheetKeyForPlayResult(selectedResult), outcome, inputProvided)) {
@@ -192,9 +181,9 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     if (!inputProvided || endYardNum === null) return null as number | null;
     if (selectedResult === "INCOMPLETE") return 0;
     if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
-    if (selectedResult === "TOUCHDOWN") return touchdownYardsFromSpots(startFP, computeEndFP(endSide, endYardNum));
+    if (selectedResult === "TOUCHDOWN") return spotDelta;
     return deriveYards(startFP, endSide, endYardNum);
-  }, [selectedResult, startFP, inputProvided, endSide, endYardNum]);
+  }, [selectedResult, startFP, inputProvided, endSide, endYardNum, spotDelta]);
 
   const inferredTag = useMemo<ResultTag>(() => {
     if (selectedResult === "PUNT") return "PUNT";
@@ -241,12 +230,12 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     if (selectedResult === "INCOMPLETE") return 0;
     if (selectedResult === "FIELD_GOAL" || selectedResult === "FG_MISS") return 0;
     if (selectedResult === "PUNT") return Math.max(0, d);
-    if (selectedResult === "TOUCHDOWN") return touchdownYardsFromSpots(startFP, endFP!);
+    if (selectedResult === "TOUCHDOWN") return spotDelta ?? 0;
     return d;
   }
 
   function endingFieldForSubmit(): number {
-    return endFP ?? startFP;
+    return effectiveEndFP ?? startFP;
   }
 
   function logCtaLabel(): string {

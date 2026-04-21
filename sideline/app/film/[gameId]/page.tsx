@@ -27,7 +27,7 @@ import { normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
-import { replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { absoluteYardAfterLoggedPlay, replayGameStateFromPlays } from "@/lib/gameStateEngine";
 
 function quarterFromDriveForSetup(q: number | null | undefined): Quarter {
   if (q == null || q < 1) return "1";
@@ -508,7 +508,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const metaLine = `${quarterMeta} · ${mine}-${theirs} · ${playCount} ${playCount === 1 ? "call" : "calls"}`;
 
         return (
-          <div key={drive.id} className="app-card overflow-hidden rounded-xl">
+          <div key={drive.id} className="app-card min-w-0 overflow-hidden rounded-xl">
             <div className="flex items-center gap-2 border-b border-slate-800/60 px-4 py-3">
               <button
                 type="button"
@@ -558,7 +558,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </div>
 
             {isExpanded ? (
-              <div className="rounded-b-xl border-t border-slate-800/80 bg-slate-800/50 p-4">
+              <div className="min-w-0 rounded-b-xl border-t border-slate-800/80 bg-slate-800/50 p-4">
                 <div className="mb-3 flex flex-col gap-3">
                   <div>
                     <p className="app-field-label text-slate-500 dark:text-slate-500">Quarter</p>
@@ -645,7 +645,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 </div>
                 <DataTable
                   columns={drivePlayCols}
-                  rows={drive.plays ?? []}
+                  equalColumns
+                  rows={(drive.plays ?? []).map((p) => ({
+                    ...p,
+                    ending_absolute_yard: absoluteYardAfterLoggedPlay(p, drive.drive_number),
+                  }))}
                   getRowKey={(p) => p.id}
                   rowClassName="app-no-press-scale hover:bg-white/[0.02]"
                   onRowClick={undefined}

@@ -30,6 +30,8 @@ export type LoggedPlay = {
   play_name: string;
   yards_gained: number;
   result_tag: string;
+  /** When persisted: absolute line 1–99 on field, or 100 for end zone (e.g. TD). */
+  ending_field_position?: number | null;
   note?: string | null;
   /** Canonical RUN | PASS | RPO from `cfb26_plays`, kept in sync on write. */
   play_type?: "RUN" | "PASS" | "RPO" | null;

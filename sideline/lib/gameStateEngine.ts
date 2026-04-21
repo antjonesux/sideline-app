@@ -264,6 +264,33 @@ function normalizeStoredResultTag(tag: string): ResultTag {
 }
 
 /** Recompute game state after the last play in the list (for next snap). */
+/**
+ * Absolute yard line after this play (1–99 on field, 100 = end zone for offensive TD/FG).
+ * Uses the same snap → advance rules as `replayGameStateFromPlays` so punt, turnover, etc.
+ * stay consistent with the engine.
+ */
+export function absoluteYardAfterLoggedPlay(
+  play: {
+    down: number;
+    distance: number;
+    side: Side;
+    yard_line: number;
+    yards_gained: number | null | undefined;
+    result_tag: string;
+    is_inches?: boolean | null;
+    play_number?: number;
+    drive_number?: number | null;
+  },
+  fallbackDriveNumber: number,
+): number {
+  const snap = snapStateFromPlay(play, fallbackDriveNumber);
+  const tag = normalizeStoredResultTag(play.result_tag);
+  const y = play.yards_gained ?? 0;
+  const next = advanceGameState(snap, tag, y);
+  if (tag === "TOUCHDOWN" || tag === "FIELD_GOAL") return 100;
+  return next.absoluteYard;
+}
+
 export function replayGameStateFromPlays(
   plays: Array<{
     down: number;

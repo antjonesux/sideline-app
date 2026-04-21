@@ -114,9 +114,10 @@ export function ImportPreviewDrives({ rows }: Props) {
               </span>
             </button>
             {expanded ? (
-              <div className="border-t border-slate-800/80 bg-slate-950/40 px-3 py-1 sm:px-4">
+              <div className="min-w-0 border-t border-slate-800/80 bg-slate-950/40 px-3 py-1 sm:px-4">
                 <DataTable
                   columns={driveCols}
+                  equalColumns
                   rows={plays.map(csvRowToDrivePlay)}
                   getRowKey={(p) => p.id}
                 />

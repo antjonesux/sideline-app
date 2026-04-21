@@ -40,3 +40,16 @@ export function deriveYards(startFP: number, endSide: "OWN" | "OPP", endYard: nu
   const start = Math.min(99, Math.max(1, Math.round(startFP)));
   return endFP - start;
 }
+
+/**
+ * Formats a field position integer (1–100) as a human-readable ball spot.
+ * OWN side: 1–50 → "OWN N"
+ * OPP side: 51–99 → "OPP N" where N = 100 - fieldPos
+ * Special: 100 = end zone (TD / scoring plane) → "EZ"
+ */
+export function formatBallSpot(fieldPos: number | null | undefined): string {
+  if (fieldPos === null || fieldPos === undefined) return "—";
+  if (fieldPos >= 100) return "END ZONE";
+  if (fieldPos <= 50) return `OWN ${fieldPos}`;
+  return `OPP ${100 - fieldPos}`;
+}
