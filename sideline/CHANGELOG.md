@@ -6,9 +6,9 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ## 2026-04-22 (Game Plan — Opening Script suggestions + full-sheet replace from suggestions)
 
-**What:** `app/api/playbook/[id]/plays/route.ts` uses `loggedScenario` so **Opening Script** loads `logged_plays` with **`scenario = "1st Down"`** for aggregation and `buildSuggestions` (film `deriveScenario` never emits `"Opening Script"`). `PlaybookEditor.tsx` adds **`swapPlay`** mutation, **`replaceSuggest`** modal when **`atCapacity`**, and passes **`scenarioFull`** to `PlaySuggestions.tsx`, which shows **Replace a play** instead of **Add play** when the situation is full.
+**What:** `app/api/playbook/[id]/plays/route.ts` uses `loggedScenario` so **Opening Script** loads `logged_plays` with **`scenario = "1st Down"`** for aggregation and `buildSuggestions` (film `deriveScenario` never emits `"Opening Script"`). `PlaybookEditor.tsx` adds **`swapPlay`** mutation, **`replaceSuggest`** modal when **`atCapacity`**, and passes **`scenarioFull`** to `PlaySuggestions.tsx`, which shows **Replace a play** instead of **Add play** when the situation is full. **Follow-up:** replace overlay uses the shared **`hs-overlay`** shell, **`useId`** + **`aria-labelledby`**, **`aria-modal`** / **`aria-hidden`**, scroll lock while open, footer **Cancel**, backdrop dismiss disabled while **`swapPlay`** is pending, failed swaps leave the chooser open for retry, and duplicate swap errors show the API message when it includes **already exists** (else **`COULDNT_SAVE`**).
 
-**Why:** Opening Script had empty suggestion/stats slices due to the scenario string mismatch; coaches with a full call sheet still need a way to adopt a suggested play by replacing a slot.
+**Why:** Opening Script had empty suggestion/stats slices due to the scenario string mismatch; coaches with a full call sheet still need a way to adopt a suggested play by replacing a slot; modal behavior and duplicate feedback should match other Game Plan overlays and coach-facing error patterns.
 
 **Status after this push:** `PlaybookEditor.tsx`, `PlaySuggestions.tsx`, `app/api/playbook/[id]/plays/route.ts`.
 

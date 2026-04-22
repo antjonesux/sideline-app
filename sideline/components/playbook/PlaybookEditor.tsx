@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -55,7 +55,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const addToast = useToastStore((s) => s.addToast);
-  useScrollLock(editorOpen);
+  const replaceTitleId = useId();
+  useScrollLock(editorOpen || Boolean(replaceSuggest));
 
   const sheetQuery = useQuery({
     queryKey: ["playbook", sheetId],
@@ -464,19 +465,34 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </div>
         </div>
       ) : null}
-      {replaceSuggest ? (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setReplaceSuggest(null)}>
-          <div className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="app-section-title text-lg">Replace a play</h2>
-                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setReplaceSuggest(null)}>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                    <path d="M6 6 18 18M18 6 6 18" />
-                  </svg>
-                  <span className="sr-only">Close</span>
-                </button>
-              </div>
+      <div
+        className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${
+          replaceSuggest ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"
+        }`}
+        role="dialog"
+        aria-modal={Boolean(replaceSuggest)}
+        aria-hidden={!replaceSuggest}
+        aria-labelledby={replaceTitleId}
+        onClick={(e) => {
+          if (swapPlay.isPending) return;
+          if (e.target === e.currentTarget) setReplaceSuggest(null);
+        }}
+      >
+        <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
+          <div
+            className="pointer-events-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+              <h2 id={replaceTitleId} className="app-section-title text-lg">Replace a play</h2>
+              <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setReplaceSuggest(null)}>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                  <path d="M6 6 18 18M18 6 6 18" />
+                </svg>
+                <span className="sr-only">Close</span>
+              </button>
+            </div>
+            {replaceSuggest ? (
               <div className="space-y-3 overflow-y-auto p-4">
                 <p className="font-body text-sm text-slate-400">
                   This situation is full. Choose a play to replace with{" "}
@@ -497,12 +513,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                               play_name: replaceSuggest.play_name,
                             });
                             addToast("Replaced on sheet.", "success");
-                          } catch (e) {
-                            const msg = e instanceof Error ? e.message : COULDNT_SAVE;
-                            addToast(msg, "error");
-                          } finally {
                             setReplaceSuggest(null);
                             setSuggestBusy(null);
+                          } catch (e) {
+                            const msg = e instanceof Error && e.message.includes("already exists")
+                              ? e.message
+                              : COULDNT_SAVE;
+                            addToast(msg, "error");
                           }
                         }}
                       >
@@ -516,10 +533,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   ))}
                 </ul>
               </div>
+            ) : null}
+            <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
+              <button type="button" className="btn-secondary flex-1 py-3" disabled={swapPlay.isPending} onClick={() => setReplaceSuggest(null)}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

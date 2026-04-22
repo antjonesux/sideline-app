@@ -10,15 +10,17 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 - `GET /api/playbook/[id]/plays` maps **Opening Script** to **`logged_plays.scenario = "1st Down"`** for stats and suggested plays, because film logging never writes `"Opening Script"` on logged rows.
 - **Playbook editor**: when a situation is at max plays, suggested plays use **Replace a play** and open a modal to pick an existing slot; the choice calls the existing **`swap`** action on `PUT /api/playbook/[id]/plays`.
+- **Replace modal polish:** overlay matches shared modal shell (`hs-overlay`, higher z-index, `aria-labelledby` / `aria-modal` / `aria-hidden`), scroll lock while the chooser is open, explicit **Cancel**, backdrop dismiss blocked during an in-flight swap, chooser stays open after a failed swap so the coach can pick another slot, and duplicate swap failures surface the API message when it includes **already exists** (otherwise **`COULDNT_SAVE`**).
 
 ### Why
 
 - Opening Script showed no suggestions even when first-down history supported them (scenario label mismatch).
 - Full scenarios (for example Opening Script at 15 plays) could not act on suggestions without a replace path.
+- Coaches need the replace flow to feel like other modals (stacking, scroll, dismiss), and they need clear feedback when a replacement would duplicate an existing call.
 
 ### Status after this push
 
-- Opening Script can surface suggestions from first-down logged data; full sheets can swap in a suggested play via the modal.
+- Opening Script can surface suggestions from first-down logged data; full sheets can swap in a suggested play via the modal, with safer modal behavior and clearer duplicate handling.
 
 ---
 
