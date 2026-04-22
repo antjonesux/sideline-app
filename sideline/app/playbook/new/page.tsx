@@ -1,5 +1,5 @@
-import { CreatePlaybookModal } from "@/components/playbook/CreatePlaybookModal";
+import { redirect } from "next/navigation";
 
 export default function NewPlaybookPage() {
-  return <CreatePlaybookModal variant="page" />;
+  redirect("/playbook?create=1");
 }

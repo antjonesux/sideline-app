@@ -30,6 +30,14 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
   const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
+    if (variant === "modal" && open) {
+      setStep(1);
+      setName("");
+      setSelectedPlaybook(null);
+    }
+  }, [variant, open]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoadErr(null);
@@ -86,7 +94,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       className={`mx-auto flex flex-col border border-slate-700 bg-slate-900 shadow-xl ${
         variant === "page"
           ? "w-full max-w-lg rounded-xl"
-          : "m-0 max-h-[85vh] w-full overflow-y-auto rounded-xl sm:w-full sm:max-w-lg"
+          : "m-0 h-full w-full rounded-t-xl sm:h-auto sm:w-full sm:max-w-lg sm:rounded-xl sm:overflow-visible"
       }`}
     >
       <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
@@ -108,8 +116,8 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-        <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+      <form onSubmit={onSubmit} className="flex flex-1 flex-col">
+        <div className="space-y-5 px-4 py-5 sm:px-6">
           {loadErr ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
               {loadErr}
@@ -200,7 +208,7 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
-      <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">{inner}</div>
+      <div className="fixed inset-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">{inner}</div>
     </div>
   );
 }

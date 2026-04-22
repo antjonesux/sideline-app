@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Game Plan — new play sheet opens as modal)
+
+**What:** **`components/playbook/PlaybookHome.tsx`** opens **`CreatePlaybookModal`** with **`variant="modal"`** from **Create play sheet** buttons; renders the modal alongside **loading** and **error** UI so **`?create=1`** works before **`GET /api/playbook`** finishes. **`app/playbook/page.tsx`** awaits **`searchParams`** and passes **`initialCreateOpen`** when **`create=1`**; **`app/playbook/new/page.tsx`** **`redirect("/playbook?create=1")`**. **`CreatePlaybookModal.tsx`** resets step/name/CFB26 selection whenever the modal opens; mobile modal shell is **full height** without inner scroll; desktop uses **`sm:overflow-visible`** so the CFB26 combobox list is not clipped.
+
+**Why:** New play sheet creation should stay in Game Plan context like other overlays, not as a separate route.
+
+**Status after this push:** `PlaybookHome.tsx`, `CreatePlaybookModal.tsx`, `app/playbook/page.tsx`, `app/playbook/new/page.tsx`, repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-04-22 (Tendencies — portaled filter dropdowns + formation column truncation)
 
 **What:** Added **`hooks/usePortalDropdown.ts`** (fixed menu position from trigger, capture-phase outside mousedown, close on scroll / Escape / resize). **`components/tendencies/TendenciesFilters.tsx`** and **`PlaybookFilter.tsx`** render listbox panels with **`createPortal`** to **`document.body`** at **`z-[70]`** so menus sit above formation content inside animated tab panels. **`formationAggTableColumns.tsx`** wraps formation text in **`block max-w-[10rem] truncate`** to cap table width without forcing **`equalColumns`** on **`GameFormationTable`**. Repo-root **`DECISIONS.md`** logs the Tendencies-only portal decision.

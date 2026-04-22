@@ -1,10 +1,11 @@
 "use client";
 
 import type { PlaybookSummary } from "@/lib/types";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
+import { CreatePlaybookModal } from "./CreatePlaybookModal";
 import { PlaybookCard } from "./PlaybookCard";
 
 function coercePlaybookList(payload: unknown): PlaybookSummary[] {
@@ -17,7 +18,19 @@ function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   return [];
 }
 
-export function PlaybookHome() {
+type Props = {
+  initialCreateOpen?: boolean;
+};
+
+export function PlaybookHome({ initialCreateOpen = false }: Props) {
+  const [createOpen, setCreateOpen] = useState(initialCreateOpen);
+
+  useEffect(() => {
+    if (initialCreateOpen) {
+      window.history.replaceState(null, "", "/playbook");
+    }
+  }, [initialCreateOpen]);
+
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["playbooks", "list"],
     queryFn: async () => {
@@ -32,30 +45,40 @@ export function PlaybookHome() {
     refetchOnWindowFocus: false,
   });
 
-  if (error) {
-    return (
-      <div className="app-card app-card-pad space-y-3" role="alert">
-        <p className="font-sans text-sm text-red-200">{COULDNT_LOAD}</p>
-        <button type="button" className="btn-secondary w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
-          {isFetching ? "Hang on…" : "Try again"}
-        </button>
-      </div>
-    );
-  }
+  const modal = <CreatePlaybookModal variant="modal" open={createOpen} onClose={() => setCreateOpen(false)} />;
 
   const list = coercePlaybookList(data);
 
+  if (error) {
+    return (
+      <>
+        <div className="app-card app-card-pad space-y-3" role="alert">
+          <p className="font-sans text-sm text-red-200">{COULDNT_LOAD}</p>
+          <button type="button" className="btn-secondary w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
+            {isFetching ? "Hang on…" : "Try again"}
+          </button>
+        </div>
+        {modal}
+      </>
+    );
+  }
+
   if (isLoading) {
-    return <FilmRoomSkeleton />;
+    return (
+      <>
+        <FilmRoomSkeleton />
+        {modal}
+      </>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="app-page-title">Game Plan</h1>
-        <Link href="/playbook/new" className="btn-primary text-sm">
+        <button type="button" className="btn-primary text-sm" onClick={() => setCreateOpen(true)}>
           Create play sheet
-        </Link>
+        </button>
       </div>
 
       {list.length === 0 ? (
@@ -64,9 +87,9 @@ export function PlaybookHome() {
           <p className="mt-2 font-sans text-sm text-slate-500">
             Start from a CFB26 playbook. What you log in Film Room feeds tendencies here.
           </p>
-          <Link href="/playbook/new" className="btn-primary mt-6 inline-flex px-5 py-2.5 text-sm">
+          <button type="button" className="btn-primary mt-6 inline-flex px-5 py-2.5 text-sm" onClick={() => setCreateOpen(true)}>
             Create play sheet
-          </Link>
+          </button>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -77,6 +100,8 @@ export function PlaybookHome() {
           ))}
         </ul>
       )}
+
+      {modal}
     </div>
   );
 }

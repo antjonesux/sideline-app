@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Game Plan: new play sheet as a modal (not a separate page)
+
+### What
+
+- **`PlaybookHome`:** **Create play sheet** opens **`CreatePlaybookModal`** with **`variant="modal"`** instead of navigating to **`/playbook/new`**. The modal still mounts during list **loading** and **error** states so **`/playbook?create=1`** (after redirect) is not blocked by the play sheet list query.
+- **`app/playbook/page.tsx`:** Reads **`?create=1`** and passes **`initialCreateOpen`** into **`PlaybookHome`**; client clears the query from the address bar with **`history.replaceState`** so the URL stays **`/playbook`**.
+- **`app/playbook/new/page.tsx`:** Server **`redirect("/playbook?create=1")`** so bookmarks and old links still land in the create flow.
+- **`CreatePlaybookModal`:** On each **modal open**, resets step and draft fields so cancel/reopen does not keep stale data; mobile sheet uses **full viewport height** with no inner scroll; desktop keeps **`sm:overflow-visible`** so **`TeamCombobox`** dropdown is not clipped.
+
+### Why
+
+- Creating a play sheet is a short, focused action; a full page broke the same anchored-in-Game-Plan pattern as other contained flows.
+
+### Status after this push
+
+- Game Plan entry and presentation only; **`CreatePlaybookModal`** page variant remains for any future direct page use.
+
+---
+
 ## 2026-04-22 — Tendencies: portaled filter dropdowns + formation column width cap
 
 ### What
