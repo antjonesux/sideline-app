@@ -29,7 +29,8 @@ export function PlaySuggestions({
               <div className="min-w-0">
                 <p className="font-mono text-xs font-medium uppercase text-white">{normalizePlayName(s.play_name)}</p>
                 <p className="mt-1 font-mono text-[11px] text-slate-500">
-                  {s.success_rate}% success · {s.uses} calls · {s.formation}
+                  {s.success_rate}% success · {s.uses} {s.uses === 1 ? "call" : "calls"} · {s.formation}
+                  {s.pooled ? " · similar situations" : ""}
                 </p>
               </div>
               <button

@@ -8,12 +8,14 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### What
 
+- **Suggested plays (follow-up):** `loggedPlayScenarioLabels` / `loggedPlayScenarioLabelsForSuggestions` in `playbookUtils.ts` widen logged scenario matching and pool sparse tabs (for example `4 Minute`, `2 Point`) from defensible related scenarios; **`GET /api/playbook/[id]/plays`** scopes `logged_plays` to **`game_sessions`** whose playbook matches the sheet’s CFB26 book, returns empty suggestions when no sessions match (no silent global fallback), and wires **`buildSuggestions`** with exact **`byCombo`** so each row shows **exact-only** uses/success when that combo exists in the current tab, **pooled** stats only when the combo is pooled-only, and ranking matches displayed stats. **`PlaySuggestions`** appends **similar situations** only for pooled-only rows. **`DECISIONS.md`** records the pool behavior and logged-data-only rule.
 - `GET /api/playbook/[id]/plays` maps **Opening Script** to **`logged_plays.scenario = "1st Down"`** for stats and suggested plays, because film logging never writes `"Opening Script"` on logged rows.
 - **Playbook editor**: when a situation is at max plays, suggested plays use **Replace a play** and open a modal to pick an existing slot; the choice calls the existing **`swap`** action on `PUT /api/playbook/[id]/plays`.
 - **Replace modal polish:** overlay matches shared modal shell (`hs-overlay`, higher z-index, `aria-labelledby` / `aria-modal` / `aria-hidden`), scroll lock while the chooser is open, explicit **Cancel**, backdrop dismiss blocked during an in-flight swap, chooser stays open after a failed swap so the coach can pick another slot, and duplicate swap failures surface the API message when it includes **already exists** (otherwise **`COULDNT_SAVE`**).
 
 ### Why
 
+- Sparse or aliased scenarios needed logged-only pooling and playbook-scoped queries so suggestions stay relevant and never blend unrelated sessions; exact-tab stats on suggestion rows must match what the coach sees (no silent pooled inflation).
 - Opening Script showed no suggestions even when first-down history supported them (scenario label mismatch).
 - Full scenarios (for example Opening Script at 15 plays) could not act on suggestions without a replace path.
 - Coaches need the replace flow to feel like other modals (stacking, scroll, dismiss), and they need clear feedback when a replacement would duplicate an existing call.

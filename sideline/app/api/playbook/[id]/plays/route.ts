@@ -1,7 +1,8 @@
 import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPlayStats";
 import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
-import { isOpeningScript, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayNameForComparison } from "@/lib/utils/normalizePlayName";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -105,12 +106,38 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     });
   }
 
-  const loggedScenario = isOpeningScript(scenarioName) ? "1st Down" : scenarioName;
+  const exactLabels = loggedPlayScenarioLabels(scenarioName);
+  const suggestionLabels = loggedPlayScenarioLabelsForSuggestions(scenarioName);
+  const isPooled = suggestionLabels.length > exactLabels.length;
+
+  let playbookSessionIds: string[] = [];
+  if (cfbBook) {
+    const pattern = playbookIlikeExactPattern(cfbBook);
+    const { data: sessions, error: sessErr } = await supabase
+      .from("game_sessions")
+      .select("id")
+      .or(`my_playbook.ilike.${pattern},offensive_playbook.ilike.${pattern}`)
+      .limit(500);
+    if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 });
+    playbookSessionIds = (sessions ?? []).map((s) => s.id);
+  }
+
+  if (playbookSessionIds.length === 0) {
+    return NextResponse.json({
+      scenarioId: scenarioRow.id,
+      scenario: scenarioName,
+      plays: playsOut,
+      scenarioStats: {},
+      formationStats: {},
+      suggestions: [],
+    });
+  }
 
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
-    .select("formation, play_name, result_tag, yards_gained, down, distance")
-    .eq("scenario", loggedScenario)
+    .select("formation, play_name, result_tag, yards_gained, down, distance, scenario")
+    .in("scenario", suggestionLabels)
+    .in("game_session_id", playbookSessionIds)
     .limit(25000);
 
   if (lErr) return NextResponse.json({ error: lErr.message }, { status: 400 });
@@ -126,14 +153,20 @@ export async function GET(req: NextRequest, ctx: Ctx) {
       return playName !== "punt" && resultTag !== "punt";
     });
 
-  const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(nonPuntLogged);
+  const exactLabelSet = new Set(exactLabels.map((l) => l.toLowerCase()));
+  const exactRows = nonPuntLogged.filter((r) =>
+    exactLabelSet.has(String((r as { scenario?: string }).scenario ?? "").toLowerCase()),
+  );
+
+  const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(exactRows);
+  const allAgg = aggregateLoggedPlays(nonPuntLogged);
 
   const sheetKeys = new Set<string>();
   for (const p of playsOut) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }
 
-  const suggestions = buildSuggestions(byCombo, sheetKeys, comboDisplay, 3);
+  const suggestions = buildSuggestions(allAgg.byCombo, sheetKeys, allAgg.comboDisplay, 3, isPooled ? byCombo : undefined);
 
   const scenarioStats: Record<string, { uses: number; avg_yards: number; success_rate: number }> = {};
   for (const [k, v] of byCombo) scenarioStats[k] = v;

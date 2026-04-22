@@ -1,4 +1,4 @@
-import { SCENARIOS } from "@/lib/constants";
+import { SCENARIO_SHORT, SCENARIOS } from "@/lib/constants";
 import type { SheetScenarioBlock } from "@/lib/types";
 
 const SCENARIO_ORDER_INDEX = new Map(SCENARIOS.map((label, index) => [label, index]));
@@ -22,6 +22,49 @@ export function scenarioMaxSlots(scenario: string): number {
 
 export function isOpeningScript(scenario: string): boolean {
   return scenario === "Opening Script";
+}
+
+/**
+ * Map a sheet scenario to the `logged_plays.scenario` values it should match.
+ * Opening Script is a sheet-only concept — logged plays use "1st Down".
+ * For all others, include the canonical label plus any SCENARIO_SHORT aliases
+ * that resolve to the same canonical (e.g. "2-Minute Drill" → "2 Minute").
+ */
+export function loggedPlayScenarioLabels(sheetScenario: string): string[] {
+  if (isOpeningScript(sheetScenario)) return ["1st Down"];
+  const canonical = SCENARIO_SHORT[sheetScenario] ?? sheetScenario;
+  const labels = new Set<string>([canonical]);
+  for (const [alias, target] of Object.entries(SCENARIO_SHORT)) {
+    if (target === canonical) labels.add(alias);
+  }
+  return Array.from(labels);
+}
+
+/**
+ * Wider scenario labels for Game Plan suggestions only.
+ * Pools situationally related scenarios for sparse tabs so suggestions
+ * reflect real logged outcomes from defensible proxy situations.
+ */
+export function loggedPlayScenarioLabelsForSuggestions(sheetScenario: string): string[] {
+  const base = loggedPlayScenarioLabels(sheetScenario);
+
+  const SUGGESTION_POOLS: Record<string, string[]> = {
+    "4 Minute": ["2 Minute", "2-Minute Drill"],
+    "2 Point": ["Goal Line", "Red Zone"],
+    "3rd & Short": ["2nd & Short"],
+    "4th Down": ["3rd & Short", "3rd & Medium"],
+    "Backed Up": ["1st Down"],
+  };
+
+  const canonical = SCENARIO_SHORT[sheetScenario] ?? sheetScenario;
+  const pooled = SUGGESTION_POOLS[canonical];
+  if (!pooled) return base;
+
+  const labels = new Set(base);
+  for (const extra of pooled) {
+    for (const l of loggedPlayScenarioLabels(extra)) labels.add(l);
+  }
+  return Array.from(labels);
 }
 
 /** CFB26 source name for pickers (prefers explicit column). */

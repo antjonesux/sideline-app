@@ -67,23 +67,71 @@ export function aggregateLoggedPlays(rows: LoggedPlayStatRow[]): {
   return { byCombo, byFormation, comboDisplay };
 }
 
-export type SuggestionRow = { formation: string; play_name: string; uses: number; success_rate: number };
+export type SuggestionRow = {
+  formation: string;
+  play_name: string;
+  uses: number;
+  success_rate: number;
+  pooled?: boolean;
+};
 
+/** Laplace-smoothed success score: handles low-N combos without over-ranking single-use flukes. */
+function smoothedScore(successes: number, uses: number): number {
+  return (successes + 1) / (uses + 2);
+}
+
+function meetsFloor(s: ComboStats): boolean {
+  if (s.uses === 1) return s.success_rate >= 100;
+  return s.uses >= 2 && s.success_rate >= 50;
+}
+
+/**
+ * Build up to `limit` suggestions from formation+play combo stats.
+ *
+ * `candidateByCombo` is the widened (pooled + exact) aggregate used to discover
+ * candidates. When `exactByCombo` is provided, each candidate's displayed
+ * stats come from exact-scenario data if available (honest numbers for the tab);
+ * only combos absent from the exact set use pooled stats and get `pooled: true`.
+ */
 export function buildSuggestions(
-  byCombo: Map<string, ComboStats>,
+  candidateByCombo: Map<string, ComboStats>,
   sheetKeys: Set<string>,
   comboDisplay?: Map<string, { formation: string; play_name: string }>,
   limit = 3,
+  exactByCombo?: Map<string, ComboStats>,
 ): SuggestionRow[] {
   const out: SuggestionRow[] = [];
-  for (const [k, s] of byCombo) {
-    if (s.uses < 3 || s.success_rate < 60) continue;
+  for (const [k] of candidateByCombo) {
     if (sheetKeys.has(k)) continue;
+
+    const exactStats = exactByCombo?.get(k);
+    const isPooledRow = exactByCombo ? !exactStats : false;
+    const displayStats = exactStats ?? candidateByCombo.get(k)!;
+
+    if (!meetsFloor(displayStats)) continue;
+
     const display = comboDisplay?.get(k);
     const [formation, play_name] = display ? [display.formation, display.play_name] : k.split("\t");
     if (!formation || !play_name) continue;
-    out.push({ formation, play_name, uses: s.uses, success_rate: s.success_rate });
+    out.push({
+      formation,
+      play_name,
+      uses: displayStats.uses,
+      success_rate: displayStats.success_rate,
+      ...(isPooledRow ? { pooled: true } : {}),
+    });
   }
-  out.sort((a, b) => b.success_rate - a.success_rate || b.uses - a.uses);
+
+  const successes = (s: SuggestionRow) => Math.round((s.success_rate / 100) * s.uses);
+  out.sort((a, b) => {
+    const multiA = a.uses >= 2 ? 1 : 0;
+    const multiB = b.uses >= 2 ? 1 : 0;
+    if (multiB !== multiA) return multiB - multiA;
+    const sa = smoothedScore(successes(a), a.uses);
+    const sb = smoothedScore(successes(b), b.uses);
+    if (sb !== sa) return sb - sa;
+    return b.success_rate - a.success_rate || b.uses - a.uses;
+  });
+
   return out.slice(0, limit);
 }

@@ -146,6 +146,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-22
+
+**Game Plan suggestion scenario pools**  
+**Decision:** For sparse Game Plan tabs (`4 Minute`, `2 Point`, `3rd & Short`, `4th Down`, `Backed Up`), the suggestion query pools situationally related logged scenarios (e.g. `4 Minute` includes `2 Minute` clock-offense data; `2 Point` includes `Goal Line` / `Red Zone`). This is logged-data only — no `cfb26_plays` catalog backfill. When a suggestion's evidence comes entirely from a pooled scenario, it is labeled "similar situations" in the UI. Exact-scenario evidence is always preferred and shown with honest exact-only stats.  
+**Why:** These tabs are rarely assigned by `deriveScenario` and have too few logged plays for the suggestion pipeline to produce useful results from exact matches alone. Pooling from defensible proxy situations surfaces real outcomes without fabricating data.  
+**Impact:** `loggedPlayScenarioLabelsForSuggestions` in `playbookUtils.ts` defines the pool map. Changes to pool membership should be documented here.
+
+---
+
 ## Current operating decisions (not tied to a single dated ADR)
 
 These are **how the product operates today** from shipped UX and `.cursorrules`; refine when you intentionally change behavior.
