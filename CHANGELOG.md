@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-21 — Drive create API inches flag fix + expanded team playbook seeds
+
+### What
+
+- Fixed `POST /api/games/[id]/drives` to correctly persist `is_inches` when clients send either boolean `true` or string `"true"` payloads.
+- Expanded seeded playbook coverage by adding team files for Auburn, Colorado, Colorado State, Indiana, Ohio, Oregon State, Texas Tech, and Western Kentucky.
+- Hardened `sideline/scripts/seed-playbooks.ts` with a fail-fast validation pass that loads and validates all seeds first, then blocks seeding on canonical duplicate formation/play rows before any database writes.
+
+### Why
+
+- Drive-start inch distance could be dropped on insert despite being provided, and seed imports needed stronger upfront guarantees so partial runs do not write data before structural seed issues are caught.
+
+### Status after this push
+
+- Drive create requests now preserve inch state reliably, and seed execution exits early with clear per-team errors for invalid or duplicate canonical seed rows.
+
+---
+
 ## 2026-04-21 — Per-game play sheet binding for Film logger
 
 ### What

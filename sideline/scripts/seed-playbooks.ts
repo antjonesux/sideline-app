@@ -75,8 +75,12 @@ function listAllSlugs(): string[] {
     .map((f) => f.replace(/\.ts$/, ""));
 }
 
-function validateSeed(seed: TeamPlaybookSeed, slug: string): string[] {
+function validateSeed(
+  seed: TeamPlaybookSeed,
+  slug: string,
+): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
+  const warnings: string[] = [];
   const classified = getSchemeForTeam(seed.team);
   if (classified == null) {
     errors.push(`Team "${seed.team}" is not in TEAM_SCHEMES (check spelling vs scheme-classifications).`);
@@ -125,10 +129,10 @@ function validateSeed(seed: TeamPlaybookSeed, slug: string): string[] {
   }
 
   if (errors.length && slug === "_template") {
-    return ["_template.ts is a reference file — add real team seed files for Phase 3."];
+    return { errors: ["_template.ts is a reference file — add real team seed files for Phase 3."], warnings: [] };
   }
 
-  return errors;
+  return { errors, warnings };
 }
 
 function flattenSeedToRows(seed: TeamPlaybookSeed) {
@@ -219,23 +223,44 @@ async function main() {
   const { url, key } = requireServiceSupabase();
   const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-  await assertCfb26UpsertSupported(supabase, dryRun);
-
+  // Fail fast: validate all seeds for canonical duplicates before any DB write
+  const preloadedSeeds = new Map<string, TeamPlaybookSeed>();
   for (const slug of slugs) {
-    console.log(`\n── ${slug} ──`);
     let seed: TeamPlaybookSeed;
     try {
       seed = await importSeed(slug);
     } catch (e) {
-      console.error(`Failed to load seed module: ${(e as Error).message}`);
+      console.error(`Failed to load seed module "${slug}": ${(e as Error).message}`);
       process.exit(1);
     }
 
-    const validationErrors = validateSeed(seed, slug);
+    const { errors: validationErrors } = validateSeed(seed, slug);
     if (validationErrors.length) {
-      for (const err of validationErrors) console.error(`  - ${err}`);
+      for (const err of validationErrors) console.error(`  [${slug}] ${err}`);
       process.exit(1);
     }
+
+    const rows = flattenSeedToRows(seed);
+    const seenKeys = new Set<string>();
+    const dupes: string[] = [];
+    for (const r of rows) {
+      const k = `${r.formation}\u0000${r.play_name}`;
+      if (seenKeys.has(k)) dupes.push(`${r.formation} → ${r.play_name}`);
+      seenKeys.add(k);
+    }
+    if (dupes.length) {
+      for (const d of dupes) console.error(`  [${slug}] Duplicate canonical row: ${d}`);
+      process.exit(1);
+    }
+
+    preloadedSeeds.set(slug, seed);
+  }
+
+  await assertCfb26UpsertSupported(supabase, dryRun);
+
+  for (const slug of slugs) {
+    console.log(`\n── ${slug} ──`);
+    const seed = preloadedSeeds.get(slug)!;
 
     const rows = flattenSeedToRows(seed);
     const playbook = seed.team.trim();

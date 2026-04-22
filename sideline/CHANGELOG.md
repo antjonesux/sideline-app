@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-21 (drive create `is_inches` fix + seed playbook expansion)
+
+**What:** `app/api/games/[id]/drives/route.ts` now persists `is_inches` when payloads send either boolean `true` or string `"true"`, preventing loss of inch distance state on drive creation. Added new seed files under `lib/seed/playbooks/` for Auburn, Colorado, Colorado State, Indiana, Ohio, Oregon State, Texas Tech, and Western Kentucky. `scripts/seed-playbooks.ts` now preloads and validates all team seeds before DB writes, and fails fast on duplicate canonical `(formation, play_name)` rows per slug.
+
+**Why:** Inch-based distance values could be silently dropped during drive inserts, and seeding needed stronger safety checks so invalid team files do not partially write before validation errors surface.
+
+**Status after this push:** Drive creation keeps `is_inches` fidelity from client payloads, and seed runs stop early with explicit team-scoped duplicate/validation errors before touching playbook tables.
+
+---
+
 ## 2026-04-21 (per-game play sheet selection + logger sheet binding)
 
 **What:** Added nullable `game_sessions.play_sheet_id` across migration/schema/types (`supabase/migrations/20260421120000_game_play_sheet_id.sql`, `supabase/schema.sql`, `lib/types.ts`). `app/api/games/route.ts` and `app/api/games/[id]/route.ts` now accept optional `play_sheet_id`, verify sheet existence, and validate sheet/playbook compatibility before insert/update. `app/film/new/page.tsx` and `components/film/EditGameDetailsModal.tsx` add a Game Plan picker filtered to the selected offensive playbook, with `None` support and no-sheet helper copy. `app/film/[gameId]/page.tsx` now passes `game.play_sheet_id` into `PlayLoggerV2`, and `hooks/usePlaySuggestions.ts` uses only parent-provided `sheetId` (no `is_active` fallback discovery). Existing `/api/playbook/[id]/plays` hot path remains optimized via `slim=1`.

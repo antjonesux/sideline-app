@@ -81,6 +81,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       quarter: typeof body.quarter === "number" ? body.quarter : 1,
       starting_down: typeof body.starting_down === "number" ? body.starting_down : 1,
       starting_distance: typeof body.starting_distance === "number" ? body.starting_distance : 10,
+      is_inches: body.is_inches === true || body.is_inches === "true",
       starting_absolute_yard: typeof body.starting_absolute_yard === "number" ? body.starting_absolute_yard : null,
       time_remaining: typeof body.time_remaining === "string" ? body.time_remaining : null,
       starting_yard_line: typeof body.starting_yard_line === "number" ? body.starting_yard_line : null,
