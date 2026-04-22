@@ -18,7 +18,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### Why
 
-- String-backed numeric fields behave better on mobile and match the Film combobox-style forms elsewhere.
+- String-backed numeric fields behave better on mobile and match the Film combobox-style forms elsewhere; editing matches **`DECISIONS.md`** and the existing logger / **`DriveInlineScores`** pattern (parse and clamp on submit, not on every keystroke).
 - **`formation_type`** is the catalog-aligned grouping key; heuristic **`deriveFormationGroup`** remains the fallback when the column is empty.
 - Coaches need yard thresholds visible next to situation names; add-play flows must not post against a stale scenario id after switching tabs.
 
