@@ -1,7 +1,9 @@
 "use client";
 
 import { PlaybookFilter } from "@/components/tendencies/PlaybookFilter";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { createPortal } from "react-dom";
+import { usePortalDropdown } from "@/hooks/usePortalDropdown";
 
 type Pill = "all" | "last5" | "last10" | "vs";
 
@@ -42,7 +44,7 @@ type Props = {
   onPlaybookChange: (next: string | null) => void;
   playbookOptions: string[];
   playbookLoading?: boolean;
-  /** When false, hides the minimum-uses / “Include all” line (e.g. predictability view). */
+  /** When false, hides the minimum-uses / "Include all" line (e.g. predictability view). */
   showMinUsesLine?: boolean;
 };
 
@@ -61,27 +63,9 @@ export function TendenciesFilters({
   const playbookInputId = "tendencies-playbook-filter";
   const opponentActive = Boolean(value.opponentTeam);
   const opponentPillClass = opponentActive ? pillClass(true) : pillClass(false);
-  const [opponentOpen, setOpponentOpen] = useState(false);
-  const [opponentDropUp, setOpponentDropUp] = useState(false);
   const opponentRootRef = useRef<HTMLDivElement>(null);
   const opponentTriggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (!opponentRootRef.current?.contains(e.target as Node)) setOpponentOpen(false);
-    }
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
-
-  useEffect(() => {
-    if (!opponentOpen) return;
-    const el = opponentTriggerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-    setOpponentDropUp(spaceBelow < 220);
-  }, [opponentOpen]);
+  const opponent = usePortalDropdown(opponentRootRef, opponentTriggerRef);
 
   return (
     <div className="space-y-2">
@@ -104,11 +88,11 @@ export function TendenciesFilters({
             id={opponentSelectId}
             type="button"
             aria-label="Filter by opponent"
-            aria-expanded={opponentOpen}
+            aria-expanded={opponent.open}
             aria-haspopup="listbox"
             disabled={opponents.length === 0}
             className={`min-h-11 w-auto max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${opponentPillClass} inline-flex items-center disabled:cursor-not-allowed disabled:opacity-70`}
-            onClick={() => setOpponentOpen((o) => !o)}
+            onClick={opponent.toggleMenu}
           >
             <span className="max-w-[14rem] truncate">{value.opponentTeam ?? "vs Opponent"}</span>
           </button>
@@ -117,44 +101,52 @@ export function TendenciesFilters({
               <path d="m6 9 6 6 6-6" />
             </svg>
           </span>
-          {opponentOpen ? (
-            <div
-              role="listbox"
-              className={`app-dropdown-panel absolute left-0 z-[200] max-h-72 min-w-full w-max max-w-[20rem] overflow-y-auto ${
-                opponentDropUp ? "bottom-full mb-1" : "top-full mt-1"
-              }`}
-            >
-              <button
-                type="button"
-                role="option"
-                aria-selected={value.opponentTeam === null}
-                className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm hover:bg-slate-800/80"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {
-                  onChange({ ...value, pill: "all", opponentTeam: null });
-                  setOpponentOpen(false);
-                }}
-              >
-                vs Opponent
-              </button>
-              {opponents.map((opponent) => (
-                <button
-                  key={opponent}
-                  type="button"
-                  role="option"
-                  aria-selected={value.opponentTeam === opponent}
-                  className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    onChange({ ...value, pill: "vs", opponentTeam: opponent });
-                    setOpponentOpen(false);
+          {opponent.open
+            ? createPortal(
+                <div
+                  ref={opponent.menuRef}
+                  role="listbox"
+                  className="app-dropdown-panel fixed z-[70] max-h-72 w-max max-w-[20rem] overflow-y-auto"
+                  style={{
+                    ...(opponent.menuPos.top != null ? { top: opponent.menuPos.top } : {}),
+                    ...(opponent.menuPos.bottom != null ? { bottom: opponent.menuPos.bottom } : {}),
+                    left: opponent.menuPos.left,
+                    minWidth: opponent.menuPos.minWidth,
                   }}
                 >
-                  {opponent}
-                </button>
-              ))}
-            </div>
-          ) : null}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={value.opponentTeam === null}
+                    className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm hover:bg-slate-800/80"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      onChange({ ...value, pill: "all", opponentTeam: null });
+                      opponent.closeMenu();
+                    }}
+                  >
+                    vs Opponent
+                  </button>
+                  {opponents.map((opp) => (
+                    <button
+                      key={opp}
+                      type="button"
+                      role="option"
+                      aria-selected={value.opponentTeam === opp}
+                      className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        onChange({ ...value, pill: "vs", opponentTeam: opp });
+                        opponent.closeMenu();
+                      }}
+                    >
+                      {opp}
+                    </button>
+                  ))}
+                </div>,
+                document.body,
+              )
+            : null}
         </div>
         <PlaybookFilter
           inputId={playbookInputId}

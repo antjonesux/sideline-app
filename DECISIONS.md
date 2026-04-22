@@ -8,6 +8,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-22
+
+**Tendencies filter dropdowns portaled to escape tab-content stacking context**  
+**Decision:** The opponent (`TendenciesFilters`) and playbook (`PlaybookFilter`) dropdown menus portal to `document.body` with `fixed` positioning at `z-[70]`. Portal behavior is provided by the shared `usePortalDropdown` hook.  
+**Why:** The `.tab-content` fadeIn animation on `TendenciesHome` creates a CSS stacking context that trapped the absolutely-positioned menus regardless of local z-index.  
+**Impact:** Both Tendencies filter menus now render and layer correctly above formation lists and cards on both sub-tabs.
+
+---
+
 ## 2026-04-21
 
 **The Sideline is a coaching tool, not a logging tool**  

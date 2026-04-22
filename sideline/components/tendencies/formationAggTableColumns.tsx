@@ -16,7 +16,7 @@ export function formationAggTableColumns(
       key: "formation",
       header: "FORMATION",
       width: "min-w-[140px]",
-      render: (r) => <span className="truncate font-sans text-sm text-slate-200 dark:text-slate-200">{r.formation}</span>,
+      render: (r) => <span className="block max-w-[10rem] truncate font-sans text-sm text-slate-200 dark:text-slate-200">{r.formation}</span>,
     },
     {
       key: "plays",

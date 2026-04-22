@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Tendencies — portaled filter dropdowns + formation column truncation)
+
+**What:** Added **`hooks/usePortalDropdown.ts`** (fixed menu position from trigger, capture-phase outside mousedown, close on scroll / Escape / resize). **`components/tendencies/TendenciesFilters.tsx`** and **`PlaybookFilter.tsx`** render listbox panels with **`createPortal`** to **`document.body`** at **`z-[70]`** so menus sit above formation content inside animated tab panels. **`formationAggTableColumns.tsx`** wraps formation text in **`block max-w-[10rem] truncate`** to cap table width without forcing **`equalColumns`** on **`GameFormationTable`**. Repo-root **`DECISIONS.md`** logs the Tendencies-only portal decision.
+
+**Why:** **`.tab-content`** fade creates a stacking context that trapped inline absolutely positioned dropdowns; long formation names inflated horizontal scroll when truncation had no width constraint.
+
+**Status after this push:** `usePortalDropdown.ts`, `TendenciesFilters.tsx`, `PlaybookFilter.tsx`, `formationAggTableColumns.tsx`, `DECISIONS.md`, both changelogs.
+
+---
+
 ## 2026-04-22 (Game Plan — suggestions only from games linked to this sheet)
 
 **What:** **`GET /api/playbook/[id]/plays`** now resolves eligible **`game_sessions`** with **`play_sheet_id` = the current play sheet** only (no **`my_playbook` / `offensive_playbook`** name match). Logged stats and **`buildSuggestions`** inputs therefore come only from games explicitly bound to that sheet; empty suggestions when no linked sessions. **`PlaybookEditor.tsx`** **`updateSheet`** success now invalidates **`["playbook-scenario", sheetId]`** so scenario payloads (including suggestions) refetch after editing the sheet instead of staying stale for **`STALE_SCENARIO_MS`**. Removed unused **`playbookIlikeExactPattern`** import from the plays route.

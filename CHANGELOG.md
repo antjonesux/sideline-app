@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Tendencies: portaled filter dropdowns + formation column width cap
+
+### What
+
+- **`usePortalDropdown`:** New shared hook in `sideline/hooks/usePortalDropdown.ts` for fixed-position portal menus (capture-phase outside click, scroll / Escape / window resize close).
+- **`TendenciesFilters` / `PlaybookFilter`:** Opponent and playbook filter menus render via `createPortal` to `document.body` at `z-[70]` so they escape the `.tab-content` stacking context on `TendenciesHome`.
+- **`formationAggTableColumns`:** Formation name cells use `block max-w-[10rem] truncate` so long labels do not blow out horizontal scroll while keeping existing per-column width classes (no `equalColumns` on the Film game formations summary table).
+
+### Why
+
+- Animated tab content trapped absolutely positioned menus; coaches need filters to layer cleanly over formation lists on both Tendencies sub-tabs.
+- Equal-width table layout was not needed here and would have distorted narrow numeric and chevron columns.
+
+### Status after this push
+
+- Tendencies filter UX and Film game tendencies formation table readability only; **`DECISIONS.md`** records the scoped portal decision.
+
+---
+
 ## 2026-04-22 — Film: YOUR CALLS shows which play sheet it is based on
 
 ### What
