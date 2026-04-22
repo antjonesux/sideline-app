@@ -65,8 +65,8 @@ export default function NewGamePage() {
   /** Store only the playbook id string — never an object from `playbookOptions` — so nothing can "default" to the first row. */
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
   const [form, setForm] = useState({
-    my_score: 0,
-    opponent_score: 0,
+    my_score: "0",
+    opponent_score: "0",
     result: "W" as "W" | "L",
   });
   const [submitBusy, setSubmitBusy] = useState(false);
@@ -199,6 +199,8 @@ export default function NewGamePage() {
 
   const buildGameSetup = useCallback(() => {
     if (!offensePick || !defensePick || !playbookRow) return null;
+    const myScore = Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0);
+    const oppScore = Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0);
     return {
       offensive_team: offensePick.team_name,
       offensive_scheme: playbookRow.scheme_style,
@@ -206,9 +208,9 @@ export default function NewGamePage() {
       opponent_team: defensePick.team_name,
       opponent_defensive_scheme: defensePick.defensive_scheme,
       game_date: new Date().toISOString().slice(0, 10),
-      my_score: form.my_score,
-      opponent_score: form.opponent_score,
-      final_score: `${form.my_score}-${form.opponent_score}`,
+      my_score: myScore,
+      opponent_score: oppScore,
+      final_score: `${myScore}-${oppScore}`,
       result: form.result,
     };
   }, [offensePick, defensePick, playbookRow, form.my_score, form.opponent_score, form.result]);
@@ -360,10 +362,7 @@ export default function NewGamePage() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={form.my_score}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9]/g, "");
-                  setForm((p) => ({ ...p, my_score: val === "" ? 0 : parseInt(val, 10) }));
-                }}
+                onChange={(e) => setForm((p) => ({ ...p, my_score: e.target.value.replace(/\D/g, "") }))}
               />
             </label>
             <label className="space-y-1">
@@ -374,10 +373,7 @@ export default function NewGamePage() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={form.opponent_score}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9]/g, "");
-                  setForm((p) => ({ ...p, opponent_score: val === "" ? 0 : parseInt(val, 10) }));
-                }}
+                onChange={(e) => setForm((p) => ({ ...p, opponent_score: e.target.value.replace(/\D/g, "") }))}
               />
             </label>
           </div>

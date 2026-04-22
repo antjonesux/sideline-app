@@ -59,7 +59,7 @@ export default function FilmImportSavePage() {
   const [myTeam, setMyTeam] = useState<TeamOption | null>(null);
   const [opponent, setOpponent] = useState<DefensiveTeam | null>(null);
   const [playbookRow, setPlaybookRow] = useState<PlaybookOption | null>(null);
-  const [form, setForm] = useState({ my_score: 0, opponent_score: 0, result: "W" as "W" | "L" });
+  const [form, setForm] = useState({ my_score: "0", opponent_score: "0", result: "W" as "W" | "L" });
   const [submitBusy, setSubmitBusy] = useState(false);
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
@@ -154,8 +154,8 @@ export default function FilmImportSavePage() {
         my_team: myTeam.team_name,
         opponent_team: opponent.team_name,
         offensive_playbook: playbookRow.playbook_name,
-        my_score: form.my_score,
-        opponent_score: form.opponent_score,
+        my_score: Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0),
+        opponent_score: Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0),
         result: form.result,
       };
       setGameSetup(nextSetup);
@@ -263,10 +263,7 @@ export default function FilmImportSavePage() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={form.my_score}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9]/g, "");
-                  setForm((p) => ({ ...p, my_score: val === "" ? 0 : parseInt(val, 10) }));
-                }}
+                onChange={(e) => setForm((p) => ({ ...p, my_score: e.target.value.replace(/\D/g, "") }))}
               />
             </label>
             <label className="space-y-1">
@@ -277,10 +274,7 @@ export default function FilmImportSavePage() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={form.opponent_score}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9]/g, "");
-                  setForm((p) => ({ ...p, opponent_score: val === "" ? 0 : parseInt(val, 10) }));
-                }}
+                onChange={(e) => setForm((p) => ({ ...p, opponent_score: e.target.value.replace(/\D/g, "") }))}
               />
             </label>
           </div>

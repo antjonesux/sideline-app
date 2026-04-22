@@ -1,5 +1,22 @@
 import { SCENARIO_SHORT, SCENARIOS } from "@/lib/constants";
+import type { PlaySheetScenario } from "@/lib/constants";
 import type { SheetScenarioBlock } from "@/lib/types";
+
+/** Yardage bands for down-and-distance scenarios (thresholds match derivePlayContext.deriveScenario / csvImportPreview). */
+const SCENARIO_YARDAGE_SUFFIX: Partial<Record<PlaySheetScenario, string>> = {
+  "2nd & Short": "1\u20133 yds",
+  "2nd & Medium": "4\u20137 yds",
+  "2nd & Long": "8+ yds",
+  "3rd & Short": "1\u20133 yds",
+  "3rd & Medium": "4\u20136 yds",
+  "3rd & Long": "7+ yds",
+};
+
+/** Append the yardage band to a scenario label when one applies. */
+export function scenarioDisplayLabel(scenario: string): string {
+  const suffix = SCENARIO_YARDAGE_SUFFIX[scenario as PlaySheetScenario];
+  return suffix ? `${scenario} (${suffix})` : scenario;
+}
 
 const SCENARIO_ORDER_INDEX = new Map(SCENARIOS.map((label, index) => [label, index]));
 

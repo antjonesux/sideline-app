@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Film & Game Plan — mobile scores, drive-ended guard, formation_type grouping, scenario labels)
+
+**What:** Film **new game**, **edit game details**, and **import save** keep score inputs as digit strings and parse to integers on submit. **`DriveSetupForm`** uses text + **`inputMode="numeric"`** for score, down, and distance with clamped parse on submit. **`YardageSheet`** ending yard uses text + digit filter. Game log drive cards hide **Add Play** when the drive is no longer **`ACTIVE`** / **`NO_PLAYS`**. **`useFormationGroups`** groups the Play Browser by **`formation_type`** from **`GET /api/cfb26-plays?list=all`** via **`resolveFormationSection`**, with more **`deriveFormationGroup`** fallbacks and **`sortFormationTypes`**. **`scenarioDisplayLabel`** in **`playbookUtils`** shows yard bands on **`PlaybookEditor`**, **`SituationList`**, and **`AddPlayDrawer`**. **`PlaybookEditor`** closes the add drawer on situation change and posts new plays using **`activeBlock.id`**.
+
+**Why:** Better mobile numeric editing; avoid logging on finished drives; catalog-aligned formation sections; clearer situation copy; reliable scenario targeting when adding plays.
+
+**Status after this push:** `app/film/[gameId]/page.tsx`, `app/film/import/save/page.tsx`, `app/film/new/page.tsx`, `components/film/DriveSetupForm.tsx`, `EditGameDetailsModal.tsx`, `YardageSheet.tsx`, `components/playbook/AddPlayDrawer.tsx`, `PlaybookEditor.tsx`, `SituationList.tsx`, `hooks/useFormationGroups.ts`, `lib/playbook.ts`, `lib/playbookUtils.ts`, both changelogs.
+
+---
+
 ## 2026-04-22 (Game Plan — new play sheet opens as modal)
 
 **What:** **`components/playbook/PlaybookHome.tsx`** opens **`CreatePlaybookModal`** with **`variant="modal"`** from **Create play sheet** buttons; renders the modal alongside **loading** and **error** UI so **`?create=1`** works before **`GET /api/playbook`** finishes. **`app/playbook/page.tsx`** awaits **`searchParams`** and passes **`initialCreateOpen`** when **`create=1`**; **`app/playbook/new/page.tsx`** **`redirect("/playbook?create=1")`**. **`CreatePlaybookModal.tsx`** resets step/name/CFB26 selection whenever the modal opens; mobile modal shell is **full height** without inner scroll; desktop uses **`sm:overflow-visible`** so the CFB26 combobox list is not clipped.

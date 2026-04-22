@@ -2,7 +2,8 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useMemo, useState } from "react";
-import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { resolveFormationSection, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { sortFormationTypes } from "@/lib/playbooks/formation-types";
 
 export type FormationGroup = {
   group: string;
@@ -29,15 +30,14 @@ export function useFormationGroups(playbook: string) {
           cache: "no-store",
         });
         const json = (await res.json()) as {
-          rows?: Array<{ formation: string; play_name: string; play_type?: string | null }>;
+          rows?: Array<{ formation: string; play_name: string; play_type?: string | null; formation_type?: string | null }>;
         };
         if (!res.ok || cancelled) return;
-        // PlayBrowser badges must reflect canonical `cfb26_plays.play_type` (no numbered-call override).
         setRows(
           (json.rows ?? []).map((row) => ({
             play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
             formation: row.formation,
-            group: deriveFormationGroup(row.formation),
+            group: resolveFormationSection(row.formation, row.formation_type),
             play_name: row.play_name,
             play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
           })),
@@ -67,7 +67,7 @@ export function useFormationGroups(playbook: string) {
           .map(([name, plays]) => ({ name, plays }))
           .sort((a, b) => a.name.localeCompare(b.name)),
       }))
-      .sort((a, b) => a.group.localeCompare(b.group));
+      .sort((a, b) => sortFormationTypes(a.group, b.group));
   }, [rows]);
 
   return { groups, entries: rows, loading };

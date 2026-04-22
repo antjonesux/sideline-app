@@ -28,6 +28,10 @@ export function DriveSetupForm({
 }) {
   const [values, setValues] = useState<DriveSetupValues>(defaultValues);
   const [startingYardStr, setStartingYardStr] = useState(() => String(defaultValues.starting_yard_line));
+  const [scoreMineStr, setScoreMineStr] = useState(() => String(defaultValues.score_mine));
+  const [scoreOppStr, setScoreOppStr] = useState(() => String(defaultValues.score_opponent));
+  const [downStr, setDownStr] = useState(() => String(defaultValues.starting_down));
+  const [distanceStr, setDistanceStr] = useState(() => String(defaultValues.starting_distance));
   const [busy, setBusy] = useState(false);
 
   const parsedStartingYard = Number.parseInt(startingYardStr.trim(), 10);
@@ -38,7 +42,18 @@ export function DriveSetupForm({
     if (!startingYardValid) return;
     setBusy(true);
     try {
-      await onSubmit({ ...values, starting_yard_line: parsedStartingYard });
+      const scoreMine = Math.max(0, Number.parseInt(scoreMineStr.replace(/\D/g, ""), 10) || 0);
+      const scoreOpp = Math.max(0, Number.parseInt(scoreOppStr.replace(/\D/g, ""), 10) || 0);
+      const down = Math.max(1, Math.min(4, Number.parseInt(downStr.replace(/\D/g, ""), 10) || 1)) as 1 | 2 | 3 | 4;
+      const distance = Math.max(1, Math.min(99, Number.parseInt(distanceStr.replace(/\D/g, ""), 10) || 10));
+      await onSubmit({
+        ...values,
+        starting_yard_line: parsedStartingYard,
+        score_mine: scoreMine,
+        score_opponent: scoreOpp,
+        starting_down: down,
+        starting_distance: distance,
+      });
     } finally {
       setBusy(false);
     }
@@ -78,10 +93,11 @@ export function DriveSetupForm({
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <input
-              type="number"
-              min={0}
-              value={values.score_mine}
-              onChange={(e) => setValues((v) => ({ ...v, score_mine: Math.max(0, Number(e.target.value) || 0) }))}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={scoreMineStr}
+              onChange={(e) => setScoreMineStr(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
               className="min-h-[44px] w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-center font-mono text-lg font-bold text-slate-100 focus:border-emerald-500 focus:outline-none"
             />
@@ -90,10 +106,11 @@ export function DriveSetupForm({
           <span className="shrink-0 text-lg font-bold text-slate-500">–</span>
           <div className="flex-1">
             <input
-              type="number"
-              min={0}
-              value={values.score_opponent}
-              onChange={(e) => setValues((v) => ({ ...v, score_opponent: Math.max(0, Number(e.target.value) || 0) }))}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={scoreOppStr}
+              onChange={(e) => setScoreOppStr(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
               className="min-h-[44px] w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-center font-mono text-lg font-bold text-slate-100 focus:border-emerald-500 focus:outline-none"
             />
@@ -141,25 +158,23 @@ export function DriveSetupForm({
         <label className="text-xs text-slate-400">
           Down
           <input
-            type="number"
-            min={1}
-            max={4}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="mt-1 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 text-slate-100"
-            value={values.starting_down}
-            onChange={(e) =>
-              setValues((v) => ({ ...v, starting_down: Math.max(1, Math.min(4, Number(e.target.value) || 1)) as 1 | 2 | 3 | 4 }))
-            }
+            value={downStr}
+            onChange={(e) => setDownStr(e.target.value.replace(/\D/g, ""))}
           />
         </label>
         <label className="text-xs text-slate-400">
           Distance
           <input
-            type="number"
-            min={1}
-            max={99}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="mt-1 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 text-slate-100"
-            value={values.starting_distance}
-            onChange={(e) => setValues((v) => ({ ...v, starting_distance: Math.max(1, Math.min(99, Number(e.target.value) || 10)) }))}
+            value={distanceStr}
+            onChange={(e) => setDistanceStr(e.target.value.replace(/\D/g, ""))}
           />
         </label>
       </div>

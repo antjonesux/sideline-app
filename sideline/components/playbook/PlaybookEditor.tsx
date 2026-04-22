@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -107,6 +107,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   }, [scenarios, activeScenario]);
 
   useEffect(() => {
+    setDrawerOpen(false);
     setReplaceSuggest(null);
   }, [activeScenario]);
 
@@ -233,17 +234,20 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const onDrawerPick = useCallback(
     async (formation: string, play_name: string) => {
       try {
-        if (scenarioPayload?.scenarioId) {
-          await postPlay.mutateAsync({ scenarioId: scenarioPayload.scenarioId, formation, play_name });
-          addToast("Added to sheet.", "success");
+        const sid = activeBlock?.id;
+        if (!sid) {
+          addToast(COULDNT_SAVE, "error");
+          return;
         }
+        await postPlay.mutateAsync({ scenarioId: sid, formation, play_name });
+        addToast("Added to sheet.", "success");
       } catch (e) {
         addToast(COULDNT_SAVE, "error");
       } finally {
         setDrawerOpen(false);
       }
     },
-    [scenarioPayload?.scenarioId, postPlay, addToast],
+    [activeBlock?.id, postPlay, addToast],
   );
 
   const onSuggestAdd = useCallback(
@@ -252,24 +256,27 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         setReplaceSuggest(s);
         return;
       }
-      const id = `${s.formation}\t${s.play_name}`;
-      setSuggestBusy(id);
+      const sid = activeBlock?.id;
+      if (!sid) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      const busyKey = `${s.formation}\t${s.play_name}`;
+      setSuggestBusy(busyKey);
       try {
-        if (scenarioPayload?.scenarioId) {
-          await postPlay.mutateAsync({
-            scenarioId: scenarioPayload.scenarioId,
-            formation: s.formation,
-            play_name: s.play_name,
-          });
-          addToast("Added to sheet.", "success");
-        }
+        await postPlay.mutateAsync({
+          scenarioId: sid,
+          formation: s.formation,
+          play_name: s.play_name,
+        });
+        addToast("Added to sheet.", "success");
       } catch (e) {
         addToast(COULDNT_SAVE, "error");
       } finally {
         setSuggestBusy(null);
       }
     },
-    [scenarioPayload?.scenarioId, postPlay, atCapacity],
+    [activeBlock?.id, postPlay, atCapacity, addToast],
   );
 
   if (sheetQuery.isLoading) {
@@ -352,7 +359,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
         <section className="min-w-0 space-y-4">
           <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
-            Plays for: <span className="text-white">{activeScenario}</span>
+            Plays for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
           </h2>
 
           {scenarioQuery.isError ? (

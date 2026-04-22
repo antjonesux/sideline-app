@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { PlayBrowser } from "@/components/film/PlayBrowser";
+import { scenarioDisplayLabel } from "@/lib/playbookUtils";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { normalizePlayName } from "@/lib/utils";
 
@@ -47,7 +48,7 @@ export function AddPlayDrawer({
               >
                 Add play
               </h2>
-              <p className="app-field-label mt-0.5 truncate">{scenarioName}</p>
+              <p className="app-field-label mt-0.5 truncate">{scenarioDisplayLabel(scenarioName)}</p>
             </div>
             <button
               type="button"

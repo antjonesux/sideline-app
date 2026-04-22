@@ -96,7 +96,7 @@ export function EditGameDetailsModal({
   const [offensePick, setOffensePick] = useState<TeamOption | null>(null);
   const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
-  const [form, setForm] = useState({ my_score: 0, opponent_score: 0, result: "W" as "W" | "L" });
+  const [form, setForm] = useState({ my_score: "0", opponent_score: "0", result: "W" as "W" | "L" });
   const [saveBusy, setSaveBusy] = useState(false);
   type SheetOption = { id: string; name: string };
   const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
@@ -233,8 +233,8 @@ export function EditGameDetailsModal({
     setSelectedPlaybookName(ob.length ? ob : null);
     setSelectedSheetId(game.play_sheet_id ?? null);
     setForm({
-      my_score: game.my_score ?? 0,
-      opponent_score: game.opponent_score ?? 0,
+      my_score: String(game.my_score ?? 0),
+      opponent_score: String(game.opponent_score ?? 0),
       result: game.result === "L" ? "L" : "W",
     });
   }, [game, defensiveTeams]);
@@ -281,8 +281,8 @@ export function EditGameDetailsModal({
           offensive_playbook: playbookRow.playbook_name.trim(),
           opponent_team: defensePick.team_name.trim(),
           opponent_scheme: defensePick.defensive_scheme.trim(),
-          my_score: form.my_score,
-          opponent_score: form.opponent_score,
+          my_score: Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0),
+          opponent_score: Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0),
           result: form.result,
           play_sheet_id: selectedSheetId ?? null,
         }),
@@ -449,10 +449,7 @@ export function EditGameDetailsModal({
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={form.my_score}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/[^0-9]/g, "");
-                      setForm((p) => ({ ...p, my_score: val === "" ? 0 : parseInt(val, 10) }));
-                    }}
+                    onChange={(e) => setForm((p) => ({ ...p, my_score: e.target.value.replace(/\D/g, "") }))}
                   />
                 </label>
                 <label className="space-y-1">
@@ -463,10 +460,7 @@ export function EditGameDetailsModal({
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={form.opponent_score}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/[^0-9]/g, "");
-                      setForm((p) => ({ ...p, opponent_score: val === "" ? 0 : parseInt(val, 10) }));
-                    }}
+                    onChange={(e) => setForm((p) => ({ ...p, opponent_score: e.target.value.replace(/\D/g, "") }))}
                   />
                 </label>
               </div>

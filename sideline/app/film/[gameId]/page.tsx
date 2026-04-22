@@ -664,13 +664,21 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   }}
                 />
                 <div className="border-t border-slate-800/80 px-4 py-3">
-                  <button
-                    type="button"
-                    className="btn-secondary w-full border-dashed py-3 text-sm"
-                    onClick={() => openForCreate(drive.id)}
-                  >
-                    Add Play
-                  </button>
+                  {(() => {
+                    const driveOutcome = getDriveResult(drive.plays);
+                    const canLog = driveOutcome === "ACTIVE" || driveOutcome === "NO_PLAYS";
+                    return canLog ? (
+                      <button
+                        type="button"
+                        className="btn-secondary w-full border-dashed py-3 text-sm"
+                        onClick={() => openForCreate(drive.id)}
+                      >
+                        Add Play
+                      </button>
+                    ) : (
+                      <p className="text-center font-sans text-xs text-slate-500">Drive ended</p>
+                    );
+                  })()}
                 </div>
               </div>
             ) : null}

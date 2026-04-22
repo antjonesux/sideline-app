@@ -328,14 +328,13 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
           <label className="flex min-h-[44px] min-w-0 flex-1">
             <span className="sr-only">Yard line 1 to 50</span>
             <input
-              type="number"
+              type="text"
               inputMode="numeric"
-              min={1}
-              max={50}
+              pattern="[0-9]*"
               placeholder="0"
-              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white [-moz-appearance:textfield] [appearance:textfield] focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               value={endYardStr}
-              onChange={(e) => setEndYardStr(e.target.value)}
+              onChange={(e) => setEndYardStr(e.target.value.replace(/\D/g, ""))}
             />
           </label>
         </div>

@@ -130,10 +130,28 @@ export function resolveCfbBrowserPlayType(
 
 export function deriveFormationGroup(formation: string): string {
   const f = formation.toLowerCase();
+  if (f.includes("goal line")) return "Goal Line";
+  if (f.includes("hail mary")) return "Hail Mary";
   if (f.includes("gun")) return "Gun";
   if (f.includes("pistol")) return "Pistol";
   if (f.includes("singleback")) return "Singleback";
   if (f.includes("shotgun")) return "Shotgun";
   if (f.includes("i form") || f === "i" || f.startsWith("i ")) return "I Form";
+  if (f.includes("flexbone")) return "Flexbone";
+  if (f.includes("wingbone")) return "Wingbone";
+  if (f.includes("wildcat")) return "Wildcat";
+  if (f.includes("power i")) return "Power I";
   return "Other";
+}
+
+/**
+ * Prefer DB `formation_type` (source-aligned) for the browser section key;
+ * fall back to `deriveFormationGroup` for rows where the field is absent.
+ */
+export function resolveFormationSection(
+  formation: string,
+  formationType: string | null | undefined,
+): string {
+  const ft = (formationType ?? "").trim();
+  return ft || deriveFormationGroup(formation);
 }

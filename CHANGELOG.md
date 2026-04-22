@@ -4,6 +4,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Film & Game Plan: mobile numeric fields, drive-ended guard, formation sections, scenario labels
+
+### What
+
+- **Film score fields** on **`/film/new`**, **`EditGameDetailsModal`**, and **`/film/import/save`**: store **`my_score`** / **`opponent_score`** as digit strings in component state and parse to non-negative integers only when building the payload so coaches can clear digits without the field snapping to **`0`** mid-edit.
+- **`DriveSetupForm`**: score, down, and distance use **`type="text"`** with **`inputMode="numeric"`** and parallel string state; submit parses, strips non-digits, and clamps into valid ranges before calling **`onSubmit`**.
+- **`YardageSheet`**: ending yard line uses **`type="text"`** with digit-only **`onChange`** (drops number-input spin styling).
+- **`app/film/[gameId]/page.tsx`**: per-drive **Add Play** is shown only while the drive is **`ACTIVE`** or **`NO_PLAYS`**; otherwise shows **Drive ended** so finished drives are not treated as open logging targets.
+- **`useFormationGroups`** + **`lib/playbook.ts`**: Play Browser formation sections prefer Supabase **`formation_type`** via **`resolveFormationSection`**, with expanded **`deriveFormationGroup`** string fallbacks and **`sortFormationTypes`** for stable section order.
+- **`lib/playbookUtils.ts`**: **`scenarioDisplayLabel`** appends yardage band hints for down-and-distance sheet scenarios; used in **`PlaybookEditor`**, **`SituationList`**, and **`AddPlayDrawer`** headings.
+- **`PlaybookEditor`**: closes the add-play drawer when the active situation changes; **`postPlay`** and quick-add-from-suggestions use **`activeBlock?.id`** so adds always target the visible scenario block (with a clear error toast if missing).
+
+### Why
+
+- String-backed numeric fields behave better on mobile and match the Film combobox-style forms elsewhere.
+- **`formation_type`** is the catalog-aligned grouping key; heuristic **`deriveFormationGroup`** remains the fallback when the column is empty.
+- Coaches need yard thresholds visible next to situation names; add-play flows must not post against a stale scenario id after switching tabs.
+
+### Status after this push
+
+- **`app/film/[gameId]/page.tsx`**, **`app/film/import/save/page.tsx`**, **`app/film/new/page.tsx`**, **`components/film/DriveSetupForm.tsx`**, **`EditGameDetailsModal.tsx`**, **`YardageSheet.tsx`**, **`components/playbook/AddPlayDrawer.tsx`**, **`PlaybookEditor.tsx`**, **`SituationList.tsx`**, **`hooks/useFormationGroups.ts`**, **`lib/playbook.ts`**, **`lib/playbookUtils.ts`**.
+
+---
+
 ## 2026-04-22 — Game Plan: new play sheet as a modal (not a separate page)
 
 ### What

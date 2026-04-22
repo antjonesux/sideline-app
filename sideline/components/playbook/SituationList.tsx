@@ -1,7 +1,7 @@
 "use client";
 
 import { SCENARIO_SHORT } from "@/lib/constants";
-import { scenarioMaxSlots } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, scenarioMaxSlots } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 
 export function SituationList({
@@ -57,7 +57,7 @@ export function SituationList({
                 : "border-transparent text-slate-300 hover:bg-slate-900/80"
             }`}
           >
-            <span className="font-body text-sm text-slate-200">{s.scenario}</span>
+            <span className="font-body text-sm text-slate-200">{scenarioDisplayLabel(s.scenario)}</span>
             <span className="font-body text-[11px] text-slate-500">{n > 0 ? `${n} of ${max} plays` : "No plays added"}</span>
           </button>
         );
