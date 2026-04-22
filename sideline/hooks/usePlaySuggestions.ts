@@ -40,6 +40,7 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
   const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
   const [sheetCalls, setSheetCalls] = useState<PlaybookEntry[]>([]);
+  const [sheetName, setSheetName] = useState<string | null>(null);
 
   /** Same scenario string written with new logs (see drives plays POST). */
   const scenarioLabel = useMemo(() => {
@@ -51,6 +52,7 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
   useEffect(() => {
     if (!sheetId || !scenarioLabel) {
       setSheetCalls([]);
+      setSheetName(null);
       return;
     }
     let cancelled = false;
@@ -59,11 +61,15 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
         `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
         { cache: "no-store" },
       );
-      const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; error?: string };
+      const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; sheetName?: string | null; error?: string };
       if (!res.ok || cancelled) {
-        if (!cancelled) setSheetCalls([]);
+        if (!cancelled) {
+          setSheetCalls([]);
+          setSheetName(null);
+        }
         return;
       }
+      setSheetName(json.sheetName?.trim() || null);
       const rows = json.plays ?? [];
       setSheetCalls(
         rows.map((row) => {
@@ -163,5 +169,5 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
     return recentRows.filter((play) => !suggestionIds.has(`${play.formation}::${play.play_name}`.toLowerCase()));
   }, [recentRows, suggestions]);
 
-  return { suggestions, recentPlays, sheetCalls };
+  return { suggestions, recentPlays, sheetCalls, sheetName };
 }

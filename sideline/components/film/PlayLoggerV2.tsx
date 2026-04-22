@@ -62,7 +62,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
     [mergedPlays, drive],
   );
 
-  const { suggestions, sheetCalls } = usePlaySuggestions({
+  const { suggestions, sheetCalls, sheetName } = usePlaySuggestions({
     down: currentGameState.down,
     distance: currentGameState.distance,
     fieldPos: currentGameState.absoluteYard,
@@ -291,7 +291,14 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
 
             {sheetCalls.length > 0 ? (
               <div className="mb-3 px-4">
-                <p className="mb-2 font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
+                <div className="mb-2">
+                  <p className="font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
+                  {sheetName ? (
+                    <p className="mt-0.5 font-sans text-xs text-slate-400">
+                      Based on {sheetName}
+                    </p>
+                  ) : null}
+                </div>
                 <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
                   {sheetCalls.map((play) => (
                     <PlayRow key={`sheet-${play.play_id}`} play={play} onSelect={handlePlaySelect} />

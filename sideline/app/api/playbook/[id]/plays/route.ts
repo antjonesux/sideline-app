@@ -74,7 +74,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   const { data: sheetMeta, error: sheetMetaErr } = await supabase
     .from("play_sheets")
-    .select("cfb26_playbook, playbook")
+    .select("name, cfb26_playbook, playbook")
     .eq("id", sheetId)
     .maybeSingle();
   if (sheetMetaErr) return NextResponse.json({ error: sheetMetaErr.message }, { status: 400 });
@@ -102,6 +102,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({
       scenarioId: scenarioRow.id,
       scenario: scenarioName,
+      sheetName: sheetMeta?.name ?? null,
       plays: playsOut,
     });
   }

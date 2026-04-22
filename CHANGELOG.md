@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Film: YOUR CALLS shows which play sheet it is based on
+
+### What
+
+- **`GET /api/playbook/[id]/plays`** (`slim=1`): response now includes **`sheetName`** from **`play_sheets.name`** (same request that loads sheet plays for the logger).
+- **`usePlaySuggestions`:** reads **`sheetName`** from that slim response and exposes it alongside **`sheetCalls`**.
+- **`PlayLoggerV2`:** under **YOUR CALLS**, shows **`Based on {sheet name}`** using the same secondary line styling as **You’ve been calling…**.
+
+### Why
+
+- Coaches need to see at a glance that **YOUR CALLS** is the planned sheet, not the same source as historical tendencies.
+
+### Status after this push
+
+- Play Logger copy only; no change to suggestion ranking or sheet play loading behavior.
+
+---
+
 ## 2026-04-22 — Game Plan: suggestions gated to linked games + scenario cache on sheet edit
 
 ### What
