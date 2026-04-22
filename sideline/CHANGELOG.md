@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Game Plan — Opening Script suggestions + full-sheet replace from suggestions)
+
+**What:** `app/api/playbook/[id]/plays/route.ts` uses `loggedScenario` so **Opening Script** loads `logged_plays` with **`scenario = "1st Down"`** for aggregation and `buildSuggestions` (film `deriveScenario` never emits `"Opening Script"`). `PlaybookEditor.tsx` adds **`swapPlay`** mutation, **`replaceSuggest`** modal when **`atCapacity`**, and passes **`scenarioFull`** to `PlaySuggestions.tsx`, which shows **Replace a play** instead of **Add play** when the situation is full.
+
+**Why:** Opening Script had empty suggestion/stats slices due to the scenario string mismatch; coaches with a full call sheet still need a way to adopt a suggested play by replacing a slot.
+
+**Status after this push:** `PlaybookEditor.tsx`, `PlaySuggestions.tsx`, `app/api/playbook/[id]/plays/route.ts`.
+
+---
+
 ## 2026-04-21 (drive create `is_inches` fix + seed playbook expansion)
 
 **What:** `app/api/games/[id]/drives/route.ts` now persists `is_inches` when payloads send either boolean `true` or string `"true"`, preventing loss of inch distance state on drive creation. Added new seed files under `lib/seed/playbooks/` for Auburn, Colorado, Colorado State, Indiana, Ohio, Oregon State, Texas Tech, and Western Kentucky. `scripts/seed-playbooks.ts` now preloads and validates all team seeds before DB writes, and fails fast on duplicate canonical `(formation, play_name)` rows per slug.

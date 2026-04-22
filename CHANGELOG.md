@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Game Plan: Opening Script suggestions + replace when sheet is full
+
+### What
+
+- `GET /api/playbook/[id]/plays` maps **Opening Script** to **`logged_plays.scenario = "1st Down"`** for stats and suggested plays, because film logging never writes `"Opening Script"` on logged rows.
+- **Playbook editor**: when a situation is at max plays, suggested plays use **Replace a play** and open a modal to pick an existing slot; the choice calls the existing **`swap`** action on `PUT /api/playbook/[id]/plays`.
+
+### Why
+
+- Opening Script showed no suggestions even when first-down history supported them (scenario label mismatch).
+- Full scenarios (for example Opening Script at 15 plays) could not act on suggestions without a replace path.
+
+### Status after this push
+
+- Opening Script can surface suggestions from first-down logged data; full sheets can swap in a suggested play via the modal.
+
+---
+
 ## 2026-04-21 — Drive create API inches flag fix + expanded team playbook seeds
 
 ### What

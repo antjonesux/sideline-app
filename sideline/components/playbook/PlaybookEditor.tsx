@@ -3,6 +3,7 @@
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
+import { normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
@@ -49,6 +50,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
+  const [replaceSuggest, setReplaceSuggest] = useState<SuggestionRow | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
@@ -102,6 +104,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       setActiveScenario(scenarios[0]?.scenario ?? "1st Down");
     }
   }, [scenarios, activeScenario]);
+
+  useEffect(() => {
+    setReplaceSuggest(null);
+  }, [activeScenario]);
 
   const activeBlock = useMemo(
     () => scenarios.find((s) => s.scenario === activeScenario),
@@ -170,6 +176,20 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onSuccess: () => invalidateScenario(),
   });
 
+  const swapPlay = useMutation({
+    mutationFn: async (body: { playId: string; formation: string; play_name: string }) => {
+      const res = await fetch(`/api/playbook/${sheetId}/plays`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "swap", ...body }),
+      });
+      const j = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(j.error ?? "Could not replace play");
+      return j;
+    },
+    onSuccess: () => invalidateScenario(),
+  });
+
   const updateSheet = useMutation({
     mutationFn: async (body: { name: string; cfb26_playbook: string }) => {
       const res = await fetch(`/api/playbook/${sheetId}`, {
@@ -226,6 +246,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const onSuggestAdd = useCallback(
     async (s: SuggestionRow) => {
+      if (atCapacity) {
+        setReplaceSuggest(s);
+        return;
+      }
       const id = `${s.formation}\t${s.play_name}`;
       setSuggestBusy(id);
       try {
@@ -243,7 +267,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         setSuggestBusy(null);
       }
     },
-    [scenarioPayload?.scenarioId, postPlay],
+    [scenarioPayload?.scenarioId, postPlay, atCapacity],
   );
 
   if (sheetQuery.isLoading) {
@@ -384,6 +408,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             suggestions={suggestions}
             busyId={suggestBusy}
             onAdd={onSuggestAdd}
+            scenarioFull={atCapacity}
           />
         </section>
       </div>
@@ -434,6 +459,62 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   </button>
                 </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {replaceSuggest ? (
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setReplaceSuggest(null)}>
+          <div className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+            <div className="app-card flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+                <h2 className="app-section-title text-lg">Replace a play</h2>
+                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setReplaceSuggest(null)}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="space-y-3 overflow-y-auto p-4">
+                <p className="font-body text-sm text-slate-400">
+                  This situation is full. Choose a play to replace with{" "}
+                  <span className="font-medium text-white">{normalizePlayName(replaceSuggest.play_name)}</span>.
+                </p>
+                <ul className="space-y-2">
+                  {sortedPlays.map((play) => (
+                    <li key={play.id}>
+                      <button
+                        type="button"
+                        disabled={swapPlay.isPending}
+                        className="flex w-full items-center justify-between rounded-lg border border-slate-700 px-3 py-2.5 text-start transition-colors hover:border-emerald-600/50 hover:bg-emerald-500/10 disabled:opacity-50"
+                        onClick={async () => {
+                          try {
+                            await swapPlay.mutateAsync({
+                              playId: play.id,
+                              formation: replaceSuggest.formation,
+                              play_name: replaceSuggest.play_name,
+                            });
+                            addToast("Replaced on sheet.", "success");
+                          } catch (e) {
+                            const msg = e instanceof Error ? e.message : COULDNT_SAVE;
+                            addToast(msg, "error");
+                          } finally {
+                            setReplaceSuggest(null);
+                            setSuggestBusy(null);
+                          }
+                        }}
+                      >
+                        <div className="min-w-0">
+                          <p className="font-mono text-xs font-medium uppercase text-white">{normalizePlayName(play.play_name)}</p>
+                          <p className="mt-0.5 font-mono text-[11px] text-slate-500">{play.formation}</p>
+                        </div>
+                        <span className="shrink-0 font-sans text-xs text-slate-500">Replace</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

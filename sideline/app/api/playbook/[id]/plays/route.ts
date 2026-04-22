@@ -105,10 +105,12 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     });
   }
 
+  const loggedScenario = isOpeningScript(scenarioName) ? "1st Down" : scenarioName;
+
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
     .select("formation, play_name, result_tag, yards_gained, down, distance")
-    .eq("scenario", scenarioName)
+    .eq("scenario", loggedScenario)
     .limit(25000);
 
   if (lErr) return NextResponse.json({ error: lErr.message }, { status: 400 });
