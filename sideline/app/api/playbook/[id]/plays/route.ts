@@ -2,7 +2,7 @@ import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPl
 import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, scenarioMaxSlots } from "@/lib/playbookUtils";
-import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
+
 import { normalizePlayNameForComparison } from "@/lib/utils/normalizePlayName";
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -110,17 +110,13 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const suggestionLabels = loggedPlayScenarioLabelsForSuggestions(scenarioName);
   const isPooled = suggestionLabels.length > exactLabels.length;
 
-  let playbookSessionIds: string[] = [];
-  if (cfbBook) {
-    const pattern = playbookIlikeExactPattern(cfbBook);
-    const { data: sessions, error: sessErr } = await supabase
-      .from("game_sessions")
-      .select("id")
-      .or(`my_playbook.ilike.${pattern},offensive_playbook.ilike.${pattern}`)
-      .limit(500);
-    if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 });
-    playbookSessionIds = (sessions ?? []).map((s) => s.id);
-  }
+  const { data: sessions, error: sessErr } = await supabase
+    .from("game_sessions")
+    .select("id")
+    .eq("play_sheet_id", sheetId)
+    .limit(500);
+  if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 });
+  const playbookSessionIds = (sessions ?? []).map((s) => s.id);
 
   if (playbookSessionIds.length === 0) {
     return NextResponse.json({

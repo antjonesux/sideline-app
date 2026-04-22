@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Game Plan — suggestions only from games linked to this sheet)
+
+**What:** **`GET /api/playbook/[id]/plays`** now resolves eligible **`game_sessions`** with **`play_sheet_id` = the current play sheet** only (no **`my_playbook` / `offensive_playbook`** name match). Logged stats and **`buildSuggestions`** inputs therefore come only from games explicitly bound to that sheet; empty suggestions when no linked sessions. **`PlaybookEditor.tsx`** **`updateSheet`** success now invalidates **`["playbook-scenario", sheetId]`** so scenario payloads (including suggestions) refetch after editing the sheet instead of staying stale for **`STALE_SCENARIO_MS`**. Removed unused **`playbookIlikeExactPattern`** import from the plays route.
+
+**Why:** Suggestions could appear from logged plays tied to other sheets or unlinked legacy games sharing the same catalog playbook string, which undermined trust in the coaching loop; sheet edits could leave cached suggestions from the prior configuration.
+
+**Status after this push:** `app/api/playbook/[id]/plays/route.ts`, `components/playbook/PlaybookEditor.tsx`.
+
+---
+
 ## 2026-04-22 (Game Plan — Opening Script suggestions + full-sheet replace from suggestions)
 
 **What:** `lib/playbookUtils.ts` adds **`loggedPlayScenarioLabels`** / **`loggedPlayScenarioLabelsForSuggestions`** so Game Plan tabs match film **`logged_plays.scenario`** strings (including alias and sparse-tab pools). **`app/api/playbook/[id]/plays/route.ts`** filters logged rows by those labels, scopes them to **`game_sessions`** whose **`my_playbook` / `offensive_playbook`** matches the sheet’s CFB26 book (empty suggestions if none), keeps **scenario** / **formation** stats on the exact-tab slice, and passes **`buildSuggestions`** the widened aggregate plus exact **`byCombo`** so each suggestion shows **exact-only** stats when the combo exists in that tab, **pooled-only** stats with **`pooled`** only when it does not, with success-first ranking from the same displayed numbers. **`PlaySuggestions.tsx`** shows **similar situations** only for pooled-only rows. **`DECISIONS.md`** documents scenario pools and logged-only suggestions. **Earlier same day:** Opening Script maps to **`1st Down`** logged rows; **`PlaybookEditor.tsx`** replace-from-suggestions flow, **`hs-overlay`** modal polish, swap pending/duplicate handling as shipped.

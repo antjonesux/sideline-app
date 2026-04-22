@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Game Plan: suggestions gated to linked games + scenario cache on sheet edit
+
+### What
+
+- **`GET /api/playbook/[id]/plays`** scopes logged-play aggregation and suggestions to **`game_sessions.play_sheet_id` = the requested sheet** only. Games that only match the sheet’s CFB26 playbook by name, or have **`play_sheet_id` null**, no longer contribute to that sheet’s Game Plan suggestions or logged-backed stats on this route.
+- **`PlaybookEditor`** invalidates **`["playbook-scenario", sheetId]`** after a successful sheet metadata save so suggestions and scenario stats refetch immediately.
+
+### Why
+
+- Suggestions must reflect data earned through this play sheet, not bleed from other sheets or unlinked sessions.
+- Editing the bound playbook could leave stale scenario query data until the prior stale window expired.
+
+### Status after this push
+
+- Tighter suggestion eligibility at the API; correct cache refresh after sheet edits.
+
+---
+
 ## 2026-04-22 — Game Plan: Opening Script suggestions + replace when sheet is full
 
 ### What

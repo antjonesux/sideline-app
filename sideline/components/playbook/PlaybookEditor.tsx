@@ -204,6 +204,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
+      await queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId] });
       await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
     },
   });
