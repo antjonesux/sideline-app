@@ -13,6 +13,38 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 export async function PUT(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
   const payload = await req.json();
+
+  if ("play_sheet_id" in payload) {
+    const rawSheetId = typeof payload.play_sheet_id === "string" ? payload.play_sheet_id.trim() : "";
+    if (rawSheetId) {
+      const { data: sheet } = await supabase
+        .from("play_sheets")
+        .select("id, cfb26_playbook, playbook")
+        .eq("id", rawSheetId)
+        .maybeSingle();
+      if (!sheet) {
+        return NextResponse.json({ error: "Play sheet not found" }, { status: 400 });
+      }
+      const incomingPb = typeof payload.offensive_playbook === "string" ? payload.offensive_playbook.trim() : "";
+      let gamePb = incomingPb.toLowerCase();
+      if (!gamePb) {
+        const { data: game } = await supabase
+          .from("game_sessions")
+          .select("offensive_playbook, my_playbook")
+          .eq("id", id)
+          .maybeSingle();
+        gamePb = ((game?.offensive_playbook ?? game?.my_playbook) ?? "").trim().toLowerCase();
+      }
+      const sheetPb = (sheet.cfb26_playbook ?? sheet.playbook ?? "").trim().toLowerCase();
+      if (gamePb && sheetPb !== gamePb) {
+        return NextResponse.json({ error: "Play sheet does not match the game playbook" }, { status: 400 });
+      }
+      payload.play_sheet_id = sheet.id;
+    } else {
+      payload.play_sheet_id = null;
+    }
+  }
+
   const { data, error } = await supabase.from("game_sessions").update(payload).eq("id", id).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json(data);

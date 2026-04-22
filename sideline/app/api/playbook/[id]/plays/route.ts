@@ -51,6 +51,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   if (!scenarioName) {
     return NextResponse.json({ error: "scenario query parameter is required" }, { status: 400 });
   }
+  const slim = req.nextUrl.searchParams.get("slim") === "1";
 
   const { data: scenarioRow, error: scErr } = await supabase
     .from("play_sheet_scenarios")
@@ -80,6 +81,30 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const cfbBook = String(sheetMeta?.cfb26_playbook ?? sheetMeta?.playbook ?? "").trim();
   const typeByKey = cfbBook ? await fetchCfbPlayTypeMap(supabase, [cfbBook]) : new Map<string, string>();
 
+  const playsOut: PlayRowWithCfbType[] = (plays ?? []).map((p) => {
+    const play_name = normalizePlayName(String(p.play_name ?? ""));
+    const formation = String(p.formation ?? "").trim() || "Other";
+    const key = cfbBook ? playTypeLookupKey(cfbBook, formation, play_name) : "";
+    const play_type = key && typeByKey.has(key) ? (typeByKey.get(key) ?? null) : null;
+    return {
+      id: p.id,
+      scenario_id: p.scenario_id,
+      play_order: p.play_order,
+      formation,
+      play_name,
+      script_note: p.script_note,
+      play_type,
+    };
+  });
+
+  if (slim) {
+    return NextResponse.json({
+      scenarioId: scenarioRow.id,
+      scenario: scenarioName,
+      plays: playsOut,
+    });
+  }
+
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
     .select("formation, play_name, result_tag, yards_gained, down, distance")
@@ -102,21 +127,6 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const { byCombo, byFormation, comboDisplay } = aggregateLoggedPlays(nonPuntLogged);
 
   const sheetKeys = new Set<string>();
-  const playsOut: PlayRowWithCfbType[] = (plays ?? []).map((p) => {
-    const play_name = normalizePlayName(String(p.play_name ?? ""));
-    const formation = String(p.formation ?? "").trim() || "Other";
-    const key = cfbBook ? playTypeLookupKey(cfbBook, formation, play_name) : "";
-    const play_type = key && typeByKey.has(key) ? (typeByKey.get(key) ?? null) : null;
-    return {
-      id: p.id,
-      scenario_id: p.scenario_id,
-      play_order: p.play_order,
-      formation,
-      play_name,
-      script_note: p.script_note,
-      play_type,
-    };
-  });
   for (const p of playsOut) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }

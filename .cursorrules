@@ -1,306 +1,101 @@
-# Typography System — Enforced Globally
-
-This project uses exactly three fonts. Never use any other font.
-
-## Barlow Condensed (display/headings)
-- Page titles (h1), section headings (h2, h3)
-- Drive titles, large stat numbers, primary CTA button text
-- Always uppercase, letter-spacing 1-2px, weight 600 or 700
-
-## Barlow (body/UI)
-- Body text, descriptions, form labels, nav items, tab labels
-- Helper text, card subtitles, metadata, scenario names, formation names
-- Weight 400 for body, 500 for emphasis, 600 for labels
-
-## JetBrains Mono (data/monospace)
-- Play names, stat values, stat card labels, result badges
-- Yards, down & distance, table cell data, scores, percentages
-- Weight 400 for data, 500 for emphasis
-
-## Banned Fonts
-Never use: DM Mono, Bebas Neue, Inter, Arial, Roboto, system-ui, or Tailwind's default sans/mono stacks.
-
-## Tailwind Config
-font-mono must be mapped to JetBrains Mono in tailwind.config.js.
-font-sans must be mapped to Barlow.
-font-display (custom utility) must be mapped to Barlow Condensed.
-
-# UX/UI Systematic Principles — Enforced Globally
-
-Every component, page, and interaction must follow these principles.
-Do not build anything that violates them.
-
-## Feedback Visibility
-Every user action that changes data must produce visible feedback.
-- Destructive actions (delete, remove) require a confirmation step
-- Successful writes show a success toast
-- Failed writes show an error toast and roll back optimistic UI updates
-- Never let a button click produce no visible response
-
-## Progressive Disclosure
-Show the minimum information needed, let users drill deeper on demand.
-- Lists default to a collapsed/limited view with "Show more" to expand
-- Accordions start collapsed unless there's only one item
-- Detail data lives behind a tap, not on the surface
-- Empty slots and zero-states are always visible — never hide a section because it has no data
-
-## Empty States
-No screen, section, or component may render blank when it has no data.
-- Every empty state must include: a clear message explaining why it's empty, and a CTA button pointing the user to the action that fills it
-- Never show just "No data" or a blank container
-- Wording, banned phrases, and example lines: follow **# UX Copy & Terminology — Enforced Globally** (later in this file)
-
-## Consistency
-Identical patterns must look and behave identically everywhere.
-- One dropdown component used app-wide, not multiple implementations
-- One accordion pattern (chevron right, 200ms ease-out animation)
-- One card style (same background, border, radius, padding)
-- One button hierarchy: primary (emerald solid), secondary (outlined), destructive (red outlined), ghost (text only)
-- One kebab menu pattern (three dots, top-right of card, vertically centered)
-- If a pattern exists on one page, reuse the same component on every other page that needs it
-
-## Spacing & Density
-- Page padding: px-4 py-6 on mobile, px-6 py-8 on desktop
-- Card internal padding: p-4 minimum
-- Gap between cards/sections: gap-3 (12px) minimum
-- Bottom padding on every page: pb-24 (so content clears the bottom nav)
-- Touch targets: 44px minimum on all interactive elements
-
-## Motion & Transitions
-- Accordions: 200ms ease-out expand/collapse, chevron rotates smoothly
-- Skeleton to content: 150ms fade-in
-- Button press: scale(0.97) on active, 100ms
-- Tab switches: 100ms crossfade
-- All animations wrapped in prefers-reduced-motion media query
-- No decorative animation — motion must serve comprehension or feedback
-
-## Accessibility Baseline
-- :focus-visible outline on every interactive element (2px emerald, 2px offset)
-- Never rely on color alone to convey meaning — always pair with a text label or icon
-- Minimum 44px touch targets on mobile
-- All images and icons have appropriate alt text or aria-label
-- Form inputs always have associated labels
-
-## Navigation & Orientation
-- Every detail page has a back button (ghost style, chevron + "Back")
-- Breadcrumbs on pages 2+ levels deep
-- The user should always know where they are and how to get back
-
-## Data Display
-- Numbers are always formatted: commas for thousands, 1 decimal for averages, 0 decimals for percentages
-- Positive yards: emerald. Negative yards: red. Zero: muted.
-- Success rate color coding: 60%+ emerald, 40-59% amber, below 40% red, no data gray
-- Tables use consistent column widths and alignment (numbers right-aligned, text left-aligned)
-- How stats are *labeled* in UI (fragments vs. sentences, word choice): follow **# UX Copy & Terminology — Enforced Globally** → **Stats Format** in this file
-
-# Additional Rules to Add to .cursorrules
-# Merge these below your existing Typography and UX/UI sections
-
-## Preline First
-
-Before building any UI component, check if Preline UI already provides it. Use Preline's component for: modals (`hs-overlay`), tabs (`hs-tabs`), dropdowns (`hs-dropdown`), accordions (`hs-accordion`), tooltips (`hs-tooltip`), toasts, badges, list groups, radio card groups, and comboboxes.
-
-Only build a custom component when Preline genuinely does not have one that fits. If you build custom, document why in a code comment.
-
-Every Preline component must include its dark variant classes. Never ship a Preline component using only light-mode defaults.
-
-## Dark Mode
-
-This app is dark-mode only. The `<html>` tag has `className="dark"`.
-
-Every background, border, and text color must use `dark:` variant classes or the app's custom CSS tokens (`--color-field-green`, `--color-chalk`, etc.). Never use raw Tailwind colors without `dark:` pairing (e.g., never `bg-white` — use `dark:bg-slate-950` or `bg-slate-950`).
-
-Do not add light-mode styling. Do not add a theme toggle. Dark only.
-
-## TypeScript Strict Mode
-
-All code must pass `npm run build` with zero errors before a task is considered complete. Never use `any` type — use `unknown` with type narrowing if the type is genuinely unclear. Never use `@ts-ignore` or `@ts-expect-error`.
-
-When adding values to a union type (e.g., play types, result tags), update the type definition AND every switch/if chain that handles that union. Missing cases in exhaustive checks have caused production deploy failures.
-
-Type all API response shapes explicitly. Type all Supabase query return values.
-
-## Page Layout Contract
-
-Every page component must follow this structure:
-
-```tsx
-<div className="px-4 py-6 pb-24 max-w-3xl mx-auto">
-  {/* page content */}
-</div>
-```
-
-- `pb-24` is mandatory — it prevents the fixed bottom nav from overlapping content
-- Never set `overflow: hidden` on any content container between `<body>` and the page content
-- Never set `height: 100vh` on content containers — use `min-h-screen` if a minimum height is needed
-- The scrollable container must be the `<body>` or a `flex-1 overflow-y-auto` child in the root layout
-
-If you create a new page route, verify that you can scroll to the last content element and it clears the bottom nav.
-
-## Supabase Query Patterns
-
-All Supabase queries must follow this pattern:
-
-```typescript
-const { data, error } = await supabase
-  .from('table_name')
-  .select('column1, column2, relation(column1, column2)')  // Always explicit columns, never select('*')
-  .eq('filter_column', value)
-
-if (error) {
-  console.error('Descriptive error context:', error)
-  return NextResponse.json({ error: error.message }, { status: 500 })
-}
-```
-
-Rules:
-- Always use explicit column names in `.select()`, never `select('*')`
-- Always handle the `error` return — never ignore it
-- Use `.single()` when expecting one row
-- Use `.maybeSingle()` when the row might not exist
-- Always return proper HTTP status codes from API routes (200, 201, 400, 404, 500)
-- Never make multiple sequential queries when a single query with joins would work (avoid N+1)
-
-## API Response Shape
-
-All API routes must return a consistent response shape:
-
-Success: `{ data: <result> }` with status 200 (GET) or 201 (POST)
-Error: `{ error: <message> }` with appropriate status code (400, 404, 500)
-
-Never return raw arrays or objects without wrapping them. Never return HTML or plain text from API routes.
-
-## File and Component Organization
-
-- One component per file. File name matches the component name (PascalCase).
-- Shared/reusable components go in `components/shared/`. Feature-specific components go in `components/[feature]/`.
-- API routes live in `app/api/[resource]/route.ts`. Nested resources use `app/api/[resource]/[id]/[sub-resource]/route.ts`.
-- Server-side logic (Supabase queries, data transforms) lives in `lib/`. Never put Supabase calls directly in components.
-- Seed data files live in `lib/seed/playbooks/[team-slug].ts`.
-- Types live in `lib/types.ts`. Add new types there, not inline in components.
-
-## Scaffolding Rule
-
-Never create a route or page that renders as a placeholder, skeleton, or "Coming Soon" state. If you create a route, build the full UI for that page in the same pass. If the full UI isn't part of the current task, don't create the route at all.
-
-When generating new pages, always populate them with real component structure, real data fetching, and real interactions. An empty page with a title and description is not acceptable output.
-
-## State Management
-
-- Local component state (`useState`) for UI-only state (open/closed, selected tab, form inputs)
-- Zustand stores for cross-component state that persists across navigation (active game session, user preferences)
-- TanStack Query for all server data (Supabase reads). Never use `useEffect` + `fetch` for data loading.
-- Zustand stores persist to localStorage where noted. TanStack Query handles cache invalidation.
-- After any mutation (POST, PUT, DELETE), invalidate the relevant TanStack Query cache so the UI updates immediately.
-
-## Error Handling
-
-- Every API call in a component must have error handling (try/catch or TanStack Query's `onError`)
-- Show an error toast on failure — never fail silently
-- User-visible error copy: follow **# UX Copy & Terminology — Enforced Globally** (human, actionable; never expose DB columns, table names, HTTP codes, or stack traces)
-- Form submissions must disable the submit button while loading and re-enable on completion
-- Loading states use skeleton placeholders that match the shape of the content they replace — never a centered spinner on an otherwise blank page
-
-## Naming Conventions
-
-- Database columns: `snake_case` (e.g., `game_session_id`, `play_name`, `is_new_in_26`)
-- TypeScript types/interfaces: `PascalCase` (e.g., `GameSession`, `LoggedPlay`)
-- Component props: `camelCase` (e.g., `onSubmit`, `isLoading`, `gameId`)
-- API routes: kebab-case paths (e.g., `/api/top-plays`, `/api/game/[id]`)
-- CSS tokens: `--color-kebab-case` (e.g., `--color-field-green`)
-- Seed files: `kebab-case.ts` (e.g., `washington-state.ts`, `texas-am.ts`)
-
-# UX Copy & Terminology — Enforced Globally
-
-Every piece of user-facing text must follow these rules. No exceptions.
-
-## Voice
-
-Write like a coach's clipboard, not a developer's console.
-- Fragments over sentences. Labels and stats are never full sentences.
-- Direct, never hedging. "62% pass" not "You pass about 62% of the time here."
-- No developer language. Never show "data," "records," "entries," "items," "null," "undefined," "N/A," "query," "fetch," or "no results found" to users.
-- No redundancy. If context already tells the user what something is, don't repeat it in the label.
-
-## Terminology
-
-Use ONE word for each concept. Never mix synonyms.
-
-| Concept | Always use | Never use |
-|---|---|---|
-| A play that was run | call | use, entry, instance, play event |
-| Number of times run | calls | uses, times used, count |
-| A sequence of plays | drive | drive session, possession |
-| The game | game | session, match, game session |
-| Recording play data | logging | tracking, recording, entering data |
-| Play sheet / call sheet | play sheet | playbook sheet, sheet, call list |
-| Success metric | success | success rate, win rate, effectiveness |
-| User's pattern | tendency | trend, habit, pattern, behavior |
-| Game situation | situation | scenario, context, game state |
-| Where the ball is | field position | yard line position, ball position |
-| The other team | opponent | enemy, other team, opposition |
-
-## Stats Format
-
-Stats are always fragments: label + number + unit. Never wrap a stat in a sentence.
-- "127 plays" not "Total Plays: 127"
-- "8.3 avg yds" not "Average Yards Per Play: 8.3"
-- "56% success" not "Your success rate in this situation: 56%"
-- "3 calls" not "Number of calls: 3"
-- "+39 yds" not "Total Yards Gained: +39"
-- "2 TD · 1 TO" not "Touchdown count: 2, Turnover count: 1"
-
-## Empty States
-
-Every empty state needs: a human message + a CTA telling the user what to do.
-- "No games logged yet." + [Log Your First Game]
-- "No drives yet." + [Add Drive]
-- "No plays added." + [Add Play]
-- Never: "No data found," "No results," "No items to display," "No records match"
-
-Also satisfies **Empty States** under UX/UI Systematic Principles (visible zero-state, never blank).
-
-## Error Messages
-
-Errors are human and actionable. Never expose database details.
-- "Couldn't save. Check your connection and try again." not "Failed to save"
-- "Something went wrong. Try again." not "Error: 500 Internal Server Error"
-- Never show column names, table names, HTTP status codes, or stack traces to users
-
-Also satisfies **Error Handling** under Additional Rules (toasts, no silent failures).
-
-## Button Labels
-
-1-2 words. Verb matches the action. Confirmation buttons repeat the action name.
-- "Log Play" not "Submit"
-- "Add Drive" not "Add New Drive"
-- "Save" not "Save Changes"
-- "Delete Drive" not "Confirm" or "OK" or "Are you sure?"
-
-## Navigation Labels
-
-These are the exact labels. No variations.
-- Bottom nav: Film Room | Game Plan | Tendencies
-- Game details tabs: Drive Summary | Tendencies
-- Tendencies sub-tabs: What's Working | Am I Predictable?
-
-# Commit & Changelog - Enforced on Every Push
-
-## Commit Messages
-Every commit must follow the format: type(scope): description
-
-Types: feat | fix | refactor | data | ui | perf | chore | docs
-Scopes: film | playbook | tendencies | import | api | db | seed | shell | engine | build
-
-The description must be at least 10 characters and explain WHAT changed.
-The commit body must explain WHY - what problem was solved or what decision was made.
-Never commit with messages like "update stuff", "fix bug", or "add files".
-
-## Changelog
-Before pushing, add an entry to the top of CHANGELOG.md with four sections:
-- What: 1-2 sentences on what changed
-- Why: 1-2 sentences on the problem solved
-- Decisions: any non-obvious choices (skip if straightforward)
-- Status after this push: where the app stands now
-
-Never create daily changelog files (CHANGELOG-YYYY-MM-DD.md). Use the single CHANGELOG.md only.
+---
+description: 
+alwaysApply: true
+---
+
+# Sideline Agent Workflow
+
+This file defines how AI agents should operate inside the Sideline repo.
+
+## Purpose
+
+The Sideline is a coaching tool, not a generic logging tool.
+Agents must preserve the coaching loop, reuse existing repo patterns, and avoid introducing new architecture unless explicitly required.
+
+## Required reading before coding
+
+Before making code changes, read:
+1. `BUILD_CONTRACT.md`
+2. `DECISIONS.md`
+3. active `SESSION_BRIEF.md` or equivalent task brief
+4. nearby implementation files in `sideline/`
+
+## Default agent flow
+
+### 1. Planning
+Use the planning agent to:
+- inspect the repo
+- identify files to touch
+- propose the smallest implementation path
+
+Planning should not introduce:
+- new architecture
+- new endpoints unless required
+- new global state
+- speculative abstractions
+
+### 2. Implementation
+Use the primary implementation agent to:
+- extend existing components, hooks, routes, and flows
+- preserve current UX and interaction patterns
+- keep scope tightly aligned with the active brief
+
+### 3. Debug / validation
+Use a reasoning-focused agent to:
+- inspect edge cases
+- identify logic gaps
+- validate assumptions
+- suggest fixes
+
+After debugging, final implementation should still be applied using the primary implementation agent so the repo keeps one coding voice.
+
+## Required review workflow
+
+Before commit, run both:
+1. `/sideline-review`
+2. `sideline-reviewer`
+
+Use them on any task that changes:
+- Film
+- Game Plan
+- Tendencies
+- shared logger flows
+- shared utilities
+- shared UI primitives
+
+## Review expectations
+
+Review must check:
+- scope drift
+- architecture drift
+- reuse of existing patterns
+- fallback behavior
+- coaching/product alignment
+- build/QA readiness
+
+## Repo-specific rules
+
+- prefer extending existing hooks over creating new ones
+- prefer extending existing API routes over creating new endpoints
+- reuse shared components before creating new components
+- never introduce a parallel play-type resolution system
+- never introduce a parallel situation-mapping system
+- do not perform broad refactors during scoped tasks
+- do not add placeholder routes or speculative UI
+- follow coach-facing terminology from `.cursorrules` and shared copy helpers
+
+## If multiple valid approaches exist
+
+Prefer:
+1. the existing repo pattern
+2. the simpler implementation
+3. the one that best preserves the coaching loop
+
+## Definition of done
+
+A task is not done until:
+- implementation matches the brief
+- build passes
+- fallback behavior is safe
+- review skill and reviewer agent have run
+- manual QA paths are known

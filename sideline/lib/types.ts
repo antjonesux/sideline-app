@@ -13,6 +13,8 @@ export type GameSession = {
   quarter_started_logging: number | null;
   import_source?: string | null;
   ended_at?: string | null;
+  /** UUID of the play sheet chosen for this game (nullable = no sheet). */
+  play_sheet_id?: string | null;
   drive_count?: number;
   play_count?: number;
 };

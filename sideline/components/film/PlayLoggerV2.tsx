@@ -21,9 +21,11 @@ interface PlayLoggerV2Props {
   playbook: string;
   drive: Drive;
   onRefresh: () => Promise<void>;
+  /** Explicit active sheet ID resolved by the parent page. */
+  sheetId?: string | null;
 }
 
-export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: PlayLoggerV2Props) {
+export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, sheetId }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
@@ -60,12 +62,13 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
     [mergedPlays, drive],
   );
 
-  const { suggestions } = usePlaySuggestions({
+  const { suggestions, sheetCalls } = usePlaySuggestions({
     down: currentGameState.down,
     distance: currentGameState.distance,
     fieldPos: currentGameState.absoluteYard,
     gameId,
     playbook,
+    sheetId,
   });
 
   const streamPlaysDesc = useMemo(
@@ -285,6 +288,17 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh }: Pl
                 </svg>
               </button>
             </div>
+
+            {sheetCalls.length > 0 ? (
+              <div className="mb-3 px-4">
+                <p className="mb-2 font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
+                <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
+                  {sheetCalls.map((play) => (
+                    <PlayRow key={`sheet-${play.play_id}`} play={play} onSelect={handlePlaySelect} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <div className="px-4 mb-2">
               <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>

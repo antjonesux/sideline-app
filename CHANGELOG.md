@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-21 — Per-game play sheet binding for Film logger
+
+### What
+
+- Added a nullable `game_sessions.play_sheet_id` foreign key (`on delete set null`) with matching migration and schema mirror, plus `GameSession` type support.
+- Extended game create/update APIs to accept optional `play_sheet_id`, validate sheet existence, and enforce playbook-to-sheet compatibility before persisting.
+- Added sheet pickers to Film **New Game** and **Edit game details** flows (including a `None` option and no-sheet helper copy), and ensured edit hydration preserves existing selections unless invalid for the selected playbook.
+- Removed brittle `is_active` sheet discovery from the logger path: Film game detail now passes `game.play_sheet_id` into `PlayLoggerV2`, and `usePlaySuggestions` uses only that explicit `sheetId`.
+- Kept logger hot-path performance work by using the existing `/api/playbook/[id]/plays` route with `slim=1` for scenario sheet calls.
+
+### Why
+
+- `YOUR CALLS` could be missing or wrong because runtime discovery depended on `is_active` sheets and playbook heuristics; coaches need a stable, explicit game-to-plan link at decision time.
+
+### Status after this push
+
+- New/edit game flows can attach a specific Game Plan sheet, logger reads that stable ID, and `YOUR CALLS` no longer depends on implicit active-sheet discovery.
+
+---
+
 ## 2026-04-21 — Film game card modal/control fixes, turnover tagging, and delete cascade hardening
 
 ### What

@@ -111,6 +111,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   drivesRef.current = drives;
   const [showLogger, setShowLogger] = useState(false);
   const [showDriveSetup, setShowDriveSetup] = useState(false);
+  const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
@@ -180,6 +181,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       cancelled = true;
     };
   }, [gameId]);
+
+  useEffect(() => {
+    setActiveSheetId(game?.play_sheet_id ?? null);
+  }, [game?.play_sheet_id]);
 
   async function createDrive(payload?: Partial<Drive>) {
     if (!gameId) return;
@@ -808,6 +813,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   playbook={game.offensive_playbook ?? game.my_playbook}
                   drive={activeDriveObj}
                   onRefresh={refresh}
+                  sheetId={activeSheetId}
                 />
               </div>
             </div>

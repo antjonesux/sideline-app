@@ -98,6 +98,10 @@ export function EditGameDetailsModal({
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
   const [form, setForm] = useState({ my_score: 0, opponent_score: 0, result: "W" as "W" | "L" });
   const [saveBusy, setSaveBusy] = useState(false);
+  type SheetOption = { id: string; name: string };
+  const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
+  const [sheetsLoading, setSheetsLoading] = useState(false);
+  const [selectedSheetId, setSelectedSheetId] = useState<string | null>(game.play_sheet_id ?? null);
   const addToast = useToastStore((s) => s.addToast);
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
@@ -193,12 +197,41 @@ export function EditGameDetailsModal({
     }
   }, [playbookOptions, selectedPlaybookName]);
 
+  useEffect(() => {
+    if (!selectedPlaybookName) {
+      setAvailableSheets([]);
+      setSelectedSheetId(null);
+      return;
+    }
+    let cancelled = false;
+    setSheetsLoading(true);
+    void (async () => {
+      const res = await fetch("/api/playbook", { cache: "no-store" });
+      const json = (await res.json()) as {
+        playbooks?: Array<{ id: string; name: string; cfb26_playbook?: string | null }>;
+      };
+      if (cancelled) return;
+      const norm = selectedPlaybookName.trim().toLowerCase();
+      const matching = (json.playbooks ?? []).filter(
+        (row) => (row.cfb26_playbook ?? "").trim().toLowerCase() === norm,
+      );
+      setAvailableSheets(matching.map((row) => ({ id: row.id, name: row.name })));
+      const matchingIds = new Set(matching.map((r) => r.id));
+      setSelectedSheetId((prev) => (prev && matchingIds.has(prev) ? prev : null));
+      setSheetsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPlaybookName]);
+
   const hydrateFromGame = useCallback(() => {
     setOffensePick({ team_name: game.my_playbook });
     const opp = defensiveTeams.find((t) => t.team_name === game.opponent_team);
     setDefensePick(opp ?? { team_name: game.opponent_team, defensive_scheme: game.opponent_scheme });
     const ob = (game.offensive_playbook ?? "").trim();
     setSelectedPlaybookName(ob.length ? ob : null);
+    setSelectedSheetId(game.play_sheet_id ?? null);
     setForm({
       my_score: game.my_score ?? 0,
       opponent_score: game.opponent_score ?? 0,
@@ -251,6 +284,7 @@ export function EditGameDetailsModal({
           my_score: form.my_score,
           opponent_score: form.opponent_score,
           result: form.result,
+          play_sheet_id: selectedSheetId ?? null,
         }),
       });
       const data = (await res.json()) as GameSession & { error?: string };
@@ -367,6 +401,44 @@ export function EditGameDetailsModal({
                   getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
                 />
               </div>
+
+              {selectedPlaybookName ? (
+                <div className="space-y-2">
+                  <p className="app-field-label">Game Plan</p>
+                  {sheetsLoading ? (
+                    <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
+                  ) : availableSheets.length === 0 ? (
+                    <p className="font-body text-xs text-slate-500">
+                      No play sheets for this playbook yet.{" "}
+                      <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Game Plan</a>.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSheetId(null)}
+                        className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
+                          selectedSheetId === null ? toggleOn : toggleOff
+                        }`}
+                      >
+                        None
+                      </button>
+                      {availableSheets.map((sheet) => (
+                        <button
+                          key={sheet.id}
+                          type="button"
+                          onClick={() => setSelectedSheetId(sheet.id)}
+                          className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
+                            selectedSheetId === sheet.id ? toggleOn : toggleOff
+                          }`}
+                        >
+                          {sheet.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="space-y-1">

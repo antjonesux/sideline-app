@@ -2,6 +2,8 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useMemo, useState } from "react";
+import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
+import { fromAbsoluteYard } from "@/lib/fieldPosition";
 import type { LoggedPlay } from "@/lib/types";
 import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
 import { supabase } from "@/lib/supabase";
@@ -12,6 +14,8 @@ type Args = {
   fieldPos: number;
   gameId: string;
   playbook: string;
+  /** When the caller already knows the sheet, pass its ID to skip the lookup. */
+  sheetId?: string | null;
 };
 
 type RecentLoggedPlay = LoggedPlay & { created_at?: string | null };
@@ -26,31 +30,60 @@ function biasTerms(down: number, distance: number, fieldPos: number): string[] {
   return ["inside zone", "outside zone", "slant", "mesh", "spacing", "stick"];
 }
 
-export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook }: Args) {
-  /**
-   * usePlaySuggestions
-   *
-   * Returns context-aware suggestions from the selected CFB26 playbook plus a short
-   * "recent calls" list from this game.
-   *
-   * ALGORITHM:
-   * - Pull all plays for the active playbook from `/api/cfb26-plays`.
-   * - Build situation bias terms from `(down, distance, fieldPos)` using `biasTerms`.
-   * - Score each play by how many bias terms appear in the lowercased play name.
-   * - Keep plays with score > 0, sort by score desc then name asc, return top 6.
-   * - Pull up to 200 recent `logged_plays` rows, then keep the latest 8 unique
-   *   `formation + play_name` combinations.
-   * - Hide recent rows that are already present in the suggestion list.
-   *
-   * FUTURE IMPROVEMENTS (not yet implemented):
-   * - Weight by historical efficiency/usage across similar situations
-   * - Exclude plays already called on the current drive
-   * - Add opponent-adjusted weighting once opponent tendency context is available
-   *
-   * Suggestions re-derive when `(down, distance, fieldPos)` changes.
-   */
+type SheetPlaysApiRow = {
+  formation: string;
+  play_name: string;
+  play_type?: string | null;
+};
+
+export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook, sheetId }: Args) {
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
   const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
+  const [sheetCalls, setSheetCalls] = useState<PlaybookEntry[]>([]);
+
+  /** Same scenario string written with new logs (see drives plays POST). */
+  const scenarioLabel = useMemo(() => {
+    const { side, yard_line } = fromAbsoluteYard(fieldPos);
+    const fieldZone = deriveFieldZone(yard_line, side);
+    return deriveScenario(down, distance, fieldZone);
+  }, [down, distance, fieldPos]);
+
+  useEffect(() => {
+    if (!sheetId || !scenarioLabel) {
+      setSheetCalls([]);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch(
+        `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
+        { cache: "no-store" },
+      );
+      const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; error?: string };
+      if (!res.ok || cancelled) {
+        if (!cancelled) setSheetCalls([]);
+        return;
+      }
+      const rows = json.plays ?? [];
+      setSheetCalls(
+        rows.map((row) => {
+          const formation = String(row.formation ?? "").trim() || "Other";
+          const play_name = String(row.play_name ?? "").trim();
+          const rawType = row.play_type;
+          return {
+            play_id: `${formation}::${play_name}`.toLowerCase(),
+            formation,
+            group: deriveFormationGroup(formation),
+            play_name,
+            play_type: resolveCfbBrowserPlayType(play_name, rawType),
+          };
+        }),
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sheetId, scenarioLabel]);
 
   useEffect(() => {
     if (!playbook) {
@@ -64,7 +97,6 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
         rows?: Array<{ formation: string; play_name: string; play_type?: string | null }>;
       };
       if (!res.ok || cancelled) return;
-      // Suggestions badges should mirror PlayBrowser/canonical CFB play type resolution.
       setPlaybookEntries(
         (json.rows ?? []).map((row) => ({
           play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
@@ -131,5 +163,5 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook 
     return recentRows.filter((play) => !suggestionIds.has(`${play.formation}::${play.play_name}`.toLowerCase()));
   }, [recentRows, suggestions]);
 
-  return { suggestions, recentPlays };
+  return { suggestions, recentPlays, sheetCalls };
 }

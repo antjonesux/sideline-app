@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-21 (per-game play sheet selection + logger sheet binding)
+
+**What:** Added nullable `game_sessions.play_sheet_id` across migration/schema/types (`supabase/migrations/20260421120000_game_play_sheet_id.sql`, `supabase/schema.sql`, `lib/types.ts`). `app/api/games/route.ts` and `app/api/games/[id]/route.ts` now accept optional `play_sheet_id`, verify sheet existence, and validate sheet/playbook compatibility before insert/update. `app/film/new/page.tsx` and `components/film/EditGameDetailsModal.tsx` add a Game Plan picker filtered to the selected offensive playbook, with `None` support and no-sheet helper copy. `app/film/[gameId]/page.tsx` now passes `game.play_sheet_id` into `PlayLoggerV2`, and `hooks/usePlaySuggestions.ts` uses only parent-provided `sheetId` (no `is_active` fallback discovery). Existing `/api/playbook/[id]/plays` hot path remains optimized via `slim=1`.
+
+**Why:** Logger sheet discovery based on `is_active` and playbook matching could miss valid sheets or select the wrong one; coaches need a stable game-specific plan reference so `YOUR CALLS` reflects the intended sheet at call time.
+
+**Status after this push:** New/edit game flows persist a specific sheet choice (or none), edit-save no longer clears an existing sheet during hydration, and logger `YOUR CALLS` now binds to stored `game_sessions.play_sheet_id`.
+
+---
+
 ## 2026-04-21 (film game card modal controls + turnover normalization + delete cascade fallback)
 
 **What:** `app/api/games/[id]/route.ts` now performs a defensive manual delete cascade (`logged_plays` -> `drives` -> `game_sessions`) so game deletion still succeeds when FK cascades are missing/drifted. `FilmGameCard` now opens `EditGameDetailsModal` in controlled mode (`open` / `onOpenChange`) from a plain menu button instead of nesting the modal trigger in the dropdown item. `EditGameDetailsModal` adds controlled/open lifecycle props (`open`, `onOpenChange`, `hideTrigger`, optional `onOpen`) and renders through `createPortal` with higher overlay z-index to avoid nav/menu stacking collisions. `driveOutcome` now treats `INTERCEPTION` and `FUMBLE` as turnover tags everywhere turnover checks are used, and `PlayLoggerV2` keeps explicit `TURNOVER` mapping in drive outcome derivation. `BottomTabNav` z-index is lowered (`z-50` -> `z-40`) so overlays win layering consistently.

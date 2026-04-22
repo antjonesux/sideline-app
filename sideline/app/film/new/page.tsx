@@ -71,6 +71,11 @@ export default function NewGamePage() {
   });
   const [submitBusy, setSubmitBusy] = useState(false);
 
+  type SheetOption = { id: string; name: string };
+  const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
+  const [sheetsLoading, setSheetsLoading] = useState(false);
+  const [selectedSheetId, setSelectedSheetId] = useState<string | null>(null);
+
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
 
@@ -164,6 +169,32 @@ export default function NewGamePage() {
     }
   }, [playbookOptions, selectedPlaybookName]);
 
+  useEffect(() => {
+    setSelectedSheetId(null);
+    if (!selectedPlaybookName) {
+      setAvailableSheets([]);
+      return;
+    }
+    let cancelled = false;
+    setSheetsLoading(true);
+    void (async () => {
+      const res = await fetch("/api/playbook", { cache: "no-store" });
+      const json = (await res.json()) as {
+        playbooks?: Array<{ id: string; name: string; cfb26_playbook?: string | null }>;
+      };
+      if (cancelled) return;
+      const norm = selectedPlaybookName.trim().toLowerCase();
+      const matching = (json.playbooks ?? []).filter(
+        (row) => (row.cfb26_playbook ?? "").trim().toLowerCase() === norm,
+      );
+      setAvailableSheets(matching.map((row) => ({ id: row.id, name: row.name })));
+      setSheetsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPlaybookName]);
+
   const canContinue = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
 
   const buildGameSetup = useCallback(() => {
@@ -205,6 +236,7 @@ export default function NewGamePage() {
           my_score: setup.my_score,
           opponent_score: setup.opponent_score,
           result: setup.result,
+          play_sheet_id: selectedSheetId ?? null,
         }),
       });
       const game = (await res.json()) as { id?: string; error?: string };
@@ -280,6 +312,44 @@ export default function NewGamePage() {
             {!usePlaybookSelect ? <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p> : null}
             <p className="font-body text-xs text-slate-500">You can use any playbook, not just your team&apos;s.</p>
           </div>
+
+          {selectedPlaybookName ? (
+            <div className="space-y-2 md:max-w-2xl">
+              <p className="app-field-label">Game Plan</p>
+              {sheetsLoading ? (
+                <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
+              ) : availableSheets.length === 0 ? (
+                <p className="font-body text-xs text-slate-500">
+                  No play sheets for this playbook yet.{" "}
+                  <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Game Plan</a>.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSheetId(null)}
+                    className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
+                      selectedSheetId === null ? toggleOn : toggleOff
+                    }`}
+                  >
+                    None
+                  </button>
+                  {availableSheets.map((sheet) => (
+                    <button
+                      key={sheet.id}
+                      type="button"
+                      onClick={() => setSelectedSheetId(sheet.id)}
+                      className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
+                        selectedSheetId === sheet.id ? toggleOn : toggleOff
+                      }`}
+                    >
+                      {sheet.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-2 gap-4">
             <label className="space-y-1">

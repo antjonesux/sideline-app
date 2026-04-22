@@ -34,6 +34,7 @@ type GameSessionInsert = {
   result: "W" | "L";
   import_source: "live";
   quarter_started_logging?: number;
+  play_sheet_id?: string | null;
 };
 
 export async function POST(req: NextRequest) {
@@ -64,6 +65,23 @@ export async function POST(req: NextRequest) {
   const q = body.quarter_started_logging;
   if (q === 1 || q === 2 || q === 3 || q === 4) {
     insertPayload.quarter_started_logging = q;
+  }
+
+  const rawSheetId = typeof body.play_sheet_id === "string" ? body.play_sheet_id.trim() : "";
+  if (rawSheetId) {
+    const { data: sheet } = await supabase
+      .from("play_sheets")
+      .select("id, cfb26_playbook, playbook")
+      .eq("id", rawSheetId)
+      .maybeSingle();
+    if (!sheet) {
+      return NextResponse.json({ error: "Play sheet not found" }, { status: 400 });
+    }
+    const sheetPb = (sheet.cfb26_playbook ?? sheet.playbook ?? "").trim().toLowerCase();
+    if (sheetPb !== offensivePlaybook.toLowerCase()) {
+      return NextResponse.json({ error: "Play sheet does not match the selected playbook" }, { status: 400 });
+    }
+    insertPayload.play_sheet_id = sheet.id;
   }
 
   const { data, error } = await supabase.from("game_sessions").insert(insertPayload).select().single();
