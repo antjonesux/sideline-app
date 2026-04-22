@@ -26,6 +26,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-22 — Tendencies: play type distribution bar corner radius
+
+### What
+
+- **`PlayTypeDistribution.tsx`:** SVG progress bar `<rect>` **`rx`** reduced from **4** to **2** so short segments read as bars rather than pills at narrow widths.
+
+### Why
+
+- Minor visual polish on the play-type breakdown chart.
+
+### Status after this push
+
+- Tendencies play-type distribution component only.
+
+---
+
 ## 2026-04-21 — Drive create API inches flag fix + expanded team playbook seeds
 
 ### What

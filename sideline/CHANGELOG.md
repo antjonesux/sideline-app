@@ -14,6 +14,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-22 (Tendencies — play type bar `rx` tweak)
+
+**What:** `components/tendencies/PlayTypeDistribution.tsx` — progress bar `<rect>` corner radius **`rx` 4 → 2** for slightly squarer ends at small segment widths.
+
+**Why:** Minor UI polish.
+
+**Status after this push:** `PlayTypeDistribution.tsx`.
+
+---
+
 ## 2026-04-21 (drive create `is_inches` fix + seed playbook expansion)
 
 **What:** `app/api/games/[id]/drives/route.ts` now persists `is_inches` when payloads send either boolean `true` or string `"true"`, preventing loss of inch distance state on drive creation. Added new seed files under `lib/seed/playbooks/` for Auburn, Colorado, Colorado State, Indiana, Ohio, Oregon State, Texas Tech, and Western Kentucky. `scripts/seed-playbooks.ts` now preloads and validates all team seeds before DB writes, and fails fast on duplicate canonical `(formation, play_name)` rows per slug.

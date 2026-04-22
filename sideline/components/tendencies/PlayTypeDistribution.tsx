@@ -46,7 +46,7 @@ export function PlayTypeDistribution({ data }: Props) {
               <span className="truncate font-body text-sm text-slate-200">{row.name}</span>
               <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                 <svg className={`h-full w-full ${COLORS[row.name] ?? "text-slate-500"}`} viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden>
-                  <rect x="0" y="0" width={width} height="8" rx="4" fill="currentColor" />
+                  <rect x="0" y="0" width={width} height="8" rx="2" fill="currentColor" />
                 </svg>
               </div>
               <span className="w-12 text-left font-mono text-sm tabular-nums text-slate-300">{Math.round(row.pct)}%</span>
