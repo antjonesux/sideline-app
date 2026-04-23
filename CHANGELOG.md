@@ -15,6 +15,12 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 - **Client film / tendencies / playbook code** that needs a persisted session now uses **`createClient()`** from **`lib/supabase/client.ts`** instead of the old non-persistent singleton where applicable.
 - **Database**: migration **`20260423100000_add_user_id_ownership.sql`** adds **`user_id`** to user-owned tables with backfill and **`NOT NULL`**; **`supabase/schema.sql`** updated accordingly. **API routes** filter or scope reads/writes by the authenticated user where wired in this change set.
 - **`.env.example`**: documents **`NEXT_PUBLIC_SITE_URL`** for Supabase redirect allowlists; **`package.json`** / lockfile include **`@supabase/ssr`**.
+- **`proxy.ts`**: Unauthenticated requests to **`/api/*`** return **`401`** JSON (**`{ error: "Unauthorized" }`**) instead of redirecting to **`/login`**, so fetch callers keep a JSON error contract when the session is missing or expired.
+- **Film Room list** (**`app/film/page.tsx`**): Games and aggregates are scoped by **`user_id`**; **drive counts** use owned **`drives`** rows (not inferred from **`logged_plays.drive_id`**) so started-but-empty drives still count. The top **New game** card shows only when the user has at least one game (empty state stays minimal).
+- **Film game log** (**`app/film/[gameId]/page.tsx`**): Initial **`GET /api/games/[id]`** and **`GET /api/games/[id]/drives`** require **`res.ok`**; otherwise a **Game not found** fallback renders. **`loadError`** resets when **`gameId`** changes so client navigation recovers after a bad deep link. New drives use **`POST /api/games/[id]/drives`**. **`refresh()`** bails with a toast if the drives fetch fails instead of overwriting state with an error body.
+- **Game Plan** (**`components/playbook/PlaybookHome.tsx`**): Header **Create play sheet** shows only when the user already has sheets (empty state has no duplicate top CTA).
+- **Tendencies** (**`components/tendencies/TendenciesHome.tsx`**): Empty state drops **Import from CSV**; primary CTA remains **Log your first game**.
+- **Play suggestions** (**`hooks/usePlaySuggestions.ts`**): Recent plays load via ownership-scoped **`GET /api/games/[id]/drives`** instead of direct browser reads on **`logged_plays`**.
 
 ### Why
 
@@ -22,7 +28,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### Status after this push
 
-- **`proxy.ts`**, **`lib/supabase/*`**, **`app/login/*`**, **`app/auth/*`**, **`app/reset-password/*`**, **`components/providers/AuthProvider.tsx`**, **`AppProviders.tsx`**, **`SignOutButton.tsx`**, **`BottomTabNav.tsx`**, affected **`app/api/**`** routes, **`supabase/migrations/20260423100000_add_user_id_ownership.sql`**, **`supabase/schema.sql`**, film / tendencies / playbook client touchpoints, **`.env.example`**, **`package.json`**, **`package-lock.json`**, both changelogs.
+- **`proxy.ts`**, **`lib/supabase/*`**, **`app/login/*`**, **`app/auth/*`**, **`app/reset-password/*`**, **`components/providers/AuthProvider.tsx`**, **`AppProviders.tsx`**, **`SignOutButton.tsx`**, **`BottomTabNav.tsx`**, affected **`app/api/**`** routes, **`supabase/migrations/20260423100000_add_user_id_ownership.sql`**, **`supabase/schema.sql`**, **`app/film/page.tsx`**, **`app/film/[gameId]/page.tsx`**, **`hooks/usePlaySuggestions.ts`**, **`components/playbook/PlaybookHome.tsx`**, **`components/tendencies/TendenciesHome.tsx`**, film / tendencies / playbook client touchpoints, **`.env.example`**, **`package.json`**, **`package-lock.json`**, both changelogs.
 
 ---
 
