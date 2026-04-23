@@ -3,6 +3,7 @@ import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import BottomTabNav from "@/components/shared/BottomTabNav";
+
 import PrelineScriptWrapper from "@/components/shared/PrelineScriptWrapper";
 import { Toast } from "@/components/shared/Toast";
 

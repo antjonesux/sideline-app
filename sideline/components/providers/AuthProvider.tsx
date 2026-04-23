@@ -2,25 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Session, User, AuthError } from "@supabase/supabase-js";
-
-function friendlyAuthError(raw: string): string {
-  const lower = raw.toLowerCase();
-  if (lower.includes("invalid login")) return "Invalid email or password.";
-  if (lower.includes("email not confirmed"))
-    return "Check your email to confirm your account before signing in.";
-  if (lower.includes("already registered") || lower.includes("already been registered"))
-    return "An account with this email already exists. Try signing in.";
-  if (lower.includes("password") && lower.includes("least"))
-    return "Password must be at least 6 characters.";
-  if (lower.includes("rate limit") || lower.includes("too many"))
-    return "Too many attempts. Wait a moment and try again.";
-  if (lower.includes("user not found"))
-    return "No account found with that email.";
-  if (lower.includes("signups not allowed"))
-    return "Account registration is not enabled yet. Contact the team for access.";
-  return raw;
-}
+import { mapAuthError } from "@/lib/authErrors";
+import type { Session, User } from "@supabase/supabase-js";
 
 type AuthResult = { error: string | null };
 
@@ -64,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(() => {
     async function signInWithPassword(email: string, password: string): Promise<AuthResult> {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      return { error: error ? friendlyAuthError(error.message) : null };
+      return { error: error ? mapAuthError(error.message) : null };
     }
 
     async function signUp(
@@ -77,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: { emailRedirectTo: `${origin}/auth/confirm` },
       });
-      if (error) return { error: friendlyAuthError(error.message), confirmationRequired: false };
+      if (error) return { error: mapAuthError(error.message), confirmationRequired: false };
       return { error: null, confirmationRequired: !data.session };
     }
 
@@ -89,12 +72,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         provider: "google",
         options: { redirectTo },
       });
-      return { error: error ? error.message : null };
+      return { error: error ? mapAuthError(error.message) : null };
     }
 
     async function signOut(): Promise<AuthResult> {
       const { error } = await supabase.auth.signOut();
-      return { error: error ? error.message : null };
+      return { error: error ? mapAuthError(error.message) : null };
     }
 
     async function resetPassword(email: string): Promise<AuthResult> {
@@ -102,12 +85,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${origin}/reset-password`,
       });
-      return { error: error ? friendlyAuthError(error.message) : null };
+      return { error: error ? mapAuthError(error.message) : null };
     }
 
     async function updatePassword(newPassword: string): Promise<AuthResult> {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
-      return { error: error ? friendlyAuthError(error.message) : null };
+      return { error: error ? mapAuthError(error.message) : null };
     }
 
     return {

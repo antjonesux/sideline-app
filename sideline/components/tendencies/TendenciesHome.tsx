@@ -8,6 +8,7 @@ import { playbookForGame } from "@/lib/tendenciesServer";
 import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { SettingsLink } from "@/components/shared/AppTopBar";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
@@ -82,7 +83,10 @@ export function TendenciesHome() {
   if (games.length === 0) {
     return (
       <section className="space-y-6">
-        <h1 className="app-page-title text-slate-100">Tendencies</h1>
+        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+          <span className="min-w-0">Tendencies</span>
+          <SettingsLink />
+        </h1>
         <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">Log some games to see your tendencies.</p>
@@ -98,7 +102,10 @@ export function TendenciesHome() {
 
   return (
     <section className="space-y-6">
-      <h1 className="app-page-title text-slate-100">Tendencies</h1>
+      <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+        <span className="min-w-0">Tendencies</span>
+        <SettingsLink />
+      </h1>
 
       <div className="border-b border-slate-800">
         <nav className="grid w-full grid-cols-2" aria-label="Tendencies views">

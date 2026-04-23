@@ -7,6 +7,7 @@ import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import { CreatePlaybookModal } from "./CreatePlaybookModal";
 import { PlaybookCard } from "./PlaybookCard";
+import { SettingsLink } from "@/components/shared/AppTopBar";
 
 function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   if (Array.isArray(payload)) return payload as PlaybookSummary[];
@@ -75,7 +76,10 @@ export function PlaybookHome({ initialCreateOpen = false }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="app-page-title">Game Plan</h1>
+        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4">
+          <span className="min-w-0">Game Plan</span>
+          <SettingsLink />
+        </h1>
         {list.length > 0 && (
           <button type="button" className="btn-primary text-sm" onClick={() => setCreateOpen(true)}>
             Create play sheet

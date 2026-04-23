@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
-import { SignOutButton } from "@/components/shared/SignOutButton";
+import { SettingsLink } from "@/components/shared/AppTopBar";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -117,10 +117,10 @@ export default async function FilmRoomPage() {
   return (
     <section className="space-y-6">
       <header className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="app-page-title">Film room</h1>
-          <SignOutButton />
-        </div>
+        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4">
+          <span className="min-w-0">Film room</span>
+          <SettingsLink />
+        </h1>
         {games.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-3">

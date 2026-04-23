@@ -3,6 +3,8 @@
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { PasswordInput } from "@/components/shared/PasswordInput";
+import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 
 type View = "sign-in" | "create-account" | "forgot-password";
 
@@ -256,29 +258,46 @@ export function LoginForm() {
             required
             className="app-input"
           />
-          <input
-            type="password"
+          <PasswordInput
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.currentTarget.value)}
             autoComplete={view === "sign-in" ? "current-password" : "new-password"}
             required
             minLength={6}
-            className="app-input"
+            className="app-input pr-10"
           />
           {view === "create-account" && (
-            <input
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-              minLength={6}
-              className="app-input"
-            />
+            <>
+              <ul className="space-y-1">
+                {passwordRuleChecks(password).map((r) => (
+                  <li key={r.label} className="flex items-center gap-2 font-sans text-xs">
+                    <span className={r.met ? "text-emerald-400" : "text-slate-500"}>
+                      {r.met ? "✓" : "○"}
+                    </span>
+                    <span className={r.met ? "text-slate-300" : "text-slate-500"}>{r.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <PasswordInput
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
+                autoComplete="new-password"
+                required
+                minLength={6}
+                className="app-input pr-10"
+              />
+              {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
+                <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
+              )}
+            </>
           )}
-          <button type="submit" disabled={anyBusy} className="btn-primary-block">
+          <button
+            type="submit"
+            disabled={anyBusy || (view === "create-account" && (!isPasswordValid(password) || !passwordsMatch(password, confirmPassword)))}
+            className="btn-primary-block"
+          >
             {busy
               ? "Working\u2026"
               : view === "sign-in"

@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-23 — Settings page, account deletion API, and auth UX consolidation
+
+### What
+
+- **`/settings`**: Server-gated route ([`sideline/app/settings/page.tsx`](sideline/app/settings/page.tsx)) with [`SettingsPageClient`](sideline/app/settings/SettingsPageClient.tsx): grouped account/session rows, single **`activeDrawer`** for email (read-only sheet), password (progressive rules, confirm, **`PasswordInput`** show/hide), sign-out sheet, and delete-account via **`ConfirmDestructiveModal`**; bottom sheets at **`z-[50]`** / **`z-[51]`** below destructive **`z-[60]`**; backdrop dismiss, Escape, and scroll lock on drawer keys.
+- **Settings entry**: **`SettingsLink`** in [`AppTopBar.tsx`](sideline/components/shared/AppTopBar.tsx) is rendered inside the **`<h1 class="app-page-title">`** row on **Film Room**, **Game Plan**, and **Tendencies** ([`app/film/page.tsx`](sideline/app/film/page.tsx), [`PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx), [`TendenciesHome.tsx`](sideline/components/tendencies/TendenciesHome.tsx)) so the gear aligns with the page title; not shown on **`/settings`**, auth routes, or login/reset.
+- **Film header**: Removed standalone **[`SignOutButton`](sideline/components/shared/SignOutButton.tsx)** (deleted); sign-out lives in settings.
+- **Shared auth/password**: [`lib/authErrors.ts`](sideline/lib/authErrors.ts) **`mapAuthError`**, [`lib/passwordValidation.ts`](sideline/lib/passwordValidation.ts), [`PasswordInput`](sideline/components/shared/PasswordInput.tsx); **[`LoginForm`](sideline/app/login/LoginForm.tsx)** (create-account path) and **[`ResetPasswordForm`](sideline/app/reset-password/ResetPasswordForm.tsx)** use them; **[`AuthProvider`](sideline/components/providers/AuthProvider.tsx)** uses **`mapAuthError`** for all auth errors including **Google OAuth** and **`signOut`**.
+- **Account deletion**: **`DELETE /api/account`** ([`app/api/account/route.ts`](sideline/app/api/account/route.ts)) authenticates with the cookie client, deletes user-owned **`game_sessions`**, **`play_sheets`**, **`user_profiles`** via **[`lib/supabase/admin.ts`](sideline/lib/supabase/admin.ts)** (**`SUPABASE_SERVICE_ROLE_KEY`**), then **`auth.admin.deleteUser`**; returns **`503`** when the service role key is missing.
+- **Typography**: **`app-page-title`** in [`globals.css`](sideline/app/globals.css) adds **`leading-none`** so display titles and the inline settings control share a tighter line box.
+
+### Why
+
+- One utility surface for account/session actions without a bottom-nav tab; consistent password and auth messaging across login, reset, and settings; server-side account teardown with explicit row deletes before removing the auth user.
+
+### Status after this push
+
+- **`app/settings/*`**, **`app/api/account/route.ts`**, **`lib/supabase/admin.ts`**, **`lib/authErrors.ts`**, **`lib/passwordValidation.ts`**, **`components/shared/AppTopBar.tsx`**, **`components/shared/PasswordInput.tsx`**, **`components/providers/AuthProvider.tsx`**, **`app/login/LoginForm.tsx`**, **`app/reset-password/ResetPasswordForm.tsx`**, **`app/film/page.tsx`**, **`components/playbook/PlaybookHome.tsx`**, **`components/tendencies/TendenciesHome.tsx`**, **`app/globals.css`**, removal of **`SignOutButton.tsx`**, both changelogs.
+
+---
+
 ## 2026-04-23 — Database: Row Level Security on user-owned and catalog tables
 
 ### What

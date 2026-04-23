@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { PasswordInput } from "@/components/shared/PasswordInput";
+import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 
 export function ResetPasswordForm() {
   const { updatePassword, user, isLoading } = useAuth();
@@ -55,15 +57,18 @@ export function ResetPasswordForm() {
     );
   }
 
+  const pwRules = passwordRuleChecks(password);
+  const pwValid = isPasswordValid(password) && passwordsMatch(password, confirmPassword);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
+    if (!isPasswordValid(password)) {
       setError("Password must be at least 6 characters.");
       return;
     }
-    if (password !== confirmPassword) {
+    if (!passwordsMatch(password, confirmPassword)) {
       setError("Passwords don't match.");
       return;
     }
@@ -91,27 +96,40 @@ export function ResetPasswordForm() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="password"
-            placeholder="New password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            required
-            minLength={6}
-            className="app-input"
-          />
-          <input
-            type="password"
+          <div>
+            <PasswordInput
+              placeholder="New password"
+              value={password}
+              onChange={(e) => setPassword(e.currentTarget.value)}
+              autoComplete="new-password"
+              required
+              minLength={6}
+              className="app-input pr-10"
+            />
+            <ul className="mt-2 space-y-1">
+              {pwRules.map((r) => (
+                <li key={r.label} className="flex items-center gap-2 font-sans text-xs">
+                  <span className={r.met ? "text-emerald-400" : "text-slate-500"}>
+                    {r.met ? "✓" : "○"}
+                  </span>
+                  <span className={r.met ? "text-slate-300" : "text-slate-500"}>{r.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <PasswordInput
             placeholder="Confirm new password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.currentTarget.value)}
             autoComplete="new-password"
             required
             minLength={6}
-            className="app-input"
+            className="app-input pr-10"
           />
-          <button type="submit" disabled={busy} className="btn-primary-block">
+          {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
+            <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
+          )}
+          <button type="submit" disabled={!pwValid || busy} className="btn-primary-block">
             {busy ? "Updating\u2026" : "Update password"}
           </button>
         </form>

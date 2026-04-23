@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-23 (Settings — `/settings`, hub settings link, account delete API, shared auth/password)
+
+**What:** **`app/settings/page.tsx`** (server **`getUser`** gate) and **`SettingsPageClient.tsx`**: grouped rows, **`activeDrawer`** for email / password / sign-out sheets and delete **`ConfirmDestructiveModal`**, **`PasswordInput`**, **`mapAuthError`**, toasts on password update and account delete. **`SettingsLink`** in **`components/shared/AppTopBar.tsx`** sits in the **`app-page-title`** flex row on **Film**, **Game Plan**, and **Tendencies**; removed **`SignOutButton`** from Film. **`lib/authErrors.ts`**, **`lib/passwordValidation.ts`**, **`AuthProvider`** maps all errors including **Google** and **`signOut`**. **`DELETE /api/account`** + **`lib/supabase/admin.ts`** delete **`game_sessions`**, **`play_sheets`**, **`user_profiles`** then **`auth.admin.deleteUser`**. **`globals.css`**: **`app-page-title`** uses **`leading-none`**. **`LoginForm`** / **`ResetPasswordForm`** use shared validation and show/hide.
+
+**Why:** Central account/session UX, consistent password and friendly auth errors, safe account teardown with service role.
+
+**Status after this push:** `app/settings/`, `app/api/account/route.ts`, `lib/supabase/admin.ts`, `lib/authErrors.ts`, `lib/passwordValidation.ts`, `components/shared/AppTopBar.tsx`, `components/shared/PasswordInput.tsx`, `components/providers/AuthProvider.tsx`, `app/login/LoginForm.tsx`, `app/reset-password/ResetPasswordForm.tsx`, `app/film/page.tsx`, `components/playbook/PlaybookHome.tsx`, `components/tendencies/TendenciesHome.tsx`, `app/globals.css`, deleted `SignOutButton.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-23 (Database — Row Level Security on user-owned tables)
 
 **What:** Migration **`20260423110000_user_facing_rls.sql`** enables RLS and **`Owner access`** policies on **`user_profiles`**, **`game_sessions`**, **`drives`**, **`logged_plays`**, **`play_sheets`**, **`play_sheet_scenarios`**, **`play_sheet_plays`**, and **`dismissed_suggestions`** for **`authenticated`** with **`USING` / `WITH CHECK`** aligned: child tables require parent rows owned by **`auth.uid()`** (including drive vs session alignment on **`logged_plays`** and **`play_sheet_id`** ownership on **`game_sessions`** **`WITH CHECK`**). Public read-only **`SELECT`** policies for **`cfb26_plays`**, **`team_offensive_playbooks`**, **`team_defensive_schemes`**, and **`scheme_play_weights`**. **`supabase/schema.sql`** updated for the same RLS definitions.
