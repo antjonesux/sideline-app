@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-23 — Database: Row Level Security on user-owned and catalog tables
+
+### What
+
+- **Migration `20260423110000_user_facing_rls.sql`**: Enables RLS on **`user_profiles`**, **`game_sessions`**, **`drives`**, **`logged_plays`**, **`play_sheets`**, **`play_sheet_scenarios`**, **`play_sheet_plays`**, and **`dismissed_suggestions`** with **`FOR ALL`** policies for the **`authenticated`** role scoped to the signed-in user; child rows require a resolvable parent owned by the same user (including **`logged_plays`** drive vs session consistency and **`game_sessions.play_sheet_id`** ownership on insert/update).
+- **Catalog / shared reads**: **`cfb26_plays`**, **`team_offensive_playbooks`**, **`team_defensive_schemes`**, and **`scheme_play_weights`** use **`SELECT`** policies with **`using (true)`** so anon reads used by setup and tendencies stay available; writes remain service-role only where applicable.
+- **`supabase/schema.sql`**: Greenfield parity with the migration for the RLS block (replaces the prior “RLS disabled” film logging note for **`drives`**, **`logged_plays`**, and **`game_sessions`**).
+
+### Why
+
+- Enforce access at the database layer so authenticated users cannot read or mutate another coach’s rows even if a client bug or crafted request omits app-level filters; inconsistent legacy child rows are not visible on **`SELECT`** / **`DELETE`** when parent checks fail.
+
+### Status after this push
+
+- **`sideline/supabase/migrations/20260423110000_user_facing_rls.sql`**, **`sideline/supabase/schema.sql`**, both changelogs.
+
+---
+
 ## 2026-04-23 — Auth: Supabase Google + email, session proxy, safe `next`, per-user ownership
 
 ### What

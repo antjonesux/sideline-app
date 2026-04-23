@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-23 (Database — Row Level Security on user-owned tables)
+
+**What:** Migration **`20260423110000_user_facing_rls.sql`** enables RLS and **`Owner access`** policies on **`user_profiles`**, **`game_sessions`**, **`drives`**, **`logged_plays`**, **`play_sheets`**, **`play_sheet_scenarios`**, **`play_sheet_plays`**, and **`dismissed_suggestions`** for **`authenticated`** with **`USING` / `WITH CHECK`** aligned: child tables require parent rows owned by **`auth.uid()`** (including drive vs session alignment on **`logged_plays`** and **`play_sheet_id`** ownership on **`game_sessions`** **`WITH CHECK`**). Public read-only **`SELECT`** policies for **`cfb26_plays`**, **`team_offensive_playbooks`**, **`team_defensive_schemes`**, and **`scheme_play_weights`**. **`supabase/schema.sql`** updated for the same RLS definitions.
+
+**Why:** DB-level enforcement for launch security; **`SELECT`** / **`DELETE`** cannot expose inconsistent child rows that only matched **`user_id`**.
+
+**Status after this push:** `supabase/migrations/20260423110000_user_facing_rls.sql`, `supabase/schema.sql`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-23 (Auth — Supabase Google + email, proxy session, safe `next`, user ownership)
 
 **What:** **`@supabase/ssr`** with **`lib/supabase/client.ts`**, **`lib/supabase/server.ts`**, **`lib/supabase/proxy.ts`**, and root **`proxy.ts`** for session refresh and unauthenticated redirects to **`/login`** with **`next`** holding **pathname + search** only (no stray query on **`/login`**). Unauthenticated **`/api/*`** returns **`401`** JSON instead of an HTML login redirect so API consumers keep a stable error shape. **`AuthProvider`** / **`useAuth`**, **`/login`**, **`/auth/callback`**, **`/auth/confirm`**, **`/reset-password`**, Google OAuth + email flows, friendly signup-disabled copy, **`SignOutButton`** only navigates after successful sign-out, **`BottomTabNav`** hidden on auth routes. **`next`** validation rejects **`//`** in login, Google redirect, proxy, and callback. Failed OAuth callback preserves **`next`** on **`/login`**. Film / tendencies / playbook clients use session-aware browser client where needed. Migration **`20260423100000_add_user_id_ownership.sql`** + **`schema.sql`** add **`user_id`** ownership; API routes updated for scoped access (including nested playbook reads and import paths). **`app/film/page.tsx`**: list scoped by user; drive counts from owned **`drives`**; top **New game** card only when the user has games. **`app/film/[gameId]/page.tsx`**: **`res.ok`** on initial loads, **Game not found** fallback, **`loadError`** reset on **`gameId`** change, drives via **`POST /api/games/[id]/drives`**, safe **`refresh()`**. **`PlaybookHome`** / **`TendenciesHome`**: empty-state CTA trim (no header create sheet / no CSV import when empty). **`hooks/usePlaySuggestions.ts`**: suggestions from **`GET /api/games/[id]/drives`**, not direct **`logged_plays`**. **`.env.example`** and **`package.json`** for site URL docs and **`@supabase/ssr`**.

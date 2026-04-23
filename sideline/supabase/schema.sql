@@ -262,10 +262,55 @@ create policy "Allow public read" on team_offensive_playbooks for select using (
 drop policy if exists "Allow public read" on team_defensive_schemes;
 create policy "Allow public read" on team_defensive_schemes for select using (true);
 
--- Film logging: server routes use the anon key; keep RLS off so inserts/reads from API routes succeed.
-alter table drives disable row level security;
-alter table logged_plays disable row level security;
-alter table game_sessions disable row level security;
+-- User-owned tables: owner-scoped RLS so authenticated users access only their own rows.
+alter table user_profiles enable row level security;
+drop policy if exists "Owner access" on user_profiles;
+create policy "Owner access" on user_profiles for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table game_sessions enable row level security;
+drop policy if exists "Owner access" on game_sessions;
+create policy "Owner access" on game_sessions for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id and (play_sheet_id is null or exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid())));
+
+alter table drives enable row level security;
+drop policy if exists "Owner access" on drives;
+create policy "Owner access" on drives for all to authenticated
+  using (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()))
+  with check (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()));
+
+alter table logged_plays enable row level security;
+drop policy if exists "Owner access" on logged_plays;
+create policy "Owner access" on logged_plays for all to authenticated
+  using (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()) and exists (select 1 from drives d where d.id = drive_id and d.user_id = auth.uid() and d.game_session_id = game_session_id))
+  with check (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()) and exists (select 1 from drives d where d.id = drive_id and d.user_id = auth.uid() and d.game_session_id = game_session_id));
+
+alter table play_sheets enable row level security;
+drop policy if exists "Owner access" on play_sheets;
+create policy "Owner access" on play_sheets for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table play_sheet_scenarios enable row level security;
+drop policy if exists "Owner access" on play_sheet_scenarios;
+create policy "Owner access" on play_sheet_scenarios for all to authenticated
+  using (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()))
+  with check (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()));
+
+alter table play_sheet_plays enable row level security;
+drop policy if exists "Owner access" on play_sheet_plays;
+create policy "Owner access" on play_sheet_plays for all to authenticated
+  using (auth.uid() = user_id and exists (select 1 from play_sheet_scenarios pss where pss.id = scenario_id and pss.user_id = auth.uid()))
+  with check (auth.uid() = user_id and exists (select 1 from play_sheet_scenarios pss where pss.id = scenario_id and pss.user_id = auth.uid()));
+
+alter table dismissed_suggestions enable row level security;
+drop policy if exists "Owner access" on dismissed_suggestions;
+create policy "Owner access" on dismissed_suggestions for all to authenticated
+  using (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()))
+  with check (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()));
+
+-- Catalog table: public read, writes only via service role (bypasses RLS).
+alter table scheme_play_weights enable row level security;
+drop policy if exists "Allow public read" on scheme_play_weights;
+create policy "Allow public read" on scheme_play_weights for select using (true);
 
 -- Allow LOSS as a film log result (idempotent for existing DBs).
 alter table logged_plays drop constraint if exists logged_plays_result_tag_check;
