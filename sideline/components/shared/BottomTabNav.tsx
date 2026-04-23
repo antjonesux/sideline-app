@@ -39,6 +39,8 @@ const tabs = [
 export default function BottomTabNav() {
   const pathname = usePathname();
 
+  if (pathname === "/login" || pathname.startsWith("/auth/") || pathname === "/reset-password") return null;
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]"

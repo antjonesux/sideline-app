@@ -1,5 +1,5 @@
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { normalizePlayName, withNormalizedPlayName } from "@/lib/utils";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { NextRequest, NextResponse } from "next/server";
@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PUT(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
   const payload = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const down = Number(payload.down);
@@ -22,7 +26,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   const formation = String(payload.formation ?? "");
   const play_name = normalizePlayName(String(payload.play_name ?? ""));
 
-  const { data: existing } = await supabase.from("logged_plays").select("game_session_id, play_type").eq("id", id).maybeSingle();
+  const { data: existing } = await supabase.from("logged_plays").select("game_session_id, play_type").eq("id", id).eq("user_id", user.id).maybeSingle();
   const sessionId = String(existing?.game_session_id ?? "");
   let pb = "";
   let typeMap = new Map<string, string>();
@@ -31,6 +35,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       .from("game_sessions")
       .select("my_playbook, offensive_playbook")
       .eq("id", sessionId)
+      .eq("user_id", user.id)
       .maybeSingle();
     if (gs) {
       pb = playbookForGame(gs as GameRow);
@@ -63,6 +68,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     .from("logged_plays")
     .update(updateRow)
     .eq("id", id)
+    .eq("user_id", user.id)
     .select(
       "id, drive_id, game_session_id, play_number, drive_number, down, distance, is_inches, yard_line, side, hash, field_zone, scenario, formation, play_name, yards_gained, result_tag, note, opponent_scheme, situation_override, created_at, play_type",
     )
@@ -87,8 +93,12 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
-  const { error } = await supabase.from("logged_plays").delete().eq("id", id);
+  const { error } = await supabase.from("logged_plays").delete().eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data: { ok: true } });
 }

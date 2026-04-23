@@ -90,9 +90,6 @@ export function TendenciesHome() {
             <Link href="/film/new" className="btn-primary px-5 py-3 text-sm">
               Log your first game
             </Link>
-            <Link href="/film/import" className="btn-secondary px-5 py-3 text-sm">
-              Import from CSV
-            </Link>
           </div>
         </div>
       </section>

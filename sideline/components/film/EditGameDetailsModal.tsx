@@ -5,7 +5,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 import type { GameSession } from "@/lib/types";
 import { useScrollLock } from "@/lib/useScrollLock";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useToastStore } from "@/store/toastStore";
@@ -73,6 +73,7 @@ export function EditGameDetailsModal({
   onOpenChange,
   hideTrigger = false,
 }: Props) {
+  const supabase = createClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const isControlled = typeof open === "boolean";

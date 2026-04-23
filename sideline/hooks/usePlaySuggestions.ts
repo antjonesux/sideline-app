@@ -6,7 +6,6 @@ import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { fromAbsoluteYard } from "@/lib/fieldPosition";
 import type { LoggedPlay } from "@/lib/types";
 import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
-import { supabase } from "@/lib/supabase";
 
 type Args = {
   down: number;
@@ -125,17 +124,23 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
     }
     let cancelled = false;
     void (async () => {
-      const { data, error } = await supabase
-        .from("logged_plays")
-        .select("id, play_number, drive_number, down, distance, side, yard_line, hash, formation, play_name, yards_gained, result_tag, note, is_inches, created_at")
-        .eq("game_session_id", gameId)
-        .order("created_at", { ascending: false })
-        .limit(200);
-      if (error || cancelled) return;
-      const desc: RecentLoggedPlay[] = (data ?? []) as RecentLoggedPlay[];
+      const res = await fetch(`/api/games/${gameId}/drives`);
+      if (!res.ok || cancelled) return;
+      type DriveWithPlays = { plays?: RecentLoggedPlay[] };
+      const drives = (await res.json()) as DriveWithPlays[];
+      if (cancelled) return;
+      const allPlays: RecentLoggedPlay[] = [];
+      for (const d of drives) {
+        for (const p of d.plays ?? []) allPlays.push(p);
+      }
+      allPlays.sort((a, b) => {
+        const aTime = a.created_at ?? "";
+        const bTime = b.created_at ?? "";
+        return bTime.localeCompare(aTime);
+      });
       const seen = new Set<string>();
       const out: RecentLoggedPlay[] = [];
-      for (const play of desc) {
+      for (const play of allPlays) {
         const key = `${play.formation}::${play.play_name}`.toLowerCase();
         if (seen.has(key)) continue;
         seen.add(key);

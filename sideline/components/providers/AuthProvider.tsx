@@ -1,0 +1,133 @@
+"use client";
+
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { Session, User, AuthError } from "@supabase/supabase-js";
+
+function friendlyAuthError(raw: string): string {
+  const lower = raw.toLowerCase();
+  if (lower.includes("invalid login")) return "Invalid email or password.";
+  if (lower.includes("email not confirmed"))
+    return "Check your email to confirm your account before signing in.";
+  if (lower.includes("already registered") || lower.includes("already been registered"))
+    return "An account with this email already exists. Try signing in.";
+  if (lower.includes("password") && lower.includes("least"))
+    return "Password must be at least 6 characters.";
+  if (lower.includes("rate limit") || lower.includes("too many"))
+    return "Too many attempts. Wait a moment and try again.";
+  if (lower.includes("user not found"))
+    return "No account found with that email.";
+  if (lower.includes("signups not allowed"))
+    return "Account registration is not enabled yet. Contact the team for access.";
+  return raw;
+}
+
+type AuthResult = { error: string | null };
+
+type AuthContextValue = {
+  user: User | null;
+  session: Session | null;
+  isLoading: boolean;
+  signInWithPassword: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string) => Promise<AuthResult & { confirmationRequired: boolean }>;
+  signInWithGoogle: (returnTo?: string) => Promise<AuthResult>;
+  signOut: () => Promise<AuthResult>;
+  resetPassword: (email: string) => Promise<AuthResult>;
+  updatePassword: (newPassword: string) => Promise<AuthResult>;
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const supabase = useMemo(() => createClient(), []);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const value = useMemo<AuthContextValue>(() => {
+    async function signInWithPassword(email: string, password: string): Promise<AuthResult> {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      return { error: error ? friendlyAuthError(error.message) : null };
+    }
+
+    async function signUp(
+      email: string,
+      password: string,
+    ): Promise<AuthResult & { confirmationRequired: boolean }> {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { emailRedirectTo: `${origin}/auth/confirm` },
+      });
+      if (error) return { error: friendlyAuthError(error.message), confirmationRequired: false };
+      return { error: null, confirmationRequired: !data.session };
+    }
+
+    async function signInWithGoogle(returnTo?: string): Promise<AuthResult> {
+      const dest = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/film";
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(dest)}`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+      return { error: error ? error.message : null };
+    }
+
+    async function signOut(): Promise<AuthResult> {
+      const { error } = await supabase.auth.signOut();
+      return { error: error ? error.message : null };
+    }
+
+    async function resetPassword(email: string): Promise<AuthResult> {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${origin}/reset-password`,
+      });
+      return { error: error ? friendlyAuthError(error.message) : null };
+    }
+
+    async function updatePassword(newPassword: string): Promise<AuthResult> {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      return { error: error ? friendlyAuthError(error.message) : null };
+    }
+
+    return {
+      user,
+      session,
+      isLoading,
+      signInWithPassword,
+      signUp,
+      signInWithGoogle,
+      signOut,
+      resetPassword,
+      updatePassword,
+    };
+  }, [supabase, user, session, isLoading]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
+import { SignOutButton } from "@/components/shared/SignOutButton";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +23,6 @@ type GameSessionRow = {
 
 type LoggedPlayStatsRow = {
   game_session_id: string;
-  drive_id: string | null;
   play_name: string | null;
   yards_gained: number | null;
   result_tag: string | null;
@@ -35,26 +36,38 @@ type GameWithCounts = GameSessionRow & {
   turnovers: number;
 };
 
-async function getGamesWithCounts(): Promise<GameWithCounts[]> {
+async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
+  const supabase = await createClient();
   const { data: games, error: gameError } = await supabase
     .from("game_sessions")
     .select(
       "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at",
     )
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (gameError || !games?.length) return [];
 
   const gameIds = games.map((g) => g.id);
-  const { data: loggedPlays, error: playError } = await supabase
-    .from("logged_plays")
-    .select("game_session_id, drive_id, play_name, yards_gained, result_tag")
-    .in("game_session_id", gameIds);
+
+  const [{ data: drives }, { data: loggedPlays, error: playError }] = await Promise.all([
+    supabase.from("drives").select("id, game_session_id").eq("user_id", userId).in("game_session_id", gameIds),
+    supabase
+      .from("logged_plays")
+      .select("game_session_id, play_name, yards_gained, result_tag")
+      .eq("user_id", userId)
+      .in("game_session_id", gameIds),
+  ]);
+
+  const driveCountByGame = new Map<string, number>();
+  for (const d of drives ?? []) {
+    driveCountByGame.set(d.game_session_id, (driveCountByGame.get(d.game_session_id) ?? 0) + 1);
+  }
 
   if (playError) {
     return (games as GameSessionRow[]).map((game) => ({
       ...game,
-      driveCount: 0,
+      driveCount: driveCountByGame.get(game.id) ?? 0,
       playCount: 0,
       totalYards: 0,
       tds: 0,
@@ -62,10 +75,7 @@ async function getGamesWithCounts(): Promise<GameWithCounts[]> {
     }));
   }
 
-  const byGame = new Map<
-    string,
-    { playCount: number; driveIds: Set<string>; totalYards: number; tds: number; turnovers: number }
-  >();
+  const byGame = new Map<string, { playCount: number; totalYards: number; tds: number; turnovers: number }>();
 
   for (const play of (loggedPlays ?? []) as LoggedPlayStatsRow[]) {
     const playName = String(play.play_name ?? "").trim().toLowerCase();
@@ -73,13 +83,11 @@ async function getGamesWithCounts(): Promise<GameWithCounts[]> {
     if (playName === "punt" || resultTag === "punt") continue;
     const current = byGame.get(play.game_session_id) ?? {
       playCount: 0,
-      driveIds: new Set<string>(),
       totalYards: 0,
       tds: 0,
       turnovers: 0,
     };
     current.playCount += 1;
-    if (play.drive_id) current.driveIds.add(play.drive_id);
     current.totalYards += play.yards_gained ?? 0;
     if (play.result_tag === "TOUCHDOWN") current.tds += 1;
     if (play.result_tag === "TURNOVER") current.turnovers += 1;
@@ -90,7 +98,7 @@ async function getGamesWithCounts(): Promise<GameWithCounts[]> {
     const agg = byGame.get(game.id);
     return {
       ...game,
-      driveCount: agg?.driveIds.size ?? 0,
+      driveCount: driveCountByGame.get(game.id) ?? 0,
       playCount: agg?.playCount ?? 0,
       totalYards: agg?.totalYards ?? 0,
       tds: agg?.tds ?? 0,
@@ -100,21 +108,30 @@ async function getGamesWithCounts(): Promise<GameWithCounts[]> {
 }
 
 export default async function FilmRoomPage() {
-  const games = await getGamesWithCounts();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const games = await getGamesWithCounts(user.id);
 
   return (
     <section className="space-y-6">
       <header className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <h1 className="app-page-title">Film room</h1>
+          <SignOutButton />
         </div>
-        <div className="grid grid-cols-1 gap-3">
-          <Link href="/film/new" className="app-card-interactive group block">
-            <p className="app-card-title">New game</p>
-            <p className="mt-1 font-sans text-sm text-slate-400">Log plays live during a game.</p>
-          </Link>
-        </div>
-        <div className="border-b border-slate-700" aria-hidden />
+        {games.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 gap-3">
+              <Link href="/film/new" className="app-card-interactive group block">
+                <p className="app-card-title">New game</p>
+                <p className="mt-1 font-sans text-sm text-slate-400">Log plays live during a game.</p>
+              </Link>
+            </div>
+            <div className="border-b border-slate-700" aria-hidden />
+          </>
+        )}
       </header>
 
       {games.length === 0 ? (

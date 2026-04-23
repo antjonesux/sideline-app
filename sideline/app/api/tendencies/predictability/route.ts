@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import {
   attachPlayTypes,
   fetchCfbPlayTypeMap,
@@ -22,6 +22,10 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const sp = req.nextUrl.searchParams;
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
@@ -87,10 +91,10 @@ ORDER BY total_plays DESC;
   );
   console.info("[predictability] debug SQL (reference for LOWER join path):\n" + debugSql);
 
-  const games = await fetchGamesOrdered(supabase);
+  const games = await fetchGamesOrdered(supabase, user.id);
   const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
-  const plays = await fetchLoggedPlaysForGames(supabase, gameIds);
+  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id);
   const gamesById = new Map(games.map((g) => [g.id, g]));
 
   const playbookCounts = new Map<string, number>();

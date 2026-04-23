@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-23 (Auth — Supabase Google + email, proxy session, safe `next`, user ownership)
+
+**What:** **`@supabase/ssr`** with **`lib/supabase/client.ts`**, **`lib/supabase/server.ts`**, **`lib/supabase/proxy.ts`**, and root **`proxy.ts`** for session refresh and unauthenticated redirects to **`/login`** with **`next`** holding **pathname + search** only (no stray query on **`/login`**). **`AuthProvider`** / **`useAuth`**, **`/login`**, **`/auth/callback`**, **`/auth/confirm`**, **`/reset-password`**, Google OAuth + email flows, friendly signup-disabled copy, **`SignOutButton`** only navigates after successful sign-out, **`BottomTabNav`** hidden on auth routes. **`next`** validation rejects **`//`** in login, Google redirect, proxy, and callback. Failed OAuth callback preserves **`next`** on **`/login`**. Film / tendencies / playbook clients use session-aware browser client where needed. Migration **`20260423100000_add_user_id_ownership.sql`** + **`schema.sql`** add **`user_id`** ownership; API routes updated for scoped access. **`.env.example`** and **`package.json`** for site URL docs and **`@supabase/ssr`**.
+
+**Why:** Production auth, correct post-login return including query-heavy deep links, no open redirects, and data scoped to the signed-in user.
+
+**Status after this push:** `proxy.ts`, `lib/supabase/*`, `app/login/*`, `app/auth/*`, `app/reset-password/*`, `components/providers/AuthProvider.tsx`, `AppProviders.tsx`, `SignOutButton.tsx`, `BottomTabNav.tsx`, affected `app/api/**`, `supabase/migrations/20260423100000_add_user_id_ownership.sql`, `supabase/schema.sql`, film/tendencies/playbook client updates, `.env.example`, `package.json`, `package-lock.json`, repo-root **`CHANGELOG.md`** and this file.
+
+---
+
 ## 2026-04-22 (Film & Game Plan — mobile scores, drive-ended guard, formation_type grouping, scenario labels)
 
 **What:** Film **new game**, **edit game details**, and **import save** keep score inputs as digit strings and parse to integers on submit. **`DriveSetupForm`** uses text + **`inputMode="numeric"`** for score, down, and distance with clamped parse on submit. **`YardageSheet`** ending yard uses text + digit filter. Game log drive cards hide **Add Play** when the drive is no longer **`ACTIVE`** / **`NO_PLAYS`**. **`useFormationGroups`** groups the Play Browser by **`formation_type`** from **`GET /api/cfb26-plays?list=all`** via **`resolveFormationSection`**, with more **`deriveFormationGroup`** fallbacks and **`sortFormationTypes`**. **`scenarioDisplayLabel`** in **`playbookUtils`** shows yard bands on **`PlaybookEditor`**, **`SituationList`**, and **`AddPlayDrawer`**. **`PlaybookEditor`** closes the add drawer on situation change and posts new plays using **`activeBlock.id`**.

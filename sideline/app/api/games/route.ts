@@ -1,19 +1,23 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-  auth: { persistSession: false },
-});
-
 export async function GET() {
-  const { data: games, error } = await supabase.from("game_sessions").select("*").order("game_date", { ascending: false });
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: games, error } = await supabase
+    .from("game_sessions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("game_date", { ascending: false });
   if (error) return NextResponse.json([], { status: 200 });
 
   const enriched = await Promise.all(
     (games ?? []).map(async (game) => {
       const [{ count: drive_count }, { count: play_count }] = await Promise.all([
-        supabase.from("drives").select("*", { count: "exact", head: true }).eq("game_session_id", game.id),
-        supabase.from("logged_plays").select("*", { count: "exact", head: true }).eq("game_session_id", game.id),
+        supabase.from("drives").select("*", { count: "exact", head: true }).eq("game_session_id", game.id).eq("user_id", user.id),
+        supabase.from("logged_plays").select("*", { count: "exact", head: true }).eq("game_session_id", game.id).eq("user_id", user.id),
       ]);
       return { ...game, drive_count: drive_count ?? 0, play_count: play_count ?? 0 };
     }),
@@ -23,6 +27,7 @@ export async function GET() {
 }
 
 type GameSessionInsert = {
+  user_id: string;
   my_playbook: string;
   my_scheme: string;
   offensive_playbook: string;
@@ -38,6 +43,10 @@ type GameSessionInsert = {
 };
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = (await req.json()) as Record<string, unknown>;
   const startedAtIso = new Date().toISOString();
   const gameDate = startedAtIso.slice(0, 10);
@@ -50,6 +59,7 @@ export async function POST(req: NextRequest) {
         : "";
 
   const insertPayload: GameSessionInsert = {
+    user_id: user.id,
     my_playbook: String(body.my_playbook ?? "").trim(),
     my_scheme: String(body.my_scheme ?? "").trim(),
     offensive_playbook: offensivePlaybook,
@@ -73,6 +83,7 @@ export async function POST(req: NextRequest) {
       .from("play_sheets")
       .select("id, cfb26_playbook, playbook")
       .eq("id", rawSheetId)
+      .eq("user_id", user.id)
       .maybeSingle();
     if (!sheet) {
       return NextResponse.json({ error: "Play sheet not found" }, { status: 400 });

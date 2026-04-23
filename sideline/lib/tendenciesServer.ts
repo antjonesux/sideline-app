@@ -68,8 +68,10 @@ export function filterGameRowsByOffensivePlaybook(games: GameRow[], playbook: st
   return games.filter((g) => playbookForGame(g) === p);
 }
 
-export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient): Promise<string[]> {
-  const { data, error } = await supabase.from("game_sessions").select("offensive_playbook, my_playbook");
+export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
+  let query = supabase.from("game_sessions").select("offensive_playbook, my_playbook");
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) {
     console.error("distinct game_sessions playbooks:", error);
     return [];
@@ -83,15 +85,16 @@ export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient):
 }
 
 /** Dropdown source for tendencies playbook filter: logged games only. */
-export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient): Promise<string[]> {
-  return fetchDistinctOffensivePlaybooks(supabase);
+export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
+  return fetchDistinctOffensivePlaybooks(supabase, userId);
 }
 
-export async function fetchGamesOrdered(supabase: SupabaseClient): Promise<GameRow[]> {
-  const { data, error } = await supabase
+export async function fetchGamesOrdered(supabase: SupabaseClient, userId?: string): Promise<GameRow[]> {
+  let query = supabase
     .from("game_sessions")
-    .select("id, my_playbook, offensive_playbook, opponent_team, game_date, result, my_score, opponent_score")
-    .order("game_date", { ascending: false });
+    .select("id, my_playbook, offensive_playbook, opponent_team, game_date, result, my_score, opponent_score");
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query.order("game_date", { ascending: false });
   if (error) {
     console.error("tendencies fetch games:", error);
     return [];
@@ -118,18 +121,21 @@ export function resolveFilteredGameIds(
 export async function fetchLoggedPlaysForGames(
   supabase: SupabaseClient,
   gameIds: string[],
+  userId?: string,
 ): Promise<LoggedPlayRow[]> {
   if (gameIds.length === 0) return [];
   const chunkSize = 120;
   const out: LoggedPlayRow[] = [];
   for (let i = 0; i < gameIds.length; i += chunkSize) {
     const slice = gameIds.slice(i, i + chunkSize);
-    const { data, error } = await supabase
+    let query = supabase
       .from("logged_plays")
       .select(
         "id, game_session_id, drive_id, play_number, down, distance, is_inches, formation, play_name, yards_gained, result_tag, scenario, is_success",
       )
       .in("game_session_id", slice);
+    if (userId) query = query.eq("user_id", userId);
+    const { data, error } = await query;
     if (error) {
       console.error("tendencies fetch plays:", error);
       continue;

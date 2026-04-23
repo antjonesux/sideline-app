@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -20,6 +20,10 @@ function toBool(v: unknown): boolean {
 }
 
 export async function PUT(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
@@ -49,6 +53,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     .from("drives")
     .update(updateRow)
     .eq("id", id)
+    .eq("user_id", user.id)
     .select(
       "id, game_session_id, drive_number, quarter, starting_down, starting_distance, is_inches, starting_absolute_yard, time_remaining, starting_yard_line, starting_side, score_mine, score_opponent, note, created_at",
     )
@@ -62,8 +67,12 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
-  const { error } = await supabase.from("drives").delete().eq("id", id);
+  const { error } = await supabase.from("drives").delete().eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data: { ok: true } });
 }

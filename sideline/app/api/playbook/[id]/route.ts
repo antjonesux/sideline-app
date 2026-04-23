@@ -1,11 +1,12 @@
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 type PlayRow = {
   id: string;
+  scenario_id: string;
   play_order: number;
   formation: string;
   play_name: string;
@@ -13,24 +14,43 @@ type PlayRow = {
 };
 
 export async function GET(_req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
 
-  const { data: sheet, error } = await supabase.from("play_sheets").select("*").eq("id", id).maybeSingle();
+  const { data: sheet, error } = await supabase.from("play_sheets").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!sheet) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { data: scenarios, error: scErr } = await supabase
-    .from("play_sheet_scenarios")
-    .select("id, scenario, scenario_order, play_sheet_plays(*)")
-    .eq("play_sheet_id", id)
-    .order("scenario_order", { ascending: true });
+  const [{ data: scenarios, error: scErr }, { data: allPlays, error: plErr }] = await Promise.all([
+    supabase
+      .from("play_sheet_scenarios")
+      .select("id, scenario, scenario_order")
+      .eq("play_sheet_id", id)
+      .eq("user_id", user.id)
+      .order("scenario_order", { ascending: true }),
+    supabase
+      .from("play_sheet_plays")
+      .select("id, scenario_id, play_order, formation, play_name, script_note")
+      .eq("user_id", user.id),
+  ]);
 
   if (scErr) return NextResponse.json({ error: scErr.message }, { status: 400 });
+  if (plErr) return NextResponse.json({ error: plErr.message }, { status: 400 });
+
+  const scenarioIds = new Set((scenarios ?? []).map((s) => s.id));
+  const playsByScenario = new Map<string, PlayRow[]>();
+  for (const p of (allPlays ?? []) as PlayRow[]) {
+    if (!scenarioIds.has(p.scenario_id)) continue;
+    const arr = playsByScenario.get(p.scenario_id) ?? [];
+    arr.push(p);
+    playsByScenario.set(p.scenario_id, arr);
+  }
 
   const normalized = (scenarios ?? []).map((s) => {
-    const plays = (((s as { play_sheet_plays?: PlayRow[] }).play_sheet_plays ?? []) as PlayRow[]).sort(
-      (a, b) => a.play_order - b.play_order,
-    );
+    const plays = (playsByScenario.get(s.id) ?? []).sort((a, b) => a.play_order - b.play_order);
     return {
       id: s.id,
       scenario: s.scenario,
@@ -47,6 +67,10 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 }
 
 async function patchPlaySheet(req: NextRequest, id: string) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   let body: { name?: string; cfb26_playbook?: string };
   try {
     body = await req.json();
@@ -74,7 +98,7 @@ async function patchPlaySheet(req: NextRequest, id: string) {
 
   patch.updated_at = new Date().toISOString();
 
-  const { data, error } = await supabase.from("play_sheets").update(patch).eq("id", id).select("*").single();
+  const { data, error } = await supabase.from("play_sheets").update(patch).eq("id", id).eq("user_id", user.id).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -93,8 +117,12 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
-  const { error } = await supabase.from("play_sheets").delete().eq("id", id);
+  const { error } = await supabase.from("play_sheets").delete().eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ ok: true });
 }

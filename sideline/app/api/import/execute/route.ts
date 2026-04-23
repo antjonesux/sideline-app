@@ -7,7 +7,8 @@ import {
 } from "@/lib/importCsv";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizePlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -47,6 +48,8 @@ function remapPlaysToNewDriveNumbers(plays: ValidatedImportPlay[], maxExistingDr
 }
 
 async function insertDrivesAndPlaysForSession(
+  supabase: SupabaseClient,
+  userId: string,
   sessionId: string,
   opponentScheme: string,
   plays: ValidatedImportPlay[],
@@ -56,6 +59,7 @@ async function insertDrivesAndPlaysForSession(
     .from("game_sessions")
     .select("offensive_playbook, my_playbook")
     .eq("id", sessionId)
+    .eq("user_id", userId)
     .maybeSingle();
   const offensivePb = sessionRow ? playbookForGame(sessionRow as GameRow) : "";
   const typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, offensivePb ? [offensivePb] : []);
@@ -71,6 +75,7 @@ async function insertDrivesAndPlaysForSession(
     const { data: driveRow, error: driveErr } = await supabase
       .from("drives")
       .insert({
+        user_id: userId,
         game_session_id: sessionId,
         drive_number: driveNum,
         quarter,
@@ -116,6 +121,7 @@ async function insertDrivesAndPlaysForSession(
       const play_name = normalizePlayName(p.play_name);
       const play_type = storedPlayTypeFromMap(offensivePb, p.formation, play_name, typeMap, null);
       const { error: playErr } = await supabase.from("logged_plays").insert({
+        user_id: userId,
         drive_id: driveId,
         game_session_id: sessionId,
         play_number: idx,
@@ -152,6 +158,10 @@ async function insertDrivesAndPlaysForSession(
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = (await req.json().catch(() => null)) as
     | { game?: GamePayload; plays?: ValidatedImportPlay[]; game_session_id?: string }
     | null;
@@ -164,7 +174,7 @@ export async function POST(req: NextRequest) {
   const existingSessionId = typeof body?.game_session_id === "string" ? body.game_session_id.trim() : "";
 
   if (existingSessionId) {
-    const { data: session, error: sessErr } = await supabase.from("game_sessions").select("*").eq("id", existingSessionId).single();
+    const { data: session, error: sessErr } = await supabase.from("game_sessions").select("*").eq("id", existingSessionId).eq("user_id", user.id).single();
     if (sessErr || !session) {
       return NextResponse.json({ error: sessErr?.message ?? "Game session not found" }, { status: 404 });
     }
@@ -182,6 +192,7 @@ export async function POST(req: NextRequest) {
       .from("drives")
       .select("drive_number")
       .eq("game_session_id", existingSessionId)
+      .eq("user_id", user.id)
       .order("drive_number", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -190,7 +201,7 @@ export async function POST(req: NextRequest) {
     const remapped = remapPlaysToNewDriveNumbers(valid_rows, maxDrive);
     const opponentScheme = String(session.opponent_scheme ?? "UNKNOWN").trim() || "UNKNOWN";
 
-    const inserted = await insertDrivesAndPlaysForSession(existingSessionId, opponentScheme, remapped, {
+    const inserted = await insertDrivesAndPlaysForSession(supabase, user.id, existingSessionId, opponentScheme, remapped, {
       rollbackSessionOnFailure: false,
     });
     if (!inserted.ok) {
@@ -240,6 +251,7 @@ export async function POST(req: NextRequest) {
   const { data: session, error: sessionErr } = await supabase
     .from("game_sessions")
     .insert({
+      user_id: user.id,
       my_playbook: game.my_team,
       my_scheme: myScheme,
       offensive_playbook: game.offensive_playbook.trim(),
@@ -263,7 +275,7 @@ export async function POST(req: NextRequest) {
   }
 
   const sessionId = session.id as string;
-  const inserted = await insertDrivesAndPlaysForSession(sessionId, opponentScheme, valid_rows, { rollbackSessionOnFailure: true });
+  const inserted = await insertDrivesAndPlaysForSession(supabase, user.id, sessionId, opponentScheme, valid_rows, { rollbackSessionOnFailure: true });
   if (!inserted.ok) {
     return NextResponse.json({ error: inserted.message }, { status: inserted.status });
   }

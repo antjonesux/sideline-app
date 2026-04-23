@@ -4,7 +4,8 @@ import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, scenarioMaxSlots } from "@/lib/playbookUtils";
 
 import { normalizePlayNameForComparison } from "@/lib/utils/normalizePlayName";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -20,26 +21,45 @@ type PlayRow = {
 
 type PlayRowWithCfbType = PlayRow & { play_type: string | null };
 
-async function assertScenarioOnSheet(sheetId: string, scenarioId: string) {
-  const { data, error } = await supabase
+async function assertSheetOwnership(sb: SupabaseClient, sheetId: string, userId: string) {
+  const { data, error } = await sb
+    .from("play_sheets")
+    .select("id")
+    .eq("id", sheetId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) return { error: error.message };
+  if (!data) return { error: "Sheet not found" };
+  return { sheet: data };
+}
+
+async function assertScenarioOnSheet(sb: SupabaseClient, sheetId: string, scenarioId: string, userId: string) {
+  const { data, error } = await sb
     .from("play_sheet_scenarios")
     .select("id, scenario, play_sheet_id")
     .eq("id", scenarioId)
     .eq("play_sheet_id", sheetId)
+    .eq("user_id", userId)
     .maybeSingle();
   if (error) return { error: error.message };
   if (!data) return { error: "Scenario not found" };
   return { scenario: data };
 }
 
-async function assertPlayOnSheet(sheetId: string, playId: string) {
-  const { data: play, error } = await supabase.from("play_sheet_plays").select("*").eq("id", playId).maybeSingle();
+async function assertPlayOnSheet(sb: SupabaseClient, sheetId: string, playId: string, userId: string) {
+  const { data: play, error } = await sb
+    .from("play_sheet_plays")
+    .select("*")
+    .eq("id", playId)
+    .eq("user_id", userId)
+    .maybeSingle();
   if (error || !play) return { error: "Play not found" };
 
-  const { data: sc, error: scErr } = await supabase
+  const { data: sc, error: scErr } = await sb
     .from("play_sheet_scenarios")
     .select("play_sheet_id, scenario")
     .eq("id", play.scenario_id)
+    .eq("user_id", userId)
     .maybeSingle();
 
   if (scErr || !sc || sc.play_sheet_id !== sheetId) return { error: "Play not found" };
@@ -47,7 +67,15 @@ async function assertPlayOnSheet(sheetId: string, playId: string) {
 }
 
 export async function GET(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id: sheetId } = await ctx.params;
+
+  const ownership = await assertSheetOwnership(supabase, sheetId, user.id);
+  if ("error" in ownership) return NextResponse.json({ error: ownership.error }, { status: 404 });
+
   const scenarioName = req.nextUrl.searchParams.get("scenario")?.trim() ?? "";
   if (!scenarioName) {
     return NextResponse.json({ error: "scenario query parameter is required" }, { status: 400 });
@@ -58,6 +86,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     .from("play_sheet_scenarios")
     .select("id, scenario")
     .eq("play_sheet_id", sheetId)
+    .eq("user_id", user.id)
     .eq("scenario", scenarioName)
     .maybeSingle();
 
@@ -68,6 +97,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     .from("play_sheet_plays")
     .select("id, scenario_id, play_order, formation, play_name, script_note")
     .eq("scenario_id", scenarioRow.id)
+    .eq("user_id", user.id)
     .order("play_order", { ascending: true });
 
   if (pErr) return NextResponse.json({ error: pErr.message }, { status: 400 });
@@ -76,6 +106,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     .from("play_sheets")
     .select("name, cfb26_playbook, playbook")
     .eq("id", sheetId)
+    .eq("user_id", user.id)
     .maybeSingle();
   if (sheetMetaErr) return NextResponse.json({ error: sheetMetaErr.message }, { status: 400 });
 
@@ -115,6 +146,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     .from("game_sessions")
     .select("id")
     .eq("play_sheet_id", sheetId)
+    .eq("user_id", user.id)
     .limit(500);
   if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 });
   const playbookSessionIds = (sessions ?? []).map((s) => s.id);
@@ -133,6 +165,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const { data: logged, error: lErr } = await supabase
     .from("logged_plays")
     .select("formation, play_name, result_tag, yards_gained, down, distance, scenario")
+    .eq("user_id", user.id)
     .in("scenario", suggestionLabels)
     .in("game_session_id", playbookSessionIds)
     .limit(25000);
@@ -182,7 +215,15 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 }
 
 export async function POST(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id: sheetId } = await ctx.params;
+
+  const ownership = await assertSheetOwnership(supabase, sheetId, user.id);
+  if ("error" in ownership) return NextResponse.json({ error: ownership.error }, { status: 404 });
+
   let body: { scenarioId?: string; formation?: string; play_name?: string };
   try {
     body = await req.json();
@@ -197,14 +238,15 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: "scenarioId, formation, and play_name are required" }, { status: 400 });
   }
 
-  const sc = await assertScenarioOnSheet(sheetId, scenarioId);
+  const sc = await assertScenarioOnSheet(supabase, sheetId, scenarioId, user.id);
   if ("error" in sc) return NextResponse.json({ error: sc.error }, { status: 404 });
 
   const max = scenarioMaxSlots(sc.scenario.scenario);
   const { count, error: cErr } = await supabase
     .from("play_sheet_plays")
     .select("id", { count: "exact", head: true })
-    .eq("scenario_id", scenarioId);
+    .eq("scenario_id", scenarioId)
+    .eq("user_id", user.id);
 
   if (cErr) return NextResponse.json({ error: cErr.message }, { status: 400 });
   if ((count ?? 0) >= max) {
@@ -215,6 +257,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     .from("play_sheet_plays")
     .select("id, play_name")
     .eq("scenario_id", scenarioId)
+    .eq("user_id", user.id)
     .eq("formation", formation);
 
   if (existingErr) return NextResponse.json({ error: existingErr.message }, { status: 400 });
@@ -234,6 +277,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     .from("play_sheet_plays")
     .select("play_order")
     .eq("scenario_id", scenarioId)
+    .eq("user_id", user.id)
     .order("play_order", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -242,35 +286,51 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
   const { data: row, error: insErr } = await supabase
     .from("play_sheet_plays")
-    .insert({ scenario_id: scenarioId, play_order: nextOrder, formation, play_name })
+    .insert({ user_id: user.id, scenario_id: scenarioId, play_order: nextOrder, formation, play_name })
     .select("id, scenario_id, play_order, formation, play_name, script_note")
     .single();
 
   if (insErr || !row) return NextResponse.json({ error: insErr?.message ?? "Insert failed" }, { status: 400 });
 
-  await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId);
+  await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId).eq("user_id", user.id);
 
   return NextResponse.json(row);
 }
 
 export async function DELETE(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id: sheetId } = await ctx.params;
+
+  const ownership = await assertSheetOwnership(supabase, sheetId, user.id);
+  if ("error" in ownership) return NextResponse.json({ error: ownership.error }, { status: 404 });
+
   const playId = req.nextUrl.searchParams.get("playId")?.trim() ?? "";
   if (!playId) return NextResponse.json({ error: "playId query parameter is required" }, { status: 400 });
 
-  const chk = await assertPlayOnSheet(sheetId, playId);
+  const chk = await assertPlayOnSheet(supabase, sheetId, playId, user.id);
   if ("error" in chk) return NextResponse.json({ error: chk.error }, { status: 404 });
 
-  const { error } = await supabase.from("play_sheet_plays").delete().eq("id", playId);
+  const { error } = await supabase.from("play_sheet_plays").delete().eq("id", playId).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-  await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId);
+  await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId).eq("user_id", user.id);
 
   return NextResponse.json({ ok: true });
 }
 
 export async function PUT(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id: sheetId } = await ctx.params;
+
+  const ownership = await assertSheetOwnership(supabase, sheetId, user.id);
+  if ("error" in ownership) return NextResponse.json({ error: ownership.error }, { status: 404 });
+
   let body: {
     action?: string;
     scenarioId?: string;
@@ -295,12 +355,13 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       return NextResponse.json({ error: "scenarioId and orderedPlayIds are required" }, { status: 400 });
     }
 
-    const sc = await assertScenarioOnSheet(sheetId, scenarioId);
+    const sc = await assertScenarioOnSheet(supabase, sheetId, scenarioId, user.id);
     if ("error" in sc) return NextResponse.json({ error: sc.error }, { status: 404 });
     const { data: existing, error: exErr } = await supabase
       .from("play_sheet_plays")
       .select("id")
-      .eq("scenario_id", scenarioId);
+      .eq("scenario_id", scenarioId)
+      .eq("user_id", user.id);
 
     if (exErr) return NextResponse.json({ error: exErr.message }, { status: 400 });
 
@@ -311,11 +372,11 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
     for (let i = 0; i < orderedPlayIds.length; i++) {
       const pid = orderedPlayIds[i];
-      const { error: uErr } = await supabase.from("play_sheet_plays").update({ play_order: i + 1 }).eq("id", pid);
+      const { error: uErr } = await supabase.from("play_sheet_plays").update({ play_order: i + 1 }).eq("id", pid).eq("user_id", user.id);
       if (uErr) return NextResponse.json({ error: uErr.message }, { status: 400 });
     }
 
-    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId);
+    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId).eq("user_id", user.id);
     return NextResponse.json({ ok: true });
   }
 
@@ -323,16 +384,16 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     const playId = String(body.playId ?? "").trim();
     const note = body.script_note == null ? null : String(body.script_note).slice(0, 40);
 
-    const chk = await assertPlayOnSheet(sheetId, playId);
+    const chk = await assertPlayOnSheet(supabase, sheetId, playId, user.id);
     if ("error" in chk) return NextResponse.json({ error: chk.error }, { status: 404 });
     if (!isOpeningScript(chk.scenarioName)) {
       return NextResponse.json({ error: "Notes are only for Opening Script" }, { status: 400 });
     }
 
-    const { error } = await supabase.from("play_sheet_plays").update({ script_note: note }).eq("id", playId);
+    const { error } = await supabase.from("play_sheet_plays").update({ script_note: note }).eq("id", playId).eq("user_id", user.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId);
+    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId).eq("user_id", user.id);
     return NextResponse.json({ ok: true });
   }
 
@@ -344,7 +405,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       return NextResponse.json({ error: "playId, formation, and play_name are required" }, { status: 400 });
     }
 
-    const chk = await assertPlayOnSheet(sheetId, playId);
+    const chk = await assertPlayOnSheet(supabase, sheetId, playId, user.id);
     if ("error" in chk) return NextResponse.json({ error: chk.error }, { status: 404 });
 
     const scenarioId = chk.play.scenario_id;
@@ -353,6 +414,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       .from("play_sheet_plays")
       .select("id, play_name")
       .eq("scenario_id", scenarioId)
+      .eq("user_id", user.id)
       .eq("formation", formation)
       .neq("id", playId);
 
@@ -368,10 +430,10 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       );
     }
 
-    const { error } = await supabase.from("play_sheet_plays").update({ formation, play_name }).eq("id", playId);
+    const { error } = await supabase.from("play_sheet_plays").update({ formation, play_name }).eq("id", playId).eq("user_id", user.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId);
+    await supabase.from("play_sheets").update({ updated_at: new Date().toISOString() }).eq("id", sheetId).eq("user_id", user.id);
     return NextResponse.json({ ok: true });
   }
 

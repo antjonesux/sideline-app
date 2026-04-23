@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import {
   aggregateByFormation,
   bestPlayForFormation,
@@ -13,6 +13,10 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const sp = req.nextUrl.searchParams;
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
@@ -20,10 +24,10 @@ export async function GET(req: NextRequest) {
   const showAll = sp.get("expand") === "1" || sp.get("all") === "1";
   const limit = showAll ? 200 : 3;
 
-  const games = await fetchGamesOrdered(supabase);
+  const games = await fetchGamesOrdered(supabase, user.id);
   const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
-  const plays = await fetchLoggedPlaysForGames(supabase, gameIds);
+  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id);
 
   const allFormations = aggregateByFormation(plays, 1);
   const formations = allFormations.slice(0, limit);

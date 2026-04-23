@@ -5,7 +5,7 @@ import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
@@ -49,6 +49,7 @@ let cachedFallbackPlaybooks: string[] | null = null;
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 export default function NewGamePage() {
+  const supabase = createClient();
   const router = useRouter();
   const { setLastGame } = useLastGamePrefsStore();
   const addToast = useToastStore((s) => s.addToast);

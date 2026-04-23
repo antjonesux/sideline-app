@@ -1,5 +1,5 @@
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { withNormalizedPlayName } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import type { PostgrestError } from "@supabase/supabase-js";
@@ -20,21 +20,26 @@ function jsonFromPostgrestError(err: PostgrestError, status = 500) {
 }
 
 export async function GET(_: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
-  const { data, error } = await supabase.from("drives").select("*").eq("game_session_id", id).order("drive_number", { ascending: true });
+  const { data, error } = await supabase.from("drives").select("*").eq("game_session_id", id).eq("user_id", user.id).order("drive_number", { ascending: true });
   if (error) return NextResponse.json([], { status: 200 });
 
   const { data: gameSession } = await supabase
     .from("game_sessions")
     .select("id, my_playbook, offensive_playbook")
     .eq("id", id)
+    .eq("user_id", user.id)
     .maybeSingle();
   const pb = gameSession ? playbookForGame(gameSession as GameRow) : "";
   const typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []);
 
   const withPlays = await Promise.all(
     (data ?? []).map(async (drive) => {
-      const { data: plays } = await supabase.from("logged_plays").select("*").eq("drive_id", drive.id).order("play_number", { ascending: true });
+      const { data: plays } = await supabase.from("logged_plays").select("*").eq("drive_id", drive.id).eq("user_id", user.id).order("play_number", { ascending: true });
       return {
         ...drive,
         plays: (plays ?? []).map((p) => {
@@ -58,13 +63,22 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 }
 
 export async function POST(req: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
+
+  const { data: game } = await supabase.from("game_sessions").select("id").eq("id", id).eq("user_id", user.id).maybeSingle();
+  if (!game) return NextResponse.json({ error: "Game not found" }, { status: 404 });
+
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
   const { count, error: countError } = await supabase
     .from("drives")
     .select("*", { count: "exact", head: true })
-    .eq("game_session_id", id);
+    .eq("game_session_id", id)
+    .eq("user_id", user.id);
 
   if (countError) {
     console.error("Drive count error:", countError);
@@ -76,6 +90,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const { data, error } = await supabase
     .from("drives")
     .insert({
+      user_id: user.id,
       game_session_id: id,
       drive_number,
       quarter: typeof body.quarter === "number" ? body.quarter : 1,

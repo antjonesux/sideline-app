@@ -7,7 +7,7 @@ import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { IMPORT_FAILED } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { useImportStore } from "@/store/importStore";
 import { useToastStore } from "@/store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -43,6 +43,7 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
 }
 
 export default function FilmImportSavePage() {
+  const supabase = createClient();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { parsedRows, validRows, setStep, setGameSetup, setImportedSession } = useImportStore();

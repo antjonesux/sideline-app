@@ -76,9 +76,11 @@ export function PlaybookHome({ initialCreateOpen = false }: Props) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="app-page-title">Game Plan</h1>
-        <button type="button" className="btn-primary text-sm" onClick={() => setCreateOpen(true)}>
-          Create play sheet
-        </button>
+        {list.length > 0 && (
+          <button type="button" className="btn-primary text-sm" onClick={() => setCreateOpen(true)}>
+            Create play sheet
+          </button>
+        )}
       </div>
 
       {list.length === 0 ? (

@@ -22,7 +22,6 @@ import { useToastStore } from "@/store/toastStore";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
-import { supabase } from "@/lib/supabase";
 import { normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
@@ -114,6 +113,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [pageReady, setPageReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
   const [pendingDriveDelete, setPendingDriveDelete] = useState<string | null>(null);
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
@@ -126,6 +126,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
     if (!gameId) return;
     const res = await fetch(`/api/games/${gameId}/drives`);
+    if (!res.ok) {
+      addToast(COULDNT_SAVE, "error");
+      return;
+    }
     const data = (await res.json()) as Drive[];
     setDrives(data);
     setExpandedDriveIds((current) => {
@@ -138,7 +142,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     });
     void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
     void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
-  }, [gameId, queryClient]);
+  }, [gameId, queryClient, addToast]);
 
   useEffect(() => {
     if (showLogger) closeAllDropdownMenus();
@@ -162,9 +166,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (!gameId) return;
     let cancelled = false;
     setPageReady(false);
+    setLoadError(false);
     (async () => {
       try {
         const [gRes, dRes] = await Promise.all([fetch(`/api/games/${gameId}`), fetch(`/api/games/${gameId}/drives`)]);
+        if (!gRes.ok || !dRes.ok) {
+          if (!cancelled) setLoadError(true);
+          return;
+        }
         const g = (await gRes.json()) as GameSession;
         const d = (await dRes.json()) as Drive[];
         if (cancelled) return;
@@ -197,19 +206,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       setGame((prev) => (prev ? { ...prev, ended_at: null } : prev));
     }
 
-    const { data: existingDrives } = await supabase.from("drives").select("id").eq("game_session_id", gameId);
-
-    const driveNumber = (existingDrives?.length ?? 0) + 1;
     const prevDrive = drives[drives.length - 1];
     const prevQuarter = prevDrive?.quarter != null && prevDrive.quarter >= 1 ? prevDrive.quarter : 1;
     const prevMine = Math.max(0, Number(prevDrive?.score_mine ?? 0)) || 0;
     const prevOpp = Math.max(0, Number(prevDrive?.score_opponent ?? 0)) || 0;
 
-    const { data, error } = await supabase
-      .from("drives")
-      .insert({
-        game_session_id: gameId,
-        drive_number: driveNumber,
+    const res = await fetch(`/api/games/${gameId}/drives`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         quarter: payload?.quarter ?? prevQuarter,
         score_mine: payload?.score_mine ?? prevMine,
         score_opponent: payload?.score_opponent ?? prevOpp,
@@ -218,23 +223,22 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         starting_side: payload?.starting_side ?? "OWN",
         starting_yard_line: payload?.starting_yard_line ?? 25,
         starting_absolute_yard: parseFieldPosition(payload?.starting_side ?? "OWN", payload?.starting_yard_line ?? 25),
-      })
-      .select()
-      .single();
+      }),
+    });
 
-    if (error) {
-      console.error("Drive insert error:", error.message, error.details, error.hint, error.code);
+    if (!res.ok) {
       addToast(COULDNT_SAVE, "error");
       return;
     }
 
+    const data = await res.json();
     if (!data) return;
 
     const newDrive: Drive = { ...(data as Drive), plays: [] };
     setDrives((prev) => [...prev, newDrive]);
     setExpandedDriveIds((current) => [...new Set([...current, newDrive.id])]);
     setActiveDrive(newDrive.id);
-    addToast(`Drive ${driveNumber} started`, "success");
+    addToast(`Drive ${newDrive.drive_number ?? drives.length + 1} started`, "success");
     return newDrive;
   }
 
@@ -408,6 +412,17 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
+  }
+
+  if (loadError) {
+    return (
+      <section className="space-y-4 py-6 text-center">
+        <BackToFilmLink />
+        <h1 className="app-page-title">Game not found</h1>
+        <p className="font-sans text-sm text-slate-400">This game doesn&apos;t exist or you don&apos;t have access to it.</p>
+        <Link href="/film" className="btn-primary inline-block px-5 py-2 text-sm">Back to Film Room</Link>
+      </section>
+    );
   }
 
   const filmGameSecondaryActionClass =

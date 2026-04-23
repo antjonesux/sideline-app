@@ -1,20 +1,25 @@
 import { buildTendenciesGamePayload, type DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
 import { withNormalizedPlayName } from "@/lib/utils";
 import { fetchCfbPlayTypeMap, playbookForGame, type GameRow } from "@/lib/tendenciesServer";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_: NextRequest, ctx: Ctx) {
+  const supabase = await createClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await ctx.params;
-  const { data: game, error: gErr } = await supabase.from("game_sessions").select("*").eq("id", id).single();
+  const { data: game, error: gErr } = await supabase.from("game_sessions").select("*").eq("id", id).eq("user_id", user.id).single();
   if (gErr || !game) return NextResponse.json({ error: "Game not found" }, { status: 404 });
 
   const { data: driveRows, error: dErr } = await supabase
     .from("drives")
     .select("*")
     .eq("game_session_id", id)
+    .eq("user_id", user.id)
     .order("drive_number", { ascending: true });
   if (dErr) return NextResponse.json({ error: dErr.message }, { status: 500 });
 
@@ -24,6 +29,7 @@ export async function GET(_: NextRequest, ctx: Ctx) {
       .from("logged_plays")
       .select("id, game_session_id, drive_id, play_number, down, distance, formation, play_name, yards_gained, result_tag, scenario, is_success")
       .eq("drive_id", d.id)
+      .eq("user_id", user.id)
       .order("play_number", { ascending: true });
     drives.push({
       id: d.id,

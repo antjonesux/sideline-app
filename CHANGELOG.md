@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-23 — Auth: Supabase Google + email, session proxy, safe `next`, per-user ownership
+
+### What
+
+- **Supabase Auth** with **Google OAuth** and **email / password** (sign-in, register, forgot password), **`/login`**, **`/auth/callback`**, **`/auth/confirm`**, and **`/reset-password`** for completing a reset after the email link.
+- **`@supabase/ssr`**: **`lib/supabase/client.ts`** (browser), **`lib/supabase/server.ts`** (route handlers / server), **`lib/supabase/proxy.ts`** (middleware session refresh); root **`proxy.ts`** refreshes the session and redirects unauthenticated users to **`/login`** with a single **`next`** param that preserves **pathname + search** without copying the protected page’s query onto **`/login`**.
+- **`AuthProvider`** / **`useAuth`** in **`AppProviders`**; **`SignOutButton`** only navigates after successful **`signOut()`**; **`BottomTabNav`** hides on auth routes.
+- **Return URL safety**: **`next`** is treated as an in-app path only (rejects protocol-relative **`//`** open redirects) in **`LoginForm`**, **`AuthProvider.signInWithGoogle`**, **`proxy.ts`**, and **`app/auth/callback/route.ts`**. OAuth **`redirectTo`** carries **`next`**; failed code exchange redirects to **`/login`** and keeps **`next`** when it is not the default **`/film`**.
+- **Client film / tendencies / playbook code** that needs a persisted session now uses **`createClient()`** from **`lib/supabase/client.ts`** instead of the old non-persistent singleton where applicable.
+- **Database**: migration **`20260423100000_add_user_id_ownership.sql`** adds **`user_id`** to user-owned tables with backfill and **`NOT NULL`**; **`supabase/schema.sql`** updated accordingly. **API routes** filter or scope reads/writes by the authenticated user where wired in this change set.
+- **`.env.example`**: documents **`NEXT_PUBLIC_SITE_URL`** for Supabase redirect allowlists; **`package.json`** / lockfile include **`@supabase/ssr`**.
+
+### Why
+
+- Launch-ready auth and session refresh without losing deep-link query state (e.g. tendencies filters) after login, and without open redirects or confusing post-OAuth landings.
+
+### Status after this push
+
+- **`proxy.ts`**, **`lib/supabase/*`**, **`app/login/*`**, **`app/auth/*`**, **`app/reset-password/*`**, **`components/providers/AuthProvider.tsx`**, **`AppProviders.tsx`**, **`SignOutButton.tsx`**, **`BottomTabNav.tsx`**, affected **`app/api/**`** routes, **`supabase/migrations/20260423100000_add_user_id_ownership.sql`**, **`supabase/schema.sql`**, film / tendencies / playbook client touchpoints, **`.env.example`**, **`package.json`**, **`package-lock.json`**, both changelogs.
+
+---
+
 ## 2026-04-22 — Film & Game Plan: mobile numeric fields, drive-ended guard, formation sections, scenario labels
 
 ### What

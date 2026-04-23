@@ -2,6 +2,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists user_profiles (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   playbook text not null,
   scheme text not null,
   created_at timestamptz default now()
@@ -9,6 +10,7 @@ create table if not exists user_profiles (
 
 create table if not exists game_sessions (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   my_playbook text not null,
   my_scheme text not null,
   opponent_team text not null,
@@ -31,6 +33,7 @@ alter table game_sessions add column if not exists ended_at timestamptz;
 
 create table if not exists drives (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   game_session_id uuid not null references game_sessions(id) on delete cascade,
   drive_number int not null,
   quarter int,
@@ -48,6 +51,7 @@ create table if not exists drives (
 
 create table if not exists logged_plays (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   drive_id uuid not null references drives(id) on delete cascade,
   game_session_id uuid not null references game_sessions(id) on delete cascade,
   play_number int not null,
@@ -78,6 +82,7 @@ alter table drives add column if not exists is_inches boolean default false;
 
 create table if not exists play_sheets (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   name text not null,
   playbook text not null,
   scheme text not null,
@@ -93,6 +98,7 @@ alter table game_sessions add column if not exists play_sheet_id uuid references
 
 create table if not exists play_sheet_scenarios (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   play_sheet_id uuid not null references play_sheets(id) on delete cascade,
   scenario text not null,
   scenario_order int not null,
@@ -101,6 +107,7 @@ create table if not exists play_sheet_scenarios (
 
 create table if not exists play_sheet_plays (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   scenario_id uuid not null references play_sheet_scenarios(id) on delete cascade,
   play_order int not null,
   formation text not null,
@@ -142,6 +149,7 @@ create table if not exists scheme_play_weights (
 
 create table if not exists dismissed_suggestions (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id),
   play_sheet_id uuid not null references play_sheets(id) on delete cascade,
   scenario text not null,
   formation text not null,
@@ -164,6 +172,11 @@ create table if not exists team_defensive_schemes (
 create index if not exists idx_logged_plays_lookup on logged_plays (scenario, formation, play_name, hash);
 create index if not exists idx_logged_plays_game on logged_plays (game_session_id);
 create index if not exists idx_drives_game on drives (game_session_id);
+
+create index if not exists idx_game_sessions_user on game_sessions(user_id);
+create index if not exists idx_play_sheets_user on play_sheets(user_id);
+create index if not exists idx_drives_user on drives(user_id);
+create index if not exists idx_logged_plays_user on logged_plays(user_id);
 
 create or replace function derive_field_zone(input_yard_line int, input_side text)
 returns text language plpgsql immutable as $$
