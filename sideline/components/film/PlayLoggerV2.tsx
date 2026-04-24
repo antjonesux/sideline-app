@@ -11,7 +11,7 @@ import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE } from "@/lib/coachCopy";
+import { COULDNT_SAVE, GUIDED_LOGGER_HINT } from "@/lib/coachCopy";
 
 type LoggerView = "suggestions" | "yardage";
 
@@ -23,9 +23,11 @@ interface PlayLoggerV2Props {
   onRefresh: () => Promise<void>;
   /** Explicit active sheet ID resolved by the parent page. */
   sheetId?: string | null;
+  /** Optional coach hint for guided onboarding (real logger only). */
+  guidedProgress?: { current: number; target: number } | null;
 }
 
-export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, sheetId }: PlayLoggerV2Props) {
+export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, sheetId, guidedProgress }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
@@ -205,6 +207,11 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
           <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0">
             <span className="font-mono text-[13px] font-semibold text-white">{situationLine}</span>
             <span className="font-mono text-xs text-slate-400">· {fieldLine}</span>
+            {guidedProgress ? (
+              <span className="w-full font-mono text-[11px] text-amber-300/90">
+                {GUIDED_LOGGER_HINT(Math.max(0, guidedProgress.target - guidedProgress.current))}
+              </span>
+            ) : null}
           </div>
 
           <button

@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -19,7 +20,13 @@ import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE } from "@/lib/coachCopy";
+import {
+  COULDNT_SAVE,
+  GUIDED_FINISH_CTA,
+  GUIDED_INSIGHT_TITLE,
+  GUIDED_LOGGER_TITLE,
+  guidedInsightFromLoggedPlays,
+} from "@/lib/coachCopy";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { normalizePlayName } from "@/lib/utils";
@@ -41,6 +48,14 @@ function getDriveResult(plays: LoggedPlay[] | undefined | null): DrivePossession
 
 function normalizeResultTag(tag: string): string {
   return tag.trim().toUpperCase().replace(/_/g, " ");
+}
+
+function countCoachCallsOnDrive(plays: LoggedPlay[] | undefined): number {
+  return (plays ?? []).filter((p) => {
+    const playName = String(p.play_name ?? "").trim().toLowerCase();
+    const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
+    return playName !== "punt" && resultTag !== "punt";
+  }).length;
 }
 
 function formatDate(isoDate: string): string {
@@ -96,6 +111,9 @@ type DetailTab = "drives" | "tendencies";
 
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const guidedMode = searchParams.get("guided") === "1";
   const queryClient = useQueryClient();
   const [detailTab, setDetailTab] = useState<DetailTab>("drives");
 
@@ -119,6 +137,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
+  const guidedBootRef = useRef<"off" | "pending" | "done">("off");
   useScrollLock(showEndGameModal || showLogger);
 
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
@@ -161,6 +180,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   useEffect(() => {
     setDetailTab("drives");
   }, [gameId]);
+
+  useEffect(() => {
+    guidedBootRef.current = "off";
+  }, [gameId, guidedMode]);
 
   useEffect(() => {
     if (!gameId) return;
@@ -332,6 +355,30 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
   }
 
+  useEffect(() => {
+    if (!pageReady || !game || !guidedMode) return;
+    if (guidedBootRef.current === "done") return;
+    if (drives.length > 0) {
+      guidedBootRef.current = "done";
+      const first = drives[0];
+      setActiveDrive(first.id);
+      setExpandedDriveIds((ids) => [...new Set([...ids, first.id])]);
+      openForCreate(first.id);
+      return;
+    }
+    if (guidedBootRef.current === "pending") return;
+    guidedBootRef.current = "pending";
+    void createDrive().then((created) => {
+      if (created) {
+        guidedBootRef.current = "done";
+        openForCreate(created.id);
+      } else {
+        guidedBootRef.current = "off";
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once per pageReady/game/guided/drives; avoid re-binding createDrive in deps
+  }, [pageReady, game, guidedMode, drives]);
+
   async function performDeletePlay(playId: string) {
     const prevDrives = drives;
     setDrives((current) =>
@@ -409,6 +456,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
   const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
+
+  const guidedCallCount = activeDriveObj ? countCoachCallsOnDrive(activeDriveObj.plays) : 0;
+  const guidedInsightBody =
+    guidedMode && activeDriveObj && guidedCallCount >= 5
+      ? guidedInsightFromLoggedPlays(activeDriveObj.plays ?? [])
+      : "";
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
@@ -815,7 +868,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           >
             <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh]">
               <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Play Logger</h2>
+                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
+                  {guidedMode ? GUIDED_LOGGER_TITLE : "Play Logger"}
+                </h2>
                 <button
                   type="button"
                   className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
@@ -837,8 +892,27 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   drive={activeDriveObj}
                   onRefresh={refresh}
                   sheetId={activeSheetId}
+                  guidedProgress={
+                    guidedMode ? { current: Math.min(guidedCallCount, 5), target: 5 } : null
+                  }
                 />
               </div>
+              {guidedMode && guidedInsightBody ? (
+                <div className="shrink-0 space-y-3 border-t border-slate-800 bg-slate-900/95 px-4 py-4">
+                  <p className="font-mono text-xs uppercase tracking-widest text-emerald-400/90">{GUIDED_INSIGHT_TITLE}</p>
+                  <p className="font-body text-sm leading-relaxed text-slate-200">{guidedInsightBody}</p>
+                  <button
+                    type="button"
+                    className="btn-primary w-full text-sm"
+                    onClick={() => {
+                      setShowLogger(false);
+                      router.replace("/film");
+                    }}
+                  >
+                    {GUIDED_FINISH_CTA}
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         </>

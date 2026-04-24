@@ -16,9 +16,19 @@ type Props = {
   variant?: "page" | "modal";
   open?: boolean;
   onClose?: () => void;
+  /** When set and present in CFB26 list, pre-select this playbook (home onboarding). */
+  initialCfb26Playbook?: string;
+  /** After create, open editor with `?onboarding=1` for the guided sheet step. */
+  guidedOnboardingFlow?: boolean;
 };
 
-export function CreatePlaybookModal({ variant = "page", open = true, onClose }: Props) {
+export function CreatePlaybookModal({
+  variant = "page",
+  open = true,
+  onClose,
+  initialCfb26Playbook,
+  guidedOnboardingFlow = false,
+}: Props) {
   useScrollLock(variant === "modal" && open);
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
@@ -33,9 +43,16 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
     if (variant === "modal" && open) {
       setStep(1);
       setName("");
-      setSelectedPlaybook(null);
+      if (!initialCfb26Playbook?.trim()) setSelectedPlaybook(null);
     }
-  }, [variant, open]);
+  }, [variant, open, initialCfb26Playbook]);
+
+  useEffect(() => {
+    if (!open || !initialCfb26Playbook?.trim()) return;
+    const want = initialCfb26Playbook.trim().toLowerCase();
+    const match = playbooks.find((p) => p.trim().toLowerCase() === want);
+    if (match) setSelectedPlaybook({ team_name: match });
+  }, [open, initialCfb26Playbook, playbooks]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +97,8 @@ export function CreatePlaybookModal({ variant = "page", open = true, onClose }: 
       if (j.id) {
         addToast("Play sheet created", "success");
         if (variant === "modal") onClose?.();
-        router.push(`/playbook/${j.id}`);
+        if (guidedOnboardingFlow) router.push(`/playbook/${j.id}?onboarding=1`);
+        else router.push(`/playbook/${j.id}`);
       }
     } finally {
       setBusy(false);

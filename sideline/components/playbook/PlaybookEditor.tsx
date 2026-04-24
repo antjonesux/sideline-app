@@ -9,9 +9,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
-import { COULDNT_SAVE } from "@/lib/coachCopy";
+import {
+  COULDNT_SAVE,
+  ONBOARDING_EDITOR_BANNER,
+  ONBOARDING_GAME_READY,
+  ONBOARDING_OPPONENT_SCHEME,
+  ONBOARDING_OPPONENT_TEAM,
+  ONBOARDING_SHEET_PLAY_COUNT,
+  ONBOARDING_START_LOGS,
+} from "@/lib/coachCopy";
+import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { AddPlayDrawer } from "./AddPlayDrawer";
@@ -44,7 +54,13 @@ type SetupApi = {
   offensiveTeams: { team_name: string; playbook_name: string; scheme_style: string }[];
 };
 
+const MIN_ONBOARDING_SHEET_PLAYS = 3;
+
 export function PlaybookEditor({ sheetId }: { sheetId: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const onboardingEditor = searchParams.get("onboarding") === "1";
+  const setLastGame = useLastGamePrefsStore((s) => s.setLastGame);
   const queryClient = useQueryClient();
   const [activeScenario, setActiveScenario] = useState("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -54,6 +70,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
+  const [startGuidedBusy, setStartGuidedBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const replaceTitleId = useId();
   useScrollLock(editorOpen || Boolean(replaceSuggest));
@@ -96,6 +113,11 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const scenarios = useMemo(
     () => sortScenariosByCanonicalOrder(sheet?.scenarios ?? []),
     [sheet?.scenarios],
+  );
+
+  const totalSheetPlays = useMemo(
+    () => scenarios.reduce((acc, s) => acc + (s.plays?.length ?? 0), 0),
+    [scenarios],
   );
   const scenarioPayload = scenarioQuery.data;
 
@@ -279,6 +301,47 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     [activeBlock?.id, postPlay, atCapacity, addToast],
   );
 
+  const startGuidedGame = useCallback(async () => {
+    const sh = sheetQuery.data;
+    if (!sh) return;
+    const name = sh.name.trim();
+    const scheme = sh.scheme?.trim() || "Multiple";
+    const offBook = sheetCfb26Playbook(sh).trim();
+    if (!name || !offBook) {
+      addToast(COULDNT_SAVE, "error");
+      return;
+    }
+    setStartGuidedBusy(true);
+    try {
+      const res = await fetch("/api/games", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          my_playbook: name,
+          my_scheme: scheme,
+          offensive_playbook: offBook,
+          opponent_team: ONBOARDING_OPPONENT_TEAM,
+          opponent_scheme: ONBOARDING_OPPONENT_SCHEME,
+          game_date: new Date().toISOString().slice(0, 10),
+          my_score: 0,
+          opponent_score: 0,
+          result: "W",
+          play_sheet_id: sheetId,
+        }),
+      });
+      const game = (await res.json()) as { id?: string };
+      if (!game.id) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      setLastGame({ my_playbook: name, my_scheme: scheme });
+      addToast(ONBOARDING_GAME_READY, "success");
+      router.push(`/film/${game.id}?guided=1`);
+    } finally {
+      setStartGuidedBusy(false);
+    }
+  }, [addToast, router, setLastGame, sheetQuery.data, sheetId]);
+
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
   }
@@ -323,12 +386,30 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onReorder,
   } as const;
 
+  const canStartGuidedLogs =
+    onboardingEditor && totalSheetPlays >= MIN_ONBOARDING_SHEET_PLAYS && !startGuidedBusy;
+
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
         <BackToFilmLink href="/playbook" />
       </div>
+
+      {onboardingEditor ? (
+        <div className="app-card app-card-pad space-y-3 border border-emerald-800/35 bg-emerald-950/15">
+          <p className="font-body text-sm leading-relaxed text-slate-200">{ONBOARDING_EDITOR_BANNER}</p>
+          <p className="font-mono text-xs text-slate-500">{ONBOARDING_SHEET_PLAY_COUNT(totalSheetPlays, MIN_ONBOARDING_SHEET_PLAYS)}</p>
+          <button
+            type="button"
+            className="btn-primary text-sm"
+            disabled={!canStartGuidedLogs}
+            onClick={() => void startGuidedGame()}
+          >
+            {startGuidedBusy ? "Starting…" : ONBOARDING_START_LOGS}
+          </button>
+        </div>
+      ) : null}
       <div>
         <div className="flex items-center justify-between gap-3">
           <h1 className="app-editor-title mt-0">{sheet.name}</h1>

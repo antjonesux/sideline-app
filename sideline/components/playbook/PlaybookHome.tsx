@@ -21,16 +21,28 @@ function coercePlaybookList(payload: unknown): PlaybookSummary[] {
 
 type Props = {
   initialCreateOpen?: boolean;
+  onboardingFromHome?: boolean;
+  initialCfb26FromOnboarding?: string;
 };
 
-export function PlaybookHome({ initialCreateOpen = false }: Props) {
+export function PlaybookHome({
+  initialCreateOpen = false,
+  onboardingFromHome = false,
+  initialCfb26FromOnboarding,
+}: Props) {
   const [createOpen, setCreateOpen] = useState(initialCreateOpen);
 
   useEffect(() => {
-    if (initialCreateOpen) {
-      window.history.replaceState(null, "", "/playbook");
+    if (!initialCreateOpen && !onboardingFromHome) return;
+    if (onboardingFromHome) {
+      const p = new URLSearchParams();
+      p.set("onboarding", "1");
+      if (initialCfb26FromOnboarding) p.set("cfb26", initialCfb26FromOnboarding);
+      window.history.replaceState(null, "", `/playbook?${p.toString()}`);
+      return;
     }
-  }, [initialCreateOpen]);
+    if (initialCreateOpen) window.history.replaceState(null, "", "/playbook");
+  }, [initialCreateOpen, onboardingFromHome, initialCfb26FromOnboarding]);
 
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["playbooks", "list"],
@@ -46,7 +58,15 @@ export function PlaybookHome({ initialCreateOpen = false }: Props) {
     refetchOnWindowFocus: false,
   });
 
-  const modal = <CreatePlaybookModal variant="modal" open={createOpen} onClose={() => setCreateOpen(false)} />;
+  const modal = (
+    <CreatePlaybookModal
+      variant="modal"
+      open={createOpen}
+      onClose={() => setCreateOpen(false)}
+      initialCfb26Playbook={onboardingFromHome ? initialCfb26FromOnboarding : undefined}
+      guidedOnboardingFlow={Boolean(onboardingFromHome)}
+    />
+  );
 
   const list = coercePlaybookList(data);
 
