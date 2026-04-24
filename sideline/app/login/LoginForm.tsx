@@ -23,7 +23,7 @@ export function LoginForm() {
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
-  const safeDest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/film";
+  const safeDest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
   const anyBusy = busy || googleBusy;
 
   if (user) {

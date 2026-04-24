@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     async function signInWithGoogle(returnTo?: string): Promise<AuthResult> {
-      const dest = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/film";
+      const dest = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(dest)}`;
       const { error } = await supabase.auth.signInWithOAuth({

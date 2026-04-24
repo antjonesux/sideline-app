@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/film";
-  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/film";
+  const next = searchParams.get("next") ?? "/";
+  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   if (code) {
     const supabase = await createClient();
@@ -33,6 +33,6 @@ export async function GET(request: Request) {
   }
 
   const loginUrl = new URL("/login", origin);
-  if (safePath !== "/film") loginUrl.searchParams.set("next", safePath);
+  if (safePath !== "/") loginUrl.searchParams.set("next", safePath);
   return NextResponse.redirect(loginUrl);
 }
