@@ -4,6 +4,36 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-24 (Playbook — guided onboarding handoff, film `[gameId]` layout)
+
+**What:** **`CreatePlaybookModal`** **`guidedOnboardingFlow`** → **`/playbook/[id]?onboarding=1`**; **`PlaybookHome`** sets it from home onboarding; **`PlaybookEditor`** and **`app/playbook/[id]/page.tsx`** read **`onboarding=1`**; **`app/playbook/page.tsx`** threads search params. New **`app/film/[gameId]/layout.tsx`**; updates to **`app/film/[gameId]/page.tsx`** and **`PlayLoggerV2`**.
+
+**Why:** Finish first-run flow from onboarding into sheet + logger with stable layout.
+
+**Status after this push:** `app/film/[gameId]/layout.tsx`, `app/film/[gameId]/page.tsx`, `components/film/PlayLoggerV2.tsx`, `components/playbook/CreatePlaybookModal.tsx`, `PlaybookEditor.tsx`, `PlaybookHome.tsx`, `app/playbook/page.tsx`, `app/playbook/[id]/page.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
+## 2026-04-24 (Onboarding — home gate, tab chrome, auth default `/`)
+
+**What:** **`app/page.tsx`** server auth + **`HomeOnboardingGate`** (games **`play_count`**, **`/api/cfb26-playbooks`**, stepped copy from **`lib/coachCopy.ts`**). **`BottomTabNav`** hidden on **`/`** + **`data-onboarding-chrome`**. **`lastGamePrefsStore`** version **`1`** with **`guidedOnboardingDone`** and migrate from legacy. OAuth / login / callback default **`next`** to **`/`** instead of **`/film`**.
+
+**Why:** Coaches with no logged plays see product onboarding before Film.
+
+**Status after this push:** `app/page.tsx`, `components/shared/HomeOnboardingGate.tsx`, `components/shared/BottomTabNav.tsx`, `lib/coachCopy.ts`, `store/lastGamePrefsStore.ts`, `app/auth/callback/route.ts`, `app/login/LoginForm.tsx`, `components/providers/AuthProvider.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
+## 2026-04-24 (Tooling — shadcn/ui init, Tailwind v4)
+
+**What:** **`components.json`** (default, slate, CSS variables, **`app/globals.css`**, **`@/components/ui`**). Deps **`clsx`**, **`tailwind-merge`**, **`shadcn`**, **`tw-animate-css`**. **`components/ui/.gitkeep`**. **`lib/utils.ts`** **`cn()`** plus existing play-name helpers. **`globals.css`** shadcn imports and theme tokens; Preline and app layers preserved.
+
+**Why:** shadcn component installs and token mapping can follow without redoing init.
+
+**Status after this push:** `components.json`, `components/ui/.gitkeep`, `package.json`, `package-lock.json`, `lib/utils.ts`, `app/globals.css`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-23 (Settings — `/settings`, hub settings link, account delete API, shared auth/password)
 
 **What:** **`app/settings/page.tsx`** (server **`getUser`** gate) and **`SettingsPageClient.tsx`**: grouped rows, **`activeDrawer`** for email / password / sign-out sheets and delete **`ConfirmDestructiveModal`**, **`PasswordInput`**, **`mapAuthError`**, toasts on password update and account delete. **`SettingsLink`** in **`components/shared/AppTopBar.tsx`** sits in the **`app-page-title`** flex row on **Film**, **Game Plan**, and **Tendencies**; removed **`SignOutButton`** from Film. **`lib/authErrors.ts`**, **`lib/passwordValidation.ts`**, **`AuthProvider`** maps all errors including **Google** and **`signOut`**. **`DELETE /api/account`** + **`lib/supabase/admin.ts`** delete **`game_sessions`**, **`play_sheets`**, **`user_profiles`** then **`auth.admin.deleteUser`**. **`globals.css`**: **`app-page-title`** uses **`leading-none`**. **`LoginForm`** / **`ResetPasswordForm`** use shared validation and show/hide.

@@ -4,6 +4,61 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-24 — Playbook: guided onboarding handoff and film game layout
+
+### What
+
+- **Guided first sheet:** [`CreatePlaybookModal`](sideline/components/playbook/CreatePlaybookModal.tsx) accepts **`guidedOnboardingFlow`**; on success can route to **`/playbook/[id]?onboarding=1`**. [`PlaybookHome`](sideline/components/playbook/PlaybookHome.tsx) passes the flag when arriving from home onboarding (**`onboardingFromHome`**). [`PlaybookEditor`](sideline/components/playbook/PlaybookEditor.tsx) and **[`app/playbook/[id]/page.tsx`](sideline/app/playbook/[id]/page.tsx)** handle **`?onboarding=1`** for first-run emphasis. **[`app/playbook/page.tsx`](sideline/app/playbook/page.tsx)** passes search-param context into Game Plan home.
+- **Film game shell:** New **[`app/film/[gameId]/layout.tsx`](sideline/app/film/[gameId]/layout.tsx)**; **[`app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx)** and **[`PlayLoggerV2`](sideline/components/film/PlayLoggerV2.tsx)** updates aligned with onboarding → logger handoff.
+
+### Why
+
+- Completes the coaching loop from home onboarding into a concrete play sheet and live logger without dropping navigation or first-run context.
+
+### Status after this push
+
+- **`app/film/[gameId]/layout.tsx`**, **`app/film/[gameId]/page.tsx`**, **`components/film/PlayLoggerV2.tsx`**, **`components/playbook/CreatePlaybookModal.tsx`**, **`PlaybookEditor.tsx`**, **`PlaybookHome.tsx`**, **`app/playbook/page.tsx`**, **`app/playbook/[id]/page.tsx`**, both changelogs.
+
+---
+
+## 2026-04-24 — Home onboarding before first logged play
+
+### What
+
+- **`/`** is **`force-dynamic`**: server **`getUser`**; unauthenticated → **`/login`**; authenticated → **[`HomeOnboardingGate`](sideline/components/shared/HomeOnboardingGate.tsx)** which loads games via **`GET /api/games`**, sums **`play_count`**, and redirects to **`/film`** once any plays exist; otherwise shows stepped onboarding (copy from **`lib/coachCopy.ts`**) and CFB26 playbook picker (**`GET /api/cfb26-playbooks`**).
+- **[`BottomTabNav`](sideline/components/shared/BottomTabNav.tsx)** returns **`null`** on **`/`** and toggles **`data-onboarding-chrome`** on **`<html>`** for main bottom padding (pairs with existing **`globals.css`** rule).
+- **[`lastGamePrefsStore`](sideline/store/lastGamePrefsStore.ts)** adds **`guidedOnboardingDone`**, **`setGuidedOnboardingDone`**, and a **persist `version` / `migrate`** path (legacy blobs default **`guidedOnboardingDone: true`**).
+- **Default post-auth path** is **`/`** instead of **`/film`** in **[`app/auth/callback/route.ts`](sideline/app/auth/callback/route.ts)**, **[`LoginForm`](sideline/app/login/LoginForm.tsx)**, and **[`AuthProvider.signInWithGoogle`](sideline/components/providers/AuthProvider.tsx)** so new coaches hit the gate.
+
+### Why
+
+- Surfaces product value before sending coaches straight to Film; aligns DECISIONS coaching-loop positioning with first-session behavior.
+
+### Status after this push
+
+- **`app/page.tsx`**, **`components/shared/HomeOnboardingGate.tsx`**, **`components/shared/BottomTabNav.tsx`**, **`lib/coachCopy.ts`**, **`store/lastGamePrefsStore.ts`**, **`app/auth/callback/route.ts`**, **`app/login/LoginForm.tsx`**, **`components/providers/AuthProvider.tsx`**, both changelogs.
+
+---
+
+## 2026-04-24 — shadcn/ui toolchain initialization (Tailwind v4)
+
+### What
+
+- **`sideline/components.json`**: **default** style, **slate** `baseColor`, **CSS variables**, **`app/globals.css`**, aliases **`@/components/ui`** and **`@/lib/utils`**.
+- **Dependencies:** **`clsx`**, **`tailwind-merge`**, **`shadcn`**, **`tw-animate-css`** (for **`@import "shadcn/tailwind.css"`** and animations). **`components/ui/`** scaffold (**.gitkeep**).
+- **[`lib/utils.ts`](sideline/lib/utils.ts):** adds **`cn()`** via **`clsx` / `tailwind-merge`** while preserving **`normalizePlayName`** / **`withNormalizedPlayName`**.
+- **[`app/globals.css`](sideline/app/globals.css):** **`@import` / `@theme inline` / `:root` / `.dark`** shadcn theme tokens appended; **Preline** imports and existing **`@layer`** utilities unchanged.
+
+### Why
+
+- Foundation for migrating shared UI to shadcn without blocking later component installs or token mapping work.
+
+### Status after this push
+
+- **`components.json`**, **`components/ui/.gitkeep`**, **`package.json`**, **`package-lock.json`**, **`lib/utils.ts`**, **`app/globals.css`**, both changelogs.
+
+---
+
 ## 2026-04-23 — Settings page, account deletion API, and auth UX consolidation
 
 ### What
