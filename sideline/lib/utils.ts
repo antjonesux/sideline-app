@@ -1,3 +1,11 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** Merge Tailwind class names (used by shadcn/ui and layout composition). */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 /**
  * Zero-width / bidi / invisible characters (paste from PDF/HTML/Excel).
  * LRM/RLM and embed chars sit *between* digits and block `0 1` → `01` merge if not removed.
