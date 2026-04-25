@@ -4,6 +4,7 @@
 import type { ScoutingFormationReportRow } from "@/lib/tendenciesServer";
 import { successRateTextClass } from "@/lib/successRateTextClass";
 import { normalizePlayName } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 
 type Props = {
@@ -110,9 +111,9 @@ export function ScoutingFormationsReport({ rows }: Props) {
         );
       })}
       {sortedRows.length > 5 ? (
-        <button type="button" className="btn-secondary w-full text-sm" onClick={() => setShowAll((prev) => !prev)}>
+        <Button type="button" variant="secondary" className="w-full text-sm" onClick={() => setShowAll((prev) => !prev)}>
           {showAll ? "Show top 5 formations" : `Show all formations (${sortedRows.length})`}
-        </button>
+        </Button>
       ) : null}
     </div>
   );

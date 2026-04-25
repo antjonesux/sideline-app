@@ -27,7 +27,7 @@ export function YardsInput({ uiResult, yardsText, onYardsTextChange, inputRef }:
     <div
       className={`motion-safe:transition-opacity motion-safe:duration-150 motion-reduce:transition-none ${show ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
-      <label htmlFor={id} className="app-field-label text-slate-500">
+      <label htmlFor={id} className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">
         Yards
       </label>
       <div

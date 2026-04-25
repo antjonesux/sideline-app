@@ -36,10 +36,10 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import" }]} />
       <BackToFilmLink />
 
-      <div className="app-shell">
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1 space-y-2">
-            <h1 className="app-page-title">Import film</h1>
+            <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">Import film</h1>
             <p className="font-sans text-sm text-slate-400">Upload calls as a CSV.</p>
           </div>
           <div className="w-full sm:w-auto">

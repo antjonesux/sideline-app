@@ -20,7 +20,7 @@ async function fetchGameTendencies(id: string): Promise<GameTendenciesPayload> {
 function CoreStatsGrid({ stats }: { stats: GameTendenciesPayload["stats"] }) {
   function Card({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
     return (
-      <div className="app-card app-card-pad">
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
         <p className="font-sans text-[10px] font-normal uppercase tracking-wide text-slate-500">{label}</p>
         <p
           className={`mt-1 font-mono text-xl font-semibold leading-[1.05] tabular-nums ${valueClass ?? "text-slate-100"}`}
@@ -89,7 +89,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
   if (q.isLoading) return <TendenciesSectionSkeleton />;
   if (q.isError) {
     return (
-      <div className="app-card app-card-pad font-sans text-sm text-slate-400">{COULDNT_LOAD}</div>
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 font-sans text-sm text-slate-400">{COULDNT_LOAD}</div>
     );
   }
   const data = q.data;
@@ -118,7 +118,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
         {!hasPlays || data.scenario_breakdown.length === 0 ? (
           <p className="font-sans text-sm text-slate-500">No situations tagged on this log yet.</p>
         ) : (
-          <div className="app-card min-w-0 overflow-hidden">
+          <div className="rounded-xl border border-slate-700 bg-slate-900 min-w-0 overflow-hidden">
             <DataTable
               columns={scenarioColumns}
               equalColumns

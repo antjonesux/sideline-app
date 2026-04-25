@@ -2,6 +2,7 @@
 
 import { EditPlaybookModal } from "@/components/playbook/EditPlaybookModal";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE } from "@/lib/coachCopy";
@@ -54,9 +55,9 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
 
   return (
     <>
-      <Link href={`/playbook/${item.id}`} className="app-card-interactive block hover:border-emerald-600/50">
+      <Link href={`/playbook/${item.id}`} className="block rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70">
         <div className="flex items-start justify-between gap-2 pr-14">
-          <h2 className="app-card-title">{item.name}</h2>
+          <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-white">{item.name}</h2>
         </div>
         <p className="mt-1 font-body text-sm text-slate-400">Built from {item.cfb26_playbook} playbook</p>
         <p className="mt-2 font-body text-xs text-slate-500">
@@ -66,36 +67,12 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
       </Link>
 
       <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Play sheet actions">
-        <li>
-          <button
-            type="button"
-            role="menuitem"
-            className="app-dropdown-item rounded-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMenuOpen(false);
-              setEditOpen(true);
-            }}
-          >
-            Edit
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            role="menuitem"
-            className="app-dropdown-item-danger rounded-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMenuOpen(false);
-              setDeleteOpen(true);
-            }}
-          >
-            Delete
-          </button>
-        </li>
+        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setEditOpen(true)}>
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-red-300 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setDeleteOpen(true)}>
+          Delete
+        </DropdownMenuItem>
       </CardKebabMenu>
 
       <EditPlaybookModal

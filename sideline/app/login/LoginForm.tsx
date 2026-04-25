@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -101,13 +102,13 @@ export function LoginForm() {
             We sent a confirmation link to <span className="text-slate-200">{email}</span>.
             Open it to activate your account, then come back to sign in.
           </p>
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => { setConfirmationSent(false); setView("sign-in"); setPassword(""); setConfirmPassword(""); }}
-            className="btn-secondary"
           >
             Back to sign in
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -126,18 +127,18 @@ export function LoginForm() {
             we sent a link to reset your password.
           </p>
           <div className="flex flex-col items-center gap-3">
-            <button
+            <Button
               type="button"
+              variant="secondary"
               disabled={anyBusy}
               onClick={async () => {
                 setBusy(true);
                 await resetPassword(email);
                 setBusy(false);
               }}
-              className="btn-secondary"
             >
               {busy ? "Sending\u2026" : "Resend link"}
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => { setResetSent(false); setView("sign-in"); }}
@@ -173,11 +174,11 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               required
-              className="app-input"
+              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
             />
-            <button type="submit" disabled={anyBusy} className="btn-primary-block">
+            <Button type="submit" variant="default" className="w-full" disabled={anyBusy}>
               {busy ? "Sending\u2026" : "Send reset link"}
-            </button>
+            </Button>
           </form>
 
           {error && <p className="text-center font-sans text-sm text-red-400">{error}</p>}
@@ -256,7 +257,7 @@ export function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             required
-            className="app-input"
+            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
           />
           <PasswordInput
             placeholder="Password"
@@ -265,7 +266,7 @@ export function LoginForm() {
             autoComplete={view === "sign-in" ? "current-password" : "new-password"}
             required
             minLength={6}
-            className="app-input pr-10"
+            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
           />
           {view === "create-account" && (
             <>
@@ -286,24 +287,25 @@ export function LoginForm() {
                 autoComplete="new-password"
                 required
                 minLength={6}
-                className="app-input pr-10"
+                className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
               />
               {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
                 <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
               )}
             </>
           )}
-          <button
+          <Button
             type="submit"
+            variant="default"
+            className="w-full"
             disabled={anyBusy || (view === "create-account" && (!isPasswordValid(password) || !passwordsMatch(password, confirmPassword)))}
-            className="btn-primary-block"
           >
             {busy
               ? "Working\u2026"
               : view === "sign-in"
                 ? "Sign in"
                 : "Create account"}
-          </button>
+          </Button>
         </form>
 
         {view === "sign-in" && (

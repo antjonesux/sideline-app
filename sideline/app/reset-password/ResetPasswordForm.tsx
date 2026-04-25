@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
@@ -16,7 +17,7 @@ export function ResetPasswordForm() {
   if (isLoading) {
     return (
       <div className="flex min-h-[80dvh] items-center justify-center">
-        <div className="app-skeleton h-6 w-32" />
+        <div className="animate-pulse rounded-md bg-slate-700/55 h-6 w-32" />
       </div>
     );
   }
@@ -31,9 +32,9 @@ export function ResetPasswordForm() {
           <p className="font-sans text-sm text-slate-400">
             This reset link is no longer valid. Request a new one from the sign-in page.
           </p>
-          <a href="/login" className="btn-secondary inline-flex">
-            Back to sign in
-          </a>
+          <Button asChild variant="secondary" className="inline-flex">
+            <a href="/login">Back to sign in</a>
+          </Button>
         </div>
       </div>
     );
@@ -49,9 +50,9 @@ export function ResetPasswordForm() {
           <p className="font-sans text-sm text-slate-400">
             Your password has been changed. You're signed in.
           </p>
-          <a href="/film" className="btn-primary inline-flex">
-            Go to Film Room
-          </a>
+          <Button asChild variant="default" className="inline-flex">
+            <a href="/film">Go to Film Room</a>
+          </Button>
         </div>
       </div>
     );
@@ -104,7 +105,7 @@ export function ResetPasswordForm() {
               autoComplete="new-password"
               required
               minLength={6}
-              className="app-input pr-10"
+              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
             />
             <ul className="mt-2 space-y-1">
               {pwRules.map((r) => (
@@ -124,14 +125,14 @@ export function ResetPasswordForm() {
             autoComplete="new-password"
             required
             minLength={6}
-            className="app-input pr-10"
+            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
           />
           {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
             <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
           )}
-          <button type="submit" disabled={!pwValid || busy} className="btn-primary-block">
+          <Button type="submit" variant="default" className="w-full" disabled={!pwValid || busy}>
             {busy ? "Updating\u2026" : "Update password"}
-          </button>
+          </Button>
         </form>
 
         {error && <p className="text-center font-sans text-sm text-red-400">{error}</p>}

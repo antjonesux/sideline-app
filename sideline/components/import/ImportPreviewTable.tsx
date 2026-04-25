@@ -135,7 +135,7 @@ export function ImportPreviewTable({ rows, errorByLine }: Props) {
   }, [sorted]);
 
   return (
-    <div className="app-card max-h-[340px] min-w-0 overflow-auto">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 max-h-[340px] min-w-0 overflow-auto">
       <DataTable
         stickyHeader
         wrapperClassName="-mx-0 overflow-x-auto px-0"

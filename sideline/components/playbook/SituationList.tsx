@@ -17,7 +17,7 @@ export function SituationList({
 }) {
   if (variant === "mobile") {
     return (
-      <div className="situation-strip flex gap-2 pb-2 lg:hidden">
+      <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] flex gap-2 pb-2 lg:hidden">
         {scenarios.map((s) => {
           const max = scenarioMaxSlots(s.scenario);
           const n = s.plays.length;

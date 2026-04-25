@@ -8,6 +8,7 @@ import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -260,12 +261,12 @@ export default function NewGamePage() {
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "New Game" }]} />
       <BackToFilmLink />
 
-      <div className="app-shell">
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         {setupLoading ? (
           <NewGameFormSkeleton />
         ) : (
           <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className="app-page-title">New game setup</h1>
+          <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">New game setup</h1>
 
           {setupError ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
@@ -318,7 +319,7 @@ export default function NewGamePage() {
 
           {selectedPlaybookName ? (
             <div className="space-y-2 md:max-w-2xl">
-              <p className="app-field-label">Game Plan</p>
+              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game Plan</p>
               {sheetsLoading ? (
                 <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
               ) : availableSheets.length === 0 ? (
@@ -356,9 +357,9 @@ export default function NewGamePage() {
 
           <div className="grid grid-cols-2 gap-4">
             <label className="space-y-1">
-              <span className="app-field-label">My score</span>
+              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">My score</span>
               <input
-                className="hs-input app-input"
+                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -367,9 +368,9 @@ export default function NewGamePage() {
               />
             </label>
             <label className="space-y-1">
-              <span className="app-field-label">Their score</span>
+              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Their score</span>
               <input
-                className="hs-input app-input"
+                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -380,7 +381,7 @@ export default function NewGamePage() {
           </div>
 
           <div className="space-y-2">
-            <p className="app-field-label">Game result</p>
+            <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game result</p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -403,9 +404,9 @@ export default function NewGamePage() {
             </div>
           </div>
 
-          <button type="submit" disabled={!canContinue || submitBusy} className="btn-primary-block py-3 text-sm uppercase tracking-wide">
+          <Button type="submit" variant="default" className="w-full py-3 text-sm" disabled={!canContinue || submitBusy}>
             {submitBusy ? "Starting…" : "Start Logging"}
-          </button>
+          </Button>
         </form>
         )}
       </div>

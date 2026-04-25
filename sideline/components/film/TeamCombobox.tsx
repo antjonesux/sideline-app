@@ -91,7 +91,7 @@ export function TeamCombobox<T extends { team_name: string }>({
 
   return (
     <div ref={rootRef} className="space-y-1">
-      <span className="app-field-label block">{label}</span>
+      <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 block">{label}</span>
       <div className="relative">
         <div className="relative">
           <input
@@ -118,7 +118,7 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className={`hs-input app-input py-2.5 ps-3 read-only:cursor-default ${showTrailingChevron ? "pe-20" : "pe-12"}`}
+            className={`hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 py-2.5 ps-3 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 read-only:cursor-default ${showTrailingChevron ? "pe-20" : "pe-12"}`}
           />
           {inputValue.trim().length > 0 ? (
             <button
@@ -151,7 +151,7 @@ export function TeamCombobox<T extends { team_name: string }>({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`accordion-chevron text-current ${open ? "open" : ""}`}
+                className={`text-current transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
               >
                 <path d="m6 9 6 6 6-6" />
               </svg>
@@ -161,15 +161,15 @@ export function TeamCombobox<T extends { team_name: string }>({
 
         {showList ? (
           <div
-            className={`app-dropdown-panel absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto ${
+            className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto ${
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             }`}
           >
             {loading ? (
               <div className="space-y-2 p-3" aria-busy="true" aria-label="Loading teams">
-                <div className="app-skeleton h-3 w-[85%]" />
-                <div className="app-skeleton h-3 w-[70%]" />
-                <div className="app-skeleton h-3 w-[55%]" />
+                <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[85%]" />
+                <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[70%]" />
+                <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[55%]" />
               </div>
             ) : options.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">

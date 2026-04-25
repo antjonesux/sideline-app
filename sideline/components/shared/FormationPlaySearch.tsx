@@ -59,8 +59,8 @@ export function FormationPlaySearchResultsGrouped({
     return (
       <div className="space-y-2 p-3" aria-busy="true">
         <span className="sr-only">Updating list</span>
-        <div className="app-skeleton h-8 w-full rounded-lg" />
-        <div className="app-skeleton h-8 max-w-[85%] rounded-lg" />
+        <div className="animate-pulse rounded-md bg-slate-700/55 h-8 w-full rounded-lg" />
+        <div className="animate-pulse rounded-md bg-slate-700/55 h-8 max-w-[85%] rounded-lg" />
       </div>
     );
   }
@@ -421,7 +421,7 @@ export function FormationPlaySearch({
       className={resultsLayout === "stacked" ? "flex min-h-0 flex-1 flex-col" : "relative"}
       ref={rootRef}
     >
-      <label htmlFor={comboId} className="app-field-label block text-slate-500">
+      <label htmlFor={comboId} className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 block text-slate-500">
         FORMATION + PLAY
       </label>
       <div className="relative shrink-0">
@@ -498,7 +498,7 @@ export function FormationPlaySearch({
             <div className="space-y-2 p-1" aria-busy="true">
               <span className="sr-only">Updating list</span>
               {[0, 1, 2, 3, 4].map((i) => (
-                <div key={i} className="app-skeleton h-14 w-full rounded-lg" />
+                <div key={i} className="animate-pulse rounded-md bg-slate-700/55 h-14 w-full rounded-lg" />
               ))}
             </div>
           ) : (

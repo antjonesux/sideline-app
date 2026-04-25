@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { EditGameDetailsModal } from "@/components/film/EditGameDetailsModal";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { COULDNT_DELETE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -55,10 +56,10 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
 
   return (
     <li className="relative">
-      <Link href={`/film/${game.id}`} className="app-card-interactive block hover:border-slate-600">
+      <Link href={`/film/${game.id}`} className="rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70 block hover:border-slate-600">
         <div className="flex items-start justify-between gap-2 pr-14">
           <div>
-            <p className="app-game-title leading-tight">
+            <p className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100 leading-tight">
               {game.my_playbook}
               <span className="mx-2 font-body font-normal text-slate-500">vs</span>
               {game.opponent_team}
@@ -80,42 +81,18 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
           </span>
         </div>
 
-        <div className="app-horizontal-scroll-strip mt-2">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] mt-2">
           <GameStatsInline playCount={game.playCount} driveCount={game.driveCount} totalYards={game.totalYards} tds={game.tds} turnovers={game.turnovers} />
         </div>
       </Link>
 
       <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Game actions">
-        <li>
-          <button
-            type="button"
-            role="menuitem"
-            className="app-dropdown-item rounded-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMenuOpen(false);
-              setEditOpen(true);
-            }}
-          >
-            Edit Game Details
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            role="menuitem"
-            className="app-dropdown-item-danger rounded-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMenuOpen(false);
-              setDeleteOpen(true);
-            }}
-          >
-            Delete Game
-          </button>
-        </li>
+        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setEditOpen(true)}>
+          Edit Game Details
+        </DropdownMenuItem>
+        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-red-300 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setDeleteOpen(true)}>
+          Delete Game
+        </DropdownMenuItem>
       </CardKebabMenu>
 
       <EditGameDetailsModal

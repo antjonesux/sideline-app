@@ -9,6 +9,7 @@ import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
+import { Button } from "@/components/ui/button";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -118,20 +119,20 @@ export function SettingsPageClient({ email }: { email: string }) {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="app-page-title min-w-0 truncate">Settings</h1>
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl min-w-0 truncate">Settings</h1>
       </header>
 
       {/* Account section */}
-      <div className="app-card divide-y divide-slate-800 overflow-hidden">
-        <p className="app-field-label px-4 pt-3 pb-1 mb-0">Account</p>
+      <div className="rounded-xl border border-slate-700 bg-slate-900 divide-y divide-slate-800 overflow-hidden">
+        <p className="mb-0 px-4 pb-1 pt-3 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Account</p>
 
         <SettingsRow label="Email" value={email} onClick={() => setActiveDrawer("email")} />
         <SettingsRow label="Password" value="••••••••" onClick={() => setActiveDrawer("password")} />
       </div>
 
       {/* Session section */}
-      <div className="app-card divide-y divide-slate-800 overflow-hidden">
-        <p className="app-field-label px-4 pt-3 pb-1 mb-0">Session</p>
+      <div className="rounded-xl border border-slate-700 bg-slate-900 divide-y divide-slate-800 overflow-hidden">
+        <p className="mb-0 px-4 pb-1 pt-3 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Session</p>
 
         <SettingsRow label="Sign out" onClick={() => setActiveDrawer("signout")} />
         <SettingsRow label="Delete account" danger onClick={() => setActiveDrawer("delete")} />
@@ -162,7 +163,7 @@ export function SettingsPageClient({ email }: { email: string }) {
               autoComplete="new-password"
               required
               minLength={6}
-              className="app-input pr-10"
+              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
             />
             <ul className="mt-2 space-y-1">
               {pwRules.map((r) => (
@@ -182,15 +183,15 @@ export function SettingsPageClient({ email }: { email: string }) {
             autoComplete="new-password"
             required
             minLength={6}
-            className="app-input pr-10"
+            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
           />
           {confirmPw.length > 0 && !passwordsMatch(newPassword, confirmPw) && (
             <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
           )}
           {pwError && <p className="font-sans text-sm text-red-400">{pwError}</p>}
-          <button type="submit" disabled={!pwValid || pwBusy} className="btn-primary-block">
+          <Button type="submit" variant="default" className="w-full" disabled={!pwValid || pwBusy}>
             {pwBusy ? "Updating\u2026" : "Update password"}
-          </button>
+          </Button>
         </form>
       </BottomSheet>
 
@@ -199,14 +200,15 @@ export function SettingsPageClient({ email }: { email: string }) {
         <p className="font-sans text-sm text-slate-400">
           You'll need to sign in again to access your data.
         </p>
-        <button
+        <Button
           type="button"
+          variant="default"
+          className="mt-4 w-full"
           disabled={signOutBusy}
           onClick={() => void handleSignOut()}
-          className="btn-primary-block mt-4"
         >
           {signOutBusy ? "Signing out\u2026" : "Sign out"}
-        </button>
+        </Button>
       </BottomSheet>
 
       {/* --- Delete account (destructive modal) --- */}
@@ -290,10 +292,11 @@ function BottomSheet({
       >
         <div className="w-full rounded-t-xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl">
           <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-            <h2 className="app-modal-title text-lg">{title}</h2>
+            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 text-lg">{title}</h2>
             <button
               type="button"
-              className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
+              data-no-press
+              className="p-2 -mr-2 text-slate-400 hover:text-white"
               onClick={onClose}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

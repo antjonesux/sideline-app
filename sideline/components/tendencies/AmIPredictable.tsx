@@ -44,7 +44,7 @@ type PredictApi = {
 
 function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDisplay: string; description: string }) {
   return (
-    <div className="app-card flex min-h-[132px] flex-col p-4">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 flex min-h-[132px] flex-col p-4">
       <p className="font-mono text-[10px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
       <p className="mt-2 font-heading text-[28px] font-bold leading-none tracking-wide text-slate-100 tabular-nums">{pctDisplay}</p>
       <p className="mt-auto pt-3 font-body text-[12px] font-normal leading-snug text-slate-500">{description}</p>
@@ -125,13 +125,13 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
       ) : (
         <>
           <section className="space-y-3">
-            <h2 className="app-section-title">Play type distribution</h2>
+            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Play type distribution</h2>
             {q.data ? <PlayTypeDistribution data={q.data.play_type_distribution} /> : null}
             {q.data ? (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {topTypeCards.map((row) => (
-                  <div key={row.name} className="app-card p-3">
-                    <p className="app-field-label">{row.name}</p>
+                  <div key={row.name} className="rounded-xl border border-slate-700 bg-slate-900 p-3">
+                    <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">{row.name}</p>
                     <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(row.pct)}%</p>
                   </div>
                 ))}
@@ -140,7 +140,7 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
           </section>
 
           <section className="space-y-3">
-            <h2 className="app-section-title">Key Rates</h2>
+            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Key Rates</h2>
             {q.data ? (
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <KeyRateCard

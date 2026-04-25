@@ -39,7 +39,7 @@ export function TopPlaysList({
   const showPagination = expanded && totalMatching > WORKING_LIST_PAGE_SIZE && onPageChange;
 
   return (
-    <div className="app-card px-3 py-1 sm:px-4">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1 sm:px-4">
       {rows.map((r, i) => (
         <RankedRow
           key={`${r.formation}-${r.play_name}`}

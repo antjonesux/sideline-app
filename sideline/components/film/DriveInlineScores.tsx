@@ -61,12 +61,12 @@ export function DriveInlineScores({
   return (
     <div className="flex flex-wrap items-end gap-3">
       <label className="min-w-0 flex-1">
-        <span className="app-field-label text-slate-500 dark:text-slate-500">My score</span>
+        <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 dark:text-slate-500">My score</span>
         <input
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
-          className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          className="mt-1.5 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-center font-mono text-sm text-slate-100 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           value={mineStr}
           onChange={(e) => {
             userEditedRef.current = true;
@@ -78,12 +78,12 @@ export function DriveInlineScores({
         -
       </span>
       <label className="min-w-0 flex-1">
-        <span className="app-field-label text-slate-500 dark:text-slate-500">Their score</span>
+        <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 dark:text-slate-500">Their score</span>
         <input
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
-          className="app-input-compact mt-1.5 w-full text-center font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          className="mt-1.5 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-center font-mono text-sm text-slate-100 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           value={theirsStr}
           onChange={(e) => {
             userEditedRef.current = true;

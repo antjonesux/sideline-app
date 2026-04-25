@@ -16,7 +16,7 @@ type Props = {
 
 function Card({ label, value, dense, valueClass }: { label: string; value: string; dense?: boolean; valueClass?: string }) {
   return (
-    <div className="app-card app-card-pad">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
       <p className="font-mono text-[10px] font-normal uppercase tracking-wide text-slate-500">{label}</p>
       <p
         className={

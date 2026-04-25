@@ -48,7 +48,7 @@ export function DriveStartingFieldPanel({ drive, onPersist }: Props) {
   if (playCount > 0) {
     return (
       <div className="rounded-lg border border-slate-800/80 bg-slate-900/50 px-3 py-2.5">
-        <p className="app-field-label text-slate-500">Starting field</p>
+        <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Starting field</p>
         <p className="font-mono text-sm text-slate-200">
           {openingAbs != null ? formatFieldPosition(openingAbs) : <span className="text-slate-500">—</span>}
         </p>
@@ -59,7 +59,7 @@ export function DriveStartingFieldPanel({ drive, onPersist }: Props) {
 
   return (
     <div className="rounded-lg border border-slate-800/80 bg-slate-900/50 px-3 py-3">
-      <p className="app-field-label text-slate-500">Field position (drive start)</p>
+      <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Field position (drive start)</p>
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"

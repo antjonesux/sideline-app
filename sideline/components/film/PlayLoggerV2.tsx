@@ -216,7 +216,8 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
 
           <button
             type="button"
-            className="app-no-press-scale flex min-h-11 shrink-0 items-center gap-1 text-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            data-no-press
+            className="flex min-h-11 shrink-0 items-center gap-1 text-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
             onClick={() => setAccordionExpanded((e) => !e)}
             aria-expanded={accordionExpanded}
           >

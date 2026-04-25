@@ -2,8 +2,15 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { closeAllDropdownMenusExcept, registerDropdownMenuCloser } from "@/lib/dropdownMenuRegistry";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+
+import {
+  DropdownMenu as ShadDropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem as ShadDropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export type DropdownMenuItem = {
   label: string;
@@ -24,11 +31,21 @@ type Props = {
 };
 
 /**
- * Portal dropdown: each instance owns open state. Document mousedown (capture) closes
- * when clicking outside; opening one menu closes others via {@link closeAllDropdownMenusExcept}
- * so stacked drive cards behave predictably (no full-screen overlay blocking other kebabs).
+ * Drive-row kebab menu: Radix portal + stacking. Opening one menu closes others via
+ * {@link closeAllDropdownMenusExcept} so stacked drive cards behave predictably.
  */
-const BOTTOM_UI_RESERVE = 80;
+const DEFAULT_SIDE_OFFSET = 4;
+
+function computeClampSideOffset(triggerEl: HTMLElement | null, clampSelector: string | undefined): number {
+  if (!triggerEl || !clampSelector?.trim()) return DEFAULT_SIDE_OFFSET;
+  const bar = document.querySelector(clampSelector.trim());
+  if (!bar) return DEFAULT_SIDE_OFFSET;
+  const barRect = bar.getBoundingClientRect();
+  const trRect = triggerEl.getBoundingClientRect();
+  const minMenuTop = barRect.bottom + 4;
+  const need = Math.ceil(minMenuTop - trRect.bottom);
+  return Math.max(DEFAULT_SIDE_OFFSET, need);
+}
 
 export function DropdownMenu({
   items,
@@ -36,127 +53,101 @@ export function DropdownMenu({
   "aria-label": ariaLabel = "Open menu",
   clampMenuBelowSelector,
 }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [sideOffset, setSideOffset] = useState(DEFAULT_SIDE_OFFSET);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => setOpen(false), []);
 
-  const close = useCallback(() => setIsOpen(false), []);
+  const recomputeSideOffset = useCallback(() => {
+    setSideOffset(computeClampSideOffset(triggerRef.current, clampMenuBelowSelector));
+  }, [clampMenuBelowSelector]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setSideOffset(DEFAULT_SIDE_OFFSET);
+      return;
+    }
+    recomputeSideOffset();
+  }, [open, recomputeSideOffset]);
+
+  useEffect(() => {
+    if (!open || !clampMenuBelowSelector?.trim()) return;
+    let rafId = 0;
+    const scheduleRecompute = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        recomputeSideOffset();
+      });
+    };
+    const scrollOpts: AddEventListenerOptions = { capture: true, passive: true };
+    window.addEventListener("scroll", scheduleRecompute, scrollOpts);
+    window.addEventListener("resize", scheduleRecompute);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", scheduleRecompute, scrollOpts);
+      window.removeEventListener("resize", scheduleRecompute);
+    };
+  }, [open, clampMenuBelowSelector, recomputeSideOffset]);
 
   useEffect(() => {
     return registerDropdownMenuCloser(close);
   }, [close]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleScroll = () => setIsOpen(false);
-    window.addEventListener("scroll", handleScroll, true);
-    return () => window.removeEventListener("scroll", handleScroll, true);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, close]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onMouseDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (buttonRef.current?.contains(t)) return;
-      if (menuRef.current?.contains(t)) return;
-      close();
-    };
-    document.addEventListener("mousedown", onMouseDown, true);
-    return () => document.removeEventListener("mousedown", onMouseDown, true);
-  }, [isOpen, close]);
-
-  function handleToggle(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (isOpen) {
-      close();
-      return;
+  const onOpenChange = (next: boolean) => {
+    if (next) {
+      closeAllDropdownMenusExcept(close);
     }
-    closeAllDropdownMenusExcept(close);
-    const rect = buttonRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const right = window.innerWidth - rect.right;
-    const estimatedMenuHeight = Math.min(320, items.length * 48 + 16);
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const clampEl = clampMenuBelowSelector ? document.querySelector(clampMenuBelowSelector) : null;
-    const clampBottom = clampEl instanceof HTMLElement ? clampEl.getBoundingClientRect().bottom : null;
-    if (spaceBelow < estimatedMenuHeight + BOTTOM_UI_RESERVE) {
-      setPosition({
-        bottom: window.innerHeight - rect.top + 4,
-        right,
-      });
-    } else {
-      const desiredTop = rect.bottom + 4;
-      const minTop = clampBottom != null ? clampBottom + 4 : desiredTop;
-      setPosition({
-        top: Math.max(desiredTop, minTop),
-        right,
-      });
-    }
-    setIsOpen(true);
-  }
+    setOpen(next);
+  };
 
   return (
     <div className="inline-flex shrink-0 items-center">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-label={ariaLabel}
-        onClick={handleToggle}
-        className={`app-no-press-scale inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${triggerClassName}`}
-      >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-          <circle cx="12" cy="5" r="1.75" />
-          <circle cx="12" cy="12" r="1.75" />
-          <circle cx="12" cy="19" r="1.75" />
-        </svg>
-      </button>
-
-      {isOpen
-        ? createPortal(
-            <div
-              ref={menuRef}
-              className="fixed z-[70] max-h-[min(50dvh,20rem)] min-w-[160px] overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800"
-              style={{
-                ...(position.top != null ? { top: position.top } : {}),
-                ...(position.bottom != null ? { bottom: position.bottom } : {}),
-                right: position.right,
+      <ShadDropdownMenu open={open} onOpenChange={onOpenChange}>
+        <DropdownMenuTrigger asChild>
+          <button
+            ref={triggerRef}
+            type="button"
+            data-no-press
+            aria-label={ariaLabel}
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500",
+              triggerClassName,
+            )}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <circle cx="12" cy="5" r="1.75" />
+              <circle cx="12" cy="12" r="1.75" />
+              <circle cx="12" cy="19" r="1.75" />
+            </svg>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          side="bottom"
+          align="end"
+          sideOffset={sideOffset}
+          collisionPadding={{ bottom: 80 }}
+          className="min-w-[160px] border-slate-700 bg-slate-800 p-1 text-slate-300 shadow-xl"
+        >
+          {items.map((item, i) => (
+            <ShadDropdownMenuItem
+              key={i}
+              className={cn(
+                "min-h-11 cursor-pointer px-4 py-2.5 font-sans text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-500 dark:focus-visible:outline-emerald-500",
+                item.destructive
+                  ? "text-red-400 focus:bg-slate-700 focus:text-red-400 dark:text-red-400 dark:focus:bg-slate-700"
+                  : "text-slate-300 focus:bg-slate-700 focus:text-slate-300 dark:text-slate-300 dark:focus:bg-slate-700",
+              )}
+              onSelect={() => {
+                item.onClick();
               }}
-              role="menu"
             >
-              {items.map((item, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    item.onClick();
-                    close();
-                  }}
-                  className={`flex w-full px-4 py-2.5 text-left font-sans text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-500 dark:focus-visible:outline-emerald-500 ${
-                    item.destructive
-                      ? "text-red-400 hover:bg-slate-700 dark:text-red-400 dark:hover:bg-slate-700"
-                      : "text-slate-300 hover:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>,
-            document.body,
-          )
-        : null}
+              {item.label}
+            </ShadDropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </ShadDropdownMenu>
     </div>
   );
 }

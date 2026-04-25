@@ -71,7 +71,8 @@ export function PlayLogFeedRow({ play, driveFallback, showDriveRule, onSelect, o
       </button>
       <button
         type="button"
-        className="app-no-press-scale inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-slate-500 opacity-70 hover:text-red-400 focus-visible:opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100"
+        data-no-press
+        className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-slate-500 opacity-70 hover:text-red-400 focus-visible:opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100"
         aria-label="Delete play"
         onClick={(e) => {
           e.stopPropagation();

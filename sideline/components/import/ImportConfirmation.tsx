@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   playCount: number;
@@ -22,12 +23,12 @@ export function ImportConfirmation({ playCount, sessionId }: Props) {
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:mx-auto sm:max-w-md">
-        <Link href={`/film/${sessionId}`} className="btn-secondary-block py-3 text-sm">
-          View game summary
-        </Link>
-        <Link href="/tendencies" className="btn-primary-block py-3 text-sm">
-          View tendencies
-        </Link>
+        <Button asChild variant="secondary" className="w-full py-3 text-sm">
+          <Link href={`/film/${sessionId}`}>View game summary</Link>
+        </Button>
+        <Button asChild variant="default" className="w-full py-3 text-sm">
+          <Link href="/tendencies">View tendencies</Link>
+        </Button>
       </div>
     </div>
   );

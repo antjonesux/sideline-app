@@ -106,7 +106,7 @@ export function TendenciesFilters({
                 <div
                   ref={opponent.menuRef}
                   role="listbox"
-                  className="app-dropdown-panel fixed z-[70] max-h-72 w-max max-w-[20rem] overflow-y-auto"
+                  className="min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed z-[70] max-h-72 w-max max-w-[20rem] overflow-y-auto"
                   style={{
                     ...(opponent.menuPos.top != null ? { top: opponent.menuPos.top } : {}),
                     ...(opponent.menuPos.bottom != null ? { bottom: opponent.menuPos.bottom } : {}),

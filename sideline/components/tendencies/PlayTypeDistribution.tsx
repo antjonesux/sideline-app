@@ -37,7 +37,7 @@ export function PlayTypeDistribution({ data }: Props) {
   }
 
   return (
-    <div className="app-card p-4">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
       <div className="space-y-2">
         {visibleRows.map((row) => {
           const width = Math.max(4, Math.min(100, row.pct));

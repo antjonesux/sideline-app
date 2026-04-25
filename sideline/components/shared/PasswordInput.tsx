@@ -15,7 +15,7 @@ export function PasswordInput({ wrapperClassName, className, ...rest }: Props) {
       <input
         {...rest}
         type={visible ? "text" : "password"}
-        className={className ?? "app-input pr-10"}
+        className={className ?? "block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"}
       />
       <button
         type="button"

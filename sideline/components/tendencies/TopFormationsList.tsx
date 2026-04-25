@@ -44,7 +44,7 @@ export function TopFormationsList({
   const showPagination = expanded && totalCount > WORKING_LIST_PAGE_SIZE && onPageChange;
 
   return (
-    <div className="app-card app-card-pad overflow-hidden">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 overflow-hidden">
       {rows.map((r, i) => (
         <RankedRow
           key={r.formation}

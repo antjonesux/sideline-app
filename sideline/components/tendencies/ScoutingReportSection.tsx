@@ -18,7 +18,7 @@ export function ScoutingReportSection({ situationRows, formationRows }: Props) {
   return (
     <section className="space-y-3">
       <div className="space-y-2">
-        <h2 className="app-section-title">Scouting Report</h2>
+        <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Scouting Report</h2>
         <p className="font-sans text-[13px] font-normal leading-snug text-slate-400">
           Opponent read on your tendencies.
         </p>

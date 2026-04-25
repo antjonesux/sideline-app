@@ -7,11 +7,11 @@ export function FilmRoomSkeleton() {
       <div className="space-y-4">
         <SkeletonBlock className="h-9 w-52 max-w-full" />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="app-card app-card-pad space-y-2">
+          <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-2">
             <SkeletonBlock className="h-5 w-28" />
             <SkeletonBlock className="h-3 w-full max-w-xs" />
           </div>
-          <div className="app-card app-card-pad space-y-2">
+          <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-2">
             <SkeletonBlock className="h-5 w-36" />
             <SkeletonBlock className="h-3 w-full max-w-sm" />
           </div>
@@ -21,7 +21,7 @@ export function FilmRoomSkeleton() {
       <ul className="space-y-4">
         {[0, 1, 2].map((i) => (
           <li key={i}>
-            <div className="app-card app-card-pad space-y-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3">
               <SkeletonBlock className="h-4 w-3/4 max-w-md" />
               <SkeletonBlock className="h-8 w-40 max-w-[50%]" />
               <div className="flex gap-4 pt-1">

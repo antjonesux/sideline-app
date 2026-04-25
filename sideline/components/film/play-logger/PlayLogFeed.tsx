@@ -30,7 +30,7 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
 
   if (sorted.length === 0) {
     return (
-      <div className="app-card app-card-pad rounded-xl border border-slate-700 bg-slate-900">
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
         <p className="text-center font-sans text-sm text-slate-400">
           No plays logged yet.
           <br />

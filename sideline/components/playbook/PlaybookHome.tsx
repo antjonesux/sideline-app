@@ -8,6 +8,7 @@ import { COULDNT_LOAD } from "@/lib/coachCopy";
 import { CreatePlaybookModal } from "./CreatePlaybookModal";
 import { PlaybookCard } from "./PlaybookCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
+import { Button } from "@/components/ui/button";
 
 function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   if (Array.isArray(payload)) return payload as PlaybookSummary[];
@@ -73,11 +74,11 @@ export function PlaybookHome({
   if (error) {
     return (
       <>
-        <div className="app-card app-card-pad space-y-3" role="alert">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3" role="alert">
           <p className="font-sans text-sm text-red-200">{COULDNT_LOAD}</p>
-          <button type="button" className="btn-secondary w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
+          <Button type="button" variant="secondary" className="w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
             {isFetching ? "Hang on…" : "Try again"}
-          </button>
+          </Button>
         </div>
         {modal}
       </>
@@ -96,26 +97,26 @@ export function PlaybookHome({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4">
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4">
           <span className="min-w-0">Game Plan</span>
           <SettingsLink />
         </h1>
         {list.length > 0 && (
-          <button type="button" className="btn-primary text-sm" onClick={() => setCreateOpen(true)}>
+          <Button type="button" variant="default" className="text-sm" onClick={() => setCreateOpen(true)}>
             Create play sheet
-          </button>
+          </Button>
         )}
       </div>
 
       {list.length === 0 ? (
-        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">Your play sheet is empty.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">
             Start from a CFB26 playbook. What you log in Film Room feeds tendencies here.
           </p>
-          <button type="button" className="btn-primary mt-6 inline-flex px-5 py-2.5 text-sm" onClick={() => setCreateOpen(true)}>
+          <Button type="button" variant="default" className="mt-6 inline-flex px-5 py-2.5 text-sm" onClick={() => setCreateOpen(true)}>
             Create play sheet
-          </button>
+          </Button>
         </div>
       ) : (
         <ul className="space-y-3">

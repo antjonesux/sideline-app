@@ -8,6 +8,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-24
+
+**Preline removed; shadcn/ui is the component standard**  
+**Decision:** By default, interactive primitives (dialogs, dropdowns, tabs, select, buttons) for **new and shared surfaces** ship via **shadcn/ui** on Radix under `sideline/components/ui/`; **Preline** scripts and markup are removed from the app. **Toast** and bespoke surfaces stay on existing Sideline components unless migrated intentionally.  
+**Why:** One supported stack, predictable focus/modality behavior, and alignment with Tailwind v4 + CSS variable theming already in `globals.css`.  
+**Impact:** New UI work extends shadcn patterns and tokens; `BUILD_CONTRACT.md` and this log supersede older “Preline-first” wording. Tendencies playbook/opponent filters keep **`usePortalDropdown`** + **`z-[70]`** where tab animation stacking still applies. Some Film game-detail surfaces (e.g. end game, drive setup, full-screen logger) remain **legacy fixed overlays** until ported to **`Dialog`** — see **`BUILD_CONTRACT.md`** UI rules.
+
+---
+
 ## 2026-04-22
 
 **Tendencies filter dropdowns portaled to escape tab-content stacking context**  
@@ -149,9 +158,9 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 ## 2026-04-18
 
 **Design system and coach copy in `.cursorrules`**  
-**Decision:** Global typography (Barlow family + JetBrains Mono), dark-only Preline-first UI rules, page layout contract, and **UX Copy & Terminology** live in repo-root `.cursorrules`; shared toast strings in `coachCopy.ts`.  
+**Decision:** Global typography (Barlow family + JetBrains Mono), dark-only UI rules, page layout contract, and **UX Copy & Terminology** live in repo-root `.cursorrules`; shared toast strings in `coachCopy.ts`.  
 **Why:** One visual and verbal standard across Film, Game Plan, and Tendencies.  
-**Impact:** UI and copy changes default to updating shared components and `.cursorrules`, not one-off strings per page.
+**Impact:** UI and copy changes default to updating shared components and `.cursorrules`, not one-off strings per page. (Component primitives migrated to **shadcn/ui** — see **2026-04-24** entry.)
 
 ---
 

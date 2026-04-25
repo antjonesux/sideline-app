@@ -4,7 +4,6 @@ import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import BottomTabNav from "@/components/shared/BottomTabNav";
 
-import PrelineScriptWrapper from "@/components/shared/PrelineScriptWrapper";
 import { Toast } from "@/components/shared/Toast";
 
 const barlow = Barlow({ variable: "--font-barlow", weight: ["400", "500", "600"], subsets: ["latin"] });
@@ -41,7 +40,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             {children}
           </main>
           <Toast />
-          <PrelineScriptWrapper />
         </AppProviders>
       </body>
     </html>

@@ -2,12 +2,18 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 import type { GameSession } from "@/lib/types";
-import { useScrollLock } from "@/lib/useScrollLock";
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useToastStore } from "@/store/toastStore";
 
 type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
@@ -48,7 +54,7 @@ let cachedFallbackPlaybooks: string[] | null = null;
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 
-const MODAL_ID = "hs-edit-game-modal";
+const EDIT_GAME_DIALOG_ID = "edit-game-details-dialog";
 
 type Props = {
   gameId: string;
@@ -75,7 +81,6 @@ export function EditGameDetailsModal({
 }: Props) {
   const supabase = createClient();
   const [internalOpen, setInternalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const isControlled = typeof open === "boolean";
   const isOpen = isControlled ? open : internalOpen;
   const setIsOpen = useCallback(
@@ -85,7 +90,6 @@ export function EditGameDetailsModal({
     },
     [isControlled, onOpenChange],
   );
-  useScrollLock(isOpen);
   const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
   const [fallbackPlaybooks, setFallbackPlaybooks] = useState<string[]>(() => cachedFallbackPlaybooks ?? []);
@@ -249,19 +253,6 @@ export function EditGameDetailsModal({
     hydrateFromGame();
   }, [isOpen, hydrateFromGame]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setIsOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen]);
-
   const canSave = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
 
   async function onSubmit(e: FormEvent) {
@@ -309,7 +300,7 @@ export function EditGameDetailsModal({
           className={triggerClassName}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
-          aria-controls={MODAL_ID}
+          aria-controls={EDIT_GAME_DIALOG_ID}
           onClick={() => {
             onOpen?.();
             setIsOpen(true);
@@ -319,40 +310,17 @@ export function EditGameDetailsModal({
         </button>
       )}
 
-      {mounted
-        ? createPortal(
-            <div
-              id={MODAL_ID}
-              className={`hs-overlay fixed inset-0 z-[200] overflow-x-hidden overflow-y-auto ${isOpen ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"}`}
-              role="dialog"
-              tabIndex={-1}
-              aria-modal={isOpen}
-              aria-labelledby="hs-edit-game-modal-label"
-              onClick={(e) => {
-                if (e.target === e.currentTarget) setIsOpen(false);
-              }}
-            >
-              <div className={`hs-overlay-animation-target fixed inset-x-0 bottom-0 z-[201] transition-all ease-out sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4 ${isOpen ? "opacity-100 duration-300" : "opacity-0"}`}>
-                <div
-                  className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-            <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 id="hs-edit-game-modal-label" className="app-modal-title">
-                    Edit game details
-                  </h2>
-                  <p className="mt-1 font-body text-sm text-slate-400">Update metadata only. Play-by-play is unchanged.</p>
-                </div>
-                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                    <path d="M6 6 18 18M18 6 6 18" />
-                  </svg>
-                  <span className="sr-only">Close</span>
-                </button>
-              </div>
-            </div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent
+          id={EDIT_GAME_DIALOG_ID}
+          className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg"
+        >
+          <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
+            <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit game details</DialogTitle>
+            <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">
+              Update metadata only. Play-by-play is unchanged.
+            </DialogDescription>
+          </DialogHeader>
 
             <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
               <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
@@ -405,7 +373,7 @@ export function EditGameDetailsModal({
 
               {selectedPlaybookName ? (
                 <div className="space-y-2">
-                  <p className="app-field-label">Game Plan</p>
+                  <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game Plan</p>
                   {sheetsLoading ? (
                     <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
                   ) : availableSheets.length === 0 ? (
@@ -443,9 +411,9 @@ export function EditGameDetailsModal({
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="space-y-1">
-                  <span className="app-field-label">My score</span>
+                  <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">My score</span>
                   <input
-                    className="hs-input app-input"
+                    className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -454,9 +422,9 @@ export function EditGameDetailsModal({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="app-field-label">Their score</span>
+                  <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Their score</span>
                   <input
-                    className="hs-input app-input"
+                    className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -467,7 +435,7 @@ export function EditGameDetailsModal({
               </div>
 
               <div className="space-y-2">
-                <p className="app-field-label">Game result</p>
+                <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game result</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -490,20 +458,16 @@ export function EditGameDetailsModal({
 
               </div>
               <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
-                <button type="button" className="btn-secondary flex-1" onClick={() => setIsOpen(false)}>
+                <Button type="button" variant="secondary" className="flex-1" onClick={() => setIsOpen(false)}>
                   Cancel
-                </button>
-                <button type="submit" disabled={!canSave || saveBusy} className="btn-primary flex-1">
+                </Button>
+                <Button type="submit" variant="default" className="flex-1" disabled={!canSave || saveBusy}>
                   {saveBusy ? "Saving…" : "Save changes"}
-                </button>
+                </Button>
               </div>
             </form>
-                </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

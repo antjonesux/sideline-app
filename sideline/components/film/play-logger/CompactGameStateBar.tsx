@@ -68,7 +68,7 @@ export function CompactGameStateBar({ gameState, children }: CompactGameStateBar
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`accordion-chevron text-current motion-reduce:transition-none ${editorsOpen ? "open" : ""}`}
+              className={`text-current transition-transform duration-200 ease-out motion-reduce:transition-none ${editorsOpen ? "rotate-180" : ""}`}
             >
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -82,7 +82,7 @@ export function CompactGameStateBar({ gameState, children }: CompactGameStateBar
       {hasEditors && editorsOpen ? (
         <div
           id={panelId}
-          className="fade-in mt-3 space-y-3 border-t border-slate-800/80 pt-3 dark:border-slate-800/80"
+          className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-150 mt-3 space-y-3 border-t border-slate-800/80 pt-3 dark:border-slate-800/80"
           role="region"
           aria-label="Snap and field position"
         >

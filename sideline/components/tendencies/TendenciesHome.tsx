@@ -9,6 +9,8 @@ import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { SettingsLink } from "@/components/shared/AppTopBar";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
@@ -18,6 +20,9 @@ const tabs: { id: Tab; label: string }[] = [
   { id: "working", label: "What's Working" },
   { id: "predictable", label: "Am I Predictable?" },
 ];
+
+const tendenciesSubTabTriggerClass =
+  "flex min-h-12 w-full items-center justify-center rounded-none border-b-2 border-transparent bg-transparent px-2 text-center text-sm font-sans font-medium text-slate-400 shadow-none ring-offset-transparent transition-colors data-[state=active]:border-amber-400 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
 
 export function TendenciesHome() {
   const router = useRouter();
@@ -83,17 +88,17 @@ export function TendenciesHome() {
   if (games.length === 0) {
     return (
       <section className="space-y-6">
-        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
           <span className="min-w-0">Tendencies</span>
           <SettingsLink />
         </h1>
-        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">Log some games to see your tendencies.</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/film/new" className="btn-primary px-5 py-3 text-sm">
-              Log your first game
-            </Link>
+            <Button asChild variant="default" className="px-5 py-3 text-sm">
+              <Link href="/film/new">Log your first game</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -102,51 +107,46 @@ export function TendenciesHome() {
 
   return (
     <section className="space-y-6">
-      <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+      <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
         <span className="min-w-0">Tendencies</span>
         <SettingsLink />
       </h1>
 
-      <div className="border-b border-slate-800">
-        <nav className="grid w-full grid-cols-2" aria-label="Tendencies views">
-          {tabs.map((t) => {
-            const active = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTab(t.id)}
-                className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
-                  active ? "border-emerald-500 text-white" : "border-transparent text-slate-400"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="w-full">
+        <TabsList
+          aria-label="Tendencies views"
+          className="grid h-auto w-full grid-cols-2 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground"
+        >
+          {tabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id} className={tendenciesSubTabTriggerClass}>
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <div key={tab} className="tab-content">
-        {tab === "working" ? (
-          <WhatsWorking
-            opponents={opponents}
-            playbook={playbookParam}
-            onPlaybookChange={setPlaybookInUrl}
-            playbookOptions={playbookOptions}
-            playbookLoading={playbooksQuery.isLoading}
-          />
-        ) : null}
-        {tab === "predictable" ? (
-          <AmIPredictable
-            opponents={opponents}
-            playbook={playbookParam}
-            onPlaybookChange={setPlaybookInUrl}
-            playbookOptions={playbookOptions}
-            playbookLoading={playbooksQuery.isLoading}
-          />
-        ) : null}
-      </div>
+        <TabsContent value="working" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+          {tab === "working" ? (
+            <WhatsWorking
+              opponents={opponents}
+              playbook={playbookParam}
+              onPlaybookChange={setPlaybookInUrl}
+              playbookOptions={playbookOptions}
+              playbookLoading={playbooksQuery.isLoading}
+            />
+          ) : null}
+        </TabsContent>
+        <TabsContent value="predictable" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+          {tab === "predictable" ? (
+            <AmIPredictable
+              opponents={opponents}
+              playbook={playbookParam}
+              onPlaybookChange={setPlaybookInUrl}
+              playbookOptions={playbookOptions}
+              playbookLoading={playbooksQuery.isLoading}
+            />
+          ) : null}
+        </TabsContent>
+      </Tabs>
     </section>
   );
 }

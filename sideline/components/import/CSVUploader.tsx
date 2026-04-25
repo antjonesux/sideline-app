@@ -83,7 +83,7 @@ export function CSVUploader({ onParsed, onParseFatal, embedded }: Props) {
 
   return (
     <div className="space-y-6">
-      {embedded ? null : <h3 className="app-section-title text-2xl">Upload CSV</h3>}
+      {embedded ? null : <h3 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100 text-2xl">Upload CSV</h3>}
 
       <input
         ref={inputRef}

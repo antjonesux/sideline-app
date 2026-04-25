@@ -2,13 +2,22 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
-import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
-import { FormEvent, useEffect, useId, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type PlaybookOption = { team_name: string };
+
+const EDIT_PLAYBOOK_DIALOG_ID = "edit-playbook-dialog";
 
 type Props = {
   playbook: PlaybookSummary;
@@ -19,8 +28,6 @@ type Props = {
 };
 
 export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
-  useScrollLock(open);
-  const dialogId = useId();
   const [name, setName] = useState(playbook.name);
   const [playbooks, setPlaybooks] = useState<string[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -81,91 +88,72 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   }
 
   return (
-    <div
-      id={dialogId}
-      className={`hs-overlay fixed inset-0 z-[60] overflow-x-hidden overflow-y-auto ${
-        open ? "pointer-events-auto bg-black/70" : "pointer-events-none hidden"
-      }`}
-      role="dialog"
-      aria-modal={open}
-      aria-hidden={!open}
-      aria-labelledby={`${dialogId}-title`}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose();
       }}
     >
-      <div className="fixed inset-x-0 bottom-0 z-[61] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
-        <div
-          className="pointer-events-auto flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 id={`${dialogId}-title`} className="app-modal-title">
-                  Edit play sheet
-                </h2>
-                <p className="mt-1 font-body text-sm text-slate-400">Update the name and CFB26 playbook source.</p>
-              </div>
-              <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={onClose}>
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                  <path d="M6 6 18 18M18 6 6 18" />
-                </svg>
-                <span className="sr-only">Close</span>
-              </button>
-            </div>
+      <DialogContent
+        id={EDIT_PLAYBOOK_DIALOG_ID}
+        className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+      >
+        <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
+          <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit play sheet</DialogTitle>
+          <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">
+            Update the name and CFB26 playbook source.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+          <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+            {loadErr ? (
+              <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
+                {loadErr}
+              </p>
+            ) : null}
+
+            <label className="block space-y-1">
+              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+              <input
+                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+                placeholder="e.g. My Base Sheet"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="off"
+              />
+            </label>
+
+            <TeamCombobox<PlaybookOption>
+              label="Select CFB26 Playbook"
+              inputId={`edit-playbook-cfb26-${playbook.id}`}
+              selected={selectedPlaybook}
+              onSelect={setSelectedPlaybook}
+              options={options}
+              loading={playbooks.length === 0 && !loadErr}
+              placeholder="Search CFB26 playbooks"
+              getOptionLabel={(o) => o.team_name}
+              getOptionKey={(o) => o.team_name}
+              getSearchText={(o) => o.team_name}
+              showTrailingChevron={false}
+            />
+            <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
           </div>
 
-          <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-            <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
-              {loadErr ? (
-                <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-                  {loadErr}
-                </p>
-              ) : null}
-
-              <label className="block space-y-1">
-                <span className="app-field-label">Play sheet name</span>
-                <input
-                  className="hs-input app-input"
-                  placeholder="e.g. My Base Sheet"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="off"
-                />
-              </label>
-
-              <TeamCombobox<PlaybookOption>
-                label="Select CFB26 Playbook"
-                inputId={`edit-playbook-cfb26-${playbook.id}`}
-                selected={selectedPlaybook}
-                onSelect={setSelectedPlaybook}
-                options={options}
-                loading={playbooks.length === 0 && !loadErr}
-                placeholder="Search CFB26 playbooks"
-                getOptionLabel={(o) => o.team_name}
-                getOptionKey={(o) => o.team_name}
-                getSearchText={(o) => o.team_name}
-                showTrailingChevron={false}
-              />
-              <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
-            </div>
-
-            <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
-              <button
-                type="button"
-                className="min-h-11 flex-1 rounded-lg px-4 py-2.5 text-center font-body text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-100"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button type="submit" disabled={busy || !canSave} className="btn-primary min-h-11 flex-1">
-                {busy ? "Saving…" : "Save changes"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
+            <button
+              type="button"
+              className="min-h-11 flex-1 rounded-lg px-4 py-2.5 text-center font-body text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-100"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <Button type="submit" variant="default" className="min-h-11 flex-1" disabled={busy || !canSave}>
+              {busy ? "Saving…" : "Save changes"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

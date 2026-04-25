@@ -33,7 +33,7 @@ export default function FilmImportPreviewPage() {
     <section className="space-y-8">
       <BackToFilmLink />
 
-      <div className="app-shell">
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         <ImportPreview
           onReupload={() => {
             const attachId = useImportStore.getState().importTargetSessionId;

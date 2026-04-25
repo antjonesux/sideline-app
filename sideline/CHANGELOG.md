@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-24 (UI — Preline out, shadcn in, drive menu clamp, contract docs)
+
+**What:** Removed **Preline** (**`PrelineScript`** / **`PrelineScriptWrapper`** deleted); migrated interactive UI to **shadcn/ui** with tracked **`components/ui/*.tsx`** (**`button`**, **`dialog`**, **`dropdown-menu`**, **`select`**, **`tabs`**). **`shared/DropdownMenu`**: **`clampMenuBelowSelector`**, dynamic **`sideOffset`**, rAF-coalesced scroll/resize + passive capture scroll listener; **`app/film/[gameId]/page.tsx`** **`TabsList`** **`data-film-game-dropdown-clamp`**. **`ConfirmDestructiveModal`** title classes deduped. Repo-root **`BUILD_CONTRACT.md`** (**`/`** gate, **Dialog** vs **Film** legacy overlays, kebab patterns) and **`DECISIONS.md`** (2026-04-24 ADR + **Impact** carve-out).
+
+**Why:** Close the migration with honest APIs, correct stacking vs game chrome, and docs that match running code.
+
+**Status after this push:** Large **`sideline/`** surface + **`package-lock.json`**; **`components/ui/*.tsx`**, **`components/shared/DropdownMenu.tsx`**, **`components/shared/ConfirmDestructiveModal.tsx`**, **`app/layout.tsx`**, **`app/globals.css`**, **`app/film/[gameId]/page.tsx`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-24 (Playbook — guided onboarding handoff, film `[gameId]` layout)
 
 **What:** **`CreatePlaybookModal`** **`guidedOnboardingFlow`** → **`/playbook/[id]?onboarding=1`**; **`PlaybookHome`** sets it from home onboarding; **`PlaybookEditor`** and **`app/playbook/[id]/page.tsx`** read **`onboarding=1`**; **`app/playbook/page.tsx`** threads search params. New **`app/film/[gameId]/layout.tsx`**; updates to **`app/film/[gameId]/page.tsx`** and **`PlayLoggerV2`**.
@@ -26,7 +36,7 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ## 2026-04-24 (Tooling — shadcn/ui init, Tailwind v4)
 
-**What:** **`components.json`** (default, slate, CSS variables, **`app/globals.css`**, **`@/components/ui`**). Deps **`clsx`**, **`tailwind-merge`**, **`shadcn`**, **`tw-animate-css`**. **`components/ui/.gitkeep`**. **`lib/utils.ts`** **`cn()`** plus existing play-name helpers. **`globals.css`** shadcn imports and theme tokens; Preline and app layers preserved.
+**What:** **`components.json`** (default, slate, CSS variables, **`app/globals.css`**, **`@/components/ui`**). Deps **`clsx`**, **`tailwind-merge`**, **`shadcn`**, **`tw-animate-css`**. **`components/ui/.gitkeep`**. **`lib/utils.ts`** **`cn()`** plus existing play-name helpers. **`globals.css`** shadcn imports and theme tokens; app-specific CSS layers preserved.
 
 **Why:** shadcn component installs and token mapping can follow without redoing init.
 

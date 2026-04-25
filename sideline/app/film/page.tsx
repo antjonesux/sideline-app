@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
@@ -117,15 +118,15 @@ export default async function FilmRoomPage() {
   return (
     <section className="space-y-6">
       <header className="space-y-4">
-        <h1 className="app-page-title flex w-full min-w-0 items-center justify-between gap-4">
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4">
           <span className="min-w-0">Film room</span>
           <SettingsLink />
         </h1>
         {games.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-3">
-              <Link href="/film/new" className="app-card-interactive group block">
-                <p className="app-card-title">New game</p>
+              <Link href="/film/new" className="rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70 group block">
+                <p className="font-heading text-lg font-bold uppercase tracking-wide text-white">New game</p>
                 <p className="mt-1 font-sans text-sm text-slate-400">Log plays live during a game.</p>
               </Link>
             </div>
@@ -135,13 +136,13 @@ export default async function FilmRoomPage() {
       </header>
 
       {games.length === 0 ? (
-        <div className="app-card app-card-pad flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">Log plays from a game to build tendencies.</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/film/new" className="btn-primary text-sm">
-              Log your first game
-            </Link>
+            <Button asChild variant="default" className="text-sm">
+              <Link href="/film/new">Log your first game</Link>
+            </Button>
           </div>
         </div>
       ) : (

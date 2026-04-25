@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import {
   ONBOARDING_FILM_ROOM_BODY,
@@ -89,8 +91,8 @@ export function HomeOnboardingGate() {
   if (phase === "loading" || phase === "redirecting") {
     return (
       <section className="space-y-4 py-8">
-        <div className="app-skeleton h-8 w-2/3 max-w-md rounded" />
-        <div className="app-skeleton h-24 w-full max-w-lg rounded-lg" />
+        <div className="animate-pulse rounded-md bg-slate-700/55 h-8 w-2/3 max-w-md rounded" />
+        <div className="animate-pulse rounded-md bg-slate-700/55 h-24 w-full max-w-lg rounded-lg" />
         {phase === "redirecting" ? (
           <p className="font-body text-sm text-slate-400">Loading Film Room…</p>
         ) : null}
@@ -110,15 +112,15 @@ export function HomeOnboardingGate() {
         <p className="font-mono text-xs uppercase tracking-widest text-slate-500">
           Step {Math.min(step + 1, STEPS.length + 1)} of {STEPS.length + 1}
         </p>
-        <h1 className="app-page-title">{isPlaybookStep ? ONBOARDING_PLAYBOOK_STEP_TITLE : STEPS[step]?.title}</h1>
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">{isPlaybookStep ? ONBOARDING_PLAYBOOK_STEP_TITLE : STEPS[step]?.title}</h1>
       </header>
 
       {!isPlaybookStep ? (
-        <div className="app-card app-card-pad space-y-3">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3">
           <p className="font-body text-sm leading-relaxed text-slate-300">{STEPS[step]?.body}</p>
         </div>
       ) : (
-        <div className="app-card app-card-pad space-y-4">
+        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-4">
           <p className="font-body text-sm leading-relaxed text-slate-300">{ONBOARDING_PLAYBOOK_STEP_BODY}</p>
           {loadErr ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
@@ -138,26 +140,28 @@ export function HomeOnboardingGate() {
             getSearchText={(o) => o.team_name}
             showTrailingChevron={false}
           />
-          <Link
-            href={playbookHref}
-            className={`btn-primary inline-flex w-full justify-center text-sm ${selectedPlaybook ? "" : "pointer-events-none opacity-40"}`}
-            aria-disabled={!selectedPlaybook}
+          <Button
+            asChild
+            variant="default"
+            className={cn("inline-flex w-full justify-center text-sm", !selectedPlaybook && "pointer-events-none opacity-40")}
           >
-            {ONBOARDING_PLAYBOOK_CTA}
-          </Link>
+            <Link href={playbookHref} aria-disabled={!selectedPlaybook}>
+              {ONBOARDING_PLAYBOOK_CTA}
+            </Link>
+          </Button>
         </div>
       )}
 
       <div className="flex flex-wrap gap-3">
         {step > 0 ? (
-          <button type="button" className="btn-secondary text-sm" onClick={() => setStep((s) => Math.max(0, s - 1))}>
+          <Button type="button" variant="secondary" className="text-sm" onClick={() => setStep((s) => Math.max(0, s - 1))}>
             Back
-          </button>
+          </Button>
         ) : null}
         {!isPlaybookStep ? (
-          <button type="button" className="btn-primary text-sm" onClick={() => setStep((s) => s + 1)}>
+          <Button type="button" variant="default" className="text-sm" onClick={() => setStep((s) => s + 1)}>
             Continue
-          </button>
+          </Button>
         ) : null}
       </div>
     </section>

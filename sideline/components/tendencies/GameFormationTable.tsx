@@ -25,12 +25,12 @@ export function GameFormationTable({ rows }: Props) {
   }
 
   return (
-    <div className="app-card min-w-0 overflow-hidden">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 min-w-0 overflow-hidden">
       <DataTable
         columns={formationCols}
         rows={rows}
         getRowKey={(r) => r.formation}
-        rowClassName="app-no-press-scale hover:bg-white/[0.02]"
+        rowClassName="hover:bg-white/[0.02]"
         onRowClick={(r) => setOpen(open === r.formation ? null : r.formation)}
         renderAfterRow={(r) =>
           open === r.formation ? (

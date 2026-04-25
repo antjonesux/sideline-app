@@ -146,9 +146,9 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
       ) : (
         <>
           <section className="space-y-3">
-            <h2 className="app-section-title">Top plays</h2>
+            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Top plays</h2>
             {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
-              <div className="app-card app-card-pad text-center">
+              <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
                 <p className="font-body text-sm text-slate-300">No plays logged for this filter yet.</p>
                 <p className="mt-1 font-body text-sm text-slate-500">Log plays in Film to see top calls and formations here.</p>
               </div>
@@ -172,7 +172,7 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
           </section>
 
           <section className="space-y-3">
-            <h2 className="app-section-title">Top formations</h2>
+            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Top formations</h2>
             {formationsQuery.data?.top_formations?.length ? (
               <TopFormationsList
                 rows={formationsRows}
@@ -193,7 +193,7 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
 
           {playsQuery.data?.reconsider_plays?.length ? (
             <section className="space-y-3">
-              <h2 className="app-section-title">Plays to reconsider</h2>
+              <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Plays to reconsider</h2>
               <ReconsiderPlays
                 rows={reconsiderRows}
                 totalCount={playsQuery.data.reconsider_plays.length}

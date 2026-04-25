@@ -64,13 +64,14 @@ export function ImportPreviewDrives({ rows }: Props) {
         const lastResultCanon = last ? normalizeCsvResult(last.result) : null;
 
         return (
-          <div key={num} className="app-card overflow-hidden">
+          <div key={num} className="rounded-xl border border-slate-700 bg-slate-900 overflow-hidden">
             <button
               type="button"
               aria-expanded={expanded}
               aria-label={expanded ? "Collapse drive plays" : "Expand drive plays"}
               onClick={() => setOpenDrive(expanded ? null : num)}
-              className="app-no-press-scale flex w-full min-w-0 items-center gap-3 border-b border-slate-800/90 bg-slate-900 py-3 pl-4 pr-3 text-left transition-colors hover:bg-slate-800/50"
+              data-no-press
+              className="flex w-full min-w-0 items-center gap-3 border-b border-slate-800/90 bg-slate-900 py-3 pl-4 pr-3 text-left transition-colors hover:bg-slate-800/50"
             >
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-0 gap-y-1 text-[13px] text-slate-400">
                 <span className="font-heading shrink-0 text-[15px] font-bold uppercase tracking-[1.2px] text-amber-400">

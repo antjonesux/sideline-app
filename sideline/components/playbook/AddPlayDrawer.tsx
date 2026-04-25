@@ -48,11 +48,12 @@ export function AddPlayDrawer({
               >
                 Add play
               </h2>
-              <p className="app-field-label mt-0.5 truncate">{scenarioDisplayLabel(scenarioName)}</p>
+              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 mt-0.5 truncate">{scenarioDisplayLabel(scenarioName)}</p>
             </div>
             <button
               type="button"
-              className="app-no-press-scale shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
+              data-no-press
+              className="shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
               onClick={() => {
                 onClose();
               }}

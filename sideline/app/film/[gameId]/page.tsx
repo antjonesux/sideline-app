@@ -34,6 +34,8 @@ import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 import { absoluteYardAfterLoggedPlay, replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function quarterFromDriveForSetup(q: number | null | undefined): Quarter {
   if (q == null || q < 1) return "1";
@@ -108,6 +110,9 @@ function DriveSummaryOutcomeBadge({ label }: { label: string }) {
 type GameLogPageProps = { params: Promise<{ gameId: string }> };
 
 type DetailTab = "drives" | "tendencies";
+
+const gameDetailTabTriggerClass =
+  "flex min-h-12 w-full items-center justify-center rounded-none border-b-2 border-transparent bg-transparent px-2 text-center text-sm font-sans font-medium text-slate-400 shadow-none ring-offset-transparent transition-colors data-[state=active]:border-amber-400 data-[state=active]:bg-transparent data-[state=active]:text-slate-100 data-[state=active]:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
 
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
@@ -471,9 +476,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     return (
       <section className="space-y-4 py-6 text-center">
         <BackToFilmLink />
-        <h1 className="app-page-title">Game not found</h1>
+        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">Game not found</h1>
         <p className="font-sans text-sm text-slate-400">This game doesn&apos;t exist or you don&apos;t have access to it.</p>
-        <Link href="/film" className="btn-primary inline-block px-5 py-2 text-sm">Back to Film Room</Link>
+        <Button asChild variant="default" className="inline-block px-5 py-2 text-sm">
+          <Link href="/film">Back to Film Room</Link>
+        </Button>
       </section>
     );
   }
@@ -485,7 +492,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     <section className="space-y-0">
       <div className="space-y-3 pb-4">
         <BackToFilmLink />
-        <h1 className="app-game-title w-full min-w-0 text-lg leading-snug sm:text-xl">
+        <h1 className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100 w-full min-w-0 text-lg leading-snug sm:text-xl">
           {game ? (
             <>
               {game.my_playbook}
@@ -509,7 +516,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </>
           ) : null}
         </p>
-        <div className="app-horizontal-scroll-strip">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
           <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
         </div>
         <div className="flex min-h-11 flex-wrap gap-2">
@@ -524,38 +531,28 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             Upload CSV
           </Link>
         </div>
-
-        <div className="grid grid-cols-2 border-b border-slate-800" role="tablist" aria-label="Game detail views">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={detailTab === "drives"}
-            onClick={() => setDetailTab("drives")}
-            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
-              detailTab === "drives" ? "border-emerald-500 text-slate-100" : "border-transparent text-slate-400"
-            }`}
-          >
-            Drive Summary
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={detailTab === "tendencies"}
-            onClick={() => setDetailTab("tendencies")}
-            className={`flex min-h-12 items-center justify-center border-b-2 px-2 text-center text-sm font-sans font-medium transition-colors ${
-              detailTab === "tendencies" ? "border-emerald-500 text-slate-100" : "border-transparent text-slate-400"
-            }`}
-          >
-            Tendencies
-          </button>
-        </div>
       </div>
 
-      <div className="pt-3">
-        {detailTab === "drives" ? (
+      <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v as DetailTab)} className="w-full">
+        <TabsList
+          aria-label="Game detail views"
+          data-film-game-dropdown-clamp
+          className="grid h-auto w-full grid-cols-2 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground"
+        >
+          <TabsTrigger value="drives" className={gameDetailTabTriggerClass}>
+            Drive Summary
+          </TabsTrigger>
+          <TabsTrigger value="tendencies" className={gameDetailTabTriggerClass}>
+            Tendencies
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="pt-3">
+          <TabsContent value="drives" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+            {detailTab === "drives" ? (
           <div className="space-y-4">
             {game && drives.length === 0 ? (
-              <div className="app-card app-card-pad text-center font-sans text-sm text-slate-400">No drives yet.</div>
+              <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center font-sans text-sm text-slate-400">No drives yet.</div>
             ) : null}
 
             <div className="flex flex-col gap-3">
@@ -581,11 +578,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const metaLine = `${quarterMeta} · ${mine}-${theirs} · ${playCount} ${playCount === 1 ? "call" : "calls"}`;
 
         return (
-          <div key={drive.id} className="app-card min-w-0 overflow-hidden rounded-xl">
+          <div key={drive.id} className="min-w-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
             <div className="flex items-center gap-2 border-b border-slate-800/60 px-4 py-3">
               <button
                 type="button"
-                className="app-no-press-scale flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                data-no-press
+                className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
                 aria-expanded={isExpanded}
                 aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={toggleDriveExpanded}
@@ -600,6 +598,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               </button>
               <DropdownMenu
                 aria-label="Drive actions"
+                clampMenuBelowSelector="[data-film-game-dropdown-clamp]"
                 items={[
                   {
                     label: "Delete Drive",
@@ -612,7 +611,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               />
               <button
                 type="button"
-                className="app-no-press-scale inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                data-no-press
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
                 aria-expanded={isExpanded}
                 aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={toggleDriveExpanded}
@@ -634,7 +634,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <div className="min-w-0 rounded-b-xl border-t border-slate-800/80 bg-slate-800/50 p-4">
                 <div className="mb-3 flex flex-col gap-3">
                   <div>
-                    <p className="app-field-label text-slate-500 dark:text-slate-500">Quarter</p>
+                    <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 dark:text-slate-500">Quarter</p>
                     <div className="flex flex-wrap gap-2">
                       {([1, 2, 3, 4] as const).map((q) => {
                         const effQ = drive.quarter == null ? 1 : drive.quarter;
@@ -724,7 +724,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     ending_absolute_yard: absoluteYardAfterLoggedPlay(p, drive.drive_number),
                   }))}
                   getRowKey={(p) => p.id}
-                  rowClassName="app-no-press-scale hover:bg-white/[0.02]"
+                  rowClassName="hover:bg-white/[0.02]"
                   onRowClick={undefined}
                   onRowContextMenu={(e, p) => {
                     e.preventDefault();
@@ -736,13 +736,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     const driveOutcome = getDriveResult(drive.plays);
                     const canLog = driveOutcome === "ACTIVE" || driveOutcome === "NO_PLAYS";
                     return canLog ? (
-                      <button
+                      <Button
                         type="button"
-                        className="btn-secondary w-full border-dashed py-3 text-sm"
+                        variant="secondary"
+                        className="w-full border-dashed py-3 text-sm"
                         onClick={() => openForCreate(drive.id)}
                       >
                         Add Play
-                      </button>
+                      </Button>
                     ) : (
                       <p className="text-center font-sans text-xs text-slate-500">Drive ended</p>
                     );
@@ -754,27 +755,31 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         );
       })}
               {drives.length > 0 ? (
-                <button
+                <Button
                   type="button"
-                  className="btn-secondary w-full border-dashed py-3 text-sm"
+                  variant="secondary"
+                  className="w-full border-dashed py-3 text-sm"
                   onClick={() => setShowDriveSetup(true)}
                 >
                   Add Drive
-                </button>
+                </Button>
               ) : null}
             </div>
 
             {game && showPartialWarning ? (
-              <div className="app-card app-card-pad !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">
+              <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100" role="status" aria-live="polite">
                 <p className="font-medium text-amber-200">Partial film</p>
                 <p className="mt-1 text-amber-100/90">Partial film may skew tendencies.</p>
               </div>
             ) : null}
           </div>
-        ) : (
-          <FilmGameTendenciesBody gameId={gameId} />
-        )}
-      </div>
+            ) : null}
+          </TabsContent>
+          <TabsContent value="tendencies" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+            {detailTab === "tendencies" ? <FilmGameTendenciesBody gameId={gameId} /> : null}
+          </TabsContent>
+        </div>
+      </Tabs>
 
       {showEndGameModal ? (
         <div className="fixed inset-0 z-[190] bg-black/60" onClick={() => setShowEndGameModal(false)}>
@@ -785,7 +790,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:max-h-[85vh]">
               <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">End game</h2>
-                <button type="button" className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
+                <button type="button" data-no-press className="p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
                     <path d="M6 6 18 18M18 6 6 18" />
                   </svg>
@@ -798,12 +803,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 </p>
               </div>
               <div className="flex flex-shrink-0 flex-col gap-3 border-t border-slate-800 p-3">
-                <button type="button" disabled={endingGame} onClick={() => void setGameEnded(true)} className="btn-destructive w-full">
+                <Button type="button" variant="destructive" className="w-full" disabled={endingGame} onClick={() => void setGameEnded(true)}>
                   End game
-                </button>
-                <button type="button" onClick={() => setShowEndGameModal(false)} className="btn-secondary-block w-full">
+                </Button>
+                <Button type="button" variant="secondary" className="w-full" onClick={() => setShowEndGameModal(false)}>
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -873,7 +878,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 </h2>
                 <button
                   type="button"
-                  className="app-no-press-scale p-2 -mr-2 text-slate-400 hover:text-white"
+                  data-no-press
+                  className="p-2 -mr-2 text-slate-400 hover:text-white"
                   onClick={() => {
                     setShowLogger(false);
                   }}
@@ -901,16 +907,17 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 <div className="shrink-0 space-y-3 border-t border-slate-800 bg-slate-900/95 px-4 py-4">
                   <p className="font-mono text-xs uppercase tracking-widest text-emerald-400/90">{GUIDED_INSIGHT_TITLE}</p>
                   <p className="font-body text-sm leading-relaxed text-slate-200">{guidedInsightBody}</p>
-                  <button
+                  <Button
                     type="button"
-                    className="btn-primary w-full text-sm"
+                    variant="default"
+                    className="w-full text-sm"
                     onClick={() => {
                       setShowLogger(false);
                       router.replace("/film");
                     }}
                   >
                     {GUIDED_FINISH_CTA}
-                  </button>
+                  </Button>
                 </div>
               ) : null}
             </div>

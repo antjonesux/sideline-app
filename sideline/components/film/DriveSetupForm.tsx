@@ -1,6 +1,7 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export type Quarter = "1" | "2" | "3" | "4" | "OT";
@@ -179,12 +180,12 @@ export function DriveSetupForm({
         </label>
       </div>
       <div className="flex gap-2 pt-2">
-        <button type="button" className="btn-secondary flex-1" onClick={onCancel}>
+        <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
           Cancel
-        </button>
-        <button type="button" disabled={!startingYardValid || busy} className="btn-primary flex-1" onClick={() => void submit()}>
+        </Button>
+        <Button type="button" variant="default" className="flex-1" disabled={!startingYardValid || busy} onClick={() => void submit()}>
           Start Drive
-        </button>
+        </Button>
       </div>
     </div>
   );

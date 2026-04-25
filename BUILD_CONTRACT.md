@@ -7,7 +7,8 @@ How we build **The Sideline**: a personal OC journal and live play sheet (Next.j
 ## Product intent
 
 - **Coach-first tool:** fast sideline logging, readable drives, tendencies that answer “what do I call here?” without analyst jargon.
-- **Three pillars** (bottom nav): **Film Room** (`/film`), **Game Plan** (`/playbook`), **Tendencies** (`/tendencies`). Home redirects to `/film`.
+- **Three pillars** (bottom nav): **Film Room** (`/film`), **Game Plan** (`/playbook`), **Tendencies** (`/tendencies`).
+- **Authenticated home (`/`):** **`app/page.tsx`** gates with **`HomeOnboardingGate`**. If the coach already has logged plays (sum of game **`play_count`** is above zero), the client **`replace`**s to **`/film`** automatically; otherwise **`/`** shows stepped onboarding (coaches may leave via the playbook CTA **`Link`** to Game Plan without that redirect). Unauthenticated visitors to **`/`** are **`redirect`**ed to **`/login`** (server).
 - **Mental model:** *game* → *drives* → *calls* (logged plays). Play names and formations come from the coach’s sheet vocabulary; CFB26 catalog (`cfb26_plays`) supplies canonical metadata (especially **RUN / PASS / RPO**).
 
 ---
@@ -15,7 +16,7 @@ How we build **The Sideline**: a personal OC journal and live play sheet (Next.j
 ## Source-of-truth order
 
 1. **Running code** under `sideline/` (layouts, APIs, components).
-2. **Repo-root `.cursorrules`** — typography, UX principles, copy/terminology, TS strictness, Preline/dark-mode rules, scaffolding, state/data patterns.
+2. **Repo-root `.cursorrules`** — typography, UX principles, copy/terminology, TS strictness, dark-mode and layout rules, scaffolding, state/data patterns.
 3. **`CHANGELOG.md`** (root) and **`sideline/CHANGELOG.md`** (file-level detail) — what shipped and why.
 4. **`BUILD_CONTRACT.md` / `DECISIONS.md`** — alignment; they must not contradict 1–2 without an explicit product decision.
 
@@ -81,7 +82,9 @@ Only establish a new convention when the change is intentional and scoped.
 ## UI / UX reuse rules
 
 - **Dark-only app** — `html` has `dark`; use `dark:` tokens / design tokens from `.cursorrules` and `globals.css` / `constants/designTokens` as elsewhere in the app.
-- **Preline first** for modals, tabs, dropdowns, accordions, toasts, etc.; dark variants required (see `.cursorrules`).
+- **shadcn/ui (Radix primitives)** for **tabs, dropdowns, selects, buttons**, and **dialogs** used for shared confirmations and settings-style shells (**`Dialog`** / **`ConfirmDestructiveModal`**, etc.); tokens from `globals.css` / CSS variables; dark-only styling required (see `.cursorrules`).
+- **Legacy full-bleed overlays:** some Film flows (**`app/film/[gameId]/page.tsx`**) still use **hand-rolled `fixed` + high `z-index` sheets** (e.g. end game, drive setup, full-screen logger). New work should **prefer `Dialog`** when touching those surfaces; do not copy the legacy pattern elsewhere without an explicit brief.
+- **Kebab / overflow menus:** Film drive rows use **`components/shared/DropdownMenu`** (declarative items + **`dropdownMenuRegistry`** so only one menu stays open in dense lists). Game and play sheet cards that need arbitrary menu rows and controlled open state next to modals use **`CardKebabMenu`** with **`@/components/ui/dropdown-menu`** children. Match the surface already using one of these two paths; do not add a third menu shell.
 - **Scroll and bottom nav:** root **`sideline/app/layout.tsx`** is authoritative — `main` uses `max-w-3xl`, horizontal padding, and **`pb-[calc(7rem+env(safe-area-inset-bottom,0px))]`** so content clears the fixed tab bar. Feature pages should not shrink bottom padding at `sm:` breakpoints in ways that overlap the nav.
 - **Bottom tab nav** — `z-40` in `BottomTabNav`; modals/overlays must stack above it (see recent film modal portal work in changelog).
 - **Feedback:** writes show success/error toasts; destructive actions confirm; loading uses skeletons shaped like content (per `.cursorrules`).

@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-24 — UI: Preline removal, shadcn migration, docs alignment
+
+### What
+
+- **Preline removed** from the Next app (no Preline scripts or components under `sideline/`); **`PrelineScript`** / **`PrelineScriptWrapper`** deleted.
+- **shadcn/ui** (Radix) primitives ship as tracked files under **`sideline/components/ui/`** (**`button`**, **`dialog`**, **`dropdown-menu`**, **`select`**, **`tabs`**) and drive dialogs, dropdowns, tabs, selects, and buttons across Film, Game Plan, Tendencies, auth, import, and shared shells.
+- **Shared drive kebab** ([`DropdownMenu`](sideline/components/shared/DropdownMenu.tsx)): **`clampMenuBelowSelector`** uses dynamic **`sideOffset`**; scroll/resize updates are **rAF-coalesced** with a **passive** capture-phase scroll listener; Film game detail uses **`data-film-game-dropdown-clamp`** on the Drive Summary / Tendencies **TabsList** and **`[data-film-game-dropdown-clamp]`** on the drive kebab.
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) — authenticated **`/`** (**`HomeOnboardingGate`**, auto **`/film`** only when logged plays exist), **shadcn `Dialog`** vs **Film** legacy full-bleed **fixed** overlays, two kebab patterns. [`DECISIONS.md`](DECISIONS.md) — **2026-04-24** ADR (**by default** / **new and shared surfaces**; **Film** legacy overlays called out in **Impact**).
+
+### Why
+
+- Ship gate for the design-system migration: stable focus, stacking, and a single component path without reintroducing Preline.
+
+### Status after this push
+
+- Broad **`sideline/`** UI and **`package.json`** / lockfile; **`components/ui/*.tsx`** (new); **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, both changelogs; **`components/shared/DropdownMenu.tsx`**, **`ConfirmDestructiveModal.tsx`**, **`app/layout.tsx`**, **`app/film/[gameId]/page.tsx`**, **`app/globals.css`**.
+
+---
+
 ## 2026-04-24 — Playbook: guided onboarding handoff and film game layout
 
 ### What
@@ -47,7 +66,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 - **`sideline/components.json`**: **default** style, **slate** `baseColor`, **CSS variables**, **`app/globals.css`**, aliases **`@/components/ui`** and **`@/lib/utils`**.
 - **Dependencies:** **`clsx`**, **`tailwind-merge`**, **`shadcn`**, **`tw-animate-css`** (for **`@import "shadcn/tailwind.css"`** and animations). **`components/ui/`** scaffold (**.gitkeep**).
 - **[`lib/utils.ts`](sideline/lib/utils.ts):** adds **`cn()`** via **`clsx` / `tailwind-merge`** while preserving **`normalizePlayName`** / **`withNormalizedPlayName`**.
-- **[`app/globals.css`](sideline/app/globals.css):** **`@import` / `@theme inline` / `:root` / `.dark`** shadcn theme tokens appended; **Preline** imports and existing **`@layer`** utilities unchanged.
+- **[`app/globals.css`](sideline/app/globals.css):** **`@import` / `@theme inline` / `:root` / `.dark`** shadcn theme tokens appended; existing app **`@layer`** utilities preserved (Preline imports removed with the migration).
 
 ### Why
 

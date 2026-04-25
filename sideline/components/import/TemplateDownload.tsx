@@ -1,6 +1,8 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
+import { Button } from "@/components/ui/button";
+
 const REQUIRED_COLS = [
   { key: "drive_number", desc: "Sequential drive number, starting at 1." },
   { key: "play_number", desc: "Global sequential play number, starting at 1." },
@@ -62,19 +64,21 @@ type Props = {
 export function TemplateDownload({ embedded, compact, variant = "default" }: Props) {
   if (variant === "headerInline") {
     return (
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
+        className="min-h-11 w-full px-3 py-2 text-xs sm:w-auto"
         onClick={() => downloadClientTemplate()}
-        className="btn-secondary min-h-11 !w-full px-3 py-2 text-xs sm:!w-auto"
       >
         Download Template
-      </button>
+      </Button>
     );
   }
 
   return (
     <div className="space-y-6">
-      {embedded ? null : <h3 className="app-section-title text-2xl">Download template</h3>}
+      {embedded ? null : <h3 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100 text-2xl">Download template</h3>}
 
       {compact ? null : (
         <>
@@ -103,7 +107,7 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
             ))}
           </div>
 
-          <div className="app-card app-card-pad text-sm text-slate-300">
+          <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-sm text-slate-300">
             <p>
               <span className="font-semibold text-slate-200">Valid results:</span> GAIN, FIRST DOWN, TOUCHDOWN, INCOMPLETE, SACK, LOSS, TURNOVER
               (INTERCEPTION), PUNT, NO GAIN, PENALTY
@@ -118,9 +122,9 @@ export function TemplateDownload({ embedded, compact, variant = "default" }: Pro
         </>
       )}
 
-      <button type="button" onClick={() => downloadClientTemplate()} className="btn-secondary-block min-h-11 py-3.5 text-sm">
+      <Button type="button" variant="secondary" className="w-full py-3.5 text-sm" onClick={() => downloadClientTemplate()}>
         Download CSV Template
-      </button>
+      </Button>
     </div>
   );
 }
