@@ -129,28 +129,30 @@ export function TendenciesHome() {
           ))}
         </TabsList>
 
-        <TabsContent value="working" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-          {tab === "working" ? (
-            <WhatsWorking
-              opponents={opponents}
-              playbook={playbookParam}
-              onPlaybookChange={setPlaybookInUrl}
-              playbookOptions={playbookOptions}
-              playbookLoading={playbooksQuery.isLoading}
-            />
-          ) : null}
-        </TabsContent>
-        <TabsContent value="predictable" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-          {tab === "predictable" ? (
-            <AmIPredictable
-              opponents={opponents}
-              playbook={playbookParam}
-              onPlaybookChange={setPlaybookInUrl}
-              playbookOptions={playbookOptions}
-              playbookLoading={playbooksQuery.isLoading}
-            />
-          ) : null}
-        </TabsContent>
+        <div className="pt-3">
+          <TabsContent value="working" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+            {tab === "working" ? (
+              <WhatsWorking
+                opponents={opponents}
+                playbook={playbookParam}
+                onPlaybookChange={setPlaybookInUrl}
+                playbookOptions={playbookOptions}
+                playbookLoading={playbooksQuery.isLoading}
+              />
+            ) : null}
+          </TabsContent>
+          <TabsContent value="predictable" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+            {tab === "predictable" ? (
+              <AmIPredictable
+                opponents={opponents}
+                playbook={playbookParam}
+                onPlaybookChange={setPlaybookInUrl}
+                playbookOptions={playbookOptions}
+                playbookLoading={playbooksQuery.isLoading}
+              />
+            ) : null}
+          </TabsContent>
+        </div>
       </Tabs>
     </section>
   );

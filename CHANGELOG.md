@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Tendencies: tab strip to filters spacing (Film game detail parity)
+
+### What
+
+- [`sideline/components/tendencies/TendenciesHome.tsx`](sideline/components/tendencies/TendenciesHome.tsx): wrap `TabsContent` for **What's Working** / **Am I Predictable?** in `<div className="pt-3">` so the gap below the top tabs matches the pattern used under the game-detail tab strip on [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx).
+
+### Why
+
+- Global Tendencies felt visually tight against the filters; Film already establishes `pt-3` below `TabsList`—reusing it keeps rhythm consistent without new spacing rules.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Modal and drawer mobile QA (dropdown focus, flush-bottom radius)
 
 ### What

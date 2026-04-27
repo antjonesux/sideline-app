@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Tendencies — tab strip to filters spacing, Film game detail parity)
+
+**What:** `components/tendencies/TendenciesHome.tsx` wraps both sub-tab `TabsContent` regions in `<div className="pt-3">`, matching the spacing below `TabsList` on `app/film/[gameId]/page.tsx` so filters sit with the same visual rhythm as Film game details.
+
+**Why:** Tendencies top tabs sat flush against the filter row; Film already uses this wrapper—reuse avoids a one-off spacing value and aligns cross-surface polish.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `TendenciesHome.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Modal/drawer mobile QA — combobox focus + flush bottom radius)
 
 **What:** `EditGameDetailsModal` and `CreatePlaybookModal` set `onOpenAutoFocus` on `DialogContent` to prevent default focus, then focus the dialog title so the first combobox is not auto-focused. `TeamCombobox` with `openOnFocus={false}` now calls `setOpen(false)` on `onFocus` to keep the list closed on programmatic focus and clear stale `open` state. `CreatePlaybookModal` passes `openOnFocus={false}` to the CFB26 selector and adds `rounded-b-none` on mobile dialog chrome. `AddPlayDrawer`, Play Logger, and Drive setup shells on `app/film/[gameId]/page.tsx` use `rounded-t-xl rounded-b-none` on mobile (full rounding restored at `sm:`) for flush bottom edges.
