@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Modal and drawer mobile QA (dropdown focus, flush-bottom radius)
+
+### What
+
+- [`sideline/components/film/EditGameDetailsModal.tsx`](sideline/components/film/EditGameDetailsModal.tsx) and [`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx): `DialogContent` `onOpenAutoFocus` now prevents the default first-field focus, then focuses the visible dialog title (`tabIndex={-1}`) so the **Your Team** / CFB26 combobox is not the initial focus target.
+- [`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx): when `openOnFocus={false}`, `onFocus` calls `setOpen(false)` so the list stays closed on programmatic focus and stale open state is cleared.
+- [`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx): `openOnFocus={false}` on the CFB26 playbook combobox; mobile `DialogContent` uses explicit `rounded-b-none` (desktop `sm:rounded-lg` unchanged).
+- Bottom-aligned mobile shells: `rounded-t-xl rounded-b-none` (and `sm:rounded-xl` / `sm:rounded-lg` where applicable) for [`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx), Play Logger and Drive setup wrappers in [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx), matching other bottom sheets.
+
+### Why
+
+- Radix Dialog’s default is to move focus to the first tabbable control inside the content, which made the “Your Team” field receive focus and could pair poorly with combobox state; moving initial focus to the title keeps the dropdown closed until an explicit user action and matches the in-game speed UX goal.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes; no new modal system or dependencies.
+
+---
+
 ## 2026-04-27 — Mobile modal sheet polish + CFB26 key casing + formation diagnostics
 
 ### What

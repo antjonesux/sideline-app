@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Modal/drawer mobile QA — combobox focus + flush bottom radius)
+
+**What:** `EditGameDetailsModal` and `CreatePlaybookModal` set `onOpenAutoFocus` on `DialogContent` to prevent default focus, then focus the dialog title so the first combobox is not auto-focused. `TeamCombobox` with `openOnFocus={false}` now calls `setOpen(false)` on `onFocus` to keep the list closed on programmatic focus and clear stale `open` state. `CreatePlaybookModal` passes `openOnFocus={false}` to the CFB26 selector and adds `rounded-b-none` on mobile dialog chrome. `AddPlayDrawer`, Play Logger, and Drive setup shells on `app/film/[gameId]/page.tsx` use `rounded-t-xl rounded-b-none` on mobile (full rounding restored at `sm:`) for flush bottom edges.
+
+**Why:** The default Radix first-field focus was the main driver for “Your Team” / playbook dropdowns feeling like they opened on modal open; bottom-aligned mobile overlays need square bottom corners when flush to the viewport.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `components/film/EditGameDetailsModal.tsx`, `components/film/TeamCombobox.tsx`, `components/playbook/CreatePlaybookModal.tsx`, `components/playbook/AddPlayDrawer.tsx`, `app/film/[gameId]/page.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (mobile modal sheet polish + CFB26 key casing + formation diagnostics)
 
 **What:** Updated settings/film/playbook/destructive modal shells to use consistent mobile bottom-sheet positioning, scroll-safe body regions, and safe-area aware action/footer spacing. Added `openOnFocus` to `components/film/TeamCombobox.tsx` and set `openOnFocus={false}` for setup selectors in `components/film/EditGameDetailsModal.tsx` to stop forced dropdown opens on focus. Updated `lib/constants.ts` so `CFB_CATALOG_GAME_VERSION` is lowercase `cfb26`. Added temporary runtime diagnostics in `hooks/useFormationGroups.ts` and `components/film/PlayBrowser.tsx` for formation-group payload/loading visibility.
