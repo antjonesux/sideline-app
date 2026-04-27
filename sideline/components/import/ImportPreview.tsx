@@ -42,7 +42,7 @@ export function ImportPreview({ onReupload, onNext }: Props) {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
-          { label: "Plays", value: stats.plays },
+          { label: "Calls", value: stats.plays },
           { label: "Drives", value: stats.drives },
           { label: "Total yards", value: stats.yards },
           { label: "TDs", value: stats.tds },

@@ -5,7 +5,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { IMPORT_FAILED } from "@/lib/coachCopy";
+import { COULDNT_LOAD_TEAM_LIST, IMPORT_FAILED } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
@@ -101,7 +101,7 @@ export default function FilmImportSavePage() {
       const err = offRes.error ?? defRes.error;
       if (err) {
         console.error("Import save setup Supabase error:", err);
-        setSetupError(err.message || "Could not load teams from Supabase.");
+        setSetupError(COULDNT_LOAD_TEAM_LIST);
         setOffensiveTeams([]);
         setDefensiveTeams([]);
         setSetupLoading(false);
@@ -326,7 +326,7 @@ export default function FilmImportSavePage() {
           </div>
 
           <Button type="submit" variant="default" size="lg" className="w-full flex-1" disabled={!canSubmit || submitBusy}>
-            {submitBusy ? "Importing…" : `Import ${validRows.length} plays`}
+            {submitBusy ? "Importing…" : `Import ${validRows.length} call${validRows.length === 1 ? "" : "s"}`}
           </Button>
 
           <Button

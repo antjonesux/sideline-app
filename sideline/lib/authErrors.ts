@@ -1,3 +1,5 @@
+import { AUTH_COULDNT_COMPLETE } from "@/lib/coachCopy";
+
 /** Converts raw Supabase auth error messages into user-friendly copy. */
 export function mapAuthError(raw: string): string {
   const lower = raw.toLowerCase();
@@ -16,5 +18,5 @@ export function mapAuthError(raw: string): string {
     return "Account registration is not enabled yet. Contact the team for access.";
   if (lower.includes("same_password") || lower.includes("same password"))
     return "New password must be different from your current password.";
-  return raw;
+  return AUTH_COULDNT_COMPLETE;
 }

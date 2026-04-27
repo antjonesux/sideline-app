@@ -32,9 +32,9 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
     return (
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
         <p className="text-center font-sans text-sm text-slate-400">
-          No plays logged yet.
+          No calls logged yet.
           <br />
-          Search for a formation and play above to start tracking.
+          Pick a formation and play above to log your first call.
         </p>
       </div>
     );
@@ -75,8 +75,8 @@ export function PlayLogFeed({ plays, driveNumber, onSelectPlay, onDeletePlay }: 
       <ConfirmDestructiveModal
         open={pendingDelete !== null}
         onClose={() => setPendingDelete(null)}
-        title="Delete play"
-        confirmLabel="Delete play"
+        title="Remove call"
+        confirmLabel="Remove call"
         message={
           pendingDelete ? (
             <>

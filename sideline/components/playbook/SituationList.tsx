@@ -58,7 +58,7 @@ export function SituationList({
             }`}
           >
             <span className="font-body text-sm text-slate-200">{scenarioDisplayLabel(s.scenario)}</span>
-            <span className="font-body text-[11px] text-slate-500">{n > 0 ? `${n} of ${max} plays` : "No plays added"}</span>
+            <span className="font-body text-[11px] text-slate-500">{n > 0 ? `${n} of ${max} calls` : "No calls added"}</span>
           </button>
         );
       })}

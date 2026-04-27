@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Coach-facing copy — P0 leaks, shared load errors, selective call terminology)
+
+**What:** `lib/coachCopy.ts` tightens **`COULDNT_LOAD`**, adds **`COULDNT_LOAD_TEAM_LIST`** and operation-neutral **`AUTH_COULDNT_COMPLETE`** for auth fallbacks, and updates **`ONBOARDING_START_LOGS`**. `lib/authErrors.ts` **`mapAuthError`** no longer returns raw vendor strings (uses shared fallback). `components/shared/HomeOnboardingGate.tsx` uses **`COULDNT_LOAD`** for playbook fetch failures. Film **`app/film/new/page.tsx`**, **`app/film/import/save/page.tsx`**, and **`components/film/EditGameDetailsModal.tsx`** show coach-safe team-catalog errors only (no `err.message`, no “Supabase”). **`app/film/[gameId]/page.tsx`**: active-drive CTA **“Log a call”**. In-game tendencies **`FilmGameTendenciesBody.tsx`**, **`PlayLogFeed.tsx`**, import **`ImportConfirmation.tsx`** / **`ImportPreview.tsx`** / save submit label, Game Plan **`PlaybookCard`**, **`SituationList`**, **`PlaybookEditor`**, **`CreatePlaybookModal`**, **`AddPlayDrawer`**, and Tendencies **`WhatsWorking.tsx`** use selective **call**-first wording where it describes logging or sheet actions; **`AddPlayDrawer`** title matches editor CTA (**“Add call”**).
+
+**Why:** Coach-facing UI must not leak technical auth or database text; shared copy should stay single-source; terminology should follow the coaching loop (**calls** for decisions/logging) without renaming domain surfaces like **“Top plays”** headers.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files listed above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Film — drive-end logger close, score prompt, ST punt/FG, play sheet filter)
 
 **What:** `PlayLoggerV2` adds **Special teams** shortcuts (**Punt** / **Field goal**) that reuse `YardageSheet` with synthetic `PlaybookEntry` rows. After a successful log, when `possessionEndedFromSnapAndTag` is true, `onPossessionEndedAfterLog` runs so `app/film/[gameId]/page.tsx` closes the Play Logger and opens an **Update score** modal (`DriveInlineScores` + existing `patchDriveAndPersist`). `lib/filmPlayCounting.ts`: `isCoachCallPlay` excludes ST-only FG rows (`play_name` **Field Goal** + `result_tag` **FIELD_GOAL**); `isExcludedFromPlaySheetPlay` filters catalog names **punt** / **field goal**. `PlayBrowser` gains `excludePlaySheetSpecialTeams`; `AddPlayDrawer` enables it so Game Plan cannot add those plays. Guided coach-call count uses `isCoachCallPlay`.

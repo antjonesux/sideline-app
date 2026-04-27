@@ -61,7 +61,7 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
         </div>
         <p className="mt-1 font-body text-sm text-slate-400">Built from {item.cfb26_playbook} playbook</p>
         <p className="mt-2 font-body text-xs text-slate-500">
-          {item.scenario_filled}/{item.scenario_total} scenarios filled · {item.play_count} plays
+          {item.scenario_filled}/{item.scenario_total} scenarios filled · {item.play_count} calls
         </p>
         <p className="mt-1 font-body text-[11px] text-slate-600">Last edited {formatRelative(item.updated_at)}</p>
       </Link>

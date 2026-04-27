@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Coach-facing copy (P0 auth/team load, shared errors, selective “call” wording)
+
+### What
+
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): Stronger **`COULDNT_LOAD`**; new **`COULDNT_LOAD_TEAM_LIST`** and **`AUTH_COULDNT_COMPLETE`**; **`ONBOARDING_START_LOGS`** aligned with call logging.
+- [`sideline/lib/authErrors.ts`](sideline/lib/authErrors.ts): **`mapAuthError`** catch-all returns shared coach-safe copy (no raw Supabase messages).
+- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): Playbook list failures use **`COULDNT_LOAD`**.
+- [`sideline/app/film/new/page.tsx`](sideline/app/film/new/page.tsx), [`sideline/app/film/import/save/page.tsx`](sideline/app/film/import/save/page.tsx), [`sideline/components/film/EditGameDetailsModal.tsx`](sideline/components/film/EditGameDetailsModal.tsx): Team catalog errors use **`COULDNT_LOAD_TEAM_LIST`** only.
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Drive CTA **“Log a call”**.
+- Film / import / Game Plan / Tendencies: selective terminology and empty-state copy in [`FilmGameTendenciesBody.tsx`](sideline/components/film/FilmGameTendenciesBody.tsx), [`PlayLogFeed.tsx`](sideline/components/film/play-logger/PlayLogFeed.tsx), [`ImportConfirmation.tsx`](sideline/components/import/ImportConfirmation.tsx), [`ImportPreview.tsx`](sideline/components/import/ImportPreview.tsx), [`PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx), [`SituationList.tsx`](sideline/components/playbook/SituationList.tsx), [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx), [`CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx), [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx), [`WhatsWorking.tsx`](sideline/components/tendencies/WhatsWorking.tsx).
+
+### Why
+
+- Removes vendor and raw auth error text from the coach UI, centralizes load/auth fallbacks in **`coachCopy`**, and aligns logger and sheet language with **calls** where it reflects coach actions.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Film: drive-end logger close, score prompt, punt/FG logging, play sheet exclusions
 
 ### What

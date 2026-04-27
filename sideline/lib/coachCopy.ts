@@ -2,7 +2,11 @@ import type { LoggedPlay } from "@/lib/types";
 
 /** Short, human strings for toasts and alerts — no API/DB details. */
 export const COULDNT_SAVE = "Couldn't save. Check connection and try again.";
-export const COULDNT_LOAD = "Something went wrong. Try again.";
+export const COULDNT_LOAD = "Couldn't load that. Check connection and try again.";
+/** Team catalog lists (Film new game / import tag game) — never surface vendor or DB errors. */
+export const COULDNT_LOAD_TEAM_LIST = "Couldn't load team lists. Check connection and try again.";
+/** Generic auth/session operation fallback — `mapAuthError` covers sign-in, sign-up, reset, password update, OAuth, sign-out. */
+export const AUTH_COULDNT_COMPLETE = "Couldn't complete that. Try again.";
 export const COULDNT_DELETE = "Couldn't remove that. Try again.";
 export const IMPORT_PARTIAL = "Some rows didn't import. Check the file and try again.";
 export const IMPORT_FAILED = "Couldn't import that file. Try again.";
@@ -29,7 +33,7 @@ export const ONBOARDING_PLAYBOOK_STEP_BODY =
 export const ONBOARDING_PLAYBOOK_CTA = "Create a starter play sheet";
 export const ONBOARDING_EDITOR_BANNER =
   "Add a handful of calls you would actually dial up (three is enough). They power YOUR CALLS in the logger.";
-export const ONBOARDING_START_LOGS = "Open logger and call 5 plays";
+export const ONBOARDING_START_LOGS = "Open logger and log 5 calls";
 export const ONBOARDING_SHEET_PLAY_COUNT = (n: number, min: number) =>
   `${n} call${n === 1 ? "" : "s"} on sheet · need at least ${min} to continue`;
 

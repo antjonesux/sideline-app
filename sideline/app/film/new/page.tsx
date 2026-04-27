@@ -4,7 +4,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { COULDNT_SAVE } from "@/lib/coachCopy";
+import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { emitProductEvent } from "@/lib/productAnalytics";
 import { createClient } from "@/lib/supabase/client";
@@ -116,7 +116,7 @@ export default function NewGamePage() {
       const err = offRes.error ?? defRes.error;
       if (err) {
         console.error("Film setup Supabase error:", err);
-        setSetupError(err.message || "Could not load teams from Supabase.");
+        setSetupError(COULDNT_LOAD_TEAM_LIST);
         setOffensiveTeams([]);
         setDefensiveTeams([]);
         setSetupLoading(false);

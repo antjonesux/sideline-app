@@ -448,7 +448,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
         <section className="min-w-0 space-y-4">
           <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
-            Plays for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
+            Calls for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
           </h2>
 
           {scenarioQuery.isError ? (
@@ -467,12 +467,12 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             </div>
           ) : filled === 0 ? (
             <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
-              <p className="font-body text-base font-medium text-white">No plays for this situation yet.</p>
+              <p className="font-body text-base font-medium text-white">No calls for this situation yet.</p>
               <p className="mt-1 font-body text-sm text-slate-400">
-                Add plays to build your call sheet.
+                Add calls to build your call sheet.
               </p>
               <Button type="button" variant="default" className="mt-4 text-sm" onClick={openAdd}>
-                Add Play
+                Add call
               </Button>
             </div>
           ) : (

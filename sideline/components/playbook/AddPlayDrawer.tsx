@@ -46,7 +46,7 @@ export function AddPlayDrawer({
                 id="add-play-drawer-title"
                 className="font-display text-base font-bold uppercase tracking-wider text-slate-100"
               >
-                Add play
+                Add call
               </h2>
               <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 mt-0.5 truncate">{scenarioDisplayLabel(scenarioName)}</p>
             </div>

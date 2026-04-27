@@ -149,8 +149,8 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
             <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Top plays</h2>
             {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
               <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
-                <p className="font-body text-sm text-slate-300">No plays logged for this filter yet.</p>
-                <p className="mt-1 font-body text-sm text-slate-500">Log plays in Film to see top calls and formations here.</p>
+                <p className="font-body text-sm text-slate-300">No calls logged for this filter yet.</p>
+                <p className="mt-1 font-body text-sm text-slate-500">Log calls in Film Room to see top calls and formations here.</p>
               </div>
             ) : null}
             {playsQuery.data && playsQuery.data.meta.play_count > 0 ? (

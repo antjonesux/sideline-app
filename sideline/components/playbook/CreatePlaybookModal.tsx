@@ -197,7 +197,7 @@ export function CreatePlaybookModal({
               <p>
                 <span className="text-slate-500">CFB26 Playbook:</span> {selectedPlaybook?.team_name}
               </p>
-              <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add plays in the editor.</p>
+              <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add calls in the editor.</p>
             </div>
           )}
         </div>

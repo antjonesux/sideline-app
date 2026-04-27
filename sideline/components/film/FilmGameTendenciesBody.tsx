@@ -39,7 +39,7 @@ function CoreStatsGrid({ stats }: { stats: GameTendenciesPayload["stats"] }) {
   const avgVal = avg > 0 ? `+${avg.toFixed(1)}` : String(avg.toFixed(1));
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Card label="Plays" value={String(stats.play_count)} />
+      <Card label="Calls" value={String(stats.play_count)} />
       <Card label="Yards" value={yardsVal} valueClass={yardsTone} />
       <Card label="Avg yds" value={avgVal} valueClass={avgTone} />
       <Card label="Success" value={`${stats.success_rate}%`} valueClass={successRateTextClass(stats.success_rate)} />
@@ -63,7 +63,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
       },
       {
         key: "plays",
-        header: "PLAYS",
+        header: "CALLS",
         render: (r) => <span className="font-mono tabular-nums text-sm text-slate-300">{r.plays}</span>,
       },
       {
@@ -109,7 +109,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
         {hasPlays ? (
           <PlayTypeDistribution data={data.play_type_distribution} />
         ) : (
-          <p className="font-sans text-sm text-slate-500">Log plays to see run, pass, and RPO splits.</p>
+          <p className="font-sans text-sm text-slate-500">Log calls to see run, pass, and RPO splits.</p>
         )}
       </section>
 

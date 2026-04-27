@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { COULDNT_SAVE } from "@/lib/coachCopy";
+import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import type { GameSession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
@@ -146,7 +146,8 @@ export function EditGameDetailsModal({
 
       const err = offRes.error ?? defRes.error;
       if (err) {
-        setSetupError(err.message || "Could not load teams from Supabase.");
+        console.error("Edit game details team catalog error:", err);
+        setSetupError(COULDNT_LOAD_TEAM_LIST);
         setOffensiveTeams([]);
         setDefensiveTeams([]);
         setSetupLoading(false);

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import {
+  COULDNT_LOAD,
   ONBOARDING_FILM_ROOM_BODY,
   ONBOARDING_FILM_ROOM_TITLE,
   ONBOARDING_GAME_DAY_BODY,
@@ -74,7 +75,7 @@ export function HomeOnboardingGate() {
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
       if (cancelled) return;
       if (!res.ok) {
-        setLoadErr("Something went wrong. Try again.");
+        setLoadErr(COULDNT_LOAD);
         setPlaybooks([]);
         return;
       }

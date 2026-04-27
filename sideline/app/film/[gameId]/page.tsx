@@ -803,7 +803,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                         className="w-full border-dashed py-3 text-sm"
                         onClick={() => openForCreate(drive.id)}
                       >
-                        Add Play
+                        Log a call
                       </Button>
                     ) : (
                       <p className="text-center font-sans text-xs text-slate-500">Drive ended</p>

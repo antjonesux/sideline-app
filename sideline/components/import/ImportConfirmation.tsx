@@ -17,9 +17,11 @@ export function ImportConfirmation({ playCount, sessionId }: Props) {
         </svg>
       </div>
       <div>
-        <h2 className="font-heading text-4xl font-bold uppercase tracking-wide text-white">{playCount} plays imported</h2>
+        <h2 className="font-heading text-4xl font-bold uppercase tracking-wide text-white">
+          {playCount} call{playCount === 1 ? "" : "s"} imported
+        </h2>
         <p className="mx-auto mt-3 max-w-md font-body text-sm text-slate-400">
-          Game data has been logged. Scenarios and field zones were auto-derived. Your analytics are ready.
+          Your calls are in the book. Situations and field were filled from the CSV—open the game to spot-check, then keep logging in Film Room.
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:mx-auto sm:max-w-md">
