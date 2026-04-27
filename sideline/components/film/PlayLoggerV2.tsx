@@ -52,8 +52,13 @@ export function PlayLoggerV2({
   const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
-  /** True when the current selection came from YOUR CALLS (play sheet) vs tendencies/search. */
-  const [selectedFromSheet, setSelectedFromSheet] = useState(false);
+  /**
+   * Where the pending selection came from. Distinguishes app-curated surfaces from unguided PlayBrowser
+   * (both previously used the same "not sheet" boolean).
+   */
+  const [playSelectionSource, setPlaySelectionSource] = useState<
+    "sheet" | "situation_suggestions" | "browser" | null
+  >(null);
   const [optimistic, setOptimistic] = useState<LoggedPlay[]>([]);
   const [flashOk, setFlashOk] = useState(false);
   const [accordionExpanded, setAccordionExpanded] = useState(false);
@@ -101,15 +106,19 @@ export function PlayLoggerV2({
     [mergedPlays],
   );
 
-  function handlePlaySelect(play: PlaybookEntry, fromSheet: boolean) {
+  function handlePlaySelect(
+    play: PlaybookEntry,
+    source: "sheet" | "situation_suggestions" | "browser",
+  ) {
     setSelectedPlay(play);
-    setSelectedFromSheet(fromSheet);
+    setPlaySelectionSource(source);
     setView("yardage");
   }
 
   async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number, submitFlowId?: string) {
     if (!selectedPlay) return;
-    const logCameFromSheet = selectedFromSheet;
+    const logSelectionSource = playSelectionSource;
+    const logCameFromSheet = logSelectionSource === "sheet";
     const logScenario = scenarioLabel;
     const uiTag =
       result === "PUNT"
@@ -170,7 +179,7 @@ export function PlayLoggerV2({
 
     setOptimistic((p) => [...p, optimisticPlay]);
     setSelectedPlay(null);
-    setSelectedFromSheet(false);
+    setPlaySelectionSource(null);
     setView("suggestions");
     setFlashOk(true);
     setTimeout(() => setFlashOk(false), 350);
@@ -203,6 +212,21 @@ export function PlayLoggerV2({
           gameId,
           sheetId: sheetId ?? null,
           scenario: logScenario,
+          source: "film_logger",
+        });
+      }
+      /**
+       * First-pass `play_call_changed_based_on_app_data` (not full causal proof):
+       * The coach successfully logged a play that was selected from an app-curated surface
+       * (YOUR CALLS = scenario play sheet, or "You've been calling…" = situation-based suggestions).
+       * Unguided PlayBrowser search/browse does not emit. Passive viewing without logging does not emit.
+       */
+      if (logSelectionSource === "sheet" || logSelectionSource === "situation_suggestions") {
+        emitProductEvent("play_call_changed_based_on_app_data", {
+          gameId,
+          appSelectionPath: logSelectionSource,
+          scenario: logScenario,
+          sheetId: sheetId ?? null,
           source: "film_logger",
         });
       }
@@ -378,7 +402,7 @@ export function PlayLoggerV2({
                     <PlayRow
                       key={`sheet-${play.play_id}`}
                       play={play}
-                      onSelect={(p) => handlePlaySelect(p, true)}
+                      onSelect={(p) => handlePlaySelect(p, "sheet")}
                     />
                   ))}
                 </div>
@@ -394,7 +418,11 @@ export function PlayLoggerV2({
 
             <div className="px-4 flex flex-col gap-2">
               {suggestions.map((play) => (
-                <PlayRow key={play.play_id} play={play} onSelect={(p) => handlePlaySelect(p, false)} />
+                <PlayRow
+                  key={play.play_id}
+                  play={play}
+                  onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
+                />
               ))}
             </div>
           </>
@@ -408,7 +436,7 @@ export function PlayLoggerV2({
             onCancel={() => {
               setView("suggestions");
               setSelectedPlay(null);
-              setSelectedFromSheet(false);
+              setPlaySelectionSource(null);
             }}
           />
         ) : null}
@@ -420,7 +448,7 @@ export function PlayLoggerV2({
           onClose={() => setBrowserOpen(false)}
           onSelect={(play) => {
             setBrowserOpen(false);
-            handlePlaySelect(play, false);
+            handlePlaySelect(play, "browser");
           }}
         />
       ) : null}

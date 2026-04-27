@@ -13,7 +13,9 @@ export type ProductAnalyticsEventName =
   | "full_game"
   | "tendencies_viewed"
   | "return_session"
-  | "on_sheet_call_made";
+  | "on_sheet_call_made"
+  /** Fires on successful log when the play was chosen from an app-curated path (not unguided browser search). See emit site for first-pass definition. */
+  | "play_call_changed_based_on_app_data";
 
 export type ProductAnalyticsEvent = {
   name: ProductAnalyticsEventName;
