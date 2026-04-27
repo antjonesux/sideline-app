@@ -122,14 +122,15 @@ create table if not exists cfb26_plays (
   formation_type text not null,
   play_name text not null,
   play_type text not null,
-  is_new_in_26 boolean default false
+  is_new_in_26 boolean default false,
+  game_version text not null default 'CFB26'
 );
 
--- Natural key for playbook seed upserts (fails if duplicate playbook/formation/play_name rows already exist).
+-- Natural key for playbook seed upserts (per game_version; see migrations for constraint upgrades on existing DBs).
 do $cfb26uniq$
 begin
   if not exists (select 1 from pg_constraint where conname = 'cfb26_plays_unique_play') then
-    alter table cfb26_plays add constraint cfb26_plays_unique_play unique (playbook, formation, play_name);
+    alter table cfb26_plays add constraint cfb26_plays_unique_play unique (playbook, formation, play_name, game_version);
   end if;
 end
 $cfb26uniq$;

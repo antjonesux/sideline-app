@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import type { GameSession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -133,7 +134,12 @@ export function EditGameDetailsModal({
           .select("team_name, defensive_scheme")
           .order("team_name", { ascending: true })
           .limit(20000),
-        supabase.from("cfb26_plays").select("playbook").not("playbook", "is", null).order("playbook"),
+        supabase
+          .from("cfb26_plays")
+          .select("playbook")
+          .eq("game_version", CFB_CATALOG_GAME_VERSION)
+          .not("playbook", "is", null)
+          .order("playbook"),
       ]);
       if (cancelled) return;
 

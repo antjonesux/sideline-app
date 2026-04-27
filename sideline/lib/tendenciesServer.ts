@@ -3,7 +3,7 @@ import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
-import { SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
+import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
@@ -181,7 +181,10 @@ export async function fetchCfbPlayTypeMap(
       .filter(Boolean)
       .map((book) => `playbook.ilike."${book}"`)
       .join(",");
-    const withPlayTypeQuery = supabase.from("cfb26_plays").select("playbook, formation, play_name, play_type");
+    const withPlayTypeQuery = supabase
+      .from("cfb26_plays")
+      .select("playbook, formation, play_name, play_type")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION);
     let data: { playbook: unknown; formation: unknown; play_name: unknown; play_type?: unknown }[] | null = null;
     let error: { message?: string } | null = null;
     const withPlayTypeResult = ilikeFilters ? await withPlayTypeQuery.or(ilikeFilters) : await withPlayTypeQuery.in("playbook", slice);
@@ -191,7 +194,10 @@ export async function fetchCfbPlayTypeMap(
       error && typeof error === "object" && "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
     if (errorMessage && /play_type/i.test(errorMessage) && /column/i.test(errorMessage)) {
       console.warn("[Tendencies] cfb26_plays.play_type missing; falling back to play_name-derived type.");
-      const fallbackQuery = supabase.from("cfb26_plays").select("playbook, formation, play_name");
+      const fallbackQuery = supabase
+        .from("cfb26_plays")
+        .select("playbook, formation, play_name")
+        .eq("game_version", CFB_CATALOG_GAME_VERSION);
       const fallbackResult = ilikeFilters ? await fallbackQuery.or(ilikeFilters) : await fallbackQuery.in("playbook", slice);
       data = ((fallbackResult.data ?? []) as { playbook: unknown; formation: unknown; play_name: unknown }[]).map((row) => ({
         ...row,
@@ -405,7 +411,11 @@ export function bestPlayForFormation(plays: LoggedPlayRow[], formation: string, 
 export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook: string) {
   const pb = playbook.trim();
   if (!pb) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
-  const { data, error } = await supabase.from("cfb26_plays").select("play_name").ilike("playbook", playbookIlikeExactPattern(pb));
+  const { data, error } = await supabase
+    .from("cfb26_plays")
+    .select("play_name")
+    .eq("game_version", CFB_CATALOG_GAME_VERSION)
+    .ilike("playbook", playbookIlikeExactPattern(pb));
   if (error) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const names = (data ?? []).map((r) => normalizePlayName(String(r.play_name ?? "")));
   let motion = 0;

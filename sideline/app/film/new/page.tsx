@@ -5,6 +5,7 @@ import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
@@ -102,7 +103,12 @@ export default function NewGamePage() {
           .select("team_name, defensive_scheme")
           .order("team_name", { ascending: true })
           .limit(20000),
-        supabase.from("cfb26_plays").select("playbook").not("playbook", "is", null).order("playbook"),
+        supabase
+          .from("cfb26_plays")
+          .select("playbook")
+          .eq("game_version", CFB_CATALOG_GAME_VERSION)
+          .not("playbook", "is", null)
+          .order("playbook"),
       ]);
       if (cancelled) return;
 

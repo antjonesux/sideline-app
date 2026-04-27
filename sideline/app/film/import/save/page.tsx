@@ -6,6 +6,7 @@ import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { IMPORT_FAILED } from "@/lib/coachCopy";
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { createClient } from "@/lib/supabase/client";
 import { useImportStore } from "@/store/importStore";
@@ -86,7 +87,12 @@ export default function FilmImportSavePage() {
       const [offRes, defRes, playbookRes] = await Promise.all([
         supabase.from("team_offensive_playbooks").select("team_name, playbook_name, scheme_style").order("team_name"),
         supabase.from("team_defensive_schemes").select("team_name, defensive_scheme").order("team_name"),
-        supabase.from("cfb26_plays").select("playbook").not("playbook", "is", null).order("playbook"),
+        supabase
+          .from("cfb26_plays")
+          .select("playbook")
+          .eq("game_version", CFB_CATALOG_GAME_VERSION)
+          .not("playbook", "is", null)
+          .order("playbook"),
       ]);
       if (cancelled) return;
 

@@ -1,3 +1,4 @@
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { supabase } from "@/lib/supabase";
 import { normalizePlayName } from "@/lib/utils";
@@ -10,6 +11,7 @@ export async function GET(req: NextRequest) {
   const { data } = await supabase
     .from("cfb26_plays")
     .select("formation, play_name")
+    .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(playbook))
     .order("formation", { ascending: true })
     .order("play_name", { ascending: true });

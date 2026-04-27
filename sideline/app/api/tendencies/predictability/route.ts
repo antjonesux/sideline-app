@@ -1,3 +1,4 @@
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import {
   attachPlayTypes,
@@ -74,6 +75,7 @@ typed_plays AS (
     ON LOWER(TRIM(cp.playbook)) = LOWER(TRIM(sp.game_playbook))
    AND LOWER(TRIM(cp.formation)) = LOWER(TRIM(sp.formation))
    AND LOWER(TRIM(cp.play_name)) = LOWER(TRIM(sp.play_name))
+   AND cp.game_version = '${CFB_CATALOG_GAME_VERSION}'
 )
 SELECT
   game_playbook,

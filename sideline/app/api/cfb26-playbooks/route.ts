@@ -1,3 +1,4 @@
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
@@ -10,6 +11,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("cfb26_plays")
       .select("playbook")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION)
       .not("playbook", "is", null)
       .range(offset, offset + pageSize - 1);
 

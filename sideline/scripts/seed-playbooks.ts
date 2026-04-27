@@ -19,12 +19,13 @@ import { ALL_SCHEMES, getSchemeForTeam } from "../lib/playbooks/scheme-classific
 import { resolveSeedPlayType } from "../lib/seed/playTypeClassifier";
 import type { TeamPlaybookSeed } from "../lib/seed/types";
 import { requireServiceSupabase } from "./_seedEnv";
+import { CFB_CATALOG_GAME_VERSION } from "../lib/constants";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const UNIQUE_CONSTRAINT_SQL = `ALTER TABLE cfb26_plays
 ADD CONSTRAINT cfb26_plays_unique_play
-UNIQUE (playbook, formation, play_name);`;
+UNIQUE (playbook, formation, play_name, game_version);`;
 
 const PROBE_PLAYBOOK = "__sideline_seed_probe__";
 
@@ -144,6 +145,7 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
     play_name: string;
     play_type: string;
     is_new_in_26: boolean;
+    game_version: string;
   }[] = [];
 
   for (const f of seed.formations) {
@@ -161,6 +163,7 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
           explicitPlayType: p.playType,
         }),
         is_new_in_26: Boolean(p.isNewIn26),
+        game_version: CFB_CATALOG_GAME_VERSION,
       });
     }
   }
@@ -177,13 +180,18 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
     formation_type: "Gun",
     play_type: "Inside Run",
     is_new_in_26: false,
+    game_version: CFB_CATALOG_GAME_VERSION,
   };
 
   const { error } = await supabase.from("cfb26_plays").upsert([probeRow], {
-    onConflict: "playbook,formation,play_name",
+    onConflict: "playbook,formation,play_name,game_version",
   });
 
-  await supabase.from("cfb26_plays").delete().eq("playbook", PROBE_PLAYBOOK);
+  await supabase
+    .from("cfb26_plays")
+    .delete()
+    .eq("playbook", PROBE_PLAYBOOK)
+    .eq("game_version", CFB_CATALOG_GAME_VERSION);
 
   if (
     error &&
@@ -192,7 +200,7 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
       /unique or exclusion constraint/i.test(error.message))
   ) {
     console.error(
-      "cfb26_plays is missing a unique constraint on (playbook, formation, play_name).\n" +
+      "cfb26_plays is missing a unique constraint on (playbook, formation, play_name, game_version).\n" +
         "Run this in the Supabase SQL editor (after removing any duplicate rows):\n\n" +
         UNIQUE_CONSTRAINT_SQL +
         "\n",
@@ -268,6 +276,7 @@ async function main() {
     const { data: existingRows, error: exErr } = await supabase
       .from("cfb26_plays")
       .select("formation, play_name")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION)
       .eq("playbook", playbook);
 
     if (exErr && !dryRun) {
@@ -300,7 +309,7 @@ async function main() {
     for (let i = 0; i < rows.length; i += chunk) {
       const slice = rows.slice(i, i + chunk);
       const { error: upErr } = await supabase.from("cfb26_plays").upsert(slice, {
-        onConflict: "playbook,formation,play_name",
+        onConflict: "playbook,formation,play_name,game_version",
       });
       if (upErr) {
         console.error("Upsert failed:", upErr.message);

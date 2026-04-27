@@ -44,3 +44,6 @@ export const SCENARIO_SHORT: Record<string, string> = {
   "4-Minute": "4 Minute",
   "2-Point Conversion": "2 Point",
 };
+
+/** `cfb26_plays.game_version` for the shipped reference catalog (migrations + seeds; future cycles add new values). */
+export const CFB_CATALOG_GAME_VERSION = "CFB26" as const;

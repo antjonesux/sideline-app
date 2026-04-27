@@ -11,6 +11,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { CFB_CATALOG_GAME_VERSION } from "../lib/constants";
 import type { TeamPlaybookSeed } from "../lib/seed/types";
 import { requireServiceSupabase } from "./_seedEnv";
 
@@ -86,6 +87,7 @@ async function verifySlug(supabase: SupabaseClient, slug: string) {
   const { data: dbRows, error } = await supabase
     .from("cfb26_plays")
     .select("formation, play_name, is_new_in_26")
+    .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .eq("playbook", playbook);
 
   if (error) {

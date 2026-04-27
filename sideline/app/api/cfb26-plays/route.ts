@@ -1,3 +1,4 @@
+import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { normalizePlayLabel } from "@/lib/normalizePlayLabel";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
@@ -77,6 +78,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from("cfb26_plays")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
       .order("formation", { ascending: true })
       .order("play_name", { ascending: true })
@@ -103,6 +105,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from("cfb26_plays")
       .select("play_name, is_new_in_26")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
       .eq("formation", formation)
       .order("play_name", { ascending: true });
@@ -129,6 +132,7 @@ export async function GET(req: NextRequest) {
     let searchQuery = supabase
       .from("cfb26_plays")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
+      .eq("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook));
     for (const term of terms) {
       const pattern = `%${term}%`.replace(/"/g, '""');
@@ -169,6 +173,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from("cfb26_plays")
     .select("formation, formation_type")
+    .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(playbook));
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400, headers: NO_STORE });
