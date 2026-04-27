@@ -933,7 +933,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 <PlayLoggerV2
                   gameId={gameId}
                   driveId={activeDriveObj.id}
-                  playbook={game.offensive_playbook ?? game.my_playbook}
+                  playbook={game.offensive_playbook ?? ""}
                   drive={activeDriveObj}
                   onRefresh={refresh}
                   sheetId={activeSheetId}

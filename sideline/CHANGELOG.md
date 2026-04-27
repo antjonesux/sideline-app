@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film logger — remove team-name fallback for playbook lookup)
+
+**What:** `app/film/[gameId]/page.tsx` now passes `game.offensive_playbook ?? ""` to `PlayLoggerV2` instead of `game.offensive_playbook ?? game.my_playbook`.
+
+**Why:** `my_playbook` is the team name, not the CFB playbook identifier expected by `/api/cfb26-plays`, so the fallback could return an empty list without surfacing an error.
+
+**Status after this push:** Film logger/browser catalog lookups no longer fall back to team names, and `npm run build` succeeds.
+
+---
+
 ## 2026-04-27 (Seed script — tighten upsert constraint detection + probe error logging)
 
 **What:** `scripts/seed-playbooks.ts` now treats the upsert-guard failure as a missing unique constraint only for the actual Postgres conflict-target error (`42P10` / matching message) instead of any generic `ON CONFLICT` text. Added a temporary probe log in `assertCfb26UpsertSupported` to print the raw upsert error object (`PROBE RESULT`) before cleanup.

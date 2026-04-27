@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film logger playbook lookup fallback fix
+
+### What
+
+- Updated [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx) so `PlayLoggerV2` now receives `game.offensive_playbook ?? ""` instead of falling back to `game.my_playbook`.
+
+### Why
+
+- `my_playbook` stores the team label, not the CFB playbook key used by `/api/cfb26-plays`; falling back to it could return 200 with empty `rows` and silently hide formations/plays.
+
+### Status after this push
+
+- Play logger/browser CFB lookup no longer uses the team-name fallback path, and `npm run build` passed.
+
+---
+
 ## 2026-04-27 — Seed script constraint-guard false-positive fix
 
 ### What
