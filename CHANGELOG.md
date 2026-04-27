@@ -23,6 +23,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-26 — DB: composite indexes for game/drive aggregation paths
+
+### What
+
+- **Migration** [`20260426120000_aggregation_path_indexes.sql`](sideline/supabase/migrations/20260426120000_aggregation_path_indexes.sql): **`idx_logged_plays_user_game`** `(user_id, game_session_id)`, **`idx_logged_plays_user_drive`** `(user_id, drive_id)`, **`idx_drives_user_game`** `(user_id, game_session_id)`.
+- **[`schema.sql`](sideline/supabase/schema.sql)** updated to match the same `create index if not exists` statements.
+
+### Why
+
+- Align indexes with real authenticated filter patterns (Film, Tendencies, Game Plan stats) and keep migration + snapshot schema in lockstep for deploys.
+
+### Status after this push
+
+- [`sideline/supabase/migrations/20260426120000_aggregation_path_indexes.sql`](sideline/supabase/migrations/20260426120000_aggregation_path_indexes.sql), [`sideline/supabase/schema.sql`](sideline/supabase/schema.sql), both changelogs.
+
+---
+
 ## 2026-04-24 — UI: Preline removal, shadcn migration, docs alignment
 
 ### What

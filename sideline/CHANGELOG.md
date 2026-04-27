@@ -14,6 +14,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-26 (DB — composite indexes: logged_plays + drives aggregation paths)
+
+**What:** Migration **`20260426120000_aggregation_path_indexes.sql`**: **`idx_logged_plays_user_game`** on **`logged_plays (user_id, game_session_id)`**, **`idx_logged_plays_user_drive`** on **`logged_plays (user_id, drive_id)`**, **`idx_drives_user_game`** on **`drives (user_id, game_session_id)`**. **`supabase/schema.sql`** mirrors the same indexes.
+
+**Why:** Pre-launch perf: user-scoped filters used by Film, Tendencies, and Game Plan read paths; migration + `schema.sql` stay aligned.
+
+**Status after this push:** `supabase/migrations/20260426120000_aggregation_path_indexes.sql`, `supabase/schema.sql`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-24 (UI — Preline out, shadcn in, drive menu clamp, contract docs)
 
 **What:** Removed **Preline** (**`PrelineScript`** / **`PrelineScriptWrapper`** deleted); migrated interactive UI to **shadcn/ui** with tracked **`components/ui/*.tsx`** (**`button`**, **`dialog`**, **`dropdown-menu`**, **`select`**, **`tabs`**). **`shared/DropdownMenu`**: **`clampMenuBelowSelector`**, dynamic **`sideOffset`**, rAF-coalesced scroll/resize + passive capture scroll listener; **`app/film/[gameId]/page.tsx`** **`TabsList`** **`data-film-game-dropdown-clamp`**. **`ConfirmDestructiveModal`** title classes deduped. Repo-root **`BUILD_CONTRACT.md`** (**`/`** gate, **Dialog** vs **Film** legacy overlays, kebab patterns) and **`DECISIONS.md`** (2026-04-24 ADR + **Impact** carve-out).

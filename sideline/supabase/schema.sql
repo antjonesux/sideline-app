@@ -172,6 +172,9 @@ create table if not exists team_defensive_schemes (
 create index if not exists idx_logged_plays_lookup on logged_plays (scenario, formation, play_name, hash);
 create index if not exists idx_logged_plays_game on logged_plays (game_session_id);
 create index if not exists idx_drives_game on drives (game_session_id);
+create index if not exists idx_logged_plays_user_game  on logged_plays (user_id, game_session_id);
+create index if not exists idx_logged_plays_user_drive on logged_plays (user_id, drive_id);
+create index if not exists idx_drives_user_game         on drives (user_id, game_session_id);
 
 create index if not exists idx_game_sessions_user on game_sessions(user_id);
 create index if not exists idx_play_sheets_user on play_sheets(user_id);
