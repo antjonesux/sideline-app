@@ -25,39 +25,60 @@ export async function GET(_: NextRequest, ctx: Ctx) {
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await ctx.params;
-  const { data, error } = await supabase.from("drives").select("*").eq("game_session_id", id).eq("user_id", user.id).order("drive_number", { ascending: true });
+  const [drivesRes, gameRes] = await Promise.all([
+    supabase
+      .from("drives")
+      .select("*")
+      .eq("game_session_id", id)
+      .eq("user_id", user.id)
+      .order("drive_number", { ascending: true }),
+    supabase
+      .from("game_sessions")
+      .select("id, my_playbook, offensive_playbook")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+  const { data, error } = drivesRes;
   if (error) return NextResponse.json([], { status: 200 });
 
-  const { data: gameSession } = await supabase
-    .from("game_sessions")
-    .select("id, my_playbook, offensive_playbook")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const { data: gameSession } = gameRes;
+  const drivesList = data ?? [];
   const pb = gameSession ? playbookForGame(gameSession as GameRow) : "";
-  const typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []);
 
-  const withPlays = await Promise.all(
-    (data ?? []).map(async (drive) => {
-      const { data: plays } = await supabase.from("logged_plays").select("*").eq("drive_id", drive.id).eq("user_id", user.id).order("play_number", { ascending: true });
-      return {
-        ...drive,
-        plays: (plays ?? []).map((p) => {
-          const normalized = withNormalizedPlayName(p);
-          return {
-            ...normalized,
-            play_type: storedPlayTypeFromMap(
-              pb,
-              normalized.formation,
-              normalized.play_name,
-              typeMap,
-              (normalized as { play_type?: string | null }).play_type,
-            ),
-          };
-        }),
-      };
-    }),
-  );
+  const [typeMap, playRows] = await Promise.all([
+    loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []),
+    Promise.all(
+      drivesList.map((drive) =>
+        supabase
+          .from("logged_plays")
+          .select("*")
+          .eq("drive_id", drive.id)
+          .eq("user_id", user.id)
+          .order("play_number", { ascending: true }),
+      ),
+    ),
+  ]);
+
+  const withPlays = drivesList.map((drive, i) => {
+    const { data: plays } = playRows[i] ?? { data: null };
+    return {
+      ...drive,
+      plays: (plays ?? []).map((p) => {
+        const normalized = withNormalizedPlayName(p);
+        return {
+          ...normalized,
+          play_type: storedPlayTypeFromMap(
+            pb,
+            normalized.formation,
+            normalized.play_name,
+            typeMap,
+            (normalized as { play_type?: string | null }).play_type,
+          ),
+        };
+      }),
+    };
+  });
 
   return NextResponse.json(withPlays);
 }
