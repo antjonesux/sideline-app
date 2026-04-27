@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film — remove game-detail CSV import link)
+
+**What:** `app/film/[gameId]/page.tsx` drops the **Upload CSV** `<Link>` to `/film/import?game_session_id=…` from the header action row; **Add Drive** and **End Game** unchanged. `app/film/import/`, `app/api/import/*`, and `components/import/*` are untouched so the flow can be re-wired later.
+
+**Why:** Reduce clutter on the core logging surface until product confirms CSV import is needed; import pages and APIs remain available for direct URL or future UI.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `page.tsx` (film game detail), repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Coach-facing copy — P0 leaks, shared load errors, selective call terminology)
 
 **What:** `lib/coachCopy.ts` tightens **`COULDNT_LOAD`**, adds **`COULDNT_LOAD_TEAM_LIST`** and operation-neutral **`AUTH_COULDNT_COMPLETE`** for auth fallbacks, and updates **`ONBOARDING_START_LOGS`**. `lib/authErrors.ts` **`mapAuthError`** no longer returns raw vendor strings (uses shared fallback). `components/shared/HomeOnboardingGate.tsx` uses **`COULDNT_LOAD`** for playbook fetch failures. Film **`app/film/new/page.tsx`**, **`app/film/import/save/page.tsx`**, and **`components/film/EditGameDetailsModal.tsx`** show coach-safe team-catalog errors only (no `err.message`, no “Supabase”). **`app/film/[gameId]/page.tsx`**: active-drive CTA **“Log a call”**. In-game tendencies **`FilmGameTendenciesBody.tsx`**, **`PlayLogFeed.tsx`**, import **`ImportConfirmation.tsx`** / **`ImportPreview.tsx`** / save submit label, Game Plan **`PlaybookCard`**, **`SituationList`**, **`PlaybookEditor`**, **`CreatePlaybookModal`**, **`AddPlayDrawer`**, and Tendencies **`WhatsWorking.tsx`** use selective **call**-first wording where it describes logging or sheet actions; **`AddPlayDrawer`** title matches editor CTA (**“Add call”**).

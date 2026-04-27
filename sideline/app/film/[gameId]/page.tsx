@@ -587,9 +587,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
             End Game
           </button>
-          <Link href={`/film/import?game_session_id=${encodeURIComponent(gameId)}`} className={filmGameSecondaryActionClass}>
-            Upload CSV
-          </Link>
         </div>
       </div>
 

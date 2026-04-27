@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film: hide CSV import entry point on game detail
+
+### What
+
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Removed the **Upload CSV** link from the secondary actions row (**Add Drive** / **End Game** unchanged). No changes to [`sideline/app/film/import/`](sideline/app/film/import/), [`sideline/app/api/import/`](sideline/app/api/import/), or [`sideline/components/import/`](sideline/components/import/).
+
+### Why
+
+- Keeps the game-detail surface focused on live logging before user feedback confirms batch CSV import; the import flow stays in the codebase for a future restoration pass.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Coach-facing copy (P0 auth/team load, shared errors, selective “call” wording)
 
 ### What
