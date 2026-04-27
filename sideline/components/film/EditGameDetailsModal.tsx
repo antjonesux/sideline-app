@@ -112,6 +112,7 @@ export function EditGameDetailsModal({
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
+  const dialogTitleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -319,10 +320,20 @@ export function EditGameDetailsModal({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
           id={EDIT_GAME_DIALOG_ID}
-          className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg"
+          className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg"
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            dialogTitleRef.current?.focus({ preventScroll: true });
+          }}
         >
           <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
-            <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit game details</DialogTitle>
+            <DialogTitle
+              ref={dialogTitleRef}
+              tabIndex={-1}
+              className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
+            >
+              Edit game details
+            </DialogTitle>
             <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">
               Update metadata only. Play-by-play is unchanged.
             </DialogDescription>

@@ -857,7 +857,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       {showDriveSetup && game ? (
         <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
           <div className="fixed inset-x-0 bottom-0 z-[196] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+            <div className="overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:rounded-xl">
               <div className="flex items-center justify-between border-b border-slate-800 p-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Drive Setup</h2>
                 <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>
@@ -910,7 +910,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh]">
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
               <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
                   {guidedMode ? GUIDED_LOGGER_TITLE : "Play Logger"}

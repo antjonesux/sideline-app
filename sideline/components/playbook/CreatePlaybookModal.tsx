@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 
@@ -43,6 +43,7 @@ export function CreatePlaybookModal({
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
   const [busy, setBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
+  const dialogTitleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (variant === "modal" && open) {
@@ -122,8 +123,16 @@ export function CreatePlaybookModal({
         <div className="flex items-start justify-between gap-3">
           <div>
             {variant === "modal" ? (
-              <DialogTitle asChild>
-                <h2 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100">New play sheet</h2>
+              <DialogTitle
+                ref={dialogTitleRef}
+                asChild
+              >
+                <h2
+                  tabIndex={-1}
+                  className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
+                >
+                  New play sheet
+                </h2>
               </DialogTitle>
             ) : (
               <h2 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100">New play sheet</h2>
@@ -176,6 +185,7 @@ export function CreatePlaybookModal({
                 getOptionKey={(o) => o.team_name}
                 getSearchText={(o) => o.team_name}
                 showTrailingChevron={false}
+                openOnFocus={false}
               />
               <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
             </>
@@ -231,7 +241,13 @@ export function CreatePlaybookModal({
         if (!next) onClose?.();
       }}
     >
-      <DialogContent className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white">
+      <DialogContent
+        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          dialogTitleRef.current?.focus({ preventScroll: true });
+        }}
+      >
         {inner}
       </DialogContent>
     </Dialog>

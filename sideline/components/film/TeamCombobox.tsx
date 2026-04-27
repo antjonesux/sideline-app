@@ -117,6 +117,9 @@ export function TeamCombobox<T extends { team_name: string }>({
               if (openOnFocus) {
                 setOpen(true);
                 updateDropPosition();
+              } else {
+                // Keep list closed on programmatic focus (e.g. dialog open) and clear stale open state.
+                setOpen(false);
               }
             }}
             onClick={() => {

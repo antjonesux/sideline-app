@@ -39,7 +39,7 @@ export function AddPlayDrawer({
         aria-labelledby="add-play-drawer-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh]">
+        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
           <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
             <div className="min-w-0">
               <h2
