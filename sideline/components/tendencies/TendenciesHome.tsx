@@ -11,8 +11,9 @@ import Link from "next/link";
 import { SettingsLink } from "@/components/shared/AppTopBar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { emitProductEvent } from "@/lib/productAnalytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Tab = "working" | "predictable";
 
@@ -28,6 +29,10 @@ export function TendenciesHome() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    emitProductEvent("tendencies_viewed", { path: `${pathname}` }, { dedupeKey: "tendencies", dedupeWindowMs: 2000 });
+  }, [pathname]);
   const playbookParam = searchParams.get("playbook")?.trim() || null;
 
   const setPlaybookInUrl = useCallback(

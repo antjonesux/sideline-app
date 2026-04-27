@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-26 — Analytics: product funnel events (game, plays, full game, tendencies, return)
+
+### What
+
+- **[`sideline/lib/productAnalytics.ts`](sideline/lib/productAnalytics.ts):** `emitProductEvent`, `window.__sidelineProductEvents`, **`CustomEvent` `sideline:product`** (same buffer pattern as perf). **[`sideline/lib/filmPlayCounting.ts`](sideline/lib/filmPlayCounting.ts):** coach-call vs total play counts for Film stats alignment. **[`ReturnSessionTracker`](sideline/components/providers/ReturnSessionTracker.tsx)** in **[`AppProviders`](sideline/components/providers/AppProviders.tsx)**.
+- Events: **`game_created`**, **`first_play`**, **`ten_plays`**, **`full_game`**, **`tendencies_viewed`**, **`return_session`** at the boundaries described in **`sideline/CHANGELOG.md`**.
+
+### Why
+
+- Launch-plan base measurement for core loop health without a third-party SDK or new APIs.
+
+### Status after this push
+
+- [`sideline/lib/productAnalytics.ts`](sideline/lib/productAnalytics.ts), [`sideline/lib/filmPlayCounting.ts`](sideline/lib/filmPlayCounting.ts), [`sideline/components/providers/ReturnSessionTracker.tsx`](sideline/components/providers/ReturnSessionTracker.tsx), [`sideline/components/providers/AppProviders.tsx`](sideline/components/providers/AppProviders.tsx), [`sideline/app/film/new/page.tsx`](sideline/app/film/new/page.tsx), [`sideline/app/film/import/save/page.tsx`](sideline/app/film/import/save/page.tsx), [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx), [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx), [`sideline/components/tendencies/TendenciesHome.tsx`](sideline/components/tendencies/TendenciesHome.tsx), both changelogs.
+
+---
+
 ## 2026-04-26 — Film: client perf instrumentation for critical flows
 
 ### What

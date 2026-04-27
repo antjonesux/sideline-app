@@ -6,6 +6,8 @@ import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { IMPORT_FAILED } from "@/lib/coachCopy";
+import { isCoachCallPlay } from "@/lib/filmPlayCounting";
+import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { createClient } from "@/lib/supabase/client";
@@ -180,6 +182,18 @@ export default function FilmImportSavePage() {
       if (!res.ok || !body.session_id) {
         addToast(IMPORT_FAILED, "error");
         return;
+      }
+
+      const gid = body.session_id;
+      emitProductEvent("game_created", { gameId: gid, source: "import_csv" });
+      if (validRows.length >= 1 && !wasMilestoneFired("first_play", gid)) {
+        markMilestoneFired("first_play", gid);
+        emitProductEvent("first_play", { gameId: gid, source: "import_csv" });
+      }
+      const coachN = validRows.filter((r) => isCoachCallPlay({ play_name: r.play_name, result_tag: r.result_db })).length;
+      if (coachN >= 10 && !wasMilestoneFired("ten_plays", gid)) {
+        markMilestoneFired("ten_plays", gid);
+        emitProductEvent("ten_plays", { gameId: gid, source: "import_csv" });
       }
 
       setImportedSession(body.session_id);

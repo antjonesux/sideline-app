@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-26 (Analytics — product funnel events: game, plays, full game, tendencies, return)
+
+**What:** **`lib/productAnalytics.ts`**: `emitProductEvent`, `window.__sidelineProductEvents`, **`sideline:product`** (mirrors perf buffer pattern). **`lib/filmPlayCounting.ts`**: shared coach-call vs all-play counts. **`ReturnSessionTracker`** in **`AppProviders`**. Events: **`game_created`** (`film/new`, import save), **`first_play`** / **`ten_plays`** (logger + import; milestones via **localStorage**), **`full_game`** (End game **PUT** success), **`tendencies_viewed`** (**`TendenciesHome`** mount + dedupe), **`return_session`** (prior browser visit via **localStorage**).
+
+**Why:** Launch-plan base measurement for core loop health without a third-party SDK or new APIs.
+
+**Status after this push:** `lib/productAnalytics.ts`, `lib/filmPlayCounting.ts`, `components/providers/ReturnSessionTracker.tsx`, `components/providers/AppProviders.tsx`, `app/film/new/page.tsx`, `app/film/import/save/page.tsx`, `app/film/[gameId]/page.tsx`, `components/film/PlayLoggerV2.tsx`, `components/tendencies/TendenciesHome.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-26 (Film — client perf instrumentation: game load, logger+sheet, submit→next)
 
 **What:** **`lib/perfInstrumentation.ts`**: `startCriticalFlow` / `endCriticalFlow` for **`film_game_detail_load`**, **`film_logger_open_with_sheet`**, **`film_submit_to_next_play`**; events via **`sideline:perf`**, buffer **`window.__sidelinePerfEvents`** capped at **300**. **`app/film/[gameId]/page.tsx`**: load timing; **`openForCreate`** supersedes prior logger-open with **`superseded_by_new_open`**. **`usePlaySuggestions`** ends logger-open on sheet fetch / skip / cleanup. **`PlayLoggerV2`** + **`YardageSheet`**: submit→refresh timing; **try/catch** on save path.

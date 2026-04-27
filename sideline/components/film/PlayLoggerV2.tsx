@@ -12,7 +12,9 @@ import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
 import { COULDNT_SAVE, GUIDED_LOGGER_HINT } from "@/lib/coachCopy";
+import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
+import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 
 type LoggerView = "suggestions" | "yardage";
 
@@ -28,6 +30,10 @@ interface PlayLoggerV2Props {
   loggerOpenFlowId?: string | null;
   /** Optional coach hint for guided onboarding (real logger only). */
   guidedProgress?: { current: number; target: number } | null;
+  /** Plays in this game (all drives) before this log — parent state, no optimistic rows. */
+  totalPlayRowsInGame: number;
+  /** Non-punt call count before this log — matches Film game header stats. */
+  totalCoachCallsInGame: number;
 }
 
 export function PlayLoggerV2({
@@ -39,6 +45,8 @@ export function PlayLoggerV2({
   sheetId,
   loggerOpenFlowId,
   guidedProgress,
+  totalPlayRowsInGame,
+  totalCoachCallsInGame,
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -137,6 +145,8 @@ export function PlayLoggerV2({
       drive_number: drive.drive_number,
       situation_override: null,
     };
+    const allPlaysAfterLog = totalPlayRowsInGame + 1;
+    const coachCallsAfterLog = totalCoachCallsInGame + (isCoachCallPlay(snap) ? 1 : 0);
     const optimisticPlay: LoggedPlay = {
       id: `optimistic-${Date.now()}`,
       play_number: mergedPlays.length + 1,
@@ -173,6 +183,14 @@ export function PlayLoggerV2({
           endCriticalFlow(submitFlowId, "error", { reason: "save_play_failed" });
         }
         return;
+      }
+      if (allPlaysAfterLog === 1 && !wasMilestoneFired("first_play", gameId)) {
+        markMilestoneFired("first_play", gameId);
+        emitProductEvent("first_play", { gameId, source: "film_logger" });
+      }
+      if (coachCallsAfterLog === 10 && !wasMilestoneFired("ten_plays", gameId)) {
+        markMilestoneFired("ten_plays", gameId);
+        emitProductEvent("ten_plays", { gameId, source: "film_logger" });
       }
       setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       await onRefresh();

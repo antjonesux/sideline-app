@@ -6,6 +6,7 @@ import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { emitProductEvent } from "@/lib/productAnalytics";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
@@ -254,6 +255,7 @@ export default function NewGamePage() {
         addToast(COULDNT_SAVE, "error");
         return;
       }
+      emitProductEvent("game_created", { gameId: game.id, source: "film_new" });
       setLastGame({ my_playbook: setup.offensive_team, my_scheme: setup.offensive_scheme });
       addToast("Game ready.", "success");
       router.push(`/film/${game.id}`);

@@ -34,7 +34,9 @@ import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 import { absoluteYardAfterLoggedPlay, replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { countCoachCallsInGame, countPlaysInGame } from "@/lib/filmPlayCounting";
 import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
+import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -305,6 +307,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (!gameId || endingGame) return;
     setEndingGame(true);
     try {
+      const wasEnded = Boolean(game?.ended_at);
       const endedAt = nextEnded ? new Date().toISOString() : null;
       const res = await fetch(`/api/games/${gameId}`, {
         method: "PUT",
@@ -317,6 +320,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       }
       const updated = (await res.json()) as GameSession;
       setGame(updated);
+      if (nextEnded && !wasEnded && !wasMilestoneFired("full_game", gameId)) {
+        markMilestoneFired("full_game", gameId);
+        emitProductEvent("full_game", { gameId });
+      }
       setShowEndGameModal(false);
       await refresh();
     } finally {
@@ -450,16 +457,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     return undefined;
   }
 
-  const totalPlays = drives.reduce(
-    (sum, d) =>
-      sum +
-      (d.plays ?? []).filter((p) => {
-        const playName = String(p.play_name ?? "").trim().toLowerCase();
-        const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
-        return playName !== "punt" && resultTag !== "punt";
-      }).length,
-    0,
-  );
+  const totalPlays = countCoachCallsInGame(drives);
+  const totalPlayRowsInGame = countPlaysInGame(drives);
   const totalDrives = drives.length;
   const totalYards = drives.reduce(
     (sum, d) =>
@@ -942,6 +941,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   guidedProgress={
                     guidedMode ? { current: Math.min(guidedCallCount, 5), target: 5 } : null
                   }
+                  totalPlayRowsInGame={totalPlayRowsInGame}
+                  totalCoachCallsInGame={totalPlays}
                 />
               </div>
               {guidedMode && guidedInsightBody ? (
