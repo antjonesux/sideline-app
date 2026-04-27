@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Supabase production migration history reconciliation
+
+### What
+
+- Repaired remote Supabase migration history entries that existed only in production metadata so CLI history checks no longer blocked deploy commands.
+- Added baseline migration file [`supabase/migrations/20260427141345_remote_schema.sql`](supabase/migrations/20260427141345_remote_schema.sql) from the reconciliation flow and pushed it to the linked production project.
+- Verified `supabase migration list` is conflict-free and ran a full production build from `sideline/`.
+
+### Why
+
+- Production schema was already correct, but migration history metadata drift prevented normal migration operations.
+
+### Status after this push
+
+- Migration history is aligned for ongoing CLI use, one baseline migration is recorded, and `npm run build` passed including TypeScript.
+
+---
+
 ## 2026-04-26 — Infrastructure: Vercel + Supabase production env hints
 
 ### What

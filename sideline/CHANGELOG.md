@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Supabase production migration history reconciliation)
+
+**What:** Repaired remote migration-history entries that were present in production without matching local files, then pushed the generated baseline migration **`supabase/migrations/20260427141345_remote_schema.sql`** after history cleanup.
+
+**Why:** The production schema was already correct, but migration-history drift blocked normal Supabase CLI flows.
+
+**Status after this push:** `supabase migration list` is conflict-free and `npm run build` completed successfully with TypeScript checks.
+
+---
+
 ## 2026-04-26 (Infrastructure — Vercel + Supabase production env)
 
 **What:** **Repo root** `package.json`: **`engines.node` `>=20`**. **`.env.example`**: production env + Supabase Auth redirect allowlist notes (Vercel / custom domain).
