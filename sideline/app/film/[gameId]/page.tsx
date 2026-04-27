@@ -34,7 +34,7 @@ import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 import { absoluteYardAfterLoggedPlay, replayGameStateFromPlays } from "@/lib/gameStateEngine";
-import { countCoachCallsInGame, countPlaysInGame } from "@/lib/filmPlayCounting";
+import { countCoachCallsInGame, countPlaysInGame, isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { Button } from "@/components/ui/button";
@@ -53,14 +53,6 @@ function getDriveResult(plays: LoggedPlay[] | undefined | null): DrivePossession
 
 function normalizeResultTag(tag: string): string {
   return tag.trim().toUpperCase().replace(/_/g, " ");
-}
-
-function countCoachCallsOnDrive(plays: LoggedPlay[] | undefined): number {
-  return (plays ?? []).filter((p) => {
-    const playName = String(p.play_name ?? "").trim().toLowerCase();
-    const resultTag = String(p.result_tag ?? "").trim().toLowerCase();
-    return playName !== "punt" && resultTag !== "punt";
-  }).length;
 }
 
 function formatDate(isoDate: string): string {
@@ -147,7 +139,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const addToast = useToastStore((s) => s.addToast);
   const guidedBootRef = useRef<"off" | "pending" | "done">("off");
   const loggerOpenFlowIdRef = useRef<string | null>(null);
-  useScrollLock(showEndGameModal || showLogger);
+  const [scorePromptDriveId, setScorePromptDriveId] = useState<string | null>(null);
+  useScrollLock(showEndGameModal || showLogger || scorePromptDriveId !== null);
 
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
 
@@ -500,8 +493,13 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
   const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
+  const scorePromptDrive = scorePromptDriveId
+    ? drives.find((d) => d.id === scorePromptDriveId) ?? null
+    : null;
 
-  const guidedCallCount = activeDriveObj ? countCoachCallsOnDrive(activeDriveObj.plays) : 0;
+  const guidedCallCount = activeDriveObj
+    ? (activeDriveObj.plays ?? []).filter((p) => isCoachCallPlay(p)).length
+    : 0;
   const guidedInsightBody =
     guidedMode && activeDriveObj && guidedCallCount >= 5
       ? guidedInsightFromLoggedPlays(activeDriveObj.plays ?? [])
@@ -943,6 +941,11 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   }
                   totalPlayRowsInGame={totalPlayRowsInGame}
                   totalCoachCallsInGame={totalPlays}
+                  onPossessionEndedAfterLog={(endedDriveId) => {
+                    setShowLogger(false);
+                    setScorePromptDriveId(endedDriveId);
+                    setExpandedDriveIds((cur) => [...new Set([...cur, endedDriveId])]);
+                  }}
                 />
               </div>
               {guidedMode && guidedInsightBody ? (
@@ -962,6 +965,59 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   </Button>
                 </div>
               ) : null}
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {scorePromptDriveId && scorePromptDrive ? (
+        <>
+          <div
+            className="fixed inset-0 z-[205] bg-black/60"
+            onClick={() => setScorePromptDriveId(null)}
+            aria-hidden
+          />
+          <div
+            className="fixed inset-x-0 bottom-0 z-[206] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal
+            aria-labelledby="score-prompt-title"
+          >
+            <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-xl border border-slate-700 bg-slate-900 sm:max-h-[85vh] sm:rounded-xl">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-4">
+                <h2 id="score-prompt-title" className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
+                  Update score
+                </h2>
+                <button
+                  type="button"
+                  data-no-press
+                  className="p-2 -mr-2 text-slate-400 hover:text-white"
+                  onClick={() => setScorePromptDriveId(null)}
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <p className="mb-4 font-sans text-sm text-slate-400">
+                  This drive ended. Adjust the drive score if it changed. Nothing is saved until you edit the fields below; you can always change scores later from the drive card.
+                </p>
+                <DriveInlineScores
+                  key={scorePromptDriveId}
+                  driveId={scorePromptDriveId}
+                  scoreMine={scorePromptDrive.score_mine}
+                  scoreOpponent={scorePromptDrive.score_opponent}
+                  onSaveBoth={(mine, theirs) => patchDriveAndPersist(scorePromptDriveId, { score_mine: mine, score_opponent: theirs })}
+                />
+              </div>
+              <div className="flex flex-shrink-0 border-t border-slate-800 p-4">
+                <Button type="button" variant="default" className="w-full text-sm" onClick={() => setScorePromptDriveId(null)}>
+                  Close
+                </Button>
+              </div>
             </div>
           </div>
         </>

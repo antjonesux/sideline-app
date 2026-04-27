@@ -6,6 +6,7 @@ import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
 import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { possessionEndedFromSnapAndTag } from "@/lib/driveOutcome";
 import { formatFieldPosition } from "@/lib/fieldPosition";
 import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
@@ -17,6 +18,23 @@ import { endCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 
 type LoggerView = "suggestions" | "yardage";
+
+/** Film-only picks for logging punts / field goals without choosing an offensive call from the sheet. */
+const FILM_LOGGER_ST_PUNT: PlaybookEntry = {
+  play_id: "__film_logger_st_punt__",
+  formation: "Special Teams",
+  group: "Special Teams",
+  play_name: "Punt",
+  play_type: "RUN",
+};
+
+const FILM_LOGGER_ST_FIELD_GOAL: PlaybookEntry = {
+  play_id: "__film_logger_st_fg__",
+  formation: "Special Teams",
+  group: "Special Teams",
+  play_name: "Field Goal",
+  play_type: "RUN",
+};
 
 interface PlayLoggerV2Props {
   gameId: string;
@@ -34,6 +52,8 @@ interface PlayLoggerV2Props {
   totalPlayRowsInGame: number;
   /** Non-punt call count before this log — matches Film game header stats. */
   totalCoachCallsInGame: number;
+  /** Fired after a successful save when this snap ended the possession (TD, FG, punt, turnover, turnover on downs, etc.). */
+  onPossessionEndedAfterLog?: (driveId: string) => void;
 }
 
 export function PlayLoggerV2({
@@ -47,6 +67,7 @@ export function PlayLoggerV2({
   guidedProgress,
   totalPlayRowsInGame,
   totalCoachCallsInGame,
+  onPossessionEndedAfterLog,
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -57,7 +78,7 @@ export function PlayLoggerV2({
    * (both previously used the same "not sheet" boolean).
    */
   const [playSelectionSource, setPlaySelectionSource] = useState<
-    "sheet" | "situation_suggestions" | "browser" | null
+    "sheet" | "situation_suggestions" | "browser" | "special_teams" | null
   >(null);
   const [optimistic, setOptimistic] = useState<LoggedPlay[]>([]);
   const [flashOk, setFlashOk] = useState(false);
@@ -116,7 +137,7 @@ export function PlayLoggerV2({
 
   function handlePlaySelect(
     play: PlaybookEntry,
-    source: "sheet" | "situation_suggestions" | "browser",
+    source: "sheet" | "situation_suggestions" | "browser" | "special_teams",
   ) {
     setSelectedPlay(play);
     setPlaySelectionSource(source);
@@ -247,6 +268,9 @@ export function PlayLoggerV2({
           resultTag: snap.result_tag,
         });
       }
+      if (possessionEndedFromSnapAndTag(snap.down, snap.result_tag)) {
+        onPossessionEndedAfterLog?.(driveId);
+      }
     } catch (error) {
       setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       addToast(COULDNT_SAVE, "error");
@@ -368,6 +392,26 @@ export function PlayLoggerV2({
       >
         {view === "suggestions" ? (
           <>
+            <div className="mb-3 px-4">
+              <p className="mb-2 font-mono text-xs uppercase tracking-widest text-slate-500">Special teams</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="min-h-11 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-center font-sans text-sm font-medium text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                  onClick={() => handlePlaySelect(FILM_LOGGER_ST_PUNT, "special_teams")}
+                >
+                  Punt
+                </button>
+                <button
+                  type="button"
+                  className="min-h-11 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-center font-sans text-sm font-medium text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                  onClick={() => handlePlaySelect(FILM_LOGGER_ST_FIELD_GOAL, "special_teams")}
+                >
+                  Field goal
+                </button>
+              </div>
+            </div>
+
             <div className="mb-3 px-4">
               <button
                 type="button"

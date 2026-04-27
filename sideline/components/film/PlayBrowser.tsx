@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import type { PlaybookEntry } from "@/lib/playbook";
+import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
 import { useFormationGroups } from "@/hooks/useFormationGroups";
 
 type BrowserStep = "formations" | "plays";
@@ -14,6 +15,8 @@ interface PlayBrowserProps {
   onClose: () => void;
   /** Level 1 only: hides the header Back that dismisses the overlay (e.g. Game Plan modal uses close icon). Level 2 always shows Back to formations. */
   showTopLevelBack?: boolean;
+  /** When true, hides Punt / Field Goal catalog entries so they cannot be added to a play sheet. */
+  excludePlaySheetSpecialTeams?: boolean;
 }
 
 const browserBackButtonClass =
@@ -27,7 +30,13 @@ function stripGroupPrefix(formationName: string, groupName: string): string {
   return formationName;
 }
 
-export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = true }: PlayBrowserProps) {
+export function PlayBrowser({
+  playbook,
+  onSelect,
+  onClose,
+  showTopLevelBack = true,
+  excludePlaySheetSpecialTeams = false,
+}: PlayBrowserProps) {
   const { groups, entries, loading } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
@@ -45,6 +54,7 @@ export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = tr
     const q = query.trim().toLowerCase();
     if (!q) return [];
     return entries.filter((entry) => {
+      if (excludePlaySheetSpecialTeams && isExcludedFromPlaySheetPlay(entry)) return false;
       return (
         entry.play_name.toLowerCase().includes(q) ||
         entry.formation.toLowerCase().includes(q) ||
@@ -52,13 +62,15 @@ export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = tr
         entry.play_type.toLowerCase().includes(q)
       );
     });
-  }, [query, entries]);
+  }, [query, entries, excludePlaySheetSpecialTeams]);
 
   const selectedPlays = useMemo(() => {
     if (!selectedFormation) return [];
     const g = groups.find((x) => x.group === selectedFormation.group);
-    return g?.formations.find((f) => f.name === selectedFormation.name)?.plays ?? [];
-  }, [groups, selectedFormation]);
+    const raw = g?.formations.find((f) => f.name === selectedFormation.name)?.plays ?? [];
+    if (!excludePlaySheetSpecialTeams) return raw;
+    return raw.filter((p) => !isExcludedFromPlaySheetPlay(p));
+  }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
 
   useEffect(() => {
     console.log("[PlayLoggerV2->PlayBrowser] pre-render formations", {

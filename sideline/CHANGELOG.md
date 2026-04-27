@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film — drive-end logger close, score prompt, ST punt/FG, play sheet filter)
+
+**What:** `PlayLoggerV2` adds **Special teams** shortcuts (**Punt** / **Field goal**) that reuse `YardageSheet` with synthetic `PlaybookEntry` rows. After a successful log, when `possessionEndedFromSnapAndTag` is true, `onPossessionEndedAfterLog` runs so `app/film/[gameId]/page.tsx` closes the Play Logger and opens an **Update score** modal (`DriveInlineScores` + existing `patchDriveAndPersist`). `lib/filmPlayCounting.ts`: `isCoachCallPlay` excludes ST-only FG rows (`play_name` **Field Goal** + `result_tag` **FIELD_GOAL**); `isExcludedFromPlaySheetPlay` filters catalog names **punt** / **field goal**. `PlayBrowser` gains `excludePlaySheetSpecialTeams`; `AddPlayDrawer` enables it so Game Plan cannot add those plays. Guided coach-call count uses `isCoachCallPlay`.
+
+**Why:** Drive completion is a natural break—closing the logger and prompting score updates keeps the log accurate without hunting for the next action; punt/FG must be loggable in Film without appearing on offensive play sheets.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `PlayLoggerV2.tsx`, `page.tsx` (film game detail), `PlayBrowser.tsx`, `AddPlayDrawer.tsx`, `filmPlayCounting.ts`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Tendencies — tab strip to filters spacing, Film game detail parity)
 
 **What:** `components/tendencies/TendenciesHome.tsx` wraps both sub-tab `TabsContent` regions in `<div className="pt-3">`, matching the spacing below `TabsList` on `app/film/[gameId]/page.tsx` so filters sit with the same visual rhythm as Film game details.

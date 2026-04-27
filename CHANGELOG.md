@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film: drive-end logger close, score prompt, punt/FG logging, play sheet exclusions
+
+### What
+
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): **Special teams** row (**Punt** / **Field goal**) opens the existing yardage flow with synthetic catalog rows; after save, parent is notified when the possession ended (`possessionEndedFromSnapAndTag`).
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): closes Play Logger on possession end, shows **Update score** modal reusing [`DriveInlineScores`](sideline/components/film/DriveInlineScores.tsx); scroll lock includes the score prompt; guided counts use shared coach-call rules.
+- [`sideline/lib/filmPlayCounting.ts`](sideline/lib/filmPlayCounting.ts): `isCoachCallPlay` excludes ST-only field-goal rows; `isExcludedFromPlaySheetPlay` for exact **punt** / **field goal** play names.
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): optional `excludePlaySheetSpecialTeams` for search and formation play lists.
+- [`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx): passes the filter so Game Plan add-play cannot select those catalog entries.
+
+### Why
+
+- Completed drives should close the logger and offer an immediate, user-confirmed score update; punt and field goal belong in Film logging but not on offensive play sheets.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Tendencies: tab strip to filters spacing (Film game detail parity)
 
 ### What

@@ -69,6 +69,7 @@ export function AddPlayDrawer({
               playbook={cfb26Playbook}
               onClose={onClose}
               showTopLevelBack={false}
+              excludePlaySheetSpecialTeams
               onSelect={(play) => {
                 void onPick(play.formation, normalizePlayName(play.play_name));
                 onClose();
