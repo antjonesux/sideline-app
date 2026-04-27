@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Seed script — tighten upsert constraint detection + probe error logging)
+
+**What:** `scripts/seed-playbooks.ts` now treats the upsert-guard failure as a missing unique constraint only for the actual Postgres conflict-target error (`42P10` / matching message) instead of any generic `ON CONFLICT` text. Added a temporary probe log in `assertCfb26UpsertSupported` to print the raw upsert error object (`PROBE RESULT`) before cleanup.
+
+**Why:** The guard was false-triggering despite an existing unique constraint, so the check needed to key off the exact database error semantics and expose the raw error payload for diagnosis.
+
+**Status after this push:** Seeding guard remains in place, false positives from broad message matching are reduced, and temporary probe output is available for live debugging.
+
+---
+
 ## 2026-04-27 (Supabase production migration history reconciliation)
 
 **What:** Repaired remote migration-history entries that were present in production without matching local files, then pushed the generated baseline migration **`supabase/migrations/20260427141345_remote_schema.sql`** after history cleanup.

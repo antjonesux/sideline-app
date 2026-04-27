@@ -187,6 +187,8 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
     onConflict: "playbook,formation,play_name,game_version",
   });
 
+  console.log("PROBE RESULT:", JSON.stringify(error, null, 2));
+
   await supabase
     .from("cfb26_plays")
     .delete()
@@ -195,9 +197,11 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
 
   if (
     error &&
-    (/no unique constraint/i.test(error.message) ||
-      /ON CONFLICT/i.test(error.message) ||
-      /unique or exclusion constraint/i.test(error.message))
+    (error.code === "42P10" ||
+      /there is no unique or exclusion constraint matching the on conflict specification/i.test(
+        error.message,
+      ) ||
+      /no unique constraint/i.test(error.message))
   ) {
     console.error(
       "cfb26_plays is missing a unique constraint on (playbook, formation, play_name, game_version).\n" +

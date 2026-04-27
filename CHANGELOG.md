@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Seed script constraint-guard false-positive fix
+
+### What
+
+- Updated [`sideline/scripts/seed-playbooks.ts`](sideline/scripts/seed-playbooks.ts) so `assertCfb26UpsertSupported` flags missing conflict-target constraints only for the real Postgres signature (`42P10` / matching message), instead of any error mentioning `ON CONFLICT`.
+- Added a temporary probe log to print the raw upsert error object (`PROBE RESULT`) immediately after the probe upsert and before cleanup.
+
+### Why
+
+- The guard was incorrectly failing in environments where the unique constraint already exists, because the prior message match was too broad.
+
+### Status after this push
+
+- Seed safety guard remains intact with narrower detection and extra diagnostics for real-world error-object inspection.
+
+---
+
 ## 2026-04-27 — Supabase production migration history reconciliation
 
 ### What
