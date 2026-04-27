@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (mobile modal sheet polish + CFB26 key casing + formation diagnostics)
+
+**What:** Updated settings/film/playbook/destructive modal shells to use consistent mobile bottom-sheet positioning, scroll-safe body regions, and safe-area aware action/footer spacing. Added `openOnFocus` to `components/film/TeamCombobox.tsx` and set `openOnFocus={false}` for setup selectors in `components/film/EditGameDetailsModal.tsx` to stop forced dropdown opens on focus. Updated `lib/constants.ts` so `CFB_CATALOG_GAME_VERSION` is lowercase `cfb26`. Added temporary runtime diagnostics in `hooks/useFormationGroups.ts` and `components/film/PlayBrowser.tsx` for formation-group payload/loading visibility.
+
+**Why:** Mobile overlays needed a single reliable interaction pattern across flows; setup combobox focus transitions were opening menus too aggressively; catalog version casing needed to match current lookups; and recent formation-browser debugging required direct runtime logs.
+
+**Status after this push:** Modal behavior is more consistent across mobile/desktop surfaces, setup comboboxes no longer auto-open on focus where not desired, the CFB26 version key matches lowercase usage, and diagnostics are available for formation-browser tracing.
+
+---
+
 ## 2026-04-27 (Film logger/browser — add runtime playbook fetch diagnostics)
 
 **What:** Added temporary client logs in `components/film/PlayLoggerV2.tsx` and `hooks/useFormationGroups.ts` to print the exact `playbook` prop/value and the exact `/api/cfb26-plays?...` request URL used by the formation browser path.

@@ -46,4 +46,4 @@ export const SCENARIO_SHORT: Record<string, string> = {
 };
 
 /** `cfb26_plays.game_version` for the shipped reference catalog (migrations + seeds; future cycles add new values). */
-export const CFB_CATALOG_GAME_VERSION = "CFB26" as const;
+export const CFB_CATALOG_GAME_VERSION = "cfb26" as const;

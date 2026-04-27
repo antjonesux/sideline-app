@@ -319,7 +319,7 @@ export function EditGameDetailsModal({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
           id={EDIT_GAME_DIALOG_ID}
-          className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg"
+          className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg"
         >
           <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
             <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit game details</DialogTitle>
@@ -346,6 +346,7 @@ export function EditGameDetailsModal({
                   loading={setupLoading}
                   placeholder="Select your team"
                   nextFocusRef={opponentInputRef}
+                  openOnFocus={false}
                 />
 
                 <TeamCombobox<DefensiveTeam>
@@ -463,7 +464,7 @@ export function EditGameDetailsModal({
               </div>
 
               </div>
-              <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
+              <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
                 <Button type="button" variant="secondary" className="flex-1" onClick={() => setIsOpen(false)}>
                   Cancel
                 </Button>

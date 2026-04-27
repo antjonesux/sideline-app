@@ -115,7 +115,7 @@ export function CreatePlaybookModal({
       className={`mx-auto flex flex-col ${
         variant === "page"
           ? "w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 shadow-xl"
-          : "h-full w-full flex-1 overflow-hidden rounded-none border-0 bg-slate-900 shadow-none sm:h-auto sm:max-h-[inherit] sm:overflow-visible"
+          : "h-full min-h-0 w-full flex-1 overflow-hidden rounded-none border-0 bg-slate-900 shadow-none sm:h-auto sm:max-h-[inherit] sm:overflow-visible"
       }`}
     >
       <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900 px-4 py-4 sm:px-6">
@@ -143,8 +143,8 @@ export function CreatePlaybookModal({
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-1 flex-col">
-        <div className="space-y-5 px-4 py-5 sm:px-6">
+      <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
           {loadErr ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
               {loadErr}
@@ -192,7 +192,7 @@ export function CreatePlaybookModal({
           )}
         </div>
 
-        <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
+        <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
           {step === 2 ? (
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(1)}>
               Back
@@ -231,7 +231,7 @@ export function CreatePlaybookModal({
         if (!next) onClose?.();
       }}
     >
-      <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg [&>button]:text-slate-400 [&>button]:hover:text-white">
+      <DialogContent className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white">
         {inner}
       </DialogContent>
     </Dialog>

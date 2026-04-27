@@ -28,7 +28,7 @@ function stripGroupPrefix(formationName: string, groupName: string): string {
 }
 
 export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = true }: PlayBrowserProps) {
-  const { groups, entries } = useFormationGroups(playbook);
+  const { groups, entries, loading } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
   const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
@@ -59,6 +59,14 @@ export function PlayBrowser({ playbook, onSelect, onClose, showTopLevelBack = tr
     const g = groups.find((x) => x.group === selectedFormation.group);
     return g?.formations.find((f) => f.name === selectedFormation.name)?.plays ?? [];
   }, [groups, selectedFormation]);
+
+  useEffect(() => {
+    console.log("[PlayLoggerV2->PlayBrowser] pre-render formations", {
+      groups,
+      isLoading: loading,
+      error: null,
+    });
+  }, [groups, loading]);
 
   const level1Header = (
     <div className="w-full border-b border-slate-700 bg-slate-900">

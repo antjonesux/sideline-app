@@ -147,8 +147,18 @@ export function SettingsPageClient({ email }: { email: string }) {
       </BottomSheet>
 
       {/* --- Password drawer --- */}
-      <BottomSheet open={activeDrawer === "password"} onClose={closeDrawer} title="Update password">
+      <BottomSheet
+        open={activeDrawer === "password"}
+        onClose={closeDrawer}
+        title="Update password"
+        footer={
+          <Button type="submit" form="settings-password-form" variant="default" className="w-full" disabled={!pwValid || pwBusy}>
+            {pwBusy ? "Updating…" : "Update password"}
+          </Button>
+        }
+      >
         <form
+          id="settings-password-form"
           className="space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
@@ -189,26 +199,23 @@ export function SettingsPageClient({ email }: { email: string }) {
             <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
           )}
           {pwError && <p className="font-sans text-sm text-red-400">{pwError}</p>}
-          <Button type="submit" variant="default" className="w-full" disabled={!pwValid || pwBusy}>
-            {pwBusy ? "Updating\u2026" : "Update password"}
-          </Button>
         </form>
       </BottomSheet>
 
       {/* --- Sign out drawer --- */}
-      <BottomSheet open={activeDrawer === "signout"} onClose={closeDrawer} title="Sign out">
+      <BottomSheet
+        open={activeDrawer === "signout"}
+        onClose={closeDrawer}
+        title="Sign out"
+        footer={
+          <Button type="button" variant="default" className="w-full" disabled={signOutBusy} onClick={() => void handleSignOut()}>
+            {signOutBusy ? "Signing out…" : "Sign out"}
+          </Button>
+        }
+      >
         <p className="font-sans text-sm text-slate-400">
           You'll need to sign in again to access your data.
         </p>
-        <Button
-          type="button"
-          variant="default"
-          className="mt-4 w-full"
-          disabled={signOutBusy}
-          onClick={() => void handleSignOut()}
-        >
-          {signOutBusy ? "Signing out\u2026" : "Sign out"}
-        </Button>
       </BottomSheet>
 
       {/* --- Delete account (destructive modal) --- */}
@@ -272,11 +279,13 @@ function BottomSheet({
   onClose,
   title,
   children,
+  footer,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   if (!open) return null;
 
@@ -290,8 +299,8 @@ function BottomSheet({
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-full rounded-t-xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl">
-          <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+        <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl">
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
             <h2 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 text-lg">{title}</h2>
             <button
               type="button"
@@ -305,7 +314,12 @@ function BottomSheet({
               <span className="sr-only">Close</span>
             </button>
           </div>
-          <div className="p-4 sm:p-6">{children}</div>
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
+          {footer ? (
+            <div className="shrink-0 border-t border-slate-800 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:p-6 sm:pb-6">
+              {footer}
+            </div>
+          ) : null}
         </div>
       </div>
     </>

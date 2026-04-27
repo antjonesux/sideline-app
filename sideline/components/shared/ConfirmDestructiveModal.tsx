@@ -40,7 +40,7 @@ export function ConfirmDestructiveModal({
       }}
     >
       <DialogContent
-        className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-md [&>button]:text-slate-400 [&>button]:hover:text-white"
+        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-md sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
         onPointerDownOutside={(e) => {
           if (busy) e.preventDefault();
         }}
@@ -56,7 +56,7 @@ export function ConfirmDestructiveModal({
             <div className="font-body text-sm leading-relaxed text-slate-300">{message}</div>
           </DialogDescription>
         </div>
-        <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3 sm:px-6">
+        <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6">
           <Button type="button" variant="secondary" className="flex-1 py-3" disabled={busy} onClick={onClose}>
             Cancel
           </Button>

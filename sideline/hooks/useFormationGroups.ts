@@ -38,6 +38,11 @@ export function useFormationGroups(playbook: string) {
         const json = (await res.json()) as {
           rows?: Array<{ formation: string; play_name: string; play_type?: string | null; formation_type?: string | null }>;
         };
+        console.log("[useFormationGroups] fetch resolved", {
+          ok: res.ok,
+          status: res.status,
+          rowsPreview: (json.rows ?? []).slice(0, 3),
+        });
         if (!res.ok || cancelled) return;
         setRows(
           (json.rows ?? []).map((row) => ({
@@ -75,6 +80,14 @@ export function useFormationGroups(playbook: string) {
       }))
       .sort((a, b) => sortFormationTypes(a.group, b.group));
   }, [rows]);
+
+  useEffect(() => {
+    console.log("[useFormationGroups] return", {
+      groups,
+      isLoading: loading,
+      error: null,
+    });
+  }, [groups, loading]);
 
   return { groups, entries: rows, loading };
 }

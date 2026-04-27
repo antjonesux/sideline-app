@@ -30,6 +30,8 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   getOptionKey?: (item: T) => string;
   /** When false, no chevron on the input (e.g. Playbook tab comboboxes). Default true for Film flows. */
   showTrailingChevron?: boolean;
+  /** Controls whether focusing the input should auto-open options. */
+  openOnFocus?: boolean;
 };
 
 function visibleTeams<T extends { team_name: string }>(
@@ -56,6 +58,7 @@ export function TeamCombobox<T extends { team_name: string }>({
   getSearchText,
   getOptionKey,
   showTrailingChevron = true,
+  openOnFocus = true,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -111,8 +114,10 @@ export function TeamCombobox<T extends { team_name: string }>({
             }}
             onFocus={(e) => {
               e.target.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
-              setOpen(true);
-              updateDropPosition();
+              if (openOnFocus) {
+                setOpen(true);
+                updateDropPosition();
+              }
             }}
             onClick={() => {
               if (!selected) setOpen(true);

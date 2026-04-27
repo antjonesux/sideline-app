@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Mobile modal sheet polish + CFB26 key casing + formation diagnostics
+
+### What
+
+- Updated shared modal/bottom-sheet surfaces across settings, film, playbook, and destructive confirms to use mobile-first bottom anchoring, safe-area aware action footers, and scroll-safe body containers.
+- Added `openOnFocus` support to [`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx) and disabled auto-open for setup comboboxes in [`sideline/components/film/EditGameDetailsModal.tsx`](sideline/components/film/EditGameDetailsModal.tsx) so focus does not force dropdown expansion.
+- Updated [`sideline/lib/constants.ts`](sideline/lib/constants.ts) so `CFB_CATALOG_GAME_VERSION` matches lowercase `cfb26`.
+- Added temporary runtime diagnostics in [`sideline/hooks/useFormationGroups.ts`](sideline/hooks/useFormationGroups.ts) and [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx) to log formation payload/loading state during browser rendering.
+
+### Why
+
+- Coaches using mobile bottom sheets needed consistent sticky headers, body scrolling, and submit/action footers that remain reachable above device safe areas.
+- Film setup comboboxes were opening too aggressively on focus transitions.
+- Catalog-version key casing needed to align with current lookup usage.
+- Additional runtime logging was needed to validate formation grouping behavior during recent empty-browser investigations.
+
+### Status after this push
+
+- Modal surfaces now follow a consistent mobile/desktop pattern, setup combobox focus behavior is calmer, constants align with lowercase CFB26 catalog keys, and temporary diagnostics are in place for formation-browser tracing.
+
+---
+
 ## 2026-04-27 — Film logger/browser runtime playbook diagnostics
 
 ### What

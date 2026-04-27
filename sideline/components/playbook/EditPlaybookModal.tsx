@@ -96,7 +96,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
     >
       <DialogContent
         id={EDIT_PLAYBOOK_DIALOG_ID}
-        className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
       >
         <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
           <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit play sheet</DialogTitle>
@@ -140,7 +140,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
             <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
           </div>
 
-          <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 sm:px-6 sm:py-5">
+          <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
             <button
               type="button"
               className="min-h-11 flex-1 rounded-lg px-4 py-2.5 text-center font-body text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-100"
