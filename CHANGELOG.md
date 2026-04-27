@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film Play Logger: Browse / Situational / My Sheet tabs, inline PlayBrowser
+
+### What
+
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Optional **`presentation`** (`overlay` default, **`inline`** for embedding): inline mode skips browser **`history`** back-to-close, drops the full-bleed overlay shell, and hides the top-level **Back** control.
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): Replaces the browse CTA + full-screen browser with **shadcn `Tabs`** — **Browse** (inline formation browser), **Situational** (“You’ve been calling…” + suggestions), **My Sheet** when a sheet is linked (YOUR CALLS list + empty-state copy). Tab triggers mirror the Film game detail tab styling.
+
+### Why
+
+- One less overlay for common browse; clearer split between situation engine picks and sheet-based calls; visual parity with Drive Summary / Tendencies tabs.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Film logger QA: cache, tendencies, end-game Dialog, perf cancel
 
 ### What

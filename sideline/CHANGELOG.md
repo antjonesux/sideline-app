@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film Play Logger — Browse / Situational / My Sheet tabs + inline PlayBrowser)
+
+**What:** `components/film/PlayBrowser.tsx` adds **`presentation?: "overlay" | "inline"`** (default overlay): inline skips **`history.pushState` / `popstate`** back-to-close, uses a flex column root instead of the full-bleed animated overlay, and suppresses the top-level **Back** when embedded. `components/film/PlayLoggerV2.tsx` replaces the **Search plays & formations** button + full-screen browser overlay with **shadcn `Tabs`**: **Browse** (inline `PlayBrowser`), **Situational** (“You’ve been calling…” + engine suggestions), optional **My Sheet** when `sheetId` is set (YOUR CALLS from the sheet, empty copy when none match); tab trigger styling aligns with **`gameDetailTabTriggerClass`** on `app/film/[gameId]/page.tsx`.
+
+**Why:** Fewer taps and no stacked overlay for formation browse; clearer separation between situation suggestions and sheet-based calls; consistent tab strip with Film game detail.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Film logger QA — TanStack film-logger cache, Dialog end game, perf cancel)
 
 **What:** `lib/filmLoggerQueryKeys.ts` (prefix + catalog + sheet keys), `lib/filmLoggerCatalogFetch.ts` (CFB26 catalog + play-sheet scenario fetch), `lib/filmLoggerCallingSuggestions.ts`; `hooks/useFormationGroups.ts` + `hooks/usePlaySuggestions.ts` share catalog query + stale times; `usePlaySuggestions` emits **`endCriticalFlow` cancelled** on flow id change / unmount when the open flow did not finish; `app/film/[gameId]/page.tsx` prefetches catalog, passes `allGameCoachCalls` into `PlayLoggerV2`, invalidates **`film-logger`** on `refresh()`, end-game flow uses **`Dialog`** + score fields, ended-game **Resume** / no Add Drive; `components/ui/dialog.tsx` accepts **`overlayClassName`** for Film z-stacking; `components/film/PlayLoggerV2.tsx`, `PlayBrowser.tsx`, `coachCopy.ts`.

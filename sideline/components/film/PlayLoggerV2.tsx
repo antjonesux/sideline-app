@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PlayBrowser } from "@/components/film/PlayBrowser";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
@@ -19,6 +20,12 @@ import { endCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 
 type LoggerView = "suggestions" | "yardage";
+
+type LoggerPickTab = "browse" | "situational" | "my_sheet";
+
+/** Matches `gameDetailTabTriggerClass` in `app/film/[gameId]/page.tsx` (Drive Summary / Tendencies). */
+const filmLoggerPickTabTriggerClass =
+  "flex min-h-12 w-full items-center justify-center rounded-none border-b-2 border-transparent bg-transparent px-2 text-center text-sm font-sans font-medium text-slate-400 shadow-none ring-offset-transparent transition-colors data-[state=active]:border-amber-400 data-[state=active]:bg-transparent data-[state=active]:text-slate-100 data-[state=active]:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
 
 interface PlayLoggerV2Props {
   gameId: string;
@@ -57,8 +64,8 @@ export function PlayLoggerV2({
   allGameCoachCalls,
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
-  const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
+  const [pickTab, setPickTab] = useState<LoggerPickTab>("browse");
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
   /**
    * Where the pending selection came from. Distinguishes app-curated surfaces from unguided PlayBrowser
@@ -73,8 +80,16 @@ export function PlayLoggerV2({
   const [locallyHiddenPlayIds, setLocallyHiddenPlayIds] = useState<Set<string>>(() => new Set());
   const [pendingDeletePlayId, setPendingDeletePlayId] = useState<string | null>(null);
 
+  const hasMySheet = Boolean(sheetId?.trim());
+
   const onRefreshRef = useRef(onRefresh);
   onRefreshRef.current = onRefresh;
+
+  useEffect(() => {
+    if (!hasMySheet && pickTab === "my_sheet") {
+      setPickTab("browse");
+    }
+  }, [hasMySheet, pickTab]);
 
   useEffect(() => {
     return () => {
@@ -370,74 +385,100 @@ export function PlayLoggerV2({
       </div>
 
       <div
-        className={`min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-28 ${view === "suggestions" ? "pt-3" : ""}`}
+        className={`min-h-0 w-full flex-1 bg-slate-900 ${
+          view === "suggestions"
+            ? "flex min-h-0 flex-col overflow-hidden"
+            : "overflow-y-auto pt-3"
+        }`}
       >
         {view === "suggestions" ? (
-          <>
-            <div className="mb-3 px-4">
-              <button
-                type="button"
-                className="flex min-h-11 w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-                onClick={() => setBrowserOpen(true)}
-              >
-                <div>
-                  <p className="font-sans text-sm font-medium text-slate-300">Search plays & formations</p>
-                  <p className="mt-0.5 font-mono text-[10px] text-slate-500">Browse playbook</p>
-                </div>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4 shrink-0 -rotate-90 text-slate-500"
-                  aria-hidden
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
-            </div>
+          <Tabs
+            value={pickTab}
+            onValueChange={(v) => setPickTab(v as LoggerPickTab)}
+            className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden"
+          >
+            <TabsList
+              aria-label="Play pick views"
+              className={`grid h-auto w-full shrink-0 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground ${hasMySheet ? "grid-cols-3" : "grid-cols-2"}`}
+            >
+              <TabsTrigger value="browse" className={filmLoggerPickTabTriggerClass}>
+                Browse
+              </TabsTrigger>
+              <TabsTrigger value="situational" className={filmLoggerPickTabTriggerClass}>
+                Situational
+              </TabsTrigger>
+              {hasMySheet ? (
+                <TabsTrigger value="my_sheet" className={filmLoggerPickTabTriggerClass}>
+                  My Sheet
+                </TabsTrigger>
+              ) : null}
+            </TabsList>
 
-            {sheetCalls.length > 0 ? (
-              <div className="mb-3 px-4">
-                <div className="mb-2">
-                  <p className="font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
-                  {sheetName ? (
-                    <p className="mt-0.5 font-sans text-xs text-slate-400">
-                      Based on {sheetName}
-                    </p>
-                  ) : null}
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
+              <TabsContent
+                value="browse"
+                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+              >
+                <PlayBrowser
+                  playbook={playbook}
+                  presentation="inline"
+                  onClose={() => {}}
+                  showTopLevelBack={false}
+                  onSelect={(play) => handlePlaySelect(play, "browser")}
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="situational"
+                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+              >
+                <div className="px-4 pb-2">
+                  <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>
+                  <p className="mt-0.5 font-sans text-xs text-slate-400">
+                    {filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}
+                  </p>
                 </div>
-                <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
-                  {sheetCalls.map((play) => (
+                <div className="flex flex-col gap-2 px-4 pb-4">
+                  {suggestions.map((play) => (
                     <PlayRow
-                      key={`sheet-${play.play_id}`}
+                      key={play.play_id}
                       play={play}
-                      onSelect={(p) => handlePlaySelect(p, "sheet")}
+                      onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
                     />
                   ))}
                 </div>
-              </div>
-            ) : null}
+              </TabsContent>
 
-            <div className="px-4 mb-2">
-              <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>
-              <p className="mt-0.5 font-sans text-xs text-slate-400">{filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}</p>
+              {hasMySheet ? (
+                <TabsContent
+                  value="my_sheet"
+                  className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+                >
+                  <div className="px-4 pb-4">
+                    <div className="mb-2">
+                      <p className="font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
+                      {sheetName ? (
+                        <p className="mt-0.5 font-sans text-xs text-slate-400">Based on {sheetName}</p>
+                      ) : null}
+                    </div>
+                    {sheetCalls.length > 0 ? (
+                      <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
+                        {sheetCalls.map((play) => (
+                          <PlayRow
+                            key={`sheet-${play.play_id}`}
+                            play={play}
+                            onSelect={(p) => handlePlaySelect(p, "sheet")}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="font-sans text-sm text-slate-500">No sheet calls match this situation.</p>
+                    )}
+                  </div>
+                </TabsContent>
+              ) : null}
             </div>
-
-            <div className="px-4 flex flex-col gap-2">
-              {suggestions.map((play) => (
-                <PlayRow
-                  key={play.play_id}
-                  play={play}
-                  onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
-                />
-              ))}
-            </div>
-          </>
+          </Tabs>
         ) : null}
 
         {view === "yardage" && selectedPlay ? (
@@ -454,16 +495,6 @@ export function PlayLoggerV2({
         ) : null}
       </div>
 
-      {browserOpen ? (
-        <PlayBrowser
-          playbook={playbook}
-          onClose={() => setBrowserOpen(false)}
-          onSelect={(play) => {
-            setBrowserOpen(false);
-            handlePlaySelect(play, "browser");
-          }}
-        />
-      ) : null}
     </div>
   );
 }

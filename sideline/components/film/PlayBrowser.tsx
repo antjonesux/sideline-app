@@ -18,6 +18,11 @@ interface PlayBrowserProps {
   showTopLevelBack?: boolean;
   /** When true, hides Punt / Field Goal catalog entries so they cannot be added to a play sheet. */
   excludePlaySheetSpecialTeams?: boolean;
+  /**
+   * `overlay` (default): full-bleed layer with history back-to-close.
+   * `inline`: flex column for embedding (e.g. Film Play Logger Browse tab) — no history hook, no top-level Back.
+   */
+  presentation?: "overlay" | "inline";
 }
 
 const browserBackButtonClass =
@@ -37,18 +42,22 @@ export function PlayBrowser({
   onClose,
   showTopLevelBack = true,
   excludePlaySheetSpecialTeams = false,
+  presentation = "overlay",
 }: PlayBrowserProps) {
+  const isInline = presentation === "inline";
+  const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
   const { groups, entries, loading } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
   const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
 
   useEffect(() => {
+    if (isInline) return;
     window.history.pushState({ filmOverlay: "play-browser" }, "");
     const onPop = () => onClose();
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [onClose]);
+  }, [onClose, isInline]);
 
   const searching = query.trim().length > 0;
   const filtered = useMemo(() => {
@@ -106,7 +115,7 @@ export function PlayBrowser({
   const level1Header = (
     <div className="w-full border-b border-slate-700 bg-slate-900">
       <div className="flex w-full items-center gap-3 px-4 py-3">
-        {showTopLevelBack ? (
+        {effectiveShowTopLevelBack ? (
           <button type="button" className={browserBackButtonClass} onClick={onClose}>
             Back
           </button>
@@ -145,8 +154,12 @@ export function PlayBrowser({
     </div>
   ) : null;
 
+  const rootClassName = isInline
+    ? "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-slate-950"
+    : "absolute inset-0 z-30 flex min-h-0 w-full flex-col bg-slate-950 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200";
+
   return (
-    <div className="absolute inset-0 z-30 flex min-h-0 w-full flex-col bg-slate-950 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200">
+    <div className={rootClassName}>
       {searching ? (
         <>
           {level1Header}
