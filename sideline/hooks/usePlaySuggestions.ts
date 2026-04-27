@@ -211,5 +211,5 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
     return recentRows.filter((play) => !suggestionIds.has(`${play.formation}::${play.play_name}`.toLowerCase()));
   }, [recentRows, suggestions]);
 
-  return { suggestions, recentPlays, sheetCalls, sheetName };
+  return { suggestions, recentPlays, sheetCalls, sheetName, scenarioLabel };
 }

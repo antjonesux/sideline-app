@@ -12,7 +12,8 @@ export type ProductAnalyticsEventName =
   | "ten_plays"
   | "full_game"
   | "tendencies_viewed"
-  | "return_session";
+  | "return_session"
+  | "on_sheet_call_made";
 
 export type ProductAnalyticsEvent = {
   name: ProductAnalyticsEventName;

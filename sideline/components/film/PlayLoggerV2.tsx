@@ -52,6 +52,8 @@ export function PlayLoggerV2({
   const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
+  /** True when the current selection came from YOUR CALLS (play sheet) vs tendencies/search. */
+  const [selectedFromSheet, setSelectedFromSheet] = useState(false);
   const [optimistic, setOptimistic] = useState<LoggedPlay[]>([]);
   const [flashOk, setFlashOk] = useState(false);
   const [accordionExpanded, setAccordionExpanded] = useState(false);
@@ -84,7 +86,7 @@ export function PlayLoggerV2({
     [mergedPlays, drive],
   );
 
-  const { suggestions, sheetCalls, sheetName } = usePlaySuggestions({
+  const { suggestions, sheetCalls, sheetName, scenarioLabel } = usePlaySuggestions({
     down: currentGameState.down,
     distance: currentGameState.distance,
     fieldPos: currentGameState.absoluteYard,
@@ -99,13 +101,16 @@ export function PlayLoggerV2({
     [mergedPlays],
   );
 
-  function handlePlaySelect(play: PlaybookEntry) {
+  function handlePlaySelect(play: PlaybookEntry, fromSheet: boolean) {
     setSelectedPlay(play);
+    setSelectedFromSheet(fromSheet);
     setView("yardage");
   }
 
   async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number, submitFlowId?: string) {
     if (!selectedPlay) return;
+    const logCameFromSheet = selectedFromSheet;
+    const logScenario = scenarioLabel;
     const uiTag =
       result === "PUNT"
         ? "PUNT"
@@ -165,6 +170,7 @@ export function PlayLoggerV2({
 
     setOptimistic((p) => [...p, optimisticPlay]);
     setSelectedPlay(null);
+    setSelectedFromSheet(false);
     setView("suggestions");
     setFlashOk(true);
     setTimeout(() => setFlashOk(false), 350);
@@ -191,6 +197,14 @@ export function PlayLoggerV2({
       if (coachCallsAfterLog === 10 && !wasMilestoneFired("ten_plays", gameId)) {
         markMilestoneFired("ten_plays", gameId);
         emitProductEvent("ten_plays", { gameId, source: "film_logger" });
+      }
+      if (logCameFromSheet) {
+        emitProductEvent("on_sheet_call_made", {
+          gameId,
+          sheetId: sheetId ?? null,
+          scenario: logScenario,
+          source: "film_logger",
+        });
       }
       setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       await onRefresh();
@@ -361,7 +375,11 @@ export function PlayLoggerV2({
                 </div>
                 <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
                   {sheetCalls.map((play) => (
-                    <PlayRow key={`sheet-${play.play_id}`} play={play} onSelect={handlePlaySelect} />
+                    <PlayRow
+                      key={`sheet-${play.play_id}`}
+                      play={play}
+                      onSelect={(p) => handlePlaySelect(p, true)}
+                    />
                   ))}
                 </div>
               </div>
@@ -376,7 +394,7 @@ export function PlayLoggerV2({
 
             <div className="px-4 flex flex-col gap-2">
               {suggestions.map((play) => (
-                <PlayRow key={play.play_id} play={play} onSelect={handlePlaySelect} />
+                <PlayRow key={play.play_id} play={play} onSelect={(p) => handlePlaySelect(p, false)} />
               ))}
             </div>
           </>
@@ -390,6 +408,7 @@ export function PlayLoggerV2({
             onCancel={() => {
               setView("suggestions");
               setSelectedPlay(null);
+              setSelectedFromSheet(false);
             }}
           />
         ) : null}
@@ -401,7 +420,7 @@ export function PlayLoggerV2({
           onClose={() => setBrowserOpen(false)}
           onSelect={(play) => {
             setBrowserOpen(false);
-            handlePlaySelect(play);
+            handlePlaySelect(play, false);
           }}
         />
       ) : null}
