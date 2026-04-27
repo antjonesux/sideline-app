@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { advanceGameState, type GameState, type ResultTag } from "@/lib/gameStateEngine";
 import { deriveYards, formatFieldPosition, fromAbsoluteYard, parseFieldPosition } from "@/lib/fieldPosition";
 import type { PlaybookEntry } from "@/lib/playbook";
+import {
+  FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS,
+  isFilmLoggerPuntEntry,
+  isFilmLoggerSpecialTeamsEntry,
+} from "@/lib/filmLoggerSpecialTeams";
 import { startCriticalFlow } from "@/lib/perfInstrumentation";
 
 type PlayResult = "INCOMPLETE" | "SACK" | "TURNOVER" | "PENALTY" | "TOUCHDOWN" | "PUNT" | "FIELD_GOAL" | "FG_MISS";
@@ -18,7 +23,7 @@ function normalizedPlayType(raw: string | null | undefined): NormalizedPlayType 
   return "RUN";
 }
 
-function playTypeBadgeClass(type: NormalizedPlayType): string {
+function canonicalPlayTypeBadgeClass(type: NormalizedPlayType): string {
   if (type === "RUN") return "border-emerald-700/70 bg-emerald-900/30 text-emerald-300";
   if (type === "PASS") return "border-blue-700/70 bg-blue-900/30 text-blue-300";
   return "border-amber-700/70 bg-amber-900/30 text-amber-300";
@@ -131,6 +136,7 @@ interface YardageSheetProps {
 }
 
 export function YardageSheet({ play, currentGameState, onLog, onCancel }: YardageSheetProps) {
+  const filmSt = isFilmLoggerSpecialTeamsEntry(play);
   const playType = normalizedPlayType(play.play_type);
   const startFP = currentGameState.absoluteYard;
 
@@ -150,8 +156,12 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
     const { side, yard_line } = fromAbsoluteYard(startFP);
     setEndSide(side);
     setEndYardStr(String(yard_line));
-    setSelectedResult(null);
-  }, [play.play_name, play.formation, startFP]);
+    if (isFilmLoggerPuntEntry(play)) {
+      setSelectedResult("PUNT");
+    } else {
+      setSelectedResult(null);
+    }
+  }, [play.play_id, play.play_name, play.formation, startFP]);
 
   const parsedEndYard = Number.parseInt(endYardStr.trim(), 10);
   const endYardNum = !Number.isNaN(parsedEndYard) && parsedEndYard >= 1 && parsedEndYard <= 50 ? parsedEndYard : null;
@@ -299,9 +309,11 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
             <p className="mt-0.5 font-mono text-xs text-slate-500">{play.formation}</p>
           </div>
           <span
-            className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${playTypeBadgeClass(playType)}`}
+            className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${
+              filmSt ? FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS : canonicalPlayTypeBadgeClass(playType)
+            }`}
           >
-            {playType}
+            {filmSt ? "Special Teams" : playType}
           </span>
         </div>
       </div>

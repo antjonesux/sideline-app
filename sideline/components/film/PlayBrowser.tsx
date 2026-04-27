@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
-import { useFormationGroups } from "@/hooks/useFormationGroups";
+import { useFormationGroups, type FormationGroup } from "@/hooks/useFormationGroups";
+import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 
 type BrowserStep = "formations" | "plays";
 
@@ -53,7 +54,7 @@ export function PlayBrowser({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return entries.filter((entry) => {
+    const fromCatalog = entries.filter((entry) => {
       if (excludePlaySheetSpecialTeams && isExcludedFromPlaySheetPlay(entry)) return false;
       return (
         entry.play_name.toLowerCase().includes(q) ||
@@ -62,10 +63,40 @@ export function PlayBrowser({
         entry.play_type.toLowerCase().includes(q)
       );
     });
+    if (excludePlaySheetSpecialTeams) return fromCatalog;
+    const filmSt = FILM_LOGGER_SPECIAL_TEAMS_PLAYS.filter(
+      (entry) =>
+        entry.play_name.toLowerCase().includes(q) ||
+        entry.formation.toLowerCase().includes(q) ||
+        entry.group.toLowerCase().includes(q) ||
+        entry.play_type.toLowerCase().includes(q),
+    );
+    const seen = new Set(fromCatalog.map((e) => e.play_id));
+    return [...filmSt.filter((e) => !seen.has(e.play_id)), ...fromCatalog];
   }, [query, entries, excludePlaySheetSpecialTeams]);
+
+  const displayGroups = useMemo((): FormationGroup[] => {
+    if (excludePlaySheetSpecialTeams) return groups;
+    const stBlock: FormationGroup = {
+      group: "Special Teams",
+      formations: [{ name: "Special Teams", plays: [...FILM_LOGGER_SPECIAL_TEAMS_PLAYS] }],
+    };
+    const glIdx = groups.findIndex((g) => g.group === "Goal Line");
+    if (glIdx === -1) return [...groups, stBlock];
+    const next = [...groups];
+    next.splice(glIdx + 1, 0, stBlock);
+    return next;
+  }, [groups, excludePlaySheetSpecialTeams]);
 
   const selectedPlays = useMemo(() => {
     if (!selectedFormation) return [];
+    if (
+      !excludePlaySheetSpecialTeams &&
+      selectedFormation.group === "Special Teams" &&
+      selectedFormation.name === "Special Teams"
+    ) {
+      return [...FILM_LOGGER_SPECIAL_TEAMS_PLAYS];
+    }
     const g = groups.find((x) => x.group === selectedFormation.group);
     const raw = g?.formations.find((f) => f.name === selectedFormation.name)?.plays ?? [];
     if (!excludePlaySheetSpecialTeams) return raw;
@@ -139,7 +170,7 @@ export function PlayBrowser({
         <>
           {level1Header}
           <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-4 pt-3">
-            {groups.map((group, index) => (
+            {displayGroups.map((group, index) => (
               <div key={group.group}>
                 <div
                   className={`px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${

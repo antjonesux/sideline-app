@@ -4,6 +4,11 @@
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { LoggedPlay } from "@/lib/types";
 import { ResultBadge } from "@/components/import/ResultBadge";
+import {
+  FILM_LOGGER_SPECIAL_TEAMS_ACCENT_CLASS,
+  FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS,
+  isFilmLoggerSpecialTeamsEntry,
+} from "@/lib/filmLoggerSpecialTeams";
 
 type PlaybookRowProps = {
   variant?: "playbook";
@@ -114,6 +119,7 @@ export function PlayRow(props: PlayRowProps) {
   }
 
   const { play, onSelect } = props;
+  const filmSt = isFilmLoggerSpecialTeamsEntry(play);
   // QA24: Badge uses `play.play_type` on PlaybookEntry — populated from `cfb26_plays` + `resolveCfbDisplayPlayType` (same ladder as Tendencies `attachPlayTypes`), not name-only inference.
   const playType = getPlayType(play.play_type);
   return (
@@ -124,7 +130,13 @@ export function PlayRow(props: PlayRowProps) {
     >
       <span
         className={`h-8 w-[3px] shrink-0 rounded ${
-          playType === "RUN" ? "bg-emerald-500" : playType === "PASS" ? "bg-blue-500" : "bg-amber-500"
+          filmSt
+            ? FILM_LOGGER_SPECIAL_TEAMS_ACCENT_CLASS
+            : playType === "RUN"
+              ? "bg-emerald-500"
+              : playType === "PASS"
+                ? "bg-blue-500"
+                : "bg-amber-500"
         }`}
         aria-hidden
       />
@@ -132,7 +144,13 @@ export function PlayRow(props: PlayRowProps) {
         <span className="block truncate font-sans text-[13px] font-semibold text-slate-100">{play.play_name}</span>
         <span className="block truncate font-mono text-[10px] uppercase tracking-wide text-slate-500">{play.formation}</span>
       </span>
-      <span className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${badgeClass(playType)}`}>{playType}</span>
+      <span
+        className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${
+          filmSt ? FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS : badgeClass(playType)
+        }`}
+      >
+        {filmSt ? "Special Teams" : playType}
+      </span>
     </button>
   );
 }
