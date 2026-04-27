@@ -6,6 +6,7 @@ import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { fromAbsoluteYard } from "@/lib/fieldPosition";
 import type { LoggedPlay } from "@/lib/types";
 import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { endCriticalFlow } from "@/lib/perfInstrumentation";
 
 type Args = {
   down: number;
@@ -15,6 +16,8 @@ type Args = {
   playbook: string;
   /** When the caller already knows the sheet, pass its ID to skip the lookup. */
   sheetId?: string | null;
+  /** Optional in-flight logger-open flow id started by the parent. */
+  loggerOpenFlowId?: string | null;
 };
 
 type RecentLoggedPlay = LoggedPlay & { created_at?: string | null };
@@ -35,7 +38,7 @@ type SheetPlaysApiRow = {
   play_type?: string | null;
 };
 
-export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook, sheetId }: Args) {
+export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook, sheetId, loggerOpenFlowId }: Args) {
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
   const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
   const [sheetCalls, setSheetCalls] = useState<PlaybookEntry[]>([]);
@@ -49,46 +52,80 @@ export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook,
   }, [down, distance, fieldPos]);
 
   useEffect(() => {
+    let flowClosed = false;
+    const closeLoggerOpenFlow = (
+      status: "ok" | "error" | "cancelled" | "skipped",
+      details: Record<string, string | number | boolean | null | undefined>,
+    ) => {
+      if (!loggerOpenFlowId || flowClosed) return;
+      endCriticalFlow(loggerOpenFlowId, status, details);
+      flowClosed = true;
+    };
+
     if (!sheetId || !scenarioLabel) {
       setSheetCalls([]);
       setSheetName(null);
+      closeLoggerOpenFlow("skipped", {
+        reason: !sheetId ? "no_sheet_id" : "no_scenario",
+      });
       return;
     }
     let cancelled = false;
     void (async () => {
-      const res = await fetch(
-        `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
-        { cache: "no-store" },
-      );
-      const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; sheetName?: string | null; error?: string };
-      if (!res.ok || cancelled) {
+      try {
+        const res = await fetch(
+          `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
+          { cache: "no-store" },
+        );
+        const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; sheetName?: string | null; error?: string };
+        if (!res.ok || cancelled) {
+          if (!cancelled) {
+            setSheetCalls([]);
+            setSheetName(null);
+            closeLoggerOpenFlow("error", {
+              reason: "sheet_fetch_failed",
+              statusCode: res.status,
+              scenario: scenarioLabel,
+            });
+          }
+          return;
+        }
+        setSheetName(json.sheetName?.trim() || null);
+        const rows = json.plays ?? [];
+        setSheetCalls(
+          rows.map((row) => {
+            const formation = String(row.formation ?? "").trim() || "Other";
+            const play_name = String(row.play_name ?? "").trim();
+            const rawType = row.play_type;
+            return {
+              play_id: `${formation}::${play_name}`.toLowerCase(),
+              formation,
+              group: deriveFormationGroup(formation),
+              play_name,
+              play_type: resolveCfbBrowserPlayType(play_name, rawType),
+            };
+          }),
+        );
+        closeLoggerOpenFlow("ok", {
+          scenario: scenarioLabel,
+          sheetCalls: rows.length,
+        });
+      } catch (error) {
         if (!cancelled) {
           setSheetCalls([]);
           setSheetName(null);
+          closeLoggerOpenFlow("error", {
+            reason: "sheet_fetch_exception",
+            message: error instanceof Error ? error.message : "unknown",
+          });
         }
-        return;
       }
-      setSheetName(json.sheetName?.trim() || null);
-      const rows = json.plays ?? [];
-      setSheetCalls(
-        rows.map((row) => {
-          const formation = String(row.formation ?? "").trim() || "Other";
-          const play_name = String(row.play_name ?? "").trim();
-          const rawType = row.play_type;
-          return {
-            play_id: `${formation}::${play_name}`.toLowerCase(),
-            formation,
-            group: deriveFormationGroup(formation),
-            play_name,
-            play_type: resolveCfbBrowserPlayType(play_name, rawType),
-          };
-        }),
-      );
     })();
     return () => {
       cancelled = true;
+      closeLoggerOpenFlow("cancelled", { reason: "sheet_effect_cleanup" });
     };
-  }, [sheetId, scenarioLabel]);
+  }, [sheetId, scenarioLabel, loggerOpenFlowId]);
 
   useEffect(() => {
     if (!playbook) {

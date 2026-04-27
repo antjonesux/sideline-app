@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-26 — Film: client perf instrumentation for critical flows
+
+### What
+
+- **[`lib/perfInstrumentation.ts`](sideline/lib/perfInstrumentation.ts):** `startCriticalFlow` / `endCriticalFlow` for three Film flows: **`film_game_detail_load`**, **`film_logger_open_with_sheet`**, **`film_submit_to_next_play`**. Emits structured **`CustomEvent` `sideline:perf`**, appends to **`window.__sidelinePerfEvents`**, capped (last **300** events) to avoid unbounded memory.
+- **Game detail** [`app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): times parallel **`GET /api/games/[id]`** + **`/drives`**, ends on **`pageReady`**; **`openForCreate`** starts logger-open flow and **cancels** any prior in-flight id (`superseded_by_new_open`) before starting a new one; passes **`loggerOpenFlowId`** into **`PlayLoggerV2`**.
+- **`usePlaySuggestions`:** ends **`film_logger_open_with_sheet`** when sheet fetch completes, fails, is skipped (no sheet / scenario), or effect cleans up.
+- **`PlayLoggerV2`** + **`YardageSheet`:** **`film_submit_to_next_play`** from submit tap through POST + **`onRefresh()`**; errors wrapped in **try/catch** so the perf flow always closes on failure.
+
+### Why
+
+- Launch-plan baseline: measure user-perceived Film load, logger+sheet, and submit→ready without adding an analytics platform or changing data architecture.
+
+### Status after this push
+
+- [`sideline/lib/perfInstrumentation.ts`](sideline/lib/perfInstrumentation.ts), [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx), [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx), [`sideline/components/film/YardageSheet.tsx`](sideline/components/film/YardageSheet.tsx), [`sideline/hooks/usePlaySuggestions.ts`](sideline/hooks/usePlaySuggestions.ts), both changelogs.
+
+---
+
 ## 2026-04-24 — UI: Preline removal, shadcn migration, docs alignment
 
 ### What

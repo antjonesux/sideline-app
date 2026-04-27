@@ -12,6 +12,7 @@ import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
 import { COULDNT_SAVE, GUIDED_LOGGER_HINT } from "@/lib/coachCopy";
+import { endCriticalFlow } from "@/lib/perfInstrumentation";
 
 type LoggerView = "suggestions" | "yardage";
 
@@ -23,11 +24,22 @@ interface PlayLoggerV2Props {
   onRefresh: () => Promise<void>;
   /** Explicit active sheet ID resolved by the parent page. */
   sheetId?: string | null;
+  /** Cross-component logger-open flow id started by the game detail page. */
+  loggerOpenFlowId?: string | null;
   /** Optional coach hint for guided onboarding (real logger only). */
   guidedProgress?: { current: number; target: number } | null;
 }
 
-export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, sheetId, guidedProgress }: PlayLoggerV2Props) {
+export function PlayLoggerV2({
+  gameId,
+  driveId,
+  playbook,
+  drive,
+  onRefresh,
+  sheetId,
+  loggerOpenFlowId,
+  guidedProgress,
+}: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [view, setView] = useState<LoggerView>("suggestions");
@@ -71,6 +83,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
     gameId,
     playbook,
     sheetId,
+    loggerOpenFlowId,
   });
 
   const streamPlaysDesc = useMemo(
@@ -83,7 +96,7 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
     setView("yardage");
   }
 
-  async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number) {
+  async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number, submitFlowId?: string) {
     if (!selectedPlay) return;
     const uiTag =
       result === "PUNT"
@@ -146,19 +159,40 @@ export function PlayLoggerV2({ gameId, driveId, playbook, drive, onRefresh, shee
     setFlashOk(true);
     setTimeout(() => setFlashOk(false), 350);
 
-    const res = await fetch(`/api/drives/${driveId}/plays`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(snap),
-    });
+    try {
+      const res = await fetch(`/api/drives/${driveId}/plays`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(snap),
+      });
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
+        addToast(COULDNT_SAVE, "error");
+        if (submitFlowId) {
+          endCriticalFlow(submitFlowId, "error", { reason: "save_play_failed" });
+        }
+        return;
+      }
+      setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
+      await onRefresh();
+      if (submitFlowId) {
+        endCriticalFlow(submitFlowId, "ok", {
+          driveId,
+          playName: snap.play_name,
+          resultTag: snap.result_tag,
+        });
+      }
+    } catch (error) {
       setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       addToast(COULDNT_SAVE, "error");
-      return;
+      if (submitFlowId) {
+        endCriticalFlow(submitFlowId, "error", {
+          reason: "unexpected_error",
+          message: error instanceof Error ? error.message : "unknown",
+        });
+      }
     }
-    setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
-    await onRefresh();
   }
 
   async function handleConfirmDeletePlay(play: LoggedPlay) {

@@ -34,6 +34,7 @@ import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
 import { absoluteYardAfterLoggedPlay, replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -143,6 +144,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const guidedBootRef = useRef<"off" | "pending" | "done">("off");
+  const loggerOpenFlowIdRef = useRef<string | null>(null);
   useScrollLock(showEndGameModal || showLogger);
 
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
@@ -193,6 +195,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   useEffect(() => {
     if (!gameId) return;
     let cancelled = false;
+    const flowId = startCriticalFlow("film_game_detail_load", { gameId });
+    let flowCompleted = false;
+    let loadedDriveCount = 0;
+    let loadedHasSheet = false;
     setPageReady(false);
     setLoadError(false);
     (async () => {
@@ -200,6 +206,13 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const [gRes, dRes] = await Promise.all([fetch(`/api/games/${gameId}`), fetch(`/api/games/${gameId}/drives`)]);
         if (!gRes.ok || !dRes.ok) {
           if (!cancelled) setLoadError(true);
+          if (!flowCompleted) {
+            endCriticalFlow(flowId, "error", {
+              gameOk: gRes.ok,
+              drivesOk: dRes.ok,
+            });
+            flowCompleted = true;
+          }
           return;
         }
         const g = (await gRes.json()) as GameSession;
@@ -210,12 +223,30 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const lastId = d[d.length - 1]?.id;
         setExpandedDriveIds(lastId ? [lastId] : []);
         setActiveDrive((current) => current || d[0]?.id || "");
+        loadedDriveCount = d.length;
+        loadedHasSheet = Boolean(g.play_sheet_id);
       } finally {
-        if (!cancelled) setPageReady(true);
+        if (!cancelled) {
+          setPageReady(true);
+          if (!flowCompleted) {
+            endCriticalFlow(flowId, "ok", {
+              driveCount: loadedDriveCount,
+              hasPlaySheet: loadedHasSheet,
+            });
+            flowCompleted = true;
+          }
+        } else if (!flowCompleted) {
+          endCriticalFlow(flowId, "cancelled", { reason: "game_change_or_unmount" });
+          flowCompleted = true;
+        }
       }
     })();
     return () => {
       cancelled = true;
+      if (!flowCompleted) {
+        endCriticalFlow(flowId, "cancelled", { reason: "effect_cleanup" });
+        flowCompleted = true;
+      }
     };
   }, [gameId]);
 
@@ -355,6 +386,15 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   function openForCreate(driveId: string) {
+    const prevLoggerOpen = loggerOpenFlowIdRef.current;
+    if (prevLoggerOpen) {
+      endCriticalFlow(prevLoggerOpen, "cancelled", { reason: "superseded_by_new_open" });
+    }
+    loggerOpenFlowIdRef.current = startCriticalFlow("film_logger_open_with_sheet", {
+      gameId,
+      driveId,
+      hasSheetId: Boolean(activeSheetId),
+    });
     setActiveDrive(driveId);
     setShowLogger(true);
     setExpandedDriveIds((current) => [...new Set([...current, driveId])]);
@@ -898,6 +938,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   drive={activeDriveObj}
                   onRefresh={refresh}
                   sheetId={activeSheetId}
+                  loggerOpenFlowId={loggerOpenFlowIdRef.current}
                   guidedProgress={
                     guidedMode ? { current: Math.min(guidedCallCount, 5), target: 5 } : null
                   }

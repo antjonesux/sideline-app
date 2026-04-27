@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { advanceGameState, type GameState, type ResultTag } from "@/lib/gameStateEngine";
 import { deriveYards, formatFieldPosition, fromAbsoluteYard, parseFieldPosition } from "@/lib/fieldPosition";
 import type { PlaybookEntry } from "@/lib/playbook";
+import { startCriticalFlow } from "@/lib/perfInstrumentation";
 
 type PlayResult = "INCOMPLETE" | "SACK" | "TURNOVER" | "PENALTY" | "TOUCHDOWN" | "PUNT" | "FIELD_GOAL" | "FG_MISS";
 
@@ -125,7 +126,7 @@ function sheetKeyForPlayResult(r: PlayResult): SheetResultKey {
 interface YardageSheetProps {
   play: PlaybookEntry;
   currentGameState: GameState;
-  onLog: (yards: number, result: PlayResult | null, endingFieldPos: number) => Promise<void>;
+  onLog: (yards: number, result: PlayResult | null, endingFieldPos: number, submitFlowId?: string) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -263,9 +264,14 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
 
   async function submit() {
     if (!logReady) return;
+    const submitFlowId = startCriticalFlow("film_submit_to_next_play", {
+      playId: play.play_id,
+      playName: play.play_name,
+      formation: play.formation,
+    });
     setBusy(true);
     try {
-      await onLog(yardsForSubmit(), selectedResult, endingFieldForSubmit());
+      await onLog(yardsForSubmit(), selectedResult, endingFieldForSubmit(), submitFlowId);
     } finally {
       setBusy(false);
     }

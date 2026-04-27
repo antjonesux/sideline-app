@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-26 (Film — client perf instrumentation: game load, logger+sheet, submit→next)
+
+**What:** **`lib/perfInstrumentation.ts`**: `startCriticalFlow` / `endCriticalFlow` for **`film_game_detail_load`**, **`film_logger_open_with_sheet`**, **`film_submit_to_next_play`**; events via **`sideline:perf`**, buffer **`window.__sidelinePerfEvents`** capped at **300**. **`app/film/[gameId]/page.tsx`**: load timing; **`openForCreate`** supersedes prior logger-open with **`superseded_by_new_open`**. **`usePlaySuggestions`** ends logger-open on sheet fetch / skip / cleanup. **`PlayLoggerV2`** + **`YardageSheet`**: submit→refresh timing; **try/catch** on save path.
+
+**Why:** Baseline metrics for launch-plan critical Film flows without new APIs or a telemetry platform.
+
+**Status after this push:** `lib/perfInstrumentation.ts`, `app/film/[gameId]/page.tsx`, `components/film/PlayLoggerV2.tsx`, `components/film/YardageSheet.tsx`, `hooks/usePlaySuggestions.ts`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-24 (UI — Preline out, shadcn in, drive menu clamp, contract docs)
 
 **What:** Removed **Preline** (**`PrelineScript`** / **`PrelineScriptWrapper`** deleted); migrated interactive UI to **shadcn/ui** with tracked **`components/ui/*.tsx`** (**`button`**, **`dialog`**, **`dropdown-menu`**, **`select`**, **`tabs`**). **`shared/DropdownMenu`**: **`clampMenuBelowSelector`**, dynamic **`sideOffset`**, rAF-coalesced scroll/resize + passive capture scroll listener; **`app/film/[gameId]/page.tsx`** **`TabsList`** **`data-film-game-dropdown-clamp`**. **`ConfirmDestructiveModal`** title classes deduped. Repo-root **`BUILD_CONTRACT.md`** (**`/`** gate, **Dialog** vs **Film** legacy overlays, kebab patterns) and **`DECISIONS.md`** (2026-04-24 ADR + **Impact** carve-out).
