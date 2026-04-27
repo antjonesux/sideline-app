@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film logger/browser — add runtime playbook fetch diagnostics)
+
+**What:** Added temporary client logs in `components/film/PlayLoggerV2.tsx` and `hooks/useFormationGroups.ts` to print the exact `playbook` prop/value and the exact `/api/cfb26-plays?...` request URL used by the formation browser path.
+
+**Why:** Existing games were still rendering empty formations/plays despite confirmed DB/API data, so we needed precise runtime values (including JSON-stringified strings) to verify whether the client is passing or encoding a mismatched playbook key.
+
+**Status after this push:** Diagnostic-only instrumentation is in place (no behavior changes) for live capture and root-cause confirmation.
+
+---
+
 ## 2026-04-27 (Film logger — remove team-name fallback for playbook lookup)
 
 **What:** `app/film/[gameId]/page.tsx` now passes `game.offensive_playbook ?? ""` to `PlayLoggerV2` instead of `game.offensive_playbook ?? game.my_playbook`.

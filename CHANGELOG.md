@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film logger/browser runtime playbook diagnostics
+
+### What
+
+- Added temporary client-side diagnostics in [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx) to log the exact `playbook` prop received on mount (including `JSON.stringify(...)` output).
+- Added diagnostics in [`sideline/hooks/useFormationGroups.ts`](sideline/hooks/useFormationGroups.ts) to log both the exact incoming `playbook` value and the exact encoded request URL before fetching `/api/cfb26-plays`.
+
+### Why
+
+- Existing games were still showing empty formations/plays even when database rows and direct API requests were confirmed correct, so we needed exact runtime values to validate whether a subtle string mismatch/encoding issue exists on the client path.
+
+### Status after this push
+
+- Diagnosis-only logging is now in place with no logic changes, enabling exact-value capture during the failing flow.
+
+---
+
 ## 2026-04-27 — Film logger playbook lookup fallback fix
 
 ### What

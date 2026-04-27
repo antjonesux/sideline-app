@@ -26,7 +26,13 @@ export function useFormationGroups(playbook: string) {
     void (async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`, {
+        const requestUrl = `/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`;
+        console.log("[useFormationGroups] request", {
+          playbook,
+          playbookJson: JSON.stringify(playbook),
+          requestUrl,
+        });
+        const res = await fetch(requestUrl, {
           cache: "no-store",
         });
         const json = (await res.json()) as {

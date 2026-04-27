@@ -68,6 +68,14 @@ export function PlayLoggerV2({
   const onRefreshRef = useRef(onRefresh);
   onRefreshRef.current = onRefresh;
 
+  const initialPlaybookRef = useRef(playbook);
+  useEffect(() => {
+    console.log("[PlayLoggerV2] mounted", {
+      playbook: initialPlaybookRef.current,
+      playbookJson: JSON.stringify(initialPlaybookRef.current),
+    });
+  }, []);
+
   useEffect(() => {
     return () => {
       void onRefreshRef.current();
