@@ -1,215 +1,166 @@
 "use client";
-// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
 import { fromAbsoluteYard } from "@/lib/fieldPosition";
 import type { LoggedPlay } from "@/lib/types";
-import { deriveFormationGroup, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
+import { buildSituationAwareCallingSuggestions } from "@/lib/filmLoggerCallingSuggestions";
+import { fetchCfb26PlaybookEntries, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
+import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 
 type Args = {
   down: number;
   distance: number;
   fieldPos: number;
-  gameId: string;
   playbook: string;
+  /** Logged coach calls for this game (all drives) — avoids refetching drives inside the hook. */
+  allGameCoachCalls: LoggedPlay[];
   /** When the caller already knows the sheet, pass its ID to skip the lookup. */
   sheetId?: string | null;
   /** Optional in-flight logger-open flow id started by the parent. */
   loggerOpenFlowId?: string | null;
 };
 
-type RecentLoggedPlay = LoggedPlay & { created_at?: string | null };
+const CATALOG_STALE_MS = 5 * 60 * 1000;
+const CATALOG_GC_MS = 45 * 60 * 1000;
+const SHEET_STALE_MS = 2 * 60 * 1000;
+const SHEET_GC_MS = 20 * 60 * 1000;
 
-function biasTerms(down: number, distance: number, fieldPos: number): string[] {
-  if (fieldPos >= 85) return ["power", "inside zone", "iso", "stick", "spot", "curl flat"];
-  if (down === 1 && distance === 10) return ["inside zone", "outside zone", "rpo", "hb dive"];
-  if (down === 2 && distance <= 5) return ["power", "inside zone", "slant", "stick", "spot"];
-  if (down === 3 && distance <= 3) return ["sneak", "power", "mesh", "stick"];
-  if (down === 3 && distance >= 4 && distance <= 7) return ["mesh", "slant", "spacing", "drive", "flood", "curl flat"];
-  if (down === 3 && distance >= 8) return ["four verts", "verticals", "spacing", "post", "y cross"];
-  return ["inside zone", "outside zone", "slant", "mesh", "spacing", "stick"];
-}
-
-type SheetPlaysApiRow = {
-  formation: string;
-  play_name: string;
-  play_type?: string | null;
-};
-
-export function usePlaySuggestions({ down, distance, fieldPos, gameId, playbook, sheetId, loggerOpenFlowId }: Args) {
-  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
-  const [recentRows, setRecentRows] = useState<RecentLoggedPlay[]>([]);
-  const [sheetCalls, setSheetCalls] = useState<PlaybookEntry[]>([]);
-  const [sheetName, setSheetName] = useState<string | null>(null);
-
-  /** Same scenario string written with new logs (see drives plays POST). */
+export function usePlaySuggestions({
+  down,
+  distance,
+  fieldPos,
+  playbook,
+  allGameCoachCalls,
+  sheetId,
+  loggerOpenFlowId,
+}: Args) {
   const scenarioLabel = useMemo(() => {
     const { side, yard_line } = fromAbsoluteYard(fieldPos);
     const fieldZone = deriveFieldZone(yard_line, side);
     return deriveScenario(down, distance, fieldZone);
   }, [down, distance, fieldPos]);
 
-  useEffect(() => {
-    let flowClosed = false;
-    const closeLoggerOpenFlow = (
-      status: "ok" | "error" | "cancelled" | "skipped",
-      details: Record<string, string | number | boolean | null | undefined>,
-    ) => {
-      if (!loggerOpenFlowId || flowClosed) return;
-      endCriticalFlow(loggerOpenFlowId, status, details);
-      flowClosed = true;
-    };
-
-    if (!sheetId || !scenarioLabel) {
-      setSheetCalls([]);
-      setSheetName(null);
-      closeLoggerOpenFlow("skipped", {
-        reason: !sheetId ? "no_sheet_id" : "no_scenario",
-      });
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch(
-          `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
-          { cache: "no-store" },
-        );
-        const json = (await res.json()) as { plays?: SheetPlaysApiRow[]; sheetName?: string | null; error?: string };
-        if (!res.ok || cancelled) {
-          if (!cancelled) {
-            setSheetCalls([]);
-            setSheetName(null);
-            closeLoggerOpenFlow("error", {
-              reason: "sheet_fetch_failed",
-              statusCode: res.status,
-              scenario: scenarioLabel,
-            });
-          }
-          return;
-        }
-        setSheetName(json.sheetName?.trim() || null);
-        const rows = json.plays ?? [];
-        setSheetCalls(
-          rows.map((row) => {
-            const formation = String(row.formation ?? "").trim() || "Other";
-            const play_name = String(row.play_name ?? "").trim();
-            const rawType = row.play_type;
-            return {
-              play_id: `${formation}::${play_name}`.toLowerCase(),
-              formation,
-              group: deriveFormationGroup(formation),
-              play_name,
-              play_type: resolveCfbBrowserPlayType(play_name, rawType),
-            };
-          }),
-        );
-        closeLoggerOpenFlow("ok", {
-          scenario: scenarioLabel,
-          sheetCalls: rows.length,
-        });
-      } catch (error) {
-        if (!cancelled) {
-          setSheetCalls([]);
-          setSheetName(null);
-          closeLoggerOpenFlow("error", {
-            reason: "sheet_fetch_exception",
-            message: error instanceof Error ? error.message : "unknown",
-          });
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-      closeLoggerOpenFlow("cancelled", { reason: "sheet_effect_cleanup" });
-    };
-  }, [sheetId, scenarioLabel, loggerOpenFlowId]);
-
-  useEffect(() => {
-    if (!playbook) {
-      setPlaybookEntries([]);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      const res = await fetch(`/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`, { cache: "no-store" });
-      const json = (await res.json()) as {
-        rows?: Array<{ formation: string; play_name: string; play_type?: string | null }>;
-      };
-      if (!res.ok || cancelled) return;
-      setPlaybookEntries(
-        (json.rows ?? []).map((row) => ({
-          play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
-          formation: row.formation,
-          group: deriveFormationGroup(row.formation),
-          play_name: row.play_name,
-          play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
-        })),
-      );
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [playbook]);
-
-  useEffect(() => {
-    if (!gameId) {
-      setRecentRows([]);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      const res = await fetch(`/api/games/${gameId}/drives`);
-      if (!res.ok || cancelled) return;
-      type DriveWithPlays = { plays?: RecentLoggedPlay[] };
-      const drives = (await res.json()) as DriveWithPlays[];
-      if (cancelled) return;
-      const allPlays: RecentLoggedPlay[] = [];
-      for (const d of drives) {
-        for (const p of d.plays ?? []) allPlays.push(p);
-      }
-      allPlays.sort((a, b) => {
-        const aTime = a.created_at ?? "";
-        const bTime = b.created_at ?? "";
-        return bTime.localeCompare(aTime);
-      });
-      const seen = new Set<string>();
-      const out: RecentLoggedPlay[] = [];
-      for (const play of allPlays) {
-        const key = `${play.formation}::${play.play_name}`.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(play);
-        if (out.length === 8) break;
-      }
-      setRecentRows(out);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [gameId]);
-
   const situationKey = `${down}:${distance}:${fieldPos}`;
-  const suggestions = useMemo(() => {
-    const terms = biasTerms(down, distance, fieldPos);
-    const scored = playbookEntries
-      .map((entry) => {
-        const n = entry.play_name.toLowerCase();
-        const score = terms.reduce((acc, t) => (n.includes(t) ? acc + 1 : acc), 0);
-        return { entry, score };
-      })
-      .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score || a.entry.play_name.localeCompare(b.entry.play_name))
-      .map((item) => item.entry);
-    return scored.slice(0, 6);
-  }, [situationKey, playbookEntries]);
 
-  const recentPlays = useMemo(() => {
-    const suggestionIds = new Set(suggestions.map((s) => s.play_id));
-    return recentRows.filter((play) => !suggestionIds.has(`${play.formation}::${play.play_name}`.toLowerCase()));
-  }, [recentRows, suggestions]);
+  const catalogQuery = useQuery({
+    queryKey: filmLoggerQueryKeys.cfb26Catalog(playbook),
+    queryFn: () => fetchCfb26PlaybookEntries(playbook),
+    enabled: Boolean(playbook.trim()),
+    staleTime: CATALOG_STALE_MS,
+    gcTime: CATALOG_GC_MS,
+  });
 
-  return { suggestions, recentPlays, sheetCalls, sheetName, scenarioLabel };
+  const sheetQuery = useQuery({
+    queryKey: filmLoggerQueryKeys.sheetScenario(sheetId ?? "", scenarioLabel),
+    queryFn: () => fetchPlaySheetScenarioCalls(sheetId as string, scenarioLabel),
+    enabled: Boolean(sheetId?.trim() && scenarioLabel),
+    staleTime: SHEET_STALE_MS,
+    gcTime: SHEET_GC_MS,
+  });
+
+  const playbookEntries = catalogQuery.data ?? [];
+  const sheetCalls = sheetQuery.data?.sheetCalls ?? [];
+  const sheetName = sheetQuery.data?.sheetName ?? null;
+
+  const suggestions = useMemo(
+    () =>
+      buildSituationAwareCallingSuggestions(
+        playbookEntries,
+        allGameCoachCalls,
+        scenarioLabel,
+        down,
+        distance,
+        fieldPos,
+        6,
+      ),
+    [playbookEntries, allGameCoachCalls, scenarioLabel, situationKey, down, distance, fieldPos],
+  );
+
+  const loggerFlowCompletionRef = useRef<{ flowId: string | null; done: boolean }>({
+    flowId: null,
+    done: false,
+  });
+
+  /** End `film_logger_open_with_sheet` as cancelled when the flow id changes or the hook unmounts before ok/error/skipped. */
+  useEffect(() => {
+    const id = loggerOpenFlowId;
+    if (!id) return;
+    return () => {
+      const r = loggerFlowCompletionRef.current;
+      if (r.flowId === id && !r.done) {
+        void endCriticalFlow(id, "cancelled", { reason: "logger_flow_unmount_or_id_change" });
+      }
+    };
+  }, [loggerOpenFlowId]);
+
+  useEffect(() => {
+    if (!loggerOpenFlowId) return;
+    if (loggerFlowCompletionRef.current.flowId !== loggerOpenFlowId) {
+      loggerFlowCompletionRef.current = { flowId: loggerOpenFlowId, done: false };
+    }
+    if (loggerFlowCompletionRef.current.done) return;
+
+    if (!playbook.trim()) {
+      endCriticalFlow(loggerOpenFlowId, "skipped", { reason: "no_playbook" });
+      loggerFlowCompletionRef.current.done = true;
+      return;
+    }
+
+    if (catalogQuery.isPending) return;
+
+    if (catalogQuery.isError) {
+      endCriticalFlow(loggerOpenFlowId, "error", {
+        reason: "catalog_fetch_failed",
+        message: catalogQuery.error instanceof Error ? catalogQuery.error.message : "unknown",
+      });
+      loggerFlowCompletionRef.current.done = true;
+      return;
+    }
+
+    if (sheetId?.trim()) {
+      if (sheetQuery.isPending) return;
+      if (sheetQuery.isError) {
+        endCriticalFlow(loggerOpenFlowId, "error", {
+          reason: "sheet_fetch_failed",
+          message: sheetQuery.error instanceof Error ? sheetQuery.error.message : "unknown",
+          scenario: scenarioLabel,
+        });
+        loggerFlowCompletionRef.current.done = true;
+        return;
+      }
+      endCriticalFlow(loggerOpenFlowId, "ok", {
+        scenario: scenarioLabel,
+        sheetCalls: sheetCalls.length,
+        catalogRows: playbookEntries.length,
+      });
+      loggerFlowCompletionRef.current.done = true;
+      return;
+    }
+
+    endCriticalFlow(loggerOpenFlowId, "ok", {
+      scenario: scenarioLabel,
+      sheetCalls: 0,
+      catalogRows: playbookEntries.length,
+      reason: "no_sheet_id",
+    });
+    loggerFlowCompletionRef.current.done = true;
+  }, [
+    loggerOpenFlowId,
+    playbook,
+    catalogQuery.isPending,
+    catalogQuery.isError,
+    catalogQuery.error,
+    sheetId,
+    sheetQuery.isPending,
+    sheetQuery.isError,
+    sheetQuery.error,
+    scenarioLabel,
+    sheetCalls.length,
+    playbookEntries.length,
+  ]);
+
+  return { suggestions, sheetCalls, sheetName, scenarioLabel };
 }

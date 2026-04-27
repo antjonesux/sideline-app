@@ -103,14 +103,6 @@ export function PlayBrowser({
     return raw.filter((p) => !isExcludedFromPlaySheetPlay(p));
   }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
 
-  useEffect(() => {
-    console.log("[PlayLoggerV2->PlayBrowser] pre-render formations", {
-      groups,
-      isLoading: loading,
-      error: null,
-    });
-  }, [groups, loading]);
-
   const level1Header = (
     <div className="w-full border-b border-slate-700 bg-slate-900">
       <div className="flex w-full items-center gap-3 px-4 py-3">

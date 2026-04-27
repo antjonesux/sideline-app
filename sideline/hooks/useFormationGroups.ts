@@ -1,9 +1,11 @@
 "use client";
-// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useEffect, useMemo, useState } from "react";
-import { resolveFormationSection, resolveCfbBrowserPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { PlaybookEntry } from "@/lib/playbook";
 import { sortFormationTypes } from "@/lib/playbooks/formation-types";
+import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
+import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 
 export type FormationGroup = {
   group: string;
@@ -13,54 +15,19 @@ export type FormationGroup = {
   }[];
 };
 
-export function useFormationGroups(playbook: string) {
-  const [rows, setRows] = useState<PlaybookEntry[]>([]);
-  const [loading, setLoading] = useState(false);
+const CATALOG_STALE_MS = 5 * 60 * 1000;
+const CATALOG_GC_MS = 45 * 60 * 1000;
 
-  useEffect(() => {
-    if (!playbook) {
-      setRows([]);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      setLoading(true);
-      try {
-        const requestUrl = `/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`;
-        console.log("[useFormationGroups] request", {
-          playbook,
-          playbookJson: JSON.stringify(playbook),
-          requestUrl,
-        });
-        const res = await fetch(requestUrl, {
-          cache: "no-store",
-        });
-        const json = (await res.json()) as {
-          rows?: Array<{ formation: string; play_name: string; play_type?: string | null; formation_type?: string | null }>;
-        };
-        console.log("[useFormationGroups] fetch resolved", {
-          ok: res.ok,
-          status: res.status,
-          rowsPreview: (json.rows ?? []).slice(0, 3),
-        });
-        if (!res.ok || cancelled) return;
-        setRows(
-          (json.rows ?? []).map((row) => ({
-            play_id: `${row.formation}::${row.play_name}`.toLowerCase(),
-            formation: row.formation,
-            group: resolveFormationSection(row.formation, row.formation_type),
-            play_name: row.play_name,
-            play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
-          })),
-        );
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [playbook]);
+export function useFormationGroups(playbook: string) {
+  const catalogQuery = useQuery({
+    queryKey: filmLoggerQueryKeys.cfb26Catalog(playbook),
+    queryFn: () => fetchCfb26PlaybookEntries(playbook),
+    enabled: Boolean(playbook.trim()),
+    staleTime: CATALOG_STALE_MS,
+    gcTime: CATALOG_GC_MS,
+  });
+
+  const rows = catalogQuery.data ?? [];
 
   const groups = useMemo<FormationGroup[]>(() => {
     const byGroup = new Map<string, Map<string, PlaybookEntry[]>>();
@@ -81,13 +48,9 @@ export function useFormationGroups(playbook: string) {
       .sort((a, b) => sortFormationTypes(a.group, b.group));
   }, [rows]);
 
-  useEffect(() => {
-    console.log("[useFormationGroups] return", {
-      groups,
-      isLoading: loading,
-      error: null,
-    });
-  }, [groups, loading]);
-
-  return { groups, entries: rows, loading };
+  return {
+    groups,
+    entries: rows,
+    loading: catalogQuery.isPending && Boolean(playbook.trim()),
+  };
 }

@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-27 — Film logger QA: cache, tendencies, end-game Dialog, perf cancel
+
+### What
+
+- Film game detail **`app/film/[gameId]/page.tsx`**: shared TanStack cache for catalog + sheet scenario (`lib/filmLoggerQueryKeys.ts`, `lib/filmLoggerCatalogFetch.ts`); prefetch; `refresh()` invalidates **`film-logger`** queries; final score confirmation uses **shadcn `Dialog`** (with optional **`overlayClassName`** on **`components/ui/dialog.tsx`**) instead of a hand-rolled overlay; **`useScrollLock`** applies only to the legacy full-screen logger; **Resume Game** / ended-state behavior unchanged in product terms.
+- **`hooks/usePlaySuggestions.ts`**: **`endCriticalFlow(..., "cancelled")`** when the logger flow id changes or the hook unmounts before ok/error/skipped.
+- **`lib/filmLoggerCallingSuggestions.ts`**: situation-weighted “You’ve been calling…” (from prior session work).
+- **`coachCopy.ts`**: end-game strings; **`FILM_END_GAME_CONFIRM_CTA`** title case.
+
+### Why
+
+- Addresses full-game logging QA: faster repeat opens, tendency-weighted suggestions, score-at-end, clearer ended game, BUILD_CONTRACT alignment (Dialog on touched end-game surface, React Query invalidation, perf instrumentation parity).
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Film: hide CSV import entry point on game detail
 
 ### What

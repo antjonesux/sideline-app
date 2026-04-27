@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-27 (Film logger QA — TanStack film-logger cache, Dialog end game, perf cancel)
+
+**What:** `lib/filmLoggerQueryKeys.ts` (prefix + catalog + sheet keys), `lib/filmLoggerCatalogFetch.ts` (CFB26 catalog + play-sheet scenario fetch), `lib/filmLoggerCallingSuggestions.ts`; `hooks/useFormationGroups.ts` + `hooks/usePlaySuggestions.ts` share catalog query + stale times; `usePlaySuggestions` emits **`endCriticalFlow` cancelled** on flow id change / unmount when the open flow did not finish; `app/film/[gameId]/page.tsx` prefetches catalog, passes `allGameCoachCalls` into `PlayLoggerV2`, invalidates **`film-logger`** on `refresh()`, end-game flow uses **`Dialog`** + score fields, ended-game **Resume** / no Add Drive; `components/ui/dialog.tsx` accepts **`overlayClassName`** for Film z-stacking; `components/film/PlayLoggerV2.tsx`, `PlayBrowser.tsx`, `coachCopy.ts`.
+
+**Why:** Full-game logging QA (performance, dynamic “You’ve been calling…”, final score confirmation, ended-game UX) and post-review fixes (shadcn Dialog per BUILD_CONTRACT, query invalidation, perf cancel parity).
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Film — remove game-detail CSV import link)
 
 **What:** `app/film/[gameId]/page.tsx` drops the **Upload CSV** `<Link>` to `/film/import?game_session_id=…` from the header action row; **Add Drive** and **End Game** unchanged. `app/film/import/`, `app/api/import/*`, and `components/import/*` are untouched so the flow can be re-wired later.

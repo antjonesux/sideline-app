@@ -22,14 +22,20 @@ import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { useToastStore } from "@/store/toastStore";
 import {
   COULDNT_SAVE,
+  FILM_END_GAME_CONFIRM_CTA,
+  FILM_END_GAME_SCORE_BODY,
+  FILM_END_GAME_SCORE_TITLE,
+  FILM_RESUME_GAME_CTA,
   GUIDED_FINISH_CTA,
   GUIDED_INSIGHT_TITLE,
   GUIDED_LOGGER_TITLE,
   guidedInsightFromLoggedPlays,
 } from "@/lib/coachCopy";
+import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
+import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
-import { normalizePlayName } from "@/lib/utils";
+import { cn, normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
@@ -38,6 +44,13 @@ import { countCoachCallsInGame, countPlaysInGame, isCoachCallPlay } from "@/lib/
 import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function quarterFromDriveForSetup(q: number | null | undefined): Quarter {
@@ -130,6 +143,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [showDriveSetup, setShowDriveSetup] = useState(false);
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [endGameScoreMine, setEndGameScoreMine] = useState("0");
+  const [endGameScoreOpp, setEndGameScoreOpp] = useState("0");
   const [pageReady, setPageReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [endingGame, setEndingGame] = useState(false);
@@ -139,7 +154,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const addToast = useToastStore((s) => s.addToast);
   const guidedBootRef = useRef<"off" | "pending" | "done">("off");
   const loggerOpenFlowIdRef = useRef<string | null>(null);
-  useScrollLock(showEndGameModal || showLogger);
+  const endGameScoresSeededRef = useRef(false);
+  /** End-game uses Radix `Dialog` (body scroll lock). Logger overlay still uses legacy `fixed` shell. */
+  useScrollLock(showLogger);
 
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
 
@@ -165,6 +182,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     });
     void queryClient.invalidateQueries({ queryKey: tendenciesQueryKeys.all });
     void queryClient.invalidateQueries({ queryKey: ["games", "list"] });
+    void queryClient.invalidateQueries({ queryKey: filmLoggerQueryKeys.prefix });
   }, [gameId, queryClient, addToast]);
 
   useEffect(() => {
@@ -247,20 +265,47 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     };
   }, [gameId]);
 
+  const allGameCoachCalls = useMemo(() => {
+    const out: LoggedPlay[] = [];
+    for (const d of drives) {
+      for (const p of d.plays ?? []) {
+        if (isCoachCallPlay(p)) out.push(p);
+      }
+    }
+    return out;
+  }, [drives]);
+
+  useEffect(() => {
+    if (!pageReady || !game?.offensive_playbook?.trim()) return;
+    const pb = game.offensive_playbook.trim();
+    void queryClient.prefetchQuery({
+      queryKey: filmLoggerQueryKeys.cfb26Catalog(pb),
+      queryFn: () => fetchCfb26PlaybookEntries(pb),
+      staleTime: 5 * 60 * 1000,
+      gcTime: 45 * 60 * 1000,
+    });
+  }, [pageReady, game?.offensive_playbook, queryClient]);
+
+  useEffect(() => {
+    if (!showEndGameModal) {
+      endGameScoresSeededRef.current = false;
+      return;
+    }
+    if (!game || endGameScoresSeededRef.current) return;
+    endGameScoresSeededRef.current = true;
+    const last = drives[drives.length - 1];
+    const mine = game.my_score ?? last?.score_mine ?? 0;
+    const opp = game.opponent_score ?? last?.score_opponent ?? 0;
+    setEndGameScoreMine(String(Math.max(0, Number(mine) || 0)));
+    setEndGameScoreOpp(String(Math.max(0, Number(opp) || 0)));
+  }, [showEndGameModal, game, drives]);
+
   useEffect(() => {
     setActiveSheetId(game?.play_sheet_id ?? null);
   }, [game?.play_sheet_id]);
 
   async function createDrive(payload?: Partial<Drive>) {
     if (!gameId) return;
-    if (game?.ended_at) {
-      await fetch(`/api/games/${gameId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ended_at: null }),
-      });
-      setGame((prev) => (prev ? { ...prev, ended_at: null } : prev));
-    }
 
     const prevDrive = drives[drives.length - 1];
     const prevQuarter = prevDrive?.quarter != null && prevDrive.quarter >= 1 ? prevDrive.quarter : 1;
@@ -298,16 +343,24 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     return newDrive;
   }
 
-  async function setGameEnded(nextEnded: boolean) {
+  async function setGameEnded(
+    nextEnded: boolean,
+    finalScores?: { my_score: number; opponent_score: number },
+  ) {
     if (!gameId || endingGame) return;
     setEndingGame(true);
     try {
       const wasEnded = Boolean(game?.ended_at);
       const endedAt = nextEnded ? new Date().toISOString() : null;
+      const body: Record<string, unknown> = { ended_at: endedAt };
+      if (nextEnded && finalScores) {
+        body.my_score = finalScores.my_score;
+        body.opponent_score = finalScores.opponent_score;
+      }
       const res = await fetch(`/api/games/${gameId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ended_at: endedAt }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         addToast(COULDNT_SAVE, "error");
@@ -320,6 +373,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         emitProductEvent("full_game", { gameId });
       }
       setShowEndGameModal(false);
+      if (nextEnded) setShowLogger(false);
       await refresh();
     } finally {
       setEndingGame(false);
@@ -580,13 +634,27 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <GameStatsInline playCount={totalPlays} driveCount={totalDrives} totalYards={totalYards} tds={tds} turnovers={turnovers} />
         </div>
         <div className="flex min-h-11 flex-wrap gap-2">
-          <button type="button" onClick={() => setShowDriveSetup(true)} className={filmGameSecondaryActionClass}>
-            <span className="mr-2 inline-flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" aria-hidden />
-            Add Drive
-          </button>
-          <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
-            End Game
-          </button>
+          {!isGameEnded ? (
+            <button type="button" onClick={() => setShowDriveSetup(true)} className={filmGameSecondaryActionClass}>
+              <span className="mr-2 inline-flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" aria-hidden />
+              Add Drive
+            </button>
+          ) : null}
+          {isGameEnded ? (
+            <button
+              type="button"
+              disabled={endingGame}
+              onClick={() => void setGameEnded(false)}
+              className={`${filmGameSecondaryActionClass} border-emerald-700/80 text-emerald-200 hover:border-emerald-500 hover:text-emerald-50`}
+            >
+              <span className="mr-2 inline-flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" aria-hidden />
+              {FILM_RESUME_GAME_CTA}
+            </button>
+          ) : (
+            <button type="button" onClick={() => setShowEndGameModal(true)} className={filmGameSecondaryActionClass}>
+              End Game
+            </button>
+          )}
         </div>
       </div>
 
@@ -792,7 +860,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                 <div className="border-t border-slate-800/80 px-4 py-3">
                   {(() => {
                     const driveOutcome = getDriveResult(drive.plays);
-                    const canLog = driveOutcome === "ACTIVE" || driveOutcome === "NO_PLAYS";
+                    const canLog =
+                      !isGameEnded && (driveOutcome === "ACTIVE" || driveOutcome === "NO_PLAYS");
                     return canLog ? (
                       <Button
                         type="button"
@@ -802,6 +871,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                       >
                         Log a call
                       </Button>
+                    ) : isGameEnded ? (
+                      <p className="text-center font-sans text-xs text-slate-500">Game ended — resume to log calls</p>
                     ) : (
                       <p className="text-center font-sans text-xs text-slate-500">Drive ended</p>
                     );
@@ -812,7 +883,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           </div>
         );
       })}
-              {drives.length > 0 ? (
+              {drives.length > 0 && !isGameEnded ? (
                 <Button
                   type="button"
                   variant="secondary"
@@ -839,39 +910,69 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </div>
       </Tabs>
 
-      {showEndGameModal ? (
-        <div className="fixed inset-0 z-[190] bg-black/60" onClick={() => setShowEndGameModal(false)}>
-          <div
-            className="fixed inset-x-0 bottom-0 z-[191] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 sm:max-h-[85vh]">
-              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 p-3">
-                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">End game</h2>
-                <button type="button" data-no-press className="p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setShowEndGameModal(false)}>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                    <path d="M6 6 18 18M18 6 6 18" />
-                  </svg>
-                  <span className="sr-only">Close</span>
-                </button>
-              </div>
-              <div className="min-h-0 flex-1 overflow-y-auto p-3">
-                <p className="font-sans text-sm text-slate-400">
-                  Ends this game. Open it again anytime from Film Room.
-                </p>
-              </div>
-              <div className="flex flex-shrink-0 flex-col gap-3 border-t border-slate-800 p-3">
-                <Button type="button" variant="destructive" className="w-full" disabled={endingGame} onClick={() => void setGameEnded(true)}>
-                  End game
-                </Button>
-                <Button type="button" variant="secondary" className="w-full" onClick={() => setShowEndGameModal(false)}>
-                  Cancel
-                </Button>
-              </div>
+      <Dialog open={showEndGameModal} onOpenChange={setShowEndGameModal}>
+        <DialogContent
+          overlayClassName="z-[189] bg-black/70"
+          className={cn(
+            "max-h-[90vh] gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 dark:bg-slate-900",
+            "fixed bottom-0 left-1/2 top-auto z-[190] grid w-[calc(100%-1rem)] max-w-sm -translate-x-1/2 translate-y-0 rounded-b-none rounded-t-xl border shadow-xl sm:bottom-auto sm:top-[50%] sm:max-h-[85vh] sm:-translate-y-1/2 sm:rounded-xl",
+            "[&>button]:right-3 [&>button]:top-3 [&>button]:text-slate-400 [&>button]:hover:text-white [&>button]:ring-offset-slate-900",
+          )}
+        >
+          <DialogHeader className="space-y-0 border-b border-slate-800 p-3 pr-10 text-left">
+            <DialogTitle className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
+              {FILM_END_GAME_SCORE_TITLE}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="px-3 pb-2 text-left font-sans text-sm text-slate-400">
+            {FILM_END_GAME_SCORE_BODY}
+          </DialogDescription>
+          <div className="grid grid-cols-2 gap-3 px-3 pb-3">
+            <div>
+              <label htmlFor="film-end-score-mine" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
+                Your score
+              </label>
+              <input
+                id="film-end-score-mine"
+                inputMode="numeric"
+                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
+                value={endGameScoreMine}
+                onChange={(e) => setEndGameScoreMine(e.target.value.replace(/\D/g, ""))}
+              />
+            </div>
+            <div>
+              <label htmlFor="film-end-score-opp" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
+                Their score
+              </label>
+              <input
+                id="film-end-score-opp"
+                inputMode="numeric"
+                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
+                value={endGameScoreOpp}
+                onChange={(e) => setEndGameScoreOpp(e.target.value.replace(/\D/g, ""))}
+              />
             </div>
           </div>
-        </div>
-      ) : null}
+          <div className="flex flex-shrink-0 flex-col gap-3 border-t border-slate-800 p-3">
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full"
+              disabled={endingGame}
+              onClick={() => {
+                const mine = Math.max(0, Number.parseInt(endGameScoreMine.replace(/\D/g, "") || "0", 10) || 0);
+                const opp = Math.max(0, Number.parseInt(endGameScoreOpp.replace(/\D/g, "") || "0", 10) || 0);
+                void setGameEnded(true, { my_score: mine, opponent_score: opp });
+              }}
+            >
+              {FILM_END_GAME_CONFIRM_CTA}
+            </Button>
+            <Button type="button" variant="secondary" className="w-full" onClick={() => setShowEndGameModal(false)}>
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {showDriveSetup && game ? (
         <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
@@ -962,6 +1063,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   }
                   totalPlayRowsInGame={totalPlayRowsInGame}
                   totalCoachCallsInGame={totalPlays}
+                  allGameCoachCalls={allGameCoachCalls}
                   onPossessionEndedAfterLog={(payload) => {
                     void handlePossessionEndedAfterLog(payload);
                   }}

@@ -12,7 +12,7 @@ import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE, GUIDED_LOGGER_HINT } from "@/lib/coachCopy";
+import { COULDNT_SAVE, GUIDED_LOGGER_HINT, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { isFilmLoggerSpecialTeamsEntry } from "@/lib/filmLoggerSpecialTeams";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
@@ -38,6 +38,8 @@ interface PlayLoggerV2Props {
   totalCoachCallsInGame: number;
   /** Fired after a successful save when this snap ended the possession (TD, FG, punt, turnover, turnover on downs, etc.). */
   onPossessionEndedAfterLog?: (args: { driveId: string; storedResultTag: string }) => void;
+  /** All coach calls logged in this game (all drives) — powers situation-weighted suggestions without refetching drives. */
+  allGameCoachCalls: LoggedPlay[];
 }
 
 export function PlayLoggerV2({
@@ -52,6 +54,7 @@ export function PlayLoggerV2({
   totalPlayRowsInGame,
   totalCoachCallsInGame,
   onPossessionEndedAfterLog,
+  allGameCoachCalls,
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -72,14 +75,6 @@ export function PlayLoggerV2({
 
   const onRefreshRef = useRef(onRefresh);
   onRefreshRef.current = onRefresh;
-
-  const initialPlaybookRef = useRef(playbook);
-  useEffect(() => {
-    console.log("[PlayLoggerV2] mounted", {
-      playbook: initialPlaybookRef.current,
-      playbookJson: JSON.stringify(initialPlaybookRef.current),
-    });
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -108,8 +103,8 @@ export function PlayLoggerV2({
     down: currentGameState.down,
     distance: currentGameState.distance,
     fieldPos: currentGameState.absoluteYard,
-    gameId,
     playbook,
+    allGameCoachCalls,
     sheetId,
     loggerOpenFlowId,
   });
@@ -430,9 +425,7 @@ export function PlayLoggerV2({
 
             <div className="px-4 mb-2">
               <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>
-              <p className="mt-0.5 font-sans text-xs text-slate-400">
-                Based on {situationLine} at {fieldLine}
-              </p>
+              <p className="mt-0.5 font-sans text-xs text-slate-400">{filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}</p>
             </div>
 
             <div className="px-4 flex flex-col gap-2">

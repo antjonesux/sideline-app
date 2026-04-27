@@ -85,3 +85,13 @@ export function guidedInsightFromLoggedPlays(plays: LoggedPlay[]): string {
   }
   return `Mix on the board: ${run} run, ${pass} pass, ${rpo} RPO${other ? `, ${other} other` : ""}. Keep logging so Film Room can surface what worked by situation.`;
 }
+
+/** Film game detail — end game with final score before marking ended. */
+export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";
+export const FILM_END_GAME_SCORE_BODY =
+  "Adjust the score if needed, then mark the game ended. You can still edit game details later from Film Room.";
+export const FILM_END_GAME_CONFIRM_CTA = "Mark Game Ended";
+export const FILM_RESUME_GAME_CTA = "Resume Game";
+
+export const filmLoggerYouveBeenCallingHint = (situationLine: string, fieldLine: string) =>
+  `This game's calls in similar spots, then situation fits — ${situationLine} at ${fieldLine}`;
