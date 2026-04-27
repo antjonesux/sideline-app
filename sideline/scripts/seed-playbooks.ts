@@ -136,6 +136,16 @@ function validateSeed(
   return { errors, warnings };
 }
 
+function mapToCanonicalPlayType(rawPlayType: string): "RUN" | "PASS" | "RPO" {
+  if (rawPlayType.includes("RPO")) return "RPO";
+  if (rawPlayType.includes("Run")) return "RUN";
+  if (rawPlayType.includes("Pass")) return "PASS";
+  console.warn(
+    `[seed-playbooks] Unmapped play_type "${rawPlayType}" encountered; defaulting to "RUN".`,
+  );
+  return "RUN";
+}
+
 function flattenSeedToRows(seed: TeamPlaybookSeed) {
   const playbook = seed.team.trim();
   const rows: {
@@ -157,11 +167,13 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
         formation,
         formation_type: formationType,
         play_name: normalizePlayName(p.playName.trim()),
-        play_type: resolveSeedPlayType({
-          team: playbook,
-          playName: normalizePlayName(p.playName.trim()),
-          explicitPlayType: p.playType,
-        }),
+        play_type: mapToCanonicalPlayType(
+          resolveSeedPlayType({
+            team: playbook,
+            playName: normalizePlayName(p.playName.trim()),
+            explicitPlayType: p.playType,
+          }),
+        ),
         is_new_in_26: Boolean(p.isNewIn26),
         game_version: CFB_CATALOG_GAME_VERSION,
       });
@@ -178,7 +190,7 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
     formation: "_",
     play_name: "_",
     formation_type: "Gun",
-    play_type: "Inside Run",
+    play_type: "RUN",
     is_new_in_26: false,
     game_version: CFB_CATALOG_GAME_VERSION,
   };
