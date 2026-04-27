@@ -1,6 +1,9 @@
 {
   "name": "sideline-repo",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "description": "Next.js app lives in ./sideline. Prefer Vercel Root Directory = sideline; root scripts support builds when Root Directory is the repo root.",
   "scripts": {
     "build": "cd sideline && npm run build",

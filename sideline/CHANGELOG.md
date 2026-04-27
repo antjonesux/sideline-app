@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-26 (Infrastructure — Vercel + Supabase production env)
+
+**What:** **Repo root** `package.json`: **`engines.node` `>=20`**. **`.env.example`**: production env + Supabase Auth redirect allowlist notes (Vercel / custom domain).
+
+**Why:** Document production wiring without new deployment architecture.
+
+**Status after this push:** repo-root **`package.json`**, **`.env.example`**, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-26 (Analytics — product funnel events: game, plays, full game, tendencies, return)
 
 **What:** **`lib/productAnalytics.ts`**: `emitProductEvent`, `window.__sidelineProductEvents`, **`sideline:product`** (mirrors perf buffer pattern). **`lib/filmPlayCounting.ts`**: shared coach-call vs all-play counts. **`ReturnSessionTracker`** in **`AppProviders`**. Events: **`game_created`** (`film/new`, import save), **`first_play`** / **`ten_plays`** (logger + import; milestones via **localStorage**), **`full_game`** (End game **PUT** success), **`tendencies_viewed`** (**`TendenciesHome`** mount + dedupe), **`return_session`** (prior browser visit via **localStorage**).

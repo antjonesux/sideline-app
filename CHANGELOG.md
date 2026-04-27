@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-26 — Infrastructure: Vercel + Supabase production env hints
+
+### What
+
+- **Repo root `package.json`:** `engines.node` `>=20` for hosts that read the monorepo root.
+- **[`sideline/.env.example`](sideline/.env.example):** notes for production env vars, Vercel, and Supabase Auth redirect allowlists (custom domain vs `*.vercel.app`).
+
+### Why
+
+- Keep production deployment (Vercel + Supabase production project) explicit without changing app architecture.
+
+### Status after this push
+
+- Root [`package.json`](package.json), [`sideline/.env.example`](sideline/.env.example), this file, [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md).
+
+---
+
 ## 2026-04-26 — Analytics: product funnel events (game, plays, full game, tendencies, return)
 
 ### What
