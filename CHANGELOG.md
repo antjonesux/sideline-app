@@ -8,11 +8,13 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### What
 
+- [`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx): Uses `PlayBrowser` with `presentation="inline"` inside the Add Play modal shell so desktop/tablet layouts render the formations/plays browser as a flex child instead of an absolute overlay layer.
 - [`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx): Normalizes the Game Plan Add Play catalog source to prefer `sheet.cfb26_playbook`, map case-insensitively to known CFB26 options when available, and safely fall back to legacy `sheet.playbook` when setup options are unavailable (instead of hard-empty blocking).
 - [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Adds an explicit formations-step empty state when no usable playbook value is passed, so Add Play no longer appears blank.
 
 ### Why
 
+- Desktop/tablet Add Play used the overlay presentation path in a bounded modal container, which could hide/clamp browser content at non-mobile breakpoints. Inline presentation preserves the existing mobile UX while restoring visible, scrollable browser content on larger layouts.
 - Film logger passed a canonical catalog playbook into `PlayBrowser`, while Game Plan could pass a legacy/non-canonical value or be over-blocked by option-list availability. This mismatch caused Game Plan Add Play to render no formations/plays even though Film worked.
 
 ### Status after this push

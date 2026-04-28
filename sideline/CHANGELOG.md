@@ -6,11 +6,11 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ## 2026-04-28 (Game Plan Add Play — playbook-source parity with Film + explicit missing-playbook state)
 
-**What:** `components/playbook/PlaybookEditor.tsx` now resolves the Add Play catalog source by preferring `sheet.cfb26_playbook`, case-normalizing against known CFB26 options when available, and falling back to legacy `sheet.playbook` when setup options are unavailable (to avoid false-empty blocking). `components/film/PlayBrowser.tsx` now renders a clear formations-step state when no usable playbook is provided instead of looking blank.
+**What:** `components/playbook/AddPlayDrawer.tsx` now passes `presentation="inline"` to embedded `PlayBrowser` so the browser participates in modal flex layout at `sm+` breakpoints. `components/playbook/PlaybookEditor.tsx` now resolves the Add Play catalog source by preferring `sheet.cfb26_playbook`, case-normalizing against known CFB26 options when available, and falling back to legacy `sheet.playbook` when setup options are unavailable (to avoid false-empty blocking). `components/film/PlayBrowser.tsx` now renders a clear formations-step state when no usable playbook is provided instead of looking blank.
 
-**Why:** Film logger was passing a canonical playbook into `PlayBrowser`, while Game Plan could pass a legacy/non-canonical value (or be over-blocked by setup-option availability), creating a flow mismatch where Game Plan showed no formations/plays despite Film working.
+**Why:** Film logger was passing a canonical playbook into `PlayBrowser`, while Game Plan could pass a legacy/non-canonical value (or be over-blocked by setup-option availability), creating a flow mismatch where Game Plan showed no formations/plays despite Film working. Separately, desktop/tablet Add Play could hide the browser content when overlay presentation was used inside a bounded modal shell.
 
-**Status after this push:** `npm run build` from `sideline/` passed; `components/playbook/PlaybookEditor.tsx`, `components/film/PlayBrowser.tsx`, repo-root **`CHANGELOG.md`**, this file.
+**Status after this push:** `npm run build` from `sideline/` passed; `components/playbook/AddPlayDrawer.tsx`, `components/playbook/PlaybookEditor.tsx`, `components/film/PlayBrowser.tsx`, repo-root **`CHANGELOG.md`**, this file.
 
 ---
 
