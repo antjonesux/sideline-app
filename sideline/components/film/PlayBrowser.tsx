@@ -46,7 +46,7 @@ export function PlayBrowser({
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
-  const { groups, entries, loading } = useFormationGroups(playbook);
+  const { groups, entries, loading, error, hasAttemptedLoad } = useFormationGroups(playbook);
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
   const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
@@ -175,32 +175,56 @@ export function PlayBrowser({
         <>
           {level1Header}
           <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-4 pt-3">
-            {displayGroups.map((group, index) => (
-              <div key={group.group}>
-                <div
-                  className={`px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${
-                    index > 0 ? "mt-4" : ""
-                  }`}
-                >
-                  {group.group.toUpperCase()}
-                </div>
-                <div className="grid w-full grid-cols-2 gap-2 px-4">
-                  {group.formations.map((formation) => (
-                    <button
-                      key={`${group.group}::${formation.name}`}
-                      type="button"
-                      className="min-h-[44px] w-full truncate rounded-lg border border-slate-700 bg-slate-800 px-3 py-3 text-left text-sm font-medium text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-                      onClick={() => {
-                        setSelectedFormation({ group: group.group, name: formation.name });
-                        setStep("plays");
-                      }}
-                    >
-                      {stripGroupPrefix(formation.name, group.group)}
-                    </button>
-                  ))}
+            {error ? (
+              <div className="px-4 py-6">
+                <div className="rounded-lg border border-rose-800/60 bg-rose-950/25 px-4 py-3">
+                  <p className="font-body text-sm text-rose-200">
+                    We could not load this play catalog right now.
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-rose-300/90">
+                    Check the selected CFB26 playbook and try again.
+                  </p>
                 </div>
               </div>
-            ))}
+            ) : hasAttemptedLoad && !loading && displayGroups.length === 0 ? (
+              <div className="px-4 py-6">
+                <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3">
+                  <p className="font-body text-sm text-slate-200">
+                    No formations were found for this playbook.
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-slate-400">
+                    Playbook: {playbook || "Unknown"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              displayGroups.map((group, index) => (
+                <div key={group.group}>
+                  <div
+                    className={`px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${
+                      index > 0 ? "mt-4" : ""
+                    }`}
+                  >
+                    {group.group.toUpperCase()}
+                  </div>
+                  <div className="grid w-full grid-cols-2 gap-2 px-4">
+                    {group.formations.map((formation) => (
+                      <button
+                        key={`${group.group}::${formation.name}`}
+                        type="button"
+                        className="min-h-[44px] w-full truncate rounded-lg border border-slate-700 bg-slate-800 px-3 py-3 text-left text-sm font-medium text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                        onClick={() => {
+                          setSelectedFormation({ group: group.group, name: formation.name });
+                          setStep("plays");
+                        }}
+                      >
+                        {stripGroupPrefix(formation.name, group.group)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </>
       ) : selectedFormation ? (

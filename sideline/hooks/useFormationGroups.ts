@@ -52,5 +52,7 @@ export function useFormationGroups(playbook: string) {
     groups,
     entries: rows,
     loading: catalogQuery.isPending && Boolean(playbook.trim()),
+    error: catalogQuery.error instanceof Error ? catalogQuery.error.message : null,
+    hasAttemptedLoad: catalogQuery.isFetched,
   };
 }

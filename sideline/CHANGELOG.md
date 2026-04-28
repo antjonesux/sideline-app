@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-28 (Game Plan Add Play — production catalog load fix + explicit browser states)
+
+**What:** `app/api/cfb26-plays/route.ts` now matches `cfb26_plays.game_version` case-insensitively with `.ilike("game_version", CFB_CATALOG_GAME_VERSION)` across list/search/formation paths, so mixed-case production seed rows still load. `hooks/useFormationGroups.ts` returns `error` and `hasAttemptedLoad`. `components/film/PlayBrowser.tsx` renders explicit error and empty states at the formations step instead of silently showing no rows; copy is shared-surface safe for Film and Game Plan.
+
+**Why:** Production data contained mixed `game_version` casing, which made some playbooks look empty in Game Plan Add Play despite existing catalog rows; browser fetch failures were not visibly surfaced.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `app/api/cfb26-plays/route.ts`, `hooks/useFormationGroups.ts`, `components/film/PlayBrowser.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-27 (Film Play Logger — Browse / Situational / My Sheet tabs + inline PlayBrowser)
 
 **What:** `components/film/PlayBrowser.tsx` adds **`presentation?: "overlay" | "inline"`** (default overlay): inline skips **`history.pushState` / `popstate`** back-to-close, uses a flex column root instead of the full-bleed animated overlay, and suppresses the top-level **Back** when embedded. `components/film/PlayLoggerV2.tsx` replaces the **Search plays & formations** button + full-screen browser overlay with **shadcn `Tabs`**: **Browse** (inline `PlayBrowser`), **Situational** (“You’ve been calling…” + engine suggestions), optional **My Sheet** when `sheetId` is set (YOUR CALLS from the sheet, empty copy when none match); tab trigger styling aligns with **`gameDetailTabTriggerClass`** on `app/film/[gameId]/page.tsx`.

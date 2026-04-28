@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-28 — Game Plan Add Play production catalog fix (version-case mismatch + explicit browser states)
+
+### What
+
+- [`sideline/app/api/cfb26-plays/route.ts`](sideline/app/api/cfb26-plays/route.ts): Replaced strict `game_version` equality checks with case-insensitive matching (`.ilike("game_version", CFB_CATALOG_GAME_VERSION)`) across list/search/formation queries so production catalog rows load even when `cfb26_plays.game_version` casing is inconsistent.
+- [`sideline/hooks/useFormationGroups.ts`](sideline/hooks/useFormationGroups.ts): Exposes catalog query state to callers with `error` and `hasAttemptedLoad`.
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Adds explicit formation-level error and empty states instead of silently rendering an empty list; copy is shared-surface safe for both Film and Game Plan flows.
+
+### Why
+
+- Production had mixed catalog `game_version` casing, which caused Game Plan Add Play to show no formations/plays for affected playbooks despite valid rows. The browser also hid fetch failures as empty results.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-27 — Film Play Logger: Browse / Situational / My Sheet tabs, inline PlayBrowser
 
 ### What
