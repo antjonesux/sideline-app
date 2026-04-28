@@ -157,6 +157,7 @@ export function PlayBrowser({
   const rootClassName = isInline
     ? "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-slate-950"
     : "absolute inset-0 z-30 flex min-h-0 w-full flex-col bg-slate-950 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200";
+  const hasPlaybook = playbook.trim().length > 0;
 
   return (
     <div className={rootClassName}>
@@ -175,7 +176,18 @@ export function PlayBrowser({
         <>
           {level1Header}
           <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-4 pt-3">
-            {error ? (
+            {!hasPlaybook ? (
+              <div className="px-4 py-6">
+                <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3">
+                  <p className="font-body text-sm text-slate-200">
+                    This sheet is missing a usable CFB26 playbook.
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-slate-400">
+                    Open Edit and select a CFB26 playbook to browse formations.
+                  </p>
+                </div>
+              </div>
+            ) : error ? (
               <div className="px-4 py-6">
                 <div className="rounded-lg border border-rose-800/60 bg-rose-950/25 px-4 py-3">
                   <p className="font-body text-sm text-rose-200">

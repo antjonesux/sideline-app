@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-28 — Game Plan Add Play playbook-source parity fix (Film-aligned) + non-silent missing state
+
+### What
+
+- [`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx): Normalizes the Game Plan Add Play catalog source to prefer `sheet.cfb26_playbook`, map case-insensitively to known CFB26 options when available, and safely fall back to legacy `sheet.playbook` when setup options are unavailable (instead of hard-empty blocking).
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Adds an explicit formations-step empty state when no usable playbook value is passed, so Add Play no longer appears blank.
+
+### Why
+
+- Film logger passed a canonical catalog playbook into `PlayBrowser`, while Game Plan could pass a legacy/non-canonical value or be over-blocked by option-list availability. This mismatch caused Game Plan Add Play to render no formations/plays even though Film worked.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-28 — Game Plan Add Play production catalog fix (version-case mismatch + explicit browser states)
 
 ### What

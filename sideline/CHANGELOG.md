@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-28 (Game Plan Add Play — playbook-source parity with Film + explicit missing-playbook state)
+
+**What:** `components/playbook/PlaybookEditor.tsx` now resolves the Add Play catalog source by preferring `sheet.cfb26_playbook`, case-normalizing against known CFB26 options when available, and falling back to legacy `sheet.playbook` when setup options are unavailable (to avoid false-empty blocking). `components/film/PlayBrowser.tsx` now renders a clear formations-step state when no usable playbook is provided instead of looking blank.
+
+**Why:** Film logger was passing a canonical playbook into `PlayBrowser`, while Game Plan could pass a legacy/non-canonical value (or be over-blocked by setup-option availability), creating a flow mismatch where Game Plan showed no formations/plays despite Film working.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `components/playbook/PlaybookEditor.tsx`, `components/film/PlayBrowser.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-28 (Game Plan Add Play — production catalog load fix + explicit browser states)
 
 **What:** `app/api/cfb26-plays/route.ts` now matches `cfb26_plays.game_version` case-insensitively with `.ilike("game_version", CFB_CATALOG_GAME_VERSION)` across list/search/formation paths, so mixed-case production seed rows still load. `hooks/useFormationGroups.ts` returns `error` and `hasAttemptedLoad`. `components/film/PlayBrowser.tsx` renders explicit error and empty states at the formations step instead of silently showing no rows; copy is shared-surface safe for Film and Game Plan.

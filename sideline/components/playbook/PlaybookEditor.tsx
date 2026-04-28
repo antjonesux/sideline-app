@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, sheetCfb26Playbook, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -154,7 +154,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const filled = sortedPlays.length;
   const atCapacity = filled >= maxSlots;
 
-  const cfb26 = sheet ? sheetCfb26Playbook(sheet) : "";
   const cfb26PlaybookOptions = useMemo(() => {
     const set = new Set<string>();
     for (const row of setupQuery.data?.offensiveTeams ?? []) {
@@ -162,6 +161,23 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [setupQuery.data?.offensiveTeams]);
+  const cfb26 = useMemo(() => {
+    if (!sheet) return "";
+    const optionByLower = new Map<string, string>();
+    for (const option of cfb26PlaybookOptions) {
+      optionByLower.set(option.toLowerCase(), option);
+    }
+    const explicitCfb26 = (sheet.cfb26_playbook ?? "").trim();
+    if (explicitCfb26) {
+      return optionByLower.get(explicitCfb26.toLowerCase()) ?? explicitCfb26;
+    }
+    const legacyValue = (sheet.playbook ?? "").trim();
+    if (!legacyValue) return "";
+    // If setup options are unavailable, do not over-block legacy rows; let PlayBrowser fetch and surface catalog errors.
+    if (optionByLower.size === 0) return legacyValue;
+    // Legacy rows can store a display label in `playbook`; pass through only when it maps to a known catalog entry.
+    return optionByLower.get(legacyValue.toLowerCase()) ?? "";
+  }, [sheet, cfb26PlaybookOptions]);
 
   const invalidateScenario = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, activeScenario] });
@@ -313,7 +329,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     if (!sh) return;
     const name = sh.name.trim();
     const scheme = sh.scheme?.trim() || "Multiple";
-    const offBook = sheetCfb26Playbook(sh).trim();
+    const offBook = cfb26.trim();
     if (!name || !offBook) {
       addToast(COULDNT_SAVE, "error");
       return;
@@ -347,7 +363,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     } finally {
       setStartGuidedBusy(false);
     }
-  }, [addToast, router, setLastGame, sheetQuery.data, sheetId]);
+  }, [addToast, cfb26, router, setLastGame, sheetQuery.data, sheetId]);
 
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
