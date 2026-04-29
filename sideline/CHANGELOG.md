@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Landing onboarding carousel — image slide / copy crossfade, reduced motion, SR alignment)
+
+**What:** `components/landing/OnboardingCarousel.tsx`: image strip slides horizontally inside the mockup; headline/supporting copy crossfade in place (`useCrossfadeIndex`). `prefers-reduced-motion: reduce` snaps text (no fade) with `0ms` opacity transition; supporting paragraph **`line-clamp-4`** restored. `aria-live` uses **`displayedIndex`** so announcements match the headline shown after crossfade.
+
+**Why:** Clearer layout than sliding image+copy together; reduced-motion users should not get opacity-only animations; clamp avoids pushing CTAs off short viewports; live region stays consistent with visible copy.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `components/landing/OnboardingCarousel.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-28 (Marketing landing — `/landing`, `next`, proxy, marketing chrome)
 
 **What:** New `app/landing/`, `components/landing/*`, `lib/landing/*`, `lib/navigation/*`, `public/onboarding/*`; `proxy.ts` and `app/page.tsx` send unauthenticated users to `/landing` with optional `next`; authenticated `/landing` redirects to `next` or `/film`; `/signup` → `/login?register=1`. `BottomTabNav` + `globals.css` marketing chrome (hidden tabs, `main` bottom padding exception). `layout.tsx` metadata, `LoginForm` title/tagline aligned with landing. Root **`BUILD_CONTRACT.md`** updated for product line, routing, and marketing padding note.

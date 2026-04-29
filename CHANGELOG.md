@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Landing onboarding carousel: image track vs copy crossfade + a11y
+
+### What
+
+- [`sideline/components/landing/OnboardingCarousel.tsx`](sideline/components/landing/OnboardingCarousel.tsx): Horizontally slides **images only** inside the rounded mockup panel; headline and supporting copy **crossfade in place** via `useCrossfadeIndex`. **`prefers-reduced-motion: reduce`** snaps copy (no fade timer, `0ms` opacity transition) and keeps existing instant slide jumps for the image track when motion is reduced. Restores **`line-clamp-4`** on supporting text for small-viewport layout stability. **`aria-live`** announcement uses **`displayedIndex`** so screen reader updates align with the visible headline after crossfade.
+
+### Why
+
+- Keeps marketing onboarding readable when image and copy advance together; avoids motion/accessibility mismatch between slides and text; prevents long copy from crowding CTAs on short screens.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-28 — Marketing landing (`/landing`), unauth entry via `next`, BUILD_CONTRACT alignment
 
 ### What
