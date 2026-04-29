@@ -12,7 +12,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-lg bg-primary font-heading text-sm font-semibold uppercase tracking-[0.1em] text-primary-foreground hover:bg-[var(--primary-hover)]",
+          "rounded-lg bg-primary font-heading text-sm font-semibold tracking-[0.1em] text-primary-foreground hover:bg-[var(--primary-hover)]",
         destructive:
           "rounded-lg border border-destructive/50 bg-transparent font-body text-sm font-semibold tracking-wide text-destructive hover:border-destructive hover:text-destructive",
         outline:
@@ -25,7 +25,7 @@ const buttonVariants = cva(
       size: {
         default: "min-h-11 px-4 py-2.5",
         sm: "min-h-9 rounded-md px-3 py-2 text-xs",
-        lg: "min-h-11 px-4 py-4 font-heading text-base font-semibold uppercase tracking-[0.1em]",
+        lg: "min-h-11 px-4 py-4 font-heading text-base font-semibold tracking-[0.1em]",
         icon: "size-10 min-h-10 min-w-10 shrink-0 rounded-md p-0",
       },
     },

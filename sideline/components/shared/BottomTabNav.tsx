@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
+import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect } from "react";
 
@@ -9,31 +10,17 @@ const tabs = [
   {
     href: "/film",
     label: "Film Room",
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M8 5v14M16 5v14M3 10h5M3 14h5M16 10h5M16 14h5" />
-      </svg>
-    ),
+    icon: <Video className="h-5 w-5" aria-hidden />,
   },
   {
     href: "/playbook",
     label: "Game Plan",
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <path d="M7 4h10a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Z" />
-        <path d="M9 9h6M9 13h6" />
-      </svg>
-    ),
+    icon: <ClipboardList className="h-5 w-5" aria-hidden />,
   },
   {
     href: "/tendencies",
     label: "Tendencies",
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <path d="M4 20V10M12 20V4M20 20v-7" />
-      </svg>
-    ),
+    icon: <ChartNoAxesCombined className="h-5 w-5" aria-hidden />,
   },
 ];
 

@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Primary buttons: normal case; bottom nav icons (lucide)
+
+### What
+
+- [`sideline/components/ui/button.tsx`](sideline/components/ui/button.tsx): Removed Tailwind **`uppercase`** from the **`default`** (primary) variant and from **`size.lg`** so labels render in natural casing without changing font weight, tracking, colors, padding, or radius.
+- [`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx): Replaced inline tab SVGs with **`lucide-react`** — **Film Room** **`Video`**, **Game Plan** **`ClipboardList`**, **Tendencies** **`ChartNoAxesCombined`** — same **`h-5 w-5`**, labels, **`href`s**, active styling, **`z-40`**, and marketing/onboarding chrome behavior unchanged.
+
+### Why
+
+- Uppercase primary CTAs read harsh for a coaching product; nav icons should read at a glance as film, call sheet, and analytics without adding a second icon library.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Tendencies: play-type distribution accuracy (Screen, PA, Option, catalog misses)
 
 ### What

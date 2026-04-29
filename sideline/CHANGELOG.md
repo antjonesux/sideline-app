@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Primary buttons — normal case; bottom nav — lucide icons)
+
+**What:** `components/ui/button.tsx` drops **`uppercase`** on **`variant.default`** and **`size.lg`** (other variants unchanged). `components/shared/BottomTabNav.tsx` uses **`Video`**, **`ClipboardList`**, **`ChartNoAxesCombined`** from **`lucide-react`** at **`h-5 w-5`** instead of inline SVGs; Film Room / Game Plan / Tendencies labels and routes unchanged.
+
+**Why:** Primary actions should not feel like dashboard shout; tab icons should match pillar meaning while staying on the existing **`lucide-react`** dependency.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Tendencies — play-type distribution: Screen, PA, Option, catalog misses)
 
 **What:** `app/api/tendencies/predictability/route.ts` builds distribution from all typed plays (denominator = play count); `meta.classified_play_count` matches. `lib/tendenciesServer.ts` **`attachPlayTypes`** prefers name-derived **`screen` / `play_action` / `rpo_read` / `option_qb_run`** over catalog hits when those derived raws apply. `lib/tendenciesPlayType.ts` adds **`derivedRawOverridesCatalogForTendencies`** and extends **`deriveCfbPlayTypeFromName`** (play action phrase, PA token incl. `MTN PA …`, option phrases). `lib/playbook.ts` **`nameHasExplicitPassOrRpoSignal`** adds screen, play action, PA token for personnel override guard. `lib/playTypeResolution.ts` comment; `components/tendencies/AmIPredictable.tsx` denominator comment.
