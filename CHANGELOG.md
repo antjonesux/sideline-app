@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-28 — Marketing landing (`/landing`), unauth entry via `next`, BUILD_CONTRACT alignment
+
+### What
+
+- [`sideline/app/landing/`](sideline/app/landing/), [`sideline/components/landing/`](sideline/components/landing/), [`sideline/lib/landing/`](sideline/lib/landing/), [`sideline/lib/navigation/`](sideline/lib/navigation/), [`sideline/public/onboarding/`](sideline/public/onboarding/): Welcome carousel, CTAs, and assets; shared helpers for landing ↔ login URLs with **`next`** preservation.
+- [`sideline/proxy.ts`](sideline/proxy.ts), [`sideline/app/page.tsx`](sideline/app/page.tsx), auth/settings/film touchpoints: Unauthenticated users land on **`/landing`** (with **`next`** where applicable); signed-in users hitting **`/landing`** redirect to **`next`** or **`/film`**; **`/signup`** redirects to **`/login?register=1`**.
+- [`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx), [`sideline/app/globals.css`](sideline/app/globals.css): Marketing chrome hides bottom tabs and adjusts **`main`** padding so full-height landing does not leave a tab-bar gap.
+- [`sideline/app/layout.tsx`](sideline/app/layout.tsx), [`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx): Tagline **“Study your game. Call it smarter.”** and title treatment aligned with landing; root metadata description updated.
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md): Product intent, unauth routing, marketing padding exception, and repo map updated to match shipped behavior.
+
+### Why
+
+- Coaching-first marketing funnel before sign-in; **`next`** keeps deep links and settings-driven sign-out flows coherent; contract doc no longer contradicted **`/`** → **`/login`** when code shipped **`/landing`**.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-28 — Game Plan Add Play playbook-source parity fix (Film-aligned) + non-silent missing state
 
 ### What

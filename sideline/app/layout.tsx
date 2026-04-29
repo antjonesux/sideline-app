@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "The Sideline",
-  description: "Personal OC journal and live play sheet",
+  description: "Study your game. Call it smarter.",
 };
 
 /** Lets `env(safe-area-inset-*)` apply on notched devices (home indicator). */

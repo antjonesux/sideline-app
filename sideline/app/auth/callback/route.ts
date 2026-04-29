@@ -32,7 +32,9 @@ export async function GET(request: Request) {
     }
   }
 
-  const loginUrl = new URL("/login", origin);
-  if (safePath !== "/") loginUrl.searchParams.set("next", safePath);
-  return NextResponse.redirect(loginUrl);
+  const landingUrl = new URL("/landing", origin);
+  if (safePath !== "/" && safePath !== "/landing") {
+    landingUrl.searchParams.set("next", safePath);
+  }
+  return NextResponse.redirect(landingUrl);
 }

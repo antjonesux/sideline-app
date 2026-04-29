@@ -1,20 +1,45 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
+import { buildLandingHref } from "@/lib/navigation/loginHref";
 
 type View = "sign-in" | "create-account" | "forgot-password";
+
+function BackToLandingLink({ next }: { next?: string | null }) {
+  return (
+    <div className="-mt-2 mb-4 w-full sm:-mt-1 sm:mb-6">
+      <Link
+        href={buildLandingHref(next)}
+        className="inline-flex min-h-10 items-center gap-2 rounded-md font-sans text-sm font-medium text-slate-400 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+        aria-label="Back to welcome"
+      >
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Back
+      </Link>
+    </div>
+  );
+}
 
 export function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
+  const registerIntent = searchParams.get("register") === "1";
+  const nextForLandingBack = searchParams.get("next");
   const { user, signInWithPassword, signUp, signInWithGoogle, resetPassword } = useAuth();
 
-  const [view, setView] = useState<View>("sign-in");
+  const [view, setView] = useState<View>(() => (registerIntent ? "create-account" : "sign-in"));
+
+  useEffect(() => {
+    if (registerIntent) setView("create-account");
+  }, [registerIntent]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -95,6 +120,9 @@ export function LoginForm() {
     return (
       <div className="flex min-h-[80dvh] flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6 text-center">
+          <div className="text-left">
+            <BackToLandingLink next={nextForLandingBack} />
+          </div>
           <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.14em] text-white">
             Check your email
           </h1>
@@ -119,6 +147,9 @@ export function LoginForm() {
     return (
       <div className="flex min-h-[80dvh] flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6 text-center">
+          <div className="text-left">
+            <BackToLandingLink next={nextForLandingBack} />
+          </div>
           <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.14em] text-white">
             Check your email
           </h1>
@@ -157,6 +188,7 @@ export function LoginForm() {
     return (
       <div className="flex min-h-[80dvh] flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-8">
+          <BackToLandingLink next={nextForLandingBack} />
           <header className="space-y-2 text-center">
             <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.14em] text-white">
               Reset password
@@ -199,12 +231,19 @@ export function LoginForm() {
   return (
     <div className="flex min-h-[80dvh] flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <header className="space-y-2 text-center">
-          <h1 className="font-heading text-4xl font-bold uppercase tracking-[0.14em] text-white">
+        <BackToLandingLink next={nextForLandingBack} />
+        <header className="text-center">
+          <h1
+            className="font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
+            style={{
+              textShadow: "0px 0px 24px rgba(51, 65, 85, 0.3)",
+              filter: "drop-shadow(0px 0px 12px #1f3d35)",
+            }}
+          >
             The Sideline
           </h1>
-          <p className="font-sans text-sm text-slate-400">
-            Your personal OC journal and live play sheet.
+          <p className="mt-3 font-sans text-sm font-medium leading-snug text-[#94a3b8] sm:text-[15px]">
+            Study your game. Call it smarter.
           </p>
         </header>
 

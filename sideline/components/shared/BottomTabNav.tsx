@@ -40,17 +40,29 @@ const tabs = [
 export default function BottomTabNav() {
   const pathname = usePathname();
 
-  /** `/` is the onboarding gate only — hide tabs and tighten main padding (see globals.css). */
+  /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
     if (pathname === "/") root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
-    return () => root.removeAttribute("data-onboarding-chrome");
+    if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
+    else root.removeAttribute("data-marketing-chrome");
+    return () => {
+      root.removeAttribute("data-onboarding-chrome");
+      root.removeAttribute("data-marketing-chrome");
+    };
   }, [pathname]);
 
   if (pathname === "/") return null;
 
-  if (pathname === "/login" || pathname.startsWith("/auth/") || pathname === "/reset-password") return null;
+  if (
+    pathname === "/login" ||
+    pathname === "/landing" ||
+    pathname === "/signup" ||
+    pathname.startsWith("/auth/") ||
+    pathname === "/reset-password"
+  )
+    return null;
 
   return (
     <nav

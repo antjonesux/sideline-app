@@ -1,6 +1,6 @@
 # Sideline — build contract
 
-How we build **The Sideline**: a personal OC journal and live play sheet (Next.js app in `sideline/`). This doc aligns humans and AI agents with **what the repo does today**, not generic best practices.
+How we build **The Sideline**: a coach-first film and call-logging assistant (positioning: *Study your game. Call it smarter.*) — Next.js app in `sideline/`. This doc aligns humans and AI agents with **what the repo does today**, not generic best practices.
 
 ---
 
@@ -8,7 +8,7 @@ How we build **The Sideline**: a personal OC journal and live play sheet (Next.j
 
 - **Coach-first tool:** fast sideline logging, readable drives, tendencies that answer “what do I call here?” without analyst jargon.
 - **Three pillars** (bottom nav): **Film Room** (`/film`), **Game Plan** (`/playbook`), **Tendencies** (`/tendencies`).
-- **Authenticated home (`/`):** **`app/page.tsx`** gates with **`HomeOnboardingGate`**. If the coach already has logged plays (sum of game **`play_count`** is above zero), the client **`replace`**s to **`/film`** automatically; otherwise **`/`** shows stepped onboarding (coaches may leave via the playbook CTA **`Link`** to Game Plan without that redirect). Unauthenticated visitors to **`/`** are **`redirect`**ed to **`/login`** (server).
+- **Authenticated home (`/`):** **`app/page.tsx`** gates with **`HomeOnboardingGate`**. If the coach already has logged plays (sum of game **`play_count`** is above zero), the client **`replace`**s to **`/film`** automatically; otherwise **`/`** shows stepped onboarding (coaches may leave via the playbook CTA **`Link`** to Game Plan without that redirect). **Unauthenticated** visitors to **`/`** (and other protected routes per **`proxy.ts`**) are **`redirect`**ed to **`/landing`** with an optional encoded **`next`** query when a safe internal return URL exists. **`/signup`** is a real redirect to **`/login?register=1`** (not a placeholder page). Authenticated visits to **`/landing`** redirect to **`next`** (when allowed) or **`/film`** so marketing stays unauth-first.
 - **Mental model:** *game* → *drives* → *calls* (logged plays). Play names and formations come from the coach’s sheet vocabulary; CFB26 catalog (`cfb26_plays`) supplies canonical metadata (especially **RUN / PASS / RPO**).
 
 ---
@@ -41,6 +41,7 @@ Only establish a new convention when the change is intentional and scoped.
 |----------|------|
 | `sideline/` | Next.js app: `npm run dev`, `npm run build`, `npm run lint` |
 | `sideline/app/` | App Router pages and `api/` routes |
+| `sideline/app/landing/` | Marketing welcome + onboarding carousel; primary unauth entry before sign-in |
 | `sideline/components/shared/` | Cross-feature UI (nav, tables, modals, toasts) |
 | `sideline/components/film/`, `playbook/`, `tendencies/`, … | Feature UI |
 | `sideline/lib/` | Types, Supabase helpers, engines (`gameStateEngine`, `driveOutcome`, `fieldPosition`), `playTypeResolution`, copy helpers |
@@ -85,7 +86,7 @@ Only establish a new convention when the change is intentional and scoped.
 - **shadcn/ui (Radix primitives)** for **tabs, dropdowns, selects, buttons**, and **dialogs** used for shared confirmations and settings-style shells (**`Dialog`** / **`ConfirmDestructiveModal`**, etc.); tokens from `globals.css` / CSS variables; dark-only styling required (see `.cursorrules`).
 - **Legacy full-bleed overlays:** some Film flows (**`app/film/[gameId]/page.tsx`**) still use **hand-rolled `fixed` + high `z-index` sheets** (e.g. end game, drive setup, full-screen logger). New work should **prefer `Dialog`** when touching those surfaces; do not copy the legacy pattern elsewhere without an explicit brief.
 - **Kebab / overflow menus:** Film drive rows use **`components/shared/DropdownMenu`** (declarative items + **`dropdownMenuRegistry`** so only one menu stays open in dense lists). Game and play sheet cards that need arbitrary menu rows and controlled open state next to modals use **`CardKebabMenu`** with **`@/components/ui/dropdown-menu`** children. Match the surface already using one of these two paths; do not add a third menu shell.
-- **Scroll and bottom nav:** root **`sideline/app/layout.tsx`** is authoritative — `main` uses `max-w-3xl`, horizontal padding, and **`pb-[calc(7rem+env(safe-area-inset-bottom,0px))]`** so content clears the fixed tab bar. Feature pages should not shrink bottom padding at `sm:` breakpoints in ways that overlap the nav.
+- **Scroll and bottom nav:** root **`sideline/app/layout.tsx`** is authoritative — `main` uses `max-w-3xl`, horizontal padding, and **`pb-[calc(7rem+env(safe-area-inset-bottom,0px))]`** so content clears the fixed tab bar. Feature pages should not shrink bottom padding at `sm:` breakpoints in ways that overlap the nav. **Marketing chrome** (`/landing`, sign-up shell, etc.): **`BottomTabNav`** sets **`data-marketing-chrome`** on `html` and **`globals.css`** forces **`main`** bottom padding to **`0`** where needed so full-height marketing layouts are not undercut by the tab-bar offset (intentional exception to the default `main` padding rule).
 - **Bottom tab nav** — `z-40` in `BottomTabNav`; modals/overlays must stack above it (see recent film modal portal work in changelog).
 - **Feedback:** writes show success/error toasts; destructive actions confirm; loading uses skeletons shaped like content (per `.cursorrules`).
 - **Known deviations:** `DESIGN_AUDIT.md` lists inconsistencies; new work should **move toward** the design system, not add new one-off patterns.

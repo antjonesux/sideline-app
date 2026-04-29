@@ -49,7 +49,7 @@ export function HomeOnboardingGate() {
       const res = await fetch("/api/games");
       if (cancelled) return;
       if (res.status === 401) {
-        router.replace("/login");
+        router.replace("/landing");
         return;
       }
       const raw = (await res.json()) as unknown;

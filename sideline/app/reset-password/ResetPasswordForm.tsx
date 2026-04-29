@@ -33,7 +33,7 @@ export function ResetPasswordForm() {
             This reset link is no longer valid. Request a new one from the sign-in page.
           </p>
           <Button asChild variant="secondary" className="inline-flex">
-            <a href="/login">Back to sign in</a>
+            <a href="/landing">Back to welcome</a>
           </Button>
         </div>
       </div>

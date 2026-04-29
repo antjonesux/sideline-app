@@ -111,7 +111,7 @@ async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
 export default async function FilmRoomPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(`/landing?next=${encodeURIComponent("/film")}`);
 
   const games = await getGamesWithCounts(user.id);
 

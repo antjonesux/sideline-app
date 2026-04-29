@@ -1,7 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
-const PUBLIC_PATHS = ["/login", "/auth/callback", "/auth/confirm", "/reset-password"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/landing",
+  "/signup",
+  "/auth/callback",
+  "/auth/confirm",
+  "/reset-password",
+];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -18,12 +25,25 @@ export async function proxy(request: NextRequest) {
     }
     const search = request.nextUrl.search;
     const dest = search ? `${pathname}${search}` : pathname;
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", dest);
-    return NextResponse.redirect(loginUrl);
+    const landingUrl = new URL("/landing", request.url);
+    if (dest !== "/" && dest !== "/landing") {
+      landingUrl.searchParams.set("next", dest);
+    }
+    return NextResponse.redirect(landingUrl);
   }
 
   if (user && pathname === "/login") {
+    const next = request.nextUrl.searchParams.get("next");
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      return NextResponse.redirect(new URL(next, request.url));
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = "/film";
+    url.searchParams.delete("next");
+    return NextResponse.redirect(url);
+  }
+
+  if (user && pathname === "/landing") {
     const next = request.nextUrl.searchParams.get("next");
     if (next && next.startsWith("/") && !next.startsWith("//")) {
       return NextResponse.redirect(new URL(next, request.url));

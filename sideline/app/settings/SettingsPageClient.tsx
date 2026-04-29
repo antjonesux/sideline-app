@@ -69,7 +69,7 @@ export function SettingsPageClient({ email }: { email: string }) {
     setSignOutBusy(true);
     const { error } = await signOut();
     if (!error) {
-      router.push("/login");
+      router.push("/landing");
     } else {
       setSignOutBusy(false);
     }
@@ -92,7 +92,7 @@ export function SettingsPageClient({ email }: { email: string }) {
       }
       await signOut();
       addToast("Account deleted.", "success");
-      router.push("/login");
+      router.push("/landing");
     } catch {
       setDeleteError("Couldn't delete account. Check connection and try again.");
       setDeleteBusy(false);

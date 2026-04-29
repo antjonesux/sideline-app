@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-28 (Marketing landing — `/landing`, `next`, proxy, marketing chrome)
+
+**What:** New `app/landing/`, `components/landing/*`, `lib/landing/*`, `lib/navigation/*`, `public/onboarding/*`; `proxy.ts` and `app/page.tsx` send unauthenticated users to `/landing` with optional `next`; authenticated `/landing` redirects to `next` or `/film`; `/signup` → `/login?register=1`. `BottomTabNav` + `globals.css` marketing chrome (hidden tabs, `main` bottom padding exception). `layout.tsx` metadata, `LoginForm` title/tagline aligned with landing. Root **`BUILD_CONTRACT.md`** updated for product line, routing, and marketing padding note.
+
+**Why:** Unauth marketing entry and post-auth return URLs must match running code; BUILD_CONTRACT previously still described `/` → `/login`.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-28 (Game Plan Add Play — playbook-source parity with Film + explicit missing-playbook state)
 
 **What:** `components/playbook/AddPlayDrawer.tsx` now passes `presentation="inline"` to embedded `PlayBrowser` so the browser participates in modal flex layout at `sm+` breakpoints. `components/playbook/PlaybookEditor.tsx` now resolves the Add Play catalog source by preferring `sheet.cfb26_playbook`, case-normalizing against known CFB26 options when available, and falling back to legacy `sheet.playbook` when setup options are unavailable (to avoid false-empty blocking). `components/film/PlayBrowser.tsx` now renders a clear formations-step state when no usable playbook is provided instead of looking blank.
