@@ -68,11 +68,6 @@ export default function NewGamePage() {
   const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
   /** Store only the playbook id string — never an object from `playbookOptions` — so nothing can "default" to the first row. */
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    my_score: "0",
-    opponent_score: "0",
-    result: "W" as "W" | "L",
-  });
   const [submitBusy, setSubmitBusy] = useState(false);
 
   type SheetOption = { id: string; name: string };
@@ -208,8 +203,6 @@ export default function NewGamePage() {
 
   const buildGameSetup = useCallback(() => {
     if (!offensePick || !defensePick || !playbookRow) return null;
-    const myScore = Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0);
-    const oppScore = Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0);
     return {
       offensive_team: offensePick.team_name,
       offensive_scheme: playbookRow.scheme_style,
@@ -217,12 +210,8 @@ export default function NewGamePage() {
       opponent_team: defensePick.team_name,
       opponent_defensive_scheme: defensePick.defensive_scheme,
       game_date: new Date().toISOString().slice(0, 10),
-      my_score: myScore,
-      opponent_score: oppScore,
-      final_score: `${myScore}-${oppScore}`,
-      result: form.result,
     };
-  }, [offensePick, defensePick, playbookRow, form.my_score, form.opponent_score, form.result]);
+  }, [offensePick, defensePick, playbookRow]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -244,9 +233,6 @@ export default function NewGamePage() {
           opponent_team: setup.opponent_team,
           opponent_scheme: setup.opponent_defensive_scheme,
           game_date: setup.game_date,
-          my_score: setup.my_score,
-          opponent_score: setup.opponent_score,
-          result: setup.result,
           play_sheet_id: selectedSheetId ?? null,
         }),
       });
@@ -362,55 +348,6 @@ export default function NewGamePage() {
               )}
             </div>
           ) : null}
-
-          <div className="grid grid-cols-2 gap-4">
-            <label className="space-y-1">
-              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">My score</span>
-              <input
-                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={form.my_score}
-                onChange={(e) => setForm((p) => ({ ...p, my_score: e.target.value.replace(/\D/g, "") }))}
-              />
-            </label>
-            <label className="space-y-1">
-              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Their score</span>
-              <input
-                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={form.opponent_score}
-                onChange={(e) => setForm((p) => ({ ...p, opponent_score: e.target.value.replace(/\D/g, "") }))}
-              />
-            </label>
-          </div>
-
-          <div className="space-y-2">
-            <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game result</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setForm((p) => ({ ...p, result: "W" }))}
-                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
-                  form.result === "W" ? toggleOn : toggleOff
-                }`}
-              >
-                W
-              </button>
-              <button
-                type="button"
-                onClick={() => setForm((p) => ({ ...p, result: "L" }))}
-                className={`rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
-                  form.result === "L" ? "border-red-500 bg-red-500/15 text-red-300" : toggleOff
-                }`}
-              >
-                L
-              </button>
-            </div>
-          </div>
 
           <Button type="submit" variant="default" className="w-full py-3 text-sm" disabled={!canContinue || submitBusy}>
             {submitBusy ? "Starting…" : "Start Logging"}

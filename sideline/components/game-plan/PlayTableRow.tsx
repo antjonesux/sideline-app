@@ -11,14 +11,12 @@ export type GamePlanPlayType = "RUN" | "PASS" | "RPO";
 
 export function PlayTableRow({
   play,
-  index,
   playType,
   onRemove,
   className = "",
   ...rootProps
 }: {
   play: SheetPlayRow;
-  index: number;
   playType: GamePlanPlayType;
   onRemove: (id: string) => void | Promise<void>;
 } & ComponentPropsWithoutRef<"div">) {
@@ -30,7 +28,6 @@ export function PlayTableRow({
       <div className="flex w-6 shrink-0 justify-center text-slate-600">
         <DragHandleIcon className="h-4 w-4" />
       </div>
-      <div className="w-12 shrink-0 pr-4 text-right font-mono text-xs text-slate-500">{index + 1}</div>
       <div className="min-w-0 flex-1 truncate font-sans text-sm font-semibold text-slate-100">{normalizePlayName(play.play_name)}</div>
       <div className="hidden w-36 shrink-0 truncate font-mono text-xs text-slate-500 sm:block">{play.formation}</div>
       <div className="flex w-16 shrink-0 justify-center">

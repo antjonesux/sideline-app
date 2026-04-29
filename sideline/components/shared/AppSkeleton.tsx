@@ -174,21 +174,6 @@ export function NewGameFormSkeleton() {
         <SkeletonBlock className="h-3 w-36" />
         <SkeletonBlock className="h-10 w-full rounded-lg" />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <SkeletonBlock className="h-3 w-20" />
-          <SkeletonBlock className="h-11 w-full rounded-lg" />
-        </div>
-        <div className="space-y-2">
-          <SkeletonBlock className="h-3 w-24" />
-          <SkeletonBlock className="h-11 w-full rounded-lg" />
-        </div>
-      </div>
-      <SkeletonBlock className="h-3 w-28" />
-      <div className="grid grid-cols-2 gap-3">
-        <SkeletonBlock className="h-12 rounded-lg" />
-        <SkeletonBlock className="h-12 rounded-lg" />
-      </div>
       <SkeletonBlock className="h-12 w-full rounded-lg" />
     </div>
   );

@@ -58,7 +58,6 @@ export function PlaySlot({
   return (
     <PlayTableRow
       play={play}
-      index={slotIndex}
       playType={playType}
       onRemove={onRemove}
       draggable

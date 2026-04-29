@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Film new game — no score/result; Game Plan — ORD column removed from calls table)
+
+**What:** `app/film/new/page.tsx` drops score inputs, result toggles, and related state/POST keys; `buildGameSetup` omits those fields (API still defaults scores to 0 and result to W when omitted). `components/game-plan/PlayTableHeader.tsx` and `PlayTableRow.tsx` + `components/playbook/PlaySlot.tsx` remove the **ORD** header and slot number column only. `components/shared/AppSkeleton.tsx` **`NewGameFormSkeleton`** trims placeholders for removed fields. Edit game details flow unchanged.
+
+**Why:** Start logging without guessing final score or W/L; call sheet list should not imply a rigid numbered hierarchy beyond drag order.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Primary buttons — normal case; bottom nav — lucide icons)
 
 **What:** `components/ui/button.tsx` drops **`uppercase`** on **`variant.default`** and **`size.lg`** (other variants unchanged). `components/shared/BottomTabNav.tsx` uses **`Video`**, **`ClipboardList`**, **`ChartNoAxesCombined`** from **`lucide-react`** at **`h-5 w-5`** instead of inline SVGs; Film Room / Game Plan / Tendencies labels and routes unchanged.

@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Film new game: no score/result; Game Plan calls table: no ORD column
+
+### What
+
+- [`sideline/app/film/new/page.tsx`](sideline/app/film/new/page.tsx): Removed **My score** / **Their score** inputs and **Game result** (W/L) from new game setup; removed dedicated `form` state and those keys from the `POST /api/games` body. `buildGameSetup` now only carries teams, schemes, offensive playbook, date, and optional `play_sheet_id`. Score and result remain on **Edit game details** (`EditGameDetailsModal`).
+- [`sideline/components/game-plan/PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx), [`sideline/components/game-plan/PlayTableRow.tsx`](sideline/components/game-plan/PlayTableRow.tsx), [`sideline/components/playbook/PlaySlot.tsx`](sideline/components/playbook/PlaySlot.tsx): Removed the visible **ORD** column and per-row slot index from the Game Plan calls table; drag-and-drop reorder and API `play_order` behavior unchanged.
+- [`sideline/components/shared/AppSkeleton.tsx`](sideline/components/shared/AppSkeleton.tsx): **`NewGameFormSkeleton`** no longer renders skeleton blocks for the removed score and result fields.
+
+### Why
+
+Coaches should not pre-fill final score or outcome when starting a log; visible ordinals on the call list add noise without changing how plays are stored or reordered.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Primary buttons: normal case; bottom nav icons (lucide)
 
 ### What
