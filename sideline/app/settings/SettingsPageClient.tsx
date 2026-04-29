@@ -130,12 +130,22 @@ export function SettingsPageClient({ email }: { email: string }) {
         <SettingsRow label="Password" value="••••••••" onClick={() => setActiveDrawer("password")} />
       </div>
 
-      {/* Session section */}
-      <div className="rounded-xl border border-slate-700 bg-slate-900 divide-y divide-slate-800 overflow-hidden">
-        <p className="mb-0 px-4 pb-1 pt-3 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Session</p>
-
-        <SettingsRow label="Sign out" onClick={() => setActiveDrawer("signout")} />
-        <SettingsRow label="Delete account" danger onClick={() => setActiveDrawer("delete")} />
+      <div className="space-y-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white"
+          onClick={() => setActiveDrawer("signout")}
+        >
+          Sign out
+        </Button>
+        <button
+          type="button"
+          onClick={() => setActiveDrawer("delete")}
+          className="w-full rounded-lg py-3 text-center font-sans text-sm font-medium text-red-400 transition-colors hover:text-red-300"
+        >
+          Delete account
+        </button>
       </div>
 
       {/* --- Email drawer --- */}

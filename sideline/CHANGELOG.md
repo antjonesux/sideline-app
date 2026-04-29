@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Settings — Sign out / Delete account outside Session card)
+
+**What:** `app/settings/SettingsPageClient.tsx` removes the **Session** card wrapper. **Sign out** renders as a full-width shadcn **`Button`** (`variant="outline"`) under the Account card; **Delete account** is a full-width red text button below. Same drawers/modal and handlers as before.
+
+**Why:** Match the intended hierarchy: one Account card, then explicit session actions instead of a duplicate list card.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `app/settings/SettingsPageClient.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Film new game — no score/result; Game Plan — ORD column removed from calls table)
 
 **What:** `app/film/new/page.tsx` drops score inputs, result toggles, and related state/POST keys; `buildGameSetup` omits those fields (API still defaults scores to 0 and result to W when omitted). `components/game-plan/PlayTableHeader.tsx` and `PlayTableRow.tsx` + `components/playbook/PlaySlot.tsx` remove the **ORD** header and slot number column only. `components/shared/AppSkeleton.tsx` **`NewGameFormSkeleton`** trims placeholders for removed fields. Edit game details flow unchanged.

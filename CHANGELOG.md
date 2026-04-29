@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Settings: session actions outside Account card
+
+### What
+
+- [`sideline/app/settings/SettingsPageClient.tsx`](sideline/app/settings/SettingsPageClient.tsx): Removed the **Session** grouped card. **Sign out** is a full-width **`Button`** (`outline`) below the Account card; **Delete account** is a standalone red text control beneath it. Existing sign-out bottom sheet and delete-account **`ConfirmDestructiveModal`** flows are unchanged.
+
+### Why
+
+Session actions should read as primary page controls, not a second settings list, while keeping account rows grouped in one card.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Film new game: no score/result; Game Plan calls table: no ORD column
 
 ### What
