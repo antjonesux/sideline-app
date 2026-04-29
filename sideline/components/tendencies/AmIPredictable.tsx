@@ -81,7 +81,7 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
   const showPlaybookEmpty = Boolean(playbook) && !dataLoading && q.data && q.data.meta.game_count === 0;
 
   /**
-   * Uses the same rows as the bar chart. Denominator matches the API: classified plays only (unclassified excluded).
+   * Uses the same rows as the bar chart. Denominator matches the API: all in-scope plays (same as play type distribution).
    */
   const topTypeCards = q.data
     ? (() => {

@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Tendencies: play-type distribution accuracy (Screen, PA, Option, catalog misses)
+
+### What
+
+- [`sideline/app/api/tendencies/predictability/route.ts`](sideline/app/api/tendencies/predictability/route.ts): Play-type distribution counts **every** in-scope logged play (not only catalog-matched rows); percentage denominator is total plays; **`meta.classified_play_count`** matches that denominator for client cards. Server log labels distinguish **catalog-matched** vs **catalog-unmatched**.
+- [`sideline/lib/tendenciesServer.ts`](sideline/lib/tendenciesServer.ts): **`attachPlayTypes`** prefers **`deriveCfbPlayTypeFromName`** over a catalog **`cfb26_plays.play_type`** hit when the derived raw is **Screen**, **Play Action**, **RPO** (`rpo_read`), or **Option** (`option_qb_run`), so generic sheet labels (e.g. quick pass) do not hide those tendency buckets; existing **`shouldOverrideCfbPassLabelToRun`** still runs after.
+- [`sideline/lib/tendenciesPlayType.ts`](sideline/lib/tendenciesPlayType.ts): **`derivedRawOverridesCatalogForTendencies`** helper; **`deriveCfbPlayTypeFromName`** extended for **`play action`** text, **`PA`** token patterns (including **`MTN PA …`**), and option-family phrases (**speed / triple / load option**, **invert veer**).
+- [`sideline/lib/playbook.ts`](sideline/lib/playbook.ts): **`nameHasExplicitPassOrRpoSignal`** includes **`screen`**, **`play action`**, and token **`PA`** so numbered-personnel pass-family overrides do not misclassify screens and play-action calls.
+- [`sideline/lib/playTypeResolution.ts`](sideline/lib/playTypeResolution.ts): Header comment notes Tendencies may prefer name-derived Screen / PA / RPO / Option on catalog hits.
+- [`sideline/components/tendencies/AmIPredictable.tsx`](sideline/components/tendencies/AmIPredictable.tsx): Comment aligned with API denominator (all in-scope plays).
+
+### Why
+
+- Coaches saw **Other** or wrong buckets for screens and play action, **0% play action** when names were right but the catalog was generic or unmatched, and dropped rows when the map missed; historical rows fix on refresh because tendencies aggregation does not depend on persisting granular type on **`logged_plays`** for this path.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Landing onboarding carousel: image track vs copy crossfade + a11y
 
 ### What

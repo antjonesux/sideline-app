@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Tendencies — play-type distribution: Screen, PA, Option, catalog misses)
+
+**What:** `app/api/tendencies/predictability/route.ts` builds distribution from all typed plays (denominator = play count); `meta.classified_play_count` matches. `lib/tendenciesServer.ts` **`attachPlayTypes`** prefers name-derived **`screen` / `play_action` / `rpo_read` / `option_qb_run`** over catalog hits when those derived raws apply. `lib/tendenciesPlayType.ts` adds **`derivedRawOverridesCatalogForTendencies`** and extends **`deriveCfbPlayTypeFromName`** (play action phrase, PA token incl. `MTN PA …`, option phrases). `lib/playbook.ts` **`nameHasExplicitPassOrRpoSignal`** adds screen, play action, PA token for personnel override guard. `lib/playTypeResolution.ts` comment; `components/tendencies/AmIPredictable.tsx` denominator comment.
+
+**Why:** Generic or missing catalog rows hid screens and play action in **Other** or Pass; unmatched plays were omitted from distribution; numbered calls needed explicit screen/PA cues.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Landing onboarding carousel — image slide / copy crossfade, reduced motion, SR alignment)
 
 **What:** `components/landing/OnboardingCarousel.tsx`: image strip slides horizontally inside the mockup; headline/supporting copy crossfade in place (`useCrossfadeIndex`). `prefers-reduced-motion: reduce` snaps text (no fade) with `0ms` opacity transition; supporting paragraph **`line-clamp-4`** restored. `aria-live` uses **`displayedIndex`** so announcements match the headline shown after crossfade.

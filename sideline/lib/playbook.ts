@@ -9,7 +9,10 @@ export function playNameLooksLikeNumberedPersonnelCall(name: string): boolean {
 export function nameHasExplicitPassOrRpoSignal(name: string): boolean {
   const n = name.toLowerCase();
   if (n.includes("rpo")) return true;
+  if (n.includes("play action")) return true;
+  if (/(?:^|[\s_-])pa(?:[\s_-]|$)/.test(n)) return true;
   return (
+    n.includes("screen") ||
     n.includes("pass") ||
     n.includes("mesh") ||
     n.includes("slant") ||

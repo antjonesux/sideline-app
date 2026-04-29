@@ -4,7 +4,13 @@ import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
 import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
-import { categorizeCfbPlayType, deriveCfbPlayTypeFromName, isRunLeanBucket, type PlayTypeBucket } from "@/lib/tendenciesPlayType";
+import {
+  categorizeCfbPlayType,
+  deriveCfbPlayTypeFromName,
+  derivedRawOverridesCatalogForTendencies,
+  isRunLeanBucket,
+  type PlayTypeBucket,
+} from "@/lib/tendenciesPlayType";
 
 export type GameRow = {
   id: string;
@@ -235,6 +241,10 @@ export function attachPlayTypes(
     const fromLookup = matched ? (cfbTypes.get(key) ?? "").trim() : "";
     const derived = deriveCfbPlayTypeFromName(p.play_name);
     let raw = fromLookup || derived;
+    // Catalog rows are often generic (e.g. quick_pass / PASS). Name ladder picks Screen, PA, RPO, Option — use it for Tendencies.
+    if (derived && derivedRawOverridesCatalogForTendencies(derived)) {
+      raw = derived;
+    }
     if (fromLookup && shouldOverrideCfbPassLabelToRun(p.play_name, fromLookup)) {
       raw = "inside_run";
     }

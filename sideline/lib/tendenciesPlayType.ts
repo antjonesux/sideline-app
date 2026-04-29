@@ -51,6 +51,20 @@ function playNameStartsWith(name: string, prefixes: string[]): boolean {
   return prefixes.some((prefix) => name.startsWith(prefix));
 }
 
+/**
+ * When the play name resolves to one of these granular `deriveCfbPlayTypeFromName` labels,
+ * Tendencies prefer that label over a catalog `cfb26_plays.play_type` hit so distribution
+ * shows Screen / Play Action / RPO / Option instead of generic Pass/Run/Other.
+ */
+export function derivedRawOverridesCatalogForTendencies(derived: string): boolean {
+  return (
+    derived === "screen" ||
+    derived === "play_action" ||
+    derived === "rpo_read" ||
+    derived === "option_qb_run"
+  );
+}
+
 export function deriveCfbPlayTypeFromName(playName: string | null | undefined): string {
   const raw = (playName ?? "").trim().toLowerCase();
   const name = normalizePlayName(playName);
@@ -62,8 +76,25 @@ export function deriveCfbPlayTypeFromName(playName: string | null | undefined): 
   if (raw.startsWith("bounce rpo")) return "rpo_read";
 
   if (raw.startsWith("rpo alert") || raw.startsWith("rpo peek") || raw.startsWith("rpo read") || raw.startsWith("rpo zone")) return "rpo_read";
-  if (raw.startsWith("pa ") || raw.startsWith("pa_")) return "play_action";
+  // Play action: written out, leading `PA ` / `PA_`, ` PA ` token, or isolated `PA` token (e.g. "MTN PA Z SPOT").
+  if (raw.includes("play action")) return "play_action";
+  if (
+    raw.startsWith("pa ") ||
+    raw.startsWith("pa_") ||
+    raw.includes(" pa ") ||
+    /(?:^|[\s_-])pa(?:[\s_-]|$)/.test(raw)
+  ) {
+    return "play_action";
+  }
   if (raw.includes("screen")) return "screen";
+  if (
+    raw.includes("speed option") ||
+    raw.includes("triple option") ||
+    raw.includes("load option") ||
+    raw.includes("invert veer")
+  ) {
+    return "option_qb_run";
+  }
   if (
     raw.startsWith("read option") ||
     raw.startsWith("qb zone") ||

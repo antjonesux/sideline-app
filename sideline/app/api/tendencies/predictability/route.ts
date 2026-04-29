@@ -139,14 +139,16 @@ ORDER BY total_plays DESC;
     return acc;
   }, {});
   const otherPlays = Object.values(otherPlayCounts).sort((a, b) => b.count - a.count || a.formation.localeCompare(b.formation) || a.play.localeCompare(b.play));
-  const classifiedBuckets = typedPlays.filter((row) => row.matched).map((row) => row.bucket);
-  const counts = playTypeCounts(classifiedBuckets);
+  // Distribution must include every in-scope play: `attachPlayTypes` already resolves bucket from
+  // catalog + name ladder. Filtering to `matched` only dropped catalog misses (screens, PA, etc.).
+  const distributionBuckets = typedPlays.map((row) => row.bucket);
+  const counts = playTypeCounts(distributionBuckets);
   const unclassifiedCount = typedPlays.filter((row) => !row.matched).length;
-  const classifiedCount = Math.max(0, typedPlays.length - unclassifiedCount);
-  const classifiedPctDenom = classifiedCount > 0 ? classifiedCount : 1;
+  const catalogMatchedCount = typedPlays.length - unclassifiedCount;
+  const distributionDenom = typedPlays.length > 0 ? typedPlays.length : 1;
   const playbooksInScope = [...playbookCounts.keys()].sort((a, b) => a.localeCompare(b));
   console.info(
-    `[Tendencies] Games: ${gameIds.length} | Playbooks: ${JSON.stringify(playbooksInScope)} | Total plays: ${plays.length} | Classified: ${classifiedCount} | Unclassified: ${unclassifiedCount}`,
+    `[Tendencies] Games: ${gameIds.length} | Playbooks: ${JSON.stringify(playbooksInScope)} | Total plays: ${plays.length} | Catalog-matched: ${catalogMatchedCount} | Catalog-unmatched: ${unclassifiedCount}`,
   );
   console.info("[Tendencies] Play types found:", rawPlayTypeCounts);
   console.info("[Tendencies] Grouped play type counts:", counts);
@@ -156,7 +158,7 @@ ORDER BY total_plays DESC;
   const distributionNames = ["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const;
   const classifiedDistributionRows: PlayTypeDistributionRow[] = distributionNames.map((name): PlayTypeDistributionRow => ({
     name,
-    pct: Math.round(((counts[name] ?? 0) * 1000) / classifiedPctDenom) / 10,
+    pct: Math.round(((counts[name] ?? 0) * 1000) / distributionDenom) / 10,
     count: counts[name] ?? 0,
   }));
   const play_type_distribution: PlayTypeDistributionRow[] = classifiedDistributionRows;
@@ -218,7 +220,7 @@ ORDER BY total_plays DESC;
       playbook,
       game_count: gameIds.length,
       play_count: plays.length,
-      classified_play_count: classifiedCount,
+      classified_play_count: typedPlays.length,
       turnover_count: turnoverCount,
       turnover_rate: turnoverRate,
       overall_success_rate: overallSuccessRate,
