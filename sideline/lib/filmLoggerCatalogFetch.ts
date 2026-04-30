@@ -4,6 +4,7 @@ import {
   resolveFormationSection,
   type PlaybookEntry,
 } from "@/lib/playbook";
+import type { SheetScenarioBlock } from "@/lib/types";
 
 type Cfb26ApiRow = {
   formation: string;
@@ -56,4 +57,21 @@ export async function fetchPlaySheetScenarioCalls(
     };
   });
   return { sheetCalls, sheetName: json.sheetName?.trim() || null };
+}
+
+/** Full play sheet with all scenarios (existing GET `/api/playbook/[id]`). */
+export async function fetchPlaySheetOverview(
+  sheetId: string,
+): Promise<{ sheetName: string | null; scenarios: SheetScenarioBlock[] }> {
+  const res = await fetch(`/api/playbook/${sheetId}`);
+  const json = (await res.json()) as {
+    name?: string;
+    scenarios?: SheetScenarioBlock[];
+    error?: string;
+  };
+  if (!res.ok) throw new Error(json.error ?? "Failed to load play sheet");
+  return {
+    sheetName: typeof json.name === "string" ? json.name.trim() || null : null,
+    scenarios: json.scenarios ?? [],
+  };
 }

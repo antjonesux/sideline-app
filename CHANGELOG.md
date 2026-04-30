@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Film play logger: My Sheet situation chips, situational explainer, sheet overview fetch
+
+### What
+
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): **My Sheet** — situation **pill strip** for **every** scenario on the game-bound sheet; tap switches plays below; default tracks **derived** situation when the tab is active; **“Based on {sheet name} play sheet”** subtitle; **`PlayRow`** list per selected scenario. **Situational** — single hint paragraph (no **“You’ve been calling…”** header).
+- [`sideline/lib/filmLoggerCatalogFetch.ts`](sideline/lib/filmLoggerCatalogFetch.ts): **`fetchPlaySheetOverview`** wraps existing **`GET /api/playbook/[id]`**.
+- [`sideline/lib/filmLoggerQueryKeys.ts`](sideline/lib/filmLoggerQueryKeys.ts): **`playSheetOverview`** cache key.
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): **`filmLoggerYouveBeenCallingHint`** string for the situational line.
+- [`sideline/lib/filmLoggerCallingSuggestions.ts`](sideline/lib/filmLoggerCallingSuggestions.ts): JSDoc wording for situational suggestions.
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md): Film logger tabs, copy symbol (**`filmLoggerYouveBeenCallingHint`**), **YOUR CALLS** vs in-logger **My Sheet** wording, engine alignment note.
+
+### Why
+
+Surface the full plan by situation at call time; keep onboarding **YOUR CALLS** language accurate relative to in-app **My Sheet**; keep OS docs aligned with running code.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Film / modals: Radix tabs, overlay stacking tokens, scroll lock, logger + PlayBrowser
 
 ### What

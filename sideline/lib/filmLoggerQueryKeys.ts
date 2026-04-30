@@ -7,4 +7,6 @@ export const filmLoggerQueryKeys = {
   cfb26Catalog: (playbook: string) => [...FILM_LOGGER_PREFIX, "cfb26-catalog", playbook] as const,
   sheetScenario: (sheetId: string, scenario: string) =>
     [...FILM_LOGGER_PREFIX, "play-sheet-scenario", sheetId, scenario] as const,
+  /** Full sheet + scenarios (existing GET `/api/playbook/[id]`) — Film logger My Sheet badge strip. */
+  playSheetOverview: (sheetId: string) => [...FILM_LOGGER_PREFIX, "play-sheet-overview", sheetId] as const,
 };

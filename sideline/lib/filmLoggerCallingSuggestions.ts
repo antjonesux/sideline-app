@@ -40,7 +40,7 @@ function fieldZoneForAbsolute(abs: number): string {
 }
 
 /**
- * "You've been calling…" — blends this game's logged calls with situation/scenario match
+ * Situational-tab suggestions — blends this game's logged calls with situation/scenario match
  * and the same keyword bias used previously, without a separate recommendation API.
  */
 export function buildSituationAwareCallingSuggestions(

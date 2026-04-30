@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Film play logger — My Sheet situation chips, situational copy, playbook overview fetch)
+
+**What:** **`PlayLoggerV2`**: **My Sheet** adds a **horizontally scrollable** strip of **all** bound-sheet scenarios (Game Plan–style **n/max** pills), **TanStack** load via **`fetchPlaySheetOverview`** (`GET /api/playbook/[id]`) and **`filmLoggerQueryKeys.playSheetOverview`**; plays for the selected chip use **`fetchPlaySheetScenarioCalls`** with the existing **`sheetScenario`** query key (shared cache with **`usePlaySuggestions`** when the chip matches the derived scenario). **`useLayoutEffect`** keeps the selected chip aligned with **`scenarioLabel`** when **My Sheet** is active. Subtitle **“Based on {sheet name} play sheet”**; no separate **YOUR CALLS** heading in that tab. **Situational** tab: one explainer line from **`filmLoggerYouveBeenCallingHint`** (`coachCopy.ts`); removed **“You’ve been calling…”** label. **`filmLoggerCallingSuggestions.ts`** comment only. Repo **`BUILD_CONTRACT.md`** and **`DECISIONS.md`** updated to match shipped UX and symbol names.
+
+**Why:** Coaches browse the full play sheet by situation inside the logger; copy and written decisions stay honest with **`buildSituationAwareCallingSuggestions`** and the new sheet overview read.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Film / modals — Radix tabs, overlay z tokens, scroll lock, logger + PlayBrowser)
 
 **What:** `components/ui/tabs.tsx` again uses **`@radix-ui/react-tabs`** (shadcn-style forwards) so tabs match **`DECISIONS.md`** Radix stack. **`lib/constants/designTokens.ts`** adds **`overlayZ`**; **`components/ui/dialog.tsx`**, **`select.tsx`**, **`dropdown-menu.tsx`**, Film play logger and **`AddPlayDrawer`** shells, settings drawer, playbook edit sheet, Tendencies portaled filters, **`FormationPlaySearch`** listbox, and **`TeamCombobox`** list consume those classes so portaled menus sit above hand-rolled Film overlays. **`lib/useScrollLock.ts`** locks scroll with **`overflow: hidden`** / **`overscroll-behavior`** (and optional scrollbar gutter) instead of **`position: fixed`** on **`body`**. **`PlayLoggerV2`**: drive header loses competing **`z-10`**; tab body wrapper **`relative z-[5]`**; **My Sheet** list drops the green left border. **`PlayBrowser`**: header rows **`relative z-[2] shrink-0`**, search **`autoComplete="off"`**, **`enterKeyHint="search"`**, **`touch-manipulation`**; explicit empty/error/loading/no-match states in formations list. **`app/film/[gameId]/page.tsx`**: drive accordion “Log a call” footer drops extra **`px-4`** so width matches starting-field band; logger backdrop/shell use **`overlayZ`**.

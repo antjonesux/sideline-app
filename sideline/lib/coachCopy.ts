@@ -94,4 +94,4 @@ export const FILM_END_GAME_CONFIRM_CTA = "Mark Game Ended";
 export const FILM_RESUME_GAME_CTA = "Resume Game";
 
 export const filmLoggerYouveBeenCallingHint = (situationLine: string, fieldLine: string) =>
-  `This game's calls in similar spots, then situation fits — ${situationLine} at ${fieldLine}`;
+  `Based on what you've called on ${situationLine} at ${fieldLine}`;

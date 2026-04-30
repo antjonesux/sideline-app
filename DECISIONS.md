@@ -8,6 +8,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-29
+
+**Film `PlayLoggerV2`: My Sheet chips + situational explainer (shipped UX)**  
+**Decision:** **Situational** tab shows a **single** explainer line (no **“You’ve been calling…”** header). Copy comes from **`filmLoggerYouveBeenCallingHint`** in **`sideline/lib/coachCopy.ts`**: *“Based on what you've called on {situationLine} at {fieldLine}”* (same `situationLine` / `fieldLine` framing as the sticky drive header). Play rows still come from **`buildSituationAwareCallingSuggestions`** in **`lib/filmLoggerCallingSuggestions.ts`** (this game’s logged coach calls, weighted by scenario, field zone, down & distance, call volume, plus optional **catalog keyword** fills when the list is short). **My Sheet** (when the game has a bound **`play_sheet_id`**) shows a **horizontally scrollable** strip of **all** sheet scenarios (Game Plan–style pills with **n/max** slots), default selection tied to the **derived scenario** for the current snap; **plays for the selected scenario** use the same **`PlayRow`** pattern as **Situational**; subtitle **“Based on {sheet name} play sheet”**. Sheet structure is loaded with existing **`GET /api/playbook/[id]`** (see **`fetchPlaySheetOverview`**); plays for the active chip use existing **`GET /api/playbook/[id]/plays?scenario=…&slim=1`**.  
+**Why:** Plan visible at call time; one vocabulary between Film logger and Game Plan; copy stays centralized in **`coachCopy.ts`**.  
+**Impact:** **YOUR CALLS** remains valid **onboarding / marketing** language (`ONBOARDING_GAME_DAY_BODY`, **`ONBOARDING_EDITOR_BANNER`**, etc.) for “sheet in the loop”; it is **not** a separate heading inside **My Sheet** today — see **`BUILD_CONTRACT.md`**. Repo search: use **`filmLoggerYouveBeenCallingHint`** (there is no separate **`filmLoggerSituationalTabHint`** export).
+
+---
+
 ## 2026-04-24
 
 **Preline removed; shadcn/ui is the component standard**  
@@ -56,7 +65,8 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 **Decision:** Play sheet calls are surfaced directly inside the logger as primary selection input.  
 **Why:** The user’s game plan should be visible at the moment of decision, not in a separate tab.  
 **Impact:**  
-- logger hierarchy prioritizes YOUR CALLS  
+- **My Sheet** tab (when the game has a bound sheet): situation chips for the full sheet, calls listed for the selected situation, sheet context in copy — see **2026-04-29** entry.  
+- **Situational** tab stays separate: situation-weighted suggestions from this game’s log plus fills; explainer copy in **`filmLoggerYouveBeenCallingHint`** (`coachCopy.ts`) — see **2026-04-29** entry.  
 - reduces search friction  
 - enables plan-vs-execution tracking  
 

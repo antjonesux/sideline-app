@@ -63,7 +63,7 @@ Only establish a new convention when the change is intentional and scoped.
 
 ## Film / Game Plan / Tendencies (relationships)
 
-- **Film Room** — creates and edits **`game_sessions`**, **`drives`**, **`logged_plays`**. Primary UX: `PlayLoggerV2`, `YardageSheet`, `PlayBrowser`, drive setup, game detail tabs (e.g. drives vs in-game tendencies body). Uses TanStack Query invalidation and toasts (`store/toastStore`, `lib/coachCopy`).
+- **Film Room** — creates and edits **`game_sessions`**, **`drives`**, **`logged_plays`**. Primary UX: **`PlayLoggerV2`** (tabs: **Browse** = inline `PlayBrowser`; **Situational** = suggestions from **`buildSituationAwareCallingSuggestions`** (`lib/filmLoggerCallingSuggestions.ts`) plus one explainer line from **`filmLoggerYouveBeenCallingHint`** in **`lib/coachCopy.ts`** (*“Based on what you've called on {situationLine} at {fieldLine}”* — no separate **“You’ve been calling…”** label); **My Sheet** = optional when the game has a bound play sheet — horizontal **scrollable** situation chips (**all** scenarios on the sheet, Game Plan–style **n/max**), plays for the selected chip (**`PlayRow`**, same card pattern as Situational), subtitle **“Based on {sheet name} play sheet”** — uses TanStack + existing **`GET /api/playbook/[id]`** for chip data and **`GET /api/playbook/[id]/plays?scenario=…`** for rows), **`YardageSheet`**, drive setup, game detail tabs (e.g. drives vs in-game tendencies body). Uses TanStack Query invalidation and toasts (`store/toastStore`, `lib/coachCopy`).
 - **Game Plan** — play sheets / editor under `app/playbook/`; reuses **film patterns** where the changelog says so (e.g. `AddPlayDrawer` + `PlayBrowser`, modal shell parity with Film).
 - **Tendencies** — reads logged games; playbook filter via URL `?playbook=`; tabs **What’s Working** / **Am I Predictable?**; uses `playbookForGame`, `tendenciesQueryKeys`, `/api/games`, `/api/playbooks/list`, and tendencies-specific APIs under `app/api/tendencies/`.
 - **Shared spine:** **`cfb26_plays`** joins playbook language to canonical play types; **`playTypeResolution`** keeps API responses and badges aligned across features.
@@ -106,6 +106,7 @@ Only establish a new convention when the change is intentional and scoped.
 
 - **Canonical voice and terminology** — repo-root **`.cursorrules`** (“UX Copy & Terminology”, stats fragments, empty states, errors, exact nav strings).
 - **Shared short errors** — `sideline/lib/coachCopy.ts` for toasts/alerts (no DB/API leakage).
+- **Film logger situational explainer** — **`filmLoggerYouveBeenCallingHint`** in **`sideline/lib/coachCopy.ts`** (template: *“Based on what you've called on … at …”*). **`buildSituationAwareCallingSuggestions`** still scores **this game’s** logged coach calls using **scenario, field zone, down, distance**, recency, volume, and **play-name keyword** bias, and may **append catalog plays** when fewer than the limit of scored calls exist — when editing copy, avoid overstating precision relative to that engine (see **`DECISIONS.md`** **2026-04-29**).
 - **Scouting / coaching paragraphs** — `sideline/lib/scoutingCoachingCopy.ts` is the intentional exception to “fragments only” for longer scenario copy.
 
 ---

@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
+import { SCENARIO_SHORT } from "@/lib/constants";
+import { fetchPlaySheetOverview, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
+import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
+import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
 import { possessionEndedFromSnapAndTag } from "@/lib/driveOutcome";
 import { formatFieldPosition } from "@/lib/fieldPosition";
@@ -26,6 +31,11 @@ type LoggerPickTab = "browse" | "situational" | "my_sheet";
 /** Matches `gameDetailTabTriggerClass` in `app/film/[gameId]/page.tsx` (Drive Summary / Tendencies). */
 const filmLoggerPickTabTriggerClass =
   "flex min-h-12 w-full items-center justify-center rounded-none border-b-2 border-transparent bg-transparent px-2 text-center text-sm font-sans font-medium text-slate-400 shadow-none ring-offset-transparent transition-colors data-[state=active]:border-amber-400 data-[state=active]:bg-transparent data-[state=active]:text-slate-100 data-[state=active]:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
+
+const FILM_SHEET_OVERVIEW_STALE_MS = 2 * 60 * 1000;
+const FILM_SHEET_OVERVIEW_GC_MS = 20 * 60 * 1000;
+const FILM_SHEET_SCENARIO_STALE_MS = 2 * 60 * 1000;
+const FILM_SHEET_SCENARIO_GC_MS = 20 * 60 * 1000;
 
 interface PlayLoggerV2Props {
   gameId: string;
@@ -123,6 +133,38 @@ export function PlayLoggerV2({
     sheetId,
     loggerOpenFlowId,
   });
+
+  const [mySheetSelectedScenario, setMySheetSelectedScenario] = useState(scenarioLabel);
+
+  useLayoutEffect(() => {
+    if (pickTab !== "my_sheet") return;
+    setMySheetSelectedScenario(scenarioLabel);
+  }, [pickTab, scenarioLabel]);
+
+  const sheetOverviewQuery = useQuery({
+    queryKey: filmLoggerQueryKeys.playSheetOverview(sheetId ?? ""),
+    queryFn: () => fetchPlaySheetOverview(sheetId as string),
+    enabled: Boolean(sheetId?.trim()),
+    staleTime: FILM_SHEET_OVERVIEW_STALE_MS,
+    gcTime: FILM_SHEET_OVERVIEW_GC_MS,
+  });
+
+  const mySheetPlaysQuery = useQuery({
+    queryKey: filmLoggerQueryKeys.sheetScenario(sheetId ?? "", mySheetSelectedScenario),
+    queryFn: () => fetchPlaySheetScenarioCalls(sheetId as string, mySheetSelectedScenario),
+    enabled: pickTab === "my_sheet" && Boolean(sheetId?.trim() && mySheetSelectedScenario),
+    staleTime: FILM_SHEET_SCENARIO_STALE_MS,
+    gcTime: FILM_SHEET_SCENARIO_GC_MS,
+  });
+
+  /** All sheet situations (same coverage as Game Plan situation strip), including 0-call slots like 2 Minute. */
+  const mySheetBadgeScenarios = useMemo(() => {
+    const scenarios = sheetOverviewQuery.data?.scenarios ?? [];
+    return sortScenariosByCanonicalOrder([...scenarios]);
+  }, [sheetOverviewQuery.data?.scenarios]);
+
+  const mySheetDisplayPlays = mySheetPlaysQuery.data?.sheetCalls ?? [];
+  const mySheetDisplayName = mySheetPlaysQuery.data?.sheetName ?? sheetName;
 
   const streamPlaysDesc = useMemo(
     () => [...mergedPlays].sort((a, b) => (b.play_number ?? 0) - (a.play_number ?? 0)),
@@ -239,7 +281,7 @@ export function PlayLoggerV2({
       /**
        * First-pass `play_call_changed_based_on_app_data` (not full causal proof):
        * The coach successfully logged a play that was selected from an app-curated surface
-       * (YOUR CALLS = scenario play sheet, "You've been calling…" = situation suggestions, or
+       * (YOUR CALLS = scenario play sheet, Situational tab suggestions = situation-weighted picks, or
        * Film-only Punt/Field Goal picks from Browse Playbook’s Special Teams section).
        * Other unguided PlayBrowser catalog picks do not emit. Passive viewing without logging does not emit.
        */
@@ -433,8 +475,7 @@ export function PlayLoggerV2({
                 className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
               >
                 <div className="px-4 pb-2">
-                  <p className="font-mono text-xs uppercase tracking-widest text-slate-500">You&apos;ve been calling…</p>
-                  <p className="mt-0.5 font-sans text-xs text-slate-400">
+                  <p className="font-sans text-xs text-slate-400">
                     {filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}
                   </p>
                 </div>
@@ -454,26 +495,76 @@ export function PlayLoggerV2({
                   value="my_sheet"
                   className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
                 >
-                  <div className="px-4 pb-4">
-                    <div className="mb-2">
-                      <p className="font-mono text-xs uppercase tracking-widest text-slate-500">YOUR CALLS</p>
-                      {sheetName ? (
-                        <p className="mt-0.5 font-sans text-xs text-slate-400">Based on {sheetName}</p>
-                      ) : null}
+                  <div className="flex min-h-0 flex-1 flex-col pb-4">
+                    <div className="shrink-0 px-4">
+                      {sheetOverviewQuery.isError ? (
+                        <p className="pb-2 font-sans text-sm text-red-300">
+                          {(sheetOverviewQuery.error as Error)?.message ?? "Could not load situations."}
+                        </p>
+                      ) : sheetOverviewQuery.isPending ? (
+                        <p className="pb-2 font-sans text-xs text-slate-500">Loading situations…</p>
+                      ) : (
+                        <div
+                          className="overflow-x-auto touch-pan-x overscroll-x-contain [-ms-overflow-style:none] flex min-h-9 gap-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                          role="tablist"
+                          aria-label="Play sheet situations"
+                        >
+                          {mySheetBadgeScenarios.length > 0 ? (
+                            mySheetBadgeScenarios.map((s) => {
+                              const max = scenarioMaxSlots(s.scenario);
+                              const n = s.plays.length;
+                              const short = SCENARIO_SHORT[s.scenario] ?? s.scenario;
+                              const active = s.scenario === mySheetSelectedScenario;
+                              return (
+                                <button
+                                  key={s.id}
+                                  type="button"
+                                  role="tab"
+                                  aria-selected={active}
+                                  onClick={() => setMySheetSelectedScenario(s.scenario)}
+                                  className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-body text-xs ${
+                                    active ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-300"
+                                  }`}
+                                >
+                                  {short} {n}/{max}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <p className="shrink-0 py-1.5 font-sans text-xs text-slate-500">
+                              No situations on this sheet.
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {sheetCalls.length > 0 ? (
-                      <div className="flex flex-col gap-2">
-                        {sheetCalls.map((play) => (
-                          <PlayRow
-                            key={`sheet-${play.play_id}`}
-                            play={play}
-                            onSelect={(p) => handlePlaySelect(p, "sheet")}
-                          />
-                        ))}
+
+                    <div className="px-4 pb-4">
+                      <div className="mb-2">
+                        {mySheetDisplayName ? (
+                          <p className="font-sans text-xs text-slate-400">Based on {mySheetDisplayName} play sheet</p>
+                        ) : null}
                       </div>
-                    ) : (
-                      <p className="font-sans text-sm text-slate-500">No sheet calls match this situation.</p>
-                    )}
+                      {mySheetPlaysQuery.isPending ? (
+                        <p className="font-sans text-sm text-slate-500">Loading plays…</p>
+                      ) : mySheetDisplayPlays.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                          {mySheetDisplayPlays.map((play) => (
+                            <PlayRow
+                              key={`sheet-${mySheetSelectedScenario}-${play.play_id}`}
+                              play={play}
+                              onSelect={(p) => handlePlaySelect(p, "sheet")}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-sans text-sm text-slate-500">
+                          {mySheetSelectedScenario === scenarioLabel
+                            ? "No sheet calls match this situation."
+                            : `No calls on your sheet for ${scenarioDisplayLabel(mySheetSelectedScenario)}.`}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </TabsContent>
               ) : null}
