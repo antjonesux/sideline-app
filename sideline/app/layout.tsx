@@ -36,7 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
            * and left only32px under the fixed tab bar (~60–72px + safe area).
            * ~7rem (pb-28) + safe-area clears the nav with room to spare.
            */}
-          <main className="mx-auto w-full max-w-3xl px-4 pt-4 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-6">
+          <main className="mx-auto w-full max-w-3xl px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] sm:px-6">
             {children}
           </main>
           <Toast />

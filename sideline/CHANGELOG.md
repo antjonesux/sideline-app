@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (App shell — main top padding, landing parity)
+
+**What:** **`app/layout.tsx`**: `<main>` **`pt-4 sm:pt-6` → `pt-6`** at all breakpoints. **`/landing`** unchanged (**`data-marketing-chrome`** keeps **`main`** **`padding-top: 0`**; hero inset stays on **`HeroSection`**).
+
+**Why:** Tab surfaces and settings matched **`sm`** top inset but were tighter than the landing hero on mobile; single authoritative layout change per **`BUILD_CONTRACT.md`**.
+
+**Status after this push:** `npm run build` from `sideline/` passed; **`app/layout.tsx`**, repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-04-30 (Film tendencies — table overflow, BY SITUATION density, formation accordion)
 
 **What:** **`components/shared/DataTable.tsx`**: **`equalColumnsCompact`**, **`containedWidth`**, **`dense`**, column **`headerClassName`** / **`cellClassName`**, colspan **`min-w-0 max-w-full`**. **`FilmGameTendenciesBody`**: BY SITUATION **`equalColumnsCompact`** + truncated situations (**`title`**). **`GameFormationTable`**: **`containedWidth`**; nested **`dense`** + **`equalColumnsCompact`** + **`drivePlayTableColumns({ includeSpot: false })`**. **`drivePlayTableColumns`**: **`includeSpot`** option (default true); **RESULT** **`pr-4`**; **YDS** right-aligned when **SPOT** omitted. Repo **`DECISIONS.md`** (**2026-04-30 — Film game tendencies tables + shared DataTable layout**).

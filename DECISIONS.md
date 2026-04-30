@@ -8,6 +8,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-30 — App shell `<main>` top padding (landing parity)
+
+**Decision:** Root **`sideline/app/layout.tsx`** `<main>` uses **`pt-6`** at all breakpoints (replacing **`pt-4 sm:pt-6`**). **`/landing`** is unchanged: **`html[data-marketing-chrome="true"] main`** in **`globals.css`** keeps **`padding-top: 0`**; the hero’s top inset remains **`HeroSection`** **`pt-6`**.
+
+**Why:** Bottom-nav surfaces (Film Room, Game Plan, Tendencies) and settings read visually tighter than the marketing hero on narrow viewports; matching **`pt-6`** on the shared shell aligns rhythm without copying utilities onto each page.
+
+**Impact:** Every route that uses root **`main`** (including auth and film import) shares the same top inset; future tweaks stay in **`layout.tsx`**. Marketing layout and bottom safe-area rules are untouched.
+
+---
+
 ## 2026-04-30 — Film game tendencies tables + shared DataTable layout
 
 **Film game detail → Tendencies** (`FilmGameTendenciesBody`, `GameFormationTable`): **BY SITUATION** uses **`DataTable`** **`equalColumnsCompact`** so **`equalColumns`** tables can shrink without the default **`min-w-[520px]`** floor when the card has room; situation labels **`truncate`** with **`title`** for full text on hover/focus. **FORMATIONS** outer table uses **`containedWidth`** (**`w-full table-fixed min-w-0`**) so **`renderAfterRow`** / colspan accordion content does not balloon **`w-max`** intrinsic width (fixes runaway horizontal scroll). Expanded formation plays reuse **`drivePlayTableColumns({ includeSpot: false })`** — **no SPOT column** in that drill-down only; primary Film drive tables, import previews, and other callers keep **SPOT** and **`drivePlayTableColumns()`** defaults (**see 2026-04-21** ending-field / SPOT decision for canonical drive-table shape). Nested accordion table uses **`dense`** + **`equalColumnsCompact`**; **RESULT** keeps trailing horizontal gutter (**`pr-*`** on badge wrapper); **YDS** is **right-aligned** when **SPOT** is omitted to separate yard values from badges. **`DataTable`** adds optional column **`headerClassName`** / **`cellClassName`** and props **`equalColumnsCompact`**, **`containedWidth`**, **`dense`**; colspan expansion cells use **`min-w-0 max-w-full`**.

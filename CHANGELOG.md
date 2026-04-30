@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — App shell: main top padding aligned with landing hero
+
+### What
+
+- [`sideline/app/layout.tsx`](sideline/app/layout.tsx): Root `<main>` **`pt-4 sm:pt-6` → `pt-6`** (same value at all breakpoints; removes redundant **`sm:pt-6`**).
+
+### Why
+
+Film Room, Game Plan, Tendencies, and settings sat **8px** higher than the **`HeroSection`** top inset on small viewports; one shell change matches the landing vertical rhythm without per-page padding.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Film tendencies: table overflow, BY SITUATION density, formation accordion plays
 
 ### What
