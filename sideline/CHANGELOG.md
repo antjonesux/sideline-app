@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (Landing background grid polish — full-bleed sharp playbook pattern + spacing tune)
+
+**What:** `components/landing/HeroSection.tsx` adds a full-viewport, non-interactive SVG background for `/landing` (`fixed inset-0 h-screen w-screen pointer-events-none`) so the grid is full-bleed. The grid pattern is now a sharp two-layer playbook treatment (`grid-minor` 48px + `grid-major` 192px), rounded major cells and temporary hash rails/lines are removed, and grid stroke opacity is reduced for a subtler result. Existing emerald glow + edge fade layers remain unchanged. Landing vertical spacing is tightened with `pt-6` on the section and `mt-5` before the headline/copy/CTA block.
+
+**Why:** The hero needed background depth that reads as coaching/playbook texture without boxing, edge artifacts, or competing with the hero image/copy; spacing was tightened per review feedback.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `components/landing/HeroSection.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-30 (Landing hero polish — larger mobile image, top wordmark, auth-safe CTA hrefs)
 
 **What:** `components/landing/HeroSection.tsx` adds the top **The Sideline** wordmark using shared `appWordmarkStyle` (matching auth screen styling), scales the hero image presentation up for mobile with a controlled full-bleed wrapper, keeps copy/CTA content width constrained for readability, restores CTA hrefs to **`buildLoginHref`** (register + sign-in, preserving optional safe `next`), and updates `Image` `sizes` metadata to match the rendered hero width. Added `public/onboarding/hero-showcase-mobile.png` as the landing hero image asset.

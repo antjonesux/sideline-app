@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Landing background grid polish: full-bleed sharp playbook pattern + spacing tune
+
+### What
+
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): Added a full-viewport, non-interactive SVG background layer for `/landing` (`fixed inset-0 h-screen w-screen pointer-events-none`) so the pattern is full-bleed instead of appearing boxed by content padding.
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): Replaced the rounded-cell grid variant with a sharper two-layer playbook grid (`grid-minor` 48px and `grid-major` 192px), removed temporary hash-mark rails/lines, and reduced grid stroke opacity for a subtler texture.
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): Kept existing emerald glow and edge fade layers unchanged while tightening hero spacing (`pt-6` on the section, `mt-5` before the text/CTA block).
+
+### Why
+
+The landing surface needed depth without visual noise: full-bleed grid texture that does not fight the hero composition, with slightly tighter vertical rhythm above the title and below the hero image.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Landing hero polish: larger mobile image, wordmark, auth-safe CTA routing
 
 ### What

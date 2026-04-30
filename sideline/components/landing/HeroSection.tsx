@@ -9,29 +9,20 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
 
   return (
     <section
-      className="relative flex min-h-[100dvh] w-full flex-col items-center overflow-x-hidden bg-[#020617] pt-10 pb-14"
+      className="relative flex min-h-[100dvh] w-full flex-col items-center overflow-x-hidden bg-[#020617] pt-6 pb-14"
       aria-labelledby="landing-hero-headline"
     >
       <svg
-        className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+        className="pointer-events-none fixed inset-0 z-0 h-screen w-screen"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
       >
         <defs>
           <pattern id="grid-minor" width="48" height="48" patternUnits="userSpaceOnUse">
-            <rect width="48" height="48" fill="none" stroke="rgba(148,163,184,0.05)" strokeWidth="0.5" />
+            <rect width="48" height="48" fill="none" stroke="rgba(148,163,184,0.04)" strokeWidth="0.5" />
           </pattern>
           <pattern id="grid-major" width="192" height="192" patternUnits="userSpaceOnUse">
-            <rect
-              x="2"
-              y="2"
-              width="188"
-              height="188"
-              rx="8"
-              fill="none"
-              stroke="rgba(148,163,184,0.10)"
-              strokeWidth="0.5"
-            />
+            <rect width="192" height="192" fill="none" stroke="rgba(148,163,184,0.08)" strokeWidth="0.5" />
           </pattern>
           <radialGradient id="glow" cx="50%" cy="30%" r="50%">
             <stop offset="0%" stopColor="#10b981" stopOpacity="0.05" />
@@ -75,7 +66,7 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
           />
         </div>
 
-        <div className="mt-8 w-full max-w-[296px] self-center">
+        <div className="mt-5 w-full max-w-[296px] self-center">
           <h1
             id="landing-hero-headline"
             className="text-center font-sans text-2xl font-bold tracking-[0.72px] text-white normal-case"
