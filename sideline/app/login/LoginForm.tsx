@@ -219,7 +219,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => { setView("sign-in"); setError(null); }}
-            className="block w-full text-center font-sans text-xs text-slate-500 hover:text-slate-300"
+            className="-mt-1 block w-full text-center font-sans text-sm font-medium text-[#94a3b8] underline decoration-[#94a3b8] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Back to sign in
           </button>
@@ -349,17 +349,13 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => { setView("forgot-password"); setError(null); }}
-            className="block w-full text-center font-sans text-xs text-slate-500 hover:text-slate-300"
+            className="-mt-1 block w-full text-center font-sans text-sm font-medium text-[#94a3b8] underline decoration-[#94a3b8] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Forgot password?
           </button>
         )}
 
         {error && <p className="text-center font-sans text-sm text-red-400">{error}</p>}
-
-        <p className="text-center font-sans text-xs text-slate-600">
-          By continuing, you agree to our terms of service.
-        </p>
       </div>
     </div>
   );

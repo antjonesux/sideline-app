@@ -24,11 +24,6 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
           <pattern id="grid-major" width="192" height="192" patternUnits="userSpaceOnUse">
             <rect width="192" height="192" fill="none" stroke="rgba(148,163,184,0.08)" strokeWidth="0.5" />
           </pattern>
-          <radialGradient id="glow" cx="50%" cy="30%" r="50%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.05" />
-            <stop offset="50%" stopColor="#059669" stopOpacity="0.025" />
-            <stop offset="100%" stopColor="#020617" stopOpacity="0" />
-          </radialGradient>
           <radialGradient id="fade" cx="50%" cy="35%" r="65%">
             <stop offset="0%" stopColor="#020617" stopOpacity="0" />
             <stop offset="50%" stopColor="#020617" stopOpacity="0" />
@@ -37,7 +32,6 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
         </defs>
         <rect width="100%" height="100%" fill="url(#grid-minor)" />
         <rect width="100%" height="100%" fill="url(#grid-major)" />
-        <rect width="100%" height="100%" fill="url(#glow)" />
         <rect width="100%" height="100%" fill="url(#fade)" />
       </svg>
       <div className="relative z-10 mx-auto flex w-full max-w-[428px] flex-1 flex-col">

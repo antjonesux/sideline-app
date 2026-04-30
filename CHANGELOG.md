@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Landing wordmark glow tune + login tertiary link styling
+
+### What
+
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): Removed the full-screen SVG emerald radial glow layer so the hero relies on the grid + edge fade and stays closer to auth visual weight; wordmark glow remains via shared styling only.
+- [`sideline/lib/landing/appWordmarkStyle.ts`](sideline/lib/landing/appWordmarkStyle.ts): Reduced shared **The Sideline** wordmark `textShadow` and `drop-shadow` intensity for landing and login headers.
+- [`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx): Styled **Forgot password?** and reset-password **Back to sign in** like the landing **Already have an account? / Sign in** link treatment (`#94a3b8`, underline, emerald hover, focus ring); tightened vertical spacing after the submit button; removed the footer **By continuing, you agree to our terms of service** line.
+
+### Why
+
+Landing title glow was heavier than auth; dialing back background + wordmark keeps marketing and sign-in consistent without noisy halos. Login tertiary actions read as the same family as landing auth links.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Landing background grid polish: full-bleed sharp playbook pattern + spacing tune
 
 ### What
