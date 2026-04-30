@@ -19,8 +19,17 @@ export type DrivePlayTableRow = {
   ending_absolute_yard?: number | null;
 };
 
-export function drivePlayTableColumns(): DataTableColumn<DrivePlayTableRow>[] {
-  return [
+export type DrivePlayTableColumnsOptions = {
+  /** When false, omits the SPOT column (e.g. formation accordion where space is tight). Default true. */
+  includeSpot?: boolean;
+};
+
+export function drivePlayTableColumns(
+  options?: DrivePlayTableColumnsOptions,
+): DataTableColumn<DrivePlayTableRow>[] {
+  const includeSpot = options?.includeSpot !== false;
+
+  const columns: DataTableColumn<DrivePlayTableRow>[] = [
     {
       key: "down_dist",
       header: "DN & DIST",
@@ -50,26 +59,45 @@ export function drivePlayTableColumns(): DataTableColumn<DrivePlayTableRow>[] {
     {
       key: "result",
       header: "RESULT",
-      render: (play) => <ResultBadge label={play.result_tag} />,
-    },
-    {
-      key: "spot",
-      header: "SPOT",
       render: (play) => (
-        <span className="font-mono text-xs text-slate-400 dark:text-slate-400">
-          {formatBallSpot(play.ending_field_position ?? play.ending_absolute_yard)}
+        <span className="inline-flex pr-4">
+          <ResultBadge label={play.result_tag} />
         </span>
       ),
     },
+    ...(includeSpot
+      ? ([
+          {
+            key: "spot",
+            header: "SPOT",
+            render: (play: DrivePlayTableRow) => (
+              <span className="font-mono text-xs text-slate-400 dark:text-slate-400">
+                {formatBallSpot(play.ending_field_position ?? play.ending_absolute_yard)}
+              </span>
+            ),
+          },
+        ] satisfies DataTableColumn<DrivePlayTableRow>[])
+      : []),
     {
       key: "yards",
       header: "YDS",
+      ...(includeSpot
+        ? {}
+        : {
+            headerClassName: "text-right",
+            cellClassName: "text-right",
+          }),
       render: (play) => {
         const y = play.yards_gained ?? 0;
         const tone = y > 0 ? "text-emerald-400" : y < 0 ? "text-red-400" : "text-slate-500 dark:text-slate-500";
         const text = y > 0 ? `+${y}` : String(y);
-        return <span className={`font-mono text-sm font-medium ${tone}`}>{text}</span>;
+        const innerClass = includeSpot
+          ? `font-mono text-sm font-medium ${tone}`
+          : `inline-block w-full text-right font-mono text-sm font-medium tabular-nums ${tone}`;
+        return <span className={innerClass}>{text}</span>;
       },
     },
   ];
+
+  return columns;
 }

@@ -59,7 +59,11 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
       {
         key: "situation",
         header: "SITUATION",
-        render: (r) => <span className="font-mono text-sm text-slate-200">{r.situation}</span>,
+        render: (r) => (
+          <span className="block truncate font-mono text-sm text-slate-200" title={r.situation}>
+            {r.situation}
+          </span>
+        ),
       },
       {
         key: "plays",
@@ -122,6 +126,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
             <DataTable
               columns={scenarioColumns}
               equalColumns
+              equalColumnsCompact
               rows={data.scenario_breakdown}
               getRowKey={(r) => r.situation}
             />

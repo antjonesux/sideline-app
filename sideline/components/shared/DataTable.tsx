@@ -5,6 +5,10 @@ export type DataTableColumn<T> = {
   key: string;
   header: string;
   width?: string;
+  /** Appended to header `<th>` (after defaults); include alignment overrides like `text-right`. */
+  headerClassName?: string;
+  /** Appended to body `<td>` (after defaults); include alignment overrides like `text-right`. */
+  cellClassName?: string;
   render: (row: T) => ReactNode;
 };
 
@@ -18,6 +22,18 @@ export type DataTableProps<T> = {
   wrapperClassName?: string;
   /** Equal fractional width per column (`table-layout: fixed` + colgroup). */
   equalColumns?: boolean;
+  /**
+   * With `equalColumns`, omit the default `min-w-[520px]` so the table can shrink to its wrapper
+   * (nested tables, sidebars). Horizontal scroll still comes from the wrapper when content overflows.
+   */
+  equalColumnsCompact?: boolean;
+  /**
+   * Table fills the wrapper with fixed layout instead of `w-max`, so colspan / accordion rows cannot
+   * inflate intrinsic width and cause runaway horizontal scroll.
+   */
+  containedWidth?: boolean;
+  /** Tighter cell padding (headers and body). */
+  dense?: boolean;
   onRowClick?: (row: T) => void;
   onRowContextMenu?: (e: React.MouseEvent<HTMLTableRowElement>, row: T) => void;
   /** If returned, a full-width row is rendered immediately after this data row. */
@@ -32,6 +48,9 @@ export function DataTable<T>({
   stickyHeader = false,
   wrapperClassName = "",
   equalColumns = false,
+  equalColumnsCompact = false,
+  containedWidth = false,
+  dense = false,
   onRowClick,
   onRowContextMenu,
   renderAfterRow,
@@ -42,13 +61,22 @@ export function DataTable<T>({
   const colPct = colCount > 0 ? 100 / colCount : 100;
   const cellLayout = equalColumns ? "min-w-0" : "whitespace-nowrap";
 
+  const equalMinClass =
+    equalColumns && !equalColumnsCompact ? "min-w-[520px]" : equalColumns ? "min-w-0" : "";
+  const tableWidthClass = equalColumns
+    ? `w-full table-fixed ${equalMinClass}`.trim()
+    : containedWidth
+      ? "w-full table-fixed min-w-0"
+      : "min-w-full w-max";
+
+  const thPad = dense ? "px-2 py-1.5" : "px-4 py-2";
+  const tdPad = dense ? "px-2 py-2" : "px-4 py-3";
+
   const wrapperClasses = ["min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x", wrapperClassName].filter(Boolean).join(" ");
 
   return (
     <div className={wrapperClasses}>
-      <table
-        className={`border-collapse ${equalColumns ? "w-full table-fixed min-w-[520px]" : "min-w-full w-max"}`}
-      >
+      <table className={`border-collapse ${tableWidthClass}`}>
         {equalColumns && colCount > 0 ? (
           <colgroup>
             {columns.map((col) => (
@@ -62,7 +90,7 @@ export function DataTable<T>({
               <th
                 key={col.key}
                 scope="col"
-                className={`text-left align-top text-xs font-sans font-medium uppercase tracking-wider text-slate-500 dark:text-slate-500 px-4 py-2 ${cellLayout} ${equalColumns ? "" : col.width ?? ""}`}
+                className={`${col.headerClassName ?? "text-left"} align-top text-xs font-sans font-medium uppercase tracking-wider text-slate-500 dark:text-slate-500 ${thPad} ${cellLayout} ${equalColumns ? "" : col.width ?? ""}`}
               >
                 {col.header}
               </th>
@@ -83,7 +111,7 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`${cellLayout} text-left align-top px-4 py-3 text-sm font-mono ${equalColumns ? "" : col.width ?? ""}`}
+                      className={`${cellLayout} ${col.cellClassName ?? "text-left"} align-top ${tdPad} text-sm font-mono ${equalColumns ? "" : col.width ?? ""}`}
                     >
                       {col.render(row)}
                     </td>
@@ -91,7 +119,7 @@ export function DataTable<T>({
                 </tr>
                 {after ? (
                   <tr className="border-b border-slate-800/50 dark:border-slate-800/50">
-                    <td colSpan={colCount} className="p-0">
+                    <td colSpan={colCount} className="min-w-0 max-w-full p-0">
                       {after}
                     </td>
                   </tr>

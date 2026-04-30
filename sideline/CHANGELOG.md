@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (Film tendencies — table overflow, BY SITUATION density, formation accordion)
+
+**What:** **`components/shared/DataTable.tsx`**: **`equalColumnsCompact`**, **`containedWidth`**, **`dense`**, column **`headerClassName`** / **`cellClassName`**, colspan **`min-w-0 max-w-full`**. **`FilmGameTendenciesBody`**: BY SITUATION **`equalColumnsCompact`** + truncated situations (**`title`**). **`GameFormationTable`**: **`containedWidth`**; nested **`dense`** + **`equalColumnsCompact`** + **`drivePlayTableColumns({ includeSpot: false })`**. **`drivePlayTableColumns`**: **`includeSpot`** option (default true); **RESULT** **`pr-4`**; **YDS** right-aligned when **SPOT** omitted. Repo **`DECISIONS.md`** (**2026-04-30 — Film game tendencies tables + shared DataTable layout**).
+
+**Why:** Stop runaway horizontal scroll on tendencies formation accordion / BY SITUATION; optional shared-table hooks instead of bespoke tables.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-04-30 (Film game detail — drive card header Figma styling + extraction)
 
 **What:** **`app/film/[gameId]/page.tsx`** drive accordion: Figma-aligned outer card (**`#0F172B`**, **`#314158`** border, **14px** radius), header row padding/gaps/border, **DRIVE n** label (**`#FFB900`** **14px** mono), metadata (**`#62748E`** **12px**), **44×44** kebab/chevron styling, expanded panel border/radius match; outcome pills use a Film-only badge (**`DriveCardOutcomeBadge`**) so shared **`ResultBadge`** on import/table/play rows is untouched. New **`components/film/DriveCardOutcomeBadge.tsx`** and **`components/film/filmDriveDetailCardClasses.ts`** hold badge markup and shell class strings (**BUILD_CONTRACT** component-per-file).

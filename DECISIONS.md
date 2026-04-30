@@ -8,6 +8,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-30 — Film game tendencies tables + shared DataTable layout
+
+**Film game detail → Tendencies** (`FilmGameTendenciesBody`, `GameFormationTable`): **BY SITUATION** uses **`DataTable`** **`equalColumnsCompact`** so **`equalColumns`** tables can shrink without the default **`min-w-[520px]`** floor when the card has room; situation labels **`truncate`** with **`title`** for full text on hover/focus. **FORMATIONS** outer table uses **`containedWidth`** (**`w-full table-fixed min-w-0`**) so **`renderAfterRow`** / colspan accordion content does not balloon **`w-max`** intrinsic width (fixes runaway horizontal scroll). Expanded formation plays reuse **`drivePlayTableColumns({ includeSpot: false })`** — **no SPOT column** in that drill-down only; primary Film drive tables, import previews, and other callers keep **SPOT** and **`drivePlayTableColumns()`** defaults (**see 2026-04-21** ending-field / SPOT decision for canonical drive-table shape). Nested accordion table uses **`dense`** + **`equalColumnsCompact`**; **RESULT** keeps trailing horizontal gutter (**`pr-*`** on badge wrapper); **YDS** is **right-aligned** when **SPOT** is omitted to separate yard values from badges. **`DataTable`** adds optional column **`headerClassName`** / **`cellClassName`** and props **`equalColumnsCompact`**, **`containedWidth`**, **`dense`**; colspan expansion cells use **`min-w-0 max-w-full`**.
+
+**Why:** Tendencies formation accordion and BY SITUATION tables overflowed horizontally without improving coaching signal; fixes belong in the shared table primitive with opt-in flags rather than duplicate table markup.
+
+**Impact:** Defaults unchanged for existing **`DataTable`** callers. Omitting **SPOT** in formation-expanded plays is intentional density/readability trade-off — restore **SPOT** there only if product requires ending-field parity with primary drive views.
+
+---
+
 ## 2026-04-30
 
 **Shared modal chrome + app shell titles + button typography (design tokens)**  

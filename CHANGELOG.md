@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Film tendencies: table overflow, BY SITUATION density, formation accordion plays
+
+### What
+
+- [`sideline/components/shared/DataTable.tsx`](sideline/components/shared/DataTable.tsx): Optional **`equalColumnsCompact`** (drops **`min-w-[520px]`** when combined with **`equalColumns`**), **`containedWidth`** (**`table-fixed`** width tracks wrapper / colspan-safe), **`dense`** cell padding, optional column **`headerClassName`** / **`cellClassName`**; colspan **`renderAfterRow`** cells **`min-w-0 max-w-full`**.
+- [`sideline/components/film/FilmGameTendenciesBody.tsx`](sideline/components/film/FilmGameTendenciesBody.tsx): BY SITUATION **`equalColumnsCompact`** + truncated situation cells (**`title`**).
+- [`sideline/components/tendencies/GameFormationTable.tsx`](sideline/components/tendencies/GameFormationTable.tsx): Outer **`containedWidth`**; nested plays **`dense`**, **`equalColumnsCompact`**, **`drivePlayTableColumns({ includeSpot: false })`** (no **SPOT** in accordion).
+- [`sideline/components/shared/drivePlayTableColumns.tsx`](sideline/components/shared/drivePlayTableColumns.tsx): Optional **`includeSpot`** (default true); **RESULT** badge **`pr-4`** gutter; when **SPOT** omitted, **YDS** header/body **`text-right`** and tabular yard styling.
+
+### Why
+
+Remove unnecessary horizontal scroll on game tendencies tables while preserving mobile scroll when needed; tighten RESULT vs YDS spacing in formation-expanded plays without changing APIs.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Film game detail: drive card header Figma styling + extraction
 
 ### What

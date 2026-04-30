@@ -17,7 +17,7 @@ type Props = {
 
 export function GameFormationTable({ rows }: Props) {
   const [open, setOpen] = useState<string | null>(null);
-  const driveCols = useMemo(() => drivePlayTableColumns(), []);
+  const driveCols = useMemo(() => drivePlayTableColumns({ includeSpot: false }), []);
   const formationCols = useMemo(() => formationAggTableColumns(open), [open]);
 
   if (rows.length === 0) {
@@ -27,6 +27,7 @@ export function GameFormationTable({ rows }: Props) {
   return (
     <div className="rounded-xl border border-slate-700 bg-slate-900 min-w-0 overflow-hidden">
       <DataTable
+        containedWidth
         columns={formationCols}
         rows={rows}
         getRowKey={(r) => r.formation}
@@ -34,11 +35,13 @@ export function GameFormationTable({ rows }: Props) {
         onRowClick={(r) => setOpen(open === r.formation ? null : r.formation)}
         renderAfterRow={(r) =>
           open === r.formation ? (
-            <div className="min-w-0 border-t border-slate-800/80 bg-slate-800/50 p-4 dark:border-slate-800/80">
+            <div className="min-w-0 max-w-full border-t border-slate-800/80 bg-slate-800/50 p-4 dark:border-slate-800/80">
               <DataTable
-                wrapperClassName="overflow-x-auto px-0"
+                wrapperClassName="px-0"
                 columns={driveCols}
+                dense
                 equalColumns
+                equalColumnsCompact
                 rows={r.play_rows}
                 getRowKey={(p) => p.id}
               />
