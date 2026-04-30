@@ -9,10 +9,21 @@ import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
-import { DriveSetupForm, type Quarter } from "@/components/film/DriveSetupForm";
+import { DriveCardOutcomeBadge } from "@/components/film/DriveCardOutcomeBadge";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
+import { DriveSetupForm, type Quarter } from "@/components/film/DriveSetupForm";
 import { DriveStartingFieldPanel } from "@/components/film/DriveStartingFieldPanel";
-import { ResultBadge } from "@/components/import/ResultBadge";
+import {
+  filmDriveDetailCardAccordionTriggerClass,
+  filmDriveDetailCardChevronButtonClass,
+  filmDriveDetailCardDriveLabelClass,
+  filmDriveDetailCardExpandedPanelClass,
+  filmDriveDetailCardHeaderRowClass,
+  filmDriveDetailCardKebabTriggerClass,
+  filmDriveDetailCardMetaLineClass,
+  filmDriveDetailCardOuterClass,
+  filmDriveDetailCardTitleRowClass,
+} from "@/components/film/filmDriveDetailCardClasses";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
@@ -76,7 +87,7 @@ function formatDate(isoDate: string): string {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
 }
 
-/** Drive summary header badge — same ResultBadge / muted pill split as the game Tendencies tab. */
+/** Drive summary header badge label (short codes mapped to display copy in `DriveCardOutcomeBadge`). */
 function getDriveSummaryOutcomeLabel(
   drive: Drive,
   opts: { isLastDrive: boolean; isGameEnded: boolean },
@@ -101,19 +112,6 @@ function getDriveSummaryOutcomeLabel(
 
   if (opts.isLastDrive) return "ACTIVE";
   return "RECORDED";
-}
-
-function DriveSummaryOutcomeBadge({ label }: { label: string }) {
-  if (label === "NO PLAYS" || label === "ACTIVE" || label === "RECORDED" || label === "GAME ENDED") {
-    return (
-      <span className="font-mono shrink-0 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-400">
-        {label}
-      </span>
-    );
-  }
-  const resultLabel =
-    label === "TD" ? "TOUCHDOWN" : label === "FG" ? "FIELD_GOAL" : label === "TOD" ? "TURNOVER ON DOWNS" : label;
-  return <ResultBadge label={resultLabel} />;
 }
 
 type GameLogPageProps = { params: Promise<{ gameId: string }> };
@@ -705,27 +703,30 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         const metaLine = `${quarterMeta} · ${mine}-${theirs} · ${playCount} ${playCount === 1 ? "call" : "calls"}`;
 
         return (
-          <div key={drive.id} className="min-w-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
-            <div className="flex items-center gap-2 border-b border-slate-800/60 px-4 py-3">
+          <div key={drive.id} className={filmDriveDetailCardOuterClass}>
+            <div className={filmDriveDetailCardHeaderRowClass}>
               <button
                 type="button"
                 data-no-press
-                className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:bg-slate-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                className={filmDriveDetailCardAccordionTriggerClass}
                 aria-expanded={isExpanded}
                 aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={toggleDriveExpanded}
               >
-                <span className="shrink-0 font-mono text-sm font-bold uppercase tracking-wide text-amber-400">
-                  DRIVE {drive.drive_number}
-                </span>
-                <span className="shrink-0">
-                  <DriveSummaryOutcomeBadge label={outcomeLabel} />
-                </span>
-                <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-500">{metaLine}</span>
+                <div className={filmDriveDetailCardTitleRowClass}>
+                  <span className={filmDriveDetailCardDriveLabelClass}>
+                    DRIVE {drive.drive_number}
+                  </span>
+                  <span className="shrink-0">
+                    <DriveCardOutcomeBadge label={outcomeLabel} />
+                  </span>
+                </div>
+                <span className={filmDriveDetailCardMetaLineClass}>{metaLine}</span>
               </button>
               <DropdownMenu
                 aria-label="Drive actions"
                 clampMenuBelowSelector="[data-film-game-dropdown-clamp]"
+                triggerClassName={filmDriveDetailCardKebabTriggerClass}
                 items={[
                   {
                     label: "Delete Drive",
@@ -739,13 +740,13 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <button
                 type="button"
                 data-no-press
-                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-800/50 hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                className={filmDriveDetailCardChevronButtonClass}
                 aria-expanded={isExpanded}
                 aria-label={isExpanded ? "Collapse drive" : "Expand drive"}
                 onClick={toggleDriveExpanded}
               >
                 <svg
-                  className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -758,7 +759,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </div>
 
             {isExpanded ? (
-              <div className="min-w-0 rounded-b-xl border-t border-slate-800/80 bg-slate-800/50 p-4">
+              <div className={filmDriveDetailCardExpandedPanelClass}>
                 <div className="mb-3 flex flex-col gap-3">
                   <div>
                     <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 dark:text-slate-500">Quarter</p>

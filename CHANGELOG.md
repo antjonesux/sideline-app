@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Film game detail: drive card header Figma styling + extraction
+
+### What
+
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Drive accordion cards use Figma-aligned shell (background **`#0F172B`**, border **`#314158`**, **14px** radius), header row spacing and borders, drive label typography (**`#FFB900`** mono), metadata line (**`#62748E`** **12px**), kebab/chevron control sizing and colors, and expanded-panel top border/radius to match the shell. Outcome pill uses header-specific tokens (success/danger/warning/neutral) instead of shared [`ResultBadge`](sideline/components/import/ResultBadge.tsx) so import/play-table badges stay unchanged.
+- [`sideline/components/film/DriveCardOutcomeBadge.tsx`](sideline/components/film/DriveCardOutcomeBadge.tsx): Film-only drive summary badge for that header.
+- [`sideline/components/film/filmDriveDetailCardClasses.ts`](sideline/components/film/filmDriveDetailCardClasses.ts): Exported Tailwind class fragments for the drive card shell and header controls.
+
+### Why
+
+Match game-detail drive cards to the design spec while preserving accordion, one-open-drive, kebab menu, and expanded play table behavior; satisfy **BUILD_CONTRACT.md** one-component-per-file by moving the badge out of the page module.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Film play logger: tighter spacing above yardage Back row
 
 ### What
