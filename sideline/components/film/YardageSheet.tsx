@@ -288,7 +288,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
   }
 
   return (
-    <div className="w-full border-t border-slate-800 bg-slate-900 p-4">
+    <div className="w-full border-t border-slate-800 bg-slate-900 px-4 pb-4 pt-3">
       <div className="mb-3 flex min-h-[44px] items-center">
         <button
           type="button"

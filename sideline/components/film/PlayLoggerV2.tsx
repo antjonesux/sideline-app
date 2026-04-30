@@ -430,7 +430,7 @@ export function PlayLoggerV2({
         className={`min-h-0 w-full flex-1 bg-slate-900 ${
           view === "suggestions"
             ? "flex min-h-0 flex-col overflow-hidden"
-            : "overflow-y-auto pt-3"
+            : "overflow-y-auto pt-0"
         }`}
       >
         {view === "suggestions" ? (

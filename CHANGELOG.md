@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Film play logger: tighter spacing above yardage Back row
+
+### What
+
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): Yardage view body uses **`pt-0`** instead of **`pt-3`** on the scroll wrapper.
+- [`sideline/components/film/YardageSheet.tsx`](sideline/components/film/YardageSheet.tsx): Root padding **`px-4 pb-4 pt-3`** replaces **`p-4`** so top inset is not duplicated under the drive accordion.
+
+### Why
+
+Removes stacked vertical padding between the sticky drive chrome and the yardage **Back** control for a denser coach flow.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — UI consistency: modal tokens, auth validation, buttons, page titles
 
 ### What

@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (Film play logger — yardage step spacing under drive accordion)
+
+**What:** **`PlayLoggerV2`** yardage view: main body wrapper **`pt-3` → `pt-0`** so top padding is not stacked with the sheet. **`YardageSheet`** root: **`p-4` → `px-4 pb-4 pt-3`** so horizontal/bottom padding stays aligned with **`px-4`** film chrome while the gap between the sticky drive accordion and the **Back** row is tightened.
+
+**Why:** Double top inset (logger shell + full **`p-4`**) read as excess dead space during rapid logging.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `PlayLoggerV2.tsx`, `YardageSheet.tsx`, repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-30 (UI consistency — modal tokens, auth validation, buttons, page titles)
 
 **What:** `lib/constants/designTokens.ts` adds **`modalCtaFooterClass`**, **`modalDialogTitleClass`**, **`appShellPageTitleClass`**. **`ConfirmDestructiveModal`**, playbook create/edit/replace, **`DriveSetupForm`**, **`EditGameDetailsModal`**, settings **`BottomSheet`** footers (Cancel on password + sign out), and **`app/film/[gameId]/page.tsx`** end-game score **`Dialog`** use the shared footer/header/body patterns. **`components/ui/button.tsx`** unifies sans **medium** + **normal** tracking on **`default`** / **`destructive`** / **`outline`** / **`secondary`** / **`ghost`** / **`lg`**. **`app/login/LoginForm.tsx`**, **`app/reset-password/ResetPasswordForm.tsx`**, new **`lib/emailValidation.ts`**. Film / Game Plan / Tendencies / settings / editor page titles; **`app/film/new/page.tsx`** modal-style **New game setup** title. **`components/landing/HeroSection.tsx`** Get started CTA. Repo **`DECISIONS.md`** (new **2026-04-30** + **2026-04-24** correction) and **`BUILD_CONTRACT.md`** Film overlay line.
