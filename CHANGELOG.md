@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — Landing hero polish: larger mobile image, wordmark, auth-safe CTA routing
+
+### What
+
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): Added the app wordmark at the top using shared `appWordmarkStyle` (auth-screen style parity), increased hero visual prominence with a wider/full-bleed image treatment on mobile, and kept text/CTA content constrained for readability.
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): CTA hrefs use `buildLoginHref` with optional `next` again, preserving safe return-path behavior through auth flows.
+- [`sideline/public/onboarding/hero-showcase-mobile.png`](sideline/public/onboarding/hero-showcase-mobile.png): Added mobile-optimized static hero asset used by `/landing`.
+- Image loading metadata updated to match rendered hero width and reduce soft image selection on larger phones.
+
+### Why
+
+Landing needed to better match the approved marketing composition on mobile (larger hero + branded header) without regressing auth handoff behavior or introducing layout overflow issues.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Landing: static marketing hero, remove carousel, docs + a11y
 
 ### What

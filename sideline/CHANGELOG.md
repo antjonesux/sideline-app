@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (Landing hero polish — larger mobile image, top wordmark, auth-safe CTA hrefs)
+
+**What:** `components/landing/HeroSection.tsx` adds the top **The Sideline** wordmark using shared `appWordmarkStyle` (matching auth screen styling), scales the hero image presentation up for mobile with a controlled full-bleed wrapper, keeps copy/CTA content width constrained for readability, restores CTA hrefs to **`buildLoginHref`** (register + sign-in, preserving optional safe `next`), and updates `Image` `sizes` metadata to match the rendered hero width. Added `public/onboarding/hero-showcase-mobile.png` as the landing hero image asset.
+
+**Why:** Marketing requested a bigger hero and branded top treatment on `/landing`; auth-safe return-path behavior also had to remain aligned with BUILD_CONTRACT routing.
+
+**Status after this push:** `npm run build` from `sideline/` passed; `components/landing/HeroSection.tsx`, `public/onboarding/hero-showcase-mobile.png`, repo-root `CHANGELOG.md`, this file.
+
+---
+
 ## 2026-04-29 (Landing — static hero, carousel removal, wordmark token, scroll fix)
 
 **What:** **`/landing`**: **`HeroSection`** static hero (wordmark, PNG, CTAs via **`buildLoginHref`** with optional **`next`**); **`min-h-[100dvh]`** + **`overflow-y-auto`** + **`overflow-x-hidden`** (no **`overflow-y-hidden`** clip). **`lib/landing/appWordmarkStyle.ts`**; **`LoginForm`** uses shared wordmark style. **`app/layout.tsx`**: Barlow **700**. Deleted **`OnboardingCarousel`**, **`CarouselDots`**, **`GetStartedButton`**, **`SignInLink`**, **`lib/landing/onboardingSlides.ts`**; **`public/onboarding/`** slide PNGs removed, **`hero-showcase.png`** added. Repo **`BUILD_CONTRACT.md`** repo map updated.
