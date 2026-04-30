@@ -4,7 +4,8 @@
 import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { scenarioDisplayLabel } from "@/lib/playbookUtils";
 import { useScrollLock } from "@/lib/useScrollLock";
-import { normalizePlayName } from "@/lib/utils";
+import { overlayZ } from "@/lib/constants/designTokens";
+import { cn, normalizePlayName } from "@/lib/utils";
 
 export function AddPlayDrawer({
   open,
@@ -26,14 +27,17 @@ export function AddPlayDrawer({
   return (
     <>
       <div
-        className="fixed inset-0 z-[200] bg-black/60"
+        className={cn("fixed inset-0 bg-black/60", overlayZ.filmBackdrop)}
         aria-hidden
         onClick={() => {
           onClose();
         }}
       />
       <div
-        className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+        className={cn(
+          "fixed inset-0 flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
+          overlayZ.filmShell,
+        )}
         role="dialog"
         aria-modal
         aria-labelledby="add-play-drawer-title"
@@ -64,7 +68,7 @@ export function AddPlayDrawer({
               <span className="sr-only">Close</span>
             </button>
           </div>
-          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-slate-950">
+          <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-slate-950">
             <PlayBrowser
               playbook={cfb26Playbook}
               presentation="inline"

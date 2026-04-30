@@ -316,7 +316,7 @@ export function PlayLoggerV2({
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col bg-slate-950">
       <div
-        className={`sticky top-0 z-10 w-full border-b border-slate-700 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}
+        className={`sticky top-0 w-full border-b border-slate-700 ${flashOk ? "bg-emerald-900/30" : "bg-slate-900"}`}
       >
         <div className="flex w-full items-center gap-3 px-4 py-3">
           <span className="whitespace-nowrap font-mono text-[13px] font-semibold uppercase tracking-widest text-amber-400">
@@ -414,7 +414,7 @@ export function PlayLoggerV2({
               ) : null}
             </TabsList>
 
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
+            <div className="relative z-[5] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
               <TabsContent
                 value="browse"
                 className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
@@ -462,7 +462,7 @@ export function PlayLoggerV2({
                       ) : null}
                     </div>
                     {sheetCalls.length > 0 ? (
-                      <div className="flex flex-col gap-2 border-l-2 border-emerald-600/50 pl-3">
+                      <div className="flex flex-col gap-2">
                         {sheetCalls.map((play) => (
                           <PlayRow
                             key={`sheet-${play.play_id}`}

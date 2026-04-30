@@ -1,5 +1,6 @@
 "use client";
 
+import { overlayZ } from "@/lib/constants/designTokens";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
@@ -169,7 +170,7 @@ export function TeamCombobox<T extends { team_name: string }>({
 
         {showList ? (
           <div
-            className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg absolute left-0 right-0 z-[200] max-h-60 overflow-y-auto ${
+            className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg absolute left-0 right-0 ${overlayZ.filmBackdrop} max-h-60 overflow-y-auto ${
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             }`}
           >

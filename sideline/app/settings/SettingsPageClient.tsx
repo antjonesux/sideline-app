@@ -10,6 +10,7 @@ import { useToastStore } from "@/store/toastStore";
 import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
+import { overlayZ } from "@/lib/constants/designTokens";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -301,9 +302,9 @@ function BottomSheet({
 
   return (
     <>
-      <div className="fixed inset-0 z-[50] bg-black/60" aria-hidden onClick={onClose} />
+      <div className={`fixed inset-0 ${overlayZ.radixDialog} bg-black/60`} aria-hidden onClick={onClose} />
       <div
-        className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+        className={`fixed inset-x-0 bottom-0 ${overlayZ.sheetShell} sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4`}
         role="dialog"
         aria-modal
         aria-label={title}

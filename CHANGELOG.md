@@ -4,6 +4,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Film / modals: Radix tabs, overlay stacking tokens, scroll lock, logger + PlayBrowser
+
+### What
+
+- [`sideline/components/ui/tabs.tsx`](sideline/components/ui/tabs.tsx): Restored **Radix**-based **Tabs** (`TabsPrimitive` forwards) so shared tabs align with **`DECISIONS.md`** (shadcn/ui on Radix). Dependency remains **`@radix-ui/react-tabs`** in [`sideline/package.json`](sideline/package.json).
+- [`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts): New **`overlayZ`** map (bottom nav, tendencies portaled menus, toast host, Film backdrop/shell, Radix dialog band, sheet shell, Radix portaled select/dropdown).
+- [`sideline/components/ui/dialog.tsx`](sideline/components/ui/dialog.tsx), [`sideline/components/ui/select.tsx`](sideline/components/ui/select.tsx), [`sideline/components/ui/dropdown-menu.tsx`](sideline/components/ui/dropdown-menu.tsx): Default overlay/content and portaled content use **`overlayZ`** so layers stack above Film full-screen shells.
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Play logger fixed layers use **`overlayZ.filmBackdrop`** / **`filmShell`**; drive accordion “Log a call” footer uses **`py-3`** only (no extra **`px-4`**) so width matches the starting-field column.
+- [`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx), [`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx), [`sideline/app/settings/SettingsPageClient.tsx`](sideline/app/settings/SettingsPageClient.tsx): Hand-rolled sheets use **`overlayZ`** for backdrop/shell parity with the dialog band.
+- [`sideline/components/shared/FormationPlaySearch.tsx`](sideline/components/shared/FormationPlaySearch.tsx), [`sideline/components/tendencies/TendenciesFilters.tsx`](sideline/components/tendencies/TendenciesFilters.tsx), [`sideline/components/tendencies/PlaybookFilter.tsx`](sideline/components/tendencies/PlaybookFilter.tsx), [`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx): Dropdown/list panels use **`overlayZ`** instead of scattered literals.
+- [`sideline/lib/useScrollLock.ts`](sideline/lib/useScrollLock.ts): Scroll lock prefers **`html`/`body` overflow hidden** and **`overscroll-behavior: none`** (optional **`paddingRight`** for scrollbar width) instead of **`position: fixed`** on **`body`**.
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): Sticky drive header **`z-10`** removed; tab column wrapper **`relative z-[5]`**; **My Sheet** list removes emerald left border.
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Search/header stacking and mobile hints; explicit states when no playbook, load error, loading skeleton, or no search hits.
+
+### Why
+
+Portaled Radix UI must sit above Film’s high-**z** overlays; tabs should stay on the documented Radix primitive; **`body` position fixed** scroll lock was implicated in iOS input/focus issues inside modals; Film logger layout and Play Browser feedback reduce dead clicks and blank-looking search.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Settings: session actions outside Account card
 
 ### What

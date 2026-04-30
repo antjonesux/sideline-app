@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePortalDropdown } from "@/hooks/usePortalDropdown";
+import { overlayZ } from "@/lib/constants/designTokens";
 
 type Props = {
   value: string | null;
@@ -78,7 +79,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
             <div
               ref={dropdown.menuRef}
               role="listbox"
-              className="min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed z-[70] max-h-72 w-max max-w-[20rem] overflow-hidden"
+              className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-72 w-max max-w-[20rem] overflow-hidden`}
               style={{
                 ...(dropdown.menuPos.top != null ? { top: dropdown.menuPos.top } : {}),
                 ...(dropdown.menuPos.bottom != null ? { bottom: dropdown.menuPos.bottom } : {}),

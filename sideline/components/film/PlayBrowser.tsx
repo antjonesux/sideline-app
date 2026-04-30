@@ -113,7 +113,7 @@ export function PlayBrowser({
   }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
 
   const level1Header = (
-    <div className="w-full border-b border-slate-700 bg-slate-900">
+    <div className="relative z-[2] w-full shrink-0 border-b border-slate-700 bg-slate-900">
       <div className="flex w-full items-center gap-3 px-4 py-3">
         {effectiveShowTopLevelBack ? (
           <button type="button" className={browserBackButtonClass} onClick={onClose}>
@@ -125,14 +125,16 @@ export function PlayBrowser({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search plays & formations"
-          className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500"
+          autoComplete="off"
+          enterKeyHint="search"
+          className="min-h-11 min-w-0 flex-1 touch-manipulation rounded-lg border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500"
         />
       </div>
     </div>
   );
 
   const playsViewHeader = selectedFormation ? (
-    <div className="w-full border-b border-slate-700 bg-slate-900">
+    <div className="relative z-[2] w-full shrink-0 border-b border-slate-700 bg-slate-900">
       <div className="flex w-full items-center gap-3 px-4 py-3">
         <button
           type="button"
@@ -166,9 +168,23 @@ export function PlayBrowser({
           {level1Header}
           <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pt-3">
             <div className="flex flex-col gap-2 px-4 pb-4">
-              {filtered.map((play) => (
-                <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
-              ))}
+              {!hasPlaybook ? (
+                <p className="font-body text-sm text-slate-400">
+                  Select a CFB26 playbook to search plays and formations.
+                </p>
+              ) : error ? (
+                <p className="font-body text-sm text-rose-300">Could not load the play catalog. Try again in a moment.</p>
+              ) : loading && filtered.length === 0 ? (
+                <div className="space-y-2" aria-busy="true" aria-label="Loading plays">
+                  <div className="h-11 animate-pulse rounded-lg bg-slate-800/80" />
+                  <div className="h-11 animate-pulse rounded-lg bg-slate-800/60" />
+                  <div className="h-11 max-w-[90%] animate-pulse rounded-lg bg-slate-800/40" />
+                </div>
+              ) : filtered.length === 0 ? (
+                <p className="font-body text-sm text-slate-500">No plays match this search.</p>
+              ) : (
+                filtered.map((play) => <PlayRow key={play.play_id} play={play} onSelect={onSelect} />)
+              )}
             </div>
           </div>
         </>

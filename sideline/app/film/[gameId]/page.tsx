@@ -35,6 +35,7 @@ import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
+import { overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
@@ -857,7 +858,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     setPendingPlayDelete(p.id);
                   }}
                 />
-                <div className="border-t border-slate-800/80 px-4 py-3">
+                <div className="border-t border-slate-800/80 py-3">
                   {(() => {
                     const driveOutcome = getDriveResult(drive.plays);
                     const canLog =
@@ -1021,13 +1022,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       {showLogger && game && activeDriveObj ? (
         <>
           <div
-            className="fixed inset-0 z-[200] bg-black/60"
+            className={cn("fixed inset-0 bg-black/60", overlayZ.filmBackdrop)}
             onClick={() => {
               setShowLogger(false);
             }}
           />
           <div
-            className="fixed inset-0 z-[201] flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4"
+            className={cn(
+              "fixed inset-0 flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
+              overlayZ.filmShell,
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">

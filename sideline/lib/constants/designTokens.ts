@@ -45,3 +45,23 @@ export const tokens = {
     btn: "rounded-lg",
   },
 } as const;
+
+/**
+ * Stacking for fixed / portaled UI. Keep in sync with `BottomTabNav` (`z-40`) and
+ * Film hand-rolled logger / Add Play shells (`filmBackdrop` / `filmShell`).
+ * Radix portaled menus must sit above `filmShell` or clicks hit the backdrop instead.
+ */
+export const overlayZ = {
+  bottomNav: "z-40",
+  /** Tendencies playbook / opponent menus (`usePortalDropdown` path). */
+  tendenciesPortalMenu: "z-[70]",
+  toastHost: "z-[120]",
+  filmBackdrop: "z-[200]",
+  filmShell: "z-[201]",
+  /** Radix `Dialog` overlay + panel (and settings / playbook sheets in the same band). */
+  radixDialog: "z-[220]",
+  /** One step above `radixDialog` backdrop so sheet content receives hits first. */
+  sheetShell: "z-[221]",
+  /** Radix `Select` / `DropdownMenu` content portaled to `document.body`. */
+  radixPortalMenu: "z-[230]",
+} as const;

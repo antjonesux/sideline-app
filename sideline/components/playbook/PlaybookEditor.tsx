@@ -3,7 +3,8 @@
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
-import { normalizePlayName } from "@/lib/utils";
+import { overlayZ } from "@/lib/constants/designTokens";
+import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
@@ -537,8 +538,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         onPick={onDrawerPick}
       />
       {editorOpen ? (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setEditorOpen(false)}>
-          <div className="fixed inset-x-0 bottom-0 z-[51] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className={cn("fixed inset-0 bg-black/70", overlayZ.radixDialog)}
+          onClick={() => setEditorOpen(false)}
+        >
+          <div
+            className={cn(
+              "fixed inset-x-0 bottom-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
+              overlayZ.sheetShell,
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100 text-lg">Edit play sheet</h2>

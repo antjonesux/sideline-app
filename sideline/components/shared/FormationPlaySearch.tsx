@@ -4,6 +4,7 @@ import { comboKey } from "@/lib/loggedPlayStats";
 import { dedupePlaysByDisplayInFormation, normalizePlayLabel } from "@/lib/normalizePlayLabel";
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { successRateTextClass } from "@/lib/successRateTextClass";
+import { overlayZ } from "@/lib/constants/designTokens";
 import { normalizePlayName } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -473,7 +474,7 @@ export function FormationPlaySearch({
         <div
           id={listId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-[50vh] w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-2 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          className={`absolute ${overlayZ.radixPortalMenu} mt-1 max-h-[50vh] w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-2 shadow-xl dark:border-slate-700 dark:bg-slate-900`}
         >
           {!loading && searchActive && !isLocal && filteredByKeyword.length === 0 ? (
             <p className="px-3 py-2 font-sans text-xs text-slate-400">

@@ -2,36 +2,42 @@
 
 import { useEffect } from "react";
 
+/**
+ * Prevents background scroll while a modal / drawer is open.
+ *
+ * Avoids `position: fixed` on `body` — that pattern breaks focused inputs (search fields,
+ * keyboards) inside full-screen overlays on iOS Safari and some mobile WebViews.
+ */
 export function useScrollLock(isOpen: boolean) {
   useEffect(() => {
     if (!isOpen) return;
 
-    const scrollY = window.scrollY;
-    const bodyStyle = document.body.style;
+    const html = document.documentElement;
+    const body = document.body;
+    const scrollbarGap = Math.max(0, window.innerWidth - html.clientWidth);
+
     const prev = {
-      position: bodyStyle.position,
-      top: bodyStyle.top,
-      left: bodyStyle.left,
-      right: bodyStyle.right,
-      overflow: bodyStyle.overflow,
-      width: bodyStyle.width,
+      htmlOverflow: html.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyOverscroll: body.style.overscrollBehavior,
+      bodyPaddingRight: body.style.paddingRight,
     };
 
-    bodyStyle.position = "fixed";
-    bodyStyle.top = `-${scrollY}px`;
-    bodyStyle.left = "0";
-    bodyStyle.right = "0";
-    bodyStyle.overflow = "hidden";
-    bodyStyle.width = "100%";
+    html.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    if (scrollbarGap > 0) {
+      body.style.paddingRight = `${scrollbarGap}px`;
+    }
 
     return () => {
-      bodyStyle.position = prev.position;
-      bodyStyle.top = prev.top;
-      bodyStyle.left = prev.left;
-      bodyStyle.right = prev.right;
-      bodyStyle.overflow = prev.overflow;
-      bodyStyle.width = prev.width;
-      window.scrollTo(0, scrollY);
+      html.style.overflow = prev.htmlOverflow;
+      html.style.overscrollBehavior = prev.htmlOverscroll;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
+      body.style.paddingRight = prev.bodyPaddingRight;
     };
   }, [isOpen]);
 }
