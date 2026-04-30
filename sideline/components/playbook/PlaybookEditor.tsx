@@ -3,7 +3,7 @@
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
-import { overlayZ } from "@/lib/constants/designTokens";
+import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -437,7 +437,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       ) : null}
       <div>
         <div className="flex items-center justify-between gap-3">
-          <h1 className="font-heading mt-1 text-3xl font-bold uppercase tracking-[0.1em] text-white mt-0">{sheet.name}</h1>
+          <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
           <button
             type="button"
             className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
@@ -549,9 +549,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             )}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex w-full max-h-[90vh] flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100 text-lg">Edit play sheet</h2>
+            <div className="flex h-full max-h-[90vh] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+              <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
+                <h2 className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100">Edit play sheet</h2>
                 <button type="button" data-no-press className="p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setEditorOpen(false)}>
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
                     <path d="M6 6 18 18M18 6 6 18" />
@@ -559,7 +559,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   <span className="sr-only">Close</span>
                 </button>
               </div>
-              <div className="space-y-4 overflow-y-auto p-4">
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
                 <label className="space-y-1">
                   <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
                   <input value={editName} onChange={(e) => setEditName(e.target.value)} className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25" />
@@ -573,16 +573,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                     ))}
                   </datalist>
                 </label>
-                <div className="pt-4">
-                <div className="flex gap-2">
-                  <Button type="button" variant="secondary" className="flex-1" onClick={() => setEditorOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="button" variant="default" className="flex-1" onClick={() => void saveSheetEdits()}>
-                    Save
-                  </Button>
-                </div>
-                </div>
+              </div>
+              <div className={modalCtaFooterClass}>
+                <Button type="button" variant="secondary" className="flex-1" onClick={() => setEditorOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="button" variant="default" className="flex-1" onClick={() => void saveSheetEdits()}>
+                  Save
+                </Button>
               </div>
             </div>
           </div>
@@ -650,7 +648,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               </ul>
             </div>
           ) : null}
-          <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3">
+          <div className={modalCtaFooterClass}>
             <Button type="button" variant="secondary" className="flex-1 py-3" disabled={swapPlay.isPending} onClick={() => setReplaceSuggest(null)}>
               Cancel
             </Button>

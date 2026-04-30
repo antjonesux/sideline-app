@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 
@@ -202,7 +203,7 @@ export function CreatePlaybookModal({
           )}
         </div>
 
-        <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
+        <div className={modalCtaFooterClass}>
           {step === 2 ? (
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(1)}>
               Back

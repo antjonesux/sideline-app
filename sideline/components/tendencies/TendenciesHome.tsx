@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { SettingsLink } from "@/components/shared/AppTopBar";
 import { Button } from "@/components/ui/button";
+import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { emitProductEvent } from "@/lib/productAnalytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -93,7 +94,7 @@ export function TendenciesHome() {
   if (games.length === 0) {
     return (
       <section className="space-y-6">
-        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+        <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4 text-slate-100`}>
           <span className="min-w-0">Tendencies</span>
           <SettingsLink />
         </h1>
@@ -112,7 +113,7 @@ export function TendenciesHome() {
 
   return (
     <section className="space-y-6">
-      <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4 text-slate-100">
+      <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4 text-slate-100`}>
         <span className="min-w-0">Tendencies</span>
         <SettingsLink />
       </h1>

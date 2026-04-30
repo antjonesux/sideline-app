@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { type ReactNode } from "react";
 
 export type ConfirmDestructiveModalProps = {
@@ -56,7 +57,7 @@ export function ConfirmDestructiveModal({
             <div className="font-body text-sm leading-relaxed text-slate-300">{message}</div>
           </DialogDescription>
         </div>
-        <div className="flex shrink-0 gap-2 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6">
+        <div className={modalCtaFooterClass}>
           <Button type="button" variant="secondary" className="flex-1 py-3" disabled={busy} onClick={onClose}>
             Cancel
           </Button>

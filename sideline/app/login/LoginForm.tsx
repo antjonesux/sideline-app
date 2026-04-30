@@ -6,11 +6,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
-import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
+import { isValidEmail } from "@/lib/emailValidation";
+import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { buildLandingHref } from "@/lib/navigation/loginHref";
 
 type View = "sign-in" | "create-account" | "forgot-password";
+
+const INVALID_EMAIL_MSG = "Enter a valid email address.";
 
 function BackToLandingLink({ next }: { next?: string | null }) {
   return (
@@ -45,10 +48,19 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+
+  const clearFieldErrors = () => {
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
+  };
 
   const safeDest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
   const anyBusy = busy || googleBusy;
@@ -71,13 +83,28 @@ export function LoginForm() {
   async function handleEmailSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
 
-    if (!email.trim() || !password) {
-      setError("Email and password are required.");
+    if (!email.trim()) {
+      setEmailError("Email is required.");
       return;
     }
-    if (view === "create-account" && password !== confirmPassword) {
-      setError("Passwords don't match.");
+    if (!isValidEmail(email)) {
+      setEmailError(INVALID_EMAIL_MSG);
+      return;
+    }
+    if (!password) {
+      setPasswordError("Password is required.");
+      return;
+    }
+    if (!isPasswordValid(password)) {
+      setPasswordError(PASSWORD_HINT);
+      return;
+    }
+    if (view === "create-account" && !passwordsMatch(password, confirmPassword)) {
+      setConfirmPasswordError("Passwords don't match.");
       return;
     }
 
@@ -104,7 +131,15 @@ export function LoginForm() {
   async function handleForgotSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!email.trim()) { setError("Enter your email address."); return; }
+    setEmailError(null);
+    if (!email.trim()) {
+      setEmailError("Email is required.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setEmailError(INVALID_EMAIL_MSG);
+      return;
+    }
 
     setBusy(true);
     try {
@@ -134,7 +169,13 @@ export function LoginForm() {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => { setConfirmationSent(false); setView("sign-in"); setPassword(""); setConfirmPassword(""); }}
+            onClick={() => {
+              setConfirmationSent(false);
+              setView("sign-in");
+              setPassword("");
+              setConfirmPassword("");
+              clearFieldErrors();
+            }}
           >
             Back to sign in
           </Button>
@@ -173,7 +214,11 @@ export function LoginForm() {
             </Button>
             <button
               type="button"
-              onClick={() => { setResetSent(false); setView("sign-in"); }}
+              onClick={() => {
+              setResetSent(false);
+              setView("sign-in");
+              clearFieldErrors();
+            }}
               className="font-sans text-xs text-slate-500 hover:text-slate-300"
             >
               Back to sign in
@@ -200,15 +245,31 @@ export function LoginForm() {
           </header>
 
           <form onSubmit={handleForgotSubmit} className="space-y-3">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-            />
+            <div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(null);
+                }}
+                onBlur={() => {
+                  if (!email.trim()) return;
+                  if (!isValidEmail(email)) setEmailError(INVALID_EMAIL_MSG);
+                  else setEmailError(null);
+                }}
+                autoComplete="email"
+                required
+                aria-invalid={Boolean(emailError)}
+                className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                  emailError
+                    ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                    : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+                }`}
+              />
+              {emailError ? <p className="mt-1.5 font-sans text-sm text-red-400">{emailError}</p> : null}
+            </div>
             <Button type="submit" variant="default" className="w-full" disabled={anyBusy}>
               {busy ? "Sending\u2026" : "Send reset link"}
             </Button>
@@ -218,7 +279,11 @@ export function LoginForm() {
 
           <button
             type="button"
-            onClick={() => { setView("sign-in"); setError(null); }}
+            onClick={() => {
+              setView("sign-in");
+              setError(null);
+              clearFieldErrors();
+            }}
             className="-mt-1 block w-full text-center font-sans text-sm font-medium text-[#94a3b8] underline decoration-[#94a3b8] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Back to sign in
@@ -250,7 +315,7 @@ export function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={anyBusy}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 font-sans text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-50"
+          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 font-sans text-sm font-medium tracking-normal text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-50"
         >
           <GoogleIcon />
           {googleBusy ? "Redirecting\u2026" : "Continue with Google"}
@@ -267,7 +332,11 @@ export function LoginForm() {
         <div className="grid grid-cols-2 gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1">
           <button
             type="button"
-            onClick={() => { setView("sign-in"); setError(null); }}
+            onClick={() => {
+              setView("sign-in");
+              setError(null);
+              clearFieldErrors();
+            }}
             className={`rounded-md px-3 py-2 font-sans text-sm font-medium transition-colors ${
               view === "sign-in" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
             }`}
@@ -276,7 +345,11 @@ export function LoginForm() {
           </button>
           <button
             type="button"
-            onClick={() => { setView("create-account"); setError(null); }}
+            onClick={() => {
+              setView("create-account");
+              setError(null);
+              clearFieldErrors();
+            }}
             className={`rounded-md px-3 py-2 font-sans text-sm font-medium transition-colors ${
               view === "create-account" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
             }`}
@@ -287,24 +360,56 @@ export function LoginForm() {
 
         {/* Email form */}
         <form onSubmit={handleEmailSubmit} className="space-y-3">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-          />
-          <PasswordInput
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
-            autoComplete={view === "sign-in" ? "current-password" : "new-password"}
-            required
-            minLength={6}
-            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
-          />
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null);
+              }}
+              onBlur={() => {
+                if (!email.trim()) return;
+                if (!isValidEmail(email)) setEmailError(INVALID_EMAIL_MSG);
+                else setEmailError(null);
+              }}
+              autoComplete="email"
+              required
+              aria-invalid={Boolean(emailError)}
+              className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                emailError
+                  ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                  : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+              }`}
+            />
+            {emailError ? <p className="mt-1.5 font-sans text-sm text-red-400">{emailError}</p> : null}
+          </div>
+          <div>
+            <PasswordInput
+              placeholder="Password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.currentTarget.value);
+                setPasswordError(null);
+              }}
+              onBlur={() => {
+                if (!password.length) return;
+                if (!isPasswordValid(password)) setPasswordError(PASSWORD_HINT);
+                else setPasswordError(null);
+              }}
+              autoComplete={view === "sign-in" ? "current-password" : "new-password"}
+              required
+              minLength={6}
+              aria-invalid={Boolean(passwordError)}
+              className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+                passwordError
+                  ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                  : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+              }`}
+            />
+            {passwordError ? <p className="mt-1.5 font-sans text-sm text-red-400">{passwordError}</p> : null}
+          </div>
           {view === "create-account" && (
             <>
               <ul className="space-y-1">
@@ -317,26 +422,36 @@ export function LoginForm() {
                   </li>
                 ))}
               </ul>
-              <PasswordInput
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-                autoComplete="new-password"
-                required
-                minLength={6}
-                className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
-              />
-              {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
-                <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
-              )}
+              <div>
+                <PasswordInput
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.currentTarget.value);
+                    setConfirmPasswordError(null);
+                  }}
+                  onBlur={() => {
+                    if (!confirmPassword.length) return;
+                    if (!passwordsMatch(password, confirmPassword)) setConfirmPasswordError("Passwords don't match.");
+                    else setConfirmPasswordError(null);
+                  }}
+                  autoComplete="new-password"
+                  required
+                  minLength={6}
+                  aria-invalid={Boolean(confirmPasswordError)}
+                  className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+                    confirmPasswordError
+                      ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                      : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+                  }`}
+                />
+                {confirmPasswordError ? (
+                  <p className="mt-1.5 font-sans text-sm text-red-400">{confirmPasswordError}</p>
+                ) : null}
+              </div>
             </>
           )}
-          <Button
-            type="submit"
-            variant="default"
-            className="w-full"
-            disabled={anyBusy || (view === "create-account" && (!isPasswordValid(password) || !passwordsMatch(password, confirmPassword)))}
-          >
+          <Button type="submit" variant="default" className="w-full" disabled={anyBusy}>
             {busy
               ? "Working\u2026"
               : view === "sign-in"
@@ -348,7 +463,11 @@ export function LoginForm() {
         {view === "sign-in" && (
           <button
             type="button"
-            onClick={() => { setView("forgot-password"); setError(null); }}
+            onClick={() => {
+              setView("forgot-password");
+              setError(null);
+              clearFieldErrors();
+            }}
             className="-mt-1 block w-full text-center font-sans text-sm font-medium text-[#94a3b8] underline decoration-[#94a3b8] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Forgot password?

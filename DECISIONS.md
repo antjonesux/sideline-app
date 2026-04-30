@@ -8,6 +8,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-04-30
+
+**Shared modal chrome + app shell titles + button typography (design tokens)**  
+**Decision:** `sideline/lib/constants/designTokens.ts` exports **`modalCtaFooterClass`** (bottom CTA row padding + safe-area), **`modalDialogTitleClass`** (modal/sheet title typography aligned to **`ConfirmDestructiveModal`**), and **`appShellPageTitleClass`** (main shell page titles aligned to the landing wordmark’s Barlow bold / tracking / uppercase treatment **without** glow). Film **end game (final score)** confirmation stays on **Radix `Dialog`** and uses the same header/body/footer structure and tokens as other confirms. **`Button`** variants used across CTAs (**`default`**, **`destructive`**, **`outline`**, **`secondary`**, **`ghost`**, **`size.lg`**) standardize on **`font-sans`**, **`font-medium`**, **`tracking-normal`** (Settings **Sign out** as the reference). Auth surfaces add **client-only** email format checks (**`lib/emailValidation.ts`**) and password inline errors (blur + submit; clear on type) with no API or schema changes.  
+**Why:** Inconsistent modal footers, headers, button weight, and auth field feedback read as unfinished; central tokens reduce drift when adding dialogs.  
+**Impact:** Prefer reusing the three token exports for new modals/sheets. **`appShellPageTitleClass` applies `uppercase`** — dynamic titles (e.g. play sheet name) render in all caps; change the call site if product wants sentence case for dynamic strings only.
+
+---
+
 ## 2026-04-29
 
 **Film `PlayLoggerV2`: My Sheet chips + situational explainer (shipped UX)**  
@@ -22,7 +31,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 **Preline removed; shadcn/ui is the component standard**  
 **Decision:** By default, interactive primitives (dialogs, dropdowns, tabs, select, buttons) for **new and shared surfaces** ship via **shadcn/ui** on Radix under `sideline/components/ui/`; **Preline** scripts and markup are removed from the app. **Toast** and bespoke surfaces stay on existing Sideline components unless migrated intentionally.  
 **Why:** One supported stack, predictable focus/modality behavior, and alignment with Tailwind v4 + CSS variable theming already in `globals.css`.  
-**Impact:** New UI work extends shadcn patterns and tokens; `BUILD_CONTRACT.md` and this log supersede older “Preline-first” wording. Tendencies playbook/opponent filters keep **`usePortalDropdown`** + **`z-[70]`** where tab animation stacking still applies. Some Film game-detail surfaces (e.g. end game, drive setup, full-screen logger) remain **legacy fixed overlays** until ported to **`Dialog`** — see **`BUILD_CONTRACT.md`** UI rules.
+**Impact:** New UI work extends shadcn patterns and tokens; `BUILD_CONTRACT.md` and this log supersede older “Preline-first” wording. Tendencies playbook/opponent filters keep **`usePortalDropdown`** + **`z-[70]`** where tab animation stacking still applies. On Film game detail, **end game (final score)** confirmation ships as **Radix `Dialog`** (styled with shared modal tokens as of **2026-04-30**). **Drive setup** and the **full-screen play logger** shell remain **hand-rolled `fixed` overlays** until intentionally migrated to **`Dialog`** — see **`BUILD_CONTRACT.md`** UI rules.
 
 ---
 

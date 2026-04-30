@@ -51,6 +51,18 @@ export const tokens = {
  * Film hand-rolled logger / Add Play shells (`filmBackdrop` / `filmShell`).
  * Radix portaled menus must sit above `filmShell` or clicks hit the backdrop instead.
  */
+/** Bottom CTA strip for modals / bottom sheets — consistent horizontal padding and safe-area inset. */
+export const modalCtaFooterClass =
+  "flex shrink-0 gap-3 border-t border-slate-800 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-5 sm:pb-6";
+
+/** Primary dialog / sheet title — matches destructive confirm + playbook dialogs. */
+export const modalDialogTitleClass =
+  "font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100";
+
+/** App shell page titles — matches landing wordmark typography (Barlow bold uppercase; no glow). */
+export const appShellPageTitleClass =
+  "font-sans text-3xl leading-none font-bold uppercase tracking-[1.08px] text-white sm:text-4xl";
+
 export const overlayZ = {
   bottomNav: "z-40",
   /** Tendencies playbook / opponent menus (`usePortalDropdown` path). */

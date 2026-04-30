@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-30 — UI consistency: modal tokens, auth validation, buttons, page titles
+
+### What
+
+- [`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts): **`modalCtaFooterClass`**, **`modalDialogTitleClass`**, **`appShellPageTitleClass`** for shared modal footers, dialog titles, and shell page headers.
+- Modals/sheets aligned to those tokens: [`ConfirmDestructiveModal`](sideline/components/shared/ConfirmDestructiveModal.tsx), [`CreatePlaybookModal`](sideline/components/playbook/CreatePlaybookModal.tsx), [`EditPlaybookModal`](sideline/components/playbook/EditPlaybookModal.tsx), [`PlaybookEditor`](sideline/components/playbook/PlaybookEditor.tsx) (inline edit + Replace play), [`DriveSetupForm`](sideline/components/film/DriveSetupForm.tsx), [`EditGameDetailsModal`](sideline/components/film/EditGameDetailsModal.tsx), [`SettingsPageClient`](sideline/app/settings/SettingsPageClient.tsx) bottom sheets (including Cancel on update password / sign out), [`app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx) end-game score **`Dialog`** (header/body/footer parity with other confirms).
+- [`sideline/components/ui/button.tsx`](sideline/components/ui/button.tsx): **`font-sans`**, **`font-medium`**, **`tracking-normal`** on **`default`**, **`destructive`**, **`outline`**, **`secondary`**, **`ghost`**, and **`size.lg`**.
+- Auth: [`LoginForm.tsx`](sideline/app/login/LoginForm.tsx), [`ResetPasswordForm.tsx`](sideline/app/reset-password/ResetPasswordForm.tsx), new [`lib/emailValidation.ts`](sideline/lib/emailValidation.ts) (inline email/password validation, blur + submit).
+- Page titles: [`app/film/page.tsx`](sideline/app/film/page.tsx), [`PlaybookHome`](sideline/components/playbook/PlaybookHome.tsx), [`TendenciesHome`](sideline/components/tendencies/TendenciesHome.tsx), settings header, play sheet name on editor; [`app/film/new/page.tsx`](sideline/app/film/new/page.tsx) uses **`modalDialogTitleClass`** for **New game setup**.
+- [`HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): **Get started** CTA weight/tracking aligned with button standard.
+- [`DECISIONS.md`](DECISIONS.md) **2026-04-30** entry + correction under **2026-04-24** (end game is **`Dialog`**; drive setup + logger remain hand-rolled). [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) Film UI bullet updated to match.
+
+### Why
+
+Polish across Film, Game Plan, Tendencies, settings, and auth without API or data-model changes; one place for modal footer/title rhythm; decision log and contract match shipped behavior.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — Landing wordmark glow tune + login tertiary link styling
 
 ### What

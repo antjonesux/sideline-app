@@ -7,10 +7,10 @@ import { PasswordInput } from "@/components/shared/PasswordInput";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
-import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
+import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
-import { overlayZ } from "@/lib/constants/designTokens";
+import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -38,6 +38,8 @@ export function SettingsPageClient({ email }: { email: string }) {
   const [confirmPw, setConfirmPw] = useState("");
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwBusy, setPwBusy] = useState(false);
+  const [newPwBlurred, setNewPwBlurred] = useState(false);
+  const [confirmPwBlurred, setConfirmPwBlurred] = useState(false);
 
   const pwRules = passwordRuleChecks(newPassword);
   const pwValid = isPasswordValid(newPassword) && passwordsMatch(newPassword, confirmPw);
@@ -47,10 +49,20 @@ export function SettingsPageClient({ email }: { email: string }) {
     setConfirmPw("");
     setPwError(null);
     setPwBusy(false);
+    setNewPwBlurred(false);
+    setConfirmPwBlurred(false);
   }
 
   async function handleUpdatePassword() {
     setPwError(null);
+    setNewPwBlurred(true);
+    setConfirmPwBlurred(true);
+    if (!isPasswordValid(newPassword)) {
+      return;
+    }
+    if (!passwordsMatch(newPassword, confirmPw)) {
+      return;
+    }
     setPwBusy(true);
     const { error } = await updatePassword(newPassword);
     if (error) {
@@ -120,7 +132,7 @@ export function SettingsPageClient({ email }: { email: string }) {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl min-w-0 truncate">Settings</h1>
+        <h1 className={`${appShellPageTitleClass} min-w-0 truncate`}>Settings</h1>
       </header>
 
       {/* Account section */}
@@ -163,9 +175,14 @@ export function SettingsPageClient({ email }: { email: string }) {
         onClose={closeDrawer}
         title="Update password"
         footer={
-          <Button type="submit" form="settings-password-form" variant="default" className="w-full" disabled={!pwValid || pwBusy}>
-            {pwBusy ? "Updating…" : "Update password"}
-          </Button>
+          <>
+            <Button type="button" variant="secondary" className="flex-1" disabled={pwBusy} onClick={closeDrawer}>
+              Cancel
+            </Button>
+            <Button type="submit" form="settings-password-form" variant="default" className="flex-1" disabled={!pwValid || pwBusy}>
+              {pwBusy ? "Updating…" : "Update password"}
+            </Button>
+          </>
         }
       >
         <form
@@ -180,12 +197,24 @@ export function SettingsPageClient({ email }: { email: string }) {
             <PasswordInput
               placeholder="New password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.currentTarget.value)}
+              onChange={(e) => {
+                setNewPassword(e.currentTarget.value);
+                setNewPwBlurred(false);
+              }}
+              onBlur={() => setNewPwBlurred(true)}
               autoComplete="new-password"
               required
               minLength={6}
-              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
+              aria-invalid={newPwBlurred && newPassword.length > 0 && !isPasswordValid(newPassword)}
+              className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+                newPwBlurred && newPassword.length > 0 && !isPasswordValid(newPassword)
+                  ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                  : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+              }`}
             />
+            {newPwBlurred && newPassword.length > 0 && !isPasswordValid(newPassword) ? (
+              <p className="mt-1.5 font-sans text-sm text-red-400">{PASSWORD_HINT}</p>
+            ) : null}
             <ul className="mt-2 space-y-1">
               {pwRules.map((r) => (
                 <li key={r.label} className="flex items-center gap-2 font-sans text-xs">
@@ -200,15 +229,24 @@ export function SettingsPageClient({ email }: { email: string }) {
           <PasswordInput
             placeholder="Confirm new password"
             value={confirmPw}
-            onChange={(e) => setConfirmPw(e.currentTarget.value)}
+            onChange={(e) => {
+              setConfirmPw(e.currentTarget.value);
+              setConfirmPwBlurred(false);
+            }}
+            onBlur={() => setConfirmPwBlurred(true)}
             autoComplete="new-password"
             required
             minLength={6}
-            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
+            aria-invalid={confirmPwBlurred && confirmPw.length > 0 && !passwordsMatch(newPassword, confirmPw)}
+            className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+              confirmPwBlurred && confirmPw.length > 0 && !passwordsMatch(newPassword, confirmPw)
+                ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+            }`}
           />
-          {confirmPw.length > 0 && !passwordsMatch(newPassword, confirmPw) && (
-            <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
-          )}
+          {confirmPwBlurred && confirmPw.length > 0 && !passwordsMatch(newPassword, confirmPw) ? (
+            <p className="mt-1.5 font-sans text-sm text-red-400">Passwords don&apos;t match.</p>
+          ) : null}
           {pwError && <p className="font-sans text-sm text-red-400">{pwError}</p>}
         </form>
       </BottomSheet>
@@ -219,9 +257,14 @@ export function SettingsPageClient({ email }: { email: string }) {
         onClose={closeDrawer}
         title="Sign out"
         footer={
-          <Button type="button" variant="default" className="w-full" disabled={signOutBusy} onClick={() => void handleSignOut()}>
-            {signOutBusy ? "Signing out…" : "Sign out"}
-          </Button>
+          <>
+            <Button type="button" variant="secondary" className="flex-1" disabled={signOutBusy} onClick={closeDrawer}>
+              Cancel
+            </Button>
+            <Button type="button" variant="default" className="flex-1" disabled={signOutBusy} onClick={() => void handleSignOut()}>
+              {signOutBusy ? "Signing out…" : "Sign out"}
+            </Button>
+          </>
         }
       >
         <p className="font-sans text-sm text-slate-400">
@@ -327,9 +370,7 @@ function BottomSheet({
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
           {footer ? (
-            <div className="shrink-0 border-t border-slate-800 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:p-6 sm:pb-6">
-              {footer}
-            </div>
+            <div className={modalCtaFooterClass}>{footer}</div>
           ) : null}
         </div>
       </div>

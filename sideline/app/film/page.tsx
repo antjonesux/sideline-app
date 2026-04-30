@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
@@ -118,7 +119,7 @@ export default async function FilmRoomPage() {
   return (
     <section className="space-y-6">
       <header className="space-y-4">
-        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4">
+        <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4`}>
           <span className="min-w-0">Film room</span>
           <SettingsLink />
         </h1>

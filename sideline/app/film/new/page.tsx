@@ -4,6 +4,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { modalDialogTitleClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { emitProductEvent } from "@/lib/productAnalytics";
@@ -260,7 +261,7 @@ export default function NewGamePage() {
           <NewGameFormSkeleton />
         ) : (
           <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">New game setup</h1>
+          <h1 className={modalDialogTitleClass}>New game setup</h1>
 
           {setupError ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">

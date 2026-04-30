@@ -35,7 +35,7 @@ import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
-import { overlayZ } from "@/lib/constants/designTokens";
+import { modalCtaFooterClass, modalDialogTitleClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
@@ -915,50 +915,53 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         <DialogContent
           overlayClassName="z-[189] bg-black/70"
           className={cn(
-            "max-h-[90vh] gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 dark:bg-slate-900",
-            "fixed bottom-0 left-1/2 top-auto z-[190] grid w-[calc(100%-1rem)] max-w-sm -translate-x-1/2 translate-y-0 rounded-b-none rounded-t-xl border shadow-xl sm:bottom-auto sm:top-[50%] sm:max-h-[85vh] sm:-translate-y-1/2 sm:rounded-xl",
-            "[&>button]:right-3 [&>button]:top-3 [&>button]:text-slate-400 [&>button]:hover:text-white [&>button]:ring-offset-slate-900",
+            "fixed inset-x-0 bottom-0 left-0 top-auto z-[190] flex max-h-[90vh] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border border-slate-700 bg-slate-900 p-0 text-slate-100 dark:bg-slate-900",
+            "sm:left-[50%] sm:top-[50%] sm:max-h-[90vh] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg",
+            "[&>button]:right-4 [&>button]:top-4 [&>button]:text-slate-400 [&>button]:hover:text-white [&>button]:ring-offset-slate-900",
           )}
         >
-          <DialogHeader className="space-y-0 border-b border-slate-800 p-3 pr-10 text-left">
-            <DialogTitle className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
-              {FILM_END_GAME_SCORE_TITLE}
-            </DialogTitle>
+          <DialogHeader className="space-y-0 border-b border-slate-800 px-4 py-3 text-left sm:px-6 sm:text-left">
+            <DialogTitle className={cn("pr-10 text-left", modalDialogTitleClass)}>{FILM_END_GAME_SCORE_TITLE}</DialogTitle>
           </DialogHeader>
-          <DialogDescription className="px-3 pb-2 text-left font-sans text-sm text-slate-400">
-            {FILM_END_GAME_SCORE_BODY}
-          </DialogDescription>
-          <div className="grid grid-cols-2 gap-3 px-3 pb-3">
-            <div>
-              <label htmlFor="film-end-score-mine" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
-                Your score
-              </label>
-              <input
-                id="film-end-score-mine"
-                inputMode="numeric"
-                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
-                value={endGameScoreMine}
-                onChange={(e) => setEndGameScoreMine(e.target.value.replace(/\D/g, ""))}
-              />
-            </div>
-            <div>
-              <label htmlFor="film-end-score-opp" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
-                Their score
-              </label>
-              <input
-                id="film-end-score-opp"
-                inputMode="numeric"
-                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
-                value={endGameScoreOpp}
-                onChange={(e) => setEndGameScoreOpp(e.target.value.replace(/\D/g, ""))}
-              />
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+            <DialogDescription asChild>
+              <p className="font-body text-sm leading-relaxed text-slate-300">{FILM_END_GAME_SCORE_BODY}</p>
+            </DialogDescription>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="film-end-score-mine" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
+                  Your score
+                </label>
+                <input
+                  id="film-end-score-mine"
+                  inputMode="numeric"
+                  className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
+                  value={endGameScoreMine}
+                  onChange={(e) => setEndGameScoreMine(e.target.value.replace(/\D/g, ""))}
+                />
+              </div>
+              <div>
+                <label htmlFor="film-end-score-opp" className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-slate-500">
+                  Their score
+                </label>
+                <input
+                  id="film-end-score-opp"
+                  inputMode="numeric"
+                  className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 font-mono tabular-nums text-white"
+                  value={endGameScoreOpp}
+                  onChange={(e) => setEndGameScoreOpp(e.target.value.replace(/\D/g, ""))}
+                />
+              </div>
             </div>
           </div>
-          <div className="flex flex-shrink-0 flex-col gap-3 border-t border-slate-800 p-3">
+          <div className={modalCtaFooterClass}>
+            <Button type="button" variant="secondary" className="flex-1 py-3" disabled={endingGame} onClick={() => setShowEndGameModal(false)}>
+              Cancel
+            </Button>
             <Button
               type="button"
               variant="destructive"
-              className="w-full"
+              className="flex-1 py-3"
               disabled={endingGame}
               onClick={() => {
                 const mine = Math.max(0, Number.parseInt(endGameScoreMine.replace(/\D/g, "") || "0", 10) || 0);
@@ -968,9 +971,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             >
               {FILM_END_GAME_CONFIRM_CTA}
             </Button>
-            <Button type="button" variant="secondary" className="w-full" onClick={() => setShowEndGameModal(false)}>
-              Cancel
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -979,8 +979,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
           <div className="fixed inset-x-0 bottom-0 z-[196] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
             <div className="overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:rounded-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 p-3">
-                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">Drive Setup</h2>
+              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3 sm:px-6">
+                <h2 className={modalDialogTitleClass}>Drive Setup</h2>
                 <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
                     <path d="M6 6 18 18M18 6 6 18" />

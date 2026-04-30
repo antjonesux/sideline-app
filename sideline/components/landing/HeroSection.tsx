@@ -75,7 +75,7 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
 
           <Link
             href={getStartedHref}
-            className="mt-8 flex h-12 w-full items-center justify-center rounded-[8px] bg-[#059669] font-sans text-sm font-semibold leading-5 tracking-[0.42px] text-white transition-colors hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            className="mt-8 flex h-12 w-full items-center justify-center rounded-[8px] bg-[#059669] font-sans text-sm font-medium leading-5 tracking-normal text-white transition-colors hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Get started
           </Link>

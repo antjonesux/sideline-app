@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import type { GameSession } from "@/lib/types";
@@ -476,7 +477,7 @@ export function EditGameDetailsModal({
               </div>
 
               </div>
-              <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
+              <div className={modalCtaFooterClass}>
                 <Button type="button" variant="secondary" className="flex-1" onClick={() => setIsOpen(false)}>
                   Cancel
                 </Button>

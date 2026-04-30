@@ -9,6 +9,7 @@ import { CreatePlaybookModal } from "./CreatePlaybookModal";
 import { PlaybookCard } from "./PlaybookCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
 import { Button } from "@/components/ui/button";
+import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 
 function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   if (Array.isArray(payload)) return payload as PlaybookSummary[];
@@ -97,7 +98,7 @@ export function PlaybookHome({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl flex w-full min-w-0 items-center justify-between gap-4">
+        <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4`}>
           <span className="min-w-0">Game Plan</span>
           <SettingsLink />
         </h1>

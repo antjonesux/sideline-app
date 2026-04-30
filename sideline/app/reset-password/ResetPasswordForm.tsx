@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
-import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
+import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 
 export function ResetPasswordForm() {
   const { updatePassword, user, isLoading } = useAuth();
@@ -13,6 +13,8 @@ export function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [pwBlurred, setPwBlurred] = useState(false);
+  const [confirmBlurred, setConfirmBlurred] = useState(false);
 
   if (isLoading) {
     return (
@@ -59,18 +61,17 @@ export function ResetPasswordForm() {
   }
 
   const pwRules = passwordRuleChecks(password);
-  const pwValid = isPasswordValid(password) && passwordsMatch(password, confirmPassword);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setPwBlurred(true);
+    setConfirmBlurred(true);
 
     if (!isPasswordValid(password)) {
-      setError("Password must be at least 6 characters.");
       return;
     }
     if (!passwordsMatch(password, confirmPassword)) {
-      setError("Passwords don't match.");
       return;
     }
 
@@ -101,12 +102,24 @@ export function ResetPasswordForm() {
             <PasswordInput
               placeholder="New password"
               value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
+              onChange={(e) => {
+                setPassword(e.currentTarget.value);
+                setPwBlurred(false);
+              }}
+              onBlur={() => setPwBlurred(true)}
               autoComplete="new-password"
               required
               minLength={6}
-              className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
+              aria-invalid={pwBlurred && password.length > 0 && !isPasswordValid(password)}
+              className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+                pwBlurred && password.length > 0 && !isPasswordValid(password)
+                  ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                  : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+              }`}
             />
+            {pwBlurred && password.length > 0 && !isPasswordValid(password) ? (
+              <p className="mt-1.5 font-sans text-sm text-red-400">{PASSWORD_HINT}</p>
+            ) : null}
             <ul className="mt-2 space-y-1">
               {pwRules.map((r) => (
                 <li key={r.label} className="flex items-center gap-2 font-sans text-xs">
@@ -121,16 +134,25 @@ export function ResetPasswordForm() {
           <PasswordInput
             placeholder="Confirm new password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.currentTarget.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.currentTarget.value);
+              setConfirmBlurred(false);
+            }}
+            onBlur={() => setConfirmBlurred(true)}
             autoComplete="new-password"
             required
             minLength={6}
-            className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 pr-10"
+            aria-invalid={confirmBlurred && confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword)}
+            className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
+              confirmBlurred && confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword)
+                ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/25"
+                : "border-slate-700 focus:border-emerald-600/60 focus:ring-emerald-500/25"
+            }`}
           />
-          {confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) && (
-            <p className="font-sans text-xs text-red-400">Passwords don't match.</p>
-          )}
-          <Button type="submit" variant="default" className="w-full" disabled={!pwValid || busy}>
+          {confirmBlurred && confirmPassword.length > 0 && !passwordsMatch(password, confirmPassword) ? (
+            <p className="mt-1.5 font-sans text-sm text-red-400">Passwords don&apos;t match.</p>
+          ) : null}
+          <Button type="submit" variant="default" className="w-full" disabled={busy}>
             {busy ? "Updating\u2026" : "Update password"}
           </Button>
         </form>

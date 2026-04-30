@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-30 (UI consistency — modal tokens, auth validation, buttons, page titles)
+
+**What:** `lib/constants/designTokens.ts` adds **`modalCtaFooterClass`**, **`modalDialogTitleClass`**, **`appShellPageTitleClass`**. **`ConfirmDestructiveModal`**, playbook create/edit/replace, **`DriveSetupForm`**, **`EditGameDetailsModal`**, settings **`BottomSheet`** footers (Cancel on password + sign out), and **`app/film/[gameId]/page.tsx`** end-game score **`Dialog`** use the shared footer/header/body patterns. **`components/ui/button.tsx`** unifies sans **medium** + **normal** tracking on **`default`** / **`destructive`** / **`outline`** / **`secondary`** / **`ghost`** / **`lg`**. **`app/login/LoginForm.tsx`**, **`app/reset-password/ResetPasswordForm.tsx`**, new **`lib/emailValidation.ts`**. Film / Game Plan / Tendencies / settings / editor page titles; **`app/film/new/page.tsx`** modal-style **New game setup** title. **`components/landing/HeroSection.tsx`** Get started CTA. Repo **`DECISIONS.md`** (new **2026-04-30** + **2026-04-24** correction) and **`BUILD_CONTRACT.md`** Film overlay line.
+
+**Why:** Consistent modal chrome and coach-visible typography; inline auth validation without backend changes; OS docs match code (end game = **`Dialog`**; drive setup + logger = legacy overlays).
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-30 (Landing background grid polish — full-bleed sharp playbook pattern + spacing tune)
 
 **What:** `components/landing/HeroSection.tsx` adds a full-viewport, non-interactive SVG background for `/landing` (`fixed inset-0 h-screen w-screen pointer-events-none`) so the grid is full-bleed. The grid pattern is now a sharp two-layer playbook treatment (`grid-minor` 48px + `grid-major` 192px), rounded major cells and temporary hash rails/lines are removed, and grid stroke opacity is reduced for a subtler result. Existing emerald glow + edge fade layers remain unchanged. Landing vertical spacing is tightened with `pt-6` on the section and `mt-5` before the headline/copy/CTA block.

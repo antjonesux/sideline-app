@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { Button } from "@/components/ui/button";
+import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { useState } from "react";
 
 export type Quarter = "1" | "2" | "3" | "4" | "OT";
@@ -61,7 +62,8 @@ export function DriveSetupForm({
   }
 
   return (
-    <div className="space-y-3 p-3">
+    <>
+    <div className="space-y-3 px-4 pb-4 pt-4 sm:px-6">
       <p className="font-sans text-sm text-slate-300">Set the drive start situation.</p>
 
       <div>
@@ -179,14 +181,15 @@ export function DriveSetupForm({
           />
         </label>
       </div>
-      <div className="flex gap-2 pt-2">
-        <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="button" variant="default" className="flex-1" disabled={!startingYardValid || busy} onClick={() => void submit()}>
-          Start Drive
-        </Button>
-      </div>
     </div>
+    <div className={modalCtaFooterClass}>
+      <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button type="button" variant="default" className="flex-1" disabled={!startingYardValid || busy} onClick={() => void submit()}>
+        Start Drive
+      </Button>
+    </div>
+    </>
   );
 }

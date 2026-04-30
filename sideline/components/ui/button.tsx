@@ -12,20 +12,21 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-lg bg-primary font-heading text-sm font-semibold tracking-[0.1em] text-primary-foreground hover:bg-[var(--primary-hover)]",
+          "rounded-lg bg-primary font-sans text-sm font-medium tracking-normal text-primary-foreground hover:bg-[var(--primary-hover)]",
         destructive:
-          "rounded-lg border border-destructive/50 bg-transparent font-body text-sm font-semibold tracking-wide text-destructive hover:border-destructive hover:text-destructive",
+          "rounded-lg border border-destructive/50 bg-transparent font-sans text-sm font-medium tracking-normal text-destructive hover:border-destructive hover:text-destructive",
         outline:
-          "rounded-lg border border-input bg-background font-body text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+          "rounded-lg border border-input bg-background font-sans text-sm font-medium tracking-normal hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "rounded-lg border border-input bg-transparent font-body text-sm font-medium tracking-wide text-muted-foreground hover:border-border hover:text-foreground",
-        ghost: "rounded-md font-body text-sm hover:bg-accent hover:text-accent-foreground",
+          "rounded-lg border border-input bg-transparent font-sans text-sm font-medium tracking-normal text-muted-foreground hover:border-border hover:text-foreground",
+        ghost:
+          "rounded-md font-sans text-sm font-medium tracking-normal hover:bg-accent hover:text-accent-foreground",
         link: "h-auto min-h-0 rounded-none p-0 font-body text-sm font-medium normal-case tracking-normal text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "min-h-11 px-4 py-2.5",
         sm: "min-h-9 rounded-md px-3 py-2 text-xs",
-        lg: "min-h-11 px-4 py-4 font-heading text-base font-semibold tracking-[0.1em]",
+        lg: "min-h-11 px-4 py-4 font-sans text-base font-medium tracking-normal",
         icon: "size-10 min-h-10 min-w-10 shrink-0 rounded-md p-0",
       },
     },

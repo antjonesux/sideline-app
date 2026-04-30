@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { PlaybookSummary } from "@/lib/types";
+import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -140,14 +141,10 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
             <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
           </div>
 
-          <div className="flex shrink-0 gap-3 border-t border-slate-800 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-5">
-            <button
-              type="button"
-              className="min-h-11 flex-1 rounded-lg px-4 py-2.5 text-center font-body text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-100"
-              onClick={onClose}
-            >
+          <div className={modalCtaFooterClass}>
+            <Button type="button" variant="secondary" className="min-h-11 flex-1" onClick={onClose}>
               Cancel
-            </button>
+            </Button>
             <Button type="submit" variant="default" className="min-h-11 flex-1" disabled={busy || !canSave}>
               {busy ? "Saving…" : "Save changes"}
             </Button>
