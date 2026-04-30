@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-04-29 (Landing — static hero, carousel removal, wordmark token, scroll fix)
+
+**What:** **`/landing`**: **`HeroSection`** static hero (wordmark, PNG, CTAs via **`buildLoginHref`** with optional **`next`**); **`min-h-[100dvh]`** + **`overflow-y-auto`** + **`overflow-x-hidden`** (no **`overflow-y-hidden`** clip). **`lib/landing/appWordmarkStyle.ts`**; **`LoginForm`** uses shared wordmark style. **`app/layout.tsx`**: Barlow **700**. Deleted **`OnboardingCarousel`**, **`CarouselDots`**, **`GetStartedButton`**, **`SignInLink`**, **`lib/landing/onboardingSlides.ts`**; **`public/onboarding/`** slide PNGs removed, **`hero-showcase.png`** added. Repo **`BUILD_CONTRACT.md`** repo map updated.
+
+**Why:** Marketing matches product; remove orphan carousel code; accessibility / zoom; OS doc accuracy.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-04-29 (Film play logger — My Sheet situation chips, situational copy, playbook overview fetch)
 
 **What:** **`PlayLoggerV2`**: **My Sheet** adds a **horizontally scrollable** strip of **all** bound-sheet scenarios (Game Plan–style **n/max** pills), **TanStack** load via **`fetchPlaySheetOverview`** (`GET /api/playbook/[id]`) and **`filmLoggerQueryKeys.playSheetOverview`**; plays for the selected chip use **`fetchPlaySheetScenarioCalls`** with the existing **`sheetScenario`** query key (shared cache with **`usePlaySuggestions`** when the chip matches the derived scenario). **`useLayoutEffect`** keeps the selected chip aligned with **`scenarioLabel`** when **My Sheet** is active. Subtitle **“Based on {sheet name} play sheet”**; no separate **YOUR CALLS** heading in that tab. **Situational** tab: one explainer line from **`filmLoggerYouveBeenCallingHint`** (`coachCopy.ts`); removed **“You’ve been calling…”** label. **`filmLoggerCallingSuggestions.ts`** comment only. Repo **`BUILD_CONTRACT.md`** and **`DECISIONS.md`** updated to match shipped UX and symbol names.

@@ -6,7 +6,7 @@ import BottomTabNav from "@/components/shared/BottomTabNav";
 
 import { Toast } from "@/components/shared/Toast";
 
-const barlow = Barlow({ variable: "--font-barlow", weight: ["400", "500", "600"], subsets: ["latin"] });
+const barlow = Barlow({ variable: "--font-barlow", weight: ["400", "500", "600", "700"], subsets: ["latin"] });
 const barlowCondensed = Barlow_Condensed({ variable: "--font-barlow-condensed", weight: ["600", "700"], subsets: ["latin"] });
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",

@@ -41,7 +41,7 @@ Only establish a new convention when the change is intentional and scoped.
 |----------|------|
 | `sideline/` | Next.js app: `npm run dev`, `npm run build`, `npm run lint` |
 | `sideline/app/` | App Router pages and `api/` routes |
-| `sideline/app/landing/` | Marketing welcome + onboarding carousel; primary unauth entry before sign-in |
+| `sideline/app/landing/` | Marketing welcome — static hero (showcase image, copy, CTAs into auth via **`buildLoginHref`** — create-account and sign-in preserve optional **`next`**; **`/signup`** remains a redirect to **`/login?register=1`**); primary unauth entry before sign-in |
 | `sideline/components/shared/` | Cross-feature UI (nav, tables, modals, toasts) |
 | `sideline/components/film/`, `playbook/`, `tendencies/`, … | Feature UI |
 | `sideline/lib/` | Types, Supabase helpers, engines (`gameStateEngine`, `driveOutcome`, `fieldPosition`), `playTypeResolution`, copy helpers |

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { OnboardingCarousel } from "@/components/landing/OnboardingCarousel";
+import { HeroSection } from "@/components/landing/HeroSection";
 
 export const metadata: Metadata = {
   title: "Welcome — The Sideline",
-  description: "Build your game plan, call the game, and see your tendencies — before kickoff and after the whistle.",
+  description:
+    "The play-calling companion for College Football 26. Build your game plan, track your tendencies, and see what's actually working.",
 };
 
 function first(param: string | string[] | undefined): string | undefined {
@@ -21,5 +22,5 @@ export default async function LandingPage({
   const nextFromUrl =
     typeof raw === "string" && raw.startsWith("/") && !raw.startsWith("//") ? raw : undefined;
 
-  return <OnboardingCarousel nextFromUrl={nextFromUrl} />;
+  return <HeroSection nextFromUrl={nextFromUrl} />;
 }

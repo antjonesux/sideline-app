@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-04-29 — Landing: static marketing hero, remove carousel, docs + a11y
+
+### What
+
+- [`sideline/app/landing/page.tsx`](sideline/app/landing/page.tsx) + [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): **`/landing`** is a **static** full-viewport hero (wordmark, **`hero-showcase.png`**, headline, supporting copy; CTAs use **`buildLoginHref`** so **Get started** / **Sign in** match auth flows and preserve safe **`?next=`** from the landing URL). Section uses **`min-h-[100dvh]`**, **`overflow-x-hidden`**, and **`overflow-y-auto`** so large text / small viewports can scroll instead of clipping.
+- [`sideline/lib/landing/appWordmarkStyle.ts`](sideline/lib/landing/appWordmarkStyle.ts): shared glow style for the **The Sideline** wordmark; [`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx) imports it for the main auth header.
+- [`sideline/app/layout.tsx`](sideline/app/layout.tsx): **Barlow** font weights include **700** so the landing headline can use true bold.
+- Removed unused carousel stack: **`OnboardingCarousel`**, **`CarouselDots`**, **`GetStartedButton`**, **`SignInLink`**, **`lib/landing/onboardingSlides.ts`**.
+- **`sideline/public/onboarding/`**: removed **`slide-1.png`–`slide-4.png`**; added **`hero-showcase.png`** as the single precomposed marketing hero image.
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md): repo map describes **`/landing`** as the static marketing hero (not the old carousel).
+
+### Why
+
+Align shipped marketing with the unauth entry contract; drop dead code; fix vertical **`overflow-y-hidden`** clipping risk from review; single source for wordmark styling.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-29 — Film play logger: My Sheet situation chips, situational explainer, sheet overview fetch
 
 ### What

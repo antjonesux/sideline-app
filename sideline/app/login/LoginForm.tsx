@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
+import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { buildLandingHref } from "@/lib/navigation/loginHref";
 
 type View = "sign-in" | "create-account" | "forgot-password";
@@ -235,10 +236,7 @@ export function LoginForm() {
         <header className="text-center">
           <h1
             className="font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
-            style={{
-              textShadow: "0px 0px 24px rgba(51, 65, 85, 0.3)",
-              filter: "drop-shadow(0px 0px 12px #1f3d35)",
-            }}
+            style={appWordmarkStyle}
           >
             The Sideline
           </h1>
