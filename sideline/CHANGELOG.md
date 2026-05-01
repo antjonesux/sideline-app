@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-01 (Onboarding QA — home→Game Plan, guided chrome, logger, first-drive readout, docs)
+
+**What:** Repo **`BUILD_CONTRACT.md`** + **`DECISIONS.md`**: home onboarding handoff (**carousel → `/playbook?create=1&onboarding=1`**); guided **My Sheet** scenario lock vs **2026-04-29** chip behavior. **`HomeOnboardingGate`**, **`PlaybookHome`**, **`CreatePlaybookModal`** (**`onboardingFullPage`**), **`PlaybookEditor`** (onboarding footer, **`sheetScenario`** on take-the-field). **`BottomTabNav`** + **`app/layout.tsx`** (**`Suspense`**, **`useSearchParams`**, **`data-onboarding-chrome`** for **`onboarding=1`** / **`guided=1`**). **`app/film/[gameId]/page.tsx`**, **`PlayLoggerV2`**, **`YardageSheet`**, **`lib/coachCopy.ts`**, **`lib/guidedOnboardingInsight.ts`**, **`GuidedFirstDriveInsight`** (**`PlayTypeDistribution`**).
+
+**Why:** Onboarding QA brief: remove duplicate playbook step, full-page create, hide bottom nav during onboarding, guided logger header + My Sheet momentum, ball-spot helper, first-drive insight styling and chart parity.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-05-02 (Film — first drive breakdown: Radix Dialog, copy module)
 
 **What:** **`lib/guidedFirstDriveCopy.ts`**: Centralized coach strings for the guided first-drive insight (eyebrow, headlines, nudges, primary templates). **`lib/guidedOnboardingInsight.ts`**: **`buildFirstDriveCoachingReadout`** reads from that module; **`FirstDriveCoachingReadout`** drops redundant **`eyebrow`**; **`guidedInsightFromLoggedPlays`** moved here from **`coachCopy.ts`**. **`components/film/GuidedFirstDriveInsight.tsx`**: **`Dialog`** / **`DialogContent`** with **`hideCloseButton`**, blocked outside/Esc dismiss, mobile bottom-sheet–style chrome + **`modalCtaFooterClass`** CTA row. **`components/ui/dialog.tsx`**: optional **`hideCloseButton`**. **`app/film/[gameId]/page.tsx`**: controlled **`open={guidedInsightOpen}`** while **`guidedReadout`** gates mount. **`lib/coachCopy.ts`**: **`GUIDED_LOGGER_HINT`** aligned to “first drive breakdown”; removed **`GUIDED_INSIGHT_TITLE`** and **`guidedInsightFromLoggedPlays`** (no circular import to insight lib).

@@ -11,6 +11,7 @@ import {
   isFilmLoggerSpecialTeamsEntry,
 } from "@/lib/filmLoggerSpecialTeams";
 import { startCriticalFlow } from "@/lib/perfInstrumentation";
+import { ONBOARDING_BALL_SPOT_HELPER } from "@/lib/coachCopy";
 
 type PlayResult = "INCOMPLETE" | "SACK" | "TURNOVER" | "PENALTY" | "TOUCHDOWN" | "PUNT" | "FIELD_GOAL" | "FG_MISS";
 
@@ -133,9 +134,11 @@ interface YardageSheetProps {
   currentGameState: GameState;
   onLog: (yards: number, result: PlayResult | null, endingFieldPos: number, submitFlowId?: string) => Promise<void>;
   onCancel: () => void;
+  /** Guided onboarding: short coach copy above ball-spot controls only. */
+  onboardingSpotHelper?: boolean;
 }
 
-export function YardageSheet({ play, currentGameState, onLog, onCancel }: YardageSheetProps) {
+export function YardageSheet({ play, currentGameState, onLog, onCancel, onboardingSpotHelper }: YardageSheetProps) {
   const filmSt = isFilmLoggerSpecialTeamsEntry(play);
   const playType = normalizedPlayType(play.play_type);
   const startFP = currentGameState.absoluteYard;
@@ -319,6 +322,11 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel }: Yardag
       </div>
 
       <div className="mt-3">
+        {onboardingSpotHelper ? (
+          <p className="mb-3 rounded-lg border border-sky-900/50 bg-sky-950/30 px-3 py-2 font-body text-sm leading-snug text-sky-100/95">
+            {ONBOARDING_BALL_SPOT_HELPER}
+          </p>
+        ) : null}
         <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">BALL SPOTTED AT</p>
         <div className="mt-2 flex items-center gap-2">
           <button

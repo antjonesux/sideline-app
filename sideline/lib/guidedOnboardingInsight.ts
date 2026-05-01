@@ -38,6 +38,8 @@ export type FirstDriveCoachingReadout = {
   primaryInsight: string;
   supportingStats: FirstDriveSupportingStat[];
   coachingNudge: string;
+  /** Run / Pass / RPO mix for `PlayTypeDistribution` (same shape as tendencies API rows). */
+  playTypeDistribution: { name: string; pct: number; count: number }[];
 };
 
 type Canon = "RUN" | "PASS" | "RPO" | "OTHER";
@@ -84,6 +86,20 @@ function dominantCanonType(counts: GuidedPlayTypeBreakdown): { type: Canon; coun
     }
   }
   return { type: best, count: bestN };
+}
+
+function playTypeDistributionFromBreakdown(
+  counts: GuidedPlayTypeBreakdown,
+  n: number,
+): { name: string; pct: number; count: number }[] {
+  const rows: { name: string; pct: number; count: number }[] = [
+    { name: "Run", pct: pct(counts.run, n), count: counts.run },
+    { name: "Pass", pct: pct(counts.pass, n), count: counts.pass },
+  ];
+  if (counts.rpo > 0) {
+    rows.push({ name: "RPO", pct: pct(counts.rpo, n), count: counts.rpo });
+  }
+  return rows;
 }
 
 function supportingMixStats(counts: GuidedPlayTypeBreakdown, n: number): FirstDriveSupportingStat[] {
@@ -161,6 +177,7 @@ export function buildFirstDriveCoachingReadout(plays: LoggedPlay[]): FirstDriveC
       primaryInsight,
       supportingStats: supportingMixStats(breakdown, n),
       coachingNudge: nudge,
+      playTypeDistribution: playTypeDistributionFromBreakdown(breakdown, n),
     };
   }
 
@@ -177,6 +194,7 @@ export function buildFirstDriveCoachingReadout(plays: LoggedPlay[]): FirstDriveC
       primaryInsight: guidedFirstDrivePrimaryBest(display),
       supportingStats,
       coachingNudge: GUIDED_FIRST_DRIVE_NUDGE_BEST_PLAY,
+      playTypeDistribution: playTypeDistributionFromBreakdown(breakdown, n),
     };
   }
 
@@ -185,6 +203,7 @@ export function buildFirstDriveCoachingReadout(plays: LoggedPlay[]): FirstDriveC
     primaryInsight: GUIDED_FIRST_DRIVE_PRIMARY_BALANCED,
     supportingStats: supportingMixStats(breakdown, n),
     coachingNudge: GUIDED_FIRST_DRIVE_NUDGE_BALANCED,
+    playTypeDistribution: playTypeDistributionFromBreakdown(breakdown, n),
   };
 }
 

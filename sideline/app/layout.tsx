@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-slate-950 text-white">
-        <BottomTabNav />
+        <Suspense fallback={null}>
+          <BottomTabNav />
+        </Suspense>
         <AppProviders>
           {/**
            * Bottom padding must stay large at *all* breakpoints: `sm:py-8` previously overwrote `pb-24`

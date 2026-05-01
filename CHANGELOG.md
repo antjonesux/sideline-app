@@ -4,6 +4,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-01 — Onboarding QA: home handoff, guided chrome, logger, first-drive readout, docs
+
+### What
+
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md): Authenticated home flow documents **carousel → `/playbook?create=1&onboarding=1`** (no CFB26 step on **`/`**); new decision entries for that handoff and for **guided-only** **`PlayLoggerV2`** **My Sheet** scenario behavior vs **2026-04-29** default chip sync.
+- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): Carousel CTA **`replace`**s to Game Plan onboarding create URL; removed home playbook picker phase.
+- [`sideline/components/playbook/PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx), [`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx): **`onboardingFullPage`** guided create (no Cancel row); guided modal cannot dismiss via overlay when **`guidedOnboardingFlow`**.
+- [`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx): Onboarding editor: fixed footer (**Take the field**), no duplicate situation banner; navigate to **`/film/{id}?guided=1&sheetScenario=…`**.
+- [`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx), [`sideline/app/layout.tsx`](sideline/app/layout.tsx): Hide tab bar + **`data-onboarding-chrome`** for **`onboarding=1`** on **`/playbook`** routes and **`guided=1`** on **`/film/[gameId]`**; **`Suspense`** around **`BottomTabNav`** for **`useSearchParams`**.
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Guided logger shell (subline under **Getting started**, no backdrop/X close); passes **`guidedOnboarding`** / **`guidedMySheetScenario`** into **`PlayLoggerV2`**.
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx), [`sideline/components/film/YardageSheet.tsx`](sideline/components/film/YardageSheet.tsx): Guided My Sheet bootstrap + post-log tab nudge; **`onboardingSpotHelper`** on yardage.
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): **`GUIDED_ONBOARDING_EDITOR_SCENARIO`**, **`GUIDED_LOGGER_HEADER_SUBLINE`**, **`ONBOARDING_BALL_SPOT_HELPER`**, **Take the field** CTA string.
+- [`sideline/lib/guidedOnboardingInsight.ts`](sideline/lib/guidedOnboardingInsight.ts), [`sideline/components/film/GuidedFirstDriveInsight.tsx`](sideline/components/film/GuidedFirstDriveInsight.tsx): **`playTypeDistribution`** on readout; insight uses **`PlayTypeDistribution`** + informational nudge inside primary card.
+
+### Why
+
+Ship guided onboarding without duplicate steps, align bottom chrome and logger UX with the onboarding QA brief, reuse tendencies play-type visuals for the first-drive readout, and keep **BUILD_CONTRACT** / **DECISIONS** aligned with running code.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-05-02 — Film: first drive breakdown (Dialog, `guidedFirstDriveCopy`)
 
 ### What
@@ -48,7 +72,7 @@ Polish the first-run carousel so the backdrop reads full-screen and the column s
 
 - [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md): Documents **`HomeOnboardingGate`** eligibility (Supabase head counts on **`game_sessions`** excluding onboarding **`import_source`**, plus **`play_sheets`**), **`Explore app`** dismissal (**`lib/onboardingDismissed`**), legacy **`lastGamePrefsStore`** completion, **`FORCE_ONBOARDING`**, and conservative **`/film`** redirect when counts fail.
 - [`sideline/components/shared/OnboardingCarousel.tsx`](sideline/components/shared/OnboardingCarousel.tsx): New client carousel — **`next/image`** slides (**`public/onboarding/slide-{1,2,3}-{plan,call,improve}.png`**), framed card, bottom fade, dots, auto-advance + swipe; Explore + CTA use shared **`Button`**.
-- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): Carousel → playbook step; Supabase count queries; **`dismissOnboarding`** on Explore; redirects on query failure.
+- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): **`OnboardingCarousel`** + Supabase count queries; **`dismissOnboarding`** on Explore; redirects on query failure. (Post-ship: home CFB26 picker removed — handoff is **`/playbook?create=1&onboarding=1`**; see **2026-05-01 — Onboarding QA** above.)
 - [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): Carousel slide copy + **`imageSrc`**; onboarding/playbook/logger CTAs; **`guidedInsightFromLoggedPlays`** delegates to **`buildGuidedOnboardingInsight`**.
 - [`sideline/lib/guidedOnboardingInsight.ts`](sideline/lib/guidedOnboardingInsight.ts): Shared guided readout model (breakdown, tendency paragraph, best play).
 - [`sideline/lib/onboardingImportSource.ts`](sideline/lib/onboardingImportSource.ts), [`sideline/lib/onboardingDismissed.ts`](sideline/lib/onboardingDismissed.ts): Onboarding **`import_source`** constant + local dismissal flag (**`FORCE_ONBOARDING`** for QA).

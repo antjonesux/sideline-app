@@ -46,6 +46,18 @@ export function PlaybookHome({
     if (initialCreateOpen) window.history.replaceState(null, "", "/playbook");
   }, [initialCreateOpen, onboardingFromHome, initialCfb26FromOnboarding]);
 
+  if (onboardingFromHome) {
+    return (
+      <CreatePlaybookModal
+        variant="page"
+        open
+        guidedOnboardingFlow
+        initialCfb26Playbook={initialCfb26FromOnboarding}
+        onboardingFullPage
+      />
+    );
+  }
+
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["playbooks", "list"],
     queryFn: async () => {
@@ -61,13 +73,7 @@ export function PlaybookHome({
   });
 
   const modal = (
-    <CreatePlaybookModal
-      variant="modal"
-      open={createOpen}
-      onClose={() => setCreateOpen(false)}
-      initialCfb26Playbook={onboardingFromHome ? initialCfb26FromOnboarding : undefined}
-      guidedOnboardingFlow={Boolean(onboardingFromHome)}
-    />
+    <CreatePlaybookModal variant="modal" open={createOpen} onClose={() => setCreateOpen(false)} />
   );
 
   const list = coercePlaybookList(data);

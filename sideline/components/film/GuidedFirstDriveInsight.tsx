@@ -14,6 +14,7 @@ import {
   GUIDED_FIRST_DRIVE_DIALOG_DESCRIPTION,
   GUIDED_FIRST_DRIVE_EYEBROW,
 } from "@/lib/guidedFirstDriveCopy";
+import { PlayTypeDistribution } from "@/components/tendencies/PlayTypeDistribution";
 import { modalCtaFooterClass, modalDialogTitleClass } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,8 @@ type GuidedFirstDriveInsightProps = {
   anotherDriveBusy?: boolean;
 };
 
+const PLAY_TYPE_ROW_LABELS = new Set(["Run", "Pass", "RPO"]);
+
 export function GuidedFirstDriveInsight({
   open,
   readout,
@@ -32,6 +35,8 @@ export function GuidedFirstDriveInsight({
   onGoToFilmRoom,
   anotherDriveBusy = false,
 }: GuidedFirstDriveInsightProps) {
+  const extraStats = readout.supportingStats.filter((row) => !PLAY_TYPE_ROW_LABELS.has(row.label));
+
   return (
     <Dialog
       open={open}
@@ -62,32 +67,27 @@ export function GuidedFirstDriveInsight({
             </DialogHeader>
 
             <div className="mt-4 space-y-4">
-              <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-4">
+              <div className="rounded-xl border border-slate-700 bg-slate-900/90 p-4 space-y-3">
                 <p className="font-body text-base font-medium leading-snug text-slate-100">{readout.primaryInsight}</p>
+                <p className="border-t border-slate-700/80 pt-3 font-body text-sm leading-relaxed text-sky-100/95">
+                  {readout.coachingNudge}
+                </p>
               </div>
 
-              <div className="space-y-3">
-                {readout.supportingStats.map((row) => (
-                  <div key={row.label} className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2.5">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-mono text-xs uppercase tracking-wider text-slate-500">{row.label}</span>
-                      <span className="font-mono text-sm font-semibold tabular-nums text-slate-100">{row.value}</span>
-                    </div>
-                    {row.barFraction != null ? (
-                      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-800" aria-hidden>
-                        <div
-                          className="h-full rounded-full bg-emerald-500/90 transition-[width] duration-300"
-                          style={{ width: `${Math.min(100, Math.max(0, row.barFraction * 100))}%` }}
-                        />
+              <PlayTypeDistribution data={readout.playTypeDistribution} />
+
+              {extraStats.length > 0 ? (
+                <div className="space-y-2">
+                  {extraStats.map((row) => (
+                    <div key={row.label} className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2.5">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="font-mono text-xs uppercase tracking-wider text-slate-500">{row.label}</span>
+                        <span className="font-mono text-sm font-semibold tabular-nums text-slate-100">{row.value}</span>
                       </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-
-              <div className="rounded-xl border border-amber-900/40 bg-amber-950/25 p-4">
-                <p className="font-body text-sm leading-relaxed text-amber-50/95">{readout.coachingNudge}</p>
-              </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 

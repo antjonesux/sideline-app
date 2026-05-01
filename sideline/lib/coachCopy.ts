@@ -53,9 +53,16 @@ export const ONBOARDING_PLAYBOOK_STEP_TITLE = "Choose your offensive playbook";
 export const ONBOARDING_PLAYBOOK_STEP_BODY =
   "We match formations and play types to CFB26. Pick the book you want to coach from; you can change it later.";
 export const ONBOARDING_PLAYBOOK_CTA = "Start building your calls";
+
+/** Single situation used in guided onboarding play sheet editor and logger My Sheet preselect. */
+export const GUIDED_ONBOARDING_EDITOR_SCENARIO = "3rd & Medium";
+
+/** Onboarding-only helper on the yardage / ball-spot step. */
+export const ONBOARDING_BALL_SPOT_HELPER =
+  "Spot the ball where the play ended. We'll use that to update the next down, distance, and field position.";
 export const ONBOARDING_EDITOR_BANNER =
   "Add a handful of calls you would actually dial up (three is enough). They power YOUR CALLS in the logger.";
-export const ONBOARDING_START_LOGS = "Take it to the field";
+export const ONBOARDING_START_LOGS = "Take the field";
 export const ONBOARDING_SHEET_PLAY_COUNT = (n: number, min: number) =>
   `${n} call${n === 1 ? "" : "s"} on sheet · need at least ${min} to continue`;
 
@@ -64,6 +71,11 @@ export const GUIDED_LOGGER_HINT = (remaining: number) =>
   remaining > 0
     ? `Log ${remaining} more call${remaining === 1 ? "" : "s"} for your first drive breakdown.`
     : "First drive breakdown ready — close the logger to see it.";
+/** Subtitle under the logger shell title during guided onboarding (coach-first, momentum). */
+export const GUIDED_LOGGER_HEADER_SUBLINE = (remaining: number) =>
+  remaining > 0
+    ? `Log ${remaining} more call${remaining === 1 ? "" : "s"} to see what your first drive says.`
+    : "You're set — close the logger when you're ready for your first drive readout.";
 export const GUIDED_FINISH_CTA = "Finish and go to Film Room";
 export const GUIDED_INSIGHT_CTA_ANOTHER_DRIVE = "Call another drive";
 export const GUIDED_INSIGHT_CTA_FILM_ROOM = "Go to Film Room";

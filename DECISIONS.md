@@ -16,6 +16,26 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-01 — Home onboarding: carousel → Game Plan (no duplicate CFB26 step on `/`)
+
+**Decision:** After **`OnboardingCarousel`**, the primary CTA **`router.replace("/playbook?create=1&onboarding=1")`**. CFB26 playbook selection and first sheet creation happen only in **`PlaybookHome`** + **`CreatePlaybookModal`** (**`onboardingFullPage`**, **`guidedOnboardingFlow`**). There is **no** second “pick playbook” screen on **`/`**.
+
+**Why:** Removes duplicate onboarding steps; the Game Plan create flow already owns catalog pick + create.
+
+**Impact:** **`BUILD_CONTRACT.md`** authenticated-home bullet documents this handoff. Deep links should use **`/playbook?create=1&onboarding=1`** (or **`?onboarding=1`** with the current **`PlaybookHome`** behavior) — not a legacy home picker route.
+
+---
+
+## 2026-05-01 — Guided Film logger: My Sheet chip vs derived snap (onboarding-only)
+
+**Decision:** When **`PlayLoggerV2`** receives **`guidedOnboarding`** (Film **`?guided=1`**), it **does not** run the usual **`useLayoutEffect`** that resets **`mySheetSelectedScenario`** to the engine’s **`scenarioLabel`** for the current snap while **My Sheet** is active. Instead it bootstraps **My Sheet** from **`guidedMySheetScenario`** (URL **`sheetScenario`**, else **`GUIDED_ONBOARDING_EDITOR_SCENARIO`** in **`coachCopy.ts`**). After a successful log, guided mode nudges the tab back to **My Sheet** when the pick came from the sheet, otherwise **Situational**.
+
+**Why:** In guided onboarding the coach just built calls in one Game Plan situation; snapping the chip to the live down/distance would empty **My Sheet** and kill momentum before the first readout.
+
+**Impact:** This is an **intentional exception** to **2026-04-29** (“default selection tied to the **derived scenario** for the current snap”) **only** when **`guidedOnboarding`** is true. Normal Film logging behavior is unchanged when those props are unset.
+
+---
+
 ## 2026-04-30 — App shell `<main>` top padding (landing parity)
 
 **Decision:** Root **`sideline/app/layout.tsx`** `<main>` uses **`pt-6`** at all breakpoints (replacing **`pt-4 sm:pt-6`**). **`/landing`** is unchanged: **`html[data-marketing-chrome="true"] main`** in **`globals.css`** keeps **`padding-top: 0`**; the hero’s top inset remains **`HeroSection`** **`pt-6`**.

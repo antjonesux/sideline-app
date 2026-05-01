@@ -41,7 +41,9 @@ import {
   FILM_END_GAME_SCORE_BODY,
   FILM_END_GAME_SCORE_TITLE,
   FILM_RESUME_GAME_CTA,
+  GUIDED_LOGGER_HEADER_SUBLINE,
   GUIDED_LOGGER_TITLE,
+  GUIDED_ONBOARDING_EDITOR_SCENARIO,
 } from "@/lib/coachCopy";
 import { dismissOnboarding } from "@/lib/onboardingDismissed";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
@@ -129,6 +131,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const guidedMode = searchParams.get("guided") === "1";
+  const guidedSheetScenarioParam = searchParams.get("sheetScenario")?.trim();
+  const guidedMySheetScenario = guidedMode
+    ? guidedSheetScenarioParam || GUIDED_ONBOARDING_EDITOR_SCENARIO
+    : null;
   const queryClient = useQueryClient();
   const [detailTab, setDetailTab] = useState<DetailTab>("drives");
 
@@ -545,7 +551,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       addToast(COULDNT_SAVE, "error");
       return;
     }
-      addToast("Call removed.", "success");
+    addToast("Call removed.", "success");
     await refresh();
   }
 
@@ -1075,7 +1081,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <div
             className={cn("fixed inset-0 bg-black/60", overlayZ.filmBackdrop)}
             onClick={() => {
-              setShowLogger(false);
+              if (!guidedMode) setShowLogger(false);
             }}
           />
           <div
@@ -1086,23 +1092,34 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
-              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-                <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
-                  {guidedMode ? GUIDED_LOGGER_TITLE : "Play Logger"}
-                </h2>
-                <button
-                  type="button"
-                  data-no-press
-                  className="p-2 -mr-2 text-slate-400 hover:text-white"
-                  onClick={() => {
-                    setShowLogger(false);
-                  }}
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                    <path d="M6 6 18 18M18 6 6 18" />
-                  </svg>
-                  <span className="sr-only">Close</span>
-                </button>
+              <div className="flex flex-shrink-0 items-start justify-between gap-3 border-b border-slate-800 px-4 py-3">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
+                    {guidedMode ? GUIDED_LOGGER_TITLE : "Play Logger"}
+                  </h2>
+                  {guidedMode ? (
+                    <p className="font-body text-sm leading-snug text-slate-400">
+                      {GUIDED_LOGGER_HEADER_SUBLINE(
+                        Math.max(0, GUIDED_ONBOARDING_MIN_COACH_CALLS - guidedCallCount),
+                      )}
+                    </p>
+                  ) : null}
+                </div>
+                {guidedMode ? null : (
+                  <button
+                    type="button"
+                    data-no-press
+                    className="shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
+                    onClick={() => {
+                      setShowLogger(false);
+                    }}
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                      <path d="M6 6 18 18M18 6 6 18" />
+                    </svg>
+                    <span className="sr-only">Close</span>
+                  </button>
+                )}
               </div>
               <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <PlayLoggerV2
@@ -1113,14 +1130,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   onRefresh={refresh}
                   sheetId={activeSheetId}
                   loggerOpenFlowId={loggerOpenFlowIdRef.current}
-                  guidedProgress={
-                    guidedMode
-                      ? {
-                          current: Math.min(guidedCallCount, GUIDED_ONBOARDING_MIN_COACH_CALLS),
-                          target: GUIDED_ONBOARDING_MIN_COACH_CALLS,
-                        }
-                      : null
-                  }
+                  guidedOnboarding={guidedMode}
+                  guidedMySheetScenario={guidedMySheetScenario}
                   totalPlayRowsInGame={totalPlayRowsInGame}
                   totalCoachCallsInGame={totalPlays}
                   allGameCoachCalls={allGameCoachCalls}

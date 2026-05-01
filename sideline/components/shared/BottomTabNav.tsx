@@ -3,8 +3,8 @@
 
 import Link from "next/link";
 import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useLayoutEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useLayoutEffect, useMemo } from "react";
 
 const tabs = [
   {
@@ -26,11 +26,20 @@ const tabs = [
 
 export default function BottomTabNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const onboardingChrome = useMemo(() => {
+    if (pathname === "/") return true;
+    if (pathname === "/playbook" && searchParams.get("onboarding") === "1") return true;
+    if (pathname.startsWith("/playbook/") && searchParams.get("onboarding") === "1") return true;
+    if (pathname.startsWith("/film/") && searchParams.get("guided") === "1") return true;
+    return false;
+  }, [pathname, searchParams]);
 
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
-    if (pathname === "/") root.setAttribute("data-onboarding-chrome", "true");
+    if (onboardingChrome) root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
@@ -38,9 +47,9 @@ export default function BottomTabNav() {
       root.removeAttribute("data-onboarding-chrome");
       root.removeAttribute("data-marketing-chrome");
     };
-  }, [pathname]);
+  }, [onboardingChrome, pathname]);
 
-  if (pathname === "/") return null;
+  if (onboardingChrome) return null;
 
   if (
     pathname === "/login" ||

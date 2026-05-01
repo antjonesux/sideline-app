@@ -18,7 +18,7 @@ import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE, GUIDED_LOGGER_HINT, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
+import { COULDNT_SAVE, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { isFilmLoggerSpecialTeamsEntry } from "@/lib/filmLoggerSpecialTeams";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
@@ -47,8 +47,10 @@ interface PlayLoggerV2Props {
   sheetId?: string | null;
   /** Cross-component logger-open flow id started by the game detail page. */
   loggerOpenFlowId?: string | null;
-  /** Optional coach hint for guided onboarding (real logger only). */
-  guidedProgress?: { current: number; target: number } | null;
+  /** When true, My Sheet preselects `guidedMySheetScenario` and avoids momentum-killing empty states. */
+  guidedOnboarding?: boolean;
+  /** Sheet situation to show in My Sheet (from Game Plan onboarding step). */
+  guidedMySheetScenario?: string | null;
   /** Plays in this game (all drives) before this log — parent state, no optimistic rows. */
   totalPlayRowsInGame: number;
   /** Non-punt call count before this log — matches Film game header stats. */
@@ -67,7 +69,8 @@ export function PlayLoggerV2({
   onRefresh,
   sheetId,
   loggerOpenFlowId,
-  guidedProgress,
+  guidedOnboarding = false,
+  guidedMySheetScenario = null,
   totalPlayRowsInGame,
   totalCoachCallsInGame,
   onPossessionEndedAfterLog,
@@ -134,12 +137,23 @@ export function PlayLoggerV2({
     loggerOpenFlowId,
   });
 
-  const [mySheetSelectedScenario, setMySheetSelectedScenario] = useState(scenarioLabel);
+  const [mySheetSelectedScenario, setMySheetSelectedScenario] = useState(() =>
+    guidedOnboarding && guidedMySheetScenario?.trim() ? guidedMySheetScenario.trim() : scenarioLabel,
+  );
+
+  const guidedInitRef = useRef(false);
+  useEffect(() => {
+    if (!guidedOnboarding || !guidedMySheetScenario?.trim() || !hasMySheet || guidedInitRef.current) return;
+    guidedInitRef.current = true;
+    setPickTab("my_sheet");
+    setMySheetSelectedScenario(guidedMySheetScenario.trim());
+  }, [guidedOnboarding, guidedMySheetScenario, hasMySheet]);
 
   useLayoutEffect(() => {
+    if (guidedOnboarding) return;
     if (pickTab !== "my_sheet") return;
     setMySheetSelectedScenario(scenarioLabel);
-  }, [pickTab, scenarioLabel]);
+  }, [guidedOnboarding, pickTab, scenarioLabel]);
 
   const sheetOverviewQuery = useQuery({
     queryKey: filmLoggerQueryKeys.playSheetOverview(sheetId ?? ""),
@@ -300,6 +314,13 @@ export function PlayLoggerV2({
       }
       setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       await onRefresh();
+      if (guidedOnboarding) {
+        if (logCameFromSheet) {
+          setPickTab("my_sheet");
+        } else {
+          setPickTab("situational");
+        }
+      }
       if (submitFlowId) {
         endCriticalFlow(submitFlowId, "ok", {
           driveId,
@@ -368,11 +389,6 @@ export function PlayLoggerV2({
           <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0">
             <span className="font-mono text-[13px] font-semibold text-white">{situationLine}</span>
             <span className="font-mono text-xs text-slate-400">· {fieldLine}</span>
-            {guidedProgress ? (
-              <span className="w-full font-mono text-[11px] text-amber-300/90">
-                {GUIDED_LOGGER_HINT(Math.max(0, guidedProgress.target - guidedProgress.current))}
-              </span>
-            ) : null}
           </div>
 
           <button
@@ -577,6 +593,7 @@ export function PlayLoggerV2({
             play={selectedPlay}
             currentGameState={currentGameState}
             onLog={handleLog}
+            onboardingSpotHelper={guidedOnboarding}
             onCancel={() => {
               setView("suggestions");
               setSelectedPlay(null);

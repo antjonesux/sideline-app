@@ -27,6 +27,8 @@ type Props = {
   initialCfb26Playbook?: string;
   /** After create, open editor with `?onboarding=1` for the guided sheet step. */
   guidedOnboardingFlow?: boolean;
+  /** Guided home onboarding: single full-page step, no Cancel / breadcrumb escapes. */
+  onboardingFullPage?: boolean;
 };
 
 export function CreatePlaybookModal({
@@ -35,6 +37,7 @@ export function CreatePlaybookModal({
   onClose,
   initialCfb26Playbook,
   guidedOnboardingFlow = false,
+  onboardingFullPage = false,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
@@ -237,7 +240,7 @@ export function CreatePlaybookModal({
         </div>
 
         <div className={modalCtaFooterClass}>
-          {step === 2 ? (
+          {onboardingFullPage ? null : step === 2 ? (
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(1)}>
               Back
             </Button>
@@ -250,7 +253,12 @@ export function CreatePlaybookModal({
               Cancel
             </Button>
           )}
-          <Button type="submit" variant="default" className="flex-1" disabled={busy || (step === 1 && !canStep1)}>
+          <Button
+            type="submit"
+            variant="default"
+            className={onboardingFullPage ? "w-full flex-1" : "flex-1"}
+            disabled={busy || (step === 1 && !canStep1)}
+          >
             {guidedOnboardingFlow
               ? busy
                 ? "Creating…"
@@ -267,6 +275,13 @@ export function CreatePlaybookModal({
   );
 
   if (variant === "page") {
+    if (onboardingFullPage) {
+      return (
+        <section className="flex min-h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))] flex-col py-2">
+          {inner}
+        </section>
+      );
+    }
     return (
       <section className="space-y-6">
         <Breadcrumb segments={[{ label: "Playbook", href: "/playbook" }, { label: "New" }]} />
@@ -280,6 +295,7 @@ export function CreatePlaybookModal({
     <Dialog
       open={open}
       onOpenChange={(next) => {
+        if (!next && guidedOnboardingFlow) return;
         if (!next) onClose?.();
       }}
     >

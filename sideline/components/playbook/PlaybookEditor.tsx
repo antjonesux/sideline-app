@@ -15,11 +15,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import {
   COULDNT_SAVE,
-  ONBOARDING_EDITOR_BANNER,
+  GUIDED_ONBOARDING_EDITOR_SCENARIO,
   ONBOARDING_GAME_READY,
   ONBOARDING_OPPONENT_SCHEME,
   ONBOARDING_OPPONENT_TEAM,
-  ONBOARDING_SHEET_PLAY_COUNT,
   ONBOARDING_START_LOGS,
 } from "@/lib/coachCopy";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
@@ -64,8 +63,6 @@ type SetupApi = {
 };
 
 const MIN_ONBOARDING_SHEET_PLAYS = 3;
-/** Guided onboarding adds calls in one situation only (matches brief: single scenario). */
-const ONBOARDING_EDITOR_SCENARIO = "3rd & Medium";
 
 export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const router = useRouter();
@@ -135,7 +132,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     if (!scenarios.length) return;
     if (onboardingEditor) {
       const pick =
-        scenarios.find((s) => s.scenario === ONBOARDING_EDITOR_SCENARIO)?.scenario ??
+        scenarios.find((s) => s.scenario === GUIDED_ONBOARDING_EDITOR_SCENARIO)?.scenario ??
         scenarios[0]?.scenario ??
         "1st Down";
       setActiveScenario(pick);
@@ -371,11 +368,12 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       }
       setLastGame({ my_playbook: name, my_scheme: scheme });
       addToast(ONBOARDING_GAME_READY, "success");
-      router.push(`/film/${game.id}?guided=1`);
+      const scenarioParam = encodeURIComponent(activeScenario);
+      router.push(`/film/${game.id}?guided=1&sheetScenario=${scenarioParam}`);
     } finally {
       setStartGuidedBusy(false);
     }
-  }, [addToast, cfb26, router, setLastGame, sheetQuery.data, sheetId]);
+  }, [activeScenario, addToast, cfb26, router, setLastGame, sheetQuery.data, sheetId]);
 
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
@@ -421,60 +419,48 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onReorder,
   } as const;
 
-  const canStartGuidedLogs =
+  const canTakeField =
     onboardingEditor && totalSheetPlays >= MIN_ONBOARDING_SHEET_PLAYS && !startGuidedBusy;
+  const playsStillNeeded = Math.max(0, MIN_ONBOARDING_SHEET_PLAYS - totalSheetPlays);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
-        <BackToFilmLink href="/playbook" />
-      </div>
-
-      {onboardingEditor ? (
-        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3 border border-emerald-800/35 bg-emerald-950/15">
-          <p className="font-body text-sm leading-relaxed text-slate-200">{ONBOARDING_EDITOR_BANNER}</p>
-          <p className="font-mono text-xs text-slate-500">{ONBOARDING_SHEET_PLAY_COUNT(totalSheetPlays, MIN_ONBOARDING_SHEET_PLAYS)}</p>
-          <Button
-            type="button"
-            variant="default"
-            className="text-sm"
-            disabled={!canStartGuidedLogs}
-            onClick={() => void startGuidedGame()}
-          >
-            {startGuidedBusy ? "Starting…" : ONBOARDING_START_LOGS}
-          </Button>
-        </div>
-      ) : null}
-      <div>
-        <div className="flex items-center justify-between gap-3">
-          <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
-          <button
-            type="button"
-            className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
-            onClick={() => {
-              setEditName(sheet.name);
-              setEditPlaybook(cfb26);
-              setEditorOpen(true);
-            }}
-          >
-            Edit
-          </button>
-        </div>
-        <p className="font-body text-sm text-slate-400">
-          Built from {cfb26} playbook
-        </p>
-      </div>
-
-      {onboardingEditor ? (
-        <p className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 font-body text-sm text-slate-300">
-          <span className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situation</span>
-          <span className="mt-1 block font-medium text-white">{scenarioDisplayLabel(activeScenario)}</span>
-          <span className="mt-1 block text-xs text-slate-500">Add at least {MIN_ONBOARDING_SHEET_PLAYS} calls here to continue.</span>
-        </p>
-      ) : (
-        <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
+    <div
+      className={cn(
+        onboardingEditor &&
+          "flex min-h-[calc(100dvh-5.5rem-env(safe-area-inset-bottom,0px))] flex-col",
       )}
+    >
+      <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))]")}>
+        {!onboardingEditor ? (
+          <div className="space-y-3">
+            <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
+            <BackToFilmLink href="/playbook" />
+          </div>
+        ) : null}
+
+        <div>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
+            {!onboardingEditor ? (
+              <button
+                type="button"
+                className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                onClick={() => {
+                  setEditName(sheet.name);
+                  setEditPlaybook(cfb26);
+                  setEditorOpen(true);
+                }}
+              >
+                Edit
+              </button>
+            ) : null}
+          </div>
+          <p className="font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
+        </div>
+
+        {!onboardingEditor ? (
+          <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
+        ) : null}
 
       <div className={cn("grid min-h-[50vh] gap-6", !onboardingEditor && "lg:grid-cols-[220px_1fr]")}>
         {!onboardingEditor ? (
@@ -549,6 +535,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             />
           ) : null}
         </section>
+      </div>
       </div>
 
       <AddPlayDrawer
@@ -678,6 +665,28 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {onboardingEditor ? (
+        <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-800 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] backdrop-blur-sm">
+          <p className="font-body text-sm font-medium text-slate-100">
+            Add {MIN_ONBOARDING_SHEET_PLAYS} calls to take the field.
+          </p>
+          <p className="mt-0.5 font-body text-sm text-slate-400">
+            {playsStillNeeded > 0
+              ? `${playsStillNeeded} more needed.`
+              : "You're ready when you are."}
+          </p>
+          <Button
+            type="button"
+            variant="default"
+            className="mt-3 w-full text-sm"
+            disabled={!canTakeField}
+            onClick={() => void startGuidedGame()}
+          >
+            {startGuidedBusy ? "Starting…" : ONBOARDING_START_LOGS}
+          </Button>
+        </footer>
+      ) : null}
     </div>
   );
 }

@@ -1,27 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { Button } from "@/components/ui/button";
 import { OnboardingCarousel } from "@/components/shared/OnboardingCarousel";
-import { cn } from "@/lib/utils";
-import { TeamCombobox } from "@/components/film/TeamCombobox";
-import {
-  COULDNT_LOAD,
-  ONBOARDING_PLAYBOOK_CTA,
-  ONBOARDING_PLAYBOOK_STEP_BODY,
-  ONBOARDING_PLAYBOOK_STEP_TITLE,
-} from "@/lib/coachCopy";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { dismissOnboarding, FORCE_ONBOARDING, isOnboardingDismissed } from "@/lib/onboardingDismissed";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-type PlaybookOption = { team_name: string };
-
-type GatePhase = "skeleton" | "redirecting" | "carousel" | "playbook";
+type GatePhase = "skeleton" | "redirecting" | "carousel";
 
 function OnboardingSkeleton({ subtitle }: { subtitle?: string }) {
   return (
@@ -41,9 +29,6 @@ export function HomeOnboardingGate() {
   const guidedUserId = useLastGamePrefsStore((s) => s.guidedOnboardingUserId);
   const [prefsHydrated, setPrefsHydrated] = useState(() => useLastGamePrefsStore.persist.hasHydrated());
   const [phase, setPhase] = useState<GatePhase>("skeleton");
-  const [playbooks, setPlaybooks] = useState<string[]>([]);
-  const [loadErr, setLoadErr] = useState<string | null>(null);
-  const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
 
   useEffect(() => {
     if (useLastGamePrefsStore.persist.hasHydrated()) {
@@ -62,6 +47,10 @@ export function HomeOnboardingGate() {
     if (uid) dismissOnboarding(uid);
     router.replace("/film");
   }, [router, uid]);
+
+  const goToPlaybookCreate = useCallback(() => {
+    router.replace("/playbook?create=1&onboarding=1");
+  }, [router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,28 +114,6 @@ export function HomeOnboardingGate() {
     };
   }, [router, authLoading, prefsHydrated, uid, legacyOnboardingDismissed]);
 
-  useEffect(() => {
-    if (phase !== "playbook") return;
-    let cancelled = false;
-    void (async () => {
-      const res = await fetch("/api/cfb26-playbooks");
-      const j = (await res.json()) as { playbooks?: string[]; error?: string };
-      if (cancelled) return;
-      if (!res.ok) {
-        setLoadErr(COULDNT_LOAD);
-        setPlaybooks([]);
-        return;
-      }
-      setLoadErr(null);
-      setPlaybooks(j.playbooks ?? []);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [phase]);
-
-  const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
-
   if (phase === "skeleton") {
     return <OnboardingSkeleton />;
   }
@@ -155,62 +122,9 @@ export function HomeOnboardingGate() {
     return <OnboardingSkeleton subtitle="Loading Film Room…" />;
   }
 
-  if (phase === "carousel") {
-    return (
-      <section className="flex h-[calc(100dvh-3rem-env(safe-area-inset-bottom,0px)-env(safe-area-inset-top,0px))] min-h-0 w-full min-w-0 flex-col overflow-x-hidden py-0">
-        <OnboardingCarousel onBuildPlan={() => setPhase("playbook")} onDismiss={handleDismissOnboarding} />
-      </section>
-    );
-  }
-
-  const playbookHref =
-    selectedPlaybook != null
-      ? `/playbook?create=1&onboarding=1&cfb26=${encodeURIComponent(selectedPlaybook.team_name)}`
-      : "";
-
   return (
-    <section className="space-y-8 py-4">
-      <header className="space-y-2">
-        <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Step 2 of 2</p>
-        <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">
-          {ONBOARDING_PLAYBOOK_STEP_TITLE}
-        </h1>
-      </header>
-
-      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-4">
-        <p className="font-body text-sm leading-relaxed text-slate-300">{ONBOARDING_PLAYBOOK_STEP_BODY}</p>
-        {loadErr ? (
-          <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-            {loadErr}
-          </p>
-        ) : null}
-        <TeamCombobox<PlaybookOption>
-          label="Offensive playbook"
-          inputId="onboarding-cfb26-playbook"
-          selected={selectedPlaybook}
-          onSelect={setSelectedPlaybook}
-          options={options}
-          loading={playbooks.length === 0 && !loadErr}
-          placeholder="Search CFB26 playbooks"
-          getOptionLabel={(o) => o.team_name}
-          getOptionKey={(o) => o.team_name}
-          getSearchText={(o) => o.team_name}
-          showTrailingChevron={false}
-        />
-        <Button
-          asChild
-          variant="default"
-          className={cn("inline-flex w-full justify-center text-sm", !selectedPlaybook && "pointer-events-none opacity-40")}
-        >
-          <Link href={playbookHref} aria-disabled={!selectedPlaybook}>
-            {ONBOARDING_PLAYBOOK_CTA}
-          </Link>
-        </Button>
-      </div>
-
-      <Button type="button" variant="secondary" className="text-sm" onClick={() => setPhase("carousel")}>
-        Back
-      </Button>
+    <section className="flex h-[calc(100dvh-3rem-env(safe-area-inset-bottom,0px)-env(safe-area-inset-top,0px))] min-h-0 w-full min-w-0 flex-col overflow-x-hidden py-0">
+      <OnboardingCarousel onBuildPlan={goToPlaybookCreate} onDismiss={handleDismissOnboarding} />
     </section>
   );
 }
