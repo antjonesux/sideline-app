@@ -66,14 +66,13 @@ export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
     <div className="relative flex min-h-[min(640px,calc(100dvh-10rem))] flex-col">
       <div className="pointer-events-none absolute left-1/2 top-[min(7rem,18vw)] z-0 h-64 w-[min(118%,26rem)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_50%_45%,rgba(16,185,129,0.07),transparent_72%)]" />
 
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        className="absolute right-0 top-0 z-20 h-auto px-1 py-0 font-sans text-sm font-normal text-emerald-400 hover:bg-transparent hover:text-emerald-300"
+        className="absolute right-0 top-0 z-20 font-sans text-sm font-normal text-emerald-400 no-underline transition-colors hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
         onClick={onDismiss}
       >
         {ONBOARDING_EXPLORE_APP}
-      </Button>
+      </button>
 
       <div className="relative z-[1] mt-8 flex flex-1 flex-col">
         <div
@@ -122,7 +121,7 @@ export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
                 <span
                   className={cn(
                     "block rounded-full transition-[width,background-color] duration-300 ease-out",
-                    i === index ? "h-2 w-6 bg-emerald-400" : "h-2 w-2 bg-slate-600 hover:bg-slate-500",
+                    i === index ? "h-2 w-6 bg-emerald-500" : "h-2 w-2 bg-slate-600 hover:bg-slate-500",
                   )}
                 />
               </button>

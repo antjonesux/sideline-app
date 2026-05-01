@@ -92,15 +92,13 @@ export function HomeOnboardingGate() {
 
       if (cancelled) return;
 
-      if (gamesResult.error) {
-        console.error("[HomeOnboardingGate] game_sessions count:", gamesResult.error.message);
-      }
-      if (sheetsResult.error) {
-        console.error("[HomeOnboardingGate] play_sheets count:", sheetsResult.error.message);
-      }
-
-      const countsFailed = Boolean(gamesResult.error || sheetsResult.error);
-      if (countsFailed) {
+      if (gamesResult.error || sheetsResult.error) {
+        if (gamesResult.error) {
+          console.error("[HomeOnboardingGate] game_sessions count:", gamesResult.error.message);
+        }
+        if (sheetsResult.error) {
+          console.error("[HomeOnboardingGate] play_sheets count:", sheetsResult.error.message);
+        }
         setPhase("redirecting");
         router.replace("/film");
         return;
