@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Film: new game setup copy + playbook prefill
+
+### What
+
+- [`sideline/app/film/new/page.tsx`](sideline/app/film/new/page.tsx): Title **Start a game**, subtitle (*Set the matchup and playbook…*), CTA **Start game**; labels **Your team** / **Playbook** from shared copy; removed the “any playbook” helper. Prefills CFB26 playbook via **`GET /api/playbook`**: prefers **`My First Game Plan`** (**`ONBOARDING_DEFAULT_SHEET_NAME`**), else most-recent sheet, when it matches the catalog; ignores prefill after the coach touches the playbook combobox.
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): **`FILM_NEW_GAME_*`** strings for that screen.
+
+### Why
+
+Coach-first first real game setup; defaults honor onboarding / Game Plan without new routes or schema.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-01 — Film Room: empty list coach copy
 
 ### What

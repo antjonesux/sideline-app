@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Film — `/film/new` setup copy + playbook prefill)
+
+**What:** **`app/film/new/page.tsx`**: Screen title **Start a game**, subtitle (*Set the matchup and playbook…*), primary CTA **Start game**; field labels **Your team** / **Playbook** (from **`coachCopy`**); removed the generic “any playbook” helper line. **`GET /api/playbook`** prefill: prefers sheet named **`ONBOARDING_DEFAULT_SHEET_NAME`**, else first list row (recently updated order), when **`cfb26_playbook`** matches catalog **`playbookOptions`**; **`playbookUserTouchedRef`** blocks overwriting after the coach touches the playbook combobox. **`lib/coachCopy.ts`**: **`FILM_NEW_GAME_TITLE`**, **`FILM_NEW_GAME_SUBTITLE`**, **`FILM_NEW_GAME_CTA`**, **`FILM_NEW_GAME_YOUR_TEAM_LABEL`**, **`FILM_NEW_GAME_PLAYBOOK_LABEL`**.
+
+**Why:** First real game setup reads as “start a game” not admin; default playbook honors onboarding / Game Plan without new routes or schema.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-01 (Film Room — empty list coach copy)
 
 **What:** **`app/film/page.tsx`**: No-games empty state uses **`FILM_ROOM_EMPTY_HEADLINE`**, **`FILM_ROOM_EMPTY_BODY`**, **`FILM_ROOM_EMPTY_CTA`** from **`lib/coachCopy.ts`** (*You've got a plan. Now call the game.* / first real game line / **Start your first game**); CTA still **`/film/new`**. **`lib/coachCopy.ts`**: new exports + comment (real games only; onboarding rows still excluded in list query).
