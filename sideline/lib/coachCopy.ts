@@ -87,6 +87,14 @@ export const FILM_ROOM_EMPTY_HEADLINE = "You've got a plan. Now call the game.";
 export const FILM_ROOM_EMPTY_BODY = "Log your first real game and see what actually works.";
 export const FILM_ROOM_EMPTY_CTA = "Start your first game";
 
+/** Film `/film/new` — first real game setup (required: your team, opponent, playbook). */
+export const FILM_NEW_GAME_TITLE = "Start a game";
+export const FILM_NEW_GAME_SUBTITLE =
+  "Set the matchup and playbook so your calls are tracked correctly.";
+export const FILM_NEW_GAME_CTA = "Start game";
+export const FILM_NEW_GAME_YOUR_TEAM_LABEL = "Your team";
+export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
+
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";
 export const FILM_END_GAME_SCORE_BODY =

@@ -5,7 +5,16 @@ import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { modalDialogTitleClass } from "@/lib/constants/designTokens";
-import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
+import {
+  COULDNT_LOAD_TEAM_LIST,
+  COULDNT_SAVE,
+  FILM_NEW_GAME_CTA,
+  FILM_NEW_GAME_PLAYBOOK_LABEL,
+  FILM_NEW_GAME_SUBTITLE,
+  FILM_NEW_GAME_TITLE,
+  FILM_NEW_GAME_YOUR_TEAM_LABEL,
+  ONBOARDING_DEFAULT_SHEET_NAME,
+} from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { emitProductEvent } from "@/lib/productAnalytics";
 import { createClient } from "@/lib/supabase/client";
@@ -78,6 +87,8 @@ export default function NewGamePage() {
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
+  /** True after the playbook combobox fires `onSelect` (including clear) so async prefill cannot override. */
+  const playbookUserTouchedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,6 +185,30 @@ export default function NewGamePage() {
     }
   }, [playbookOptions, selectedPlaybookName]);
 
+  /** Prefill CFB26 playbook from Game Plan: onboarding sheet name first, else most-recent sheet (`/api/playbook` order). */
+  useEffect(() => {
+    if (setupLoading || setupError || playbookOptions.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch("/api/playbook", { cache: "no-store" });
+      const json = (await res.json()) as {
+        playbooks?: Array<{ name: string; cfb26_playbook?: string | null }>;
+      };
+      if (cancelled || playbookUserTouchedRef.current) return;
+      const sheets = json.playbooks ?? [];
+      const preferred =
+        sheets.find((s) => s.name === ONBOARDING_DEFAULT_SHEET_NAME) ?? sheets[0];
+      const cfb = (preferred?.cfb26_playbook ?? "").trim();
+      if (!cfb) return;
+      if (!playbookOptions.some((row) => row.playbook_name === cfb)) return;
+      if (playbookUserTouchedRef.current) return;
+      setSelectedPlaybookName(cfb);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [setupLoading, setupError, playbookOptions]);
+
   useEffect(() => {
     setSelectedSheetId(null);
     if (!selectedPlaybookName) {
@@ -261,7 +296,10 @@ export default function NewGamePage() {
           <NewGameFormSkeleton />
         ) : (
           <form onSubmit={onSubmit} className="space-y-6">
-          <h1 className={modalDialogTitleClass}>New game setup</h1>
+          <header className="space-y-2">
+            <h1 className={modalDialogTitleClass}>{FILM_NEW_GAME_TITLE}</h1>
+            <p className="font-body text-sm text-slate-400">{FILM_NEW_GAME_SUBTITLE}</p>
+          </header>
 
           {setupError ? (
             <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
@@ -271,7 +309,7 @@ export default function NewGamePage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TeamCombobox<TeamOption>
-              label="Your Team"
+              label={FILM_NEW_GAME_YOUR_TEAM_LABEL}
               inputId="film-my-playbook"
               selected={offensePick}
               onSelect={setOffensePick}
@@ -296,11 +334,14 @@ export default function NewGamePage() {
 
           <div className="space-y-1 md:max-w-2xl">
             <TeamCombobox<OffensiveTeam>
-              label="Offensive Playbook"
+              label={FILM_NEW_GAME_PLAYBOOK_LABEL}
               inputId="film-offensive-playbook"
               inputRef={playbookInputRef}
               selected={playbookRow}
-              onSelect={(row) => setSelectedPlaybookName(row?.playbook_name ?? null)}
+              onSelect={(row) => {
+                playbookUserTouchedRef.current = true;
+                setSelectedPlaybookName(row?.playbook_name ?? null);
+              }}
               options={playbookOptions}
               loading={setupLoading}
               placeholder="Select playbook"
@@ -309,7 +350,6 @@ export default function NewGamePage() {
               getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
             />
             {!usePlaybookSelect ? <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p> : null}
-            <p className="font-body text-xs text-slate-500">You can use any playbook, not just your team&apos;s.</p>
           </div>
 
           {selectedPlaybookName ? (
@@ -351,7 +391,7 @@ export default function NewGamePage() {
           ) : null}
 
           <Button type="submit" variant="default" className="w-full py-3 text-sm" disabled={!canContinue || submitBusy}>
-            {submitBusy ? "Starting…" : "Start Logging"}
+            {submitBusy ? "Starting…" : FILM_NEW_GAME_CTA}
           </Button>
         </form>
         )}
