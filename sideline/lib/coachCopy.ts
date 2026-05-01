@@ -82,6 +82,11 @@ export const GUIDED_INSIGHT_CTA_FILM_ROOM = "Go to Film Room";
 
 export const ONBOARDING_GAME_READY = "Practice game ready.";
 
+/** Film Room list — empty state (real games only; onboarding sessions excluded in query). */
+export const FILM_ROOM_EMPTY_HEADLINE = "You've got a plan. Now call the game.";
+export const FILM_ROOM_EMPTY_BODY = "Log your first real game and see what actually works.";
+export const FILM_ROOM_EMPTY_CTA = "Start your first game";
+
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";
 export const FILM_END_GAME_SCORE_BODY =

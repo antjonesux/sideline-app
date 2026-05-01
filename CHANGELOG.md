@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-01 — Film Room: empty list coach copy
+
+### What
+
+- [`sideline/app/film/page.tsx`](sideline/app/film/page.tsx): When no non-onboarding games exist, empty card headline, supporting line, and primary CTA use shared strings (**`FILM_ROOM_EMPTY_*`** in **`coachCopy.ts`**): *You've got a plan. Now call the game.* / *Log your first real game and see what actually works.* / **Start your first game** (still links to **`/film/new`**).
+
+### Why
+
+Coaching-first empty state after onboarding so the next step is obvious; copy stays centralized per **BUILD_CONTRACT** film / **`coachCopy.ts`** patterns.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-05-01 — Onboarding QA: home handoff, guided chrome, logger, first-drive readout, docs
 
 ### What

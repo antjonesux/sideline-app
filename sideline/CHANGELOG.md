@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-01 (Film Room — empty list coach copy)
+
+**What:** **`app/film/page.tsx`**: No-games empty state uses **`FILM_ROOM_EMPTY_HEADLINE`**, **`FILM_ROOM_EMPTY_BODY`**, **`FILM_ROOM_EMPTY_CTA`** from **`lib/coachCopy.ts`** (*You've got a plan. Now call the game.* / first real game line / **Start your first game**); CTA still **`/film/new`**. **`lib/coachCopy.ts`**: new exports + comment (real games only; onboarding rows still excluded in list query).
+
+**Why:** Coach-first momentum into the first real game; copy lives with shared film/onboarding strings.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-01 (Onboarding QA — home→Game Plan, guided chrome, logger, first-drive readout, docs)
 
 **What:** Repo **`BUILD_CONTRACT.md`** + **`DECISIONS.md`**: home onboarding handoff (**carousel → `/playbook?create=1&onboarding=1`**); guided **My Sheet** scenario lock vs **2026-04-29** chip behavior. **`HomeOnboardingGate`**, **`PlaybookHome`**, **`CreatePlaybookModal`** (**`onboardingFullPage`**), **`PlaybookEditor`** (onboarding footer, **`sheetScenario`** on take-the-field). **`BottomTabNav`** + **`app/layout.tsx`** (**`Suspense`**, **`useSearchParams`**, **`data-onboarding-chrome`** for **`onboarding=1`** / **`guided=1`**). **`app/film/[gameId]/page.tsx`**, **`PlayLoggerV2`**, **`YardageSheet`**, **`lib/coachCopy.ts`**, **`lib/guidedOnboardingInsight.ts`**, **`GuidedFirstDriveInsight`** (**`PlayTypeDistribution`**).

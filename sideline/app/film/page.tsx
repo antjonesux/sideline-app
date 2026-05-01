@@ -2,6 +2,11 @@ import Link from "next/link";
 import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import {
+  FILM_ROOM_EMPTY_BODY,
+  FILM_ROOM_EMPTY_CTA,
+  FILM_ROOM_EMPTY_HEADLINE,
+} from "@/lib/coachCopy";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
@@ -145,11 +150,11 @@ export default async function FilmRoomPage() {
 
       {games.length === 0 ? (
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
-          <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
-          <p className="mt-2 font-sans text-sm text-slate-500">Log plays from a game to build tendencies.</p>
+          <p className="font-sans text-base font-medium text-white">{FILM_ROOM_EMPTY_HEADLINE}</p>
+          <p className="mt-2 font-sans text-sm text-slate-500">{FILM_ROOM_EMPTY_BODY}</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Button asChild variant="default" className="text-sm">
-              <Link href="/film/new">Log your first game</Link>
+              <Link href="/film/new">{FILM_ROOM_EMPTY_CTA}</Link>
             </Button>
           </div>
         </div>
