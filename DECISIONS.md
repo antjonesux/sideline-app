@@ -6,6 +6,14 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-01 — Home onboarding gate: conservative handling when counts fail
+
+**Decision:** **`HomeOnboardingGate`** treats **either** Supabase head **`count`** error (**`game_sessions`** or **`play_sheets`**) as **unknown eligibility**: log the error, set redirect phase, and **`router.replace("/film`)**. The gate **does not** assume an empty account or show the carousel when counts fail.
+
+**Why:** A failed query does not prove the coach has no games or sheets; sending them into onboarding or trusting zero counts can mis-route experienced users (RLS, network, transient API failures).
+
+**Impact:** Matches **`BUILD_CONTRACT.md`** (authenticated home); keep this path unless product explicitly chooses “fail open” to onboarding with documented trade-offs.
+
 ---
 
 ## 2026-04-30 — App shell `<main>` top padding (landing parity)

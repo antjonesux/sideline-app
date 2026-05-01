@@ -63,49 +63,56 @@ export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
   const slide = ONBOARDING_CAROUSEL_SLIDES[index];
 
   return (
-    <div className="relative flex min-h-[min(640px,calc(100dvh-10rem))] flex-col">
-      <div className="pointer-events-none absolute left-1/2 top-[min(7rem,18vw)] z-0 h-64 w-[min(118%,26rem)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_50%_45%,rgba(16,185,129,0.07),transparent_72%)]" />
+    <div className="relative flex min-h-[min(640px,calc(100dvh-6rem))] w-full min-w-0 flex-col">
+      {/* Glow scales with viewport; stays behind the card */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-[clamp(3rem,12vw,5.5rem)] z-0 h-[min(18rem,42vw)] w-[min(92vw,28rem)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_50%_45%,rgba(16,185,129,0.07),transparent_72%)] sm:h-64 sm:w-[26rem]"
+        aria-hidden
+      />
 
       <button
         type="button"
-        className="absolute right-0 top-0 z-20 font-sans text-sm font-normal text-emerald-400 no-underline transition-colors hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+        className="absolute right-0 top-0 z-20 bg-transparent pr-[env(safe-area-inset-right,0px)] pt-[env(safe-area-inset-top,0px)] font-sans text-sm font-normal text-emerald-400 no-underline transition-colors hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
         onClick={onDismiss}
       >
         {ONBOARDING_EXPLORE_APP}
       </button>
 
-      <div className="relative z-[1] mt-8 flex flex-1 flex-col">
+      <div className="relative z-[1] mt-10 flex min-h-0 flex-1 flex-col sm:mt-8">
         <div
-          className="flex flex-1 flex-col gap-5 touch-pan-y"
+          className="flex min-h-0 flex-1 flex-col gap-5 touch-pan-y sm:gap-6"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           role="region"
           aria-roledescription="carousel"
           aria-label="Product overview"
         >
-          <div className="relative overflow-hidden rounded-xl border border-slate-700 bg-slate-950 shadow-none">
-            <div className="relative aspect-[16/11] w-full min-h-[200px] max-h-[min(52vw,300px)]">
+          {/* Full-width within main padding; capped width on large phones / tablet */}
+          <div className="mx-auto w-full max-w-lg shrink-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-950 shadow-none">
+            <div className="relative aspect-[16/11] w-full">
               <Image
                 src={slide.imageSrc}
                 alt=""
                 fill
-                sizes="(max-width: 768px) 100vw, 42rem"
+                sizes="(max-width: 640px) min(100vw - 2rem, 32rem), 32rem"
                 className="object-cover object-top"
                 priority={index === 0}
               />
               <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[38%] bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent"
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-10 bg-gradient-to-t from-slate-950 from-25% to-transparent"
                 aria-hidden
               />
             </div>
           </div>
 
-          <h2 className="font-heading text-center text-2xl font-bold text-white">{slide.title}</h2>
-          <p className="font-body mx-auto max-w-md text-center text-base leading-relaxed text-slate-400 line-clamp-2">
+          <h2 className="font-heading text-center text-2xl font-bold uppercase tracking-[0.06em] text-white sm:text-[1.65rem]">
+            {slide.title}
+          </h2>
+          <p className="font-body mx-auto max-w-md px-1 text-center text-base leading-6 text-slate-400 sm:px-0">
             {slide.body}
           </p>
 
-          <div className="flex justify-center gap-1 pb-1" role="tablist" aria-label="Slides">
+          <div className="flex justify-center gap-1 pb-2 sm:pb-4" role="tablist" aria-label="Slides">
             {ONBOARDING_CAROUSEL_SLIDES.map((_, i) => (
               <button
                 key={i}
@@ -121,7 +128,7 @@ export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
                 <span
                   className={cn(
                     "block rounded-full transition-[width,background-color] duration-300 ease-out",
-                    i === index ? "h-2 w-6 bg-emerald-500" : "h-2 w-2 bg-slate-600 hover:bg-slate-500",
+                    i === index ? "h-2 w-6 bg-emerald-500 sm:w-8" : "h-2 w-2 bg-slate-600 hover:bg-slate-500",
                   )}
                 />
               </button>

@@ -157,7 +157,7 @@ export function HomeOnboardingGate() {
 
   if (phase === "carousel") {
     return (
-      <section className="py-2">
+      <section className="w-full min-w-0 py-2">
         <OnboardingCarousel onBuildPlan={() => setPhase("playbook")} onDismiss={handleDismissOnboarding} />
       </section>
     );
