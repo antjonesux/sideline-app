@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-01 — Onboarding carousel: full-bleed gradient, layout, CTA spacing
+
+### What
+
+- [`sideline/components/shared/OnboardingCarousel.tsx`](sideline/components/shared/OnboardingCarousel.tsx): Layered **`ONBOARDING_PAGE_BACKDROP`** on **`fixed inset-0`** **`pointer-events-none`** (**`z-[5]`**, **`min-h-[100dvh]`**) so the background bypasses **`main`** horizontal padding; carousel UI **`z-[10]`**. Mock stack: intrinsic **`Image`**, **`object-contain`**, top-only rounding, tighter Explore / copy / dots rhythm, **`min-h-[48px]`** flex spacer above CTA, safe-area bottom padding on CTA row.
+- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): Carousel-phase **`section`** uses viewport-height **`calc`** with safe-area terms, **`overflow-x-hidden`**, **`py-0`**.
+
+### Why
+
+Polish the first-run carousel so the backdrop reads full-screen and the column stays usable on small viewports without scroll regressions.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-05-01 — Home onboarding: PNG carousel, scaffold sessions, guided insight
 
 ### What

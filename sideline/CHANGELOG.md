@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-01 (Onboarding carousel — full-bleed backdrop, layout, spacing)
+
+**What:** **`components/shared/OnboardingCarousel.tsx`**: Full-viewport layered **`ONBOARDING_PAGE_BACKDROP`** on a **`fixed inset-0`** **`pointer-events-none`** layer (**`z-[5]`**) so the gradient ignores **`<main>`** padding; interactive chrome on **`z-[10]`**. Mock uses intrinsic **`next/image`** (**`288×576`**, **`object-contain`**, **`max-h-[min(24rem,48svh)]`**), top-only radius (**`rounded-t-[10px]`** / **`rounded-t-2xl`**, **`rounded-b-none`**), no border; Explore + copy + dots spacing tuned; dot row **`gap-0`** + **`h-10 w-8`** hit targets; **`min-h-[48px]`** **`flex-1`** spacer before CTA; CTA **`pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]`**. **`components/shared/HomeOnboardingGate.tsx`**: Carousel **`section`** **`h-[calc(100dvh-3rem-env(safe-area-inset-bottom)-env(safe-area-inset-top))]`**, **`min-h-0`**, **`overflow-x-hidden`**, **`py-0`**.
+
+**Why:** Cinematic home-first screen that fills the viewport edge-to-edge without breaking swipe/dots/CTA/Explore behavior or safe-area insets.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-01 (Home onboarding — PNG carousel, scaffold sessions, guided insight)
 
 **What:** Repo **`BUILD_CONTRACT.md`**: **`HomeOnboardingGate`** rules (counts, dismiss, errors, **`FORCE_ONBOARDING`**). New **`components/shared/OnboardingCarousel.tsx`** (**`next/image`**, **`public/onboarding/slide-1-plan.png`** … **`slide-3-improve.png`**). **`HomeOnboardingGate`**, **`lib/coachCopy.ts`**, **`lib/guidedOnboardingInsight.ts`**, **`lib/onboardingImportSource.ts`**, **`lib/onboardingDismissed.ts`**. **`POST /api/games`** onboarding **`import_source`**. **`app/film/page.tsx`** filters scaffold games; **`app/film/[gameId]/page.tsx`** guided insight UI. **`CreatePlaybookModal`** / **`PlaybookEditor`** guided defaults; **`TendenciesHome`** + **`lib/tendenciesServer.ts`** exclude onboarding games; **`store/lastGamePrefsStore.ts`** v2 + **`guidedOnboardingUserId`**. Legacy onboarding PNGs removed.
