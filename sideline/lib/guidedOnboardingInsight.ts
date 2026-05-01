@@ -1,5 +1,19 @@
 import type { LoggedPlay } from "@/lib/types";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
+import {
+  GUIDED_FIRST_DRIVE_HEADLINE_BALANCED,
+  GUIDED_FIRST_DRIVE_HEADLINE_BEST,
+  GUIDED_FIRST_DRIVE_HEADLINE_TENDENCY,
+  GUIDED_FIRST_DRIVE_NUDGE_BALANCED,
+  GUIDED_FIRST_DRIVE_NUDGE_BEST_PLAY,
+  GUIDED_FIRST_DRIVE_NUDGE_PASS_TILT,
+  GUIDED_FIRST_DRIVE_NUDGE_RPO_TILT,
+  GUIDED_FIRST_DRIVE_NUDGE_RUN_TILT,
+  GUIDED_FIRST_DRIVE_PRIMARY_BALANCED,
+  guidedFirstDrivePrimaryBest,
+  guidedFirstDrivePrimaryTendency,
+} from "@/lib/guidedFirstDriveCopy";
+import { normalizePlayName } from "@/lib/utils";
 
 export type GuidedPlayTypeBreakdown = { run: number; pass: number; rpo: number; other: number };
 
@@ -8,6 +22,171 @@ export type GuidedOnboardingInsightModel = {
   tendencyParagraph: string;
   bestPlay: { formation: string; play_name: string; yards_gained: number } | null;
 };
+
+/** Minimum coach calls on the active drive before the first-drive insight appears. */
+export const GUIDED_ONBOARDING_MIN_COACH_CALLS = 5;
+
+export type FirstDriveSupportingStat = {
+  label: string;
+  value: string;
+  /** 0–1 for optional horizontal bar */
+  barFraction?: number;
+};
+
+export type FirstDriveCoachingReadout = {
+  headline: string;
+  primaryInsight: string;
+  supportingStats: FirstDriveSupportingStat[];
+  coachingNudge: string;
+};
+
+type Canon = "RUN" | "PASS" | "RPO" | "OTHER";
+
+function coachPlayDisplayName(rawName: string): string {
+  const upper = normalizePlayName(rawName);
+  return upper
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function pct(part: number, whole: number): number {
+  if (whole <= 0) return 0;
+  return Math.round((part / whole) * 100);
+}
+
+function countBreakdown(rows: LoggedPlay[]): GuidedPlayTypeBreakdown {
+  const breakdown: GuidedPlayTypeBreakdown = { run: 0, pass: 0, rpo: 0, other: 0 };
+  for (const p of rows) {
+    const t = String(p.play_type ?? "").toUpperCase();
+    if (t === "RUN") breakdown.run += 1;
+    else if (t === "PASS") breakdown.pass += 1;
+    else if (t === "RPO") breakdown.rpo += 1;
+    else breakdown.other += 1;
+  }
+  return breakdown;
+}
+
+function dominantCanonType(counts: GuidedPlayTypeBreakdown): { type: Canon; count: number } {
+  const entries: [Canon, number][] = [
+    ["RUN", counts.run],
+    ["PASS", counts.pass],
+    ["RPO", counts.rpo],
+    ["OTHER", counts.other],
+  ];
+  let best: Canon = "RUN";
+  let bestN = counts.run;
+  for (const [k, v] of entries) {
+    if (v > bestN) {
+      best = k;
+      bestN = v;
+    }
+  }
+  return { type: best, count: bestN };
+}
+
+function supportingMixStats(counts: GuidedPlayTypeBreakdown, n: number): FirstDriveSupportingStat[] {
+  const stats: FirstDriveSupportingStat[] = [
+    { label: "Run", value: `${pct(counts.run, n)}%`, barFraction: counts.run / n },
+    { label: "Pass", value: `${pct(counts.pass, n)}%`, barFraction: counts.pass / n },
+  ];
+  if (counts.rpo > 0) {
+    stats.push({ label: "RPO", value: `${pct(counts.rpo, n)}%`, barFraction: counts.rpo / n });
+  } else {
+    stats.push({ label: "Total calls", value: String(n) });
+  }
+  return stats.slice(0, 3);
+}
+
+type PlayAgg = { sumYards: number; count: number; lastIndex: number; sampleName: string };
+
+function aggregateByPlayName(coach: LoggedPlay[]): Map<string, PlayAgg> {
+  const map = new Map<string, PlayAgg>();
+  coach.forEach((p, index) => {
+    const raw = String(p.play_name ?? "").trim();
+    const key = normalizePlayName(raw);
+    if (!key) return;
+    const y = Number(p.yards_gained ?? 0);
+    const prev = map.get(key);
+    if (!prev) {
+      map.set(key, { sumYards: y, count: 1, lastIndex: index, sampleName: raw });
+    } else {
+      prev.sumYards += y;
+      prev.count += 1;
+      prev.lastIndex = index;
+    }
+  });
+  return map;
+}
+
+function pickBestPlayByAvgYards(coach: LoggedPlay[]): { key: string; avg: number; sampleName: string; lastIndex: number } | null {
+  const map = aggregateByPlayName(coach);
+  let best: { key: string; avg: number; sampleName: string; lastIndex: number } | null = null;
+  for (const [key, agg] of map) {
+    const avg = agg.sumYards / agg.count;
+    if (!best) {
+      best = { key, avg, sampleName: agg.sampleName, lastIndex: agg.lastIndex };
+      continue;
+    }
+    if (avg > best.avg) {
+      best = { key, avg, sampleName: agg.sampleName, lastIndex: agg.lastIndex };
+    } else if (avg === best.avg && agg.lastIndex > best.lastIndex) {
+      best = { key, avg, sampleName: agg.sampleName, lastIndex: agg.lastIndex };
+    }
+  }
+  return best;
+}
+
+/** Coaching readout for the first-drive insight overlay (all coach calls on the drive). */
+export function buildFirstDriveCoachingReadout(plays: LoggedPlay[]): FirstDriveCoachingReadout | null {
+  const coach = plays.filter(isCoachCallPlay);
+  if (coach.length < GUIDED_ONBOARDING_MIN_COACH_CALLS) return null;
+
+  const n = coach.length;
+  const breakdown = countBreakdown(coach);
+  const { type: domType, count: domCount } = dominantCanonType(breakdown);
+
+  if (domType !== "OTHER" && domCount / n >= 0.7) {
+    const typeLabel = domType === "RUN" ? "RUN" : domType === "PASS" ? "PASS" : "RPO";
+    const primaryInsight = guidedFirstDrivePrimaryTendency(typeLabel, pct(domCount, n));
+    const nudge =
+      domType === "PASS"
+        ? GUIDED_FIRST_DRIVE_NUDGE_PASS_TILT
+        : domType === "RUN"
+          ? GUIDED_FIRST_DRIVE_NUDGE_RUN_TILT
+          : GUIDED_FIRST_DRIVE_NUDGE_RPO_TILT;
+    return {
+      headline: GUIDED_FIRST_DRIVE_HEADLINE_TENDENCY,
+      primaryInsight,
+      supportingStats: supportingMixStats(breakdown, n),
+      coachingNudge: nudge,
+    };
+  }
+
+  const best = pickBestPlayByAvgYards(coach);
+  if (best && best.avg > 0) {
+    const display = coachPlayDisplayName(best.sampleName);
+    const mix = supportingMixStats(breakdown, n);
+    const supportingStats: FirstDriveSupportingStat[] = [
+      ...mix.slice(0, 2),
+      { label: "Best avg", value: `${display} · ${best.avg.toFixed(1)} yds` },
+    ];
+    return {
+      headline: GUIDED_FIRST_DRIVE_HEADLINE_BEST,
+      primaryInsight: guidedFirstDrivePrimaryBest(display),
+      supportingStats,
+      coachingNudge: GUIDED_FIRST_DRIVE_NUDGE_BEST_PLAY,
+    };
+  }
+
+  return {
+    headline: GUIDED_FIRST_DRIVE_HEADLINE_BALANCED,
+    primaryInsight: GUIDED_FIRST_DRIVE_PRIMARY_BALANCED,
+    supportingStats: supportingMixStats(breakdown, n),
+    coachingNudge: GUIDED_FIRST_DRIVE_NUDGE_BALANCED,
+  };
+}
 
 function tendencyFromLastFive(last5: LoggedPlay[]): string {
   let run = 0;
@@ -84,4 +263,9 @@ export function buildGuidedOnboardingInsight(plays: LoggedPlay[]): GuidedOnboard
     tendencyParagraph: tendencyFromLastFive(last5),
     bestPlay,
   };
+}
+
+/** Coaching readout from the last five non-punt calls (uses server-resolved `play_type`). */
+export function guidedInsightFromLoggedPlays(plays: LoggedPlay[]): string {
+  return buildGuidedOnboardingInsight(plays)?.tendencyParagraph ?? "";
 }

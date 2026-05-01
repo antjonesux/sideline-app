@@ -3,12 +3,13 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { buildGuidedOnboardingInsight } from "@/lib/guidedOnboardingInsight";
+import { buildFirstDriveCoachingReadout, GUIDED_ONBOARDING_MIN_COACH_CALLS } from "@/lib/guidedOnboardingInsight";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
+import { GuidedFirstDriveInsight } from "@/components/film/GuidedFirstDriveInsight";
 import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
 import { DriveCardOutcomeBadge } from "@/components/film/DriveCardOutcomeBadge";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
@@ -40,11 +41,7 @@ import {
   FILM_END_GAME_SCORE_BODY,
   FILM_END_GAME_SCORE_TITLE,
   FILM_RESUME_GAME_CTA,
-  GUIDED_INSIGHT_CTA_FILM_ROOM,
-  GUIDED_INSIGHT_CTA_FULL_BREAKDOWN,
-  GUIDED_INSIGHT_TITLE,
   GUIDED_LOGGER_TITLE,
-  guidedInsightFromLoggedPlays,
 } from "@/lib/coachCopy";
 import { dismissOnboarding } from "@/lib/onboardingDismissed";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
@@ -157,6 +154,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [guidedInsightOpen, setGuidedInsightOpen] = useState(false);
+  const [guidedAnotherDriveBusy, setGuidedAnotherDriveBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const setGuidedOnboardingDone = useLastGamePrefsStore((s) => s.setGuidedOnboardingDone);
   const guidedBootRef = useRef<"off" | "pending" | "done">("off");
@@ -469,7 +467,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
     setExpandedDriveIds((current) => current.filter((id) => id !== driveId));
     setNoteEditDriveId((id) => (id === driveId ? "" : id));
-      addToast("Drive removed.", "success");
+    addToast("Drive removed.", "success");
     await refresh();
   }
 
@@ -495,7 +493,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
     if (focus) {
       const coachLogged = (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length;
-      if (coachLogged >= 5) {
+      if (coachLogged >= GUIDED_ONBOARDING_MIN_COACH_CALLS) {
         guidedBootRef.current = "done";
         setShowLogger(false);
         setGuidedInsightOpen(true);
@@ -528,7 +526,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (!guidedMode || !pageReady) return;
     const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
     const coachLogged = focus ? (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length : 0;
-    if (coachLogged < 5) return;
+    if (coachLogged < GUIDED_ONBOARDING_MIN_COACH_CALLS) return;
     setShowLogger(false);
     setGuidedInsightOpen(true);
   }, [guidedMode, pageReady, drives, activeDrive]);
@@ -549,6 +547,28 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
       addToast("Call removed.", "success");
     await refresh();
+  }
+
+  async function handleGuidedCallAnotherDrive() {
+    setGuidedAnotherDriveBusy(true);
+    try {
+      setGuidedInsightOpen(false);
+      const created = await createDrive();
+      if (created) {
+        openForCreate(created.id);
+      } else {
+        setGuidedInsightOpen(true);
+      }
+    } finally {
+      setGuidedAnotherDriveBusy(false);
+    }
+  }
+
+  function handleGuidedGoToFilmRoom() {
+    if (user?.id) dismissOnboarding(user.id);
+    setGuidedOnboardingDone(true, user?.id ?? null);
+    setGuidedInsightOpen(false);
+    router.replace("/film");
   }
 
   function findPlayById(playId: string): LoggedPlay | undefined {
@@ -606,14 +626,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const guidedCallCount = activeDriveObj
     ? (activeDriveObj.plays ?? []).filter((p) => isCoachCallPlay(p)).length
     : 0;
-  const guidedInsightModel =
-    guidedMode && activeDriveObj && guidedCallCount >= 5
-      ? buildGuidedOnboardingInsight(activeDriveObj.plays ?? [])
+  const guidedReadout =
+    guidedMode && activeDriveObj && guidedCallCount >= GUIDED_ONBOARDING_MIN_COACH_CALLS
+      ? buildFirstDriveCoachingReadout(activeDriveObj.plays ?? [])
       : null;
-  const guidedInsightFallback =
-    guidedMode && activeDriveObj && guidedCallCount >= 5 && !guidedInsightModel
-      ? guidedInsightFromLoggedPlays(activeDriveObj.plays ?? [])
-      : "";
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
@@ -1098,7 +1114,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   sheetId={activeSheetId}
                   loggerOpenFlowId={loggerOpenFlowIdRef.current}
                   guidedProgress={
-                    guidedMode ? { current: Math.min(guidedCallCount, 5), target: 5 } : null
+                    guidedMode
+                      ? {
+                          current: Math.min(guidedCallCount, GUIDED_ONBOARDING_MIN_COACH_CALLS),
+                          target: GUIDED_ONBOARDING_MIN_COACH_CALLS,
+                        }
+                      : null
                   }
                   totalPlayRowsInGame={totalPlayRowsInGame}
                   totalCoachCallsInGame={totalPlays}
@@ -1113,89 +1134,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         </>
       ) : null}
 
-      {guidedMode && guidedInsightOpen && activeDriveObj && guidedCallCount >= 5 ? (
-        <div
-          className={cn("fixed inset-0 flex flex-col bg-slate-950/95 px-4 py-6 backdrop-blur-sm sm:px-6", "z-[210]")}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="guided-insight-title"
-        >
-          <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center space-y-5">
-            <div>
-              <p id="guided-insight-title" className="font-mono text-xs uppercase tracking-widest text-emerald-400/90">
-                {GUIDED_INSIGHT_TITLE}
-              </p>
-              <p className="mt-2 font-body text-sm text-slate-400">From your first five calls on this drive.</p>
-            </div>
-
-            {guidedInsightModel ? (
-              <>
-                <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
-                  <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play type mix</p>
-                  <ul className="mt-2 space-y-1 font-body text-sm text-slate-200">
-                    <li>Run: {guidedInsightModel.breakdown.run}</li>
-                    <li>Pass: {guidedInsightModel.breakdown.pass}</li>
-                    <li>RPO: {guidedInsightModel.breakdown.rpo}</li>
-                    {guidedInsightModel.breakdown.other > 0 ? (
-                      <li>Other: {guidedInsightModel.breakdown.other}</li>
-                    ) : null}
-                  </ul>
-                </div>
-                {guidedInsightModel.bestPlay ? (
-                  <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
-                    <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Best yardage call</p>
-                    <p className="mt-2 font-mono text-sm font-medium text-white">
-                      {normalizePlayName(guidedInsightModel.bestPlay.play_name)}
-                    </p>
-                    <p className="mt-0.5 font-mono text-xs text-slate-500">{guidedInsightModel.bestPlay.formation}</p>
-                    <p className="mt-2 font-body text-sm text-slate-300">
-                      {guidedInsightModel.bestPlay.yards_gained} yds on the log
-                    </p>
-                  </div>
-                ) : null}
-                <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
-                  <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Tendency read</p>
-                  <p className="mt-2 font-body text-sm leading-relaxed text-slate-200">
-                    {guidedInsightModel.tendencyParagraph}
-                  </p>
-                </div>
-              </>
-            ) : guidedInsightFallback ? (
-              <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
-                <p className="font-body text-sm leading-relaxed text-slate-200">{guidedInsightFallback}</p>
-              </div>
-            ) : null}
-
-            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
-              <Button
-                type="button"
-                variant="default"
-                className="flex-1 text-sm"
-                onClick={() => {
-                  if (user?.id) dismissOnboarding(user.id);
-                  setGuidedOnboardingDone(true, user?.id ?? null);
-                  setGuidedInsightOpen(false);
-                  router.replace(`/film/${gameId}`);
-                }}
-              >
-                {GUIDED_INSIGHT_CTA_FULL_BREAKDOWN}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                className="flex-1 text-sm"
-                onClick={() => {
-                  if (user?.id) dismissOnboarding(user.id);
-                  setGuidedOnboardingDone(true, user?.id ?? null);
-                  setGuidedInsightOpen(false);
-                  router.replace("/film");
-                }}
-              >
-                {GUIDED_INSIGHT_CTA_FILM_ROOM}
-              </Button>
-            </div>
-          </div>
-        </div>
+      {guidedMode && activeDriveObj && guidedReadout ? (
+        <GuidedFirstDriveInsight
+          open={guidedInsightOpen}
+          readout={guidedReadout}
+          onCallAnotherDrive={handleGuidedCallAnotherDrive}
+          onGoToFilmRoom={handleGuidedGoToFilmRoom}
+          anotherDriveBusy={guidedAnotherDriveBusy}
+        />
       ) : null}
 
       <ConfirmDestructiveModal

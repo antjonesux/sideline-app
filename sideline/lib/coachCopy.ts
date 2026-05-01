@@ -1,6 +1,3 @@
-import { buildGuidedOnboardingInsight } from "@/lib/guidedOnboardingInsight";
-import type { LoggedPlay } from "@/lib/types";
-
 /** Short, human strings for toasts and alerts — no API/DB details. */
 export const COULDNT_SAVE = "Couldn't save. Check connection and try again.";
 export const COULDNT_LOAD = "Couldn't load that. Check connection and try again.";
@@ -64,18 +61,14 @@ export const ONBOARDING_SHEET_PLAY_COUNT = (n: number, min: number) =>
 
 export const GUIDED_LOGGER_TITLE = "Getting started";
 export const GUIDED_LOGGER_HINT = (remaining: number) =>
-  remaining > 0 ? `Log ${remaining} more call${remaining === 1 ? "" : "s"} for your first readout.` : "Readout ready below.";
-export const GUIDED_INSIGHT_TITLE = "Your first readout";
+  remaining > 0
+    ? `Log ${remaining} more call${remaining === 1 ? "" : "s"} for your first drive breakdown.`
+    : "First drive breakdown ready — close the logger to see it.";
 export const GUIDED_FINISH_CTA = "Finish and go to Film Room";
-export const GUIDED_INSIGHT_CTA_FULL_BREAKDOWN = "View full breakdown";
+export const GUIDED_INSIGHT_CTA_ANOTHER_DRIVE = "Call another drive";
 export const GUIDED_INSIGHT_CTA_FILM_ROOM = "Go to Film Room";
 
 export const ONBOARDING_GAME_READY = "Practice game ready.";
-
-/** Coaching readout from the last five non-punt calls (uses server-resolved `play_type`). */
-export function guidedInsightFromLoggedPlays(plays: LoggedPlay[]): string {
-  return buildGuidedOnboardingInsight(plays)?.tendencyParagraph ?? "";
-}
 
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";

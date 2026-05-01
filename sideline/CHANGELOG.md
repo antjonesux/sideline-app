@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Film — first drive breakdown: Radix Dialog, copy module)
+
+**What:** **`lib/guidedFirstDriveCopy.ts`**: Centralized coach strings for the guided first-drive insight (eyebrow, headlines, nudges, primary templates). **`lib/guidedOnboardingInsight.ts`**: **`buildFirstDriveCoachingReadout`** reads from that module; **`FirstDriveCoachingReadout`** drops redundant **`eyebrow`**; **`guidedInsightFromLoggedPlays`** moved here from **`coachCopy.ts`**. **`components/film/GuidedFirstDriveInsight.tsx`**: **`Dialog`** / **`DialogContent`** with **`hideCloseButton`**, blocked outside/Esc dismiss, mobile bottom-sheet–style chrome + **`modalCtaFooterClass`** CTA row. **`components/ui/dialog.tsx`**: optional **`hideCloseButton`**. **`app/film/[gameId]/page.tsx`**: controlled **`open={guidedInsightOpen}`** while **`guidedReadout`** gates mount. **`lib/coachCopy.ts`**: **`GUIDED_LOGGER_HINT`** aligned to “first drive breakdown”; removed **`GUIDED_INSIGHT_TITLE`** and **`guidedInsightFromLoggedPlays`** (no circular import to insight lib).
+
+**Why:** Match **BUILD_CONTRACT** preference for Radix **`Dialog`** on new overlay work; keep coach copy discoverable and honest; avoid **`coachCopy` ↔ `guidedOnboardingInsight`** import cycles.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-01 (Onboarding carousel — full-bleed backdrop, layout, spacing)
 
 **What:** **`components/shared/OnboardingCarousel.tsx`**: Full-viewport layered **`ONBOARDING_PAGE_BACKDROP`** on a **`fixed inset-0`** **`pointer-events-none`** layer (**`z-[5]`**) so the gradient ignores **`<main>`** padding; interactive chrome on **`z-[10]`**. Mock uses intrinsic **`next/image`** (**`288×576`**, **`object-contain`**, **`max-h-[min(24rem,48svh)]`**), top-only radius (**`rounded-t-[10px]`** / **`rounded-t-2xl`**, **`rounded-b-none`**), no border; Explore + copy + dots spacing tuned; dot row **`gap-0`** + **`h-10 w-8`** hit targets; **`min-h-[48px]`** **`flex-1`** spacer before CTA; CTA **`pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]`**. **`components/shared/HomeOnboardingGate.tsx`**: Carousel **`section`** **`h-[calc(100dvh-3rem-env(safe-area-inset-bottom)-env(safe-area-inset-top))]`**, **`min-h-0`**, **`overflow-x-hidden`**, **`py-0`**.

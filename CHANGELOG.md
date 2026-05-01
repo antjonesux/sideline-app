@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Film: first drive breakdown (Dialog, `guidedFirstDriveCopy`)
+
+### What
+
+- [`sideline/lib/guidedFirstDriveCopy.ts`](sideline/lib/guidedFirstDriveCopy.ts): New module for first-drive insight coach strings (eyebrow, headlines, nudges, primary-line helpers) so copy is not split across `guidedOnboardingInsight` literals.
+- [`sideline/lib/guidedOnboardingInsight.ts`](sideline/lib/guidedOnboardingInsight.ts): `buildFirstDriveCoachingReadout` consumes that copy; `guidedInsightFromLoggedPlays` lives here (moved from `coachCopy`); readout type no longer carries `eyebrow`.
+- [`sideline/components/ui/dialog.tsx`](sideline/components/ui/dialog.tsx): `hideCloseButton` on `DialogContent` for forced-choice flows.
+- [`sideline/components/film/GuidedFirstDriveInsight.tsx`](sideline/components/film/GuidedFirstDriveInsight.tsx): Radix `Dialog` with outside/Esc dismiss prevented; mobile sheet–style layout; footer uses `modalCtaFooterClass`.
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): `GuidedFirstDriveInsight` receives `open={guidedInsightOpen}`; mount when `guidedReadout` exists.
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): `GUIDED_LOGGER_HINT` wording matches “first drive breakdown”; removed unused guided insight exports that depended on importing the insight builder.
+
+### Why
+
+Aligns with **BUILD_CONTRACT** (prefer `Dialog` for new Film overlay surfaces), keeps **coachCopy** free of imports from `guidedOnboardingInsight`, and documents the shipped behavior in the changelog.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-05-01 — Onboarding carousel: full-bleed gradient, layout, CTA spacing
 
 ### What
