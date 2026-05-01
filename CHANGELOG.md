@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Onboarding: refreshed carousel slide images
+
+### What
+
+- [`sideline/public/onboarding/slide-1-plan.png`](sideline/public/onboarding/slide-1-plan.png), [`slide-2-call.png`](sideline/public/onboarding/slide-2-call.png), [`slide-3-improve.png`](sideline/public/onboarding/slide-3-improve.png): Replaced PNG mocks used by [`sideline/components/shared/OnboardingCarousel.tsx`](sideline/components/shared/OnboardingCarousel.tsx) (**`ONBOARDING_CAROUSEL_SLIDES`** in [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts)).
+
+### Why
+
+Updated onboarding artwork; no route or component logic changes.
+
+### Status after this push
+
+- [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Film: new game setup copy + playbook prefill
 
 ### What

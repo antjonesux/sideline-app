@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Onboarding carousel — refreshed slide PNGs)
+
+**What:** **`public/onboarding/slide-1-plan.png`**, **`slide-2-call.png`**, **`slide-3-improve.png`**: updated assets (same paths referenced by **`ONBOARDING_CAROUSEL_SLIDES`** in **`lib/coachCopy.ts`** / **`OnboardingCarousel`**).
+
+**Why:** Sharper home onboarding visuals without changing carousel behavior or copy.
+
+**Status after this push:** Asset-only change; `npm run build` from `sideline/` expected unchanged; repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-02 (Film — `/film/new` setup copy + playbook prefill)
 
 **What:** **`app/film/new/page.tsx`**: Screen title **Start a game**, subtitle (*Set the matchup and playbook…*), primary CTA **Start game**; field labels **Your team** / **Playbook** (from **`coachCopy`**); removed the generic “any playbook” helper line. **`GET /api/playbook`** prefill: prefers sheet named **`ONBOARDING_DEFAULT_SHEET_NAME`**, else first list row (recently updated order), when **`cfb26_playbook`** matches catalog **`playbookOptions`**; **`playbookUserTouchedRef`** blocks overwriting after the coach touches the playbook combobox. **`lib/coachCopy.ts`**: **`FILM_NEW_GAME_TITLE`**, **`FILM_NEW_GAME_SUBTITLE`**, **`FILM_NEW_GAME_CTA`**, **`FILM_NEW_GAME_YOUR_TEAM_LABEL`**, **`FILM_NEW_GAME_PLAYBOOK_LABEL`**.
