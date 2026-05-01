@@ -4,13 +4,15 @@ import { persist } from "zustand/middleware";
 type LastGamePrefsState = {
   my_playbook: string;
   my_scheme: string;
-  /** False until the coach finishes guided onboarding; absent in legacy persisted blobs. */
+  /** True after guided onboarding insight is dismissed for `guidedOnboardingUserId`. */
   guidedOnboardingDone: boolean;
+  /** Supabase user id who completed guided onboarding; completion applies only for this user. */
+  guidedOnboardingUserId: string | null;
   setLastGame: (prefs: { my_playbook: string; my_scheme: string }) => void;
-  setGuidedOnboardingDone: (done: boolean) => void;
+  setGuidedOnboardingDone: (done: boolean, userId?: string | null) => void;
 };
 
-const PERSIST_VERSION = 1;
+const PERSIST_VERSION = 2;
 
 export const useLastGamePrefsStore = create<LastGamePrefsState>()(
   persist(
@@ -18,8 +20,13 @@ export const useLastGamePrefsStore = create<LastGamePrefsState>()(
       my_playbook: "",
       my_scheme: "",
       guidedOnboardingDone: false,
+      guidedOnboardingUserId: null,
       setLastGame: (prefs) => set(prefs),
-      setGuidedOnboardingDone: (done) => set({ guidedOnboardingDone: done }),
+      setGuidedOnboardingDone: (done, userId) =>
+        set({
+          guidedOnboardingDone: done,
+          guidedOnboardingUserId: done && userId ? userId : null,
+        }),
     }),
     {
       name: "sideline-last-game-prefs",
@@ -29,19 +36,28 @@ export const useLastGamePrefsStore = create<LastGamePrefsState>()(
           my_playbook?: string;
           my_scheme?: string;
           guidedOnboardingDone?: boolean;
+          guidedOnboardingUserId?: string | null;
         };
-        if (fromVersion === 0) {
-          return {
-            my_playbook: row.my_playbook ?? "",
-            my_scheme: row.my_scheme ?? "",
-            guidedOnboardingDone: row.guidedOnboardingDone ?? true,
-          };
-        }
-        return {
+        const base = {
           my_playbook: row.my_playbook ?? "",
           my_scheme: row.my_scheme ?? "",
           guidedOnboardingDone: row.guidedOnboardingDone ?? false,
+          guidedOnboardingUserId: row.guidedOnboardingUserId ?? null,
         };
+        if (fromVersion === 0) {
+          return {
+            ...base,
+            guidedOnboardingDone: row.guidedOnboardingDone ?? true,
+            guidedOnboardingUserId: null,
+          };
+        }
+        if (fromVersion === 1) {
+          return {
+            ...base,
+            guidedOnboardingUserId: null,
+          };
+        }
+        return base;
       },
     },
   ),

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
 import { redirect } from "next/navigation";
@@ -21,6 +22,7 @@ type GameSessionRow = {
   game_date: string;
   quarter_started_logging: number | null;
   created_at: string;
+  import_source?: string | null;
 };
 
 type LoggedPlayStatsRow = {
@@ -40,15 +42,20 @@ type GameWithCounts = GameSessionRow & {
 
 async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
   const supabase = await createClient();
-  const { data: games, error: gameError } = await supabase
+  const { data: gamesRaw, error: gameError } = await supabase
     .from("game_sessions")
     .select(
-      "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at",
+      "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at, import_source",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (gameError || !games?.length) return [];
+  if (gameError || !gamesRaw?.length) return [];
+
+  const games = (gamesRaw as GameSessionRow[]).filter(
+    (g) => g.import_source !== GAME_SESSION_IMPORT_SOURCE_ONBOARDING,
+  );
+  if (games.length === 0) return [];
 
   const gameIds = games.map((g) => g.id);
 

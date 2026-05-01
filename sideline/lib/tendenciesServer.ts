@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
@@ -75,7 +76,10 @@ export function filterGameRowsByOffensivePlaybook(games: GameRow[], playbook: st
 }
 
 export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
-  let query = supabase.from("game_sessions").select("offensive_playbook, my_playbook");
+  let query = supabase
+    .from("game_sessions")
+    .select("offensive_playbook, my_playbook")
+    .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
   const { data, error } = await query;
   if (error) {
@@ -98,7 +102,8 @@ export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient,
 export async function fetchGamesOrdered(supabase: SupabaseClient, userId?: string): Promise<GameRow[]> {
   let query = supabase
     .from("game_sessions")
-    .select("id, my_playbook, offensive_playbook, opponent_team, game_date, result, my_score, opponent_score");
+    .select("id, my_playbook, offensive_playbook, opponent_team, game_date, result, my_score, opponent_score")
+    .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
   const { data, error } = await query.order("game_date", { ascending: false });
   if (error) {

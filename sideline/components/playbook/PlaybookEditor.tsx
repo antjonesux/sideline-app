@@ -64,6 +64,8 @@ type SetupApi = {
 };
 
 const MIN_ONBOARDING_SHEET_PLAYS = 3;
+/** Guided onboarding adds calls in one situation only (matches brief: single scenario). */
+const ONBOARDING_EDITOR_SCENARIO = "3rd & Medium";
 
 export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const router = useRouter();
@@ -131,10 +133,18 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   useEffect(() => {
     if (!scenarios.length) return;
+    if (onboardingEditor) {
+      const pick =
+        scenarios.find((s) => s.scenario === ONBOARDING_EDITOR_SCENARIO)?.scenario ??
+        scenarios[0]?.scenario ??
+        "1st Down";
+      setActiveScenario(pick);
+      return;
+    }
     if (!scenarios.some((s) => s.scenario === activeScenario)) {
       setActiveScenario(scenarios[0]?.scenario ?? "1st Down");
     }
-  }, [scenarios, activeScenario]);
+  }, [scenarios, activeScenario, onboardingEditor]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -351,6 +361,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           opponent_score: 0,
           result: "W",
           play_sheet_id: sheetId,
+          guided_onboarding_session: true,
         }),
       });
       const game = (await res.json()) as { id?: string };
@@ -455,13 +466,23 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         </p>
       </div>
 
-      <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
+      {onboardingEditor ? (
+        <p className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 font-body text-sm text-slate-300">
+          <span className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situation</span>
+          <span className="mt-1 block font-medium text-white">{scenarioDisplayLabel(activeScenario)}</span>
+          <span className="mt-1 block text-xs text-slate-500">Add at least {MIN_ONBOARDING_SHEET_PLAYS} calls here to continue.</span>
+        </p>
+      ) : (
+        <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
+      )}
 
-      <div className="grid min-h-[50vh] gap-6 lg:grid-cols-[220px_1fr]">
-        <aside className="hidden lg:block">
-          <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situations</p>
-          <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="desktop" />
-        </aside>
+      <div className={cn("grid min-h-[50vh] gap-6", !onboardingEditor && "lg:grid-cols-[220px_1fr]")}>
+        {!onboardingEditor ? (
+          <aside className="hidden lg:block">
+            <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situations</p>
+            <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="desktop" />
+          </aside>
+        ) : null}
 
         <section className="min-w-0 space-y-4">
           <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
@@ -518,13 +539,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             </div>
           )}
 
-          <PlaySuggestions
-            scenarioLabel={activeScenario}
-            suggestions={suggestions}
-            busyId={suggestBusy}
-            onAdd={onSuggestAdd}
-            scenarioFull={atCapacity}
-          />
+          {!onboardingEditor ? (
+            <PlaySuggestions
+              scenarioLabel={activeScenario}
+              suggestions={suggestions}
+              busyId={suggestBusy}
+              onAdd={onSuggestAdd}
+              scenarioFull={atCapacity}
+            />
+          ) : null}
         </section>
       </div>
 

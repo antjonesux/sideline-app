@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { buildGuidedOnboardingInsight } from "@/lib/guidedOnboardingInsight";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -29,7 +30,9 @@ import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
 import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
 import {
   COULDNT_SAVE,
@@ -37,11 +40,13 @@ import {
   FILM_END_GAME_SCORE_BODY,
   FILM_END_GAME_SCORE_TITLE,
   FILM_RESUME_GAME_CTA,
-  GUIDED_FINISH_CTA,
+  GUIDED_INSIGHT_CTA_FILM_ROOM,
+  GUIDED_INSIGHT_CTA_FULL_BREAKDOWN,
   GUIDED_INSIGHT_TITLE,
   GUIDED_LOGGER_TITLE,
   guidedInsightFromLoggedPlays,
 } from "@/lib/coachCopy";
+import { dismissOnboarding } from "@/lib/onboardingDismissed";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
@@ -123,6 +128,7 @@ const gameDetailTabTriggerClass =
 
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
+  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const guidedMode = searchParams.get("guided") === "1";
@@ -150,7 +156,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [pendingDriveDelete, setPendingDriveDelete] = useState<string | null>(null);
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [guidedInsightOpen, setGuidedInsightOpen] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
+  const setGuidedOnboardingDone = useLastGamePrefsStore((s) => s.setGuidedOnboardingDone);
   const guidedBootRef = useRef<"off" | "pending" | "done">("off");
   const loggerOpenFlowIdRef = useRef<string | null>(null);
   const endGameScoresSeededRef = useRef(false);
@@ -200,6 +208,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
   useEffect(() => {
     setDetailTab("drives");
+    setGuidedInsightOpen(false);
   }, [gameId]);
 
   useEffect(() => {
@@ -482,6 +491,18 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   useEffect(() => {
     if (!pageReady || !game || !guidedMode) return;
     if (guidedBootRef.current === "done") return;
+
+    const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
+    if (focus) {
+      const coachLogged = (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length;
+      if (coachLogged >= 5) {
+        guidedBootRef.current = "done";
+        setShowLogger(false);
+        setGuidedInsightOpen(true);
+        return;
+      }
+    }
+
     if (drives.length > 0) {
       guidedBootRef.current = "done";
       const first = drives[0];
@@ -501,7 +522,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once per pageReady/game/guided/drives; avoid re-binding createDrive in deps
-  }, [pageReady, game, guidedMode, drives]);
+  }, [pageReady, game, guidedMode, drives, activeDrive]);
+
+  useEffect(() => {
+    if (!guidedMode || !pageReady) return;
+    const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
+    const coachLogged = focus ? (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length : 0;
+    if (coachLogged < 5) return;
+    setShowLogger(false);
+    setGuidedInsightOpen(true);
+  }, [guidedMode, pageReady, drives, activeDrive]);
 
   async function performDeletePlay(playId: string) {
     const prevDrives = drives;
@@ -576,8 +606,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const guidedCallCount = activeDriveObj
     ? (activeDriveObj.plays ?? []).filter((p) => isCoachCallPlay(p)).length
     : 0;
-  const guidedInsightBody =
+  const guidedInsightModel =
     guidedMode && activeDriveObj && guidedCallCount >= 5
+      ? buildGuidedOnboardingInsight(activeDriveObj.plays ?? [])
+      : null;
+  const guidedInsightFallback =
+    guidedMode && activeDriveObj && guidedCallCount >= 5 && !guidedInsightModel
       ? guidedInsightFromLoggedPlays(activeDriveObj.plays ?? [])
       : "";
 
@@ -1074,26 +1108,94 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   }}
                 />
               </div>
-              {guidedMode && guidedInsightBody ? (
-                <div className="shrink-0 space-y-3 border-t border-slate-800 bg-slate-900/95 px-4 py-4">
-                  <p className="font-mono text-xs uppercase tracking-widest text-emerald-400/90">{GUIDED_INSIGHT_TITLE}</p>
-                  <p className="font-body text-sm leading-relaxed text-slate-200">{guidedInsightBody}</p>
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full text-sm"
-                    onClick={() => {
-                      setShowLogger(false);
-                      router.replace("/film");
-                    }}
-                  >
-                    {GUIDED_FINISH_CTA}
-                  </Button>
-                </div>
-              ) : null}
             </div>
           </div>
         </>
+      ) : null}
+
+      {guidedMode && guidedInsightOpen && activeDriveObj && guidedCallCount >= 5 ? (
+        <div
+          className={cn("fixed inset-0 flex flex-col bg-slate-950/95 px-4 py-6 backdrop-blur-sm sm:px-6", "z-[210]")}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guided-insight-title"
+        >
+          <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center space-y-5">
+            <div>
+              <p id="guided-insight-title" className="font-mono text-xs uppercase tracking-widest text-emerald-400/90">
+                {GUIDED_INSIGHT_TITLE}
+              </p>
+              <p className="mt-2 font-body text-sm text-slate-400">From your first five calls on this drive.</p>
+            </div>
+
+            {guidedInsightModel ? (
+              <>
+                <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
+                  <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play type mix</p>
+                  <ul className="mt-2 space-y-1 font-body text-sm text-slate-200">
+                    <li>Run: {guidedInsightModel.breakdown.run}</li>
+                    <li>Pass: {guidedInsightModel.breakdown.pass}</li>
+                    <li>RPO: {guidedInsightModel.breakdown.rpo}</li>
+                    {guidedInsightModel.breakdown.other > 0 ? (
+                      <li>Other: {guidedInsightModel.breakdown.other}</li>
+                    ) : null}
+                  </ul>
+                </div>
+                {guidedInsightModel.bestPlay ? (
+                  <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
+                    <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Best yardage call</p>
+                    <p className="mt-2 font-mono text-sm font-medium text-white">
+                      {normalizePlayName(guidedInsightModel.bestPlay.play_name)}
+                    </p>
+                    <p className="mt-0.5 font-mono text-xs text-slate-500">{guidedInsightModel.bestPlay.formation}</p>
+                    <p className="mt-2 font-body text-sm text-slate-300">
+                      {guidedInsightModel.bestPlay.yards_gained} yds on the log
+                    </p>
+                  </div>
+                ) : null}
+                <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
+                  <p className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Tendency read</p>
+                  <p className="mt-2 font-body text-sm leading-relaxed text-slate-200">
+                    {guidedInsightModel.tendencyParagraph}
+                  </p>
+                </div>
+              </>
+            ) : guidedInsightFallback ? (
+              <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
+                <p className="font-body text-sm leading-relaxed text-slate-200">{guidedInsightFallback}</p>
+              </div>
+            ) : null}
+
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+              <Button
+                type="button"
+                variant="default"
+                className="flex-1 text-sm"
+                onClick={() => {
+                  if (user?.id) dismissOnboarding(user.id);
+                  setGuidedOnboardingDone(true, user?.id ?? null);
+                  setGuidedInsightOpen(false);
+                  router.replace(`/film/${gameId}`);
+                }}
+              >
+                {GUIDED_INSIGHT_CTA_FULL_BREAKDOWN}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="flex-1 text-sm"
+                onClick={() => {
+                  if (user?.id) dismissOnboarding(user.id);
+                  setGuidedOnboardingDone(true, user?.id ?? null);
+                  setGuidedInsightOpen(false);
+                  router.replace("/film");
+                }}
+              >
+                {GUIDED_INSIGHT_CTA_FILM_ROOM}
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       <ConfirmDestructiveModal

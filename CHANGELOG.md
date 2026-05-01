@@ -4,6 +4,34 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-01 — Home onboarding: PNG carousel, scaffold sessions, guided insight
+
+### What
+
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md): Documents **`HomeOnboardingGate`** eligibility (Supabase head counts on **`game_sessions`** excluding onboarding **`import_source`**, plus **`play_sheets`**), **`Explore app`** dismissal (**`lib/onboardingDismissed`**), legacy **`lastGamePrefsStore`** completion, **`FORCE_ONBOARDING`**, and conservative **`/film`** redirect when counts fail.
+- [`sideline/components/shared/OnboardingCarousel.tsx`](sideline/components/shared/OnboardingCarousel.tsx): New client carousel — **`next/image`** slides (**`public/onboarding/slide-{1,2,3}-{plan,call,improve}.png`**), framed card, bottom fade, dots, auto-advance + swipe; Explore + CTA use shared **`Button`**.
+- [`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx): Carousel → playbook step; Supabase count queries; **`dismissOnboarding`** on Explore; redirects on query failure.
+- [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): Carousel slide copy + **`imageSrc`**; onboarding/playbook/logger CTAs; **`guidedInsightFromLoggedPlays`** delegates to **`buildGuidedOnboardingInsight`**.
+- [`sideline/lib/guidedOnboardingInsight.ts`](sideline/lib/guidedOnboardingInsight.ts): Shared guided readout model (breakdown, tendency paragraph, best play).
+- [`sideline/lib/onboardingImportSource.ts`](sideline/lib/onboardingImportSource.ts), [`sideline/lib/onboardingDismissed.ts`](sideline/lib/onboardingDismissed.ts): Onboarding **`import_source`** constant + local dismissal flag (**`FORCE_ONBOARDING`** for QA).
+- [`sideline/app/api/games/route.ts`](sideline/app/api/games/route.ts): **`POST`** sets **`import_source`** to onboarding when **`guided_onboarding_session`** / matching body flags.
+- [`sideline/app/film/page.tsx`](sideline/app/film/page.tsx): Film list excludes onboarding scaffold games (still loads counts only for visible games).
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Guided-mode insight sheet after five coach calls (**`buildGuidedOnboardingInsight`**), finish CTAs, **`dismissOnboarding`** integration.
+- [`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx), [`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx): Guided flow uses **`ONBOARDING_DEFAULT_SHEET_NAME`** and shortened create path where applicable.
+- [`sideline/components/tendencies/TendenciesHome.tsx`](sideline/components/tendencies/TendenciesHome.tsx), [`sideline/lib/tendenciesServer.ts`](sideline/lib/tendenciesServer.ts): Exclude onboarding **`game_sessions`** from tendencies game lists / playbook discovery queries.
+- [`sideline/store/lastGamePrefsStore.ts`](sideline/store/lastGamePrefsStore.ts): Persist **`guidedOnboardingUserId`**; migrate **v1 → v2**.
+- Assets: replace legacy onboarding PNG set with three Plan / Call / Improve slides.
+
+### Why
+
+Ship a visual-first home onboarding loop aligned with design, hide scaffold practice games from Film Room and Tendencies, persist dismissal per user safely, and surface a structured first readout after logging without inventing parallel insight logic.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+
+---
+
 ## 2026-04-30 — App shell: main top padding aligned with landing hero
 
 ### What

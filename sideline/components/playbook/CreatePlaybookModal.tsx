@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { modalCtaFooterClass } from "@/lib/constants/designTokens";
-import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
+import { COULDNT_LOAD, COULDNT_SAVE, ONBOARDING_DEFAULT_SHEET_NAME, ONBOARDING_PLAYBOOK_CTA } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 
 type PlaybookOption = { team_name: string };
@@ -49,10 +49,16 @@ export function CreatePlaybookModal({
   useEffect(() => {
     if (variant === "modal" && open) {
       setStep(1);
-      setName("");
+      setName(guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME : "");
       if (!initialCfb26Playbook?.trim()) setSelectedPlaybook(null);
     }
-  }, [variant, open, initialCfb26Playbook]);
+  }, [variant, open, initialCfb26Playbook, guidedOnboardingFlow]);
+
+  useEffect(() => {
+    if (!guidedOnboardingFlow) return;
+    setName(ONBOARDING_DEFAULT_SHEET_NAME);
+    setStep(1);
+  }, [guidedOnboardingFlow]);
 
   useEffect(() => {
     if (!open || !initialCfb26Playbook?.trim()) return;
@@ -80,21 +86,18 @@ export function CreatePlaybookModal({
 
   const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
 
-  const canStep1 = name.trim().length > 0 && Boolean(selectedPlaybook);
+  const canStep1 =
+    (guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME.trim().length > 0 : name.trim().length > 0) &&
+    Boolean(selectedPlaybook);
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (step === 1) {
-      if (canStep1) setStep(2);
-      return;
-    }
-
+  async function createSheetAndNavigate() {
     setBusy(true);
     try {
+      const sheetName = guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME : name.trim();
       const res = await fetch("/api/playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), cfb26_playbook: selectedPlaybook!.team_name }),
+        body: JSON.stringify({ name: sheetName, cfb26_playbook: selectedPlaybook!.team_name }),
       });
       const j = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
@@ -110,6 +113,21 @@ export function CreatePlaybookModal({
     } finally {
       setBusy(false);
     }
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (step === 1) {
+      if (!canStep1) return;
+      if (guidedOnboardingFlow) {
+        await createSheetAndNavigate();
+        return;
+      }
+      setStep(2);
+      return;
+    }
+
+    await createSheetAndNavigate();
   }
 
   const inner = (
@@ -141,12 +159,20 @@ export function CreatePlaybookModal({
             {variant === "modal" ? (
               <DialogDescription asChild>
                 <p className="mt-1 font-body text-sm text-slate-400">
-                  {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
+                  {guidedOnboardingFlow
+                    ? "We start your sheet as “My First Game Plan.” Pick your CFB26 book."
+                    : step === 1
+                      ? "Step 1 of 2 — play sheet name and CFB26 playbook"
+                      : "Step 2 of 2 — start building"}
                 </p>
               </DialogDescription>
             ) : (
               <p className="mt-1 font-body text-sm text-slate-400">
-                {step === 1 ? "Step 1 of 2 — play sheet name and CFB26 playbook" : "Step 2 of 2 — start building"}
+                {guidedOnboardingFlow
+                  ? "We start your sheet as “My First Game Plan.” Pick your CFB26 book."
+                  : step === 1
+                    ? "Step 1 of 2 — play sheet name and CFB26 playbook"
+                    : "Step 2 of 2 — start building"}
               </p>
             )}
           </div>
@@ -163,16 +189,23 @@ export function CreatePlaybookModal({
 
           {step === 1 ? (
             <>
-              <label className="block space-y-1">
-                <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
-                <input
-                  className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                  placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="off"
-                />
-              </label>
+              {guidedOnboardingFlow ? (
+                <p className="rounded-lg border border-slate-700/80 bg-slate-950/40 px-3 py-2.5 font-body text-sm text-slate-200">
+                  <span className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+                  <span className="mt-1 block font-medium text-white">{ONBOARDING_DEFAULT_SHEET_NAME}</span>
+                </p>
+              ) : (
+                <label className="block space-y-1">
+                  <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+                  <input
+                    className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+                    placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoComplete="off"
+                  />
+                </label>
+              )}
 
               <TeamCombobox<PlaybookOption>
                 label="Select CFB26 Playbook"
@@ -218,7 +251,15 @@ export function CreatePlaybookModal({
             </Button>
           )}
           <Button type="submit" variant="default" className="flex-1" disabled={busy || (step === 1 && !canStep1)}>
-            {step === 1 ? "Continue" : busy ? "Creating…" : "Create play sheet & open"}
+            {guidedOnboardingFlow
+              ? busy
+                ? "Creating…"
+                : ONBOARDING_PLAYBOOK_CTA
+              : step === 1
+                ? "Continue"
+                : busy
+                  ? "Creating…"
+                  : "Create play sheet & open"}
           </Button>
         </div>
       </form>

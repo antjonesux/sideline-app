@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-01 (Home onboarding — PNG carousel, scaffold sessions, guided insight)
+
+**What:** Repo **`BUILD_CONTRACT.md`**: **`HomeOnboardingGate`** rules (counts, dismiss, errors, **`FORCE_ONBOARDING`**). New **`components/shared/OnboardingCarousel.tsx`** (**`next/image`**, **`public/onboarding/slide-1-plan.png`** … **`slide-3-improve.png`**). **`HomeOnboardingGate`**, **`lib/coachCopy.ts`**, **`lib/guidedOnboardingInsight.ts`**, **`lib/onboardingImportSource.ts`**, **`lib/onboardingDismissed.ts`**. **`POST /api/games`** onboarding **`import_source`**. **`app/film/page.tsx`** filters scaffold games; **`app/film/[gameId]/page.tsx`** guided insight UI. **`CreatePlaybookModal`** / **`PlaybookEditor`** guided defaults; **`TendenciesHome`** + **`lib/tendenciesServer.ts`** exclude onboarding games; **`store/lastGamePrefsStore.ts`** v2 + **`guidedOnboardingUserId`**. Legacy onboarding PNGs removed.
+
+**Why:** Coach-visible onboarding matches Figma-ready slides; scaffold sessions stay out of Film/Tendencies; dismissal + eligibility are documented and safe on Supabase errors.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, this file.
+
+---
+
 ## 2026-04-30 (App shell — main top padding, landing parity)
 
 **What:** **`app/layout.tsx`**: `<main>` **`pt-4 sm:pt-6` → `pt-6`** at all breakpoints. **`/landing`** unchanged (**`data-marketing-chrome`** keeps **`main`** **`padding-top: 0`**; hero inset stays on **`HeroSection`**).

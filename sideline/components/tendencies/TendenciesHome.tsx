@@ -4,6 +4,7 @@ import { AmIPredictable } from "@/components/tendencies/AmIPredictable";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import { isOnboardingGameSession } from "@/lib/onboardingImportSource";
 import { playbookForGame } from "@/lib/tendenciesServer";
 import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -70,7 +71,7 @@ export function TendenciesHome() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const games = Array.isArray(gamesQuery.data) ? gamesQuery.data : [];
+  const games = (Array.isArray(gamesQuery.data) ? gamesQuery.data : []).filter((g) => !isOnboardingGameSession(g));
   const playbookOptions = Array.isArray(playbooksQuery.data?.playbooks) ? playbooksQuery.data.playbooks : [];
 
   const opponents = useMemo(() => {

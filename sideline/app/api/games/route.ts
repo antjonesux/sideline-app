@@ -1,3 +1,4 @@
+import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -37,7 +38,7 @@ type GameSessionInsert = {
   my_score: number;
   opponent_score: number;
   result: "W" | "L";
-  import_source: "live";
+  import_source: "live" | "csv" | typeof GAME_SESSION_IMPORT_SOURCE_ONBOARDING;
   quarter_started_logging?: number;
   play_sheet_id?: string | null;
 };
@@ -58,6 +59,10 @@ export async function POST(req: NextRequest) {
         ? body.my_playbook.trim()
         : "";
 
+  const wantsOnboarding =
+    body.import_source === GAME_SESSION_IMPORT_SOURCE_ONBOARDING ||
+    body.guided_onboarding_session === true;
+
   const insertPayload: GameSessionInsert = {
     user_id: user.id,
     my_playbook: String(body.my_playbook ?? "").trim(),
@@ -69,7 +74,7 @@ export async function POST(req: NextRequest) {
     my_score: Number.isFinite(Number(body.my_score)) ? Number(body.my_score) : 0,
     opponent_score: Number.isFinite(Number(body.opponent_score)) ? Number(body.opponent_score) : 0,
     result: body.result === "L" ? "L" : "W",
-    import_source: "live",
+    import_source: wantsOnboarding ? GAME_SESSION_IMPORT_SOURCE_ONBOARDING : "live",
   };
 
   const q = body.quarter_started_logging;
