@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Film — guided first-drive insight: full-viewport `Dialog`)
+
+**What:** **`components/film/GuidedFirstDriveInsight.tsx`**: **`DialogContent`** is **full-viewport** (**`fixed inset-0`**, **`h-[100dvh]`**, **`max-w-none`**, **`rounded-none`**, **`shadow-none`**), **`bg-slate-950`** / **`border-slate-800`**; inner scroll **`pt-[max(1.25rem,env(safe-area-inset-top,0px))]`**; motion overrides so the shell does not use centered-dialog defaults. Removes the prior **mobile bottom sheet + `sm:` centered `max-w-lg` modal** split.
+
+**Why:** Guided readout reads as the same immersive onboarding family as other full-bleed guided steps (**`DECISIONS.md`** **2026-05-02 — Guided first-drive insight**).
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-05-02 (Shared `PlaySheetSituationChipScroll` — Film My Sheet + Game Plan mobile)
 
 **What:** **`components/shared/PlaySheetSituationChipScroll.tsx`**: viewport bleed (**`ms/me` `calc(50%-50vw)`**, **`w-screen`**, **`max-w-[100vw]`**), scroll row + **leading/trailing spacers** (**`theme(spacing.4|6|2)`**) so the first/last pill lines up with **`layout.tsx`** **`main`** until the user scrolls; **`hideFromLg`** for playbook; **`tabSemantics`** for Film (**`role="tablist"`** / **`role="tab"`** + **`aria-selected`**). **`components/playbook/SituationList.tsx`**: mobile path calls the shared component. **`components/film/PlayLoggerV2.tsx`**: **My Sheet** strip uses it; padded text for error / loading / empty.

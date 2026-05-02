@@ -29,6 +29,8 @@ type Props = {
   guidedOnboardingFlow?: boolean;
   /** Guided home onboarding: single full-page step, no Cancel / breadcrumb escapes. */
   onboardingFullPage?: boolean;
+  /** Local QA only: skip `/api/cfb26-playbooks` and use this list (e.g. `/qa/onboarding/*`). */
+  qaStaticPlaybooks?: string[];
 };
 
 export function CreatePlaybookModal({
@@ -38,6 +40,7 @@ export function CreatePlaybookModal({
   initialCfb26Playbook,
   guidedOnboardingFlow = false,
   onboardingFullPage = false,
+  qaStaticPlaybooks,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
@@ -71,8 +74,13 @@ export function CreatePlaybookModal({
   }, [open, initialCfb26Playbook, playbooks]);
 
   useEffect(() => {
+    if (qaStaticPlaybooks?.length) {
+      setPlaybooks([...qaStaticPlaybooks].sort((a, b) => a.localeCompare(b)));
+      setLoadErr(null);
+      return;
+    }
     let cancelled = false;
-    (async () => {
+    void (async () => {
       setLoadErr(null);
       const res = await fetch("/api/cfb26-playbooks");
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
@@ -85,7 +93,7 @@ export function CreatePlaybookModal({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [qaStaticPlaybooks]);
 
   const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
 

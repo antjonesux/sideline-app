@@ -26,9 +26,11 @@ const ONBOARDING_PAGE_BACKDROP = [
 type Props = {
   onBuildPlan: () => void;
   onDismiss: () => void;
+  /** When true, do not auto-advance slides (stable QA screenshots). */
+  disableAutoAdvance?: boolean;
 };
 
-export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
+export function OnboardingCarousel({ onBuildPlan, onDismiss, disableAutoAdvance = false }: Props) {
   const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -49,12 +51,12 @@ export function OnboardingCarousel({ onBuildPlan, onDismiss }: Props) {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (disableAutoAdvance || reducedMotion) return;
     const t = window.setInterval(() => {
       go(1);
     }, AUTO_ADVANCE_MS);
     return () => window.clearInterval(t);
-  }, [go, reducedMotion, index]);
+  }, [go, reducedMotion, index, disableAutoAdvance]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0]?.clientX ?? null;

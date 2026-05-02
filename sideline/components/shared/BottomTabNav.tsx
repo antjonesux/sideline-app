@@ -30,6 +30,7 @@ export default function BottomTabNav() {
 
   const onboardingChrome = useMemo(() => {
     if (pathname === "/") return true;
+    if (pathname.startsWith("/qa/onboarding")) return true;
     if (pathname === "/playbook" && searchParams.get("onboarding") === "1") return true;
     if (pathname.startsWith("/playbook/") && searchParams.get("onboarding") === "1") return true;
     if (pathname.startsWith("/film/") && searchParams.get("guided") === "1") return true;

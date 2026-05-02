@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Guided first-drive insight: full-viewport `Dialog` shell
+
+**Decision:** **`GuidedFirstDriveInsight`** ships as a **full-viewport** **Radix `Dialog`** — **`fixed inset-0`**, **`h-[100dvh]`**, **`max-w-none`**, **`rounded-none`**, **`border-slate-800` / `bg-slate-950`** — with **DialogContent** motion overrides so it does not use the default centered-dialog slide. The previous **bottom-sheet on small screens + centered `sm:max-w-lg` card on larger breakpoints** layout is **removed**; the readout is immersive at **all** viewports.
+
+**Why:** The first-drive breakdown is the capstone of guided onboarding; it should feel like the same **full-bleed guided step** family as the Game Plan onboarding shell (tab bar already hidden for **`?guided=1`**), not a dismissible floating modal on desktop.
+
+**Impact:** Desktop coaches see edge-to-edge readout + CTAs; dismissal stays **CTA-only** (no backdrop tap / Esc — unchanged). **`BUILD_CONTRACT.md`** Product intent and UI rules document this shell. Future guided overlays should match this pattern unless product explicitly chooses a different density.
+
+---
+
 ## 2026-05-02 — Shared `PlaySheetSituationChipScroll` (Film My Sheet + Game Plan mobile)
 
 **Decision:** Full-bleed horizontal **n/max** situation pills for **Game Plan** mobile (**`SituationList`**) and **Film** **`PlayLoggerV2`** **My Sheet** live in **`components/shared/PlaySheetSituationChipScroll.tsx`**: **`ms/me [calc(50%-50vw)]`**, **`w-screen`**, **`max-w-[100vw]`**, scroll row with **leading/trailing spacers** sized to **`main`** (**`max-w-3xl`** + **`px-4` / `sm:px-6`** − flex **`gap-2`**). **`hideFromLg`** hides the strip at **`lg+`** on Game Plan (desktop sidebar). **`tabSemantics`** uses **`role="tablist"`** and per-chip **`role="tab"`** + **`aria-selected`** for **My Sheet** inside Radix **`Tabs`**; otherwise the scroll row is a **`nav`** labeled **Situations**.

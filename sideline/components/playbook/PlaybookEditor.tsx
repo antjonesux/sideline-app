@@ -430,7 +430,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           "flex min-h-[calc(100dvh-5.5rem-env(safe-area-inset-bottom,0px))] flex-col",
       )}
     >
-      <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))]")}>
+      <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]")}>
         {!onboardingEditor ? (
           <div className="space-y-3">
             <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
@@ -667,7 +667,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       </Dialog>
 
       {onboardingEditor ? (
-        <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-800 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] backdrop-blur-sm">
+        <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-800 bg-slate-950/95 px-4 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-sm">
           <p className="font-body text-sm font-medium text-slate-100">
             Add {MIN_ONBOARDING_SHEET_PLAYS} calls to take the field.
           </p>

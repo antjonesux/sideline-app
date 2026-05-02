@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+qa-screenshots/onboarding/*.png
+/test-results/
 
 # next.js
 /.next/

@@ -14,7 +14,9 @@
     "seed:playbook": "NODE_PATH=./node_modules tsx ./scripts/seed-playbooks.ts",
     "seed:scheme-weights": "NODE_PATH=./node_modules tsx ./scripts/seed-scheme-weights.ts",
     "verify:playbook": "NODE_PATH=./node_modules tsx ./scripts/verify-playbook-seed.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "playwright:install": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
+    "screenshots:onboarding": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/onboarding-screenshots.spec.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -39,6 +41,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "@types/culori": "^4.0.1",

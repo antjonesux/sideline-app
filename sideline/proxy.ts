@@ -11,6 +11,8 @@ const PUBLIC_PATHS = [
 ];
 
 function isPublic(pathname: string) {
+  /** Onboarding screenshot QA — no session; real UI is removed in production via `app/qa/onboarding/layout.tsx`. */
+  if (pathname.startsWith("/qa/onboarding")) return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 

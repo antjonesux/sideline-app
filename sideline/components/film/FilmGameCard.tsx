@@ -52,7 +52,15 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
     }
   }
 
-  const myScoreClass = game.result === "W" ? "text-emerald-500" : game.result === "L" ? "text-red-600" : "text-slate-100";
+  const my = game.my_score;
+  const opp = game.opponent_score;
+  const myScoreLost = my != null && opp != null && my < opp;
+  const myScoreWon = my != null && opp != null && my > opp;
+  const myScoreClass = myScoreLost
+    ? "text-red-600"
+    : myScoreWon
+      ? "text-emerald-500"
+      : "text-slate-100";
 
   return (
     <li className="relative">

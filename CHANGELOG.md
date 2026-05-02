@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Guided first-drive insight: full-viewport readout shell
+
+### What
+
+- [`sideline/components/film/GuidedFirstDriveInsight.tsx`](sideline/components/film/GuidedFirstDriveInsight.tsx): **Radix `Dialog`** is **full-viewport** at all breakpoints (**`inset-0`**, **`h-[100dvh]`**, **`rounded-none`**, **`max-w-none`**); **`slate-950`** / **`border-slate-800`** shell; safe-area top padding on the scroll region; **DialogContent** motion classes aligned to full-bleed guided steps (replaces bottom-sheet + **`sm:`** centered modal).
+
+### Why
+
+Immersive end to guided onboarding (**`?guided=1`**); consistent with other full-bleed guided onboarding surfaces (**`DECISIONS.md`** **2026-05-02 — Guided first-drive insight**).
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Shared situation chip scroll (Film My Sheet + Game Plan mobile)
 
 ### What
