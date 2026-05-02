@@ -7,10 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
-import { SCENARIO_SHORT } from "@/lib/constants";
 import { fetchPlaySheetOverview, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
-import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
+import { PlaySheetSituationChipScroll } from "@/components/shared/PlaySheetSituationChipScroll";
+import { scenarioDisplayLabel, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
 import { possessionEndedFromSnapAndTag } from "@/lib/driveOutcome";
 import { formatFieldPosition } from "@/lib/fieldPosition";
@@ -512,46 +512,22 @@ export function PlayLoggerV2({
                   className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
                 >
                   <div className="flex min-h-0 flex-1 flex-col pb-4">
-                    <div className="shrink-0 px-4">
+                    <div className="shrink-0">
                       {sheetOverviewQuery.isError ? (
-                        <p className="pb-2 font-sans text-sm text-red-300">
+                        <p className="px-4 pb-2 font-sans text-sm text-red-300">
                           {(sheetOverviewQuery.error as Error)?.message ?? "Could not load situations."}
                         </p>
                       ) : sheetOverviewQuery.isPending ? (
-                        <p className="pb-2 font-sans text-xs text-slate-500">Loading situations…</p>
+                        <p className="px-4 pb-2 font-sans text-xs text-slate-500">Loading situations…</p>
+                      ) : mySheetBadgeScenarios.length > 0 ? (
+                        <PlaySheetSituationChipScroll
+                          scenarios={mySheetBadgeScenarios}
+                          selectedScenario={mySheetSelectedScenario}
+                          onSelect={setMySheetSelectedScenario}
+                          tabSemantics
+                        />
                       ) : (
-                        <div
-                          className="overflow-x-auto touch-pan-x overscroll-x-contain [-ms-overflow-style:none] flex min-h-9 gap-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                          role="tablist"
-                          aria-label="Play sheet situations"
-                        >
-                          {mySheetBadgeScenarios.length > 0 ? (
-                            mySheetBadgeScenarios.map((s) => {
-                              const max = scenarioMaxSlots(s.scenario);
-                              const n = s.plays.length;
-                              const short = SCENARIO_SHORT[s.scenario] ?? s.scenario;
-                              const active = s.scenario === mySheetSelectedScenario;
-                              return (
-                                <button
-                                  key={s.id}
-                                  type="button"
-                                  role="tab"
-                                  aria-selected={active}
-                                  onClick={() => setMySheetSelectedScenario(s.scenario)}
-                                  className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-body text-xs ${
-                                    active ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-300"
-                                  }`}
-                                >
-                                  {short} {n}/{max}
-                                </button>
-                              );
-                            })
-                          ) : (
-                            <p className="shrink-0 py-1.5 font-sans text-xs text-slate-500">
-                              No situations on this sheet.
-                            </p>
-                          )}
-                        </div>
+                        <p className="px-4 pb-2 font-sans text-xs text-slate-500">No situations on this sheet.</p>
                       )}
                     </div>
 

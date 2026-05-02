@@ -4,9 +4,19 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Shared `PlaySheetSituationChipScroll` — Film My Sheet + Game Plan mobile)
+
+**What:** **`components/shared/PlaySheetSituationChipScroll.tsx`**: viewport bleed (**`ms/me` `calc(50%-50vw)`**, **`w-screen`**, **`max-w-[100vw]`**), scroll row + **leading/trailing spacers** (**`theme(spacing.4|6|2)`**) so the first/last pill lines up with **`layout.tsx`** **`main`** until the user scrolls; **`hideFromLg`** for playbook; **`tabSemantics`** for Film (**`role="tablist"`** / **`role="tab"`** + **`aria-selected`**). **`components/playbook/SituationList.tsx`**: mobile path calls the shared component. **`components/film/PlayLoggerV2.tsx`**: **My Sheet** strip uses it; padded text for error / loading / empty.
+
+**Why:** One source of truth for the same coaching control in Film and Game Plan (**BUILD_CONTRACT** Film ↔ Game Plan chip parity).
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-05-02 (Game Plan — 10 slots per situation, suggestion rows + avg yds, play types, mobile situation bleed)
 
-**What:** **`lib/playbookUtils.ts`**: **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** (**10**) and **`scenarioMaxSlots`** (Opening Script **15**, 2-/4-minute **10** unchanged). **`components/playbook/PlaySuggestions.tsx`**: Tendencies-like list (**rank**, formation → play, **PlayTypeBadge** + **avg yds** / calls / **Similar situations**); plus icon + **`aria-label`** for add/replace. **`app/api/playbook/[id]/plays/route.ts`**: suggestion **`play_type`** from **`fetchCfbPlayTypeMap`** + **`resolveCfbDisplayPlayType`**. **`lib/loggedPlayStats.ts`**: **`SuggestionRow.avg_yards`** (+ optional **`play_type`**). **`components/playbook/SituationList.tsx`**: mobile **`nav`** full-bleed (**`w-screen`** + **`calc(50%-50vw)`** margins); inner **spacer** widths match **`layout.tsx`** **`main`** column + **`gap-2`**.
+**What:** **`lib/playbookUtils.ts`**: **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** (**10**) and **`scenarioMaxSlots`** (Opening Script **15**, 2-/4-minute **10** unchanged). **`components/playbook/PlaySuggestions.tsx`**: Tendencies-like list (**rank**, formation → play, **PlayTypeBadge** + **avg yds** / calls / **Similar situations**); plus icon + **`aria-label`** for add/replace. **`app/api/playbook/[id]/plays/route.ts`**: suggestion **`play_type`** from **`fetchCfbPlayTypeMap`** + **`resolveCfbDisplayPlayType`**. **`lib/loggedPlayStats.ts`**: **`SuggestionRow.avg_yards`** (+ optional **`play_type`**). **`components/playbook/SituationList.tsx`**: mobile chips (now **`PlaySheetSituationChipScroll`** — see entry above).
 
 **Why:** Coaches need depth on sheets without a separate UI paradigm for suggestions; Film **My Sheet** and Game Plan share **`scenarioMaxSlots`**; mobile chips scroll edge-to-edge while the first pill lines up with page content until the user scrolls.
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { SCENARIO_SHORT } from "@/lib/constants";
+import { PlaySheetSituationChipScroll } from "@/components/shared/PlaySheetSituationChipScroll";
 import { scenarioDisplayLabel, scenarioMaxSlots } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 
@@ -17,39 +17,12 @@ export function SituationList({
 }) {
   if (variant === "mobile") {
     return (
-      <nav
-        className="shrink-0 lg:hidden ms-[calc(50%-50vw)] me-[calc(50%-50vw)] w-screen max-w-[100vw]"
-        aria-label="Situations"
-      >
-        <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] flex gap-2 pb-2">
-          <span
-            aria-hidden
-            className="shrink-0 w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.4)-theme(spacing.2))] sm:w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.6)-theme(spacing.2))]"
-          />
-          {scenarios.map((s) => {
-            const max = scenarioMaxSlots(s.scenario);
-            const n = s.plays.length;
-            const short = SCENARIO_SHORT[s.scenario] ?? s.scenario;
-            const active = s.scenario === activeScenario;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => onSelect(s.scenario)}
-                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 font-body text-xs ${
-                  active ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-300"
-                }`}
-              >
-                {short} {n}/{max}
-              </button>
-            );
-          })}
-          <span
-            aria-hidden
-            className="shrink-0 w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.4)-theme(spacing.2))] sm:w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.6)-theme(spacing.2))]"
-          />
-        </div>
-      </nav>
+      <PlaySheetSituationChipScroll
+        scenarios={scenarios}
+        selectedScenario={activeScenario}
+        onSelect={onSelect}
+        hideFromLg
+      />
     );
   }
 

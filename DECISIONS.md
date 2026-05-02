@@ -6,13 +6,23 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Shared `PlaySheetSituationChipScroll` (Film My Sheet + Game Plan mobile)
+
+**Decision:** Full-bleed horizontal **n/max** situation pills for **Game Plan** mobile (**`SituationList`**) and **Film** **`PlayLoggerV2`** **My Sheet** live in **`components/shared/PlaySheetSituationChipScroll.tsx`**: **`ms/me [calc(50%-50vw)]`**, **`w-screen`**, **`max-w-[100vw]`**, scroll row with **leading/trailing spacers** sized to **`main`** (**`max-w-3xl`** + **`px-4` / `sm:px-6`** − flex **`gap-2`**). **`hideFromLg`** hides the strip at **`lg+`** on Game Plan (desktop sidebar). **`tabSemantics`** uses **`role="tablist"`** and per-chip **`role="tab"`** + **`aria-selected`** for **My Sheet** inside Radix **`Tabs`**; otherwise the scroll row is a **`nav`** labeled **Situations**.
+
+**Why:** **`BUILD_CONTRACT.md`** ties Film **My Sheet** chips to Game Plan vocabulary and layout; one module avoids duplicated viewport math and keeps both surfaces aligned when the shell changes.
+
+**Impact:** Spacer / bleed tweaks happen only in **`PlaySheetSituationChipScroll`** (or a future shared token if **`layout.tsx`** and this component drift). **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
+
+---
+
 ## 2026-05-02 — Game Plan: 10 default sheet slots per situation; suggestions UI + API play types; mobile situation strip alignment
 
-**Decision:** Default max offensive calls per sheet situation (everything except **Opening Script** and the 2-/4-minute buckets) is **10**, via **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** and **`scenarioMaxSlots`** in **`lib/playbookUtils.ts`** — same helper used by **`POST /api/playbook/[id]/plays`**, **`SituationList`**, **`PlaybookEditor`**, and Film **`PlayLoggerV2`** **My Sheet** chip caps. **Suggested plays** on the sheet editor use a **Tendencies top-plays-style** row (rank, formation → play, metrics row with **avg yards** and call count, **RUN/PASS/RPO** badge from **`cfb26_plays`**); **`GET /api/playbook/[id]/plays`** attaches **`play_type`** on each suggestion using **`resolveCfbDisplayPlayType`** and the existing type map. **Add / Replace** on a suggestion is an **icon** control with **`aria-label`**. Mobile **Game Plan** situation pills sit in a **full-viewport-width** horizontal **`nav`**; **scrollable leading/trailing spacers** align the first and last pill with the **`main`** content column ( **`max-w-3xl`** + **`px-4` / `sm:px-6`** + flex **`gap-2`** ) until the coach scrolls.
+**Decision:** Default max offensive calls per sheet situation (everything except **Opening Script** and the 2-/4-minute buckets) is **10**, via **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** and **`scenarioMaxSlots`** in **`lib/playbookUtils.ts`** — same helper used by **`POST /api/playbook/[id]/plays`**, **`SituationList`**, **`PlaybookEditor`**, and Film **`PlayLoggerV2`** **My Sheet** chip caps. **Suggested plays** on the sheet editor use a **Tendencies top-plays-style** row (rank, formation → play, metrics row with **avg yards** and call count, **RUN/PASS/RPO** badge from **`cfb26_plays`**); **`GET /api/playbook/[id]/plays`** attaches **`play_type`** on each suggestion using **`resolveCfbDisplayPlayType`** and the existing type map. **Add / Replace** on a suggestion is an **icon** control with **`aria-label`**. Mobile **Game Plan** situation pills use **`PlaySheetSituationChipScroll`** (see chip-scroll entry above).
 
 **Why:** Five-slot ceilings were tight for real situational depth; suggestions should read as the same coaching data vocabulary as Tendencies rows; play-type badges must stay on the shared catalog ladder; mobile chips should use horizontal edge without breaking alignment with titles and body copy.
 
-**Impact:** Any future change to **`app/layout.tsx`** **`main`** max width or horizontal padding should update **`SituationList`** spacer **`calc`** (or extract a shared shell constant) to avoid silent misalignment. Suggestion **rank order** still comes from **`buildSuggestions`** success / smoothed scoring even though the row highlights **avg yds** — if product wants strict “sort by what we show,” adjust **`buildSuggestions`** or add explicit copy. **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
+**Impact:** Shell alignment math is owned by **`PlaySheetSituationChipScroll`** (see **2026-05-02 — Shared `PlaySheetSituationChipScroll`**). Suggestion **rank order** still comes from **`buildSuggestions`** success / smoothed scoring even though the row highlights **avg yds** — if product wants strict “sort by what we show,” adjust **`buildSuggestions`** or add explicit copy. **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
 
 ---
 

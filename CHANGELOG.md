@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Shared situation chip scroll (Film My Sheet + Game Plan mobile)
+
+### What
+
+- [`sideline/components/shared/PlaySheetSituationChipScroll.tsx`](sideline/components/shared/PlaySheetSituationChipScroll.tsx): Single implementation of **full-bleed** horizontal **n/max** situation pills, **spacer alignment** to **`main`** (`max-w-3xl` + padding + **`gap-2`**), optional **`hideFromLg`** (Game Plan), optional **`tabSemantics`** (Film **My Sheet** **`tab` / `tablist`** inside Radix **`Tabs`**).
+- [`sideline/components/playbook/SituationList.tsx`](sideline/components/playbook/SituationList.tsx): Mobile variant **delegates** to **`PlaySheetSituationChipScroll`** (no duplicated bleed math).
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx): **My Sheet** situation strip uses the same component; error / loading / empty copy stays **`px-4`**.
+
+### Why
+
+**`BUILD_CONTRACT.md`** calls for **Game Plan–style** **My Sheet** chips; one module keeps layout math and coach-visible parity in sync.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`DECISIONS.md`](DECISIONS.md) (new **2026-05-02** chip-scroll entry + prior Game Plan **Impact** pointer), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Game Plan: 10 calls per situation, suggested-play rows, full-bleed situation chips (mobile)
 
 ### What
@@ -12,7 +31,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 - [`sideline/components/playbook/PlaySuggestions.tsx`](sideline/components/playbook/PlaySuggestions.tsx): Suggested plays use **Tendencies-style** ranked rows (formation → play, **avg yds** + call count, pooled hint); **`PlayTypeBadge`** on the metrics row; **`GET`** supplies **`play_type`** via catalog resolution. **Add** / **Replace** use a **plus** icon with **`aria-label`**.
 - [`sideline/app/api/playbook/[id]/plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts): Enrich **`suggestions`** with **`resolveCfbDisplayPlayType`** after **`buildSuggestions`** (same **`cfb26_plays`** map as sheet rows).
 - [`sideline/lib/loggedPlayStats.ts`](sideline/lib/loggedPlayStats.ts): **`SuggestionRow`** includes **`avg_yards`** (and optional **`play_type`** from API).
-- [`sideline/components/playbook/SituationList.tsx`](sideline/components/playbook/SituationList.tsx): Mobile situation strip **full-bleeds** the viewport; **scrollable spacers** align the first/last pill with **`main`** (`max-w-3xl` + horizontal padding + flex **`gap-2`**) at rest.
+- [`sideline/components/playbook/SituationList.tsx`](sideline/components/playbook/SituationList.tsx): Mobile situation strip uses **`PlaySheetSituationChipScroll`** (see chip-scroll entry above).
 
 ### Why
 
