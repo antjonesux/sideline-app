@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Game Plan: single-step create play sheet + coach-first copy
+
+### What
+
+- **`CreatePlaybookModal`**: Creates a play sheet in one step (removed the second confirmation screen). Submit still uses **`POST /api/playbook`** and navigates to **`/playbook/[id]`** (or **`?onboarding=1`** when guided). Page and modal titles use **`PLAYBOOK_NEW_SHEET_TITLE`**; primary CTA **`PLAYBOOK_CREATE_CTA`**. Dropped the extra helper line under the playbook picker on this screen.
+- **`coachCopy.ts`**: **`PLAYBOOK_NEW_SHEET_TITLE`**, **`PLAYBOOK_NEW_SHEET_SUBTITLE`**, name and search placeholders, **`PLAYBOOK_CREATE_CTA`**; **`ONBOARDING_PLAYBOOK_CTA`** aliases **`PLAYBOOK_CREATE_CTA`**.
+
+### Why
+
+Faster Game Plan setup; copy emphasizes trusted calls by situation (outcome-first) per UX guidance.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-02 — Game Plan create flow, seed `play_type` mapping, `BackNavLink`
 
 ### What

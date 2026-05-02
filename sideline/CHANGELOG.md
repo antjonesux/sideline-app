@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Game Plan — single-step create play sheet, coach-first copy)
+
+**What:** **`CreatePlaybookModal`**: one-step create (no confirmation step); titles/CTA/subtitle/placeholders from **`coachCopy.ts`** (**`PLAYBOOK_NEW_SHEET_TITLE`**, **`PLAYBOOK_CREATE_CTA`**, **`PLAYBOOK_NEW_SHEET_SUBTITLE`**, **`PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER`**, **`PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER`**); **`ONBOARDING_PLAYBOOK_CTA`** → **`PLAYBOOK_CREATE_CTA`**. No API or route changes.
+
+**Why:** Faster sheet creation; coach-first wording; less setup jargon on **`/playbook/new`**.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`** updated in the same change.
+
+---
+
 ## 2026-05-02 (Game Plan — `/playbook/new`, onboarding handoff, `BackNavLink`, seed `play_type`)
 
 **What:** **`app/playbook/new/page.tsx`**, **`app/playbook/page.tsx`** redirect, **`HomeOnboardingGate`**, **`PlaybookHome`**, **`CreatePlaybookModal`** (full-page layout, **`PLAYBOOK_NEW_SHEET_TITLE`**, no page **Cancel** beside **`BackNavLink`**). **`components/shared/BackNavLink.tsx`** (replaces **`BackToFilmLink`**); Film / import / editor imports updated. **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** extended for **`SeedPlayType`** enums.

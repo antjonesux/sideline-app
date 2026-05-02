@@ -52,7 +52,6 @@ export const ONBOARDING_LOOP_BODY =
 export const ONBOARDING_PLAYBOOK_STEP_TITLE = "Choose your offensive playbook";
 export const ONBOARDING_PLAYBOOK_STEP_BODY =
   "We match formations and play types to CFB26. Pick the book you want to coach from; you can change it later.";
-export const ONBOARDING_PLAYBOOK_CTA = "Start building your calls";
 
 /** Single situation used in guided onboarding play sheet editor and logger My Sheet preselect. */
 export const GUIDED_ONBOARDING_EDITOR_SCENARIO = "3rd & Medium";
@@ -96,7 +95,15 @@ export const FILM_NEW_GAME_YOUR_TEAM_LABEL = "Your team";
 export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 
 /** Game Plan `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
-export const PLAYBOOK_NEW_SHEET_TITLE = "New play sheet";
+export const PLAYBOOK_NEW_SHEET_TITLE = "Build your game plan";
+/** Subtitle on create play sheet (non–guided flow). */
+export const PLAYBOOK_NEW_SHEET_SUBTITLE =
+  "Build your calls by situation so you know what you trust before kickoff.";
+export const PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER = "Base vs 3–3–5, Short Yardage, Red Zone";
+export const PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER = "Search playbooks";
+/** Primary CTA on Game Plan create sheet; same label as guided onboarding playbook step. */
+export const PLAYBOOK_CREATE_CTA = "Start building your calls";
+export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;
 
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";

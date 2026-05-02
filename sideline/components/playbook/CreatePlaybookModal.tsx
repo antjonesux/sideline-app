@@ -18,7 +18,10 @@ import {
   COULDNT_LOAD,
   COULDNT_SAVE,
   ONBOARDING_DEFAULT_SHEET_NAME,
-  ONBOARDING_PLAYBOOK_CTA,
+  PLAYBOOK_CREATE_CTA,
+  PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER,
+  PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER,
+  PLAYBOOK_NEW_SHEET_SUBTITLE,
   PLAYBOOK_NEW_SHEET_TITLE,
 } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -50,7 +53,6 @@ export function CreatePlaybookModal({
   qaStaticPlaybooks,
 }: Props) {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [playbooks, setPlaybooks] = useState<string[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -61,7 +63,6 @@ export function CreatePlaybookModal({
 
   useEffect(() => {
     if (variant === "modal" && open) {
-      setStep(1);
       setName(guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME : "");
       if (!initialCfb26Playbook?.trim()) setSelectedPlaybook(null);
     }
@@ -70,7 +71,6 @@ export function CreatePlaybookModal({
   useEffect(() => {
     if (!guidedOnboardingFlow) return;
     setName(ONBOARDING_DEFAULT_SHEET_NAME);
-    setStep(1);
   }, [guidedOnboardingFlow]);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export function CreatePlaybookModal({
 
   const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
 
-  const canStep1 =
+  const canSubmit =
     (guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME.trim().length > 0 : name.trim().length > 0) &&
     Boolean(selectedPlaybook);
 
@@ -135,24 +135,13 @@ export function CreatePlaybookModal({
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (step === 1) {
-      if (!canStep1) return;
-      if (guidedOnboardingFlow) {
-        await createSheetAndNavigate();
-        return;
-      }
-      setStep(2);
-      return;
-    }
-
+    if (!canSubmit) return;
     await createSheetAndNavigate();
   }
 
   const stepDescription = guidedOnboardingFlow
     ? "We start your sheet as “My First Game Plan.” Pick your CFB26 book."
-    : step === 1
-      ? "Step 1 of 2 — play sheet name and CFB26 playbook"
-      : "Step 2 of 2 — start building";
+    : PLAYBOOK_NEW_SHEET_SUBTITLE;
 
   const formFields = (
     <>
@@ -162,65 +151,48 @@ export function CreatePlaybookModal({
         </p>
       ) : null}
 
-      {step === 1 ? (
-        <>
-          {guidedOnboardingFlow ? (
-            <p className="rounded-lg border border-slate-700/80 bg-slate-950/40 px-3 py-2.5 font-body text-sm text-slate-200">
-              <span className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
-              <span className="mt-1 block font-medium text-white">{ONBOARDING_DEFAULT_SHEET_NAME}</span>
-            </p>
-          ) : (
-            <label className="block space-y-1">
-              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
-              <input
-                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                placeholder="e.g. My Base Sheet, vs 3-3-5, Run Heavy"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-          )}
-
-          <div className="md:max-w-2xl">
-            <TeamCombobox<PlaybookOption>
-              label="Select CFB26 Playbook"
-              inputId="create-cfb26-playbook"
-              selected={selectedPlaybook}
-              onSelect={setSelectedPlaybook}
-              options={options}
-              loading={playbooks.length === 0 && !loadErr}
-              placeholder="Search CFB26 playbooks"
-              getOptionLabel={(o) => o.team_name}
-              getOptionKey={(o) => o.team_name}
-              getSearchText={(o) => o.team_name}
-              showTrailingChevron={false}
-              openOnFocus={false}
+      <>
+        {guidedOnboardingFlow ? (
+          <p className="rounded-lg border border-slate-700/80 bg-slate-950/40 px-3 py-2.5 font-body text-sm text-slate-200">
+            <span className="font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+            <span className="mt-1 block font-medium text-white">{ONBOARDING_DEFAULT_SHEET_NAME}</span>
+          </p>
+        ) : (
+          <label className="block space-y-1">
+            <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+            <input
+              className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              placeholder={PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
             />
-          </div>
-          <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
-        </>
-      ) : (
-        <div className="space-y-3 font-body text-sm text-slate-300">
-          <p>
-            <span className="text-slate-500">Name:</span> {name.trim()}
-          </p>
-          <p>
-            <span className="text-slate-500">CFB26 Playbook:</span> {selectedPlaybook?.team_name}
-          </p>
-          <p className="text-slate-500">We will create 15 empty situation slots on your play sheet. You can add calls in the editor.</p>
+          </label>
+        )}
+
+        <div className="md:max-w-2xl">
+          <TeamCombobox<PlaybookOption>
+            label="Select CFB26 Playbook"
+            inputId="create-cfb26-playbook"
+            selected={selectedPlaybook}
+            onSelect={setSelectedPlaybook}
+            options={options}
+            loading={playbooks.length === 0 && !loadErr}
+            placeholder={PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER}
+            getOptionLabel={(o) => o.team_name}
+            getOptionKey={(o) => o.team_name}
+            getSearchText={(o) => o.team_name}
+            showTrailingChevron={false}
+            openOnFocus={false}
+          />
         </div>
-      )}
+      </>
     </>
   );
 
   const formFooter = (
     <div className="flex flex-col gap-3 sm:flex-row">
-      {onboardingFullPage ? null : step === 2 ? (
-        <Button type="button" variant="secondary" className="min-h-11 flex-1 sm:flex-1" onClick={() => setStep(1)}>
-          Back
-        </Button>
-      ) : variant === "modal" && step === 1 ? (
+      {onboardingFullPage ? null : variant === "modal" ? (
         <Button type="button" variant="secondary" className="min-h-11 flex-1 sm:flex-1" onClick={() => onClose?.()}>
           Cancel
         </Button>
@@ -229,21 +201,11 @@ export function CreatePlaybookModal({
         type="submit"
         variant="default"
         className={`min-h-11 py-3 text-sm ${
-          onboardingFullPage || (variant === "page" && step === 1)
-            ? "w-full"
-            : "flex-1 sm:flex-1"
+          onboardingFullPage || variant === "page" ? "w-full" : "flex-1 sm:flex-1"
         }`}
-        disabled={busy || (step === 1 && !canStep1)}
+        disabled={busy || !canSubmit}
       >
-        {guidedOnboardingFlow
-          ? busy
-            ? "Creating…"
-            : ONBOARDING_PLAYBOOK_CTA
-          : step === 1
-            ? "Continue"
-            : busy
-              ? "Creating…"
-              : "Create play sheet & open"}
+        {busy ? "Creating…" : PLAYBOOK_CREATE_CTA}
       </Button>
     </div>
   );
@@ -262,7 +224,7 @@ export function CreatePlaybookModal({
                 tabIndex={-1}
                 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
               >
-                New play sheet
+                {PLAYBOOK_NEW_SHEET_TITLE}
               </h2>
             </DialogTitle>
             <DialogDescription asChild>
