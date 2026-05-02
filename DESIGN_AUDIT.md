@@ -178,7 +178,7 @@ END CATALOG
 
 ### Primary “icon system” in practice
 
-- **Inline `<svg>`** (stroke/fill, various `width`/`height` in px — e.g. 14, 16, 18) in shared components: `DropdownMenu`, `CardKebabMenu`, `FormationPlaySearch`, `TeamCombobox`, `BackToFilmLink`, `DragHandleIcon`, `PlayLoggerV2`, tendencies filters, etc.
+- **Inline `<svg>`** (stroke/fill, various `width`/`height` in px — e.g. 14, 16, 18) in shared components: `DropdownMenu`, `CardKebabMenu`, `FormationPlaySearch`, `TeamCombobox`, `BackNavLink`, `DragHandleIcon`, `PlayLoggerV2`, tendencies filters, etc.
 - **Unicode / emoji** for UI affordances where no shared component exists (chevrons, close, check, tab labels) — see **1C**.
 - **Inconsistency:** mix of SVG icons, raw Unicode, and emoji tab icons; no single importable icon package.
 

@@ -137,9 +137,22 @@ function validateSeed(
 }
 
 function mapToCanonicalPlayType(rawPlayType: string): "RUN" | "PASS" | "RPO" {
-  if (rawPlayType.includes("RPO")) return "RPO";
-  if (rawPlayType.includes("Run")) return "RUN";
+  const t = rawPlayType.trim();
+  if (t === "RPO" || t.includes("RPO")) return "RPO";
+  if (
+    t === "Quick Pass" ||
+    t === "Medium Pass" ||
+    t === "Deep Pass" ||
+    t === "Play Action" ||
+    t === "Screen"
+  ) {
+    return "PASS";
+  }
+  if (t === "Inside Run" || t === "Outside Run" || t === "QB Run" || t === "Option") {
+    return "RUN";
+  }
   if (rawPlayType.includes("Pass")) return "PASS";
+  if (rawPlayType.includes("Run")) return "RUN";
   console.warn(
     `[seed-playbooks] Unmapped play_type "${rawPlayType}" encountered; defaulting to "RUN".`,
   );

@@ -95,6 +95,9 @@ export const FILM_NEW_GAME_CTA = "Start game";
 export const FILM_NEW_GAME_YOUR_TEAM_LABEL = "Your team";
 export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 
+/** Game Plan `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
+export const PLAYBOOK_NEW_SHEET_TITLE = "New play sheet";
+
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";
 export const FILM_END_GAME_SCORE_BODY =

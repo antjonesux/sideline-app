@@ -7,7 +7,7 @@ import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/con
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -383,7 +383,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     return (
       <div className="space-y-3">
         <p className="font-body text-red-300">{(sheetQuery.error as Error)?.message ?? "Play sheet not found"}</p>
-        <BackToFilmLink href="/playbook" />
+        <BackNavLink href="/playbook" />
       </div>
     );
   }
@@ -434,7 +434,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         {!onboardingEditor ? (
           <div className="space-y-3">
             <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
-            <BackToFilmLink href="/playbook" />
+            <BackNavLink href="/playbook" />
           </div>
         ) : null}
 

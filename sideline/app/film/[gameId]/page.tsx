@@ -32,7 +32,7 @@ import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns
 import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
 import {
@@ -653,7 +653,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   if (loadError) {
     return (
       <section className="space-y-4 py-6 text-center">
-        <BackToFilmLink />
+        <BackNavLink />
         <h1 className="font-heading text-3xl leading-none font-bold uppercase tracking-[0.14em] text-white sm:text-4xl">Game not found</h1>
         <p className="font-sans text-sm text-slate-400">This game doesn&apos;t exist or you don&apos;t have access to it.</p>
         <Button asChild variant="default" className="inline-block px-5 py-2 text-sm">
@@ -669,7 +669,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   return (
     <section className="space-y-0">
       <div className="space-y-3 pb-4">
-        <BackToFilmLink />
+        <BackNavLink />
         <h1 className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100 w-full min-w-0 text-lg leading-snug sm:text-xl">
           {game ? (
             <>

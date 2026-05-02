@@ -6,6 +6,26 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Game Plan new play sheet: `/playbook/new`, carousel handoff, legacy `?create=1` redirect
+
+**Decision:** After **`OnboardingCarousel`**, the primary CTA **`router.replace("/playbook/new?onboarding=1")`** (**`HomeOnboardingGate`**). CFB26 playbook selection and first sheet creation run on **`app/playbook/new/page.tsx`** via **`CreatePlaybookModal`** (**`variant="page"`**, **`onboardingFullPage`**, **`guidedOnboardingFlow`**). **`PlaybookHome`** is only the Game Plan list; **Create play sheet** navigates to **`/playbook/new`**. **`app/playbook/page.tsx`** **`redirect`**s **`?create=1`** (optional **`onboarding`**, **`cfb26`**) to **`/playbook/new`** so old deep links keep working. Shared back control **`BackNavLink`** (**`components/shared/BackNavLink.tsx`**, default **`href="/film"`**) replaces the Film-only name **`BackToFilmLink`**.
+
+**Why:** Full-page create matches Film.new; avoids embedding onboarding inside the list route; one back-link primitive for Film and Game Plan parents.
+
+**Impact:** **`BUILD_CONTRACT.md`** authenticated-home and onboarding-chrome bullets updated. Supersedes the carousel URL in **2026-05-01 — Home onboarding: carousel → Game Plan** — prefer **`/playbook/new?onboarding=1`** in new code; **`?create=1`** remains a redirect only.
+
+---
+
+## 2026-05-02 — Seed playbook script: canonical `play_type` mapping for classifier output
+
+**Decision:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels from **`resolveSeedPlayType`** (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`cfb26_plays`** upserts, not only substring **`Run` / `Pass` / `RPO`**.
+
+**Why:** Batch playbook seeds often omit per-play **`playType`**; the classifier returns **`SeedPlayType`** enums; previous mapper warned and defaulted many rows to **`RUN`**.
+
+**Impact:** Seed runs align with the shared catalog ladder (**`BUILD_CONTRACT.md`**); unrelated to in-app **`playTypeResolution`** for logged plays.
+
+---
+
 ## 2026-05-02 — Marketing `/landing`: full-bleed `main`, viewport-locked hero, themed copy↔CTA spacing
 
 **Decision:** **`html[data-marketing-chrome="true"] main`** (**`BottomTabNav`** on **`/landing`** only) is **full width** (**`max-width: none`**, no horizontal padding on **`main`**); horizontal inset lives on **`components/landing/HeroSection.tsx`** (**`px-4 sm:px-6`**). **`@theme`** in **`app/globals.css`** defines **`--spacing-landing-hero-copy-to-cta: 3rem`** (48px at 16px root); **`HeroSection`** uses it as **`gap`** between the headline/subcopy block and the CTA stack **below `md`**, with **`md:gap-8`** between those groups at **`md+`**. The primary button and **“Already have an account?”** row use **`gap-2`** inside the CTA stack. The hero **`section`** is **`h-dvh max-h-dvh`** with **`overflow-y-hidden`** (single-screen frame); the grid/gradient SVG is **`fixed`** full viewport; content uses **`justify-start`** on small viewports and **`md:justify-center`** for vertical centering; CTAs follow copy (no **`flex-1`** spacer pinning buttons to the bottom). **`buildLoginHref`** and optional **`next`** behavior are unchanged.
@@ -78,11 +98,11 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-05-01 — Home onboarding: carousel → Game Plan (no duplicate CFB26 step on `/`)
 
-**Decision:** After **`OnboardingCarousel`**, the primary CTA **`router.replace("/playbook?create=1&onboarding=1")`**. CFB26 playbook selection and first sheet creation happen only in **`PlaybookHome`** + **`CreatePlaybookModal`** (**`onboardingFullPage`**, **`guidedOnboardingFlow`**). There is **no** second “pick playbook” screen on **`/`**.
+**Decision:** After **`OnboardingCarousel`**, the primary CTA navigates to Game Plan so CFB26 playbook selection and first sheet creation happen in **`CreatePlaybookModal`** (**`onboardingFullPage`**, **`guidedOnboardingFlow`**) — there is **no** second “pick playbook” screen on **`/`**.
 
 **Why:** Removes duplicate onboarding steps; the Game Plan create flow already owns catalog pick + create.
 
-**Impact:** **`BUILD_CONTRACT.md`** authenticated-home bullet documents this handoff. Deep links should use **`/playbook?create=1&onboarding=1`** (or **`?onboarding=1`** with the current **`PlaybookHome`** behavior) — not a legacy home picker route.
+**Impact:** **`BUILD_CONTRACT.md`** authenticated-home bullet documents this handoff. **Updated 2026-05-02:** the CTA URL is **`/playbook/new?onboarding=1`** (full page); **`PlaybookHome`** is no longer the onboarding frame. Legacy **`/playbook?create=1&onboarding=1`** **`redirect`**s to **`/playbook/new?…`** — see **2026-05-02 — Game Plan new play sheet**.
 
 ---
 

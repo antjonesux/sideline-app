@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Game Plan create flow, seed `play_type` mapping, `BackNavLink`
+
+### What
+
+- **Game Plan UX / routing:** **`app/playbook/new/page.tsx`** renders **`CreatePlaybookModal`** full-page; **`HomeOnboardingGate`** → **`/playbook/new?onboarding=1`**; **`PlaybookHome`** links to **`/playbook/new`**; **`app/playbook/page.tsx`** **`redirect`**s **`?create=1`** (optional **`onboarding`**, **`cfb26`**) to **`/playbook/new`**. **`CreatePlaybookModal`**: Film.new-style shell (**`Breadcrumb`**, **`BackNavLink`**, card), in-card title **`PLAYBOOK_NEW_SHEET_TITLE`**; page flow drops redundant **Cancel** (back link only). **`components/shared/BackNavLink.tsx`** replaces **`BackToFilmLink`** (same default **`href="/film"`**; use **`href="/playbook"`** from **`/playbook/new`**).
+- **Seed scripts:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`cfb26_plays`** upserts when seeds omit explicit **`playType`**.
+
+### Why
+
+Full-page create matches Film.new; docs (**`BUILD_CONTRACT.md`**, **`DECISIONS.md`**) align with running code; seed classifier output no longer mis-maps to **`RUN`** with warnings.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+- [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md), [`DESIGN_AUDIT.md`](DESIGN_AUDIT.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Marketing `/landing`: full-bleed hero, viewport-locked layout, spacing token
 
 ### What

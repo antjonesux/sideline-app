@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Game Plan — `/playbook/new`, onboarding handoff, `BackNavLink`, seed `play_type`)
+
+**What:** **`app/playbook/new/page.tsx`**, **`app/playbook/page.tsx`** redirect, **`HomeOnboardingGate`**, **`PlaybookHome`**, **`CreatePlaybookModal`** (full-page layout, **`PLAYBOOK_NEW_SHEET_TITLE`**, no page **Cancel** beside **`BackNavLink`**). **`components/shared/BackNavLink.tsx`** (replaces **`BackToFilmLink`**); Film / import / editor imports updated. **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** extended for **`SeedPlayType`** enums.
+
+**Why:** Parity with Film.new create UX; contract/docs alignment; cleaner seed upserts for batch playbook files.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`DESIGN_AUDIT.md`**, this file.
+
+---
+
 ## 2026-05-02 (Marketing `/landing` — full-bleed `main`, `dvh` hero, `--spacing-landing-hero-copy-to-cta`)
 
 **What:** **`app/globals.css`**: **`data-marketing-chrome`** **`main`** full width, no side padding on **`main`**; **`@theme`** **`--spacing-landing-hero-copy-to-cta`** (**`3rem`**). **`components/landing/HeroSection.tsx`**: viewport-height section, **`fixed`** grid/gradient SVG, image slot with bounded **`min()`** / **`dvh`** heights; flex column with **`max-md:gap-landing-hero-copy-to-cta`** / **`md:gap-8`** between copy block and CTA stack, **`gap-2`** between **Get started** and sign-in row; **`buildLoginHref`** unchanged.

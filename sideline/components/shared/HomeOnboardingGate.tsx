@@ -49,7 +49,7 @@ export function HomeOnboardingGate() {
   }, [router, uid]);
 
   const goToPlaybookCreate = useCallback(() => {
-    router.replace("/playbook?create=1&onboarding=1");
+    router.replace("/playbook/new?onboarding=1");
   }, [router]);
 
   useEffect(() => {

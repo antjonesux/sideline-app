@@ -2,7 +2,7 @@
 
 import { CSVUploader } from "@/components/import/CSVUploader";
 import { TemplateDownload } from "@/components/import/TemplateDownload";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { IMPORT_FAILED, IMPORT_PARTIAL } from "@/lib/coachCopy";
 import { useImportStore } from "@/store/importStore";
@@ -34,7 +34,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
   return (
     <section className="space-y-8 pb-8">
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import" }]} />
-      <BackToFilmLink />
+      <BackNavLink />
 
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">

@@ -1,11 +1,10 @@
 "use client";
 
 import type { PlaybookSummary } from "@/lib/types";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
-import { CreatePlaybookModal } from "./CreatePlaybookModal";
 import { PlaybookCard } from "./PlaybookCard";
 import { SettingsLink } from "@/components/shared/AppTopBar";
 import { Button } from "@/components/ui/button";
@@ -21,43 +20,7 @@ function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   return [];
 }
 
-type Props = {
-  initialCreateOpen?: boolean;
-  onboardingFromHome?: boolean;
-  initialCfb26FromOnboarding?: string;
-};
-
-export function PlaybookHome({
-  initialCreateOpen = false,
-  onboardingFromHome = false,
-  initialCfb26FromOnboarding,
-}: Props) {
-  const [createOpen, setCreateOpen] = useState(initialCreateOpen);
-
-  useEffect(() => {
-    if (!initialCreateOpen && !onboardingFromHome) return;
-    if (onboardingFromHome) {
-      const p = new URLSearchParams();
-      p.set("onboarding", "1");
-      if (initialCfb26FromOnboarding) p.set("cfb26", initialCfb26FromOnboarding);
-      window.history.replaceState(null, "", `/playbook?${p.toString()}`);
-      return;
-    }
-    if (initialCreateOpen) window.history.replaceState(null, "", "/playbook");
-  }, [initialCreateOpen, onboardingFromHome, initialCfb26FromOnboarding]);
-
-  if (onboardingFromHome) {
-    return (
-      <CreatePlaybookModal
-        variant="page"
-        open
-        guidedOnboardingFlow
-        initialCfb26Playbook={initialCfb26FromOnboarding}
-        onboardingFullPage
-      />
-    );
-  }
-
+export function PlaybookHome() {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["playbooks", "list"],
     queryFn: async () => {
@@ -72,33 +35,21 @@ export function PlaybookHome({
     refetchOnWindowFocus: false,
   });
 
-  const modal = (
-    <CreatePlaybookModal variant="modal" open={createOpen} onClose={() => setCreateOpen(false)} />
-  );
-
   const list = coercePlaybookList(data);
 
   if (error) {
     return (
-      <>
-        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3" role="alert">
-          <p className="font-sans text-sm text-red-200">{COULDNT_LOAD}</p>
-          <Button type="button" variant="secondary" className="w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
-            {isFetching ? "Hang on…" : "Try again"}
-          </Button>
-        </div>
-        {modal}
-      </>
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3" role="alert">
+        <p className="font-sans text-sm text-red-200">{COULDNT_LOAD}</p>
+        <Button type="button" variant="secondary" className="w-full sm:w-auto" disabled={isFetching} onClick={() => void refetch()}>
+          {isFetching ? "Hang on…" : "Try again"}
+        </Button>
+      </div>
     );
   }
 
   if (isLoading) {
-    return (
-      <>
-        <FilmRoomSkeleton />
-        {modal}
-      </>
-    );
+    return <FilmRoomSkeleton />;
   }
 
   return (
@@ -109,8 +60,8 @@ export function PlaybookHome({
           <SettingsLink />
         </h1>
         {list.length > 0 && (
-          <Button type="button" variant="default" className="text-sm" onClick={() => setCreateOpen(true)}>
-            Create play sheet
+          <Button asChild variant="default" className="text-sm">
+            <Link href="/playbook/new">Create play sheet</Link>
           </Button>
         )}
       </div>
@@ -121,8 +72,8 @@ export function PlaybookHome({
           <p className="mt-2 font-sans text-sm text-slate-500">
             Start from a CFB26 playbook. What you log in Film Room feeds tendencies here.
           </p>
-          <Button type="button" variant="default" className="mt-6 inline-flex px-5 py-2.5 text-sm" onClick={() => setCreateOpen(true)}>
-            Create play sheet
+          <Button asChild variant="default" className="mt-6 inline-flex px-5 py-2.5 text-sm">
+            <Link href="/playbook/new">Create play sheet</Link>
           </Button>
         </div>
       ) : (
@@ -135,7 +86,6 @@ export function PlaybookHome({
         </ul>
       )}
 
-      {modal}
     </div>
   );
 }

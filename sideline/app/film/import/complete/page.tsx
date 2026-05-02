@@ -1,7 +1,7 @@
 "use client";
 
 import { ImportConfirmation } from "@/components/import/ImportConfirmation";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { useImportStore } from "@/store/importStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -19,7 +19,7 @@ export default function FilmImportCompletePage() {
   if (!importedSessionId) {
     return (
       <section>
-        <BackToFilmLink />
+        <BackNavLink />
         <p className="mt-6 text-sm text-slate-400">Finalizing import…</p>
       </section>
     );
@@ -27,7 +27,7 @@ export default function FilmImportCompletePage() {
 
   return (
     <section className="space-y-8">
-      <BackToFilmLink />
+      <BackNavLink />
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         <ImportConfirmation playCount={validRows.length} sessionId={importedSessionId} />
       </div>

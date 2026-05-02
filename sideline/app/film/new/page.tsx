@@ -2,7 +2,7 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { modalDialogTitleClass } from "@/lib/constants/designTokens";
 import {
@@ -289,7 +289,7 @@ export default function NewGamePage() {
   return (
     <section className="space-y-8">
       <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "New Game" }]} />
-      <BackToFilmLink />
+      <BackNavLink />
 
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         {setupLoading ? (

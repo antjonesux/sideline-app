@@ -1,4 +1,5 @@
 import { PlaybookHome } from "@/components/playbook/PlaybookHome";
+import { redirect } from "next/navigation";
 
 function first(param: string | string[] | undefined): string | undefined {
   if (Array.isArray(param)) return param[0];
@@ -12,13 +13,14 @@ export default async function PlaybookPage({
 }) {
   const sp = await searchParams;
   const create = first(sp.create);
-  const onboarding = first(sp.onboarding);
-  const cfb26 = first(sp.cfb26);
-  return (
-    <PlaybookHome
-      initialCreateOpen={create === "1"}
-      onboardingFromHome={onboarding === "1"}
-      initialCfb26FromOnboarding={cfb26?.trim() ? cfb26.trim() : undefined}
-    />
-  );
+  if (create === "1") {
+    const p = new URLSearchParams();
+    if (first(sp.onboarding) === "1") p.set("onboarding", "1");
+    const cfb = first(sp.cfb26)?.trim();
+    if (cfb) p.set("cfb26", cfb);
+    const qs = p.toString();
+    redirect(`/playbook/new${qs ? `?${qs}` : ""}`);
+  }
+
+  return <PlaybookHome />;
 }

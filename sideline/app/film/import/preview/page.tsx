@@ -2,7 +2,7 @@
 
 import { ImportPreview } from "@/components/import/ImportPreview";
 import { ImportPreviewSkeleton } from "@/components/shared/AppSkeleton";
-import { BackToFilmLink } from "@/components/shared/BackToFilmLink";
+import { BackNavLink } from "@/components/shared/BackNavLink";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { useImportStore } from "@/store/importStore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,7 +23,7 @@ export default function FilmImportPreviewPage() {
   if (parsedRows.length === 0) {
     return (
       <section className="space-y-6">
-        <BackToFilmLink />
+        <BackNavLink />
         <ImportPreviewSkeleton />
       </section>
     );
@@ -31,7 +31,7 @@ export default function FilmImportPreviewPage() {
 
   return (
     <section className="space-y-8">
-      <BackToFilmLink />
+      <BackNavLink />
 
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
         <ImportPreview
