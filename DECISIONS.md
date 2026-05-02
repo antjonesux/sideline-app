@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Onboarding screenshot QA: public `/qa/onboarding` prefix, production `notFound`, Playwright
+
+**Decision:** **`app/qa/onboarding/**`** exposes **sessionless** preview routes (carousel, new play sheet, editor shell, logger shell, yardage, first-drive insight) built from **real components** + **typed mock fixtures** (**`lib/onboardingQaFixture.ts`**, **`components/qa/onboarding/*`**). **`sideline/proxy.ts`** **`isPublic`** includes **`pathname.startsWith("/qa/onboarding")`** so unauthenticated requests are **not** sent to **`/landing`**. **`app/qa/onboarding/layout.tsx`** calls **`notFound()`** when **`process.env.NODE_ENV === "production"`** so production builds do not serve the QA frames as product surfaces. **`BottomTabNav`** treats the prefix like other onboarding URLs (**tab bar hidden**, **`data-onboarding-chrome`**). **Playwright** (**`@playwright/test`**, **`playwright.config.ts`**, **`playwright/onboarding-screenshots.spec.ts`**) captures PNGs via **`npm run screenshots:onboarding`** (with **`PLAYWRIGHT_BROWSERS_PATH=0`** in **`package.json`** scripts so browsers install under the repo). **`CreatePlaybookModal`** accepts optional **`qaStaticPlaybooks`** on QA pages only to skip **`GET /api/cfb26-playbooks`**; **`OnboardingCarousel`** accepts optional **`disableAutoAdvance`** for stable slides.
+
+**Why:** Repeatable visual QA of onboarding without signing in or writing scaffold rows to Supabase; production must not expose QA as navigable product.
+
+**Impact:** New **`/qa/onboarding/…`** pages must stay **mock-only**, remain under the segment **`layout`** gate, and stay absent from normal nav. If **`proxy`** public rules change, keep this prefix consistent with **`BUILD_CONTRACT.md`**. Do not use **`qaStaticPlaybooks`** / **`disableAutoAdvance`** from production user flows — defaults elsewhere must stay safe.
+
+---
+
 ## 2026-05-02 — Guided first-drive insight: full-viewport `Dialog` shell
 
 **Decision:** **`GuidedFirstDriveInsight`** ships as a **full-viewport** **Radix `Dialog`** — **`fixed inset-0`**, **`h-[100dvh]`**, **`max-w-none`**, **`rounded-none`**, **`border-slate-800` / `bg-slate-950`** — with **DialogContent** motion overrides so it does not use the default centered-dialog slide. The previous **bottom-sheet on small screens + centered `sm:max-w-lg` card on larger breakpoints** layout is **removed**; the readout is immersive at **all** viewports.
