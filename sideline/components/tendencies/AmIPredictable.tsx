@@ -80,31 +80,6 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
 
   const showPlaybookEmpty = Boolean(playbook) && !dataLoading && q.data && q.data.meta.game_count === 0;
 
-  /**
-   * Uses the same rows as the bar chart. Denominator matches the API: all in-scope plays (same as play type distribution).
-   */
-  const topTypeCards = q.data
-    ? (() => {
-        const byName = new Map(q.data.play_type_distribution.map((row) => [row.name, row]));
-        const denom = (q.data.meta.classified_play_count ?? q.data.meta.play_count) || 1;
-        const pct = (name: string) => {
-          const row = byName.get(name);
-          return row ? Math.round(row.pct * 10) / 10 : 0;
-        };
-        const passCount =
-          (byName.get("Pass")?.count ?? 0) +
-          (byName.get("Play Action")?.count ?? 0) +
-          (byName.get("Screen")?.count ?? 0);
-        const passPct = Math.round((passCount * 1000) / denom) / 10;
-        return [
-          { name: "Run", pct: pct("Run") },
-          { name: "Pass", pct: passPct },
-          { name: "RPO", pct: pct("RPO") },
-          { name: "Play Action", pct: pct("Play Action") },
-        ];
-      })()
-    : [];
-
   return (
     <div className="space-y-8">
       <TendenciesFilters
@@ -127,16 +102,6 @@ export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbook
           <section className="space-y-3">
             <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Play type distribution</h2>
             {q.data ? <PlayTypeDistribution data={q.data.play_type_distribution} /> : null}
-            {q.data ? (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {topTypeCards.map((row) => (
-                  <div key={row.name} className="rounded-xl border border-slate-700 bg-slate-900 p-3">
-                    <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">{row.name}</p>
-                    <p className="mt-1 font-mono text-2xl font-bold text-slate-100">{Math.round(row.pct)}%</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
           </section>
 
           <section className="space-y-3">

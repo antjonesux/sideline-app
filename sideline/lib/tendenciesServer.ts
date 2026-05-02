@@ -4,7 +4,7 @@ import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
-import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, TENDENCIES_SCENARIOS } from "@/lib/constants";
+import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, SCOUTING_REPORT_SCENARIOS } from "@/lib/constants";
 import {
   categorizeCfbPlayType,
   deriveCfbPlayTypeFromName,
@@ -578,7 +578,7 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
   }
 
   const out: ScoutingReportRow[] = [];
-  for (const scenario of TENDENCIES_SCENARIOS) {
+  for (const scenario of SCOUTING_REPORT_SCENARIOS) {
     const counters = map.get(scenario) ?? { run: 0, other: 0, success: 0 };
     const { run, other, success } = counters;
     const total = run + other;

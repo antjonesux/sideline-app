@@ -24,6 +24,18 @@ function pillClass(active: boolean) {
     : "border-slate-700 bg-slate-900/80 text-slate-400 hover:border-slate-600 hover:text-slate-200";
 }
 
+const tendenciesPortalListboxClass = `min-w-0 rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-[min(18rem,calc(100dvh-2rem))] w-max max-w-[min(20rem,calc(100vw-1rem))] overflow-y-auto`;
+
+/** Short labels stay tight; long opponent / scope text truncates so three filters can stay one row. */
+const tendenciesFilterTriggerLabelClass = "max-w-[7rem] truncate whitespace-nowrap sm:max-w-[9rem]";
+
+function gameScopeTriggerLabel(pill: Pill, opponentTeam: string | null): string {
+  if (pill === "vs" && opponentTeam?.trim()) return `vs ${opponentTeam.trim()}`;
+  if (pill === "last5") return "Last 5";
+  if (pill === "last10") return "Last 10";
+  return "All Games";
+}
+
 export function buildTendenciesQueryString(f: TendenciesFilterParams): string {
   const sp = new URLSearchParams();
   if (f.pill === "last5") sp.set("scope", "last5");
@@ -60,27 +72,107 @@ export function TendenciesFilters({
   showMinUsesLine = true,
 }: Props) {
   const setPill = (pill: Pill) => onChange({ ...value, pill, opponentTeam: pill === "vs" ? value.opponentTeam : null });
+  const gameScopeTriggerId = "tendencies-game-scope";
   const opponentSelectId = "tendencies-opponent-filter";
   const playbookInputId = "tendencies-playbook-filter";
   const opponentActive = Boolean(value.opponentTeam);
   const opponentPillClass = opponentActive ? pillClass(true) : pillClass(false);
+  /** Emerald pill when scoped to last N games or vs opponent (same signal as PlaybookFilter / opponent trigger). */
+  const gameScopePillActive = value.pill !== "all";
+
+  const gameScopeRootRef = useRef<HTMLDivElement>(null);
+  const gameScopeTriggerRef = useRef<HTMLButtonElement>(null);
+  const gameScope = usePortalDropdown(gameScopeRootRef, gameScopeTriggerRef);
+
   const opponentRootRef = useRef<HTMLDivElement>(null);
   const opponentTriggerRef = useRef<HTMLButtonElement>(null);
   const opponent = usePortalDropdown(opponentRootRef, opponentTriggerRef);
 
+  const gameScopeCommittedLabel = gameScopeTriggerLabel(value.pill, value.opponentTeam);
+
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "all")}`} onClick={() => setPill("all")}>
-          All Games
-        </button>
-        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "last5")}`} onClick={() => setPill("last5")}>
-          Last 5
-        </button>
-        <button type="button" className={`min-h-11 rounded-full border px-3 py-2 text-sm font-body ${pillClass(value.pill === "last10")}`} onClick={() => setPill("last10")}>
-          Last 10
-        </button>
-        <div ref={opponentRootRef} className="relative w-fit max-w-full">
+      <div className="flex min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2">
+        <div ref={gameScopeRootRef} className="relative w-fit max-w-full shrink-0">
+          <label htmlFor={gameScopeTriggerId} className="sr-only">
+            Game range
+          </label>
+          <button
+            ref={gameScopeTriggerRef}
+            id={gameScopeTriggerId}
+            type="button"
+            aria-label="Game range"
+            aria-expanded={gameScope.open}
+            aria-haspopup="listbox"
+            className={`min-h-11 w-max max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${pillClass(gameScopePillActive)} inline-flex items-center`}
+            onClick={gameScope.toggleMenu}
+          >
+            <span className={tendenciesFilterTriggerLabelClass}>{gameScopeCommittedLabel}</span>
+          </button>
+          <span className="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-slate-400" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+          {gameScope.open
+            ? createPortal(
+                <div
+                  ref={gameScope.menuRef}
+                  role="listbox"
+                  aria-label="Game range options"
+                  className={tendenciesPortalListboxClass}
+                  style={{
+                    ...(gameScope.menuPos.top != null ? { top: gameScope.menuPos.top } : {}),
+                    ...(gameScope.menuPos.bottom != null ? { bottom: gameScope.menuPos.bottom } : {}),
+                    left: gameScope.menuPos.left,
+                    minWidth: gameScope.menuPos.minWidth,
+                  }}
+                >
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={value.pill === "all"}
+                    className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm hover:bg-slate-800/80"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setPill("all");
+                      gameScope.closeMenu();
+                    }}
+                  >
+                    All Games
+                  </button>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={value.pill === "last5"}
+                    className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm hover:bg-slate-800/80"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setPill("last5");
+                      gameScope.closeMenu();
+                    }}
+                  >
+                    Last 5
+                  </button>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={value.pill === "last10"}
+                    className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setPill("last10");
+                      gameScope.closeMenu();
+                    }}
+                  >
+                    Last 10
+                  </button>
+                </div>,
+                document.body,
+              )
+            : null}
+        </div>
+        <div ref={opponentRootRef} className="relative w-fit max-w-full shrink-0">
           <label htmlFor={opponentSelectId} className="sr-only">
             OPPONENT
           </label>
@@ -92,10 +184,10 @@ export function TendenciesFilters({
             aria-expanded={opponent.open}
             aria-haspopup="listbox"
             disabled={opponents.length === 0}
-            className={`min-h-11 w-auto max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${opponentPillClass} inline-flex items-center disabled:cursor-not-allowed disabled:opacity-70`}
+            className={`min-h-11 w-max max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${opponentPillClass} inline-flex items-center disabled:cursor-not-allowed disabled:opacity-70`}
             onClick={opponent.toggleMenu}
           >
-            <span className="max-w-[14rem] truncate">{value.opponentTeam ?? "vs Opponent"}</span>
+            <span className={tendenciesFilterTriggerLabelClass}>{value.opponentTeam ?? "vs Opponent"}</span>
           </button>
           <span className="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-slate-400" aria-hidden>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,7 +199,7 @@ export function TendenciesFilters({
                 <div
                   ref={opponent.menuRef}
                   role="listbox"
-                  className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-72 w-max max-w-[20rem] overflow-y-auto`}
+                  className={tendenciesPortalListboxClass}
                   style={{
                     ...(opponent.menuPos.top != null ? { top: opponent.menuPos.top } : {}),
                     ...(opponent.menuPos.bottom != null ? { bottom: opponent.menuPos.bottom } : {}),
@@ -149,13 +241,15 @@ export function TendenciesFilters({
               )
             : null}
         </div>
-        <PlaybookFilter
-          inputId={playbookInputId}
-          value={playbook}
-          onChange={onPlaybookChange}
-          options={playbookOptions}
-          loading={playbookLoading}
-        />
+        <div className="flex min-w-0 flex-1 basis-0 justify-start">
+          <PlaybookFilter
+            inputId={playbookInputId}
+            value={playbook}
+            onChange={onPlaybookChange}
+            options={playbookOptions}
+            loading={playbookLoading}
+          />
+        </div>
       </div>
       {showMinUsesLine ? (
         <p className="font-sans text-xs text-slate-500">

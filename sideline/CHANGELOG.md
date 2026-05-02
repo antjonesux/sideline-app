@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Tendencies — predictability UI, scouting situations, reconsider ST, portaled filters)
+
+**What:** **`components/tendencies/AmIPredictable.tsx`**: Removed redundant play-type percentage tiles under the distribution chart (chart + Key Rates unchanged). **`components/tendencies/TendenciesFilters.tsx`**: Game range (**All Games / Last 5 / Last 10**) uses **`usePortalDropdown`** + portal listbox like opponent and playbook; shared **`tendenciesPortalListboxClass`**; compact one-row triggers with truncation; **`vs {opponent}`** label when opponent scope is active. **`components/tendencies/PlaybookFilter.tsx`**: Menu **`flex`** column, viewport-capped **`max-h`/`max-w`**, scrollable list (**`min-h-0 flex-1`**). **`hooks/usePortalDropdown.ts`**: Initial **`left`** from trigger; **`horizontalLeftForPanel`** end-aligns to trigger when the panel would overflow the viewport; post-layout **`requestAnimationFrame`** pass uses measured width. **`lib/constants.ts`**: **`SCOUTING_REPORT_SCENARIOS`** (drops **2 Point**, **2 Minute**, **4 Minute**). **`lib/tendenciesServer.ts`** **`scoutingReportRows`** and **`components/tendencies/ScoutingReport.tsx`** use that list. **`lib/playTypeResolution.ts`**: **`isSpecialTeamsFormationPlayRow`** (Film Browse Special Teams formation + punt/FG names). **`app/api/tendencies/top-plays/route.ts`**: **Plays to reconsider** excludes those rows before **`qualifiesForReconsiderPlay`**.
+
+**Why:** Tendencies payoff stays readable: less duplicate chrome, filters match existing portal pattern and stay on-screen, scouting summary drops niche situations, special-teams logger rows do not pollute offensive reconsider lists.
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-02 (Film game detail — drive accordion, My Sheet empty copy, PlayBrowser scroll, no drive notes)
 
 **What:** **`app/film/[gameId]/page.tsx`**: Accordion expansion respects possession outcome from **`getDriveResult`** / **`driveOutcome`**; initial load expands last drive only when still **`ACTIVE`** or **`NO_PLAYS`**; **`refresh({ pruneClosedPossessions: true })`** after possession-ended log; routine **`refresh`** keeps expanded IDs (drops deleted-drive ids only) so completed drives stay open if the coach opened them; **`scheduleDrivePersist`** → **`saveDrive(..., { silent: true, skipRefresh: true })`**. Removed drive note UI from the accordion. **`components/film/PlayLoggerV2.tsx`** + **`lib/coachCopy.ts`**: **`filmLoggerMySheetEmptyHint`** for My Sheet empty rows. **`components/film/PlayBrowser.tsx`**: **`useLayoutEffect`** + ref reset scroll when formation changes.

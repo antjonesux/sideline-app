@@ -20,7 +20,9 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 import { resolveCfbDisplayPlayType, type PlaybookEntry } from "@/lib/playbook";
+import { normalizePlayName } from "@/lib/utils";
 import { fetchCfbPlayTypeMap, playbookForGame, playTypeLookupKey, type GameRow } from "@/lib/tendenciesServer";
 
 export type CanonicalPlayType = PlaybookEntry["play_type"];
@@ -60,4 +62,21 @@ export function storedPlayTypeFromMap(
   const key = playTypeLookupKey(offensivePlaybookLabel, formation, playName);
   const fromCfb = map.get(key);
   return coalesceCfbAndLoggedPlayType(playName, fromCfb, existingLoggedType);
+}
+
+const SPECIAL_TEAMS_FORMATION_LC = FILM_LOGGER_SPECIAL_TEAMS_PLAYS[0]?.formation.trim().toLowerCase() ?? "";
+
+const SPECIAL_TEAMS_PLAY_NAMES_LC = new Set(
+  FILM_LOGGER_SPECIAL_TEAMS_PLAYS.map((p) => normalizePlayName(p.play_name).toLowerCase()).filter(Boolean),
+);
+
+/**
+ * Film Browse Special Teams picks (formation + play_name aligned with `FILM_LOGGER_SPECIAL_TEAMS_PLAYS`).
+ * Used to omit those rows from offensive-only lists (e.g. Plays to Reconsider). Punt is usually stripped earlier in tendencies fetch.
+ */
+export function isSpecialTeamsFormationPlayRow(formation: string, playName: string): boolean {
+  if (!SPECIAL_TEAMS_FORMATION_LC) return false;
+  if (formation.trim().toLowerCase() !== SPECIAL_TEAMS_FORMATION_LC) return false;
+  const pn = normalizePlayName(playName).toLowerCase();
+  return SPECIAL_TEAMS_PLAY_NAMES_LC.has(pn);
 }

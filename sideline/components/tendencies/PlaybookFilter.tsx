@@ -52,7 +52,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
   }, [dropdown.open]);
 
   return (
-    <div ref={rootRef} className="relative w-fit max-w-full">
+    <div ref={rootRef} className="relative min-w-0 w-fit max-w-full">
       <label htmlFor={inputId} className="sr-only">
         PLAYBOOK
       </label>
@@ -63,10 +63,10 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
         aria-label="Filter tendencies by offensive playbook"
         aria-expanded={dropdown.open}
         aria-haspopup="listbox"
-        className={`min-h-11 w-auto max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${triggerPillClass(hasPlaybookSelection)} inline-flex items-center`}
+        className={`min-h-11 w-fit min-w-0 max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${triggerPillClass(hasPlaybookSelection)} inline-flex items-center`}
         onClick={dropdown.toggleMenu}
       >
-        <span className="max-w-[14rem] truncate">{committedLabel}</span>
+        <span className="min-w-0 max-w-full truncate whitespace-nowrap">{committedLabel}</span>
       </button>
       <span className="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-slate-400" aria-hidden>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +79,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
             <div
               ref={dropdown.menuRef}
               role="listbox"
-              className={`min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-72 w-max max-w-[20rem] overflow-hidden`}
+              className={`flex min-h-0 min-w-0 flex-col rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-[min(18rem,calc(100dvh-2rem))] w-max max-w-[min(20rem,calc(100vw-1rem))] overflow-hidden`}
               style={{
                 ...(dropdown.menuPos.top != null ? { top: dropdown.menuPos.top } : {}),
                 ...(dropdown.menuPos.bottom != null ? { bottom: dropdown.menuPos.bottom } : {}),
@@ -87,7 +87,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
                 minWidth: dropdown.menuPos.minWidth,
               }}
             >
-              <div className="border-b border-slate-800 p-2">
+              <div className="shrink-0 border-b border-slate-800 p-2">
                 <input
                   ref={searchInputRef}
                   type="search"
@@ -105,7 +105,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
                   className="block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 w-full"
                 />
               </div>
-              <div className="max-h-52 overflow-y-auto">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                 {loading ? (
                   <div className="space-y-2 p-3" aria-busy="true" aria-label="Loading playbooks">
                     <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[85%]" />

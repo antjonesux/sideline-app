@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Tendencies: predictability cleanup, scouting trim, reconsider filter, portal positioning
+
+### What
+
+- [`sideline/components/tendencies/AmIPredictable.tsx`](sideline/components/tendencies/AmIPredictable.tsx): Removed duplicate play-type stat cards under the distribution chart.
+- [`sideline/components/tendencies/TendenciesFilters.tsx`](sideline/components/tendencies/TendenciesFilters.tsx): Game range filter is a **portal listbox** (same **`usePortalDropdown`** pattern as opponent + playbook); shared menu classes; one-row filter strip with label truncation.
+- [`sideline/components/tendencies/PlaybookFilter.tsx`](sideline/components/tendencies/PlaybookFilter.tsx): Dropdown panel respects viewport height/width; list area scrolls inside flex layout.
+- [`sideline/hooks/usePortalDropdown.ts`](sideline/hooks/usePortalDropdown.ts): Horizontal placement stays on-screen (**start-aligned** to trigger, **end-aligned** when clipped); measured width pass after open.
+- [`sideline/lib/constants.ts`](sideline/lib/constants.ts), [`sideline/lib/tendenciesServer.ts`](sideline/lib/tendenciesServer.ts), [`sideline/components/tendencies/ScoutingReport.tsx`](sideline/components/tendencies/ScoutingReport.tsx): Scouting report situations omit **2 Point**, **2 Minute**, **4 Minute**.
+- [`sideline/lib/playTypeResolution.ts`](sideline/lib/playTypeResolution.ts), [`sideline/app/api/tendencies/top-plays/route.ts`](sideline/app/api/tendencies/top-plays/route.ts): **Plays to reconsider** excludes Film Browse Special Teams rows (**`isSpecialTeamsFormationPlayRow`**).
+
+### Why
+
+Clearer tendencies surface for coaches: less noise under predictability, stable filter UX above tab stacking, tighter scouting summary, and no misleading ST rows in reconsider.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Film game detail: drive accordion, logger My Sheet copy, PlayBrowser scroll
 
 ### What

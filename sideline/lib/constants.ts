@@ -24,6 +24,12 @@ export const TENDENCIES_SCENARIOS = SCENARIOS.filter(
   (s): s is Exclude<PlaySheetScenario, "Opening Script"> => s !== "Opening Script",
 );
 
+/** Situations omitted from the Tendencies scouting report (niche / low-signal for the summary). */
+const SCOUTING_REPORT_EXCLUDED = new Set<string>(["2 Point", "2 Minute", "4 Minute"]);
+
+/** `TENDENCIES_SCENARIOS` minus niche situations not shown in the scouting summary. */
+export const SCOUTING_REPORT_SCENARIOS = TENDENCIES_SCENARIOS.filter((s) => !SCOUTING_REPORT_EXCLUDED.has(s));
+
 export const SCENARIO_SHORT: Record<string, string> = {
   "Opening Script": "Opening Script",
   "1st Down": "1st Down",

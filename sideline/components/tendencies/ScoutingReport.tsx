@@ -1,7 +1,7 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { TENDENCIES_SCENARIOS } from "@/lib/constants";
+import { SCOUTING_REPORT_SCENARIOS } from "@/lib/constants";
 import type { ScoutingReportRow } from "@/lib/tendenciesServer";
 import { successRateTextClass } from "@/lib/successRateTextClass";
 import { normalizePlayName } from "@/lib/utils";
@@ -27,7 +27,7 @@ export function ScoutingReport({ rows }: Props) {
   const orderedRows = useMemo(() => {
     if (rows.length === 0) return [];
     const byScenario = new Map(rows.map((r) => [r.scenario, r]));
-    return TENDENCIES_SCENARIOS.map((scenario) => byScenario.get(scenario) ?? emptyScoutingRow(scenario));
+    return SCOUTING_REPORT_SCENARIOS.map((scenario) => byScenario.get(scenario) ?? emptyScoutingRow(scenario));
   }, [rows]);
 
   if (orderedRows.length === 0) {

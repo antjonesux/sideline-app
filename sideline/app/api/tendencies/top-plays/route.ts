@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isSpecialTeamsFormationPlayRow } from "@/lib/playTypeResolution";
 import {
   aggregateByFormationPlay,
   fetchGamesOrdered,
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest) {
   const top = ranked.slice(0, limit);
   const scenarioByPlay = mostCommonScenarioByFormationPlay(plays);
   const reconsider = aggregateByFormationPlay(plays, 1, "composite")
+    .filter((r) => !isSpecialTeamsFormationPlayRow(r.formation, r.play_name))
     .filter(qualifiesForReconsiderPlay)
     .map((r) => ({
       ...r,
