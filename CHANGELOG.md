@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Film game tendencies tab: 3×2 stats, TOP PLAYS / TOP FORMATIONS / RECONSIDER, formations table removed
+
+### What
+
+- [`sideline/components/film/FilmGameTendenciesBody.tsx`](sideline/components/film/FilmGameTendenciesBody.tsx): **GAME STATS** 3×2 grid; **TOP PLAYS** / **TOP FORMATIONS** / **PLAYS TO RECONSIDER** sections (same heading style as other blocks); rankings from [`sideline/lib/gameTendenciesWhatsWorking.ts`](sideline/lib/gameTendenciesWhatsWorking.ts) (**`summarizeGameWhatsWorking`**) over existing **`GET /api/tendencies/game/[id]`** payload.
+- Removed [`sideline/components/tendencies/GameFormationTable.tsx`](sideline/components/tendencies/GameFormationTable.tsx), [`sideline/components/tendencies/formationAggTableColumns.tsx`](sideline/components/tendencies/formationAggTableColumns.tsx) (only used by Film game tendencies).
+
+### Why
+
+Single-game tendencies emphasize compact stats and “what’s working” lists aligned with cross-game tendencies APIs, without a new endpoint.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`DECISIONS.md`](DECISIONS.md) (new **2026-05-02** entry; **2026-04-30** film tendencies **Impact** updated), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Tendencies: predictability cleanup, scouting trim, reconsider filter, portal positioning
 
 ### What

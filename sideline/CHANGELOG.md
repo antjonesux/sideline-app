@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Film game tendencies — 3×2 stats, TOP PLAYS / FORMATIONS / RECONSIDER, no formations table)
+
+**What:** **`components/film/FilmGameTendenciesBody.tsx`**: **GAME STATS** as **3×2** cards (**`px-4 py-2`**); **TOP PLAYS**, **TOP FORMATIONS**, **PLAYS TO RECONSIDER** with same section **`h2`** pattern as **PLAY TYPES** / **BY SITUATION**; expand/pagination via existing **`TopPlaysList`**, **`TopFormationsList`**, **`ReconsiderPlays`**. **`lib/gameTendenciesWhatsWorking.ts`**: **`summarizeGameWhatsWorking`** — **`aggregateByFormationPlay`**, **`aggregateByFormation`**, **`bestPlayForFormation`**, **`qualifiesForReconsiderPlay`**, **`mostCommonScenarioByFormationPlay`**, **`isSpecialTeamsFormationPlayRow`** on **`drives`** plays from **`GET /api/tendencies/game/[id]`** (no new API). Removed **`components/tendencies/GameFormationTable.tsx`**, **`formationAggTableColumns.tsx`**.
+
+**Why:** Coach-first single-game tab: less vertical chrome, insight lists match cross-game tendencies ranking rules, drop expandable formations table from this surface.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**, **`DECISIONS.md`** (**2026-05-02** entry + **2026-04-30** impact note), this file.
+
+---
+
 ## 2026-05-02 (Tendencies — predictability UI, scouting situations, reconsider ST, portaled filters)
 
 **What:** **`components/tendencies/AmIPredictable.tsx`**: Removed redundant play-type percentage tiles under the distribution chart (chart + Key Rates unchanged). **`components/tendencies/TendenciesFilters.tsx`**: Game range (**All Games / Last 5 / Last 10**) uses **`usePortalDropdown`** + portal listbox like opponent and playbook; shared **`tendenciesPortalListboxClass`**; compact one-row triggers with truncation; **`vs {opponent}`** label when opponent scope is active. **`components/tendencies/PlaybookFilter.tsx`**: Menu **`flex`** column, viewport-capped **`max-h`/`max-w`**, scrollable list (**`min-h-0 flex-1`**). **`hooks/usePortalDropdown.ts`**: Initial **`left`** from trigger; **`horizontalLeftForPanel`** end-aligns to trigger when the panel would overflow the viewport; post-layout **`requestAnimationFrame`** pass uses measured width. **`lib/constants.ts`**: **`SCOUTING_REPORT_SCENARIOS`** (drops **2 Point**, **2 Minute**, **4 Minute**). **`lib/tendenciesServer.ts`** **`scoutingReportRows`** and **`components/tendencies/ScoutingReport.tsx`** use that list. **`lib/playTypeResolution.ts`**: **`isSpecialTeamsFormationPlayRow`** (Film Browse Special Teams formation + punt/FG names). **`app/api/tendencies/top-plays/route.ts`**: **Plays to reconsider** excludes those rows before **`qualifiesForReconsiderPlay`**.

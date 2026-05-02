@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Film game detail tendencies: TOP PLAYS / TOP FORMATIONS / PLAYS TO RECONSIDER (no formations table)
+
+**Decision:** The in-game **Tendencies** tab on **`FilmGameTendenciesBody`** removes the expandable **FORMATIONS** table (**`GameFormationTable`**, **`formationAggTableColumns`** — files deleted). **GAME STATS** is a **3×2** card grid. **TOP PLAYS**, **TOP FORMATIONS**, and **PLAYS TO RECONSIDER** reuse **`TopPlaysList`**, **`TopFormationsList`**, and **`ReconsiderPlays`**; rankings come from **`lib/gameTendenciesWhatsWorking.ts`** (**`summarizeGameWhatsWorking`**) calling the same **`tendenciesServer`** helpers as **`/api/tendencies/top-plays`** and **`/api/tendencies/top-formations`**, over plays already returned on **`GET /api/tendencies/game/[id]`** (**`drives` → client `useMemo`** — **no new route**). **BY SITUATION** stays on **`DataTable`** with **`equalColumnsCompact`**.
+
+**Why:** Single-game tab prioritized mid-game/post-game insight density over the formation accordion table; align “what’s working” mentally with the cross-game Tendencies tab without duplicating aggregation rules in a new API.
+
+**Impact:** Do not resurrect **`GameFormationTable`** for this tab without an explicit product decision. If **`top-plays`** / **`top-formations`** aggregation or reconsider rules change, update **`summarizeGameWhatsWorking`** (or move the summary into **`buildTendenciesGamePayload`** / the game route) to avoid silent drift. **2026-04-30** entry below remains authoritative for **`DataTable`** primitives and **BY SITUATION** layout; its **FORMATIONS** narrative is **historical** after this entry.
+
+---
+
 ## 2026-05-01 — Home onboarding gate: conservative handling when counts fail
 
 **Decision:** **`HomeOnboardingGate`** treats **either** Supabase head **`count`** error (**`game_sessions`** or **`play_sheets`**) as **unknown eligibility**: log the error, set redirect phase, and **`router.replace("/film`)**. The gate **does not** assume an empty account or show the carousel when counts fail.
@@ -52,7 +62,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 **Why:** Tendencies formation accordion and BY SITUATION tables overflowed horizontally without improving coaching signal; fixes belong in the shared table primitive with opt-in flags rather than duplicate table markup.
 
-**Impact:** Defaults unchanged for existing **`DataTable`** callers. Omitting **SPOT** in formation-expanded plays is intentional density/readability trade-off — restore **SPOT** there only if product requires ending-field parity with primary drive views.
+**Impact (updated 2026-05-02):** The **FORMATIONS** accordion / **`GameFormationTable`** / **`formationAggTableColumns`** path described above was **removed** from Film game in-game tendencies; current UX is **2026-05-02 — Film game detail tendencies: TOP PLAYS / TOP FORMATIONS / PLAYS TO RECONSIDER**. **BY SITUATION** and the shared **`DataTable`** options (**`equalColumnsCompact`**, **`containedWidth`**, **`dense`**, etc.) remain valid for **`FilmGameTendenciesBody`** and other callers. Defaults unchanged for existing **`DataTable`** callers. The deleted formation drill-down omitted **SPOT** in nested rows for density — that trade-off no longer applies on this tab; primary Film drive tables and **`drivePlayTableColumns()`** defaults (**2026-04-21** SPOT / ending-field) are unchanged elsewhere.
 
 ---
 
