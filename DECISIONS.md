@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Marketing `/landing`: full-bleed `main`, viewport-locked hero, themed copy↔CTA spacing
+
+**Decision:** **`html[data-marketing-chrome="true"] main`** (**`BottomTabNav`** on **`/landing`** only) is **full width** (**`max-width: none`**, no horizontal padding on **`main`**); horizontal inset lives on **`components/landing/HeroSection.tsx`** (**`px-4 sm:px-6`**). **`@theme`** in **`app/globals.css`** defines **`--spacing-landing-hero-copy-to-cta: 3rem`** (48px at 16px root); **`HeroSection`** uses it as **`gap`** between the headline/subcopy block and the CTA stack **below `md`**, with **`md:gap-8`** between those groups at **`md+`**. The primary button and **“Already have an account?”** row use **`gap-2`** inside the CTA stack. The hero **`section`** is **`h-dvh max-h-dvh`** with **`overflow-y-hidden`** (single-screen frame); the grid/gradient SVG is **`fixed`** full viewport; content uses **`justify-start`** on small viewports and **`md:justify-center`** for vertical centering; CTAs follow copy (no **`flex-1`** spacer pinning buttons to the bottom). **`buildLoginHref`** and optional **`next`** behavior are unchanged.
+
+**Why:** Marketing should read **edge-to-edge** without changing root **`layout.tsx`** for Film / Game Plan / Tendencies; spacing is centralized in **`globals.css`** so the subcopy→CTA rhythm does not rely on ad hoc **`px`** in JSX.
+
+**Impact:** Supersedes the **“hero top inset remains `HeroSection` `pt-6`”** clause in **2026-04-30 — App shell `<main>` top padding (landing parity)** for **`/landing`** — hero top padding is now **`HeroSection`**’s responsive **`pt-*`** (tighter on narrow widths as part of the no-scroll layout). App routes using **`main`** are unchanged. **`overflow-y-hidden`** can clip content at **large text / zoom**; mitigate later if product requires scroll on this route.
+
+---
+
 ## 2026-05-02 — Onboarding screenshot QA: public `/qa/onboarding` prefix, production `notFound`, Playwright
 
 **Decision:** **`app/qa/onboarding/**`** exposes **sessionless** preview routes (carousel, new play sheet, editor shell, logger shell, yardage, first-drive insight) built from **real components** + **typed mock fixtures** (**`lib/onboardingQaFixture.ts`**, **`components/qa/onboarding/*`**). **`sideline/proxy.ts`** **`isPublic`** includes **`pathname.startsWith("/qa/onboarding")`** so unauthenticated requests are **not** sent to **`/landing`**. **`app/qa/onboarding/layout.tsx`** calls **`notFound()`** when **`process.env.NODE_ENV === "production"`** so production builds do not serve the QA frames as product surfaces. **`BottomTabNav`** treats the prefix like other onboarding URLs (**tab bar hidden**, **`data-onboarding-chrome`**). **Playwright** (**`@playwright/test`**, **`playwright.config.ts`**, **`playwright/onboarding-screenshots.spec.ts`**) captures PNGs via **`npm run screenshots:onboarding`** (with **`PLAYWRIGHT_BROWSERS_PATH=0`** in **`package.json`** scripts so browsers install under the repo). **`CreatePlaybookModal`** accepts optional **`qaStaticPlaybooks`** on QA pages only to skip **`GET /api/cfb26-playbooks`**; **`OnboardingCarousel`** accepts optional **`disableAutoAdvance`** for stable slides.
@@ -88,11 +98,11 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-04-30 — App shell `<main>` top padding (landing parity)
 
-**Decision:** Root **`sideline/app/layout.tsx`** `<main>` uses **`pt-6`** at all breakpoints (replacing **`pt-4 sm:pt-6`**). **`/landing`** is unchanged: **`html[data-marketing-chrome="true"] main`** in **`globals.css`** keeps **`padding-top: 0`**; the hero’s top inset remains **`HeroSection`** **`pt-6`**.
+**Decision:** Root **`sideline/app/layout.tsx`** `<main>` uses **`pt-6`** at all breakpoints (replacing **`pt-4 sm:pt-6`**). **`/landing`:** **`html[data-marketing-chrome="true"] main`** in **`globals.css`** keeps **`padding-top: 0`**; marketing hero inset and bleed are owned by **`HeroSection`** (see **2026-05-02 — Marketing `/landing`: full-bleed `main`, viewport-locked hero, themed copy↔CTA spacing** — no longer a fixed **`pt-6`**-only rule on the hero).
 
 **Why:** Bottom-nav surfaces (Film Room, Game Plan, Tendencies) and settings read visually tighter than the marketing hero on narrow viewports; matching **`pt-6`** on the shared shell aligns rhythm without copying utilities onto each page.
 
-**Impact:** Every route that uses root **`main`** (including auth and film import) shares the same top inset; future tweaks stay in **`layout.tsx`**. Marketing layout and bottom safe-area rules are untouched.
+**Impact:** Every route that uses root **`main`** (including auth and film import) shares the same top inset; future tweaks stay in **`layout.tsx`**. Marketing **`/landing`** layout and bottom safe-area overrides (**`data-marketing-chrome`**) are documented in the **2026-05-02** marketing entry above.
 
 ---
 

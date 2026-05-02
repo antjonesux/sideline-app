@@ -9,11 +9,11 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
 
   return (
     <section
-      className="relative flex min-h-[100dvh] w-full flex-col items-center overflow-x-hidden bg-[#020617] pt-6 pb-14"
+      className="relative flex h-dvh max-h-dvh w-full flex-col items-center overflow-x-hidden overflow-y-hidden bg-[#020617] px-4 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-5 md:py-5"
       aria-labelledby="landing-hero-headline"
     >
       <svg
-        className="pointer-events-none fixed inset-0 z-0 h-screen w-screen"
+        className="pointer-events-none fixed inset-0 z-0 h-dvh w-screen max-w-[100vw]"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
       >
@@ -34,8 +34,8 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
         <rect width="100%" height="100%" fill="url(#grid-major)" />
         <rect width="100%" height="100%" fill="url(#fade)" />
       </svg>
-      <div className="relative z-10 mx-auto flex w-full max-w-[428px] flex-1 flex-col">
-        <header className="mb-8 text-center">
+      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-[428px] flex-1 flex-col justify-start md:justify-center">
+        <header className="mb-2 shrink-0 text-center sm:mb-3 md:mb-5">
           <p
             className="font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
             style={appWordmarkStyle}
@@ -44,9 +44,9 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
           </p>
         </header>
 
-        <div className="relative -mx-4 w-[calc(100%+2rem)] sm:-mx-6 sm:w-[calc(100%+3rem)]">
+        <div className="relative -mx-4 mb-0 flex h-[min(38dvh,22rem)] w-[calc(100%+2rem)] shrink items-center justify-center sm:-mx-6 sm:h-[min(42dvh,26rem)] sm:w-[calc(100%+3rem)] md:mb-5 md:h-[min(44dvh,28rem)] lg:h-[min(46dvh,30rem)]">
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#10b981]/5 blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[min(320px,85%)] w-[min(320px,85%)] max-h-full max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#10b981]/5 blur-3xl"
             aria-hidden
           />
           <Image
@@ -55,40 +55,44 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
             width={592}
             height={740}
             priority
-            className="relative z-10 h-auto w-full object-contain"
+            className="relative z-10 h-full max-h-full w-full object-contain"
             sizes="(max-width: 639px) 100vw, 428px"
           />
         </div>
 
-        <div className="mt-5 w-full max-w-[296px] self-center">
-          <h1
-            id="landing-hero-headline"
-            className="text-center font-sans text-2xl font-bold tracking-[0.72px] text-white normal-case"
-          >
-            Study your game. Call it smarter.
-          </h1>
-
-          <p className="mt-3 text-center font-sans text-sm font-normal leading-5 text-[#94a3b8]">
-            The play-calling companion for College Football 26. Build your game plan, track your tendencies, and see
-            what&apos;s actually working.
-          </p>
-
-          <Link
-            href={getStartedHref}
-            className="mt-8 flex h-12 w-full items-center justify-center rounded-[8px] bg-[#059669] font-sans text-sm font-medium leading-5 tracking-normal text-white transition-colors hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-          >
-            Get started
-          </Link>
-
-          <p className="mt-3 flex min-h-9 w-full flex-wrap items-center justify-center gap-x-1 text-center font-sans text-sm font-medium leading-5 text-[#94a3b8]">
-            <span>Already have an account?</span>
-            <Link
-              href={signInHref}
-              className="text-[#10b981] underline decoration-[#10b981] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+        <div className="flex w-full max-w-[296px] flex-col self-center max-md:gap-landing-hero-copy-to-cta md:gap-8">
+          <div className="-mt-1 shrink-0 sm:-mt-0.5 md:mt-0">
+            <h1
+              id="landing-hero-headline"
+              className="text-center font-sans text-2xl font-bold tracking-[0.72px] text-white normal-case"
             >
-              Sign in
+              Study your game. Call it smarter.
+            </h1>
+
+            <p className="mt-2 text-center font-sans text-sm font-normal leading-5 text-[#94a3b8] min-[480px]:mt-3">
+              The play-calling companion for College Football 26. Build your game plan, track your tendencies, and see
+              what&apos;s actually working.
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-2">
+            <Link
+              href={getStartedHref}
+              className="flex h-12 w-full items-center justify-center rounded-[8px] bg-[#059669] font-sans text-sm font-medium leading-5 tracking-normal text-white transition-colors hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            >
+              Get started
             </Link>
-          </p>
+
+            <p className="flex min-h-9 w-full flex-wrap items-center justify-center gap-x-1 text-center font-sans text-sm font-medium leading-5 text-[#94a3b8]">
+              <span>Already have an account?</span>
+              <Link
+                href={signInHref}
+                className="text-[#10b981] underline decoration-[#10b981] underline-offset-2 transition-colors hover:text-emerald-400 hover:decoration-emerald-400 focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </section>

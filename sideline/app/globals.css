@@ -11,6 +11,11 @@
   --font-display: var(--font-barlow-condensed);
   --font-sans: var(--font-barlow);
   --font-mono: var(--font-jetbrains-mono);
+  /**
+   * Landing hero (`/landing`), below `md`: subcopy → CTA stack.
+   * Design spec: 48px at 16px root → `3rem`.
+   */
+  --spacing-landing-hero-copy-to-cta: 3rem;
 }
 
 @layer base {
@@ -112,27 +117,22 @@
   }
 
   /**
-   * Marketing landing at `/landing` — same horizontal shell as default `<main>` (login); no top padding.
-   * `padding-bottom: 0 !important` overrides the app shell’s tab-bar `pb-*` on `<main>` (higher-specificity
-   * utility chains would otherwise win), which caused extra scroll / empty space under the full-height carousel.
+   * Marketing landing at `/landing` only (`data-marketing-chrome` from BottomTabNav).
+   * Full-width `<main>` so the hero grid / gradient (fixed SVG in HeroSection) align edge-to-edge with the
+   * viewport; horizontal padding lives on the landing section so copy stays readable. Other routes keep the
+   * default `max-w-3xl` shell from `layout.tsx`.
+   * `padding-bottom: 0 !important` clears the tab-bar bottom padding utilities on `<main>` (nav is hidden).
    */
   html[data-marketing-chrome="true"] main {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 48rem;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: none;
     width: 100%;
     min-height: 0;
     padding-top: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0;
+    padding-right: 0;
     padding-bottom: 0 !important;
-  }
-
-  @media (min-width: 640px) {
-    html[data-marketing-chrome="true"] main {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
   }
 }
 

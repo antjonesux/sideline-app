@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Marketing `/landing` — full-bleed `main`, `dvh` hero, `--spacing-landing-hero-copy-to-cta`)
+
+**What:** **`app/globals.css`**: **`data-marketing-chrome`** **`main`** full width, no side padding on **`main`**; **`@theme`** **`--spacing-landing-hero-copy-to-cta`** (**`3rem`**). **`components/landing/HeroSection.tsx`**: viewport-height section, **`fixed`** grid/gradient SVG, image slot with bounded **`min()`** / **`dvh`** heights; flex column with **`max-md:gap-landing-hero-copy-to-cta`** / **`md:gap-8`** between copy block and CTA stack, **`gap-2`** between **Get started** and sign-in row; **`buildLoginHref`** unchanged.
+
+**Why:** Edge-to-edge marketing shell and predictable subcopy→CTA spacing without **`px`** literals in components; other routes keep **`layout.tsx`** **`max-w-3xl`**.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-05-02 (Film — guided first-drive insight: full-viewport `Dialog`)
 
 **What:** **`components/film/GuidedFirstDriveInsight.tsx`**: **`DialogContent`** is **full-viewport** (**`fixed inset-0`**, **`h-[100dvh]`**, **`max-w-none`**, **`rounded-none`**, **`shadow-none`**), **`bg-slate-950`** / **`border-slate-800`**; inner scroll **`pt-[max(1.25rem,env(safe-area-inset-top,0px))]`**; motion overrides so the shell does not use centered-dialog defaults. Removes the prior **mobile bottom sheet + `sm:` centered `max-w-lg` modal** split.

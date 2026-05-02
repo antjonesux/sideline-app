@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Marketing `/landing`: full-bleed hero, viewport-locked layout, spacing token
+
+### What
+
+- [`sideline/app/globals.css`](sideline/app/globals.css): **`html[data-marketing-chrome="true"] main`** is full width (**`max-width: none`**) with no horizontal padding on **`main`**; horizontal inset is on the hero section. **`@theme`** adds **`--spacing-landing-hero-copy-to-cta: 3rem`** for subcopy→CTA stack **`gap`** below **`md`**.
+- [`sideline/components/landing/HeroSection.tsx`](sideline/components/landing/HeroSection.tsx): **`h-dvh`** hero with **`overflow-y-hidden`**, **`fixed`** full-viewport SVG backdrop, bounded-height showcase image, **`justify-start`** / **`md:justify-center`**, flex **`gap`** using the theme token (and **`md:gap-8`** between copy and CTAs at **`md+`**); **`gap-2`** between primary CTA and sign-in row; auth links still via **`buildLoginHref`**.
+
+### Why
+
+Marketing reads full-bleed without changing root **`layout.tsx`** for app routes; spacing is tokenized in **`globals.css`**.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`DECISIONS.md`](DECISIONS.md) (new **2026-05-02 — Marketing `/landing`** entry; **2026-04-30** landing parity bullet updated), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Guided first-drive insight: full-viewport readout shell
 
 ### What
