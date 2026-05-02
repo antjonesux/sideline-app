@@ -29,7 +29,7 @@ export function sortScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): She
   });
 }
 
-/** Default max calls per situation; see `scenarioMaxSlots` (API + Game Plan + Film). */
+/** Default max calls per situation; see `scenarioMaxSlots` (API + Play Sheet + Film). */
 export const PLAY_SHEET_SCENARIO_MAX_DEFAULT = 10;
 
 export function scenarioMaxSlots(scenario: string): number {
@@ -61,7 +61,7 @@ export function loggedPlayScenarioLabels(sheetScenario: string): string[] {
 }
 
 /**
- * Wider scenario labels for Game Plan suggestions only.
+ * Wider scenario labels for Play Sheet suggestions only.
  * Pools situationally related scenarios for sparse tabs so suggestions
  * reflect real logged outcomes from defensible proxy situations.
  */

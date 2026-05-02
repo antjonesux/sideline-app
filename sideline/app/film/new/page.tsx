@@ -185,7 +185,7 @@ export default function NewGamePage() {
     }
   }, [playbookOptions, selectedPlaybookName]);
 
-  /** Prefill CFB26 playbook from Game Plan: onboarding sheet name first, else most-recent sheet (`/api/playbook` order). */
+  /** Prefill CFB26 playbook from Play Sheet: onboarding sheet name first, else most-recent sheet (`/api/playbook` order). */
   useEffect(() => {
     if (setupLoading || setupError || playbookOptions.length === 0) return;
     let cancelled = false;
@@ -354,13 +354,13 @@ export default function NewGamePage() {
 
           {selectedPlaybookName ? (
             <div className="space-y-2 md:max-w-2xl">
-              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game Plan</p>
+              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play Sheet</p>
               {sheetsLoading ? (
                 <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
               ) : availableSheets.length === 0 ? (
                 <p className="font-body text-xs text-slate-500">
                   No play sheets for this playbook yet.{" "}
-                  <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Game Plan</a>.
+                  <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Play Sheet</a>.
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-2">

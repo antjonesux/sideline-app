@@ -74,7 +74,7 @@ export type SuggestionRow = {
   success_rate: number;
   avg_yards: number;
   pooled?: boolean;
-  /** Set by Game Plan scenario API from `cfb26_plays` + `resolveCfbDisplayPlayType` (same path as sheet rows). */
+  /** Set by Play Sheet scenario API from `cfb26_plays` + `resolveCfbDisplayPlayType` (same path as sheet rows). */
   play_type?: "RUN" | "PASS" | "RPO";
 };
 

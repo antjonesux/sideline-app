@@ -70,7 +70,7 @@ export function HeroSection({ nextFromUrl }: { nextFromUrl?: string }) {
             </h1>
 
             <p className="mt-2 text-center font-sans text-sm font-normal leading-5 text-[#94a3b8] min-[480px]:mt-3">
-              The play-calling companion for College Football 26. Build your game plan, track your tendencies, and see
+              The play-calling companion for College Football 26. Build your play sheet, track your tendencies, and see
               what&apos;s actually working.
             </p>
           </div>

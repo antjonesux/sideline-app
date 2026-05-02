@@ -49,7 +49,7 @@ interface PlayLoggerV2Props {
   loggerOpenFlowId?: string | null;
   /** When true, My Sheet preselects `guidedMySheetScenario` and avoids momentum-killing empty states. */
   guidedOnboarding?: boolean;
-  /** Sheet situation to show in My Sheet (from Game Plan onboarding step). */
+  /** Sheet situation to show in My Sheet (from Play Sheet onboarding step). */
   guidedMySheetScenario?: string | null;
   /** Plays in this game (all drives) before this log — parent state, no optimistic rows. */
   totalPlayRowsInGame: number;
@@ -171,7 +171,7 @@ export function PlayLoggerV2({
     gcTime: FILM_SHEET_SCENARIO_GC_MS,
   });
 
-  /** All sheet situations (same coverage as Game Plan situation strip), including 0-call slots like 2 Minute. */
+  /** All sheet situations (same coverage as Play Sheet situation strip), including 0-call slots like 2 Minute. */
   const mySheetBadgeScenarios = useMemo(() => {
     const scenarios = sheetOverviewQuery.data?.scenarios ?? [];
     return sortScenariosByCanonicalOrder([...scenarios]);

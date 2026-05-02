@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Product copy: “Play Sheet” replaces “Game Plan” (UI + docs)
+
+### What
+
+- **Coach-facing terminology:** Bottom nav, playbook list/editor, **`lib/coachCopy.ts`** (defaults, onboarding carousel CTA, loop copy, empty list headline/body, new-sheet title), Film new game / edit game details (play sheet picker labels), and landing hero + metadata now use **Play Sheet** instead of **Game Plan**. **`/playbook` routes and APIs unchanged.**
+- **Supporting comments** in **`sideline/lib/*`** and a few Film/playbook components updated for consistency (no behavior change).
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md) (new decision + current nav line), [`.cursorrules`](.cursorrules), [`sideline/AGENTS.md`](sideline/AGENTS.md).
+
+### Why
+
+Align in-app language with how coaches talk about call sheets; reduce confusion with the phrase “game plan” as a whole-game concept.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass; [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Bulk CFB26 offensive playbook seed catalog (`lib/seed/playbooks/`)
 
 ### What

@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — UI terminology: “Play Sheet” for `/playbook` (replaces “Game Plan” in product copy)
+
+**Decision:** User-facing labels for the middle bottom-nav pillar and related coach copy use **Play Sheet** (e.g. **`BottomTabNav`**, **`lib/coachCopy.ts`**, playbook page titles, Film game setup “sheet” picker). **Routes stay** **`/playbook`**; no schema or API renames for terminology alone. **`BUILD_CONTRACT.md`** and **`.cursorrules`** use **Play Sheet** for current pillar naming. Older entries in this log may still say **Game Plan** where they record shipped history.
+
+**Why:** Aligns in-app language with how coaches talk about call sheets; “game plan” as a phrase is easy to confuse with the whole game plan vs the situational sheet.
+
+**Impact:** New work and contract docs reference **Play Sheet**; grep/decisions from before this entry are historical. Changelog: follow root **`CHANGELOG.md`** / **`sideline/CHANGELOG.md`** on push.
+
+---
+
 ## 2026-05-02 — Bulk CFB26 offensive playbook seed catalog (`lib/seed/playbooks/`)
 
 **Decision:** Ship **additional** offensive playbook seeds as **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**one `TeamPlaybookSeed` per team**). Primary **source** attribution is **cfb.fan** (`source.url` per file). Loading into **`cfb26_plays`** uses existing **`npm run seed:playbook`** / **`scripts/seed-playbooks.ts`**; canonical **`play_type`** storage remains **`RUN` / `PASS` / `RPO`** via **`resolveSeedPlayType`** and **`mapToCanonicalPlayType`** (see **2026-05-02 — Seed playbook script: canonical `play_type` mapping**). Bulk catalog expansion is an explicit product choice—not a requirement to land one school per PR.
@@ -334,7 +344,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 These are **how the product operates today** from shipped UX and `.cursorrules`; refine when you intentionally change behavior.
 
-- **Navigation labels:** Bottom nav: Film Room | Game Plan | Tendencies. Game details tabs: Drive Summary | Tendencies. Tendencies sub-tabs: What’s Working | Am I Predictable? — fixed strings per `.cursorrules`.
+- **Navigation labels:** Bottom nav: Film Room | Play Sheet | Tendencies. Game details tabs: Drive Summary | Tendencies. Tendencies sub-tabs: What’s Working | Am I Predictable? — fixed strings per `.cursorrules`.
 - **API response shapes:** New routes should follow `.cursorrules` (`{ data }` / `{ error }`, explicit selects); legacy endpoints may still return arrays or legacy keys until touched.
 - **Node / Next:** App targets **Node ≥ 20**, Next **16.x** stack as declared in `sideline/package.json` — verify against `node_modules/next` docs when APIs feel unfamiliar.
 

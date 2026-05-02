@@ -8,7 +8,7 @@
  *   case-insensitive playbook matching (`ilike` / `or` filters). On catalog hits, `attachPlayTypes` can still
  *   prefer `deriveCfbPlayTypeFromName` for Screen / Play Action / RPO / Option so distribution matches call names.
  * - Film (play browser / suggestions / yardage): `/api/cfb26-plays` used `.eq("playbook", …)` (Postgres case-sensitive).
- * - Game Plan: `/api/playbook/[id]/plays` duplicated lookup-key logic and used `.eq("playbook", …)` for the type map.
+ * - Play Sheet: `/api/playbook/[id]/plays` duplicated lookup-key logic and used `.eq("playbook", …)` for the type map.
  *
  * Diagnosis: Hypothesis B (missing / divergent join path vs Tendencies) plus case-sensitivity on the playbook filter
  * (Hypothesis C on the `cfb26_plays.playbook` predicate, not on formation/name keys — those already match Tendencies).

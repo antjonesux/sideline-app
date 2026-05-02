@@ -14,7 +14,7 @@ export const ONBOARDING_OPPONENT_TEAM = "Scout opponent";
 export const ONBOARDING_OPPONENT_SCHEME = "Multiple";
 
 /** Default name for the first guided play sheet (coach does not type a name in onboarding). */
-export const ONBOARDING_DEFAULT_SHEET_NAME = "My First Game Plan";
+export const ONBOARDING_DEFAULT_SHEET_NAME = "My First Play Sheet";
 
 export const ONBOARDING_CAROUSEL_SLIDES = [
   {
@@ -34,7 +34,7 @@ export const ONBOARDING_CAROUSEL_SLIDES = [
   },
 ] as const;
 
-export const ONBOARDING_CAROUSEL_CTA = "Build your first game plan";
+export const ONBOARDING_CAROUSEL_CTA = "Build your first play sheet";
 export const ONBOARDING_EXPLORE_APP = "Explore app";
 
 export const ONBOARDING_HOME_TITLE = "How The Sideline helps you call";
@@ -48,7 +48,7 @@ export const ONBOARDING_FILM_ROOM_BODY =
   "Review games drive by drive, edit details, and see what you leaned on when the game was on the line.";
 export const ONBOARDING_LOOP_TITLE = "The coaching loop";
 export const ONBOARDING_LOOP_BODY =
-  "Call plays → log results → open Tendencies → tighten your next game plan. That loop is how the app earns a spot on your sideline.";
+  "Call plays → log results → open Tendencies → tighten your next play sheet. That loop is how the app earns a spot on your sideline.";
 export const ONBOARDING_PLAYBOOK_STEP_TITLE = "Choose your offensive playbook";
 export const ONBOARDING_PLAYBOOK_STEP_BODY =
   "We match formations and play types to CFB26. Pick the book you want to coach from; you can change it later.";
@@ -94,14 +94,19 @@ export const FILM_NEW_GAME_CTA = "Start game";
 export const FILM_NEW_GAME_YOUR_TEAM_LABEL = "Your team";
 export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 
-/** Game Plan `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
-export const PLAYBOOK_NEW_SHEET_TITLE = "Build your game plan";
+/** Play Sheet list — empty state (no play sheets yet). */
+export const GAME_PLAN_EMPTY_HEADLINE = "No play sheet built yet.";
+export const GAME_PLAN_EMPTY_BODY =
+  "Start with a CFB26 playbook and build the calls you trust by situation.";
+
+/** Play Sheet `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
+export const PLAYBOOK_NEW_SHEET_TITLE = "Build your play sheet";
 /** Subtitle on create play sheet (non–guided flow). */
 export const PLAYBOOK_NEW_SHEET_SUBTITLE =
   "Build your calls by situation so you know what you trust before kickoff.";
 export const PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER = "Base vs 3–3–5, Short Yardage, Red Zone";
 export const PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER = "Search playbooks";
-/** Primary CTA on Game Plan create sheet; same label as guided onboarding playbook step. */
+/** Primary CTA on Play Sheet create flow; same label as guided onboarding playbook step. */
 export const PLAYBOOK_CREATE_CTA = "Start building your calls";
 export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;
 

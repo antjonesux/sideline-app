@@ -242,7 +242,7 @@ export function attachPlayTypes(
     const pb = g ? playbookForGame(g) : "";
     const key = pb ? playTypeLookupKey(pb, p.formation, p.play_name) : "";
     const matched = key ? cfbTypes.has(key) : false;
-    // QA24: Tendencies prefer `cfb26_plays.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Game Plan UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
+    // QA24: Tendencies prefer `cfb26_plays.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Play Sheet UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
     const fromLookup = matched ? (cfbTypes.get(key) ?? "").trim() : "";
     const derived = deriveCfbPlayTypeFromName(p.play_name);
     let raw = fromLookup || derived;

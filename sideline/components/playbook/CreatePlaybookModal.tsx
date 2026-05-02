@@ -140,7 +140,7 @@ export function CreatePlaybookModal({
   }
 
   const stepDescription = guidedOnboardingFlow
-    ? "We start your sheet as “My First Game Plan.” Pick your CFB26 book."
+    ? "We start your sheet as “My First Play Sheet.” Pick your CFB26 book."
     : PLAYBOOK_NEW_SHEET_SUBTITLE;
 
   const formFields = (

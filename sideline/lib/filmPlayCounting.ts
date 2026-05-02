@@ -10,7 +10,7 @@ export function isCoachCallPlay(play: { play_name?: string | null; result_tag?: 
   return true;
 }
 
-/** Game Plan play sheets must not include Film-only special teams picks (by catalog name). */
+/** Play Sheet rows must not include Film-only special teams picks (by catalog name). */
 export function isExcludedFromPlaySheetPlay(play: Pick<PlaybookEntry, "play_name">): boolean {
   const n = String(play.play_name ?? "").trim().toLowerCase();
   return n === "punt" || n === "field goal";

@@ -24,7 +24,7 @@ export function PlaySheetSituationChipScroll({
   onSelect: (scenario: string) => void;
   /** Film My Sheet: `tab` / `tablist` roles inside Radix `Tabs`. */
   tabSemantics?: boolean;
-  /** Game Plan: strip hidden at `lg+` when the desktop sidebar lists situations. */
+  /** Play Sheet: strip hidden at `lg+` when the desktop sidebar lists situations. */
   hideFromLg?: boolean;
 }) {
   if (scenarios.length === 0) return null;

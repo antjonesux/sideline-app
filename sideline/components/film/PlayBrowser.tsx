@@ -14,7 +14,7 @@ interface PlayBrowserProps {
   playbook: string;
   onSelect: (play: PlaybookEntry) => void;
   onClose: () => void;
-  /** Level 1 only: hides the header Back that dismisses the overlay (e.g. Game Plan modal uses close icon). Level 2 always shows Back to formations. */
+  /** Level 1 only: hides the header Back that dismisses the overlay (e.g. Play Sheet modal uses close icon). Level 2 always shows Back to formations. */
   showTopLevelBack?: boolean;
   /** When true, hides Punt / Field Goal catalog entries so they cannot be added to a play sheet. */
   excludePlaySheetSpecialTeams?: boolean;

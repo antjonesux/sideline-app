@@ -14,7 +14,7 @@ const tabs = [
   },
   {
     href: "/playbook",
-    label: "Game Plan",
+    label: "Play Sheet",
     icon: <ClipboardList className="h-5 w-5" aria-hidden />,
   },
   {

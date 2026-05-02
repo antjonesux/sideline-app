@@ -58,7 +58,7 @@ Before commit, run both:
 
 Use them on any task that changes:
 - Film
-- Game Plan
+- Play Sheet
 - Tendencies
 - shared logger flows
 - shared utilities

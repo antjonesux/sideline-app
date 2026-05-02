@@ -433,7 +433,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]")}>
         {!onboardingEditor ? (
           <div className="space-y-3">
-            <Breadcrumb segments={[{ label: "Game Plan", href: "/playbook" }, { label: sheet.name }]} />
+            <Breadcrumb segments={[{ label: "Play Sheet", href: "/playbook" }, { label: sheet.name }]} />
             <BackNavLink href="/playbook" />
           </div>
         ) : null}

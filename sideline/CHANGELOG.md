@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Copy — “Play Sheet” terminology; UI + `coachCopy` + docs)
+
+**What:** User-facing **Game Plan → Play Sheet** across **`BottomTabNav`**, **`PlaybookHome`** / **`PlaybookEditor`**, **`CreatePlaybookModal`**, **`coachCopy.ts`** (e.g. **`ONBOARDING_DEFAULT_SHEET_NAME`**, **`GAME_PLAN_EMPTY_*`**, **`PLAYBOOK_NEW_SHEET_TITLE`**, onboarding strings), Film **`app/film/new/page.tsx`** and **`EditGameDetailsModal`**, **`HeroSection`** + **`app/landing/page.tsx`** metadata. Comment-only tweaks in **`lib/constants.ts`**, **`playbookUtils.ts`**, **`tendenciesServer.ts`**, etc. Repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`.cursorrules`**, **`AGENTS.md`**.
+
+**Why:** Terminology matches coach vocabulary; **`/playbook`** routes unchanged.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`** updated in the same change.
+
+---
+
 ## 2026-05-02 (Data — bulk CFB26 offensive playbook seeds, `lib/seed/playbooks/`)
 
 **What:** Additional team seed modules under **`lib/seed/playbooks/{slug}.ts`** (**`TeamPlaybookSeed`**, **`source.url`** on **cfb.fan**). Intentional **bulk catalog** expansion. Upsert path unchanged: **`scripts/seed-playbooks.ts`**, **`cfb26_plays`**, **`resolveSeedPlayType`** / **`mapToCanonicalPlayType`** for **`RUN` / `PASS` / `RPO`**.

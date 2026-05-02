@@ -4,7 +4,7 @@ const linkClass =
   "inline-flex min-h-11 items-center gap-2 rounded-lg border-0 bg-transparent py-2 pl-0 pr-3 align-middle font-sans text-sm font-medium text-slate-400 hover:text-white focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
 /**
- * Primary “Back” control for app shell flows (Film list, Game Plan, import, etc.).
+ * Primary “Back” control for app shell flows (Film list, Play Sheet, import, etc.).
  * Default target is Film Room; pass **`href`** for other parents (e.g. **`/playbook`** from **`/playbook/new`**).
  */
 export function BackNavLink({ href = "/film", showIcon = true }: { href?: string; showIcon?: boolean }) {

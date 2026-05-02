@@ -393,13 +393,13 @@ export function EditGameDetailsModal({
 
               {selectedPlaybookName ? (
                 <div className="space-y-2">
-                  <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Game Plan</p>
+                  <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play Sheet</p>
                   {sheetsLoading ? (
                     <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
                   ) : availableSheets.length === 0 ? (
                     <p className="font-body text-xs text-slate-500">
                       No play sheets for this playbook yet.{" "}
-                      <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Game Plan</a>.
+                      <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Play Sheet</a>.
                     </p>
                   ) : (
                     <div className="flex flex-wrap gap-2">

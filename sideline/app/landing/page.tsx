@@ -4,7 +4,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 export const metadata: Metadata = {
   title: "Welcome — The Sideline",
   description:
-    "The play-calling companion for College Football 26. Build your game plan, track your tendencies, and see what's actually working.",
+    "The play-calling companion for College Football 26. Build your play sheet, track your tendencies, and see what's actually working.",
 };
 
 function first(param: string | string[] | undefined): string | undefined {

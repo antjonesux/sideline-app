@@ -1,4 +1,4 @@
-/** Master order for play sheets (Game Plan editor) and DB `scenario_order`. */
+/** Master order for play sheets (Play Sheet editor) and DB `scenario_order`. */
 export const SCENARIOS = [
   "Opening Script",
   "1st Down",
