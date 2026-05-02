@@ -1,7 +1,7 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
@@ -50,6 +50,13 @@ export function PlayBrowser({
   const [query, setQuery] = useState("");
   const [step, setStep] = useState<BrowserStep>("formations");
   const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
+  const playsScrollRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!selectedFormation) return;
+    const el = playsScrollRef.current;
+    if (el) el.scrollTop = 0;
+  }, [selectedFormation?.group, selectedFormation?.name]);
 
   useEffect(() => {
     if (isInline) return;
@@ -258,7 +265,7 @@ export function PlayBrowser({
       ) : selectedFormation ? (
         <>
           {playsViewHeader}
-          <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pt-3">
+          <div ref={playsScrollRef} className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pt-3">
             <div className="flex flex-col gap-2 px-4 pb-4">
               {selectedPlays.map((play) => (
                 <PlayRow key={play.play_id} play={play} onSelect={onSelect} />

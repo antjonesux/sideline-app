@@ -18,7 +18,7 @@ import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
+import { COULDNT_SAVE, filmLoggerMySheetEmptyHint, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { isFilmLoggerSpecialTeamsEntry } from "@/lib/filmLoggerSpecialTeams";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
@@ -575,9 +575,7 @@ export function PlayLoggerV2({
                         </div>
                       ) : (
                         <p className="font-sans text-sm text-slate-500">
-                          {mySheetSelectedScenario === scenarioLabel
-                            ? "No sheet calls match this situation."
-                            : `No calls on your sheet for ${scenarioDisplayLabel(mySheetSelectedScenario)}.`}
+                          {filmLoggerMySheetEmptyHint(scenarioDisplayLabel(mySheetSelectedScenario))}
                         </p>
                       )}
                     </div>

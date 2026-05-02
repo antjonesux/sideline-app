@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Film game detail — drive accordion, My Sheet empty copy, PlayBrowser scroll, no drive notes)
+
+**What:** **`app/film/[gameId]/page.tsx`**: Accordion expansion respects possession outcome from **`getDriveResult`** / **`driveOutcome`**; initial load expands last drive only when still **`ACTIVE`** or **`NO_PLAYS`**; **`refresh({ pruneClosedPossessions: true })`** after possession-ended log; routine **`refresh`** keeps expanded IDs (drops deleted-drive ids only) so completed drives stay open if the coach opened them; **`scheduleDrivePersist`** → **`saveDrive(..., { silent: true, skipRefresh: true })`**. Removed drive note UI from the accordion. **`components/film/PlayLoggerV2.tsx`** + **`lib/coachCopy.ts`**: **`filmLoggerMySheetEmptyHint`** for My Sheet empty rows. **`components/film/PlayBrowser.tsx`**: **`useLayoutEffect`** + ref reset scroll when formation changes.
+
+**Why:** Core logging loop polish: clean overview after a drive ends, contextual My Sheet empty copy with shared strings, formation switch does not preserve stale scroll, less accordion clutter (notes removed per product brief).
+
+**Status after this push:** `npm run build` from `sideline/` passed; files above plus repo-root **`CHANGELOG.md`**, this file.
+
+---
+
 ## 2026-05-02 (Onboarding carousel — refreshed slide PNGs)
 
 **What:** **`public/onboarding/slide-1-plan.png`**, **`slide-2-call.png`**, **`slide-3-improve.png`**: updated assets (same paths referenced by **`ONBOARDING_CAROUSEL_SLIDES`** in **`lib/coachCopy.ts`** / **`OnboardingCarousel`**).

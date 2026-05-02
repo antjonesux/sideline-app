@@ -142,8 +142,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [drives, setDrives] = useState<Drive[]>([]);
   const [expandedDriveIds, setExpandedDriveIds] = useState<string[]>([]);
   const [activeDrive, setActiveDrive] = useState<string>("");
-  const [noteEditDriveId, setNoteEditDriveId] = useState<string>("");
-  const [noteDraft, setNoteDraft] = useState("");
   const drivePersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const drivesRef = useRef<Drive[]>([]);
   drivesRef.current = drives;
@@ -171,7 +169,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
 
-  const refresh = useCallback(async (opts?: { expandDriveId?: string }) => {
+  const refresh = useCallback(async (opts?: { expandDriveId?: string; pruneClosedPossessions?: boolean }) => {
     if (!gameId) return;
     const [dRes, gRes] = await Promise.all([fetch(`/api/games/${gameId}/drives`), fetch(`/api/games/${gameId}`)]);
     if (!dRes.ok) {
@@ -183,9 +181,24 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (gRes.ok) {
       setGame((await gRes.json()) as GameSession);
     }
+    const possessionStillOpen = (drive: Drive) => {
+      const o = getDriveResult(drive.plays);
+      return o === "ACTIVE" || o === "NO_PLAYS";
+    };
     setExpandedDriveIds((current) => {
-      if (opts?.expandDriveId) return [opts.expandDriveId];
-      return current;
+      if (opts?.expandDriveId) {
+        const dr = data.find((d) => d.id === opts.expandDriveId);
+        return dr && possessionStillOpen(dr) ? [opts.expandDriveId] : [];
+      }
+      const stillInGame = (ids: string[]) => ids.filter((id) => data.some((d) => d.id === id));
+      const base = stillInGame(current);
+      if (opts?.pruneClosedPossessions) {
+        return base.filter((id) => {
+          const dr = data.find((d) => d.id === id);
+          return dr ? possessionStillOpen(dr) : false;
+        });
+      }
+      return base;
     });
     setActiveDrive((current) => {
       if (opts?.expandDriveId) return opts.expandDriveId;
@@ -199,10 +212,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   useEffect(() => {
     if (showLogger) closeAllDropdownMenus();
   }, [showLogger]);
-
-  useEffect(() => {
-    if (!noteEditDriveId) setNoteDraft("");
-  }, [noteEditDriveId]);
 
   useEffect(() => {
     return () => {
@@ -247,8 +256,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         if (cancelled) return;
         setGame(g);
         setDrives(d);
-        const lastId = d[d.length - 1]?.id;
-        setExpandedDriveIds(lastId ? [lastId] : []);
+        const last = d[d.length - 1];
+        const lastOutcome = last ? getDriveResult(last.plays) : null;
+        const expandLast = last && (lastOutcome === "ACTIVE" || lastOutcome === "NO_PLAYS");
+        setExpandedDriveIds(expandLast && last ? [last.id] : []);
         setActiveDrive((current) => current || d[0]?.id || "");
         loadedDriveCount = d.length;
         loadedHasSheet = Boolean(g.play_sheet_id);
@@ -430,7 +441,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (drivePersistTimerRef.current) clearTimeout(drivePersistTimerRef.current);
     drivePersistTimerRef.current = setTimeout(() => {
       const row = drivesRef.current.find((d) => d.id === driveId);
-      if (row) void saveDrive(row, { silent: true });
+      if (row) void saveDrive(row, { silent: true, skipRefresh: true });
     }, 500);
   }
 
@@ -442,7 +453,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   async function handlePossessionEndedAfterLog(args: { driveId: string; storedResultTag: string }) {
     const { driveId, storedResultTag } = args;
     setShowLogger(false);
-    setExpandedDriveIds([driveId]);
     setActiveDrive(driveId);
 
     const norm = storedResultTag.trim().toUpperCase().replace(/\s+/g, "_");
@@ -459,7 +469,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         );
       }
     }
-    await refresh({ expandDriveId: driveId });
+    await refresh({ pruneClosedPossessions: true });
   }
 
   async function performDeleteDrive(driveId: string) {
@@ -472,7 +482,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       return;
     }
     setExpandedDriveIds((current) => current.filter((id) => id !== driveId));
-    setNoteEditDriveId((id) => (id === driveId ? "" : id));
     addToast("Drive removed.", "success");
     await refresh();
   }
@@ -749,7 +758,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               setActiveDrive(drive.id);
               return [drive.id];
             }
-            setNoteEditDriveId((id) => (id === drive.id ? "" : id));
             return current.filter((id) => id !== drive.id);
           });
         }
@@ -859,46 +867,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                     onSaveBoth={(mine, theirs) => patchDriveAndPersist(drive.id, { score_mine: mine, score_opponent: theirs })}
                   />
                   <DriveStartingFieldPanel drive={drive} onPersist={(partial) => patchDriveAndPersist(drive.id, partial)} />
-                  <div className="flex min-h-11 flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3">
-                    {noteEditDriveId === drive.id ? (
-                      <input
-                        type="text"
-                        className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 font-sans text-sm text-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        value={noteDraft}
-                        onChange={(e) => setNoteDraft(e.target.value)}
-                        onBlur={() => {
-                          patchDriveAndPersist(drive.id, { note: noteDraft.trim() || null });
-                          setNoteEditDriveId("");
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                        }}
-                        aria-label="Drive note"
-                        autoFocus
-                      />
-                    ) : (
-                      <>
-                        <p className="min-w-0 flex-1 truncate font-body text-sm text-slate-300 dark:text-slate-300">
-                          <span className="text-slate-500 dark:text-slate-500">Drive note: </span>
-                          {drive.note?.trim() ? (
-                            drive.note
-                          ) : (
-                            <span className="text-slate-500 dark:text-slate-500">none</span>
-                          )}
-                        </p>
-                        <button
-                          type="button"
-                          className="shrink-0 font-sans text-sm font-medium text-emerald-400 hover:text-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-                          onClick={() => {
-                            setNoteEditDriveId(drive.id);
-                            setNoteDraft(drive.note ?? "");
-                          }}
-                        >
-                          Edit
-                        </button>
-                      </>
-                    )}
-                  </div>
                 </div>
                 <DataTable
                   columns={drivePlayCols}

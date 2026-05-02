@@ -104,3 +104,7 @@ export const FILM_RESUME_GAME_CTA = "Resume Game";
 
 export const filmLoggerYouveBeenCallingHint = (situationLine: string, fieldLine: string) =>
   `Based on what you've called on ${situationLine} at ${fieldLine}`;
+
+/** My Sheet tab — no rows for the selected sheet situation (scenario label from `scenarioDisplayLabel`). */
+export const filmLoggerMySheetEmptyHint = (scenarioDisplay: string) =>
+  `No calls have been added to your sheet for this situation — ${scenarioDisplay}.`;

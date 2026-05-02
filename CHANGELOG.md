@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Film game detail: drive accordion, logger My Sheet copy, PlayBrowser scroll
+
+### What
+
+- [`sideline/app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx): Drive cards use **`getDrivePossessionOutcome`** (via **`getDriveResult`**) so completed possessions default collapsed on load; **`refresh({ pruneClosedPossessions: true })`** after possession-ended logging collapses ended drives without pruning expansion on every refetch; debounced drive metadata **`saveDrive`** uses **`skipRefresh: true`** so expanding a completed drive is not reset by autosave. Removed drive note row from the drive accordion.
+- [`sideline/components/film/PlayLoggerV2.tsx`](sideline/components/film/PlayLoggerV2.tsx) + [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts): My Sheet empty state uses **`filmLoggerMySheetEmptyHint`** (coach terminology: **calls**).
+- [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Reset plays list **`scrollTop`** when switching formation (inline browse).
+
+### Why
+
+Less clutter after logging, clearer empty My Sheet guidance, stable browse scroll, and copy centralized per film logger patterns in **BUILD_CONTRACT** / **DECISIONS**.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Onboarding: refreshed carousel slide images
 
 ### What
