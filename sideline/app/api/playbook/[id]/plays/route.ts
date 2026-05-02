@@ -1,4 +1,5 @@
 import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPlayStats";
+import { resolveCfbDisplayPlayType } from "@/lib/playbook";
 import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, scenarioMaxSlots } from "@/lib/playbookUtils";
@@ -196,7 +197,14 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     sheetKeys.add(comboKey(p.formation, p.play_name));
   }
 
-  const suggestions = buildSuggestions(allAgg.byCombo, sheetKeys, allAgg.comboDisplay, 3, isPooled ? byCombo : undefined);
+  const suggestionsRaw = buildSuggestions(allAgg.byCombo, sheetKeys, allAgg.comboDisplay, 3, isPooled ? byCombo : undefined);
+  const suggestions = suggestionsRaw.map((s) => {
+    const play_name = normalizePlayName(s.play_name);
+    const formation = String(s.formation ?? "").trim() || "Other";
+    const key = cfbBook ? playTypeLookupKey(cfbBook, formation, play_name) : "";
+    const raw = key && typeByKey.has(key) ? (typeByKey.get(key) ?? null) : null;
+    return { ...s, play_type: resolveCfbDisplayPlayType(play_name, raw) };
+  });
 
   const scenarioStats: Record<string, { uses: number; avg_yards: number; success_rate: number }> = {};
   for (const [k, v] of byCombo) scenarioStats[k] = v;

@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Game Plan — 10 slots per situation, suggestion rows + avg yds, play types, mobile situation bleed)
+
+**What:** **`lib/playbookUtils.ts`**: **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** (**10**) and **`scenarioMaxSlots`** (Opening Script **15**, 2-/4-minute **10** unchanged). **`components/playbook/PlaySuggestions.tsx`**: Tendencies-like list (**rank**, formation → play, **PlayTypeBadge** + **avg yds** / calls / **Similar situations**); plus icon + **`aria-label`** for add/replace. **`app/api/playbook/[id]/plays/route.ts`**: suggestion **`play_type`** from **`fetchCfbPlayTypeMap`** + **`resolveCfbDisplayPlayType`**. **`lib/loggedPlayStats.ts`**: **`SuggestionRow.avg_yards`** (+ optional **`play_type`**). **`components/playbook/SituationList.tsx`**: mobile **`nav`** full-bleed (**`w-screen`** + **`calc(50%-50vw)`** margins); inner **spacer** widths match **`layout.tsx`** **`main`** column + **`gap-2`**.
+
+**Why:** Coaches need depth on sheets without a separate UI paradigm for suggestions; Film **My Sheet** and Game Plan share **`scenarioMaxSlots`**; mobile chips scroll edge-to-edge while the first pill lines up with page content until the user scrolls.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, this file.
+
+---
+
 ## 2026-05-02 (Film game tendencies — 3×2 stats, TOP PLAYS / FORMATIONS / RECONSIDER, no formations table)
 
 **What:** **`components/film/FilmGameTendenciesBody.tsx`**: **GAME STATS** as **3×2** cards (**`px-4 py-2`**); **TOP PLAYS**, **TOP FORMATIONS**, **PLAYS TO RECONSIDER** with same section **`h2`** pattern as **PLAY TYPES** / **BY SITUATION**; expand/pagination via existing **`TopPlaysList`**, **`TopFormationsList`**, **`ReconsiderPlays`**. **`lib/gameTendenciesWhatsWorking.ts`**: **`summarizeGameWhatsWorking`** — **`aggregateByFormationPlay`**, **`aggregateByFormation`**, **`bestPlayForFormation`**, **`qualifiesForReconsiderPlay`**, **`mostCommonScenarioByFormationPlay`**, **`isSpecialTeamsFormationPlayRow`** on **`drives`** plays from **`GET /api/tendencies/game/[id]`** (no new API). Removed **`components/tendencies/GameFormationTable.tsx`**, **`formationAggTableColumns.tsx`**.

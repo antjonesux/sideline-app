@@ -29,12 +29,15 @@ export function sortScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): She
   });
 }
 
+/** Default max calls per situation; see `scenarioMaxSlots` (API + Game Plan + Film). */
+export const PLAY_SHEET_SCENARIO_MAX_DEFAULT = 10;
+
 export function scenarioMaxSlots(scenario: string): number {
   if (scenario === "Opening Script") return 15;
   if (scenario === "2 Minute" || scenario === "4 Minute" || scenario === "2-Minute Drill" || scenario === "4-Minute") {
     return 10;
   }
-  return 5;
+  return PLAY_SHEET_SCENARIO_MAX_DEFAULT;
 }
 
 export function isOpeningScript(scenario: string): boolean {

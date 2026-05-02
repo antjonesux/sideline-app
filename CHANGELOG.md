@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Game Plan: 10 calls per situation, suggested-play rows, full-bleed situation chips (mobile)
+
+### What
+
+- [`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts): **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** (**10**); **`scenarioMaxSlots`** default branch (Opening Script **15** and 2-/4-minute **10** unchanged). **`POST /api/playbook/[id]/plays`** already uses **`scenarioMaxSlots`** — capacity stays consistent with Film **My Sheet** chips and **`SituationList`** counts.
+- [`sideline/components/playbook/PlaySuggestions.tsx`](sideline/components/playbook/PlaySuggestions.tsx): Suggested plays use **Tendencies-style** ranked rows (formation → play, **avg yds** + call count, pooled hint); **`PlayTypeBadge`** on the metrics row; **`GET`** supplies **`play_type`** via catalog resolution. **Add** / **Replace** use a **plus** icon with **`aria-label`**.
+- [`sideline/app/api/playbook/[id]/plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts): Enrich **`suggestions`** with **`resolveCfbDisplayPlayType`** after **`buildSuggestions`** (same **`cfb26_plays`** map as sheet rows).
+- [`sideline/lib/loggedPlayStats.ts`](sideline/lib/loggedPlayStats.ts): **`SuggestionRow`** includes **`avg_yards`** (and optional **`play_type`** from API).
+- [`sideline/components/playbook/SituationList.tsx`](sideline/components/playbook/SituationList.tsx): Mobile situation strip **full-bleeds** the viewport; **scrollable spacers** align the first/last pill with **`main`** (`max-w-3xl` + horizontal padding + flex **`gap-2`**) at rest.
+
+### Why
+
+More room per situation for real call sheets; suggestions read as coaching data (aligned with Tendencies top rows); mobile situations use edge-to-edge scroll without losing alignment with the rest of the shell.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passes.
+- [`DECISIONS.md`](DECISIONS.md) (new **2026-05-02** entry), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) (detail) updated in the same change.
+
+---
+
 ## 2026-05-02 — Film game tendencies tab: 3×2 stats, TOP PLAYS / TOP FORMATIONS / RECONSIDER, formations table removed
 
 ### What

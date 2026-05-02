@@ -72,7 +72,10 @@ export type SuggestionRow = {
   play_name: string;
   uses: number;
   success_rate: number;
+  avg_yards: number;
   pooled?: boolean;
+  /** Set by Game Plan scenario API from `cfb26_plays` + `resolveCfbDisplayPlayType` (same path as sheet rows). */
+  play_type?: "RUN" | "PASS" | "RPO";
 };
 
 /** Laplace-smoothed success score: handles low-N combos without over-ranking single-use flukes. */
@@ -118,6 +121,7 @@ export function buildSuggestions(
       play_name,
       uses: displayStats.uses,
       success_rate: displayStats.success_rate,
+      avg_yards: displayStats.avg_yards,
       ...(isPooledRow ? { pooled: true } : {}),
     });
   }

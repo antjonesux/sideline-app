@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Game Plan: 10 default sheet slots per situation; suggestions UI + API play types; mobile situation strip alignment
+
+**Decision:** Default max offensive calls per sheet situation (everything except **Opening Script** and the 2-/4-minute buckets) is **10**, via **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** and **`scenarioMaxSlots`** in **`lib/playbookUtils.ts`** — same helper used by **`POST /api/playbook/[id]/plays`**, **`SituationList`**, **`PlaybookEditor`**, and Film **`PlayLoggerV2`** **My Sheet** chip caps. **Suggested plays** on the sheet editor use a **Tendencies top-plays-style** row (rank, formation → play, metrics row with **avg yards** and call count, **RUN/PASS/RPO** badge from **`cfb26_plays`**); **`GET /api/playbook/[id]/plays`** attaches **`play_type`** on each suggestion using **`resolveCfbDisplayPlayType`** and the existing type map. **Add / Replace** on a suggestion is an **icon** control with **`aria-label`**. Mobile **Game Plan** situation pills sit in a **full-viewport-width** horizontal **`nav`**; **scrollable leading/trailing spacers** align the first and last pill with the **`main`** content column ( **`max-w-3xl`** + **`px-4` / `sm:px-6`** + flex **`gap-2`** ) until the coach scrolls.
+
+**Why:** Five-slot ceilings were tight for real situational depth; suggestions should read as the same coaching data vocabulary as Tendencies rows; play-type badges must stay on the shared catalog ladder; mobile chips should use horizontal edge without breaking alignment with titles and body copy.
+
+**Impact:** Any future change to **`app/layout.tsx`** **`main`** max width or horizontal padding should update **`SituationList`** spacer **`calc`** (or extract a shared shell constant) to avoid silent misalignment. Suggestion **rank order** still comes from **`buildSuggestions`** success / smoothed scoring even though the row highlights **avg yds** — if product wants strict “sort by what we show,” adjust **`buildSuggestions`** or add explicit copy. **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
+
+---
+
 ## 2026-05-02 — Film game detail tendencies: TOP PLAYS / TOP FORMATIONS / PLAYS TO RECONSIDER (no formations table)
 
 **Decision:** The in-game **Tendencies** tab on **`FilmGameTendenciesBody`** removes the expandable **FORMATIONS** table (**`GameFormationTable`**, **`formationAggTableColumns`** — files deleted). **GAME STATS** is a **3×2** card grid. **TOP PLAYS**, **TOP FORMATIONS**, and **PLAYS TO RECONSIDER** reuse **`TopPlaysList`**, **`TopFormationsList`**, and **`ReconsiderPlays`**; rankings come from **`lib/gameTendenciesWhatsWorking.ts`** (**`summarizeGameWhatsWorking`**) calling the same **`tendenciesServer`** helpers as **`/api/tendencies/top-plays`** and **`/api/tendencies/top-formations`**, over plays already returned on **`GET /api/tendencies/game/[id]`** (**`drives` → client `useMemo`** — **no new route**). **BY SITUATION** stays on **`DataTable`** with **`equalColumnsCompact`**.
