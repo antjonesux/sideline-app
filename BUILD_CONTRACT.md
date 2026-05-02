@@ -48,6 +48,7 @@ Only establish a new convention when the change is intentional and scoped.
 | `sideline/components/shared/` | Cross-feature UI (nav, tables, modals, toasts) |
 | `sideline/components/film/`, `playbook/`, `tendencies/`, … | Feature UI |
 | `sideline/lib/` | Types, Supabase helpers, engines (`gameStateEngine`, `driveOutcome`, `fieldPosition`), `playTypeResolution`, copy helpers |
+| `sideline/lib/seed/playbooks/` | CFB26 **offensive** playbook seed modules — one `{team-slug}.ts` exporting `TeamPlaybookSeed`; upserted to **`cfb26_plays`** via **`scripts/seed-playbooks.ts`** (`npm run seed:playbook`). Bulk catalog expansions land here intentionally (see **`DECISIONS.md`** **2026-05-02 — Bulk CFB26 offensive playbook seed catalog**). |
 | `sideline/store/` | Zustand (toast, game session, import, persisted prefs) |
 | `sideline/hooks/` | Shared hooks (e.g. formation groups, play suggestions) |
 | Repo root | `.cursorrules`, `CHANGELOG.md`, this contract, `DESIGN_AUDIT.md` (audit only) |

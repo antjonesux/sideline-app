@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-02 — Bulk CFB26 offensive playbook seed catalog (`lib/seed/playbooks/`)
+
+### What
+
+- **Playbook data:** Additional **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**`TeamPlaybookSeed`**, **`scheme`** aligned with **`lib/playbooks/scheme-classifications`**, **`source.url`** on **cfb.fan**, formations + plays). Intentional **bulk catalog** expansion, not a single-school add.
+- **Ops:** Load into **`cfb26_plays`** with **`npm run seed:playbook -- <slug> [slug…] | --all`** (**`scripts/seed-playbooks.ts`**); compare DB to seeds with **`npm run verify:playbook -- …`** after upsert. Canonical **`play_type`** for stored rows still flows through **`resolveSeedPlayType`** → **`mapToCanonicalPlayType`** → **`RUN` / `PASS` / `RPO`** per **`DECISIONS.md`** **2026-05-02 — Seed playbook script**.
+
+### Why
+
+Widen credible CFB26 offensive vocabulary for Game Plan, Film browse, and catalog-backed **`RUN` / `PASS` / `RPO`** without requiring a separate PR per school.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass (seed files are TypeScript data only).
+- [`DECISIONS.md`](DECISIONS.md) (new **2026-05-02 — Bulk CFB26 offensive playbook seed catalog** entry), [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) (repo map), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Game Plan: single-step create play sheet + coach-first copy
 
 ### What

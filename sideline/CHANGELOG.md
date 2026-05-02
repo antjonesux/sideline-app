@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-02 (Data — bulk CFB26 offensive playbook seeds, `lib/seed/playbooks/`)
+
+**What:** Additional team seed modules under **`lib/seed/playbooks/{slug}.ts`** (**`TeamPlaybookSeed`**, **`source.url`** on **cfb.fan**). Intentional **bulk catalog** expansion. Upsert path unchanged: **`scripts/seed-playbooks.ts`**, **`cfb26_plays`**, **`resolveSeedPlayType`** / **`mapToCanonicalPlayType`** for **`RUN` / `PASS` / `RPO`**.
+
+**Why:** Broader playbook coverage for Game Plan / Film / tendencies without per-team PR overhead.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**, **`DECISIONS.md`**, **`BUILD_CONTRACT.md`**, this file.
+
+---
+
 ## 2026-05-02 (Game Plan — single-step create play sheet, coach-first copy)
 
 **What:** **`CreatePlaybookModal`**: one-step create (no confirmation step); titles/CTA/subtitle/placeholders from **`coachCopy.ts`** (**`PLAYBOOK_NEW_SHEET_TITLE`**, **`PLAYBOOK_CREATE_CTA`**, **`PLAYBOOK_NEW_SHEET_SUBTITLE`**, **`PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER`**, **`PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER`**); **`ONBOARDING_PLAYBOOK_CTA`** → **`PLAYBOOK_CREATE_CTA`**. No API or route changes.

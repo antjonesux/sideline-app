@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-02 — Bulk CFB26 offensive playbook seed catalog (`lib/seed/playbooks/`)
+
+**Decision:** Ship **additional** offensive playbook seeds as **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**one `TeamPlaybookSeed` per team**). Primary **source** attribution is **cfb.fan** (`source.url` per file). Loading into **`cfb26_plays`** uses existing **`npm run seed:playbook`** / **`scripts/seed-playbooks.ts`**; canonical **`play_type`** storage remains **`RUN` / `PASS` / `RPO`** via **`resolveSeedPlayType`** and **`mapToCanonicalPlayType`** (see **2026-05-02 — Seed playbook script: canonical `play_type` mapping**). Bulk catalog expansion is an explicit product choice—not a requirement to land one school per PR.
+
+**Why:** Early Sideline needs broad, credible offensive vocabulary for Game Plan setup, Film **`PlayBrowser`**, and catalog-backed badges without blocking on dozens of tiny seed PRs.
+
+**Impact:** Operators run **`seed:playbook`** (per slug or **`--all`**) against a project with **`NEXT_PUBLIC_SUPABASE_URL`** + **`SUPABASE_SERVICE_ROLE_KEY`**; **`npm run verify:playbook`** checks seed vs DB after upsert. **`is_new_in_26`** may stay **`false`** where the public source does not expose EA’s new-for-26 flags. In-app logged-play **`playTypeResolution`** is unchanged. Changelog: repo-root **`CHANGELOG.md`**, **`sideline/CHANGELOG.md`**.
+
+---
+
 ## 2026-05-02 — Game Plan new play sheet: `/playbook/new`, carousel handoff, legacy `?create=1` redirect
 
 **Decision:** After **`OnboardingCarousel`**, the primary CTA **`router.replace("/playbook/new?onboarding=1")`** (**`HomeOnboardingGate`**). CFB26 playbook selection and first sheet creation run on **`app/playbook/new/page.tsx`** via **`CreatePlaybookModal`** (**`variant="page"`**, **`onboardingFullPage`**, **`guidedOnboardingFlow`**). **`PlaybookHome`** is only the Game Plan list; **Create play sheet** navigates to **`/playbook/new`**. **`app/playbook/page.tsx`** **`redirect`**s **`?create=1`** (optional **`onboarding`**, **`cfb26`**) to **`/playbook/new`** so old deep links keep working. Shared back control **`BackNavLink`** (**`components/shared/BackNavLink.tsx`**, default **`href="/film"`**) replaces the Film-only name **`BackToFilmLink`**.
