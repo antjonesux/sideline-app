@@ -1,17 +1,25 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+function resolvePostAuthRedirect(searchParams: URLSearchParams): string {
+  const next = searchParams.get("next") ?? "/";
+  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  if (searchParams.get("type") === "recovery") {
+    return "/reset-password";
+  }
+  return safePath;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
-  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const dest = resolvePostAuthRedirect(searchParams);
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${safePath}`);
+      return NextResponse.redirect(`${origin}${dest}`);
     }
   }
 
@@ -28,11 +36,13 @@ export async function GET(request: Request) {
       refresh_token: refreshToken,
     });
     if (!error) {
-      return NextResponse.redirect(`${origin}${safePath}`);
+      return NextResponse.redirect(`${origin}${dest}`);
     }
   }
 
   const landingUrl = new URL("/landing", origin);
+  const next = searchParams.get("next") ?? "/";
+  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/";
   if (safePath !== "/" && safePath !== "/landing") {
     landingUrl.searchParams.set("next", safePath);
   }

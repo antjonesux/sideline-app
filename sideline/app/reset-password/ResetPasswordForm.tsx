@@ -50,7 +50,7 @@ export function ResetPasswordForm() {
             Password updated
           </h1>
           <p className="font-sans text-sm text-slate-400">
-            Your password has been changed. You're signed in.
+            You&apos;re good to go.
           </p>
           <Button asChild variant="default" className="inline-flex">
             <a href="/film">Go to Film Room</a>
@@ -78,7 +78,10 @@ export function ResetPasswordForm() {
     setBusy(true);
     try {
       const { error: err } = await updatePassword(password);
-      if (err) { setError(err); return; }
+      if (err) {
+        setError("We couldn't update your password. Try again.");
+        return;
+      }
       setDone(true);
     } finally {
       setBusy(false);

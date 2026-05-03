@@ -17,6 +17,7 @@ type AuthContextValue = {
   signOut: () => Promise<AuthResult>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (newPassword: string) => Promise<AuthResult>;
+  resendVerificationEmail: () => Promise<AuthResult>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -83,13 +84,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function resetPassword(email: string): Promise<AuthResult> {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${origin}/reset-password`,
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
       });
       return { error: error ? mapAuthError(error.message) : null };
     }
 
     async function updatePassword(newPassword: string): Promise<AuthResult> {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
+      return { error: error ? mapAuthError(error.message) : null };
+    }
+
+    async function resendVerificationEmail(): Promise<AuthResult> {
+      const email = user?.email?.trim();
+      if (!email) return { error: mapAuthError("missing email") };
+      const { error } = await supabase.auth.resend({ type: "signup", email });
       return { error: error ? mapAuthError(error.message) : null };
     }
 
@@ -103,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut,
       resetPassword,
       updatePassword,
+      resendVerificationEmail,
     };
   }, [supabase, user, session, isLoading]);
 
