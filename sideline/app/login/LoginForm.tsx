@@ -99,7 +99,8 @@ export function LoginForm() {
       setPasswordError("Password is required.");
       return;
     }
-    if (!isPasswordValid(password)) {
+    // Strong rules only for new accounts — sign-in must accept legacy Supabase passwords.
+    if (view === "create-account" && !isPasswordValid(password)) {
       setPasswordError(PASSWORD_HINT);
       return;
     }
@@ -394,13 +395,13 @@ export function LoginForm() {
                 setPasswordError(null);
               }}
               onBlur={() => {
-                if (!password.length) return;
+                if (!password.length || view !== "create-account") return;
                 if (!isPasswordValid(password)) setPasswordError(PASSWORD_HINT);
                 else setPasswordError(null);
               }}
               autoComplete={view === "sign-in" ? "current-password" : "new-password"}
               required
-              minLength={6}
+              minLength={view === "create-account" ? 8 : undefined}
               aria-invalid={Boolean(passwordError)}
               className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
                 passwordError
@@ -437,7 +438,7 @@ export function LoginForm() {
                   }}
                   autoComplete="new-password"
                   required
-                  minLength={6}
+                  minLength={8}
                   aria-invalid={Boolean(confirmPasswordError)}
                   className={`block w-full rounded-lg border bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 pr-10 ${
                     confirmPasswordError
