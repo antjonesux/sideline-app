@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-03 — Auth: `/reset-password` recovery UX (copy, card, sign-out after update)
+
+### What
+
+- **`sideline/app/reset-password/ResetPasswordForm.tsx`**: Coach-facing copy for create / success / no-session states; **`PasswordInput`** labels; slate **`AuthSurfaceCard`** wrapper; **Back** via **`buildLandingHref`** (optional **`next`**); **Sign in** / secondary link via **`buildLoginHref`**. Reuses **`lib/passwordValidation.ts`** (8+ chars, letter + number, confirm match). After a successful **`supabase.auth.updateUser({ password })`** (via **`useAuth().updatePassword`**), sets **`passwordUpdated`** then **`signOut()`** so the success CTA can reach **`/login`** without an immediate authenticated bounce. Generic error string only (no raw Supabase messages).
+
+### Why
+
+Password recovery from email should match the agreed auth shell (dark slate, Barlow headings, emerald primary) and the product brief for reset, success, and expired-session messaging.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass; [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) updated in the same change.
+
+---
+
 ## 2026-05-02 — Product copy: “Play Sheet” replaces “Game Plan” (UI + docs)
 
 ### What

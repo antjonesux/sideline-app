@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-03 (Auth — `/reset-password` recovery UI: copy, card, `signOut` after update)
+
+**What:** **`app/reset-password/ResetPasswordForm.tsx`**: Create / confirm password form with **`passwordValidation`**; success state (**Password updated**, sign-in CTA); no-session state with friendly copy + **`buildLoginHref`**; **`buildLandingHref`** back link; **`AuthSurfaceCard`**; **`passwordUpdated`** before **`await signOut()`** to avoid flashing the expired branch. No API or **`AuthProvider`** contract changes in this commit.
+
+**Why:** Aligns Supabase recovery with auth styling and the reset → sign-in flow coaches expect.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`** updated in the same change.
+
+---
+
 ## 2026-05-02 (Copy — “Play Sheet” terminology; UI + `coachCopy` + docs)
 
 **What:** User-facing **Game Plan → Play Sheet** across **`BottomTabNav`**, **`PlaybookHome`** / **`PlaybookEditor`**, **`CreatePlaybookModal`**, **`coachCopy.ts`** (e.g. **`ONBOARDING_DEFAULT_SHEET_NAME`**, **`GAME_PLAN_EMPTY_*`**, **`PLAYBOOK_NEW_SHEET_TITLE`**, onboarding strings), Film **`app/film/new/page.tsx`** and **`EditGameDetailsModal`**, **`HeroSection`** + **`app/landing/page.tsx`** metadata. Comment-only tweaks in **`lib/constants.ts`**, **`playbookUtils.ts`**, **`tendenciesServer.ts`**, etc. Repo-root **`CHANGELOG.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`.cursorrules`**, **`AGENTS.md`**.
