@@ -5,6 +5,7 @@ import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import BottomTabNav from "@/components/shared/BottomTabNav";
 
+import { EmailVerificationBanner } from "@/components/shared/EmailVerificationBanner";
 import { Toast } from "@/components/shared/Toast";
 
 const barlow = Barlow({ variable: "--font-barlow", weight: ["400", "500", "600", "700"], subsets: ["latin"] });
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
            * ~7rem (pb-28) + safe-area clears the nav with room to spare.
            */}
           <main className="mx-auto w-full max-w-3xl px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] sm:px-6">
+            <EmailVerificationBanner />
             {children}
           </main>
           <Toast />
