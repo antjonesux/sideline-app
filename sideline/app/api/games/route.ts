@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error("Game insert error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500 });
   }
 
   return NextResponse.json(data);

@@ -5,6 +5,16 @@ export const COULDNT_LOAD = "Couldn't load that. Check connection and try again.
 export const COULDNT_LOAD_TEAM_LIST = "Couldn't load team lists. Check connection and try again.";
 /** Generic auth/session operation fallback — `mapAuthError` covers sign-in, sign-up, reset, password update, OAuth, sign-out. */
 export const AUTH_COULDNT_COMPLETE = "Couldn't complete that. Try again.";
+/** API routes — never expose Postgres or vendor error text to clients. */
+export const COULDNT_FINISH_THAT = "Couldn't finish that. Try again.";
+/** Authenticated fetch when a row is missing or not owned. */
+export const COULDNT_FIND_THAT = "Couldn't find that.";
+/** Unverified email — soft gate (banner); pair with `RESEND_VERIFICATION_EMAIL_CTA`. */
+export const VERIFY_EMAIL_BANNER =
+  "Verify your email to keep your account secure and save your work.";
+export const RESEND_VERIFICATION_EMAIL_CTA = "Resend verification email";
+/** If a future hard-gate is added for unverified users. */
+export const VERIFY_EMAIL_BEFORE_SAVE = "Check your inbox to verify your account before saving more data.";
 export const COULDNT_DELETE = "Couldn't remove that. Try again.";
 export const IMPORT_PARTIAL = "Some rows didn't import. Check the file and try again.";
 export const IMPORT_FAILED = "Couldn't import that file. Try again.";

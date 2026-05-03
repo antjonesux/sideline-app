@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT, COULDNT_FIND_THAT } from "@/lib/coachCopy";
 import {
   parseYardLineField,
   validateAllRows,
@@ -92,7 +93,7 @@ async function insertDrivesAndPlaysForSession(
       } else if (createdDriveIds.length) {
         await supabase.from("drives").delete().in("id", createdDriveIds);
       }
-      return { ok: false, message: driveErr?.message ?? "Could not create drive", status: 500 };
+      return { ok: false, message: COULDNT_FINISH_THAT, status: 500 };
     }
     const id = driveRow.id as string;
     createdDriveIds.push(id);
@@ -149,7 +150,7 @@ async function insertDrivesAndPlaysForSession(
         } else if (createdDriveIds.length) {
           await supabase.from("drives").delete().in("id", createdDriveIds);
         }
-        return { ok: false, message: playErr.message, status: 500 };
+        return { ok: false, message: COULDNT_FINISH_THAT, status: 500 };
       }
     }
   }
@@ -176,7 +177,8 @@ export async function POST(req: NextRequest) {
   if (existingSessionId) {
     const { data: session, error: sessErr } = await supabase.from("game_sessions").select("*").eq("id", existingSessionId).eq("user_id", user.id).single();
     if (sessErr || !session) {
-      return NextResponse.json({ error: sessErr?.message ?? "Game session not found" }, { status: 404 });
+      if (sessErr) console.error("import execute session lookup:", sessErr);
+      return NextResponse.json({ error: COULDNT_FIND_THAT }, { status: 404 });
     }
 
     const parsed: ParsedCsvRow[] = playsIn.map((p, i) => ({
@@ -271,7 +273,7 @@ export async function POST(req: NextRequest) {
 
   if (sessionErr || !session?.id) {
     console.error("import execute session:", sessionErr);
-    return NextResponse.json({ error: sessionErr?.message ?? "Could not create session" }, { status: 500 });
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500 });
   }
 
   const sessionId = session.id as string;

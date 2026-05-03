@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
@@ -15,7 +16,10 @@ export async function GET() {
       .not("playbook", "is", null)
       .range(offset, offset + pageSize - 1);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      console.error("cfb26-playbooks page:", error);
+      return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+    }
 
     const rows = data ?? [];
     for (const row of rows) {

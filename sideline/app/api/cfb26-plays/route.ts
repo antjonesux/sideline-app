@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { normalizePlayLabel } from "@/lib/normalizePlayLabel";
@@ -84,7 +85,10 @@ export async function GET(req: NextRequest) {
       .order("play_name", { ascending: true })
       .limit(12000);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: NO_STORE });
+    if (error) {
+      console.error("cfb26-plays listAll:", error);
+      return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500, headers: NO_STORE });
+    }
     const rows = dedupeCfb26Rows(
       (data ?? []).map((r) => ({
         formation: String(r.formation ?? "").trim() || "Other",
@@ -110,7 +114,10 @@ export async function GET(req: NextRequest) {
       .eq("formation", formation)
       .order("play_name", { ascending: true });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400, headers: NO_STORE });
+    if (error) {
+      console.error("cfb26-plays by formation:", error);
+      return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400, headers: NO_STORE });
+    }
     const deduped = new Map<string, { play_name: string; is_new_in_26?: boolean | null }>();
     for (const row of data ?? []) {
       const displayName = normalizePlayNameForGroup(String(row.play_name ?? ""), formation);
@@ -143,7 +150,10 @@ export async function GET(req: NextRequest) {
       .order("play_name", { ascending: true })
       .limit(500);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: NO_STORE });
+    if (error) {
+      console.error("cfb26-plays search:", error);
+      return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500, headers: NO_STORE });
+    }
 
     const rows = dedupeCfb26Rows(
       (data ?? [])
@@ -176,7 +186,10 @@ export async function GET(req: NextRequest) {
     .ilike("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(playbook));
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400, headers: NO_STORE });
+  if (error) {
+    console.error("cfb26-plays formation groups:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400, headers: NO_STORE });
+  }
 
   const byType = new Map<string, Set<string>>();
   for (const row of data ?? []) {

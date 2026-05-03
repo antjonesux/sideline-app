@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlayName, withNormalizedPlayName } from "@/lib/utils";
@@ -74,7 +75,10 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     )
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("logged_plays update:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   const normalized = data ? withNormalizedPlayName(data) : data;
   return NextResponse.json({
     data: normalized
@@ -99,6 +103,9 @@ export async function DELETE(_: NextRequest, ctx: Ctx) {
 
   const { id } = await ctx.params;
   const { error } = await supabase.from("logged_plays").delete().eq("id", id).eq("user_id", user.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("logged_plays delete:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   return NextResponse.json({ data: { ok: true } });
 }

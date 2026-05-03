@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { buildTendenciesGamePayload, type DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
 import { withNormalizedPlayName } from "@/lib/utils";
 import { fetchCfbPlayTypeMap, playbookForGame, type GameRow } from "@/lib/tendenciesServer";
@@ -25,7 +26,10 @@ export async function GET(_: NextRequest, ctx: Ctx) {
   if (gErr || !game) return NextResponse.json({ error: "Game not found" }, { status: 404 });
 
   const { data: driveRows, error: dErr } = driveRes;
-  if (dErr) return NextResponse.json({ error: dErr.message }, { status: 500 });
+  if (dErr) {
+    console.error("tendencies game drives:", dErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500 });
+  }
 
   const g = game as GameRow;
   const pb = playbookForGame(g);

@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlayName, withNormalizedPlayName } from "@/lib/utils";
@@ -132,7 +133,10 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     )
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("logged_plays insert:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   const normalized = data ? withNormalizedPlayName(data) : data;
   return NextResponse.json({
     data: normalized

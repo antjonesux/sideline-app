@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -61,7 +62,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
   if (error) {
     console.error("Drive update error:", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
   return NextResponse.json({ data });
 }
@@ -73,6 +74,9 @@ export async function DELETE(_: NextRequest, ctx: Ctx) {
 
   const { id } = await ctx.params;
   const { error } = await supabase.from("drives").delete().eq("id", id).eq("user_id", user.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("Drive delete:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   return NextResponse.json({ data: { ok: true } });
 }

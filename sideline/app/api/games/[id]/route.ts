@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT, COULDNT_FIND_THAT } from "@/lib/coachCopy";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,7 +11,10 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 
   const { id } = await ctx.params;
   const { data, error } = await supabase.from("game_sessions").select("*").eq("id", id).eq("user_id", user.id).single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error) {
+    console.error("game_sessions GET:", error);
+    return NextResponse.json({ error: COULDNT_FIND_THAT }, { status: 404 });
+  }
   return NextResponse.json(data);
 }
 
@@ -59,7 +63,10 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   }
 
   const { data, error } = await supabase.from("game_sessions").update(payload).eq("id", id).eq("user_id", user.id).select("*").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("game_sessions PUT:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   return NextResponse.json(data);
 }
 
@@ -75,13 +82,22 @@ export async function DELETE(_: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
 
   const { error: playsError } = await supabase.from("logged_plays").delete().eq("game_session_id", id).eq("user_id", user.id);
-  if (playsError) return NextResponse.json({ error: playsError.message }, { status: 400 });
+  if (playsError) {
+    console.error("delete logged_plays:", playsError);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   const { error: drivesError } = await supabase.from("drives").delete().eq("game_session_id", id).eq("user_id", user.id);
-  if (drivesError) return NextResponse.json({ error: drivesError.message }, { status: 400 });
+  if (drivesError) {
+    console.error("delete drives:", drivesError);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   const { error: gameError } = await supabase.from("game_sessions").delete().eq("id", id).eq("user_id", user.id);
-  if (gameError) return NextResponse.json({ error: gameError.message }, { status: 400 });
+  if (gameError) {
+    console.error("delete game_sessions:", gameError);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   return NextResponse.json({ ok: true });
 }

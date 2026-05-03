@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -21,7 +22,10 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
 
   const { data: sheet, error } = await supabase.from("play_sheets").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("play_sheets GET by id:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   if (!sheet) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const [{ data: scenarios, error: scErr }, { data: allPlays, error: plErr }] = await Promise.all([
@@ -37,8 +41,14 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
       .eq("user_id", user.id),
   ]);
 
-  if (scErr) return NextResponse.json({ error: scErr.message }, { status: 400 });
-  if (plErr) return NextResponse.json({ error: plErr.message }, { status: 400 });
+  if (scErr) {
+    console.error("play_sheet_scenarios GET:", scErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
+  if (plErr) {
+    console.error("play_sheet_plays GET:", plErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   const scenarioIds = new Set((scenarios ?? []).map((s) => s.id));
   const playsByScenario = new Map<string, PlayRow[]>();
@@ -99,7 +109,10 @@ async function patchPlaySheet(req: NextRequest, id: string) {
   patch.updated_at = new Date().toISOString();
 
   const { data, error } = await supabase.from("play_sheets").update(patch).eq("id", id).eq("user_id", user.id).select("*").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("play_sheets PATCH:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json(data);
@@ -123,6 +136,9 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
 
   const { id } = await ctx.params;
   const { error } = await supabase.from("play_sheets").delete().eq("id", id).eq("user_id", user.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("play_sheets DELETE:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   return NextResponse.json({ ok: true });
 }

@@ -1,4 +1,5 @@
 import { SCENARIOS } from "@/lib/constants";
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -31,7 +32,10 @@ export async function GET() {
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("playbook GET sheets:", error);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   const list = (sheets ?? []) as SheetRow[];
   if (list.length === 0) return NextResponse.json({ playbooks: [] });
@@ -49,8 +53,14 @@ export async function GET() {
       .eq("user_id", user.id),
   ]);
 
-  if (scErr) return NextResponse.json({ error: scErr.message }, { status: 400 });
-  if (plErr) return NextResponse.json({ error: plErr.message }, { status: 400 });
+  if (scErr) {
+    console.error("playbook GET scenarios:", scErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
+  if (plErr) {
+    console.error("playbook GET plays:", plErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
 
   const playCountByScenario = new Map<string, number>();
   for (const p of (plays ?? []) as { id: string; scenario_id: string }[]) {
@@ -128,7 +138,8 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (insErr || !sheet) {
-    return NextResponse.json({ error: insErr?.message ?? "Could not create playbook" }, { status: 400 });
+    console.error("play_sheets insert:", insErr);
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
   const scenarioRows = SCENARIOS.map((scenario, index) => ({
@@ -140,8 +151,9 @@ export async function POST(req: NextRequest) {
 
   const { error: scInsErr } = await supabase.from("play_sheet_scenarios").insert(scenarioRows);
   if (scInsErr) {
+    console.error("play_sheet_scenarios insert:", scInsErr);
     await supabase.from("play_sheets").delete().eq("id", sheet.id);
-    return NextResponse.json({ error: scInsErr.message }, { status: 400 });
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
   return NextResponse.json({ id: sheet.id });

@@ -1,3 +1,4 @@
+import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
 import { createClient } from "@/lib/supabase/server";
 import { withNormalizedPlayName } from "@/lib/utils";
@@ -6,17 +7,9 @@ import type { PostgrestError } from "@supabase/supabase-js";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-function jsonFromPostgrestError(err: PostgrestError, status = 500) {
-  return NextResponse.json(
-    {
-      error: err.message,
-      message: err.message,
-      details: err.details ?? null,
-      hint: err.hint ?? null,
-      code: err.code ?? null,
-    },
-    { status },
-  );
+function jsonFromPostgrestError(context: string, err: PostgrestError, status = 500) {
+  console.error(context, err);
+  return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status });
 }
 
 export async function GET(_: NextRequest, ctx: Ctx) {
@@ -102,8 +95,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     .eq("user_id", user.id);
 
   if (countError) {
-    console.error("Drive count error:", countError);
-    return jsonFromPostgrestError(countError);
+    return jsonFromPostgrestError("Drive count error:", countError);
   }
 
   const drive_number = (count ?? 0) + 1;
@@ -130,8 +122,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     .single();
 
   if (error) {
-    console.error("Drive insert error:", error);
-    return jsonFromPostgrestError(error);
+    return jsonFromPostgrestError("Drive insert error:", error);
   }
 
   return NextResponse.json(data);
