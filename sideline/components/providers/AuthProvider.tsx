@@ -82,9 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     async function resetPassword(email: string): Promise<AuthResult> {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const windowOrigin = typeof window !== "undefined" ? window.location.origin : "";
+      const envOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ?? "";
+      const base = windowOrigin || envOrigin;
+      const redirectTo = `${base}/auth/callback?type=recovery`;
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${origin}/auth/callback?type=recovery`,
+        redirectTo,
       });
       if (!error) return { error: null };
       const lower = error.message.toLowerCase();

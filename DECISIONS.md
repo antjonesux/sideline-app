@@ -8,7 +8,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-05-03 — Password recovery email redirect (`/auth/callback?type=recovery`)
 
-**Decision:** **`AuthProvider.resetPassword`** passes **`redirectTo`** **`{origin}/auth/callback?type=recovery`** to **`supabase.auth.resetPasswordForEmail`**. **`app/auth/callback/route.ts`** already treats **`searchParams.get("type") === "recovery"`** as **`/reset-password`** after a successful session exchange; OAuth and other flows keep using **`?next=`** only. Reset-email rate-limit errors surface friendly copy in **`resetPassword`** (not raw Supabase strings). **`sideline/.env.example`** documents whitelisting **`/auth/callback`** per environment (localhost, **`<project>.vercel.app`**, custom domain).
+**Decision:** **`AuthProvider.resetPassword`** passes **`redirectTo`** **`{base}/auth/callback?type=recovery`** to **`supabase.auth.resetPasswordForEmail`**, with **`base`** = **`window.location.origin`** when available, otherwise **`NEXT_PUBLIC_SITE_URL`** (trimmed, no trailing slash). **`app/auth/callback/route.ts`** already treats **`searchParams.get("type") === "recovery"`** as **`/reset-password`** after a successful session exchange; OAuth and other flows keep using **`?next=`** only. Reset-email rate-limit errors surface friendly copy in **`resetPassword`** (not raw Supabase strings). **`sideline/.env.example`** documents whitelisting **`/auth/callback`** per environment (localhost, **`<project>.vercel.app`**, custom domain).
 
 **Why:** Recovery links that land on **`/`** with a **`code`** query were redirected to **`/landing?next=...`** before the app could exchange the session; routing recovery through the public callback path matches **`proxy.ts`** and Supabase’s PKCE flow.
 

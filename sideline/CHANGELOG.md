@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-04 (Auth — password reset `redirectTo` base: window origin + env fallback)
+
+**What:** **`components/providers/AuthProvider.tsx`**: **`resetPassword`** uses **`base`** = **`window.location.origin`** or **`NEXT_PUBLIC_SITE_URL`** (trimmed) for **`redirectTo`** **`{base}/auth/callback?type=recovery`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`sideline/.env.example`**, repo-root **`CHANGELOG.md`** updated to match.
+
+**Why:** Docs and `.env.example` now describe the same URL construction as the code.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-03 (Auth — password reset email `redirectTo` + recovery callback)
 
 **What:** **`components/providers/AuthProvider.tsx`**: **`resetPasswordForEmail`** **`redirectTo`** **`{origin}/auth/callback?type=recovery`** (replaces **`?next=/reset-password`** on the callback URL). Friendly message for email rate limits: **“Too many reset attempts. Wait a few minutes, then try again.”** **`sideline/.env.example`**: notes whitelisting **`/auth/callback`** per environment (generic **`vercel.app`** host placeholder). **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`** aligned.

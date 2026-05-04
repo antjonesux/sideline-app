@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-04 — Auth: document password reset `redirectTo` base (`window` + `NEXT_PUBLIC_SITE_URL`)
+
+### What
+
+- **`sideline/components/providers/AuthProvider.tsx`**: **`resetPassword`** builds **`redirectTo`** from **`window.location.origin`**, falling back to **`NEXT_PUBLIC_SITE_URL`** when the window origin is empty (defensive; forgot-password runs in the browser).
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md) (**2026-05-03 — Password recovery** decision text), [`sideline/.env.example`](sideline/.env.example), repo-root and [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md) aligned with the **`{base}/auth/callback?type=recovery`** wording.
+
+### Why
+
+Keeps contract and decision log accurate with the implementation and clarifies when **`NEXT_PUBLIC_SITE_URL`** participates in recovery links.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-03 — Auth: password reset email routes through `/auth/callback?type=recovery`
 
 ### What
