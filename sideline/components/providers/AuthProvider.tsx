@@ -84,9 +84,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function resetPassword(email: string): Promise<AuthResult> {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
+        redirectTo: `${origin}/auth/callback?type=recovery`,
       });
-      return { error: error ? mapAuthError(error.message) : null };
+      if (!error) return { error: null };
+      const lower = error.message.toLowerCase();
+      if (lower.includes("rate limit") || lower.includes("too many")) {
+        return { error: "Too many reset attempts. Wait a few minutes, then try again." };
+      }
+      return { error: mapAuthError(error.message) };
     }
 
     async function updatePassword(newPassword: string): Promise<AuthResult> {

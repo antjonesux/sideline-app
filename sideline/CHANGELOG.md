@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-03 (Auth — password reset email `redirectTo` + recovery callback)
+
+**What:** **`components/providers/AuthProvider.tsx`**: **`resetPasswordForEmail`** **`redirectTo`** **`{origin}/auth/callback?type=recovery`** (replaces **`?next=/reset-password`** on the callback URL). Friendly message for email rate limits: **“Too many reset attempts. Wait a few minutes, then try again.”** **`sideline/.env.example`**: notes whitelisting **`/auth/callback`** per environment (generic **`vercel.app`** host placeholder). **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`** aligned.
+
+**Why:** Recovery emails must hit **`/auth/callback`** so the PKCE **`code`** is exchanged before any protected-route redirect; avoids **`/?code=`** → **`/landing?next=`** bounce.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; **`app/auth/callback/route.ts`** unchanged (already handled **`type=recovery`**).
+
+---
+
 ## 2026-05-03 (Auth — `/reset-password` recovery UI: copy, card, `signOut` after update)
 
 **What:** **`app/reset-password/ResetPasswordForm.tsx`**: Create / confirm password form with **`passwordValidation`**; success state (**Password updated**, sign-in CTA); no-session state with friendly copy + **`buildLoginHref`**; **`buildLandingHref`** back link; **`AuthSurfaceCard`**; **`passwordUpdated`** before **`await signOut()`** to avoid flashing the expired branch. No API or **`AuthProvider`** contract changes in this commit.

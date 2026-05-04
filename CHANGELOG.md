@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-03 — Auth: password reset email routes through `/auth/callback?type=recovery`
+
+### What
+
+- **`sideline/components/providers/AuthProvider.tsx`**: **`resetPasswordForEmail`** uses **`redirectTo`** **`{origin}/auth/callback?type=recovery`**. Reset-specific copy when Supabase rate-limits the email: **“Too many reset attempts. Wait a few minutes, then try again.”** (other errors still use **`mapAuthError`**).
+- **`sideline/.env.example`**: documents that Supabase Auth redirect URLs must include **`/auth/callback`** for each origin (localhost, **`https://<project>.vercel.app`**, production domain).
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) (architecture bullet), [`DECISIONS.md`](DECISIONS.md) (**2026-05-03 — Password recovery email redirect**), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md).
+
+### Why
+
+Recovery links that land on **`/`** with a **`code`** hit **`app/page.tsx`** unauthenticated redirect to **`/landing`** before the session exchange; sending users to the public callback first fixes the flow.
+
+### Status after this push
+
+- **`app/auth/callback/route.ts`** already redirected **`type=recovery`** to **`/reset-password`** after **`exchangeCodeForSession`**; no route change required.
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-03 — Auth: `/reset-password` recovery UX (copy, card, sign-out after update)
 
 ### What
