@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-04 (Data — CFB26 playbook seed batch 3 + cfb.fan generator doc)
+
+**What:** 60 **`lib/seed/playbooks/{slug}.ts`** seeds (batch 3), **`scripts/generate-cfbfan-playbook-seeds.ts`** `TEAMS` + **`urlSlug`** overrides, **`lib/seed/cfb26-playbook-seed-generator.md`**, repo-root **`SESSION_BRIEF.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`**.
+
+**Why:** Catalog expansion with reproducible generator config and operator documentation.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 (Auth — forgot-password QA dry-run + `buildPasswordRecoveryRedirectTo`)
 
 **What:** **`lib/passwordRecoveryRedirect.ts`**: **`buildPasswordRecoveryRedirectTo`** for **`{base}/auth/callback?type=recovery`**. **`AuthProvider.resetPassword`** uses it. **`app/login/LoginForm.tsx`**: **`?dryRun=1`** when **`NODE_ENV` ≠ `production`** skips Supabase on forgot submit/resend, logs and shows **`redirectTo`**; production unchanged. Reset-sent **Resend** shows **`resetPassword`** errors. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`sideline/.env.example`**, repo-root **`CHANGELOG.md`**.

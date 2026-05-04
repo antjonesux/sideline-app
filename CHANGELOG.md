@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-04 — Data: CFB26 playbook seed batch 3 + cfb.fan generator docs
+
+### What
+
+- **`sideline/lib/seed/playbooks/`**: 60 additional offensive **`TeamPlaybookSeed`** modules (batch 3: Mountain West, Pac-12, AAC, CUSA, Sun Belt, and related FBS slugs), **`source.url`** on **cfb.fan**, **`source.verified`**: **2026-05-04**.
+- **`sideline/scripts/generate-cfbfan-playbook-seeds.ts`**: `TEAMS` reconciled to those 60 slugs; **`urlSlug`** overrides for **California** (`cal`), **FIU** (`florida-international`), **Middle Tennessee** (`mid-tenn-state`), **Sam Houston** (`sam-houston-state`). Comments point to **`sideline/lib/seed/cfb26-playbook-seed-generator.md`** (no dangling brief filename).
+- **`sideline/lib/seed/cfb26-playbook-seed-generator.md`**: run instructions, batch list, override table, fragility and post-run checks.
+- **`SESSION_BRIEF.md`**: batch scope and references.
+- **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**: repo map link + decision log entry.
+
+### Why
+
+Broader catalog coverage per **2026-05-02 — Bulk CFB26 offensive playbook seed catalog**; reproducible regeneration and traceability for operators.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass. Upsert remains **`npm run seed:playbook`** (per slug or **`--all`**).
+
+---
+
 ## 2026-05-04 — Auth: forgot-password QA dry-run (`?dryRun=1`), shared recovery `redirectTo` helper
 
 ### What

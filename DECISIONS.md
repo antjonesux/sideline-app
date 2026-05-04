@@ -16,6 +16,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-04 — CFB26 playbook seed generator: batch 3 `TEAMS` + operator doc
+
+**Decision:** **`scripts/generate-cfbfan-playbook-seeds.ts`** `TEAMS` enumerates every **batch 3** file slug (60 teams) with **`urlSlug`** overrides where **cfb.fan** paths differ. Operator notes, override table, and HTML fragility live in **`sideline/lib/seed/cfb26-playbook-seed-generator.md`** (versioned beside seeds; **`sideline/.gitignore`** ignores **`/docs/`** for local notes). Repo-root **`SESSION_BRIEF.md`** records batch scope; **`BUILD_CONTRACT.md`** repo map links to the generator doc.
+
+**Why:** Regeneration from HEAD must match on-disk seeds; remove dangling references to ad-hoc brief filenames.
+
+**Impact:** Re-running the generator overwrites the same batch-3 modules; changelogs record the land. No app or API behavior change.
+
+---
+
 ## 2026-05-03 — Password recovery email redirect (`/auth/callback?type=recovery`)
 
 **Decision:** **`AuthProvider.resetPassword`** passes **`redirectTo`** **`{base}/auth/callback?type=recovery`** to **`supabase.auth.resetPasswordForEmail`**, with **`base`** = **`window.location.origin`** when available, otherwise **`NEXT_PUBLIC_SITE_URL`** (trimmed, no trailing slash). **`app/auth/callback/route.ts`** already treats **`searchParams.get("type") === "recovery"`** as **`/reset-password`** after a successful session exchange; OAuth and other flows keep using **`?next=`** only. Reset-email rate-limit errors surface friendly copy in **`resetPassword`** (not raw Supabase strings). **`sideline/.env.example`** documents whitelisting **`/auth/callback`** per environment (localhost, **`<project>.vercel.app`**, custom domain).
