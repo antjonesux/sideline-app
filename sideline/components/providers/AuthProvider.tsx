@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapAuthError } from "@/lib/authErrors";
+import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 import type { Session, User } from "@supabase/supabase-js";
 
 type AuthResult = { error: string | null };
@@ -82,10 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     async function resetPassword(email: string): Promise<AuthResult> {
-      const windowOrigin = typeof window !== "undefined" ? window.location.origin : "";
-      const envOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ?? "";
-      const base = windowOrigin || envOrigin;
-      const redirectTo = `${base}/auth/callback?type=recovery`;
+      const redirectTo = buildPasswordRecoveryRedirectTo();
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo,
       });

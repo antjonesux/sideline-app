@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-04 — Auth: forgot-password QA dry-run (`?dryRun=1`), shared recovery `redirectTo` helper
+
+### What
+
+- **`sideline/lib/passwordRecoveryRedirect.ts`**: **`buildPasswordRecoveryRedirectTo`** — single implementation for **`{base}/auth/callback?type=recovery`** (**`base`** = **`window.location.origin`** or trimmed **`NEXT_PUBLIC_SITE_URL`**).
+- **`sideline/components/providers/AuthProvider.tsx`**: **`resetPassword`** uses that helper (behavior unchanged).
+- **`sideline/app/login/LoginForm.tsx`**: when **`NODE_ENV` ≠ `production`** and the URL has **`?dryRun=1`**, forgot-password submit and **Resend** skip **`resetPasswordForEmail`**, **`console.log`** the **`redirectTo`**, and show it on the post-submit screen; production builds ignore dry-run. Reset-sent **Resend** now surfaces **`resetPassword`** errors instead of failing silently.
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md) (**2026-05-04 — Forgot-password QA dry-run**), [`sideline/.env.example`](sideline/.env.example), repo-root and [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md).
+
+### Why
+
+Local QA can confirm the recovery redirect URL without sending email or hitting rate limits; **`redirectTo`** stays aligned with **`AuthProvider`** via one module.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 — Auth: document password reset `redirectTo` base (`window` + `NEXT_PUBLIC_SITE_URL`)
 
 ### What

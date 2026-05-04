@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-04 — Forgot-password QA dry-run (`/login?dryRun=1`)
+
+**Decision:** **`LoginForm`** skips **`supabase.auth.resetPasswordForEmail`** when the URL includes **`dryRun=1`** and **`NODE_ENV` ≠ `production`**, and surfaces the same **`redirectTo`** as **`AuthProvider.resetPassword`** (via **`lib/passwordRecoveryRedirect.ts`** **`buildPasswordRecoveryRedirectTo`**). Production builds always send the real reset email. Reset-sent **Resend** shows **`resetPassword`** errors in all environments.
+
+**Why:** Local QA can verify **`redirectTo`** without email or rate limits; **`redirectTo`** construction stays single-sourced with **`AuthProvider`**.
+
+**Impact:** **`BUILD_CONTRACT.md`** (password recovery bullet), **`sideline/.env.example`**, changelogs. No **`proxy`** or Supabase dashboard change.
+
+---
+
 ## 2026-05-03 — Password recovery email redirect (`/auth/callback?type=recovery`)
 
 **Decision:** **`AuthProvider.resetPassword`** passes **`redirectTo`** **`{base}/auth/callback?type=recovery`** to **`supabase.auth.resetPasswordForEmail`**, with **`base`** = **`window.location.origin`** when available, otherwise **`NEXT_PUBLIC_SITE_URL`** (trimmed, no trailing slash). **`app/auth/callback/route.ts`** already treats **`searchParams.get("type") === "recovery"`** as **`/reset-password`** after a successful session exchange; OAuth and other flows keep using **`?next=`** only. Reset-email rate-limit errors surface friendly copy in **`resetPassword`** (not raw Supabase strings). **`sideline/.env.example`** documents whitelisting **`/auth/callback`** per environment (localhost, **`<project>.vercel.app`**, custom domain).

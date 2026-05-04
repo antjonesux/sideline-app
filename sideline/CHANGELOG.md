@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-04 (Auth — forgot-password QA dry-run + `buildPasswordRecoveryRedirectTo`)
+
+**What:** **`lib/passwordRecoveryRedirect.ts`**: **`buildPasswordRecoveryRedirectTo`** for **`{base}/auth/callback?type=recovery`**. **`AuthProvider.resetPassword`** uses it. **`app/login/LoginForm.tsx`**: **`?dryRun=1`** when **`NODE_ENV` ≠ `production`** skips Supabase on forgot submit/resend, logs and shows **`redirectTo`**; production unchanged. Reset-sent **Resend** shows **`resetPassword`** errors. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`sideline/.env.example`**, repo-root **`CHANGELOG.md`**.
+
+**Why:** QA **`redirectTo`** without email; one source of truth with **`AuthProvider`**.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 (Auth — password reset `redirectTo` base: window origin + env fallback)
 
 **What:** **`components/providers/AuthProvider.tsx`**: **`resetPassword`** uses **`base`** = **`window.location.origin`** or **`NEXT_PUBLIC_SITE_URL`** (trimmed) for **`redirectTo`** **`{base}/auth/callback?type=recovery`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, **`sideline/.env.example`**, repo-root **`CHANGELOG.md`** updated to match.

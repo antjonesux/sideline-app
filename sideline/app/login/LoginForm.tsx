@@ -10,6 +10,7 @@ import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { buildLandingHref } from "@/lib/navigation/loginHref";
+import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 
 type View = "sign-in" | "create-account" | "forgot-password";
 
@@ -37,6 +38,8 @@ export function LoginForm() {
   const next = searchParams.get("next");
   const registerIntent = searchParams.get("register") === "1";
   const nextForLandingBack = searchParams.get("next");
+  const isForgotPasswordDryRun =
+    process.env.NODE_ENV !== "production" && searchParams.get("dryRun") === "1";
   const { user, signInWithPassword, signUp, signInWithGoogle, resetPassword } = useAuth();
 
   const [view, setView] = useState<View>(() => (registerIntent ? "create-account" : "sign-in"));
@@ -55,6 +58,7 @@ export function LoginForm() {
   const [googleBusy, setGoogleBusy] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [passwordResetDryRunRedirect, setPasswordResetDryRunRedirect] = useState<string | null>(null);
 
   const clearFieldErrors = () => {
     setEmailError(null);
@@ -144,6 +148,14 @@ export function LoginForm() {
 
     setBusy(true);
     try {
+      if (isForgotPasswordDryRun) {
+        const redirectTo = buildPasswordRecoveryRedirectTo();
+        console.log("[forgot-password QA dry-run] redirectTo:", redirectTo);
+        setPasswordResetDryRunRedirect(redirectTo);
+        setResetSent(true);
+        return;
+      }
+      setPasswordResetDryRunRedirect(null);
       const { error: err } = await resetPassword(email);
       if (err) { setError(err); return; }
       setResetSent(true);
@@ -194,12 +206,24 @@ export function LoginForm() {
             <BackToLandingLink next={nextForLandingBack} />
           </div>
           <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.14em] text-white">
-            Check your email
+            {passwordResetDryRunRedirect ? "Dry-run: reset link" : "Check your email"}
           </h1>
-          <p className="font-sans text-sm text-slate-400">
-            If an account exists for <span className="text-slate-200">{email}</span>,
-            we sent a link to reset your password.
-          </p>
+          {passwordResetDryRunRedirect ? (
+            <>
+              <p className="font-sans text-sm text-slate-400">
+                QA dry-run: no email was sent. <code className="text-slate-300">redirectTo</code> would be:
+              </p>
+              <p className="break-all rounded-md border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-emerald-300/90">
+                {passwordResetDryRunRedirect}
+              </p>
+            </>
+          ) : (
+            <p className="font-sans text-sm text-slate-400">
+              If an account exists for <span className="text-slate-200">{email}</span>,
+              we sent a link to reset your password.
+            </p>
+          )}
+          {error ? <p className="font-sans text-sm text-red-400">{error}</p> : null}
           <div className="flex flex-col items-center gap-3">
             <Button
               type="button"
@@ -207,8 +231,19 @@ export function LoginForm() {
               disabled={anyBusy}
               onClick={async () => {
                 setBusy(true);
-                await resetPassword(email);
-                setBusy(false);
+                setError(null);
+                try {
+                  if (isForgotPasswordDryRun) {
+                    const redirectTo = buildPasswordRecoveryRedirectTo();
+                    console.log("[forgot-password QA dry-run] redirectTo (resend):", redirectTo);
+                    setPasswordResetDryRunRedirect(redirectTo);
+                    return;
+                  }
+                  const { error: err } = await resetPassword(email);
+                  if (err) setError(err);
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               {busy ? "Sending\u2026" : "Resend link"}
@@ -216,10 +251,11 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => {
-              setResetSent(false);
-              setView("sign-in");
-              clearFieldErrors();
-            }}
+                setResetSent(false);
+                setPasswordResetDryRunRedirect(null);
+                setView("sign-in");
+                clearFieldErrors();
+              }}
               className="font-sans text-xs text-slate-500 hover:text-slate-300"
             >
               Back to sign in
@@ -282,6 +318,7 @@ export function LoginForm() {
             type="button"
             onClick={() => {
               setView("sign-in");
+              setPasswordResetDryRunRedirect(null);
               setError(null);
               clearFieldErrors();
             }}
@@ -466,6 +503,7 @@ export function LoginForm() {
             type="button"
             onClick={() => {
               setView("forgot-password");
+              setPasswordResetDryRunRedirect(null);
               setError(null);
               clearFieldErrors();
             }}
