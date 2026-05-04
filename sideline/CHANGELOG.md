@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-04 (Settings / API — account deletion FK order + step logging)
+
+**What:** **`DELETE /api/account`** ([`app/api/account/route.ts`](app/api/account/route.ts)): deletes user-owned **`play_sheet_plays`**, **`play_sheet_scenarios`**, **`dismissed_suggestions`**, **`play_sheets`**, **`logged_plays`**, **`drives`**, **`game_sessions`**, **`user_profiles`** (each **`.eq("user_id", uid)`**) in that order, then **`auth.admin.deleteUser`**; checks **`error`** on every table delete; **`console.error`** with **`[DELETE /api/account] step=<name>`** plus Supabase error on failure; outer **`catch`** logs **`step=unexpected`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`**.
+
+**Why:** Previous order deleted **`game_sessions`** while **`logged_plays`** still referenced sessions (**no ON DELETE CASCADE** on that FK in shipped schema); table deletes did not surface **`error`**. Aligns with defensive teardown (**`DECISIONS.md`** **2026-04-21 — Defensive cascade on game delete**) at account scope.
+
+**Status after this push:** `app/api/account/route.ts`, docs above; `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 (Data — CFB26 playbook seed batch 3 + cfb.fan generator doc)
 
 **What:** 60 **`lib/seed/playbooks/{slug}.ts`** seeds (batch 3), **`scripts/generate-cfbfan-playbook-seeds.ts`** `TEAMS` + **`urlSlug`** overrides, **`lib/seed/cfb26-playbook-seed-generator.md`**, repo-root **`SESSION_BRIEF.md`**, **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`**.

@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-05-04 — Account deletion: explicit teardown order + step logging (`DELETE /api/account`)
+
+**Decision:** **`DELETE /api/account`** removes user-owned application rows in dependency-safe order (**`play_sheet_plays`** → **`play_sheet_scenarios`** → **`dismissed_suggestions`** → **`play_sheets`** → **`logged_plays`** → **`drives`** → **`game_sessions`** → **`user_profiles`**), then **`auth.admin.deleteUser`**. Each PostgREST **`delete()`** result **`error`** is checked; failures emit server **`console.error`** tagged **`[DELETE /api/account] step=<name>`** with the Supabase error payload.
+
+**Why:** Shipped FKs include **`logged_plays` → `game_sessions`** without **`ON DELETE CASCADE`**, so deleting sessions before **`logged_plays`** fails; **`dismissed_suggestions` → `play_sheets`** is not cascaded on sheet delete. Matches the defensive cascade mindset of **2026-04-21 — Defensive cascade on game delete**, scoped to full account teardown.
+
+**Impact:** **`sideline/app/api/account/route.ts`**; **`SUPABASE_SERVICE_ROLE_KEY`** / **`lib/supabase/admin.ts`** contract unchanged. New **`user_id`-scoped tables** must be added to this sequence (or given documented cascades) like **`DELETE /api/games/[id]`** maintenance.
+
+---
+
 ## 2026-05-04 — Forgot-password QA dry-run (`/login?dryRun=1`)
 
 **Decision:** **`LoginForm`** skips **`supabase.auth.resetPasswordForEmail`** when the URL includes **`dryRun=1`** and **`NODE_ENV` ≠ `production`**, and surfaces the same **`redirectTo`** as **`AuthProvider.resetPassword`** (via **`lib/passwordRecoveryRedirect.ts`** **`buildPasswordRecoveryRedirectTo`**). Production builds always send the real reset email. Reset-sent **Resend** shows **`resetPassword`** errors in all environments.

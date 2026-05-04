@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-04 — Settings / API: account deletion teardown order and server logging
+
+### What
+
+- **[`sideline/app/api/account/route.ts`](sideline/app/api/account/route.ts):** Service-role deletes for the signed-in user run in FK-safe order: **`play_sheet_plays`** → **`play_sheet_scenarios`** → **`dismissed_suggestions`** → **`play_sheets`** → **`logged_plays`** → **`drives`** → **`game_sessions`** → **`user_profiles`**, then **`auth.admin.deleteUser`**. Each **`delete()`** checks **`error`**; failures log **`[DELETE /api/account] step=<table or auth.admin.deleteUser>`** with the Supabase error (plus **`step=unexpected`** for thrown errors). User-facing JSON unchanged except behavior now succeeds when data existed under the old broken order.
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) (API / data integrity), [`DECISIONS.md`](DECISIONS.md) (**2026-05-04 — Account deletion**), [`sideline/CHANGELOG.md`](sideline/CHANGELOG.md).
+
+### Why
+
+Deleting **`game_sessions`** first violated **`logged_plays` → `game_sessions`** FK behavior in shipped migrations; ignoring PostgREST **`error`** on earlier deletes hid failures.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 — Data: CFB26 playbook seed batch 3 + cfb.fan generator docs
 
 ### What

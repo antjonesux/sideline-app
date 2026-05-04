@@ -100,6 +100,7 @@ Only establish a new convention when the change is intentional and scoped.
 
 ## API and data integrity rules
 
+- **Account deletion:** **`DELETE /api/account`** ([`sideline/app/api/account/route.ts`](sideline/app/api/account/route.ts)) uses the cookie **`createClient()`** for **`getUser()`**, then the **service-role** client from [`lib/supabase/admin.ts`](sideline/lib/supabase/admin.ts) (**server-only**; requires **`SUPABASE_SERVICE_ROLE_KEY`**). User-owned rows are deleted in **FK-safe order** before **`auth.admin.deleteUser`**; failures log **`[DELETE /api/account] step=<name>`** server-side (see **`DECISIONS.md`** **2026-05-04 — Account deletion**).
 - **Target contract** (from `.cursorrules`): explicit `.select()` columns, handle Supabase `error`, prefer `{ data: … }` / `{ error: … }` with correct HTTP status for **new or heavily touched** routes.
 - **Legacy reality:** some routes still return **raw arrays** (e.g. `GET /api/games`) or feature-specific keys (`{ formations }`, `{ playbooks }`). When editing an endpoint, **tighten toward** the contract if you can do it without breaking all callers in the same PR; do not mass-refactor unrelated APIs “for consistency” in drive-by changes.
 - **Mutations:** after POST/PUT/DELETE, invalidate the relevant TanStack Query keys (see existing `tendenciesQueryKeys` and patterns on `film/[gameId]`).
