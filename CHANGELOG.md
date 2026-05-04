@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-05-04 — Onboarding: carousel slide 3 PNG
+
+### What
+
+- **[`sideline/public/onboarding/slide-3-improve.png`](sideline/public/onboarding/slide-3-improve.png):** Updated raster for **`OnboardingCarousel`** slide 3 (**improve**).
+
+### Why
+
+Asset-only refresh; **`components/shared/OnboardingCarousel.tsx`** references unchanged.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-05-04 — Settings / API: account deletion teardown order and server logging
 
 ### What

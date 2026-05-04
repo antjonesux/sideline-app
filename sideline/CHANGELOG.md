@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-05-04 (Onboarding — carousel slide 3 image)
+
+**What:** Replaced **`public/onboarding/slide-3-improve.png`** (**`OnboardingCarousel`** slide asset).
+
+**Why:** Visual refresh for the third onboarding slide only; no component or copy changes.
+
+**Status after this push:** Asset; repo-root and this **`CHANGELOG.md`**; `npm run build` from `sideline/` unchanged.
+
+---
+
 ## 2026-05-04 (Settings / API — account deletion FK order + step logging)
 
 **What:** **`DELETE /api/account`** ([`app/api/account/route.ts`](app/api/account/route.ts)): deletes user-owned **`play_sheet_plays`**, **`play_sheet_scenarios`**, **`dismissed_suggestions`**, **`play_sheets`**, **`logged_plays`**, **`drives`**, **`game_sessions`**, **`user_profiles`** (each **`.eq("user_id", uid)`**) in that order, then **`auth.admin.deleteUser`**; checks **`error`** on every table delete; **`console.error`** with **`[DELETE /api/account] step=<name>`** plus Supabase error on failure; outer **`catch`** logs **`step=unexpected`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**, repo-root **`CHANGELOG.md`**.
