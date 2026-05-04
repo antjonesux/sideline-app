@@ -353,7 +353,7 @@ export function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={anyBusy}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 font-sans text-sm font-medium tracking-normal text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-50"
+          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 font-sans text-sm font-medium tracking-normal text-slate-100 transition-colors hover:bg-slate-800 focus:outline-none focus-visible:border-emerald-600/60 focus-visible:ring-2 focus-visible:ring-emerald-500/25 disabled:opacity-50"
         >
           <GoogleIcon />
           {googleBusy ? "Redirecting\u2026" : "Continue with Google"}

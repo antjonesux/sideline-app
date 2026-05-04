@@ -134,6 +134,28 @@
     padding-right: 0;
     padding-bottom: 0 !important;
   }
+
+  /**
+   * WebKit autofill paints a light/yellow background that overrides Tailwind input backgrounds.
+   * Scoped to `html.dark` (app shell) so it matches slate-900 fields + slate-100 text everywhere.
+   */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active,
+  .dark textarea:-webkit-autofill,
+  .dark textarea:-webkit-autofill:hover,
+  .dark textarea:-webkit-autofill:focus,
+  .dark textarea:-webkit-autofill:active,
+  .dark select:-webkit-autofill,
+  .dark select:-webkit-autofill:hover,
+  .dark select:-webkit-autofill:focus,
+  .dark select:-webkit-autofill:active {
+    -webkit-text-fill-color: #f1f5f9;
+    caret-color: #f1f5f9;
+    box-shadow: 0 0 0 1000px #0f172a inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
