@@ -117,3 +117,27 @@ export function callSheetScenarioMaxSlots(_scenario: string): number {
 export function orderedCallSheetScenarioList(): typeof CALL_SHEET_SCENARIOS {
   return CALL_SHEET_SCENARIOS;
 }
+
+const CALL_SHEET_ONLY_SCENARIOS = new Set<string>(
+  CALL_SHEET_SCENARIOS.filter((scenario) => scenario !== "Red Zone"),
+);
+
+/** True when the sheet uses tactical Call Sheet buckets (not legacy down-and-distance tabs). */
+export function isCallSheetPlaySheet(scenarios: Pick<SheetScenarioBlock, "scenario">[]): boolean {
+  return scenarios.some((block) => CALL_SHEET_ONLY_SCENARIOS.has(block.scenario));
+}
+
+export function isCallSheetScenario(scenario: string): boolean {
+  return (CALL_SHEET_SCENARIOS as readonly string[]).includes(scenario);
+}
+
+/** Slot cap for builder/API — call sheet buckets use uniform default; legacy tabs keep special cases. */
+export function maxSlotsForSheetScenario(scenario: string): number {
+  if (isCallSheetScenario(scenario)) return callSheetScenarioMaxSlots(scenario);
+  return scenarioMaxSlots(scenario);
+}
+
+export function sortSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
+  if (isCallSheetPlaySheet(blocks)) return sortCallSheetScenariosByCanonicalOrder(blocks);
+  return sortScenariosByCanonicalOrder(blocks);
+}

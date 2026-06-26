@@ -1,7 +1,7 @@
 "use client";
 
 import { PlaySheetSituationChipScroll } from "@/components/shared/PlaySheetSituationChipScroll";
-import { scenarioDisplayLabel, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { maxSlotsForSheetScenario, scenarioDisplayLabel } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 
 export function SituationList({
@@ -21,6 +21,7 @@ export function SituationList({
         scenarios={scenarios}
         selectedScenario={activeScenario}
         onSelect={onSelect}
+        maxSlotsForScenario={maxSlotsForSheetScenario}
         hideFromLg
       />
     );
@@ -29,7 +30,7 @@ export function SituationList({
   return (
     <nav className="hidden min-h-0 flex-col gap-0.5 lg:flex" aria-label="Situations">
       {scenarios.map((s) => {
-        const max = scenarioMaxSlots(s.scenario);
+        const max = maxSlotsForSheetScenario(s.scenario);
         const n = s.plays.length;
         const active = s.scenario === activeScenario;
         return (

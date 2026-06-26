@@ -2,7 +2,8 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, scenarioMaxSlots, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet } from "@/lib/playbookUtils";
+import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
 import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -70,7 +71,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const onboardingEditor = searchParams.get("onboarding") === "1";
   const setLastGame = useLastGamePrefsStore((s) => s.setLastGame);
   const queryClient = useQueryClient();
-  const [activeScenario, setActiveScenario] = useState("1st Down");
+  const [activeScenario, setActiveScenario] = useState<string>(CALL_SHEET_SCENARIOS[0]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
@@ -118,9 +119,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const sheet = sheetQuery.data;
   const scenarios = useMemo(
-    () => sortScenariosByCanonicalOrder(sheet?.scenarios ?? []),
+    () => sortSheetScenariosByCanonicalOrder(sheet?.scenarios ?? []),
     [sheet?.scenarios],
   );
+  const callSheetSheet = useMemo(() => isCallSheetPlaySheet(scenarios), [scenarios]);
 
   const totalSheetPlays = useMemo(
     () => scenarios.reduce((acc, s) => acc + (s.plays?.length ?? 0), 0),
@@ -134,14 +136,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       const pick =
         scenarios.find((s) => s.scenario === GUIDED_ONBOARDING_EDITOR_SCENARIO)?.scenario ??
         scenarios[0]?.scenario ??
-        "1st Down";
+        CALL_SHEET_SCENARIOS[0];
       setActiveScenario(pick);
       return;
     }
     if (!scenarios.some((s) => s.scenario === activeScenario)) {
-      setActiveScenario(scenarios[0]?.scenario ?? "1st Down");
+      setActiveScenario(scenarios[0]?.scenario ?? (callSheetSheet ? CALL_SHEET_SCENARIOS[0] : "1st Down"));
     }
-  }, [scenarios, activeScenario, onboardingEditor]);
+  }, [scenarios, activeScenario, onboardingEditor, callSheetSheet]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -158,7 +160,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     return [...plays].sort((a, b) => a.play_order - b.play_order);
   }, [activeBlock?.plays]);
 
-  const maxSlots = scenarioMaxSlots(activeScenario);
+  const maxSlots = maxSlotsForSheetScenario(activeScenario);
   const filled = sortedPlays.length;
   const atCapacity = filled >= maxSlots;
 

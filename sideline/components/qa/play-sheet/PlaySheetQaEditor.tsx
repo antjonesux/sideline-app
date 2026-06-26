@@ -10,7 +10,7 @@ import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { Button } from "@/components/ui/button";
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import type { PlaybookEntry } from "@/lib/playbook";
-import { scenarioDisplayLabel, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { maxSlotsForSheetScenario, scenarioDisplayLabel } from "@/lib/playbookUtils";
 import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -54,7 +54,7 @@ export function PlaySheetQaEditor({
 }: Props) {
   const [dragId, setDragId] = useState<string | null>(null);
   const noop = useCallback(() => {}, []);
-  const maxSlots = scenarioMaxSlots(activeScenario);
+  const maxSlots = maxSlotsForSheetScenario(activeScenario);
   const filled = plays.length;
   const atCapacity = filled >= maxSlots;
 

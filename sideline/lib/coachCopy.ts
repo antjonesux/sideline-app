@@ -64,7 +64,7 @@ export const ONBOARDING_PLAYBOOK_STEP_BODY =
   "We match formations and play types to CFB26. Pick the book you want to coach from; you can change it later.";
 
 /** Single situation used in guided onboarding play sheet editor and logger My Sheet preselect. */
-export const GUIDED_ONBOARDING_EDITOR_SCENARIO = "3rd & Medium";
+export const GUIDED_ONBOARDING_EDITOR_SCENARIO = "Go-To Plays";
 
 /** Onboarding-only helper on the yardage / ball-spot step. */
 export const ONBOARDING_BALL_SPOT_HELPER =

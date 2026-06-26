@@ -3,7 +3,7 @@ import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPl
 import { resolveCfbDisplayPlayType } from "@/lib/playbook";
 import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
-import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, scenarioMaxSlots } from "@/lib/playbookUtils";
+import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, maxSlotsForSheetScenario } from "@/lib/playbookUtils";
 
 import { normalizePlayNameForComparison } from "@/lib/utils/normalizePlayName";
 import { createClient } from "@/lib/supabase/server";
@@ -271,7 +271,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const sc = await assertScenarioOnSheet(supabase, sheetId, scenarioId, user.id);
   if ("error" in sc) return NextResponse.json({ error: sc.error }, { status: 404 });
 
-  const max = scenarioMaxSlots(sc.scenario.scenario);
+  const max = maxSlotsForSheetScenario(sc.scenario.scenario);
   const { count, error: cErr } = await supabase
     .from("play_sheet_plays")
     .select("id", { count: "exact", head: true })

@@ -1,4 +1,4 @@
-import { SCENARIOS } from "@/lib/constants";
+import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { PlaybookSummary, SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -24,7 +24,7 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
     name: ONBOARDING_DEFAULT_SHEET_NAME,
     cfb26_playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
     scenario_filled: 4,
-    scenario_total: SCENARIOS.length,
+    scenario_total: CALL_SHEET_SCENARIOS.length,
     play_count: 12,
     updated_at: new Date().toISOString(),
   },
@@ -33,14 +33,14 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
     name: "Red Zone Package",
     cfb26_playbook: "Ohio State",
     scenario_filled: 2,
-    scenario_total: SCENARIOS.length,
+    scenario_total: CALL_SHEET_SCENARIOS.length,
     play_count: 6,
     updated_at: new Date(Date.now() - 3 * 86_400_000).toISOString(),
   },
 ];
 
 export function playSheetQaScenarios(filledScenario: string, plays: SheetPlayRow[]): SheetScenarioBlock[] {
-  return SCENARIOS.map((scenario, index) => ({
+  return CALL_SHEET_SCENARIOS.map((scenario, index) => ({
     id: `qa-sc-${index}`,
     scenario,
     scenario_order: index + 1,

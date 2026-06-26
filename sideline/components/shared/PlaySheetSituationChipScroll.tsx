@@ -17,6 +17,8 @@ export function PlaySheetSituationChipScroll({
   selectedScenario,
   onSelect,
   tabSemantics = false,
+  /** Film My Sheet keeps legacy slot rules; Builder passes call-sheet-aware resolver. */
+  maxSlotsForScenario = scenarioMaxSlots,
   hideFromLg = false,
 }: {
   scenarios: SheetScenarioBlock[];
@@ -26,11 +28,12 @@ export function PlaySheetSituationChipScroll({
   tabSemantics?: boolean;
   /** Play Sheet: strip hidden at `lg+` when the desktop sidebar lists situations. */
   hideFromLg?: boolean;
+  maxSlotsForScenario?: (scenario: string) => number;
 }) {
   if (scenarios.length === 0) return null;
 
   const chips = scenarios.map((s) => {
-    const max = scenarioMaxSlots(s.scenario);
+    const max = maxSlotsForScenario(s.scenario);
     const n = s.plays.length;
     const short = SCENARIO_SHORT[s.scenario] ?? s.scenario;
     const active = s.scenario === selectedScenario;
