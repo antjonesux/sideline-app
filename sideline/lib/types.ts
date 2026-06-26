@@ -78,6 +78,11 @@ export type PlaybookSummary = {
   updated_at: string | null;
 };
 
+export type PlaybookListResponse = {
+  playbooks: PlaybookSummary[];
+  active_call_sheet_id: string | null;
+};
+
 export type SheetPlayRow = {
   id: string;
   play_order: number;

@@ -1,4 +1,5 @@
-import { SCENARIOS } from "@/lib/constants";
+import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
+import { maybeSetActiveOnCreate, readActiveCallSheetId } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
@@ -26,6 +27,8 @@ export async function GET() {
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const active_call_sheet_id = await readActiveCallSheetId(supabase, user.id);
+
   const { data: sheets, error } = await supabase
     .from("play_sheets")
     .select("id, name, playbook, cfb26_playbook, scheme, updated_at, created_at")
@@ -38,7 +41,9 @@ export async function GET() {
   }
 
   const list = (sheets ?? []) as SheetRow[];
-  if (list.length === 0) return NextResponse.json({ playbooks: [] });
+  if (list.length === 0) {
+    return NextResponse.json({ playbooks: [], active_call_sheet_id });
+  }
 
   const ids = list.map((s) => s.id);
   const [{ data: scenarios, error: scErr }, { data: plays, error: plErr }] = await Promise.all([
@@ -88,13 +93,13 @@ export async function GET() {
       name: sheet.name,
       cfb26_playbook: sheetCfb26Playbook(sheet),
       scenario_filled: filled,
-      scenario_total: SCENARIOS.length,
+      scenario_total: sc.length,
       play_count: totalPlays,
       updated_at: sheet.updated_at ?? sheet.created_at,
     };
   });
 
-  return NextResponse.json({ playbooks });
+  return NextResponse.json({ playbooks, active_call_sheet_id });
 }
 
 export async function POST(req: NextRequest) {
@@ -142,7 +147,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
-  const scenarioRows = SCENARIOS.map((scenario, index) => ({
+  const scenarioRows = CALL_SHEET_SCENARIOS.map((scenario, index) => ({
     user_id: user.id,
     play_sheet_id: sheet.id,
     scenario,
@@ -155,6 +160,8 @@ export async function POST(req: NextRequest) {
     await supabase.from("play_sheets").delete().eq("id", sheet.id);
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
+
+  await maybeSetActiveOnCreate(supabase, user.id, sheet.id);
 
   return NextResponse.json({ id: sheet.id });
 }

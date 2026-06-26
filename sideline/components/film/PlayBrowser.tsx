@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
-import { useFormationGroups, type FormationGroup } from "@/hooks/useFormationGroups";
+import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } from "@/hooks/useFormationGroups";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 
 type BrowserStep = "formations" | "plays";
@@ -23,6 +23,10 @@ interface PlayBrowserProps {
    * `inline`: flex column for embedding (e.g. Film Play Logger Browse tab) — no history hook, no top-level Back.
    */
   presentation?: "overlay" | "inline";
+  /** Local QA only: skip catalog fetch and use this list (e.g. `/qa/play-sheet/*`). */
+  qaStaticEntries?: PlaybookEntry[];
+  /** Local QA only: open on a specific step (e.g. plays list for a formation). */
+  qaInitialUi?: { step: BrowserStep; formation?: { group: string; name: string } };
 }
 
 const browserBackButtonClass =
@@ -43,13 +47,22 @@ export function PlayBrowser({
   showTopLevelBack = true,
   excludePlaySheetSpecialTeams = false,
   presentation = "overlay",
+  qaStaticEntries,
+  qaInitialUi,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
-  const { groups, entries, loading, error, hasAttemptedLoad } = useFormationGroups(playbook);
+  const catalog = useFormationGroups(qaStaticEntries ? "" : playbook);
+  const groups = qaStaticEntries ? formationGroupsFromEntries(qaStaticEntries) : catalog.groups;
+  const entries = qaStaticEntries ?? catalog.entries;
+  const loading = qaStaticEntries ? false : catalog.loading;
+  const error = qaStaticEntries ? null : catalog.error;
+  const hasAttemptedLoad = qaStaticEntries ? true : catalog.hasAttemptedLoad;
   const [query, setQuery] = useState("");
-  const [step, setStep] = useState<BrowserStep>("formations");
-  const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(null);
+  const [step, setStep] = useState<BrowserStep>(qaInitialUi?.step ?? "formations");
+  const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(
+    qaInitialUi?.formation ?? null,
+  );
   const playsScrollRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {

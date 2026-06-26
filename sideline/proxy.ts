@@ -11,8 +11,9 @@ const PUBLIC_PATHS = [
 ];
 
 function isPublic(pathname: string) {
-  /** Onboarding screenshot QA — no session; real UI is removed in production via `app/qa/onboarding/layout.tsx`. */
+  // Screenshot QA — no session; production routes use notFound() in app/qa layouts.
   if (pathname.startsWith("/qa/onboarding")) return true;
+  if (pathname.startsWith("/qa/play-sheet")) return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 

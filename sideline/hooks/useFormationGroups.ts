@@ -15,6 +15,25 @@ export type FormationGroup = {
   }[];
 };
 
+export function formationGroupsFromEntries(rows: PlaybookEntry[]): FormationGroup[] {
+  const byGroup = new Map<string, Map<string, PlaybookEntry[]>>();
+  for (const row of rows) {
+    if (!byGroup.has(row.group)) byGroup.set(row.group, new Map());
+    const formations = byGroup.get(row.group);
+    if (!formations) continue;
+    if (!formations.has(row.formation)) formations.set(row.formation, []);
+    formations.get(row.formation)?.push(row);
+  }
+  return Array.from(byGroup.entries())
+    .map(([group, formations]) => ({
+      group,
+      formations: Array.from(formations.entries())
+        .map(([name, plays]) => ({ name, plays }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .sort((a, b) => sortFormationTypes(a.group, b.group));
+}
+
 const CATALOG_STALE_MS = 5 * 60 * 1000;
 const CATALOG_GC_MS = 45 * 60 * 1000;
 
@@ -29,24 +48,7 @@ export function useFormationGroups(playbook: string) {
 
   const rows = catalogQuery.data ?? [];
 
-  const groups = useMemo<FormationGroup[]>(() => {
-    const byGroup = new Map<string, Map<string, PlaybookEntry[]>>();
-    for (const row of rows) {
-      if (!byGroup.has(row.group)) byGroup.set(row.group, new Map());
-      const formations = byGroup.get(row.group);
-      if (!formations) continue;
-      if (!formations.has(row.formation)) formations.set(row.formation, []);
-      formations.get(row.formation)?.push(row);
-    }
-    return Array.from(byGroup.entries())
-      .map(([group, formations]) => ({
-        group,
-        formations: Array.from(formations.entries())
-          .map(([name, plays]) => ({ name, plays }))
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      }))
-      .sort((a, b) => sortFormationTypes(a.group, b.group));
-  }, [rows]);
+  const groups = useMemo(() => formationGroupsFromEntries(rows), [rows]);
 
   return {
     groups,

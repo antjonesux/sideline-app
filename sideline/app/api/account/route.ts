@@ -54,6 +54,7 @@ export async function DELETE() {
       ["play_sheet_plays", "play_sheet_plays"],
       ["play_sheet_scenarios", "play_sheet_scenarios"],
       ["dismissed_suggestions", "dismissed_suggestions"],
+      ["user_call_sheet_prefs", "user_call_sheet_prefs"],
       ["play_sheets", "play_sheets"],
       ["logged_plays", "logged_plays"],
       ["drives", "drives"],

@@ -94,6 +94,12 @@ create table if not exists play_sheets (
 alter table play_sheets add column if not exists cfb26_playbook text;
 update play_sheets set cfb26_playbook = playbook where cfb26_playbook is null;
 
+create table if not exists user_call_sheet_prefs (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  active_call_sheet_id uuid references play_sheets(id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
 alter table game_sessions add column if not exists play_sheet_id uuid references play_sheets(id) on delete set null;
 
 create table if not exists play_sheet_scenarios (
@@ -288,6 +294,18 @@ drop policy if exists "Owner access" on logged_plays;
 create policy "Owner access" on logged_plays for all to authenticated
   using (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()) and exists (select 1 from drives d where d.id = drive_id and d.user_id = auth.uid() and d.game_session_id = game_session_id))
   with check (auth.uid() = user_id and exists (select 1 from game_sessions gs where gs.id = game_session_id and gs.user_id = auth.uid()) and exists (select 1 from drives d where d.id = drive_id and d.user_id = auth.uid() and d.game_session_id = game_session_id));
+
+alter table user_call_sheet_prefs enable row level security;
+drop policy if exists "Owner access" on user_call_sheet_prefs;
+create policy "Owner access" on user_call_sheet_prefs for all to authenticated
+  using (auth.uid() = user_id)
+  with check (
+    auth.uid() = user_id
+    and (
+      active_call_sheet_id is null
+      or exists (select 1 from play_sheets ps where ps.id = active_call_sheet_id and ps.user_id = auth.uid())
+    )
+  );
 
 alter table play_sheets enable row level security;
 drop policy if exists "Owner access" on play_sheets;

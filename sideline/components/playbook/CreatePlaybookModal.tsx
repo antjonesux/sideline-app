@@ -41,6 +41,8 @@ type Props = {
   onboardingFullPage?: boolean;
   /** Local QA only: skip `/api/cfb26-playbooks` and use this list (e.g. `/qa/onboarding/*`). */
   qaStaticPlaybooks?: string[];
+  /** Local QA only: pre-fill create form fields for screenshot capture. */
+  qaPrefill?: { name?: string; playbook?: string };
 };
 
 export function CreatePlaybookModal({
@@ -51,6 +53,7 @@ export function CreatePlaybookModal({
   guidedOnboardingFlow = false,
   onboardingFullPage = false,
   qaStaticPlaybooks,
+  qaPrefill,
 }: Props) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -101,6 +104,12 @@ export function CreatePlaybookModal({
       cancelled = true;
     };
   }, [qaStaticPlaybooks]);
+
+  useEffect(() => {
+    if (!qaPrefill) return;
+    if (qaPrefill.name?.trim()) setName(qaPrefill.name.trim());
+    if (qaPrefill.playbook?.trim()) setSelectedPlaybook({ team_name: qaPrefill.playbook.trim() });
+  }, [qaPrefill]);
 
   const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
 

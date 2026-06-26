@@ -1,5 +1,5 @@
-import { SCENARIO_SHORT, SCENARIOS } from "@/lib/constants";
-import type { PlaySheetScenario } from "@/lib/constants";
+import { CALL_SHEET_SCENARIOS, SCENARIO_SHORT, SCENARIOS } from "@/lib/constants";
+import type { CallSheetScenario, PlaySheetScenario } from "@/lib/constants";
 import type { SheetScenarioBlock } from "@/lib/types";
 
 /** Yardage bands for down-and-distance scenarios (thresholds match derivePlayContext.deriveScenario / csvImportPreview). */
@@ -96,4 +96,24 @@ export function sheetCfb26Playbook(row: { cfb26_playbook?: string | null; playbo
 
 export function orderedScenarioList(): typeof SCENARIOS {
   return SCENARIOS;
+}
+
+const CALL_SHEET_ORDER_INDEX = new Map(CALL_SHEET_SCENARIOS.map((label, index) => [label, index]));
+
+/** Order Call Sheet situation badges like `CALL_SHEET_SCENARIOS`. */
+export function sortCallSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
+  return [...blocks].sort((a, b) => {
+    const ia = CALL_SHEET_ORDER_INDEX.get(a.scenario as CallSheetScenario) ?? 999;
+    const ib = CALL_SHEET_ORDER_INDEX.get(b.scenario as CallSheetScenario) ?? 999;
+    return ia - ib;
+  });
+}
+
+/** Max calls per tactical Call Sheet situation (uniform default). */
+export function callSheetScenarioMaxSlots(_scenario: string): number {
+  return PLAY_SHEET_SCENARIO_MAX_DEFAULT;
+}
+
+export function orderedCallSheetScenarioList(): typeof CALL_SHEET_SCENARIOS {
+  return CALL_SHEET_SCENARIOS;
 }

@@ -13,12 +13,17 @@ export function AddPlayDrawer({
   cfb26Playbook,
   scenarioName,
   onPick,
+  qaStaticEntries,
+  qaInitialUi,
 }: {
   open: boolean;
   onClose: () => void;
   cfb26Playbook: string;
   scenarioName: string;
   onPick: (formation: string, playName: string) => void;
+  /** Local QA only: skip catalog fetch in embedded PlayBrowser. */
+  qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
+  qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
 }) {
   useScrollLock(open);
 
@@ -75,6 +80,8 @@ export function AddPlayDrawer({
               onClose={onClose}
               showTopLevelBack={false}
               excludePlaySheetSpecialTeams
+              qaStaticEntries={qaStaticEntries}
+              qaInitialUi={qaInitialUi}
               onSelect={(play) => {
                 void onPick(play.formation, normalizePlayName(play.play_name));
                 onClose();

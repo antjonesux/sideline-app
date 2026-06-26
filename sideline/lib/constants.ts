@@ -17,7 +17,23 @@ export const SCENARIOS = [
   "2 Point",
 ] as const;
 
+/** Situational labels for logging, Tendencies, and legacy play sheets. */
+export const LOGGING_SCENARIOS = SCENARIOS;
+
+/** Tactical Call Sheet buckets (Builder + Viewer; seeded on new sheets). */
+export const CALL_SHEET_SCENARIOS = [
+  "Go-To Plays",
+  "Red Zone",
+  "Tempo",
+  "Run Game",
+  "Pass Game",
+  "Take a Shot",
+  "Man Beaters",
+  "Zone Beaters",
+] as const;
+
 export type PlaySheetScenario = (typeof SCENARIOS)[number];
+export type CallSheetScenario = (typeof CALL_SHEET_SCENARIOS)[number];
 
 /** Same order as the play sheet, minus Opening Script (not shown in Tendencies scouting). */
 export const TENDENCIES_SCENARIOS = SCENARIOS.filter(
