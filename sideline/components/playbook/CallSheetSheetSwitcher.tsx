@@ -3,9 +3,9 @@
 import {
   COULDNT_SAVE,
   CALL_SHEET_VIEWER_SWITCHER_TITLE,
-  PLAY_SHEET_ACTIVE_BADGE,
   PLAY_SHEET_SET_ACTIVE_DONE,
 } from "@/lib/coachCopy";
+import { PlaySheetActiveBadge } from "@/components/playbook/PlaySheetActiveBadge";
 import { overlayZ } from "@/lib/constants/designTokens";
 import type { PlaybookSummary } from "@/lib/types";
 import { useToastStore } from "@/store/toastStore";
@@ -85,13 +85,9 @@ export function CallSheetSheetSwitcher({
                   className="flex min-h-14 w-full flex-col items-start gap-1 rounded-lg px-3 py-3 text-start transition-colors hover:bg-slate-800/80 disabled:opacity-60"
                   onClick={() => void selectSheet(sheet.id)}
                 >
-                  <span className="flex w-full items-center justify-between gap-2">
-                    <span className="truncate font-sans text-base font-semibold text-white">{sheet.name}</span>
-                    {isActive ? (
-                      <span className="shrink-0 rounded-md border border-slate-700 bg-slate-800/80 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                        {PLAY_SHEET_ACTIVE_BADGE}
-                      </span>
-                    ) : null}
+                  <span className="flex w-full min-w-0 items-center gap-2">
+                    <span className="min-w-0 truncate font-sans text-base font-semibold text-white">{sheet.name}</span>
+                    {isActive ? <PlaySheetActiveBadge /> : null}
                   </span>
                   <span className="font-body text-sm text-slate-500">{sheet.cfb26_playbook}</span>
                   <span className="font-body text-xs text-slate-600">

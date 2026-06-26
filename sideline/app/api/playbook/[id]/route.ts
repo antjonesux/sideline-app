@@ -1,3 +1,4 @@
+import { reassignActiveCallSheetAfterDelete, wasActiveCallSheet } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
@@ -135,10 +136,18 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await ctx.params;
+
+  const deletedWasActive = await wasActiveCallSheet(supabase, user.id, id);
+
   const { error } = await supabase.from("play_sheets").delete().eq("id", id).eq("user_id", user.id);
   if (error) {
     console.error("play_sheets DELETE:", error);
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
+
+  if (deletedWasActive) {
+    await reassignActiveCallSheetAfterDelete(supabase, user.id);
+  }
+
   return NextResponse.json({ ok: true });
 }

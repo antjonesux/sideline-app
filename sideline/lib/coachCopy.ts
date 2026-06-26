@@ -119,7 +119,7 @@ export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
 export const PLAY_SHEETS_HOME_TITLE = "Build Your Sheet";
 export const PLAY_SHEET_CREATE_CTA = "Create play sheet";
-export const PLAY_SHEET_ACTIVE_BADGE = "Active sheet";
+export const PLAY_SHEET_ACTIVE_BADGE = "Active";
 export const PLAY_SHEET_SET_ACTIVE = "Set as Active";
 export const PLAY_SHEET_SET_ACTIVE_DONE = "Active play sheet updated.";
 export const PLAY_SHEET_ALREADY_ACTIVE = "This is already your active sheet.";

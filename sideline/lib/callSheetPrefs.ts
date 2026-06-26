@@ -1,6 +1,65 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+async function findMostRecentCallSheetId(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<string | null> {
+  const { data: sheet, error } = await supabase
+    .from("play_sheets")
+    .select("id")
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("play_sheets active fallback:", error);
+    return null;
+  }
+
+  return (sheet?.id as string | undefined) ?? null;
+}
+
+async function callSheetExistsForUser(
+  supabase: SupabaseClient,
+  userId: string,
+  callSheetId: string,
+): Promise<boolean | null> {
+  const { data: sheet, error } = await supabase
+    .from("play_sheets")
+    .select("id")
+    .eq("id", callSheetId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("play_sheets active validation read:", error);
+    return null;
+  }
+
+  return Boolean(sheet);
+}
+
+async function persistActiveCallSheetId(
+  supabase: SupabaseClient,
+  userId: string,
+  callSheetId: string | null,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from("user_call_sheet_prefs").upsert({
+    user_id: userId,
+    active_call_sheet_id: callSheetId,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    console.error("user_call_sheet_prefs upsert:", error);
+    return { error: COULDNT_FINISH_THAT };
+  }
+
+  return { error: null };
+}
+
 export async function readActiveCallSheetId(
   supabase: SupabaseClient,
   userId: string,
@@ -16,25 +75,21 @@ export async function readActiveCallSheetId(
     return null;
   }
 
-  if (prefs) {
-    return (prefs.active_call_sheet_id as string | null | undefined) ?? null;
+  const storedId = (prefs?.active_call_sheet_id as string | null | undefined) ?? null;
+  if (storedId) {
+    const exists = await callSheetExistsForUser(supabase, userId, storedId);
+    if (exists === true) return storedId;
+    if (exists === null) return storedId;
   }
 
-  // Legacy accounts without a prefs row: resolve to the most recently updated sheet.
-  const { data: sheet, error: sheetErr } = await supabase
-    .from("play_sheets")
-    .select("id")
-    .eq("user_id", userId)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const fallbackId = await findMostRecentCallSheetId(supabase, userId);
+  if (!fallbackId) return null;
 
-  if (sheetErr) {
-    console.error("play_sheets active fallback:", sheetErr);
-    return null;
+  if (storedId !== fallbackId) {
+    await persistActiveCallSheetId(supabase, userId, fallbackId);
   }
 
-  return (sheet?.id as string | undefined) ?? null;
+  return fallbackId;
 }
 
 export async function upsertActiveCallSheetId(
@@ -55,18 +110,35 @@ export async function upsertActiveCallSheetId(
   }
   if (!sheet) return { error: "Not found" };
 
-  const { error } = await supabase.from("user_call_sheet_prefs").upsert({
-    user_id: userId,
-    active_call_sheet_id: callSheetId,
-    updated_at: new Date().toISOString(),
-  });
+  return persistActiveCallSheetId(supabase, userId, callSheetId);
+}
+
+/** After deleting the active sheet, re-point to the most recently updated remaining sheet (or clear). */
+export async function reassignActiveCallSheetAfterDelete(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<void> {
+  const nextId = await findMostRecentCallSheetId(supabase, userId);
+  await persistActiveCallSheetId(supabase, userId, nextId);
+}
+
+export async function wasActiveCallSheet(
+  supabase: SupabaseClient,
+  userId: string,
+  callSheetId: string,
+): Promise<boolean> {
+  const { data: prefs, error } = await supabase
+    .from("user_call_sheet_prefs")
+    .select("active_call_sheet_id")
+    .eq("user_id", userId)
+    .maybeSingle();
 
   if (error) {
-    console.error("user_call_sheet_prefs upsert:", error);
-    return { error: COULDNT_FINISH_THAT };
+    console.error("user_call_sheet_prefs read:", error);
+    return false;
   }
 
-  return { error: null };
+  return prefs?.active_call_sheet_id === callSheetId;
 }
 
 export async function maybeSetActiveOnCreate(

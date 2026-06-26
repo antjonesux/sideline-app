@@ -8,11 +8,11 @@ import type { PlaybookSummary } from "@/lib/types";
 import {
   COULDNT_DELETE,
   COULDNT_SAVE,
-  PLAY_SHEET_ACTIVE_BADGE,
   PLAY_SHEET_ALREADY_ACTIVE,
   PLAY_SHEET_SET_ACTIVE,
   PLAY_SHEET_SET_ACTIVE_DONE,
 } from "@/lib/coachCopy";
+import { PlaySheetActiveBadge } from "@/components/playbook/PlaySheetActiveBadge";
 import { useToastStore } from "@/store/toastStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -89,13 +89,11 @@ export function PlaybookCard({
       >
         <div className="flex items-start justify-between gap-3 pr-10">
           <div className="min-w-0">
-            <h2 className="truncate font-sans text-base font-semibold text-white">{item.name}</h2>
+            <div className="flex min-w-0 items-center gap-2">
+              <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white">{item.name}</h2>
+              {isActive ? <PlaySheetActiveBadge /> : null}
+            </div>
             <p className="mt-1 truncate font-body text-sm text-slate-500">{item.scheme}</p>
-            {isActive ? (
-              <span className="mt-2 inline-flex rounded-md border border-slate-700 bg-slate-800/80 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                {PLAY_SHEET_ACTIVE_BADGE}
-              </span>
-            ) : null}
           </div>
         </div>
       </Link>
