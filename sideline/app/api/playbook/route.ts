@@ -92,6 +92,7 @@ export async function GET() {
       id: sheet.id,
       name: sheet.name,
       cfb26_playbook: sheetCfb26Playbook(sheet),
+      scheme: sheet.scheme?.trim() || "Multiple",
       scenario_filled: filled,
       scenario_total: sc.length,
       play_count: totalPlays,

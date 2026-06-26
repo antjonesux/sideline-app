@@ -1,7 +1,7 @@
 "use client";
 
 import { SCENARIO_SHORT } from "@/lib/constants";
-import { scenarioMaxSlots } from "@/lib/playbookUtils";
+import { maxSlotsForSheetScenario } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export function PlaySheetSituationChipScroll({
   onSelect,
   tabSemantics = false,
   /** Film My Sheet keeps legacy slot rules; Builder passes call-sheet-aware resolver. */
-  maxSlotsForScenario = scenarioMaxSlots,
+  maxSlotsForScenario = maxSlotsForSheetScenario,
   hideFromLg = false,
 }: {
   scenarios: SheetScenarioBlock[];

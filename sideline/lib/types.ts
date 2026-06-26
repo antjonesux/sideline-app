@@ -72,6 +72,7 @@ export type PlaybookSummary = {
   id: string;
   name: string;
   cfb26_playbook: string;
+  scheme: string;
   scenario_filled: number;
   scenario_total: number;
   play_count: number;

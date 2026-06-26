@@ -1,6 +1,16 @@
-import { CALL_SHEET_SCENARIOS, SCENARIO_SHORT, SCENARIOS } from "@/lib/constants";
+import {
+  CALL_SHEET_SCENARIO_DISPLAY,
+  CALL_SHEET_SCENARIO_HELP,
+  CALL_SHEET_SCENARIO_MARKER,
+  CALL_SHEET_SCENARIO_SHORT,
+  CALL_SHEET_SCENARIOS,
+  GO_TO_PLAYS_SCENARIO,
+  SCENARIO_SHORT,
+  SCENARIOS,
+} from "@/lib/constants";
 import type { CallSheetScenario, PlaySheetScenario } from "@/lib/constants";
 import type { SheetScenarioBlock } from "@/lib/types";
+import { normalizePlayName } from "@/lib/utils";
 
 /** Yardage bands for down-and-distance scenarios (thresholds match derivePlayContext.deriveScenario / csvImportPreview). */
 const SCENARIO_YARDAGE_SUFFIX: Partial<Record<PlaySheetScenario, string>> = {
@@ -109,9 +119,18 @@ export function sortCallSheetScenariosByCanonicalOrder(blocks: SheetScenarioBloc
   });
 }
 
-/** Max calls per tactical Call Sheet situation (uniform default). */
-export function callSheetScenarioMaxSlots(_scenario: string): number {
-  return PLAY_SHEET_SCENARIO_MAX_DEFAULT;
+/** Default max plays per tactical Call Sheet bucket (most situations). */
+export const CALL_SHEET_SCENARIO_MAX_DEFAULT = 7;
+
+/** Expanded cap for Go-To Plays and Tempo. */
+export const CALL_SHEET_SCENARIO_MAX_EXPANDED = 15;
+
+/** Max plays per tactical Call Sheet situation. */
+export function callSheetScenarioMaxSlots(scenario: string): number {
+  if (scenario === GO_TO_PLAYS_SCENARIO || scenario === "Tempo") {
+    return CALL_SHEET_SCENARIO_MAX_EXPANDED;
+  }
+  return CALL_SHEET_SCENARIO_MAX_DEFAULT;
 }
 
 export function orderedCallSheetScenarioList(): typeof CALL_SHEET_SCENARIOS {
@@ -131,7 +150,7 @@ export function isCallSheetScenario(scenario: string): boolean {
   return (CALL_SHEET_SCENARIOS as readonly string[]).includes(scenario);
 }
 
-/** Slot cap for builder/API — call sheet buckets use uniform default; legacy tabs keep special cases. */
+/** Slot cap for builder/API — call sheet buckets use per-situation caps; legacy tabs keep special cases. */
 export function maxSlotsForSheetScenario(scenario: string): number {
   if (isCallSheetScenario(scenario)) return callSheetScenarioMaxSlots(scenario);
   return scenarioMaxSlots(scenario);
@@ -140,4 +159,46 @@ export function maxSlotsForSheetScenario(scenario: string): number {
 export function sortSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
   if (isCallSheetPlaySheet(blocks)) return sortCallSheetScenariosByCanonicalOrder(blocks);
   return sortScenariosByCanonicalOrder(blocks);
+}
+
+/** Chip / nav label — tactical buckets use compact copy; legacy sheets keep `SCENARIO_SHORT`. */
+export function scenarioChipLabel(scenario: string): string {
+  if (isCallSheetScenario(scenario)) {
+    return CALL_SHEET_SCENARIO_SHORT[scenario as CallSheetScenario] ?? scenario;
+  }
+  return SCENARIO_SHORT[scenario] ?? scenario;
+}
+
+export function sheetPlayComboKey(formation: string, play_name: string): string {
+  return `${formation.trim()}\t${normalizePlayName(play_name)}`;
+}
+
+export function callSheetScenarioHelperText(scenario: string): string {
+  if (isCallSheetScenario(scenario)) {
+    return CALL_SHEET_SCENARIO_HELP[scenario as CallSheetScenario];
+  }
+  return "";
+}
+
+export function callSheetScenarioMarker(scenario: string): string {
+  if (isCallSheetScenario(scenario)) {
+    return CALL_SHEET_SCENARIO_MARKER[scenario as CallSheetScenario];
+  }
+  return "•";
+}
+
+export function callSheetScenarioDisplayName(scenario: string): string {
+  if (isCallSheetScenario(scenario)) {
+    return CALL_SHEET_SCENARIO_DISPLAY[scenario as CallSheetScenario];
+  }
+  return scenarioDisplayLabel(scenario);
+}
+
+export function callSheetScenarioPlayCountLabel(count: number): string {
+  if (count === 1) return "1 play";
+  return `${count} plays`;
+}
+
+export function callSheetScenarioPlayCountHeaderLabel(count: number, max: number): string {
+  return `${count}/${max} plays`;
 }

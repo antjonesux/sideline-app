@@ -63,8 +63,17 @@ export const ONBOARDING_PLAYBOOK_STEP_TITLE = "Choose your offensive playbook";
 export const ONBOARDING_PLAYBOOK_STEP_BODY =
   "We match formations and play types to CFB26. Pick the book you want to coach from; you can change it later.";
 
+import { GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
+
 /** Single situation used in guided onboarding play sheet editor and logger My Sheet preselect. */
-export const GUIDED_ONBOARDING_EDITOR_SCENARIO = "Go-To Plays";
+export const GUIDED_ONBOARDING_EDITOR_SCENARIO = GO_TO_PLAYS_SCENARIO;
+
+export const GO_TO_PLAY_ADDED = "Added to Go-To.";
+export const GO_TO_PLAY_REMOVED = "Removed from Go-To.";
+export const GO_TO_PLAY_ALREADY = "Already on your Go-To list.";
+export const GO_TO_PLAYS_FULL = (max: number) => `Go-To is full (${max}/${max} slots).`;
+export const GO_TO_PLAYS_EMPTY_HEADLINE = "No Go-To plays yet.";
+export const GO_TO_PLAYS_EMPTY_BODY = "Favorite plays from other situations to build your Go-To list.";
 
 /** Onboarding-only helper on the yardage / ball-spot step. */
 export const ONBOARDING_BALL_SPOT_HELPER =
@@ -108,6 +117,12 @@ export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 export const GAME_PLAN_EMPTY_HEADLINE = "No play sheet built yet.";
 export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
+export const PLAY_SHEETS_HOME_TITLE = "Build Your Sheet";
+export const PLAY_SHEET_CREATE_CTA = "Create play sheet";
+export const PLAY_SHEET_ACTIVE_BADGE = "Active sheet";
+export const PLAY_SHEET_SET_ACTIVE = "Set as Active";
+export const PLAY_SHEET_SET_ACTIVE_DONE = "Active play sheet updated.";
+export const PLAY_SHEET_ALREADY_ACTIVE = "This is already your active sheet.";
 
 /** Play Sheet `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
 export const PLAYBOOK_NEW_SHEET_TITLE = "Build your play sheet";
@@ -119,6 +134,10 @@ export const PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER = "Search playbooks";
 /** Primary CTA on Play Sheet create flow; same label as guided onboarding playbook step. */
 export const PLAYBOOK_CREATE_CTA = "Start building your calls";
 export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;
+
+/** Call Sheet builder — opens the CFB26 play browser for the active situation. */
+export const BUILDER_BROWSE_PLAYBOOK = "Browse Playbook";
+export const BUILDER_ADD_PLAY = "Add play";
 
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";

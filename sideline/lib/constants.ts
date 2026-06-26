@@ -20,20 +20,71 @@ export const SCENARIOS = [
 /** Situational labels for logging, Tendencies, and legacy play sheets. */
 export const LOGGING_SCENARIOS = SCENARIOS;
 
-/** Tactical Call Sheet buckets (Builder + Viewer; seeded on new sheets). */
+/** Tactical Call Sheet buckets (Builder + Viewer; seeded on new sheets). Grid order: L→R, top→bottom. */
 export const CALL_SHEET_SCENARIOS = [
   "Go-To Plays",
-  "Red Zone",
   "Tempo",
   "Run Game",
   "Pass Game",
-  "Take a Shot",
   "Man Beaters",
   "Zone Beaters",
+  "Take a Shot",
+  "Red Zone",
 ] as const;
 
 export type PlaySheetScenario = (typeof SCENARIOS)[number];
 export type CallSheetScenario = (typeof CALL_SHEET_SCENARIOS)[number];
+
+/** First tactical bucket — Go-To is a normal situation, not a separate data model. */
+export const GO_TO_PLAYS_SCENARIO = CALL_SHEET_SCENARIOS[0];
+
+/** Compact labels for mobile situation chips in the Call Sheet builder. */
+export const CALL_SHEET_SCENARIO_SHORT: Record<CallSheetScenario, string> = {
+  "Go-To Plays": "Go-To",
+  "Red Zone": "Red Zone",
+  Tempo: "Tempo",
+  "Run Game": "Run",
+  "Pass Game": "Pass",
+  "Take a Shot": "Shot",
+  "Man Beaters": "Man",
+  "Zone Beaters": "Zone",
+};
+
+/** Coach-facing helper lines for Call Sheet builder situation cards. */
+export const CALL_SHEET_SCENARIO_HELP: Record<CallSheetScenario, string> = {
+  "Go-To Plays": "Your most trusted plays",
+  "Red Zone": "Inside the 20",
+  Tempo: "Push tempo and keep the defense off balance",
+  "Run Game": "Establish and lean on the run",
+  "Pass Game": "Move the ball through the air",
+  "Take a Shot": "Take a shot downfield",
+  "Man Beaters": "Attack man coverage",
+  "Zone Beaters": "Find holes in zone coverage",
+};
+
+/** Text markers for Call Sheet builder cards (no icon library). */
+export const CALL_SHEET_SCENARIO_MARKER: Record<CallSheetScenario, string> = {
+  "Go-To Plays": "★",
+  Tempo: "»",
+  "Run Game": "—",
+  "Pass Game": "↗",
+  "Man Beaters": "M",
+  "Zone Beaters": "Z",
+  "Take a Shot": "↓",
+  "Red Zone": "◎",
+};
+
+/** Dashboard card titles (sentence case). */
+export const CALL_SHEET_SCENARIO_DISPLAY: Record<CallSheetScenario, string> = {
+  "Go-To Plays": "Go-to Plays",
+  "Red Zone": "Red Zone",
+  Tempo: "Tempo",
+  "Run Game": "Run Game",
+  "Pass Game": "Pass Game",
+  "Take a Shot": "Take a Shot",
+  "Man Beaters": "Man Beaters",
+  "Zone Beaters": "Zone Beaters",
+};
 
 /** Same order as the play sheet, minus Opening Script (not shown in Tendencies scouting). */
 export const TENDENCIES_SCENARIOS = SCENARIOS.filter(

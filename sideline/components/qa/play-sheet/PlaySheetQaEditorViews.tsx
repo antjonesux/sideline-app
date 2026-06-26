@@ -1,16 +1,20 @@
 "use client";
 
 import { PlaySheetQaEditor } from "@/components/qa/play-sheet/PlaySheetQaEditor";
+import { PlaySheetQaSituationEditor } from "@/components/qa/play-sheet/PlaySheetQaSituationEditor";
 import {
   playSheetQaCatalogEntries,
   playSheetQaCfb26Playbook,
   playSheetQaEditorScenario,
   playSheetQaEditorScenarios,
+  playSheetQaEmptyScenarios,
+  playSheetQaGoToPlays,
+  playSheetQaRunGamePlays,
   playSheetQaSheetName,
-  playSheetQaSheetPlays,
   playSheetQaStaticCfb26Playbooks,
   playSheetQaSuggestions,
 } from "@/lib/playSheetQaFixture";
+import { GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 
 export function PlaySheetQaEditorFilled() {
   return (
@@ -18,9 +22,6 @@ export function PlaySheetQaEditorFilled() {
       sheetName={playSheetQaSheetName}
       cfb26Playbook={playSheetQaCfb26Playbook}
       scenarios={playSheetQaEditorScenarios}
-      activeScenario={playSheetQaEditorScenario}
-      plays={playSheetQaSheetPlays}
-      suggestions={playSheetQaSuggestions}
     />
   );
 }
@@ -30,22 +31,19 @@ export function PlaySheetQaEditorEmpty() {
     <PlaySheetQaEditor
       sheetName={playSheetQaSheetName}
       cfb26Playbook={playSheetQaCfb26Playbook}
-      scenarios={playSheetQaEditorScenarios}
-      activeScenario="1st Down"
-      plays={[]}
-      emptyScenario
+      scenarios={playSheetQaEmptyScenarios}
     />
   );
 }
 
 export function PlaySheetQaAddPlayFormations() {
   return (
-    <PlaySheetQaEditor
+    <PlaySheetQaSituationEditor
       sheetName={playSheetQaSheetName}
       cfb26Playbook={playSheetQaCfb26Playbook}
       scenarios={playSheetQaEditorScenarios}
       activeScenario={playSheetQaEditorScenario}
-      plays={playSheetQaSheetPlays}
+      plays={playSheetQaRunGamePlays}
       drawerUi={{
         open: true,
         scenarioName: playSheetQaEditorScenario,
@@ -57,12 +55,12 @@ export function PlaySheetQaAddPlayFormations() {
 
 export function PlaySheetQaAddPlayPlays() {
   return (
-    <PlaySheetQaEditor
+    <PlaySheetQaSituationEditor
       sheetName={playSheetQaSheetName}
       cfb26Playbook={playSheetQaCfb26Playbook}
       scenarios={playSheetQaEditorScenarios}
       activeScenario={playSheetQaEditorScenario}
-      plays={playSheetQaSheetPlays}
+      plays={playSheetQaRunGamePlays}
       drawerUi={{
         open: true,
         scenarioName: playSheetQaEditorScenario,
@@ -79,14 +77,36 @@ export function PlaySheetQaEditSheet() {
       sheetName={playSheetQaSheetName}
       cfb26Playbook={playSheetQaCfb26Playbook}
       scenarios={playSheetQaEditorScenarios}
-      activeScenario={playSheetQaEditorScenario}
-      plays={playSheetQaSheetPlays}
-      suggestions={playSheetQaSuggestions}
       editUi={{
         sheetName: playSheetQaSheetName,
         cfb26Playbook: playSheetQaCfb26Playbook,
         playbookOptions: playSheetQaStaticCfb26Playbooks,
       }}
+    />
+  );
+}
+
+export function PlaySheetQaSituationEditorFilled() {
+  return (
+    <PlaySheetQaSituationEditor
+      sheetName={playSheetQaSheetName}
+      cfb26Playbook={playSheetQaCfb26Playbook}
+      scenarios={playSheetQaEditorScenarios}
+      activeScenario="Run Game"
+      plays={playSheetQaRunGamePlays}
+      suggestions={playSheetQaSuggestions}
+    />
+  );
+}
+
+export function PlaySheetQaGoToEditorFilled() {
+  return (
+    <PlaySheetQaSituationEditor
+      sheetName={playSheetQaSheetName}
+      cfb26Playbook={playSheetQaCfb26Playbook}
+      scenarios={playSheetQaEditorScenarios}
+      activeScenario={GO_TO_PLAYS_SCENARIO}
+      plays={playSheetQaGoToPlays}
     />
   );
 }

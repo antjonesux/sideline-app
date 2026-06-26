@@ -1,18 +1,24 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { PlayBrowser } from "@/components/film/PlayBrowser";
-import { scenarioDisplayLabel } from "@/lib/playbookUtils";
-import { useScrollLock } from "@/lib/useScrollLock";
+import { useCallback, useState } from "react";
+import { PlayBrowser, stripFormationGroupPrefix, type PlaySheetAddNav } from "@/components/film/PlayBrowser";
+import { IconBackButton } from "@/components/shared/IconBackButton";
+import { BUILDER_ADD_PLAY } from "@/lib/coachCopy";
 import { overlayZ } from "@/lib/constants/designTokens";
+import { useScrollLock } from "@/lib/useScrollLock";
 import { cn, normalizePlayName } from "@/lib/utils";
 
 export function AddPlayDrawer({
   open,
   onClose,
   cfb26Playbook,
-  scenarioName,
+  scenarioName: _scenarioName,
   onPick,
+  showGoToStar = false,
+  goToPlayKeys,
+  goToBusyComboKey = null,
+  onToggleGoTo,
   qaStaticEntries,
   qaInitialUi,
 }: {
@@ -21,13 +27,47 @@ export function AddPlayDrawer({
   cfb26Playbook: string;
   scenarioName: string;
   onPick: (formation: string, playName: string) => void;
+  showGoToStar?: boolean;
+  goToPlayKeys?: Set<string>;
+  goToBusyComboKey?: string | null;
+  onToggleGoTo?: (formation: string, playName: string) => void;
   /** Local QA only: skip catalog fetch in embedded PlayBrowser. */
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
 }) {
   useScrollLock(open);
+  const [nav, setNav] = useState<PlaySheetAddNav>(() => {
+    const initialStep = qaInitialUi?.step ?? "formations";
+    const formation = qaInitialUi?.formation;
+    return {
+      step: initialStep,
+      formationLabel:
+        initialStep === "plays" && formation
+          ? stripFormationGroupPrefix(formation.name, formation.group)
+          : undefined,
+      onBack: () => {},
+    };
+  });
+
+  const handleNavChange = useCallback((next: PlaySheetAddNav) => {
+    setNav(next);
+  }, []);
 
   if (!open) return null;
+
+  const headerTitle =
+    nav.step === "plays" && nav.formationLabel
+      ? nav.formationLabel.toUpperCase()
+      : BUILDER_ADD_PLAY;
+  const headerBackLabel = nav.step === "plays" ? "Back to formations" : "Back";
+
+  const handleHeaderBack = () => {
+    if (nav.step === "plays") {
+      nav.onBack();
+      return;
+    }
+    onClose();
+  };
 
   return (
     <>
@@ -48,35 +88,34 @@ export function AddPlayDrawer({
         aria-labelledby="add-play-drawer-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
-          <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-            <div className="min-w-0">
-              <h2
-                id="add-play-drawer-title"
-                className="font-display text-base font-bold uppercase tracking-wider text-slate-100"
-              >
-                Add call
-              </h2>
-              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500 mt-0.5 truncate">{scenarioDisplayLabel(scenarioName)}</p>
-            </div>
-            <button
-              type="button"
+        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-950 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
+          <div className="flex shrink-0 items-center gap-3 px-4 py-3">
+            <IconBackButton
               data-no-press
-              className="shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
+              aria-label={headerBackLabel}
               onClick={() => {
-                onClose();
+                handleHeaderBack();
               }}
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                <path d="M6 6 18 18M18 6 6 18" />
-              </svg>
-              <span className="sr-only">Close</span>
-            </button>
+            />
+            <h2 id="add-play-drawer-title" className="font-display text-base font-bold uppercase text-white">
+              {headerTitle}
+            </h2>
           </div>
-          <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-slate-950">
+          <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <PlayBrowser
               playbook={cfb26Playbook}
               presentation="inline"
+              playSheetAddLayout
+              showGoToStar={showGoToStar}
+              goToPlayKeys={goToPlayKeys}
+              goToBusyComboKey={goToBusyComboKey}
+              onToggleGoTo={
+                onToggleGoTo
+                  ? (play) => {
+                      void onToggleGoTo(play.formation, normalizePlayName(play.play_name));
+                    }
+                  : undefined
+              }
               onClose={onClose}
               showTopLevelBack={false}
               excludePlaySheetSpecialTeams
@@ -86,6 +125,7 @@ export function AddPlayDrawer({
                 void onPick(play.formation, normalizePlayName(play.play_name));
                 onClose();
               }}
+              onPlaySheetNavChange={handleNavChange}
             />
           </div>
         </div>

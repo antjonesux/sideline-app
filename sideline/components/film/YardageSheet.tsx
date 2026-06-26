@@ -11,6 +11,7 @@ import {
   isFilmLoggerSpecialTeamsEntry,
 } from "@/lib/filmLoggerSpecialTeams";
 import { startCriticalFlow } from "@/lib/perfInstrumentation";
+import { IconBackButton } from "@/components/shared/IconBackButton";
 import { ONBOARDING_BALL_SPOT_HELPER } from "@/lib/coachCopy";
 
 type PlayResult = "INCOMPLETE" | "SACK" | "TURNOVER" | "PENALTY" | "TOUCHDOWN" | "PUNT" | "FIELD_GOAL" | "FG_MISS";
@@ -293,13 +294,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel, onboardi
   return (
     <div className="w-full border-t border-slate-800 bg-slate-900 px-4 pb-4 pt-3">
       <div className="mb-3 flex min-h-[44px] items-center">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex min-h-11 items-center rounded-lg border border-slate-700 bg-transparent px-3 py-1.5 font-sans text-sm text-slate-300"
-        >
-          Back
-        </button>
+        <IconBackButton aria-label="Back" onClick={onCancel} />
       </div>
 
       <div className="mb-4 border-b border-slate-700 pb-4">

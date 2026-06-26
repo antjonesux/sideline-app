@@ -1,20 +1,10 @@
 "use client";
 
-import { AddPlayDrawer } from "@/components/playbook/AddPlayDrawer";
-import { PlaySlot } from "@/components/playbook/PlaySlot";
-import { PlaySuggestions } from "@/components/playbook/PlaySuggestions";
-import { SituationList } from "@/components/playbook/SituationList";
-import { BackNavLink } from "@/components/shared/BackNavLink";
-import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
+import { CallSheetBuilderDashboard } from "@/components/playbook/CallSheetBuilderDashboard";
 import { Button } from "@/components/ui/button";
-import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import type { PlaybookEntry } from "@/lib/playbook";
-import { maxSlotsForSheetScenario, scenarioDisplayLabel } from "@/lib/playbookUtils";
-import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
-import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
-import { useCallback, useState } from "react";
+import type { SheetScenarioBlock } from "@/lib/types";
 
 type EditUi = {
   sheetName: string;
@@ -22,140 +12,29 @@ type EditUi = {
   playbookOptions: string[];
 };
 
-type DrawerUi = {
-  open: boolean;
-  scenarioName: string;
-  catalogEntries: PlaybookEntry[];
-  initialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
-};
-
 type Props = {
   sheetName: string;
   cfb26Playbook: string;
   scenarios: SheetScenarioBlock[];
-  activeScenario: string;
-  plays: SheetPlayRow[];
-  suggestions?: SuggestionRow[];
-  emptyScenario?: boolean;
   editUi?: EditUi | null;
-  drawerUi?: DrawerUi | null;
 };
 
 export function PlaySheetQaEditor({
   sheetName,
   cfb26Playbook,
   scenarios,
-  activeScenario,
-  plays,
-  suggestions = [],
-  emptyScenario = false,
   editUi = null,
-  drawerUi = null,
 }: Props) {
-  const [dragId, setDragId] = useState<string | null>(null);
-  const noop = useCallback(() => {}, []);
-  const maxSlots = maxSlotsForSheetScenario(activeScenario);
-  const filled = plays.length;
-  const atCapacity = filled >= maxSlots;
-
-  const playSlotProps = {
-    onAdd: noop,
-    onRemove: () => Promise.resolve(),
-    dragId,
-    setDragId,
-    onReorder: noop,
-  } as const;
-
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <Breadcrumb segments={[{ label: "Play Sheet", href: "/playbook" }, { label: sheetName }]} />
-        <BackNavLink href="/playbook" />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between gap-3">
-          <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheetName}</h1>
-          <button
-            type="button"
-            className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
-          >
-            Edit
-          </button>
-        </div>
-        <p className="font-body text-sm text-slate-400">Built from {cfb26Playbook} playbook</p>
-      </div>
-
-      <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={noop} variant="mobile" />
-
-      <div className="grid min-h-[50vh] gap-6 lg:grid-cols-[220px_1fr]">
-        <aside className="hidden lg:block">
-          <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situations</p>
-          <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={noop} variant="desktop" />
-        </aside>
-
-        <section className="min-w-0 space-y-4">
-          <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
-            Calls for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
-          </h2>
-
-          {emptyScenario ? (
-            <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
-              <p className="font-body text-base font-medium text-white">No calls for this situation yet.</p>
-              <p className="mt-1 font-body text-sm text-slate-400">Add calls to build your call sheet.</p>
-              <Button type="button" variant="default" className="mt-4 text-sm">
-                Add call
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900/90">
-              <PlayTableHeader />
-              <div>
-                {plays.map((play, slotIndex) => (
-                  <PlaySlot
-                    key={play.id}
-                    play={play}
-                    slotIndex={slotIndex}
-                    {...playSlotProps}
-                    atCapacity={atCapacity && !play}
-                  />
-                ))}
-                {filled < maxSlots ? (
-                  <PlaySlot
-                    key="slot-add-next"
-                    play={null}
-                    slotIndex={filled}
-                    {...playSlotProps}
-                    atCapacity={atCapacity}
-                  />
-                ) : null}
-              </div>
-            </div>
-          )}
-
-          {suggestions.length > 0 ? (
-            <PlaySuggestions
-              scenarioLabel={activeScenario}
-              suggestions={suggestions}
-              busyId={null}
-              onAdd={noop}
-              scenarioFull={atCapacity}
-            />
-          ) : null}
-        </section>
-      </div>
-
-      {drawerUi?.open ? (
-        <AddPlayDrawer
-          open
-          onClose={noop}
-          cfb26Playbook={cfb26Playbook}
-          scenarioName={drawerUi.scenarioName}
-          onPick={noop}
-          qaStaticEntries={drawerUi.catalogEntries}
-          qaInitialUi={drawerUi.initialUi}
-        />
-      ) : null}
+    <>
+      <CallSheetBuilderDashboard
+        sheetName={sheetName}
+        cfb26Playbook={cfb26Playbook}
+        scenarios={scenarios}
+        onBrowsePlaybook={() => {}}
+        onSelectSituation={() => {}}
+        onEditSheet={() => {}}
+      />
 
       {editUi ? (
         <div className={cn("fixed inset-0 bg-black/70", overlayZ.radixDialog)}>
@@ -209,6 +88,6 @@ export function PlaySheetQaEditor({
           </div>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }

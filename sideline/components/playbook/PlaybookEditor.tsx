@@ -2,8 +2,8 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet } from "@/lib/playbookUtils";
-import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
+import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -12,10 +12,17 @@ import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import {
   COULDNT_SAVE,
+  BUILDER_ADD_PLAY,
+  GO_TO_PLAY_ADDED,
+  GO_TO_PLAY_ALREADY,
+  GO_TO_PLAY_REMOVED,
+  GO_TO_PLAYS_EMPTY_BODY,
+  GO_TO_PLAYS_EMPTY_HEADLINE,
+  GO_TO_PLAYS_FULL,
   GUIDED_ONBOARDING_EDITOR_SCENARIO,
   ONBOARDING_GAME_READY,
   ONBOARDING_OPPONENT_SCHEME,
@@ -34,6 +41,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AddPlayDrawer } from "./AddPlayDrawer";
+import { CallSheetBuilderDashboard } from "./CallSheetBuilderDashboard";
+import { CallSheetBuilderSituationHeader } from "./CallSheetBuilderSituationHeader";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
 import { SituationList } from "./SituationList";
@@ -69,17 +78,21 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const onboardingEditor = searchParams.get("onboarding") === "1";
+  const situationParam = searchParams.get("situation")?.trim() ?? "";
   const setLastGame = useLastGamePrefsStore((s) => s.setLastGame);
   const queryClient = useQueryClient();
-  const [activeScenario, setActiveScenario] = useState<string>(CALL_SHEET_SCENARIOS[0]);
+  const [legacyActiveScenario, setLegacyActiveScenario] = useState<string>("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
   const [replaceSuggest, setReplaceSuggest] = useState<SuggestionRow | null>(null);
+  const [goToBusyId, setGoToBusyId] = useState<string | null>(null);
+  const [goToBusyComboKey, setGoToBusyComboKey] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const [startGuidedBusy, setStartGuidedBusy] = useState(false);
+  const prevActiveScenarioRef = useRef<string | null>(null);
   const addToast = useToastStore((s) => s.addToast);
   useScrollLock(editorOpen);
 
@@ -95,6 +108,28 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     staleTime: 5 * 60 * 1000,
   });
 
+  const sheet = sheetQuery.data;
+  const scenarios = useMemo(
+    () => sortSheetScenariosByCanonicalOrder(sheet?.scenarios ?? []),
+    [sheet?.scenarios],
+  );
+  const callSheetSheet = useMemo(() => isCallSheetPlaySheet(scenarios), [scenarios]);
+  const useCallSheetBuilderLayout = callSheetSheet && !onboardingEditor;
+  const isSituationEdit = useCallSheetBuilderLayout && Boolean(situationParam);
+  const activeScenario = useMemo(() => {
+    if (situationParam) return situationParam;
+    if (onboardingEditor) {
+      const pick =
+        scenarios.find((s) => s.scenario === GUIDED_ONBOARDING_EDITOR_SCENARIO)?.scenario ??
+        scenarios[0]?.scenario ??
+        CALL_SHEET_SCENARIOS[0];
+      return pick;
+    }
+    if (useCallSheetBuilderLayout) return CALL_SHEET_SCENARIOS[0];
+    if (scenarios.some((s) => s.scenario === legacyActiveScenario)) return legacyActiveScenario;
+    return scenarios[0]?.scenario ?? "1st Down";
+  }, [situationParam, onboardingEditor, useCallSheetBuilderLayout, scenarios, legacyActiveScenario]);
+
   const scenarioQuery = useQuery({
     queryKey: ["playbook-scenario", sheetId, activeScenario],
     queryFn: async () => {
@@ -105,7 +140,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       return j;
     },
     staleTime: STALE_SCENARIO_MS,
-    enabled: Boolean(sheetId) && Boolean(activeScenario),
+    enabled:
+      Boolean(sheetId) &&
+      Boolean(activeScenario) &&
+      (onboardingEditor || !useCallSheetBuilderLayout || isSituationEdit),
   });
   const setupQuery = useQuery({
     queryKey: ["film-setup"],
@@ -117,13 +155,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     staleTime: 60 * 60 * 1000,
   });
 
-  const sheet = sheetQuery.data;
-  const scenarios = useMemo(
-    () => sortSheetScenariosByCanonicalOrder(sheet?.scenarios ?? []),
-    [sheet?.scenarios],
-  );
-  const callSheetSheet = useMemo(() => isCallSheetPlaySheet(scenarios), [scenarios]);
-
   const totalSheetPlays = useMemo(
     () => scenarios.reduce((acc, s) => acc + (s.plays?.length ?? 0), 0),
     [scenarios],
@@ -131,29 +162,76 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const scenarioPayload = scenarioQuery.data;
 
   useEffect(() => {
-    if (!scenarios.length) return;
-    if (onboardingEditor) {
-      const pick =
-        scenarios.find((s) => s.scenario === GUIDED_ONBOARDING_EDITOR_SCENARIO)?.scenario ??
-        scenarios[0]?.scenario ??
-        CALL_SHEET_SCENARIOS[0];
-      setActiveScenario(pick);
-      return;
+    if (!scenarios.length || !useCallSheetBuilderLayout || !situationParam) return;
+    if (!scenarios.some((s) => s.scenario === situationParam)) {
+      router.replace(`/playbook/${sheetId}`);
     }
-    if (!scenarios.some((s) => s.scenario === activeScenario)) {
-      setActiveScenario(scenarios[0]?.scenario ?? (callSheetSheet ? CALL_SHEET_SCENARIOS[0] : "1st Down"));
-    }
-  }, [scenarios, activeScenario, onboardingEditor, callSheetSheet]);
+  }, [scenarios, situationParam, router, sheetId, useCallSheetBuilderLayout]);
 
   useEffect(() => {
-    setDrawerOpen(false);
-    setReplaceSuggest(null);
-  }, [activeScenario]);
+    if (!scenarios.length || useCallSheetBuilderLayout || onboardingEditor) return;
+    if (!scenarios.some((s) => s.scenario === legacyActiveScenario)) {
+      setLegacyActiveScenario(scenarios[0]?.scenario ?? "1st Down");
+    }
+  }, [scenarios, legacyActiveScenario, useCallSheetBuilderLayout, onboardingEditor]);
+
+  useEffect(() => {
+    const browse = searchParams.get("browse") === "1";
+    const onGoTo =
+      callSheetSheet &&
+      !onboardingEditor &&
+      situationParam === GO_TO_PLAYS_SCENARIO;
+    if (browse && isSituationEdit && !onGoTo) {
+      setDrawerOpen(true);
+      prevActiveScenarioRef.current = activeScenario;
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("browse");
+      const qs = params.toString();
+      router.replace(qs ? `/playbook/${sheetId}?${qs}` : `/playbook/${sheetId}`);
+      return;
+    }
+
+    if (
+      prevActiveScenarioRef.current !== null &&
+      prevActiveScenarioRef.current !== activeScenario
+    ) {
+      setDrawerOpen(false);
+      setReplaceSuggest(null);
+    }
+    prevActiveScenarioRef.current = activeScenario;
+  }, [activeScenario, callSheetSheet, isSituationEdit, onboardingEditor, router, searchParams, sheetId, situationParam]);
 
   const activeBlock = useMemo(
     () => scenarios.find((s) => s.scenario === activeScenario),
     [scenarios, activeScenario],
   );
+
+  const goToBlock = useMemo(
+    () => scenarios.find((s) => s.scenario === GO_TO_PLAYS_SCENARIO),
+    [scenarios],
+  );
+
+  const goToPlayKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const play of goToBlock?.plays ?? []) {
+      keys.add(sheetPlayComboKey(play.formation, play.play_name));
+    }
+    return keys;
+  }, [goToBlock?.plays]);
+
+  const goToPlayByComboKey = useMemo(() => {
+    const map = new Map<string, SheetPlayRow>();
+    for (const play of goToBlock?.plays ?? []) {
+      map.set(sheetPlayComboKey(play.formation, play.play_name), play);
+    }
+    return map;
+  }, [goToBlock?.plays]);
+
+  const isGoToSituation =
+    callSheetSheet && !onboardingEditor && activeScenario === GO_TO_PLAYS_SCENARIO;
+  const useCallSheetPlayRows = callSheetSheet && !onboardingEditor && isSituationEdit;
+  const showGoToStar = callSheetSheet && !onboardingEditor && Boolean(goToBlock?.id);
+  const goToAtCapacity = (goToBlock?.plays.length ?? 0) >= maxSlotsForSheetScenario(GO_TO_PLAYS_SCENARIO);
 
   const sortedPlays = useMemo(() => {
     const plays = activeBlock?.plays ?? [];
@@ -265,6 +343,104 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     },
   });
 
+  const onAddToGoTo = useCallback(
+    async (play: SheetPlayRow) => {
+      const goToId = goToBlock?.id;
+      if (!goToId) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+      if (goToPlayKeys.has(comboKey)) {
+        addToast(GO_TO_PLAY_ALREADY, "warning");
+        return;
+      }
+      if (goToAtCapacity) {
+        addToast(GO_TO_PLAYS_FULL(maxSlotsForSheetScenario(GO_TO_PLAYS_SCENARIO)), "warning");
+        return;
+      }
+      setGoToBusyId(play.id);
+      try {
+        await postPlay.mutateAsync({
+          scenarioId: goToId,
+          formation: play.formation,
+          play_name: play.play_name,
+        });
+        addToast(GO_TO_PLAY_ADDED, "success");
+      } catch (e) {
+        const msg = e instanceof Error && e.message.includes("already exists") ? GO_TO_PLAY_ALREADY : COULDNT_SAVE;
+        addToast(msg, e instanceof Error && e.message.includes("already exists") ? "warning" : "error");
+      } finally {
+        setGoToBusyId(null);
+      }
+    },
+    [addToast, goToAtCapacity, goToBlock?.id, goToPlayKeys, postPlay],
+  );
+
+  const onToggleGoToFavorite = useCallback(
+    async (play: SheetPlayRow) => {
+      const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+      const goToPlay = isGoToSituation ? play : goToPlayByComboKey.get(comboKey);
+      if (goToPlayKeys.has(comboKey) && goToPlay) {
+        setGoToBusyId(play.id);
+        try {
+          await deletePlay.mutateAsync(goToPlay.id);
+          addToast(GO_TO_PLAY_REMOVED, "success");
+        } catch {
+          addToast(COULDNT_SAVE, "error");
+        } finally {
+          setGoToBusyId(null);
+        }
+        return;
+      }
+      await onAddToGoTo(play);
+    },
+    [deletePlay, goToPlayByComboKey, goToPlayKeys, isGoToSituation, onAddToGoTo, addToast],
+  );
+
+  const onBrowseToggleGoTo = useCallback(
+    async (formation: string, play_name: string) => {
+      const comboKey = sheetPlayComboKey(formation, play_name);
+      const goToPlay = goToPlayByComboKey.get(comboKey);
+      if (goToPlayKeys.has(comboKey) && goToPlay) {
+        setGoToBusyComboKey(comboKey);
+        try {
+          await deletePlay.mutateAsync(goToPlay.id);
+          addToast(GO_TO_PLAY_REMOVED, "success");
+        } catch {
+          addToast(COULDNT_SAVE, "error");
+        } finally {
+          setGoToBusyComboKey(null);
+        }
+        return;
+      }
+      const goToId = goToBlock?.id;
+      if (!goToId) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      if (goToAtCapacity) {
+        addToast(GO_TO_PLAYS_FULL(maxSlotsForSheetScenario(GO_TO_PLAYS_SCENARIO)), "warning");
+        return;
+      }
+      setGoToBusyComboKey(comboKey);
+      try {
+        await postPlay.mutateAsync({
+          scenarioId: goToId,
+          formation,
+          play_name,
+        });
+        addToast(GO_TO_PLAY_ADDED, "success");
+      } catch (e) {
+        const msg = e instanceof Error && e.message.includes("already exists") ? GO_TO_PLAY_ALREADY : COULDNT_SAVE;
+        addToast(msg, e instanceof Error && e.message.includes("already exists") ? "warning" : "error");
+      } finally {
+        setGoToBusyComboKey(null);
+      }
+    },
+    [addToast, deletePlay, goToAtCapacity, goToBlock?.id, goToPlayByComboKey, goToPlayKeys, postPlay],
+  );
+
   const onReorder = useCallback(
     (fromId: string, toSlotIndex: number) => {
       const sid = activeBlock?.id;
@@ -279,15 +455,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   );
 
   const openAdd = useCallback(() => {
+    if (isGoToSituation) return;
     if (atCapacity) {
       addToast(`Situation full (${maxSlots}/${maxSlots} slots).`, "warning");
       return;
     }
     setDrawerOpen(true);
-  }, [addToast, atCapacity, maxSlots]);
+  }, [addToast, atCapacity, isGoToSituation, maxSlots]);
 
   const onDrawerPick = useCallback(
     async (formation: string, play_name: string) => {
+      if (isGoToSituation) return;
       try {
         const sid = activeBlock?.id;
         if (!sid) {
@@ -302,7 +480,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         setDrawerOpen(false);
       }
     },
-    [activeBlock?.id, postPlay, addToast],
+    [activeBlock?.id, postPlay, addToast, isGoToSituation],
   );
 
   const onSuggestAdd = useCallback(
@@ -377,6 +555,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     }
   }, [activeScenario, addToast, cfb26, router, setLastGame, sheetQuery.data, sheetId]);
 
+  const navigateToSituation = useCallback(
+    (scenario: string) => {
+      router.push(`/playbook/${sheetId}?situation=${encodeURIComponent(scenario)}`);
+    },
+    [router, sheetId],
+  );
+
+  const navigateToDashboardBrowse = useCallback(() => {
+    router.push(`/playbook/${sheetId}?situation=${encodeURIComponent("Run Game")}&browse=1`);
+  }, [router, sheetId]);
+
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
   }
@@ -419,11 +608,96 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     dragId,
     setDragId,
     onReorder,
+    onToggleGoTo: showGoToStar ? onToggleGoToFavorite : undefined,
+    showGoToStar,
+    goToBusy: goToBusyId !== null,
+    stackFormation: useCallSheetPlayRows,
+    hideRemove: isGoToSituation,
   } as const;
 
   const canTakeField =
     onboardingEditor && totalSheetPlays >= MIN_ONBOARDING_SHEET_PLAYS && !startGuidedBusy;
   const playsStillNeeded = Math.max(0, MIN_ONBOARDING_SHEET_PLAYS - totalSheetPlays);
+
+  const scenarioPlaysSection = (
+    <section className="min-w-0 space-y-4">
+      {!(useCallSheetBuilderLayout && isSituationEdit) ? (
+        <h2 className="font-heading text-base font-bold uppercase tracking-wide text-slate-300">
+          Calls for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
+        </h2>
+      ) : null}
+
+      {scenarioQuery.isError ? (
+        <p className="font-body text-sm text-red-300">{(scenarioQuery.error as Error).message}</p>
+      ) : scenarioQuery.isLoading ? (
+        <div className="space-y-2" aria-busy="true">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-3 rounded-xl border border-slate-700 bg-slate-900 p-4">
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-md bg-slate-700/55" />
+              <div className="min-w-0 flex-1 space-y-2 py-0.5">
+                <div className="h-3 w-[75%] max-w-xs animate-pulse rounded-md bg-slate-700/55" />
+                <div className="h-3 w-[50%] max-w-[180px] animate-pulse rounded-md bg-slate-700/55" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filled === 0 ? (
+        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+          <p className="font-body text-base font-medium text-white">
+            {isGoToSituation ? GO_TO_PLAYS_EMPTY_HEADLINE : "No calls for this situation yet."}
+          </p>
+          <p className="mt-1 font-body text-sm text-slate-400">
+            {isGoToSituation ? GO_TO_PLAYS_EMPTY_BODY : "Add calls to build your call sheet."}
+          </p>
+          {!isGoToSituation ? (
+            <Button type="button" variant="default" className="mt-4 text-sm" onClick={openAdd}>
+              {BUILDER_ADD_PLAY}
+            </Button>
+          ) : null}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
+          <PlayTableHeader
+            showGoToColumn={showGoToStar}
+            stackFormation={useCallSheetPlayRows}
+            hideRemoveColumn={isGoToSituation}
+          />
+          <div>
+            {sortedPlays.map((play, slotIndex) => (
+              <PlaySlot
+                key={play.id}
+                play={play}
+                slotIndex={slotIndex}
+                {...playSlotProps}
+                inGoTo={isGoToSituation || goToPlayKeys.has(sheetPlayComboKey(play.formation, play.play_name))}
+                goToBusy={goToBusyId === play.id}
+                atCapacity={atCapacity && !play}
+              />
+            ))}
+            {!isGoToSituation && filled < maxSlots ? (
+              <PlaySlot
+                key="slot-add-next"
+                play={null}
+                slotIndex={filled}
+                {...playSlotProps}
+                atCapacity={atCapacity}
+              />
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {!onboardingEditor && !isGoToSituation ? (
+        <PlaySuggestions
+          scenarioLabel={activeScenario}
+          suggestions={suggestions}
+          busyId={suggestBusy}
+          onAdd={onSuggestAdd}
+          scenarioFull={atCapacity}
+        />
+      ) : null}
+    </section>
+  );
 
   return (
     <div
@@ -433,111 +707,90 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       )}
     >
       <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]")}>
-        {!onboardingEditor ? (
-          <div className="space-y-3">
-            <Breadcrumb segments={[{ label: "Play Sheet", href: "/playbook" }, { label: sheet.name }]} />
-            <BackNavLink href="/playbook" />
+        {useCallSheetBuilderLayout && isSituationEdit ? (
+          <div className="space-y-6">
+            <CallSheetBuilderSituationHeader
+              backHref={`/playbook/${sheetId}`}
+              title={callSheetScenarioDisplayName(activeScenario)}
+              subtitle={callSheetScenarioHelperText(activeScenario)}
+              playCountLabel={
+                isGoToSituation
+                  ? callSheetScenarioPlayCountLabel(filled)
+                  : callSheetScenarioPlayCountHeaderLabel(filled, maxSlots)
+              }
+            />
+            {scenarioPlaysSection}
           </div>
-        ) : null}
-
-        <div>
-          <div className="flex items-center justify-between gap-3">
-            <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
+        ) : useCallSheetBuilderLayout ? (
+          <CallSheetBuilderDashboard
+            sheetName={sheet.name}
+            cfb26Playbook={cfb26}
+            scenarios={scenarios}
+            onBrowsePlaybook={navigateToDashboardBrowse}
+            onSelectSituation={navigateToSituation}
+            onEditSheet={() => {
+              setEditName(sheet.name);
+              setEditPlaybook(cfb26);
+              setEditorOpen(true);
+            }}
+          />
+        ) : (
+          <>
             {!onboardingEditor ? (
-              <button
-                type="button"
-                className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
-                onClick={() => {
-                  setEditName(sheet.name);
-                  setEditPlaybook(cfb26);
-                  setEditorOpen(true);
-                }}
-              >
-                Edit
-              </button>
+              <div className="space-y-3">
+                <Breadcrumb segments={[{ label: "Play Sheet", href: "/playbook" }, { label: sheet.name }]} />
+                <BackNavLink href="/playbook" />
+              </div>
             ) : null}
-          </div>
-          <p className="font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
-        </div>
 
-        {!onboardingEditor ? (
-          <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="mobile" />
-        ) : null}
-
-      <div className={cn("grid min-h-[50vh] gap-6", !onboardingEditor && "lg:grid-cols-[220px_1fr]")}>
-        {!onboardingEditor ? (
-          <aside className="hidden lg:block">
-            <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situations</p>
-            <SituationList scenarios={scenarios} activeScenario={activeScenario} onSelect={setActiveScenario} variant="desktop" />
-          </aside>
-        ) : null}
-
-        <section className="min-w-0 space-y-4">
-          <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-slate-200">
-            Calls for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
-          </h2>
-
-          {scenarioQuery.isError ? (
-            <p className="font-body text-sm text-red-300">{(scenarioQuery.error as Error).message}</p>
-          ) : scenarioQuery.isLoading ? (
-            <div className="space-y-2" aria-busy="true">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex gap-3">
-                  <div className="animate-pulse rounded-md bg-slate-700/55 h-10 w-10 shrink-0 rounded" />
-                  <div className="min-w-0 flex-1 space-y-2 py-0.5">
-                    <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[75%] max-w-xs" />
-                    <div className="animate-pulse rounded-md bg-slate-700/55 h-3 w-[50%] max-w-[180px]" />
-                  </div>
+            <div>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
+                  <p className="mt-1 font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
                 </div>
-              ))}
-            </div>
-          ) : filled === 0 ? (
-            <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
-              <p className="font-body text-base font-medium text-white">No calls for this situation yet.</p>
-              <p className="mt-1 font-body text-sm text-slate-400">
-                Add calls to build your call sheet.
-              </p>
-              <Button type="button" variant="default" className="mt-4 text-sm" onClick={openAdd}>
-                Add call
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900/90">
-              <PlayTableHeader />
-              <div>
-                {sortedPlays.map((play, slotIndex) => (
-                  <PlaySlot
-                    key={play.id}
-                    play={play}
-                    slotIndex={slotIndex}
-                    {...playSlotProps}
-                    atCapacity={atCapacity && !play}
-                  />
-                ))}
-                {filled < maxSlots ? (
-                  <PlaySlot
-                    key="slot-add-next"
-                    play={null}
-                    slotIndex={filled}
-                    {...playSlotProps}
-                    atCapacity={atCapacity}
-                  />
+                {!onboardingEditor ? (
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                    onClick={() => {
+                      setEditName(sheet.name);
+                      setEditPlaybook(cfb26);
+                      setEditorOpen(true);
+                    }}
+                  >
+                    Edit
+                  </button>
                 ) : null}
               </div>
             </div>
-          )}
 
-          {!onboardingEditor ? (
-            <PlaySuggestions
-              scenarioLabel={activeScenario}
-              suggestions={suggestions}
-              busyId={suggestBusy}
-              onAdd={onSuggestAdd}
-              scenarioFull={atCapacity}
-            />
-          ) : null}
-        </section>
-      </div>
+            {!onboardingEditor ? (
+              <SituationList
+                scenarios={scenarios}
+                activeScenario={activeScenario}
+                onSelect={setLegacyActiveScenario}
+                variant="mobile"
+              />
+            ) : null}
+
+            <div className={cn("grid min-h-[50vh] gap-6", !onboardingEditor && "lg:grid-cols-[220px_1fr]")}>
+              {!onboardingEditor ? (
+                <aside className="hidden lg:block">
+                  <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Situations</p>
+                  <SituationList
+                    scenarios={scenarios}
+                    activeScenario={activeScenario}
+                    onSelect={setLegacyActiveScenario}
+                    variant="desktop"
+                  />
+                </aside>
+              ) : null}
+
+              {scenarioPlaysSection}
+            </div>
+          </>
+        )}
       </div>
 
       <AddPlayDrawer
@@ -548,6 +801,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         cfb26Playbook={cfb26}
         scenarioName={activeScenario}
         onPick={onDrawerPick}
+        showGoToStar={showGoToStar}
+        goToPlayKeys={goToPlayKeys}
+        goToBusyComboKey={goToBusyComboKey}
+        onToggleGoTo={onBrowseToggleGoTo}
       />
       {editorOpen ? (
         <div

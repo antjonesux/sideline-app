@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/shared/PasswordInput";
 import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
+import { IconBackButton } from "@/components/shared/IconBackButton";
 import { buildLandingHref } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 
@@ -19,16 +20,7 @@ const INVALID_EMAIL_MSG = "Enter a valid email address.";
 function BackToLandingLink({ next }: { next?: string | null }) {
   return (
     <div className="-mt-2 mb-4 w-full sm:-mt-1 sm:mb-6">
-      <Link
-        href={buildLandingHref(next)}
-        className="inline-flex min-h-10 items-center gap-2 rounded-md font-sans text-sm font-medium text-slate-400 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-        aria-label="Back to welcome"
-      >
-        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-          <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        Back
-      </Link>
+      <IconBackButton href={buildLandingHref(next)} aria-label="Back to welcome" />
     </div>
   );
 }

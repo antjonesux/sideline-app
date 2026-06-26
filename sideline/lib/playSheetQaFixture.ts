@@ -1,4 +1,4 @@
-import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
+import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { PlaybookSummary, SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -21,8 +21,9 @@ export const playSheetQaSheetPlays = onboardingQaSheetPlays;
 export const playSheetQaSummaries: PlaybookSummary[] = [
   {
     id: "qa-sheet-1",
-    name: ONBOARDING_DEFAULT_SHEET_NAME,
+    name: "Week 5 vs Washington",
     cfb26_playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
+    scheme: "Spread",
     scenario_filled: 4,
     scenario_total: CALL_SHEET_SCENARIOS.length,
     play_count: 12,
@@ -30,8 +31,9 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
   },
   {
     id: "qa-sheet-2",
-    name: "Red Zone Package",
+    name: "Goal Line Package",
     cfb26_playbook: "Ohio State",
+    scheme: "Spread",
     scenario_filled: 2,
     scenario_total: CALL_SHEET_SCENARIOS.length,
     play_count: 6,
@@ -48,7 +50,28 @@ export function playSheetQaScenarios(filledScenario: string, plays: SheetPlayRow
   }));
 }
 
-export const playSheetQaEditorScenarios = playSheetQaScenarios(playSheetQaEditorScenario, playSheetQaSheetPlays);
+/** Editor QA: plays live on Run Game; first two also appear on Go-To for star states. */
+export const playSheetQaRunGamePlays = playSheetQaSheetPlays;
+export const playSheetQaGoToPlays = playSheetQaSheetPlays.slice(0, 2);
+
+export const playSheetQaEditorScenarios: SheetScenarioBlock[] = CALL_SHEET_SCENARIOS.map((scenario, index) => {
+  const goToSubset = playSheetQaSheetPlays.slice(0, 2);
+  const plays =
+    scenario === GO_TO_PLAYS_SCENARIO ? goToSubset : scenario === "Run Game" ? playSheetQaRunGamePlays : [];
+  return {
+    id: `qa-sc-${index}`,
+    scenario,
+    scenario_order: index + 1,
+    plays,
+  };
+});
+
+export const playSheetQaEmptyScenarios: SheetScenarioBlock[] = CALL_SHEET_SCENARIOS.map((scenario, index) => ({
+  id: `qa-sc-empty-${index}`,
+  scenario,
+  scenario_order: index + 1,
+  plays: [],
+}));
 
 export const playSheetQaSuggestions: SuggestionRow[] = [
   {

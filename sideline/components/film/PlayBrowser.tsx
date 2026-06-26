@@ -2,11 +2,16 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { AddPlayBrowseRow } from "@/components/playbook/AddPlayBrowseRow";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
+import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
 import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } from "@/hooks/useFormationGroups";
+import { sheetPlayComboKey } from "@/lib/playbookUtils";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
+import { playSheetFormationTileClass } from "@/lib/constants/designTokens";
+import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
 
 type BrowserStep = "formations" | "plays";
 
@@ -27,10 +32,22 @@ interface PlayBrowserProps {
   qaStaticEntries?: PlaybookEntry[];
   /** Local QA only: open on a specific step (e.g. plays list for a formation). */
   qaInitialUi?: { step: BrowserStep; formation?: { group: string; name: string } };
+  /** Play Sheet Add Play drawer — muted section labels and card-style formation tiles. */
+  playSheetAddLayout?: boolean;
+  /** Play Sheet Add Play: show Go-To star on catalog rows. */
+  showGoToStar?: boolean;
+  goToPlayKeys?: Set<string>;
+  goToBusyComboKey?: string | null;
+  onToggleGoTo?: (play: PlaybookEntry) => void;
+  /** Play Sheet Add Play: parent owns the drawer header when embedded inline. */
+  onPlaySheetNavChange?: (nav: PlaySheetAddNav) => void;
 }
 
-const browserBackButtonClass =
-  "min-h-11 shrink-0 rounded-lg border border-slate-700 px-3 font-sans text-sm text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+export type PlaySheetAddNav = {
+  step: BrowserStep;
+  formationLabel?: string;
+  onBack: () => void;
+};
 
 function stripGroupPrefix(formationName: string, groupName: string): string {
   const prefix = `${groupName} `;
@@ -39,6 +56,8 @@ function stripGroupPrefix(formationName: string, groupName: string): string {
   }
   return formationName;
 }
+
+export { stripGroupPrefix as stripFormationGroupPrefix };
 
 export function PlayBrowser({
   playbook,
@@ -49,6 +68,12 @@ export function PlayBrowser({
   presentation = "overlay",
   qaStaticEntries,
   qaInitialUi,
+  playSheetAddLayout = false,
+  showGoToStar = false,
+  goToPlayKeys,
+  goToBusyComboKey = null,
+  onToggleGoTo,
+  onPlaySheetNavChange,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
@@ -70,6 +95,25 @@ export function PlayBrowser({
     const el = playsScrollRef.current;
     if (el) el.scrollTop = 0;
   }, [selectedFormation?.group, selectedFormation?.name]);
+
+  useLayoutEffect(() => {
+    if (!playSheetAddLayout || !onPlaySheetNavChange) return;
+    if (step === "plays" && selectedFormation) {
+      onPlaySheetNavChange({
+        step: "plays",
+        formationLabel: stripGroupPrefix(selectedFormation.name, selectedFormation.group),
+        onBack: () => {
+          setSelectedFormation(null);
+          setStep("formations");
+        },
+      });
+      return;
+    }
+    onPlaySheetNavChange({
+      step: "formations",
+      onBack: onClose,
+    });
+  }, [onClose, onPlaySheetNavChange, playSheetAddLayout, selectedFormation, step]);
 
   useEffect(() => {
     if (isInline) return;
@@ -133,12 +177,12 @@ export function PlayBrowser({
   }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
 
   const level1Header = (
-    <div className="relative z-[2] w-full shrink-0 border-b border-slate-700 bg-slate-900">
-      <div className="flex w-full items-center gap-3 px-4 py-3">
+    <div
+      className={`relative z-[2] w-full shrink-0 ${playSheetAddLayout ? "px-4 py-3" : "border-b border-slate-700 bg-slate-900"}`}
+    >
+      <div className={`flex w-full items-center gap-3 ${playSheetAddLayout ? "" : "px-4 py-3"}`}>
         {effectiveShowTopLevelBack ? (
-          <button type="button" className={browserBackButtonClass} onClick={onClose}>
-            Back
-          </button>
+          <IconBackButton aria-label="Back" onClick={onClose} />
         ) : null}
         <input
           type="text"
@@ -147,34 +191,46 @@ export function PlayBrowser({
           placeholder="Search plays & formations"
           autoComplete="off"
           enterKeyHint="search"
-          className="min-h-11 min-w-0 flex-1 touch-manipulation rounded-lg border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500"
+          className={`min-h-11 min-w-0 flex-1 touch-manipulation rounded-xl border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 ${
+            playSheetAddLayout ? "" : "rounded-lg"
+          }`}
         />
       </div>
     </div>
   );
 
-  const playsViewHeader = selectedFormation ? (
-    <div className="relative z-[2] w-full shrink-0 border-b border-slate-700 bg-slate-900">
-      <div className="flex w-full items-center gap-3 px-4 py-3">
-        <button
-          type="button"
-          className={browserBackButtonClass}
+  const playsViewHeader =
+    selectedFormation && !(playSheetAddLayout && onPlaySheetNavChange) ? (
+    <div
+      className={`relative z-[2] w-full shrink-0 ${playSheetAddLayout ? "px-4 py-3" : "border-b border-slate-700 bg-slate-900"}`}
+    >
+      <div className={`flex w-full items-center gap-3 ${playSheetAddLayout ? "" : "px-4 py-3"}`}>
+        <IconBackButton
+          aria-label="Back to formations"
           onClick={() => {
             setSelectedFormation(null);
             setStep("formations");
           }}
-        >
-          Back
-        </button>
-        <span className="min-w-0 flex-1 truncate text-center font-sans text-sm font-semibold text-slate-100">
-          {selectedFormation.name}
-        </span>
-        <span className={`${browserBackButtonClass} pointer-events-none invisible shrink-0`} aria-hidden>
-          Back
-        </span>
+        />
+        {playSheetAddLayout ? (
+          <h3 className="min-w-0 flex-1 truncate font-display text-base font-bold text-white">
+            {stripGroupPrefix(selectedFormation.name, selectedFormation.group)}
+          </h3>
+        ) : (
+          <>
+            <span className="min-w-0 flex-1 truncate text-center font-sans text-sm font-semibold text-slate-100">
+              {selectedFormation.name}
+            </span>
+            <IconBackButtonSpacer />
+          </>
+        )}
       </div>
     </div>
   ) : null;
+
+  const formationDisplayLabel = selectedFormation
+    ? stripGroupPrefix(selectedFormation.name, selectedFormation.group)
+    : "";
 
   const rootClassName = isInline
     ? "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-slate-950"
@@ -186,7 +242,7 @@ export function PlayBrowser({
       {searching ? (
         <>
           {level1Header}
-          <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pt-3">
+          <div className={`min-h-0 w-full flex-1 overflow-y-auto pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             <div className="flex flex-col gap-2 px-4 pb-4">
               {!hasPlaybook ? (
                 <p className="font-body text-sm text-slate-400">
@@ -211,7 +267,7 @@ export function PlayBrowser({
       ) : step === "formations" ? (
         <>
           {level1Header}
-          <div className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pb-4 pt-3">
+          <div className={`min-h-0 w-full flex-1 overflow-y-auto pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             {!hasPlaybook ? (
               <div className="px-4 py-6">
                 <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3">
@@ -249,18 +305,24 @@ export function PlayBrowser({
               displayGroups.map((group, index) => (
                 <div key={group.group}>
                   <div
-                    className={`px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${
-                      index > 0 ? "mt-4" : ""
+                    className={`px-4 py-2 ${
+                      playSheetAddLayout
+                        ? `font-sans text-xs font-normal uppercase tracking-widest text-slate-500 ${index > 0 ? "mt-4" : "mt-1"}`
+                        : `font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${index > 0 ? "mt-4" : ""}`
                     }`}
                   >
                     {group.group.toUpperCase()}
                   </div>
-                  <div className="grid w-full grid-cols-2 gap-2 px-4">
+                  <div className={`grid w-full grid-cols-2 px-4 ${playSheetAddLayout ? "gap-3" : "gap-2"}`}>
                     {group.formations.map((formation) => (
                       <button
                         key={`${group.group}::${formation.name}`}
                         type="button"
-                        className="min-h-[44px] w-full truncate rounded-lg border border-slate-700 bg-slate-800 px-3 py-3 text-left text-sm font-medium text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                        className={
+                          playSheetAddLayout
+                            ? playSheetFormationTileClass
+                            : "min-h-[44px] w-full truncate rounded-lg border border-slate-700 bg-slate-800 px-3 py-3 text-left text-sm font-medium text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                        }
                         onClick={() => {
                           setSelectedFormation({ group: group.group, name: formation.name });
                           setStep("plays");
@@ -278,12 +340,40 @@ export function PlayBrowser({
       ) : selectedFormation ? (
         <>
           {playsViewHeader}
-          <div ref={playsScrollRef} className="min-h-0 w-full flex-1 overflow-y-auto bg-slate-900 pt-3">
-            <div className="flex flex-col gap-2 px-4 pb-4">
-              {selectedPlays.map((play) => (
-                <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
-              ))}
-            </div>
+          <div ref={playsScrollRef} className={`min-h-0 w-full flex-1 overflow-y-auto ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}>
+            {playSheetAddLayout ? (
+              <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
+                <PlayTableHeader
+                  hideDragColumn
+                  stackFormation
+                  showGoToColumn={showGoToStar}
+                  actionColumn="add"
+                />
+                <div>
+                  {selectedPlays.map((play) => {
+                    const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+                    return (
+                      <AddPlayBrowseRow
+                        key={play.play_id}
+                        play={play}
+                        formationLabel={formationDisplayLabel}
+                        inGoTo={goToPlayKeys?.has(comboKey) ?? false}
+                        goToBusy={goToBusyComboKey === comboKey}
+                        showGoToStar={showGoToStar}
+                        onAdd={onSelect}
+                        onToggleGoTo={onToggleGoTo}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 px-4 pb-4">
+                {selectedPlays.map((play) => (
+                  <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
+                ))}
+              </div>
+            )}
           </div>
         </>
       ) : null}

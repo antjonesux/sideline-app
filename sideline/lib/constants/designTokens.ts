@@ -63,6 +63,22 @@ export const modalDialogTitleClass =
 export const appShellPageTitleClass =
   "font-sans text-3xl leading-none font-bold uppercase tracking-[1.08px] text-white sm:text-4xl";
 
+/** Full-width surface action on app shell pages (Settings sign out, Builder Browse Playbook). Pair with `Button variant="outline"`. */
+export const appShellSurfaceActionButtonClass =
+  "h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white";
+
+/** Compact bordered back control — use `IconBackButton` / `BackNavLink` in UI. */
+export const appShellIconBackButtonClass =
+  "inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+
+/** Formation tile in Play Sheet Add Play browse. */
+export const playSheetFormationTileClass =
+  "min-h-11 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-3 text-center font-sans text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+
+/** Full-width primary CTA on app shell pages (Play Sheet home create). */
+export const appShellPrimaryCtaButtonClass =
+  "h-auto min-h-11 w-full rounded-xl bg-white py-3 font-sans text-sm font-semibold text-slate-950 hover:bg-slate-100";
+
 export const overlayZ = {
   bottomNav: "z-40",
   /** Tendencies playbook / opponent menus (`usePortalDropdown` path). */

@@ -1,6 +1,7 @@
 "use client";
 
 import { PlayTableRow } from "@/components/game-plan/PlayTableRow";
+import { BUILDER_ADD_PLAY } from "@/lib/coachCopy";
 import { resolveCfbDisplayPlayType } from "@/lib/playbook";
 import type { SheetPlayRow } from "@/lib/types";
 
@@ -13,6 +14,12 @@ export function PlaySlot({
   dragId,
   setDragId,
   onReorder,
+  onToggleGoTo,
+  inGoTo = false,
+  goToBusy = false,
+  showGoToStar = false,
+  stackFormation = false,
+  hideRemove = false,
 }: {
   play: SheetPlayRow | null;
   slotIndex: number;
@@ -22,6 +29,12 @@ export function PlaySlot({
   dragId: string | null;
   setDragId: (id: string | null) => void;
   onReorder: (fromId: string, toSlotIndex: number) => void;
+  onToggleGoTo?: (play: SheetPlayRow) => void;
+  inGoTo?: boolean;
+  goToBusy?: boolean;
+  showGoToStar?: boolean;
+  stackFormation?: boolean;
+  hideRemove?: boolean;
 }) {
   if (!play) {
     return (
@@ -47,7 +60,7 @@ export function PlaySlot({
               : "border-slate-700 text-slate-400 hover:border-emerald-500 hover:text-emerald-400"
           }`}
         >
-          Add Play
+          {BUILDER_ADD_PLAY}
         </button>
       </div>
     );
@@ -60,6 +73,12 @@ export function PlaySlot({
       play={play}
       playType={playType}
       onRemove={onRemove}
+      onToggleGoTo={onToggleGoTo}
+      inGoTo={inGoTo}
+      goToBusy={goToBusy}
+      showGoToStar={showGoToStar}
+      stackFormation={stackFormation}
+      hideRemove={hideRemove}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData("text/play-id", play.id);

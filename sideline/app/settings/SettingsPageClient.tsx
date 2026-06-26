@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
+import { IconBackButton } from "@/components/shared/IconBackButton";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
-import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellPageTitleClass, appShellSurfaceActionButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -122,16 +123,7 @@ export function SettingsPageClient({ email }: { email: string }) {
   return (
     <section className="space-y-6">
       <header className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="shrink-0 rounded-lg p-2 -ml-2 text-slate-400 hover:text-white"
-          aria-label="Go back"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
+        <IconBackButton aria-label="Go back" onClick={() => router.back()} />
         <h1 className={`${appShellPageTitleClass} min-w-0 truncate`}>Settings</h1>
       </header>
 
@@ -147,7 +139,7 @@ export function SettingsPageClient({ email }: { email: string }) {
         <Button
           type="button"
           variant="outline"
-          className="h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white"
+          className={appShellSurfaceActionButtonClass}
           onClick={() => setActiveDrawer("signout")}
         >
           Sign out
