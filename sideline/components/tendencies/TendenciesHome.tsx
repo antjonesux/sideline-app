@@ -9,9 +9,8 @@ import { playbookForGame } from "@/lib/tendenciesServer";
 import type { GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { SettingsLink } from "@/components/shared/AppTopBar";
+import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
 import { Button } from "@/components/ui/button";
-import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { emitProductEvent } from "@/lib/productAnalytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -95,10 +94,7 @@ export function TendenciesHome() {
   if (games.length === 0) {
     return (
       <section className="space-y-6">
-        <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4 text-slate-100`}>
-          <span className="min-w-0">Tendencies</span>
-          <SettingsLink />
-        </h1>
+        <AppShellMenuHeader title="Tendencies" titleClassName="text-slate-100" />
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">Log some games to see your tendencies.</p>
@@ -114,10 +110,7 @@ export function TendenciesHome() {
 
   return (
     <section className="space-y-6">
-      <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4 text-slate-100`}>
-        <span className="min-w-0">Tendencies</span>
-        <SettingsLink />
-      </h1>
+      <AppShellMenuHeader title="Tendencies" titleClassName="text-slate-100" />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="w-full">
         <TabsList

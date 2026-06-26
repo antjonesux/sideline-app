@@ -3,8 +3,12 @@
 
 import Link from "next/link";
 import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
+import { isPlaySheetBuilderPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useMemo } from "react";
+
+/** Set to `true` to restore the fixed bottom tab bar; hamburger menu is primary nav when `false`. */
+export const BOTTOM_TAB_NAV_ENABLED = false;
 
 const tabs = [
   {
@@ -37,7 +41,7 @@ export default function BottomTabNav() {
     return false;
   }, [pathname, searchParams]);
 
-  const callSheetViewerChrome = pathname === "/playbook/view";
+  const callSheetViewerChrome = pathname === PLAY_SHEET_VIEWER_PATH;
 
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
@@ -48,12 +52,17 @@ export default function BottomTabNav() {
     else root.removeAttribute("data-call-sheet-viewer-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
+    if (!BOTTOM_TAB_NAV_ENABLED) root.setAttribute("data-hamburger-nav-chrome", "true");
+    else root.removeAttribute("data-hamburger-nav-chrome");
     return () => {
       root.removeAttribute("data-onboarding-chrome");
       root.removeAttribute("data-call-sheet-viewer-chrome");
       root.removeAttribute("data-marketing-chrome");
+      root.removeAttribute("data-hamburger-nav-chrome");
     };
   }, [onboardingChrome, callSheetViewerChrome, pathname]);
+
+  if (!BOTTOM_TAB_NAV_ENABLED) return null;
 
   if (onboardingChrome || callSheetViewerChrome) return null;
 
@@ -73,7 +82,8 @@ export default function BottomTabNav() {
     >
       <ul className="mx-auto grid max-w-3xl grid-cols-3 gap-2">
         {tabs.map((tab) => {
-          const active = pathname.startsWith(tab.href);
+          const active =
+            tab.href === "/playbook" ? isPlaySheetBuilderPath(pathname) : pathname.startsWith(tab.href);
           return (
             <li key={tab.href} className="min-w-0">
               <Link

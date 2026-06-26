@@ -1,10 +1,12 @@
 "use client";
 
+import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
 import { CallSheetViewerPlayRow } from "@/components/playbook/CallSheetViewerPlayRow";
 import { IconBackButton } from "@/components/shared/IconBackButton";
 import { CALL_SHEET_VIEWER_SITUATION_EMPTY } from "@/lib/coachCopy";
 import { callSheetScenarioDisplayName, isCallSheetScenario } from "@/lib/playbookUtils";
 import type { SheetPlayRow } from "@/lib/types";
+import { useState } from "react";
 
 export function CallSheetViewerSituation({
   backHref,
@@ -15,6 +17,7 @@ export function CallSheetViewerSituation({
   activeScenario: string;
   plays: SheetPlayRow[];
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const title = isCallSheetScenario(activeScenario)
     ? callSheetScenarioDisplayName(activeScenario)
     : activeScenario;
@@ -22,6 +25,7 @@ export function CallSheetViewerSituation({
   return (
     <div className="space-y-4">
       <header className="flex items-center gap-2">
+        <CallSheetMenuButton onClick={() => setMenuOpen(true)} />
         <IconBackButton href={backHref} aria-label="Back to situations" />
         <h1 className="min-w-0 flex-1 truncate font-sans text-lg font-semibold text-white">{title}</h1>
       </header>
@@ -35,6 +39,8 @@ export function CallSheetViewerSituation({
           ))}
         </div>
       )}
+
+      <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
     </div>
   );
 }

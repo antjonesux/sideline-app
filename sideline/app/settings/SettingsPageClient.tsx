@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
-import { IconBackButton } from "@/components/shared/IconBackButton";
+import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
-import { appShellPageTitleClass, appShellSurfaceActionButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellSurfaceActionButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -122,10 +122,7 @@ export function SettingsPageClient({ email }: { email: string }) {
 
   return (
     <section className="space-y-6">
-      <header className="flex items-center gap-2">
-        <IconBackButton aria-label="Go back" onClick={() => router.back()} />
-        <h1 className={`${appShellPageTitleClass} min-w-0 truncate`}>Settings</h1>
-      </header>
+      <AppShellMenuHeader title="Settings" />
 
       {/* Account section */}
       <div className="rounded-xl border border-slate-700 bg-slate-900 divide-y divide-slate-800 overflow-hidden">

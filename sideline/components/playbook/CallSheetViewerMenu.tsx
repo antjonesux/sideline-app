@@ -6,7 +6,8 @@ import {
   CALL_SHEET_VIEWER_MENU_SETTINGS,
   CALL_SHEET_VIEWER_MENU_VIEW,
 } from "@/lib/coachCopy";
-import { overlayZ } from "@/lib/constants/designTokens";
+import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
+import { isPlaySheetBuilderPath, isPlaySheetViewerPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +21,26 @@ import { usePathname } from "next/navigation";
 const menuItemClass =
   "flex min-h-12 w-full items-center rounded-lg px-3 font-sans text-base text-slate-100 transition-colors hover:bg-slate-800";
 
+export function CallSheetMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" aria-label="Open menu" className={appShellIconBackButtonClass} onClick={onClick}>
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
+  );
+}
+
 export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const pathname = usePathname();
+  const onBuilder = isPlaySheetBuilderPath(pathname);
+  const onViewer = isPlaySheetViewerPath(pathname);
+  const onInsights =
+    pathname === "/film" ||
+    pathname.startsWith("/film/") ||
+    pathname === "/tendencies" ||
+    pathname.startsWith("/tendencies/");
+  const onSettings = pathname === "/settings" || pathname.startsWith("/settings/");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,21 +54,36 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
           <DialogDescription className="sr-only">Call sheet navigation</DialogDescription>
         </DialogHeader>
         <nav className="flex flex-col gap-1 p-3" aria-label="Call sheet menu">
-          <Link href="/playbook" className={menuItemClass} onClick={() => onOpenChange(false)}>
+          <Link
+            href="/playbook"
+            className={`${menuItemClass} ${onBuilder ? "bg-slate-800 text-emerald-400" : ""}`}
+            aria-current={onBuilder ? "page" : undefined}
+            onClick={() => onOpenChange(false)}
+          >
             {CALL_SHEET_VIEWER_MENU_BUILDER}
           </Link>
           <Link
-            href="/playbook/view"
-            className={`${menuItemClass} ${pathname === "/playbook/view" ? "bg-slate-800 text-emerald-400" : ""}`}
-            aria-current={pathname === "/playbook/view" ? "page" : undefined}
+            href={PLAY_SHEET_VIEWER_PATH}
+            className={`${menuItemClass} ${onViewer ? "bg-slate-800 text-emerald-400" : ""}`}
+            aria-current={onViewer ? "page" : undefined}
             onClick={() => onOpenChange(false)}
           >
             {CALL_SHEET_VIEWER_MENU_VIEW}
           </Link>
-          <Link href="/film" className={menuItemClass} onClick={() => onOpenChange(false)}>
+          <Link
+            href="/film"
+            className={`${menuItemClass} ${onInsights ? "bg-slate-800 text-emerald-400" : ""}`}
+            aria-current={onInsights ? "page" : undefined}
+            onClick={() => onOpenChange(false)}
+          >
             {CALL_SHEET_VIEWER_MENU_INSIGHTS}
           </Link>
-          <Link href="/settings" className={menuItemClass} onClick={() => onOpenChange(false)}>
+          <Link
+            href="/settings"
+            className={`${menuItemClass} ${onSettings ? "bg-slate-800 text-emerald-400" : ""}`}
+            aria-current={onSettings ? "page" : undefined}
+            onClick={() => onOpenChange(false)}
+          >
             {CALL_SHEET_VIEWER_MENU_SETTINGS}
           </Link>
         </nav>

@@ -111,9 +111,10 @@
     height: 0;
   }
 
-  /** Onboarding gate at `/` — bottom tab nav hidden; match reduced bottom inset. */
+  /** Onboarding / call sheet viewer / hamburger-only nav — reduced bottom inset (no tab bar). */
   html[data-onboarding-chrome="true"] main,
-  html[data-call-sheet-viewer-chrome="true"] main {
+  html[data-call-sheet-viewer-chrome="true"] main,
+  html[data-hamburger-nav-chrome="true"] main {
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 

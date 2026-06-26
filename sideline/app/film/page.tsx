@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -9,7 +8,7 @@ import {
 } from "@/lib/coachCopy";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
-import { SettingsLink } from "@/components/shared/AppTopBar";
+import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -131,10 +130,7 @@ export default async function FilmRoomPage() {
   return (
     <section className="space-y-6">
       <header className="space-y-4">
-        <h1 className={`${appShellPageTitleClass} flex w-full min-w-0 items-center justify-between gap-4`}>
-          <span className="min-w-0">Film room</span>
-          <SettingsLink />
-        </h1>
+        <AppShellMenuHeader title="Film room" />
         {games.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-3">

@@ -1,8 +1,7 @@
 "use client";
 
-import { CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
+import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
 import { CallSheetSheetSwitcher } from "@/components/playbook/CallSheetSheetSwitcher";
-import { appShellIconBackButtonClass } from "@/lib/constants/designTokens";
 import type { PlaybookSummary } from "@/lib/types";
 import { useState } from "react";
 
@@ -21,16 +20,7 @@ export function CallSheetViewerHeader({
   return (
     <>
       <header className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Open menu"
-          className={appShellIconBackButtonClass}
-          onClick={() => setMenuOpen(true)}
-        >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-        </button>
+        <CallSheetMenuButton onClick={() => setMenuOpen(true)} />
 
         <button
           type="button"

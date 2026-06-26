@@ -1,7 +1,7 @@
 "use client";
 
 import { CallSheetViewerHome } from "@/components/playbook/CallSheetViewerHome";
-import { CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
+import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
 import { CallSheetViewerSituation } from "@/components/playbook/CallSheetViewerSituation";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import {
   CALL_SHEET_VIEWER_EMPTY_HEADLINE,
   COULDNT_LOAD,
 } from "@/lib/coachCopy";
-import { appShellIconBackButtonClass, appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
+import { appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
+import { PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import { isCallSheetPlaySheet, sortSheetScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import type { PlaybookListResponse, SheetScenarioBlock } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -98,7 +99,7 @@ export function CallSheetViewer() {
 
   const navigateToSituation = useCallback(
     (scenario: string) => {
-      router.push(`/playbook/view?situation=${encodeURIComponent(scenario)}`);
+      router.push(`${PLAY_SHEET_VIEWER_PATH}?situation=${encodeURIComponent(scenario)}`);
     },
     [router],
   );
@@ -165,7 +166,7 @@ export function CallSheetViewer() {
   if (showSituationScreen) {
     return (
       <CallSheetViewerSituation
-        backHref="/playbook/view"
+        backHref={PLAY_SHEET_VIEWER_PATH}
         activeScenario={activeScenario}
         plays={activePlays}
       />
@@ -185,11 +186,5 @@ export function CallSheetViewer() {
 }
 
 function EmptyMenuButton({ onOpenMenu }: { onOpenMenu: () => void }) {
-  return (
-    <button type="button" aria-label="Open menu" className={appShellIconBackButtonClass} onClick={onOpenMenu}>
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-      </svg>
-    </button>
-  );
+  return <CallSheetMenuButton onClick={onOpenMenu} />;
 }
