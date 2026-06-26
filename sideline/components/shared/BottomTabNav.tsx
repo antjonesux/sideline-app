@@ -37,20 +37,25 @@ export default function BottomTabNav() {
     return false;
   }, [pathname, searchParams]);
 
+  const callSheetViewerChrome = pathname === "/playbook/view";
+
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
     if (onboardingChrome) root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
+    if (callSheetViewerChrome) root.setAttribute("data-call-sheet-viewer-chrome", "true");
+    else root.removeAttribute("data-call-sheet-viewer-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
     return () => {
       root.removeAttribute("data-onboarding-chrome");
+      root.removeAttribute("data-call-sheet-viewer-chrome");
       root.removeAttribute("data-marketing-chrome");
     };
-  }, [onboardingChrome, pathname]);
+  }, [onboardingChrome, callSheetViewerChrome, pathname]);
 
-  if (onboardingChrome) return null;
+  if (onboardingChrome || callSheetViewerChrome) return null;
 
   if (
     pathname === "/login" ||

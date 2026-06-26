@@ -112,7 +112,8 @@
   }
 
   /** Onboarding gate at `/` — bottom tab nav hidden; match reduced bottom inset. */
-  html[data-onboarding-chrome="true"] main {
+  html[data-onboarding-chrome="true"] main,
+  html[data-call-sheet-viewer-chrome="true"] main {
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 

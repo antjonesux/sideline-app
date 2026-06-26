@@ -1,7 +1,6 @@
 "use client";
 
-import { SCENARIO_SHORT } from "@/lib/constants";
-import { maxSlotsForSheetScenario } from "@/lib/playbookUtils";
+import { maxSlotsForSheetScenario, scenarioChipLabel } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +34,7 @@ export function PlaySheetSituationChipScroll({
   const chips = scenarios.map((s) => {
     const max = maxSlotsForScenario(s.scenario);
     const n = s.plays.length;
-    const short = SCENARIO_SHORT[s.scenario] ?? s.scenario;
+    const short = scenarioChipLabel(s.scenario);
     const active = s.scenario === selectedScenario;
     return (
       <button

@@ -139,6 +139,21 @@ export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;
 export const BUILDER_BROWSE_PLAYBOOK = "Browse Playbook";
 export const BUILDER_ADD_PLAY = "Add play";
 
+/** Call Sheet viewer — mobile reference surface for the active sheet. */
+export const CALL_SHEET_VIEWER_TAB_NEEDS = "What do you need?";
+export const CALL_SHEET_VIEWER_TAB_FULL = "Full sheet";
+export const CALL_SHEET_VIEWER_TAB_HINT = "Pick what you're trying to do — not the down";
+export const CALL_SHEET_VIEWER_EMPTY_HEADLINE = "No active play sheet";
+export const CALL_SHEET_VIEWER_EMPTY_BODY =
+  "Create a play sheet in the builder and set one as active. Once you have sheets, tap the name in the header to switch between them.";
+export const CALL_SHEET_VIEWER_EMPTY_CTA = "Go to play sheet builder";
+export const CALL_SHEET_VIEWER_SITUATION_EMPTY = "No plays added yet.";
+export const CALL_SHEET_VIEWER_MENU_BUILDER = "Call Sheet Builder";
+export const CALL_SHEET_VIEWER_MENU_VIEW = "Call Sheet";
+export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
+export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
+export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Switch play sheet";
+
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";
 export const FILM_END_GAME_SCORE_BODY =

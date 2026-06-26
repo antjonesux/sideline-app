@@ -19,6 +19,7 @@ export function PlayTableRow({
   showGoToStar = false,
   stackFormation = false,
   hideRemove = false,
+  readOnly = false,
   className = "",
   ...rootProps
 }: {
@@ -31,15 +32,23 @@ export function PlayTableRow({
   showGoToStar?: boolean;
   stackFormation?: boolean;
   hideRemove?: boolean;
+  /** Read-only reference rows (Call Sheet viewer) — no drag, remove, or Go-To toggle. */
+  readOnly?: boolean;
 } & ComponentPropsWithoutRef<"div">) {
+  const showDrag = !readOnly;
+  const showRemove = !readOnly && !hideRemove;
+  const showGoToControl = showGoToStar && !readOnly;
+
   return (
     <div
       {...rootProps}
       className={`flex min-h-11 items-center gap-3 border-b border-slate-700/50 px-4 py-3 ${className}`.trim()}
     >
-      <div className="flex w-6 shrink-0 justify-center text-slate-600">
-        <DragHandleIcon className="h-4 w-4" />
-      </div>
+      {showDrag ? (
+        <div className="flex w-6 shrink-0 justify-center text-slate-600">
+          <DragHandleIcon className="h-4 w-4" />
+        </div>
+      ) : null}
       <div className="min-w-0 flex-1">
         <p className="truncate font-sans text-sm font-semibold text-slate-100">{normalizePlayName(play.play_name)}</p>
         {stackFormation ? (
@@ -52,7 +61,7 @@ export function PlayTableRow({
       <div className="flex w-16 shrink-0 justify-center">
         <PlayTypeBadge type={playType} />
       </div>
-      {showGoToStar ? (
+      {showGoToControl ? (
         <div className="flex w-8 shrink-0 justify-center">
           <button
             type="button"
@@ -71,7 +80,20 @@ export function PlayTableRow({
           </button>
         </div>
       ) : null}
-      {!hideRemove ? (
+      {readOnly && showGoToStar ? (
+        <div className="flex w-8 shrink-0 justify-center">
+          {inGoTo ? (
+            <span className="text-amber-400" aria-label="Go-To play" title="Go-To play">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
+              </svg>
+            </span>
+          ) : (
+            <span aria-hidden />
+          )}
+        </div>
+      ) : null}
+      {showRemove ? (
         <div className="flex w-8 shrink-0 justify-center">
           <button
             type="button"

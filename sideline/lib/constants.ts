@@ -62,6 +62,18 @@ export const CALL_SHEET_SCENARIO_HELP: Record<CallSheetScenario, string> = {
   "Zone Beaters": "Find holes in zone coverage",
 };
 
+/** Glanceable copy for the Call Sheet viewer situation grid (sideline reference surface). */
+export const CALL_SHEET_VIEWER_SCENARIO_HELP: Record<CallSheetScenario, string> = {
+  "Go-To Plays": "Your most trusted plays",
+  Tempo: "On the ball",
+  "Run Game": "Pound the rock",
+  "Pass Game": "Air it out",
+  "Man Beaters": "Speed kills",
+  "Zone Beaters": "Find the spot",
+  "Take a Shot": "Go deep",
+  "Red Zone": "Get points",
+};
+
 /** Text markers for Call Sheet builder cards (no icon library). */
 export const CALL_SHEET_SCENARIO_MARKER: Record<CallSheetScenario, string> = {
   "Go-To Plays": "★",

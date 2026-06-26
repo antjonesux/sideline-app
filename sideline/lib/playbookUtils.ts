@@ -4,6 +4,7 @@ import {
   CALL_SHEET_SCENARIO_MARKER,
   CALL_SHEET_SCENARIO_SHORT,
   CALL_SHEET_SCENARIOS,
+  CALL_SHEET_VIEWER_SCENARIO_HELP,
   GO_TO_PLAYS_SCENARIO,
   SCENARIO_SHORT,
   SCENARIOS,
@@ -176,6 +177,13 @@ export function sheetPlayComboKey(formation: string, play_name: string): string 
 export function callSheetScenarioHelperText(scenario: string): string {
   if (isCallSheetScenario(scenario)) {
     return CALL_SHEET_SCENARIO_HELP[scenario as CallSheetScenario];
+  }
+  return "";
+}
+
+export function callSheetViewerScenarioHelperText(scenario: string): string {
+  if (isCallSheetScenario(scenario)) {
+    return CALL_SHEET_VIEWER_SCENARIO_HELP[scenario as CallSheetScenario];
   }
   return "";
 }
