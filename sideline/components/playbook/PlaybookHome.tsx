@@ -2,19 +2,11 @@
 
 import type { PlaybookListResponse, PlaybookSummary } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
-import {
-  COULDNT_LOAD,
-  GAME_PLAN_EMPTY_BODY,
-  GAME_PLAN_EMPTY_HEADLINE,
-  PLAY_SHEET_CREATE_CTA,
-  PLAYBOOK_NEW_SHEET_TITLE,
-} from "@/lib/coachCopy";
+import { COULDNT_LOAD, GAME_PLAN_EMPTY_BODY, GAME_PLAN_EMPTY_HEADLINE } from "@/lib/coachCopy";
 import { PlaybookCard } from "./PlaybookCard";
 import { PlaySheetHomeHeader } from "./PlaySheetHomeHeader";
 import { Button } from "@/components/ui/button";
-import { appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
 
 function coercePlaybookList(payload: unknown): PlaybookSummary[] {
   if (Array.isArray(payload)) return payload as PlaybookSummary[];
@@ -86,26 +78,15 @@ export function PlaybookHome() {
         <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-slate-800 bg-slate-900 p-4 py-10 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">{GAME_PLAN_EMPTY_HEADLINE}</p>
           <p className="mt-2 font-sans text-sm text-slate-500">{GAME_PLAN_EMPTY_BODY}</p>
-          <Button asChild className={`${appShellPrimaryCtaButtonClass} mt-6 max-w-sm`}>
-            <Link href="/playbook/new">{PLAYBOOK_NEW_SHEET_TITLE}</Link>
-          </Button>
         </div>
       ) : (
-        <>
-          <ul className="space-y-3">
-            {list.map((item) => (
-              <li key={item.id} className="relative">
-                <PlaybookCard item={item} isActive={item.id === activeCallSheetId} />
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-auto pt-2">
-            <Button asChild className={appShellPrimaryCtaButtonClass}>
-              <Link href="/playbook/new">{PLAY_SHEET_CREATE_CTA}</Link>
-            </Button>
-          </div>
-        </>
+        <ul className="space-y-3">
+          {list.map((item) => (
+            <li key={item.id} className="relative">
+              <PlaybookCard item={item} isActive={item.id === activeCallSheetId} />
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

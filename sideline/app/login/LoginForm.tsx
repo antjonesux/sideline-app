@@ -9,7 +9,7 @@ import { PasswordInput } from "@/components/shared/PasswordInput";
 import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
-import { IconBackButton } from "@/components/shared/IconBackButton";
+import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
 import { buildLandingHref } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 
@@ -21,6 +21,21 @@ function BackToLandingLink({ next }: { next?: string | null }) {
   return (
     <div className="-mt-2 mb-4 w-full sm:-mt-1 sm:mb-6">
       <IconBackButton href={buildLandingHref(next)} aria-label="Back to welcome" />
+    </div>
+  );
+}
+
+function LoginWordmarkHeader({ next }: { next?: string | null }) {
+  return (
+    <div className="flex items-center gap-4">
+      <IconBackButton href={buildLandingHref(next)} aria-label="Back to welcome" />
+      <h1
+        className="min-w-0 flex-1 text-center font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
+        style={appWordmarkStyle}
+      >
+        The Sideline
+      </h1>
+      <IconBackButtonSpacer />
     </div>
   );
 }
@@ -327,14 +342,8 @@ export function LoginForm() {
   return (
     <div className="flex min-h-[80dvh] flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <BackToLandingLink next={nextForLandingBack} />
         <header className="text-center">
-          <h1
-            className="font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
-            style={appWordmarkStyle}
-          >
-            The Sideline
-          </h1>
+          <LoginWordmarkHeader next={nextForLandingBack} />
           <p className="mt-3 font-sans text-sm font-medium leading-snug text-[#94a3b8] sm:text-[15px]">
             Study your game. Call it smarter.
           </p>

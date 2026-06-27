@@ -9,18 +9,21 @@ export function AppShellMenuHeader({
   title,
   className,
   titleClassName,
+  trailing,
 }: {
   title: string;
   className?: string;
   titleClassName?: string;
+  trailing?: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <header className={cn("flex items-center gap-2", className)}>
+      <header className={cn("flex items-center gap-4", className)}>
         <CallSheetMenuButton onClick={() => setMenuOpen(true)} />
-        <h1 className={cn(`${appShellPageTitleClass} min-w-0 truncate`, titleClassName)}>{title}</h1>
+        <h1 className={cn(`${appShellPageTitleClass} min-w-0 flex-1 truncate`, titleClassName)}>{title}</h1>
+        {trailing}
       </header>
       <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
     </>
