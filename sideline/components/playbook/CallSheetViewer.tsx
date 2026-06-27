@@ -17,8 +17,8 @@ import { isCallSheetPlaySheet, sortSheetScenariosByCanonicalOrder } from "@/lib/
 import type { PlaybookListResponse, SheetScenarioBlock } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 type SheetPayload = {
   id: string;
@@ -43,7 +43,6 @@ function coercePlaybookListResponse(payload: unknown): PlaybookListResponse {
 }
 
 export function CallSheetViewer() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const situationParam = searchParams.get("situation")?.trim() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,18 +90,6 @@ export function CallSheetViewer() {
     }
     return scenarios[0]?.scenario ?? "";
   }, [situationParam, scenarios]);
-
-  const activePlays = useMemo(() => {
-    const block = scenarios.find((s) => s.scenario === activeScenario);
-    return block?.plays ?? [];
-  }, [scenarios, activeScenario]);
-
-  const navigateToSituation = useCallback(
-    (scenario: string) => {
-      router.push(`${PLAY_SHEET_VIEWER_PATH}?situation=${encodeURIComponent(scenario)}`);
-    },
-    [router],
-  );
 
   const showSituationScreen = Boolean(situationParam && callSheetSheet);
 
@@ -168,7 +155,7 @@ export function CallSheetViewer() {
       <CallSheetViewerSituation
         backHref={PLAY_SHEET_VIEWER_PATH}
         activeScenario={activeScenario}
-        plays={activePlays}
+        scenarios={scenarios}
       />
     );
   }
@@ -179,8 +166,6 @@ export function CallSheetViewer() {
       sheets={sheets}
       activeSheetId={activeSheetId}
       scenarios={scenarios}
-      onSelectSituation={navigateToSituation}
-      showNeedsTab={callSheetSheet}
     />
   );
 }

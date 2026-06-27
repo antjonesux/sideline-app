@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  appShellSurfaceCardClass,
+  appShellSurfaceCardHoverClass,
+} from "@/lib/constants/designTokens";
+import {
   callSheetScenarioDisplayName,
   callSheetScenarioHelperText,
   callSheetScenarioMarker,
@@ -8,8 +12,7 @@ import {
 } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
 
-const situationCardClass =
-  "flex min-h-[8.5rem] min-w-0 w-full flex-col rounded-xl border border-slate-700 bg-slate-900 p-4 text-start transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70";
+const situationCardClass = `${appShellSurfaceCardClass} flex min-h-[8.5rem] min-w-0 w-full flex-col p-4 text-start ${appShellSurfaceCardHoverClass}`;
 
 export function CallSheetSituationGrid({
   scenarios,

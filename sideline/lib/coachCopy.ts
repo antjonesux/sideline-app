@@ -140,8 +140,8 @@ export const BUILDER_BROWSE_PLAYBOOK = "Browse Playbook";
 export const BUILDER_ADD_PLAY = "Add play";
 
 /** Call Sheet viewer — mobile reference surface for the active sheet. */
-export const CALL_SHEET_VIEWER_TAB_NEEDS = "What do you need?";
-export const CALL_SHEET_VIEWER_TAB_FULL = "Full sheet";
+export const CALL_SHEET_VIEWER_TAB_NEEDS = "Situations";
+export const CALL_SHEET_VIEWER_TAB_FULL = "Coach View";
 export const CALL_SHEET_VIEWER_TAB_HINT = "Pick what you're trying to do — not the down";
 export const CALL_SHEET_VIEWER_EMPTY_HEADLINE = "No active play sheet";
 export const CALL_SHEET_VIEWER_EMPTY_BODY =
@@ -152,7 +152,7 @@ export const CALL_SHEET_VIEWER_MENU_BUILDER = "Call Sheet Builder";
 export const CALL_SHEET_VIEWER_MENU_VIEW = "Call Sheet";
 export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
-export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Switch play sheet";
+export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";
 
 /** Film game detail — end game with final score before marking ended. */
 export const FILM_END_GAME_SCORE_TITLE = "Confirm final score";

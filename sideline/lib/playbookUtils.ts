@@ -174,6 +174,11 @@ export function sheetPlayComboKey(formation: string, play_name: string): string 
   return `${formation.trim()}\t${normalizePlayName(play_name)}`;
 }
 
+/** Coach-facing play label — formation then play name (Call Sheet viewer). */
+export function callSheetPlayDisplayLabel(formation: string, play_name: string): string {
+  return `${formation.trim()} ${normalizePlayName(play_name)}`;
+}
+
 export function callSheetScenarioHelperText(scenario: string): string {
   if (isCallSheetScenario(scenario)) {
     return CALL_SHEET_SCENARIO_HELP[scenario as CallSheetScenario];

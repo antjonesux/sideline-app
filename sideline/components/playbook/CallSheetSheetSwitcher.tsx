@@ -6,17 +6,10 @@ import {
   PLAY_SHEET_SET_ACTIVE_DONE,
 } from "@/lib/coachCopy";
 import { PlaySheetActiveBadge } from "@/components/playbook/PlaySheetActiveBadge";
-import { overlayZ } from "@/lib/constants/designTokens";
+import { BottomSheet } from "@/components/shared/BottomSheet";
 import type { PlaybookSummary } from "@/lib/types";
 import { useToastStore } from "@/store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useState } from "react";
 
 export function CallSheetSheetSwitcher({
@@ -60,45 +53,40 @@ export function CallSheetSheetSwitcher({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className={`max-h-[85dvh] overflow-hidden border-slate-800 bg-slate-950 p-0 sm:max-w-md ${overlayZ.sheetShell}`}
-        overlayClassName={overlayZ.radixDialog}
-      >
-        <DialogHeader className="border-b border-slate-800 px-4 py-4 text-left">
-          <DialogTitle className="font-heading text-lg font-bold uppercase tracking-wide text-white">
-            {CALL_SHEET_VIEWER_SWITCHER_TITLE}
-          </DialogTitle>
-          <DialogDescription className="sr-only">Choose which play sheet to reference</DialogDescription>
-        </DialogHeader>
-        <ul className="max-h-[min(60dvh,28rem)] overflow-y-auto p-2" role="listbox" aria-label="Play sheets">
-          {sheets.map((sheet) => {
-            const isActive = sheet.id === activeSheetId;
-            const busy = busyId === sheet.id;
-            return (
-              <li key={sheet.id}>
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={isActive}
-                  disabled={busy || busyId !== null}
-                  className="flex min-h-14 w-full flex-col items-start gap-1 rounded-lg px-3 py-3 text-start transition-colors hover:bg-slate-800/80 disabled:opacity-60"
-                  onClick={() => void selectSheet(sheet.id)}
-                >
-                  <span className="flex w-full min-w-0 items-center gap-2">
-                    <span className="min-w-0 truncate font-sans text-base font-semibold text-white">{sheet.name}</span>
-                    {isActive ? <PlaySheetActiveBadge /> : null}
-                  </span>
-                  <span className="font-body text-sm text-slate-500">{sheet.cfb26_playbook}</span>
-                  <span className="font-body text-xs text-slate-600">
-                    {sheet.play_count === 1 ? "1 play" : `${sheet.play_count} plays`}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </DialogContent>
-    </Dialog>
+    <BottomSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title={CALL_SHEET_VIEWER_SWITCHER_TITLE}
+      description="Choose which play sheet to reference"
+      contentClassName="p-0 sm:p-0"
+    >
+      <ul className="divide-y divide-slate-800" role="listbox" aria-label="Play sheets">
+        {sheets.map((sheet) => {
+          const isActive = sheet.id === activeSheetId;
+          const busy = busyId === sheet.id;
+          return (
+            <li key={sheet.id}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={isActive}
+                disabled={busy || busyId !== null}
+                className="flex min-h-14 w-full flex-col items-start gap-1 px-4 py-3.5 text-start transition-colors hover:bg-slate-800/60 disabled:opacity-60"
+                onClick={() => void selectSheet(sheet.id)}
+              >
+                <span className="flex w-full min-w-0 items-center gap-2">
+                  <span className="min-w-0 truncate font-sans text-sm font-medium text-slate-200">{sheet.name}</span>
+                  {isActive ? <PlaySheetActiveBadge /> : null}
+                </span>
+                <span className="font-body text-sm text-slate-500">{sheet.cfb26_playbook}</span>
+                <span className="font-body text-xs text-slate-500">
+                  {sheet.play_count === 1 ? "1 play" : `${sheet.play_count} plays`}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </BottomSheet>
   );
 }

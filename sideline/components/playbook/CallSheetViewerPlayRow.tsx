@@ -1,18 +1,14 @@
 "use client";
 
 import type { SheetPlayRow } from "@/lib/types";
-import { normalizePlayName } from "@/lib/utils";
+import { callSheetPlayDisplayLabel } from "@/lib/playbookUtils";
 
-/** Read-only play row — play name + formation only (Call Sheet viewer). */
+/** Read-only play row — formation + play name (Call Sheet Coach View). */
 export function CallSheetViewerPlayRow({ play }: { play: SheetPlayRow }) {
   return (
-    <div className="flex min-h-11 items-center justify-between gap-3 border-b border-slate-800 py-3 last:border-b-0">
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-sans text-sm font-semibold text-white">{normalizePlayName(play.play_name)}</p>
-        <p className="mt-0.5 truncate font-body text-xs text-slate-400 sm:hidden">{play.formation}</p>
-      </div>
-      <p className="hidden shrink-0 max-w-[45%] truncate text-right font-body text-sm text-slate-400 sm:block">
-        {play.formation}
+    <div className="flex min-h-9 items-center border-b border-slate-700/50 py-2 last:border-b-0">
+      <p className="min-w-0 truncate font-body text-xs text-slate-500">
+        {callSheetPlayDisplayLabel(play.formation, play.play_name)}
       </p>
     </div>
   );

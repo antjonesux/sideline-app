@@ -63,6 +63,13 @@ export const modalDialogTitleClass =
 export const appShellPageTitleClass =
   "font-sans text-3xl leading-none font-bold uppercase tracking-[1.08px] text-white sm:text-4xl";
 
+/** Standard bordered app shell card — situation tiles, Coach View accordions, etc. */
+export const appShellSurfaceCardClass = "rounded-xl border border-slate-700 bg-slate-900";
+
+/** Hover affordance for interactive surface cards (situation tiles, accordion headers). */
+export const appShellSurfaceCardHoverClass =
+  "transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70";
+
 /** Full-width surface action on app shell pages (Settings sign out, Builder Browse Playbook). Pair with `Button variant="outline"`. */
 export const appShellSurfaceActionButtonClass =
   "h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white";

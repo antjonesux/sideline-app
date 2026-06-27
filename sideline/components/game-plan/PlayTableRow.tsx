@@ -3,6 +3,7 @@
 
 import type { ComponentPropsWithoutRef } from "react";
 import { normalizePlayName } from "@/lib/utils";
+import { callSheetPlayDisplayLabel } from "@/lib/playbookUtils";
 import type { SheetPlayRow } from "@/lib/types";
 import { DragHandleIcon } from "@/components/game-plan/DragHandleIcon";
 import { PlayTypeBadge } from "@/components/game-plan/PlayTypeBadge";
@@ -20,6 +21,7 @@ export function PlayTableRow({
   stackFormation = false,
   hideRemove = false,
   readOnly = false,
+  formationFirstLabel = false,
   className = "",
   ...rootProps
 }: {
@@ -34,10 +36,15 @@ export function PlayTableRow({
   hideRemove?: boolean;
   /** Read-only reference rows (Call Sheet viewer) — no drag, remove, or Go-To toggle. */
   readOnly?: boolean;
+  /** Show `formation → play` in the Play column (Call Sheet viewer). */
+  formationFirstLabel?: boolean;
 } & ComponentPropsWithoutRef<"div">) {
   const showDrag = !readOnly;
   const showRemove = !readOnly && !hideRemove;
   const showGoToControl = showGoToStar && !readOnly;
+  const playLabel = formationFirstLabel
+    ? callSheetPlayDisplayLabel(play.formation, play.play_name)
+    : normalizePlayName(play.play_name);
 
   return (
     <div
@@ -50,8 +57,8 @@ export function PlayTableRow({
         </div>
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="truncate font-sans text-sm font-semibold text-slate-100">{normalizePlayName(play.play_name)}</p>
-        {stackFormation ? (
+        <p className="truncate font-sans text-sm font-semibold text-slate-100">{playLabel}</p>
+        {stackFormation && !formationFirstLabel ? (
           <p className="mt-0.5 truncate font-body text-xs text-slate-500">{play.formation}</p>
         ) : null}
       </div>

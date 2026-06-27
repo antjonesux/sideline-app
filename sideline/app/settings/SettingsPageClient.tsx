@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { BottomSheet } from "@/components/shared/BottomSheet";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
-import { useScrollLock } from "@/lib/useScrollLock";
 import { useToastStore } from "@/store/toastStore";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { mapAuthError } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
-import { appShellSurfaceActionButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellSurfaceActionButtonClass } from "@/lib/constants/designTokens";
 
 type DrawerKey = "email" | "password" | "signout" | "delete";
 
@@ -21,9 +21,6 @@ export function SettingsPageClient({ email }: { email: string }) {
   const addToast = useToastStore((s) => s.addToast);
 
   const [activeDrawer, setActiveDrawer] = useState<DrawerKey | null>(null);
-  const drawerOpen = activeDrawer !== null && activeDrawer !== "delete";
-
-  useScrollLock(drawerOpen);
 
   useEffect(() => {
     if (!activeDrawer) return;
@@ -314,55 +311,5 @@ function SettingsRow({
         </svg>
       </span>
     </button>
-  );
-}
-
-function BottomSheet({
-  open,
-  onClose,
-  title,
-  children,
-  footer,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-}) {
-  if (!open) return null;
-
-  return (
-    <>
-      <div className={`fixed inset-0 ${overlayZ.radixDialog} bg-black/60`} aria-hidden onClick={onClose} />
-      <div
-        className={`fixed inset-x-0 bottom-0 ${overlayZ.sheetShell} sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4`}
-        role="dialog"
-        aria-modal
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-xl border border-slate-700 bg-slate-900 shadow-xl sm:rounded-xl">
-          <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 text-lg">{title}</h2>
-            <button
-              type="button"
-              data-no-press
-              className="p-2 -mr-2 text-slate-400 hover:text-white"
-              onClick={onClose}
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                <path d="M6 6 18 18M18 6 6 18" />
-              </svg>
-              <span className="sr-only">Close</span>
-            </button>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
-          {footer ? (
-            <div className={modalCtaFooterClass}>{footer}</div>
-          ) : null}
-        </div>
-      </div>
-    </>
   );
 }
