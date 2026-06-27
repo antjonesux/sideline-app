@@ -2,24 +2,31 @@
 
 import {
   CALL_SHEET_VIEWER_MENU_BUILDER,
-  CALL_SHEET_VIEWER_MENU_INSIGHTS,
   CALL_SHEET_VIEWER_MENU_SETTINGS,
   CALL_SHEET_VIEWER_MENU_VIEW,
 } from "@/lib/coachCopy";
 import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
+import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { isPlaySheetBuilderPath, isPlaySheetViewerPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ChevronRight, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const menuItemClass =
-  "flex min-h-12 w-full items-center rounded-lg px-3 font-sans text-base text-slate-100 transition-colors hover:bg-slate-800";
+  "group flex min-h-[3.25rem] w-full items-center justify-between gap-3 rounded-lg border px-4 py-3 font-sans text-[15px] font-medium transition-colors";
+
+const menuItemDefaultClass =
+  "border-slate-800 bg-slate-900/50 text-slate-100 hover:border-slate-600 hover:bg-slate-800/60";
 
 export function CallSheetMenuButton({ onClick }: { onClick: () => void }) {
   return (
@@ -33,60 +40,93 @@ export function CallSheetMenuButton({ onClick }: { onClick: () => void }) {
 
 export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useAuth();
+  const [signOutBusy, setSignOutBusy] = useState(false);
   const onBuilder = isPlaySheetBuilderPath(pathname);
   const onViewer = isPlaySheetViewerPath(pathname);
-  const onInsights =
-    pathname === "/film" ||
-    pathname.startsWith("/film/") ||
-    pathname === "/tendencies" ||
-    pathname.startsWith("/tendencies/");
   const onSettings = pathname === "/settings" || pathname.startsWith("/settings/");
+
+  const menuItems = [
+    { href: "/playbook", label: CALL_SHEET_VIEWER_MENU_BUILDER, active: onBuilder },
+    { href: PLAY_SHEET_VIEWER_PATH, label: CALL_SHEET_VIEWER_MENU_VIEW, active: onViewer },
+    { href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, active: onSettings },
+  ];
+
+  async function handleSignOut() {
+    setSignOutBusy(true);
+    const { error } = await signOut();
+    if (!error) {
+      onOpenChange(false);
+      router.push("/landing");
+    } else {
+      setSignOutBusy(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className={`fixed inset-y-0 left-0 top-0 h-[100dvh] max-h-[100dvh] w-[min(100%,280px)] max-w-none translate-x-0 translate-y-0 rounded-none border-0 border-r border-slate-800 bg-slate-950 p-0 shadow-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:rounded-none ${overlayZ.sheetShell}`}
+        className={`fixed inset-y-0 left-0 top-0 flex h-[100dvh] max-h-[100dvh] w-[min(100%,300px)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 border-r border-slate-800 bg-slate-950 p-0 shadow-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:rounded-none ${overlayZ.sheetShell}`}
         overlayClassName={overlayZ.radixDialog}
       >
-        <DialogHeader className="border-b border-slate-800 px-4 py-4 text-left">
-          <DialogTitle className="font-heading text-lg font-bold uppercase tracking-wide text-white">Menu</DialogTitle>
-          <DialogDescription className="sr-only">Call sheet navigation</DialogDescription>
-        </DialogHeader>
-        <nav className="flex flex-col gap-1 p-3" aria-label="Call sheet menu">
-          <Link
-            href="/playbook"
-            className={`${menuItemClass} ${onBuilder ? "bg-slate-800 text-emerald-400" : ""}`}
-            aria-current={onBuilder ? "page" : undefined}
-            onClick={() => onOpenChange(false)}
+        <div
+          className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-800/80 px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top,0px))]"
+        >
+          <DialogTitle
+            className="min-w-0 font-sans text-xl font-bold uppercase leading-none tracking-[1.08px] text-white"
+            style={appWordmarkStyle}
           >
-            {CALL_SHEET_VIEWER_MENU_BUILDER}
-          </Link>
-          <Link
-            href={PLAY_SHEET_VIEWER_PATH}
-            className={`${menuItemClass} ${onViewer ? "bg-slate-800 text-emerald-400" : ""}`}
-            aria-current={onViewer ? "page" : undefined}
-            onClick={() => onOpenChange(false)}
-          >
-            {CALL_SHEET_VIEWER_MENU_VIEW}
-          </Link>
-          <Link
-            href="/film"
-            className={`${menuItemClass} ${onInsights ? "bg-slate-800 text-emerald-400" : ""}`}
-            aria-current={onInsights ? "page" : undefined}
-            onClick={() => onOpenChange(false)}
-          >
-            {CALL_SHEET_VIEWER_MENU_INSIGHTS}
-          </Link>
-          <Link
-            href="/settings"
-            className={`${menuItemClass} ${onSettings ? "bg-slate-800 text-emerald-400" : ""}`}
-            aria-current={onSettings ? "page" : undefined}
-            onClick={() => onOpenChange(false)}
-          >
-            {CALL_SHEET_VIEWER_MENU_SETTINGS}
-          </Link>
-        </nav>
+            The Sideline
+          </DialogTitle>
+          <DialogClose asChild>
+            <button type="button" aria-label="Close menu" className={appShellIconBackButtonClass}>
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          </DialogClose>
+        </div>
+
+        <DialogDescription className="sr-only">Call sheet navigation</DialogDescription>
+
+        <div className="flex min-h-0 flex-1 flex-col">
+          <nav className="flex flex-col gap-2 px-4 py-5" aria-label="Call sheet menu">
+            {menuItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  menuItemClass,
+                  item.active
+                    ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
+                    : menuItemDefaultClass,
+                )}
+                aria-current={item.active ? "page" : undefined}
+                onClick={() => onOpenChange(false)}
+              >
+                <span>{item.label}</span>
+                <ChevronRight
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-colors",
+                    item.active ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
+                  )}
+                  aria-hidden
+                />
+              </Link>
+            ))}
+          </nav>
+
+          <div className="shrink-0 border-t border-slate-800/80 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+            <button
+              type="button"
+              className={cn(menuItemClass, menuItemDefaultClass, "disabled:opacity-60")}
+              disabled={signOutBusy}
+              onClick={() => void handleSignOut()}
+            >
+              {signOutBusy ? "Signing out…" : "Sign out"}
+            </button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

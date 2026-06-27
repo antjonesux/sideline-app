@@ -148,8 +148,8 @@ export const CALL_SHEET_VIEWER_EMPTY_BODY =
   "Create a play sheet in the builder and set one as active. Once you have sheets, tap the name in the header to switch between them.";
 export const CALL_SHEET_VIEWER_EMPTY_CTA = "Go to play sheet builder";
 export const CALL_SHEET_VIEWER_SITUATION_EMPTY = "No plays added yet.";
-export const CALL_SHEET_VIEWER_MENU_BUILDER = "Call Sheet Builder";
-export const CALL_SHEET_VIEWER_MENU_VIEW = "Call Sheet";
+export const CALL_SHEET_VIEWER_MENU_BUILDER = "Build Your Sheet";
+export const CALL_SHEET_VIEWER_MENU_VIEW = "Call Plays";
 export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
 export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";
