@@ -10,7 +10,7 @@ import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
-import { buildLandingHref } from "@/lib/navigation/loginHref";
+import { buildLandingHref, resolveSafeNextPath } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 
 type View = "sign-in" | "create-account" | "forgot-password";
@@ -73,7 +73,7 @@ export function LoginForm() {
     setConfirmPasswordError(null);
   };
 
-  const safeDest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const safeDest = resolveSafeNextPath(next);
   const anyBusy = busy || googleBusy;
 
   if (user) {

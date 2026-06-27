@@ -1,3 +1,4 @@
+import { DEFAULT_POST_AUTH_PATH } from "@/lib/navigation/loginHref";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      return NextResponse.redirect(`${origin}/film`);
+      return NextResponse.redirect(`${origin}${DEFAULT_POST_AUTH_PATH}`);
     }
   }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_POST_AUTH_PATH } from "@/lib/navigation/loginHref";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { OnboardingCarousel } from "@/components/shared/OnboardingCarousel";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
@@ -45,7 +46,7 @@ export function HomeOnboardingGate() {
 
   const handleDismissOnboarding = useCallback(() => {
     if (uid) dismissOnboarding(uid);
-    router.replace("/film");
+    router.replace(DEFAULT_POST_AUTH_PATH);
   }, [router, uid]);
 
   const goToPlaybookCreate = useCallback(() => {
@@ -89,7 +90,7 @@ export function HomeOnboardingGate() {
           console.error("[HomeOnboardingGate] play_sheets count:", sheetsResult.error.message);
         }
         setPhase("redirecting");
-        router.replace("/film");
+        router.replace(DEFAULT_POST_AUTH_PATH);
         return;
       }
 
@@ -102,7 +103,7 @@ export function HomeOnboardingGate() {
 
       if (!shouldShowOnboarding) {
         setPhase("redirecting");
-        router.replace("/film");
+        router.replace(DEFAULT_POST_AUTH_PATH);
         return;
       }
 
@@ -119,7 +120,7 @@ export function HomeOnboardingGate() {
   }
 
   if (phase === "redirecting") {
-    return <OnboardingSkeleton subtitle="Loading Film Room…" />;
+    return <OnboardingSkeleton subtitle="Loading Play Sheet…" />;
   }
 
   return (

@@ -5,8 +5,8 @@ import {
   CALL_SHEET_VIEWER_MENU_SETTINGS,
   CALL_SHEET_VIEWER_MENU_VIEW,
 } from "@/lib/coachCopy";
+import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
-import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { isPlaySheetBuilderPath, isPlaySheetViewerPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -74,11 +74,9 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
         <div
           className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-800/80 px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top,0px))]"
         >
-          <DialogTitle
-            className="min-w-0 font-sans text-xl font-bold uppercase leading-none tracking-[1.08px] text-white"
-            style={appWordmarkStyle}
-          >
-            The Sideline
+          <DialogTitle className="min-w-0">
+            <AppCompactWordmark />
+            <span className="sr-only">The Sideline</span>
           </DialogTitle>
           <DialogClose asChild>
             <button type="button" aria-label="Close menu" className={appShellIconBackButtonClass}>

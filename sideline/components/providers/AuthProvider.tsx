@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapAuthError } from "@/lib/authErrors";
+import { resolveSafeNextPath } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 import type { Session, User } from "@supabase/supabase-js";
 
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     async function signInWithGoogle(returnTo?: string): Promise<AuthResult> {
-      const dest = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+      const dest = resolveSafeNextPath(returnTo);
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(dest)}`;
       const { error } = await supabase.auth.signInWithOAuth({

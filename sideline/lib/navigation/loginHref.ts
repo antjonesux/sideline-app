@@ -1,3 +1,16 @@
+/** Default in-app destination after sign-in when no safe `next` is provided. */
+export const DEFAULT_POST_AUTH_PATH = "/playbook";
+
+export function resolveSafeNextPath(
+  next: string | null | undefined,
+  fallback: string = DEFAULT_POST_AUTH_PATH,
+): string {
+  if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
+    return next;
+  }
+  return fallback;
+}
+
 /** Builds `/login` with optional `register=1` and safe internal `next` (rejects `//`). */
 export function buildLoginHref(opts: { register?: boolean; next?: string | null | undefined }): string {
   const params = new URLSearchParams();

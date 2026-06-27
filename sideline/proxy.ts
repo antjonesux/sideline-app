@@ -1,5 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { resolveSafeNextPath } from "@/lib/navigation/loginHref";
 import { updateSession } from "@/lib/supabase/proxy";
+import { type NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_PATHS = [
   "/login",
@@ -36,23 +37,17 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && pathname === "/login") {
-    const next = request.nextUrl.searchParams.get("next");
-    if (next && next.startsWith("/") && !next.startsWith("//")) {
-      return NextResponse.redirect(new URL(next, request.url));
-    }
+    const dest = resolveSafeNextPath(request.nextUrl.searchParams.get("next"));
     const url = request.nextUrl.clone();
-    url.pathname = "/film";
+    url.pathname = dest;
     url.searchParams.delete("next");
     return NextResponse.redirect(url);
   }
 
   if (user && pathname === "/landing") {
-    const next = request.nextUrl.searchParams.get("next");
-    if (next && next.startsWith("/") && !next.startsWith("//")) {
-      return NextResponse.redirect(new URL(next, request.url));
-    }
+    const dest = resolveSafeNextPath(request.nextUrl.searchParams.get("next"));
     const url = request.nextUrl.clone();
-    url.pathname = "/film";
+    url.pathname = dest;
     url.searchParams.delete("next");
     return NextResponse.redirect(url);
   }
