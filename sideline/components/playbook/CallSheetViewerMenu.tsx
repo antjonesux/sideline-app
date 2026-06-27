@@ -67,8 +67,12 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        variant="drawer-left"
         hideCloseButton
-        className={`fixed inset-y-0 left-0 top-0 flex h-[100dvh] max-h-[100dvh] w-[min(100%,300px)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 border-r border-slate-800 bg-slate-950 p-0 shadow-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:rounded-none ${overlayZ.sheetShell}`}
+        className={cn(
+          "w-[min(100%,300px)] max-w-none border-slate-800 bg-slate-950",
+          overlayZ.sheetShell,
+        )}
         overlayClassName={overlayZ.radixDialog}
       >
         <div
