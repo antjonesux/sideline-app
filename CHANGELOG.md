@@ -4,6 +4,210 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-26 — Shell: slide-out menu enters from left edge only
+
+### What
+
+- **[`sideline/components/ui/dialog.tsx`](sideline/components/ui/dialog.tsx):** New **`drawer-left`** **`DialogContent`** variant — full-height panel anchored to the left viewport edge with slide-in motion (no centered-modal zoom or diagonal enter).
+- **[`sideline/components/playbook/CallSheetViewerMenu.tsx`](sideline/components/playbook/CallSheetViewerMenu.tsx):** Hamburger menu uses **`drawer-left`** so the slide-out reads as navigation chrome, not a modal.
+
+### Why
+
+The shared **`Dialog`** enter animation made the hamburger menu feel like a centered popup; left-edge drawer motion matches coach expectations for app navigation.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Auth / routing: post-login lands on Play Sheet; compact menu wordmark
+
+### What
+
+- **[`sideline/lib/navigation/loginHref.ts`](sideline/lib/navigation/loginHref.ts):** **`DEFAULT_POST_AUTH_PATH`** is **`/playbook`**; **`resolveSafeNextPath`** still honors safe internal **`next`** params.
+- **[`sideline/app/auth/callback/route.ts`](sideline/app/auth/callback/route.ts)**, **[`sideline/app/auth/confirm/route.ts`](sideline/app/auth/confirm/route.ts)**, **[`sideline/components/providers/AuthProvider.tsx`](sideline/components/providers/AuthProvider.tsx)**, **[`sideline/proxy.ts`](sideline/proxy.ts)**, **[`sideline/components/shared/HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx)**, **[`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx):** Default post-auth routing now sends coaches to **Play Sheet** when no explicit **`next`** is present.
+- **[`sideline/components/shared/AppCompactWordmark.tsx`](sideline/components/shared/AppCompactWordmark.tsx):** Compact **Sideline** mark at app header title size in the slide-out menu header.
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md) default landing path updated.
+
+### Why
+
+Play Sheet is the primary coaching loop entry after sign-in; the menu wordmark matches in-app header typography without duplicating the full landing lockup.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Play Sheet: **Add sheet** in app shell header; auth shell header alignment
+
+### What
+
+- **[`sideline/components/playbook/PlaySheetHomeHeader.tsx`](sideline/components/playbook/PlaySheetHomeHeader.tsx)**, **[`sideline/components/playbook/PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx)**, **[`sideline/components/qa/play-sheet/PlaySheetQaHome.tsx`](sideline/components/qa/play-sheet/PlaySheetQaHome.tsx):** **Add sheet** create action moved into the shared app shell header (removed duplicate CTAs from the home body).
+- **[`sideline/components/shared/AppShellMenuHeader.tsx`](sideline/components/shared/AppShellMenuHeader.tsx):** Wider spacing between hamburger and page title.
+- **[`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx):** Sign-in **Back** button and wordmark share one header row on the auth shell.
+
+### Why
+
+Primary create action stays visible while scrolling the sheet list; auth and app pillars share consistent header rhythm.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Shell: slide-out nav redesign (labels, sign out, wordmark)
+
+### What
+
+- **[`sideline/components/playbook/CallSheetViewerMenu.tsx`](sideline/components/playbook/CallSheetViewerMenu.tsx):** Redesigned slide-out menu with wordmark header, primary links (**Build Your Sheet**, **Call Plays**, **Settings**), and **Sign out**. **Film** and **Tendencies** links hidden for now (routes preserved).
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** Nav labels aligned with Call Sheet coaching loop terminology.
+
+### Why
+
+Focus primary navigation on the sheet-building and sideline reference flows while the bottom tab bar is gated off.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Call Sheet viewer: accordion coach view, shared surfaces, bottom sheet switcher
+
+### What
+
+- **[`sideline/components/playbook/CallSheetViewerHome.tsx`](sideline/components/playbook/CallSheetViewerHome.tsx)**, **[`sideline/components/playbook/CallSheetViewerSituation.tsx`](sideline/components/playbook/CallSheetViewerSituation.tsx)**, **[`sideline/components/playbook/CallSheetViewerFullSheet.tsx`](sideline/components/playbook/CallSheetViewerFullSheet.tsx)**, **[`sideline/components/playbook/CallSheetViewerPlayRow.tsx`](sideline/components/playbook/CallSheetViewerPlayRow.tsx)**, **[`sideline/components/playbook/CallSheetViewerSituationGrid.tsx`](sideline/components/playbook/CallSheetViewerSituationGrid.tsx):** Viewer simplified to expanded accordion coach view with read-only detail rows and shared surface tokens matching the builder.
+- **[`sideline/components/playbook/CallSheetSheetSwitcher.tsx`](sideline/components/playbook/CallSheetSheetSwitcher.tsx):** Tab-style switcher replaced with a full-width **[`BottomSheet`](sideline/components/shared/BottomSheet.tsx)** for play sheet selection.
+- **[`sideline/components/game-plan/PlayTableRow.tsx`](sideline/components/game-plan/PlayTableRow.tsx)**, **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts)**, **[`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts):** Shared row and card tokens between builder and viewer.
+
+### Why
+
+Sideline glance UX should mirror builder visual language without edit chrome; bottom sheet switcher fits mobile-first sheet picking.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Shell: hamburger navigation across app pillars; bottom tab bar hidden
+
+### What
+
+- **[`sideline/components/shared/AppShellMenuHeader.tsx`](sideline/components/shared/AppShellMenuHeader.tsx):** Shared hamburger + title header wired on Play Sheet, Film, Tendencies, and Settings pillar pages.
+- **[`sideline/components/playbook/CallSheetViewerMenu.tsx`](sideline/components/playbook/CallSheetViewerMenu.tsx)**, **[`sideline/lib/navigation/playSheetNav.ts`](sideline/lib/navigation/playSheetNav.ts):** Menu links reach **Builder** (`/playbook`), **Call Sheet viewer** (`/playbook/view`), **Film**, and **Settings**; viewer route stays menu-only (no tab bar).
+- **[`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx):** **`BOTTOM_TAB_NAV_ENABLED = false`** gates the fixed bottom tab bar off while preserving the component for later re-enable.
+- **[`sideline/app/film/page.tsx`](sideline/app/film/page.tsx)**, **[`sideline/components/tendencies/TendenciesHome.tsx`](sideline/components/tendencies/TendenciesHome.tsx)**, **[`sideline/app/settings/SettingsPageClient.tsx`](sideline/app/settings/SettingsPageClient.tsx)**, **[`sideline/app/globals.css`](sideline/app/globals.css):** Pillar pages adopt shell header; bottom padding adjusted for tab-bar-off layout.
+
+### Why
+
+One navigation pattern across coaching pillars; hamburger-first nav matches the Call Sheet sideline reference flow.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Call Sheet: active sheet lifecycle, stale-pointer heal, **Active** badge
+
+### What
+
+- **[`sideline/lib/callSheetPrefs.ts`](sideline/lib/callSheetPrefs.ts):** **`readActiveCallSheetId`** heals stale **`user_call_sheet_prefs.active_call_sheet_id`** pointers (missing or deleted sheets fall back to most recently updated sheet). Delete path reassigns active only when the deleted sheet was active.
+- **[`sideline/app/api/playbook/[id]/route.ts`](sideline/app/api/playbook/[id]/route.ts):** Delete handler uses updated active-sheet reassignment.
+- **[`sideline/components/playbook/PlaySheetActiveBadge.tsx`](sideline/components/playbook/PlaySheetActiveBadge.tsx)**, **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx)**, **[`sideline/components/playbook/CallSheetSheetSwitcher.tsx`](sideline/components/playbook/CallSheetSheetSwitcher.tsx):** Inline green **Active** badge beside sheet names on home list and viewer switcher.
+- **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts):** Badge color tokens.
+
+### Why
+
+Coaches need a reliable “which sheet am I calling from?” pointer across builder, viewer, and Film; stale prefs after delete or manual DB edits should self-heal on read.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Call Sheet: read-only sideline viewer (`/playbook/view`)
+
+### What
+
+- **[`sideline/app/playbook/view/page.tsx`](sideline/app/playbook/view/page.tsx)**, **[`sideline/components/playbook/CallSheetViewer.tsx`](sideline/components/playbook/CallSheetViewer.tsx):** New read-only **Call Sheet viewer** — glance active sheet by tactical situation or full list, switch sheets from the header, navigate via hamburger menu (no bottom tabs or edit chrome).
+- **Viewer components:** **[`CallSheetViewerHeader.tsx`](sideline/components/playbook/CallSheetViewerHeader.tsx)**, **[`CallSheetViewerHome.tsx`](sideline/components/playbook/CallSheetViewerHome.tsx)**, **[`CallSheetViewerSituation.tsx`](sideline/components/playbook/CallSheetViewerSituation.tsx)**, **[`CallSheetViewerSituationGrid.tsx`](sideline/components/playbook/CallSheetViewerSituationGrid.tsx)**, **[`CallSheetViewerFullSheet.tsx`](sideline/components/playbook/CallSheetViewerFullSheet.tsx)**, **[`CallSheetViewerPlayRow.tsx`](sideline/components/playbook/CallSheetViewerPlayRow.tsx)**, **[`CallSheetViewerMenu.tsx`](sideline/components/playbook/CallSheetViewerMenu.tsx)**, **[`CallSheetSheetSwitcher.tsx`](sideline/components/playbook/CallSheetSheetSwitcher.tsx)**.
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts)**, **[`sideline/lib/constants.ts`](sideline/lib/constants.ts)**, **[`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts):** Viewer copy and tactical scenario helpers.
+
+### Why
+
+Coaches need sideline play reference separate from the builder/editor without logging or editing affordances in the same surface.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Play Sheet home rebuild and add-play browse (Call Sheet loop)
+
+### What
+
+- **[`sideline/components/playbook/PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx)**, **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx):** Dashboard drill-down home with active sheet menu actions (set active, view, edit, delete).
+- **[`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx)**, **[`CallSheetBuilderDashboard.tsx`](sideline/components/playbook/CallSheetBuilderDashboard.tsx)**, **[`CallSheetBuilderSheetHeader.tsx`](sideline/components/playbook/CallSheetBuilderSheetHeader.tsx)**, **[`CallSheetBuilderSituationHeader.tsx`](sideline/components/playbook/CallSheetBuilderSituationHeader.tsx)**, **[`CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx):** Builder shell with tactical situation grid and in-context navigation.
+- **[`sideline/components/playbook/AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx)**, **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx)**, **[`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx):** Table-style formation browse with **Go-To** star toggles; shared browse patterns between Film and Play Sheet add-play.
+- **[`sideline/components/shared/IconBackButton.tsx`](sideline/components/shared/IconBackButton.tsx)**, **[`BackNavLink.tsx`](sideline/components/shared/BackNavLink.tsx)**: Shared icon back buttons keep coaches in the sheet-building flow without losing context.
+- **QA:** **[`PlaySheetQaSituationEditor.tsx`](sideline/components/qa/play-sheet/PlaySheetQaSituationEditor.tsx)** and related QA views refactored to mirror production builder surfaces.
+
+### Why
+
+The Call Sheet loop needs a coach-first home and browse path that stays in sheet context from list → builder → add-play → back.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Play Sheet builder: tactical Call Sheet situations (8 buckets)
+
+### What
+
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts):** **`CALL_SHEET_SCENARIOS`** — eight tactical buckets (**Go-To Plays**, **Tempo**, **Run Game**, **Pass Game**, **Man Beaters**, **Zone Beaters**, **Take a Shot**, **Red Zone**); legacy **`SCENARIOS`** preserved for logging/Tendencies and older sheets.
+- **[`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts):** Builder sorts, caps, and defaults new sheets to **`CALL_SHEET_SCENARIOS`**; legacy sheets keep prior situational behavior.
+- **[`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx)**, **[`SituationList.tsx`](sideline/components/playbook/SituationList.tsx)**, **[`PlaySheetSituationChipScroll.tsx`](sideline/components/shared/PlaySheetSituationChipScroll.tsx)**: Builder UI wired to tactical buckets; guided onboarding targets **Go-To Plays**.
+- **[`sideline/app/api/playbook/[id]/plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts):** Scenario ordering aligned with Call Sheet buckets on write.
+
+### Why
+
+Sideline call sheets organize by tactical buckets coaches actually use on game day, distinct from down-and-distance logging scenarios.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-06-26 — Call Sheet architecture foundation and Play Sheet QA capture
+
+### What
+
+- **[`sideline/lib/callSheetPrefs.ts`](sideline/lib/callSheetPrefs.ts)**, **[`sideline/app/api/playbook/active/route.ts`](sideline/app/api/playbook/active/route.ts)**: Server-side active Call Sheet prefs (**`user_call_sheet_prefs`**) with **`readActiveCallSheetId`**, **`upsertActiveCallSheetId`**, and **`PUT /api/playbook/active`**.
+- **[`sideline/app/api/playbook/route.ts`](sideline/app/api/playbook/route.ts)**: List/create responses include active sheet context; new sheets seed **`CALL_SHEET_SCENARIOS`**.
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts)**, **[`sideline/lib/types.ts`](sideline/lib/types.ts)**: Tactical scenario constants and types shared by Builder/Viewer without touching Film logging paths.
+- **QA capture:** Sessionless **`/qa/play-sheet/*`** routes, **[`PlaySheetQaHome.tsx`](sideline/components/qa/play-sheet/PlaySheetQaHome.tsx)** / **[`PlaySheetQaEditor.tsx`](sideline/components/qa/play-sheet/PlaySheetQaEditor.tsx)** / **[`PlaySheetQaEditorViews.tsx`](sideline/components/qa/play-sheet/PlaySheetQaEditorViews.tsx)**, **[`playSheetQaFixture.ts`](sideline/lib/playSheetQaFixture.ts)**, **[`playwright/play-sheet-screenshots.spec.ts`](sideline/playwright/play-sheet-screenshots.spec.ts)** with baseline PNGs under **`qa-screenshots/play-sheet/`**. **`PlayBrowser`** QA hooks for repeatable visual capture.
+
+### Why
+
+Stable backend and scenario model before shipping Builder/Viewer UI; repeatable screenshot QA for Play Sheet surfaces.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+- Play Sheet screenshot spec: **`npm run screenshots:play-sheet`** (from `sideline/`).
+
+---
+
 ## 2026-05-04 — Onboarding: carousel slide 3 PNG
 
 ### What
@@ -30,6 +234,23 @@ Asset-only refresh; **`components/shared/OnboardingCarousel.tsx`** references un
 ### Why
 
 Deleting **`game_sessions`** first violated **`logged_plays` → `game_sessions`** FK behavior in shipped migrations; ignoring PostgREST **`error`** on earlier deletes hid failures.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-05-04 — Auth: Google button alignment and dark WebKit autofill
+
+### What
+
+- **[`sideline/app/login/LoginForm.tsx`](sideline/app/login/LoginForm.tsx):** Google sign-in CTA matches slate **`slate-900` / `slate-700`** field styling and emerald focus ring.
+- **[`sideline/app/globals.css`](sideline/app/globals.css):** **`.dark`**-scoped **`-webkit-autofill`** rules so browser-filled fields stay on-brand (**`slate-900`** fill, **`slate-100`** text) across the dark auth shell.
+
+### Why
+
+Google button and autofill styling had drifted from the shared auth input treatment; filled fields no longer flash light/yellow on dark surfaces.
 
 ### Status after this push
 

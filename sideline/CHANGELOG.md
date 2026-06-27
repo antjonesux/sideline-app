@@ -4,6 +4,116 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-26 (Shell — slide-out menu left-edge drawer)
+
+**What:** **`components/ui/dialog.tsx`**: **`drawer-left`** **`DialogContent`** variant (full-height left panel, slide-in). **`CallSheetViewerMenu.tsx`**: menu uses **`drawer-left`**.
+
+**Why:** Hamburger nav should enter from the left edge, not as a centered modal zoom.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Auth / routing — post-login **`/playbook`**; compact menu wordmark)
+
+**What:** **`lib/navigation/loginHref.ts`**: **`DEFAULT_POST_AUTH_PATH = "/playbook"`**. **`auth/callback`**, **`auth/confirm`**, **`AuthProvider`**, **`proxy.ts`**, **`HomeOnboardingGate`**, **`LoginForm`**: default post-auth to Play Sheet when no safe **`next`**. **`AppCompactWordmark.tsx`**: compact Sideline mark in slide-out header. **`BUILD_CONTRACT.md`**.
+
+**Why:** Play Sheet is the primary coaching loop entry; menu wordmark matches app header title size.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Play Sheet — **Add sheet** in shell header; auth header row)
+
+**What:** **`PlaySheetHomeHeader`**, **`PlaybookHome`**, **`PlaySheetQaHome`**: create action in **`AppShellMenuHeader`** (removed body duplicate). **`AppShellMenuHeader`**: wider menu-to-title gap. **`LoginForm`**: back + wordmark on one row.
+
+**Why:** Primary create stays visible on scroll; auth and app pillars share header rhythm.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Shell — slide-out nav redesign)
+
+**What:** **`CallSheetViewerMenu.tsx`**: wordmark header, **Build Your Sheet** / **Call Plays** / **Settings**, **Sign out**; Film + Tendencies hidden (routes preserved). **`coachCopy.ts`**: nav labels.
+
+**Why:** Focus nav on Call Sheet loop while bottom tab bar is off.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Call Sheet viewer — accordion coach view + bottom sheet switcher)
+
+**What:** **`CallSheetViewerHome`**, **`CallSheetViewerSituation`**, **`CallSheetViewerFullSheet`**, **`CallSheetViewerPlayRow`**, **`CallSheetViewerSituationGrid`**: accordion read-only coach view with builder-matching surface tokens. **`CallSheetSheetSwitcher`**: **`BottomSheet`** for sheet pick. Shared tokens in **`PlayTableRow`**, **`designTokens`**, **`playbookUtils`**.
+
+**Why:** Sideline glance UX mirrors builder without edit chrome; mobile-first sheet switching.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Shell — hamburger nav on pillars; **`BOTTOM_TAB_NAV_ENABLED = false`**)
+
+**What:** **`AppShellMenuHeader`**: shared hamburger + title on Play Sheet, Film, Tendencies, Settings. **`CallSheetViewerMenu`**, **`playSheetNav.ts`**: Builder, viewer, Film, Settings links. **`BottomTabNav`**: **`BOTTOM_TAB_NAV_ENABLED = false`**. Pillar pages + **`globals.css`** padding for tab-bar-off layout.
+
+**Why:** One nav pattern across coaching pillars; hamburger-first for Call Sheet sideline flow.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Call Sheet — active sheet lifecycle + **Active** badge)
+
+**What:** **`callSheetPrefs.ts`**: heal stale **`user_call_sheet_prefs`** on read; reassign active on delete only when deleted sheet was active. **`api/playbook/[id]`** delete uses updated reassignment. **`PlaySheetActiveBadge`**, **`PlaybookCard`**, **`CallSheetSheetSwitcher`**: inline green **Active** badge.
+
+**Why:** Reliable active-sheet pointer across builder, viewer, and Film.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Call Sheet — read-only viewer **`/playbook/view`**)
+
+**What:** **`app/playbook/view/page.tsx`**, **`CallSheetViewer`** + header/home/situation/grid/full-sheet/play-row/menu/switcher components. Read-only sideline reference by tactical situation or full list; hamburger nav, no bottom tabs or edit chrome. **`coachCopy`**, **`constants`**, **`playbookUtils`**.
+
+**Why:** Sideline play reference separate from builder/editor.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Play Sheet — home rebuild + add-play browse)
+
+**What:** **`PlaybookHome`**, **`PlaybookCard`**: dashboard drill-down + active sheet menu actions. **`PlaybookEditor`**, **`CallSheetBuilder*`** components, **`CallSheetSituationGrid`**: builder shell. **`AddPlayBrowseRow`**, **`AddPlayDrawer`**, **`PlayBrowser`**: formation browse + Go-To stars. **`IconBackButton`**, **`BackNavLink`**. QA views mirror production builder.
+
+**Why:** Coach-first home and browse path stays in sheet context (list → builder → add-play → back).
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Play Sheet builder — tactical **`CALL_SHEET_SCENARIOS`**)
+
+**What:** **`constants.ts`**: eight tactical buckets (**Go-To Plays**, **Tempo**, **Run Game**, **Pass Game**, **Man Beaters**, **Zone Beaters**, **Take a Shot**, **Red Zone**); legacy **`SCENARIOS`** for logging/Tendencies. **`playbookUtils`**: new sheets default to Call Sheet buckets; legacy sheets unchanged. **`PlaybookEditor`**, **`SituationList`**, **`PlaySheetSituationChipScroll`**, **`api/playbook/[id]/plays`**.
+
+**Why:** Sideline call sheets use tactical buckets distinct from down-and-distance logging scenarios.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
+## 2026-06-26 (Call Sheet architecture + Play Sheet QA capture)
+
+**What:** **`callSheetPrefs.ts`**, **`PUT /api/playbook/active`**, **`user_call_sheet_prefs`**. **`api/playbook`**: active context on list/create; new sheets seed **`CALL_SHEET_SCENARIOS`**. Sessionless **`/qa/play-sheet/*`**, **`PlaySheetQa*`**, **`playSheetQaFixture`**, **`playwright/play-sheet-screenshots.spec.ts`**, baseline PNGs under **`qa-screenshots/play-sheet/`**.
+
+**Why:** Stable backend before Builder/Viewer UI; repeatable screenshot QA.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; **`npm run screenshots:play-sheet`**; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-05-04 (Onboarding — carousel slide 3 image)
 
 **What:** Replaced **`public/onboarding/slide-3-improve.png`** (**`OnboardingCarousel`** slide asset).
@@ -21,6 +131,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 **Why:** Previous order deleted **`game_sessions`** while **`logged_plays`** still referenced sessions (**no ON DELETE CASCADE** on that FK in shipped schema); table deletes did not surface **`error`**. Aligns with defensive teardown (**`DECISIONS.md`** **2026-04-21 — Defensive cascade on game delete**) at account scope.
 
 **Status after this push:** `app/api/account/route.ts`, docs above; `npm run build` from `sideline/` expected to pass.
+
+---
+
+## 2026-05-04 (Auth — Google button + dark WebKit autofill)
+
+**What:** **`app/login/LoginForm.tsx`**: Google CTA matches **`slate-900` / `slate-700`** inputs + emerald focus ring. **`app/globals.css`**: **`.dark`** **`-webkit-autofill`** rules (**`slate-900`** fill, **`slate-100`** text).
+
+**Why:** Google button and autofill had drifted from the dark auth shell.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
 
 ---
 
