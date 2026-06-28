@@ -301,7 +301,7 @@ export function SituationFormModal({
       >
         <div className="flex shrink-0 items-center gap-3 border-b border-slate-800 px-4 py-3">
           <IconBackButton
-            aria-label="Back to situation"
+            aria-label={mode === "create" ? "Back to situations" : "Back to situation"}
             onClick={() => {
               if (!busy) onClose();
             }}

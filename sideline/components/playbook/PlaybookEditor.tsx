@@ -1248,6 +1248,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       <SituationFormModal
         open={createSituationOpen}
         mode="create"
+        presentation="page"
         initialValues={{
           name: "",
           description: "",
