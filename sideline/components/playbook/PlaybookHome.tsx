@@ -2,7 +2,7 @@
 
 import type { PlaybookListResponse, PlaybookSummary } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
+import { PlaySheetHomeSkeleton } from "@/components/shared/PageSkeleton";
 import { COULDNT_LOAD, GAME_PLAN_EMPTY_BODY, GAME_PLAN_EMPTY_HEADLINE } from "@/lib/coachCopy";
 import { PlaybookCard } from "./PlaybookCard";
 import { PlaySheetHomeHeader } from "./PlaySheetHomeHeader";
@@ -62,12 +62,7 @@ export function PlaybookHome() {
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <PlaySheetHomeHeader />
-        <FilmRoomSkeleton />
-      </div>
-    );
+    return <PlaySheetHomeSkeleton />;
   }
 
   return (

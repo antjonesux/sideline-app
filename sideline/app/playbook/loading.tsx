@@ -1,5 +1,5 @@
-import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
+import { PlaySheetHomeSkeleton } from "@/components/shared/PageSkeleton";
 
 export default function PlaybookLoading() {
-  return <FilmRoomSkeleton />;
+  return <PlaySheetHomeSkeleton />;
 }

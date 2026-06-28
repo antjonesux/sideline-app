@@ -2,7 +2,7 @@
 
 import { AmIPredictable } from "@/components/tendencies/AmIPredictable";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
-import { FilmRoomSkeleton } from "@/components/shared/PageSkeleton";
+import { TendenciesHomeSkeleton } from "@/components/shared/PageSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { isOnboardingGameSession } from "@/lib/onboardingImportSource";
 import { playbookForGame } from "@/lib/tendenciesServer";
@@ -88,7 +88,7 @@ export function TendenciesHome() {
   }, [games]);
 
   if (gamesQuery.isLoading) {
-    return <FilmRoomSkeleton />;
+    return <TendenciesHomeSkeleton />;
   }
 
   if (games.length === 0) {

@@ -6,31 +6,37 @@ export function SkeletonBlock({ className = "" }: { className?: string }) {
 
 export function GameDetailSkeleton() {
   return (
-    <section className="space-y-4 pb-28" aria-busy="true" aria-label="Loading game">
-      <div className="space-y-3">
+    <section className="space-y-0 pb-28" aria-busy="true" aria-label="Loading game">
+      <div className="space-y-3 pb-4">
         <SkeletonBlock className="h-4 w-24" />
-        <div className="flex justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <SkeletonBlock className="h-7 w-full max-w-md" />
-            <SkeletonBlock className="h-4 w-56" />
-          </div>
-          <SkeletonBlock className="h-9 w-20 shrink-0 rounded-lg" />
+        <SkeletonBlock className="h-7 w-full max-w-md" />
+        <SkeletonBlock className="h-4 w-56 max-w-full" />
+        <div className="flex gap-3 overflow-hidden">
+          <SkeletonBlock className="h-3 w-16 shrink-0" />
+          <SkeletonBlock className="h-3 w-16 shrink-0" />
+          <SkeletonBlock className="h-3 w-16 shrink-0" />
+          <SkeletonBlock className="h-3 w-16 shrink-0" />
         </div>
         <div className="flex flex-wrap gap-2">
-          <SkeletonBlock className="h-9 w-28 rounded-lg" />
-          <SkeletonBlock className="h-9 w-28 rounded-lg" />
-          <SkeletonBlock className="h-9 w-24 rounded-lg" />
+          <SkeletonBlock className="h-11 w-28 rounded-lg" />
+          <SkeletonBlock className="h-11 w-24 rounded-lg" />
         </div>
       </div>
-      {[0, 1].map((i) => (
-        <div key={i} className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3">
-          <div className="flex gap-3">
-            <SkeletonBlock className="h-5 w-32" />
-            <SkeletonBlock className="h-5 w-20 rounded-full" />
+      <div className="grid grid-cols-2 border-b border-slate-800" aria-hidden>
+        <SkeletonBlock className="h-12 w-full rounded-none" />
+        <SkeletonBlock className="h-12 w-full rounded-none" />
+      </div>
+      <div className="space-y-3 pt-3">
+        {[0, 1].map((i) => (
+          <div key={i} className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <div className="flex gap-3">
+              <SkeletonBlock className="h-5 w-32" />
+              <SkeletonBlock className="h-5 w-20 rounded-full" />
+            </div>
+            <SkeletonBlock className="h-3 w-40" />
           </div>
-          <SkeletonBlock className="h-3 w-40" />
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 }

@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Page-specific loading skeletons
+
+### What
+
+- **[`sideline/components/shared/PageSkeleton.tsx`](sideline/components/shared/PageSkeleton.tsx):** Replaces the shared film-room placeholder with route-shaped shells — **`FilmRoomSkeleton`** (header, new-game card, game rows), **`PlaySheetHomeSkeleton`** (header + create action + play sheet cards), **`TendenciesHomeSkeleton`** (header, tabs, filter pills, What's Working body).
+- **[`sideline/components/shared/AppSkeleton.tsx`](sideline/components/shared/AppSkeleton.tsx):** **`GameDetailSkeleton`** mirrors game detail layout — score/meta line, stats row, action buttons, Drive Summary / Tendencies tabs, drive cards.
+- **[`sideline/components/playbook/PlaybookCardSkeleton.tsx`](sideline/components/playbook/PlaybookCardSkeleton.tsx):** Uses shared **`SkeletonBlock`**; wired into play sheet home loading.
+- **[`sideline/app/playbook/loading.tsx`](sideline/app/playbook/loading.tsx)**, **[`sideline/app/tendencies/loading.tsx`](sideline/app/tendencies/loading.tsx)**, **[`sideline/app/tendencies/page.tsx`](sideline/app/tendencies/page.tsx)**, **[`PlaybookHome`](sideline/components/playbook/PlaybookHome.tsx)**, **[`TendenciesHome`](sideline/components/tendencies/TendenciesHome.tsx):** Each route uses its matching skeleton instead of **`FilmRoomSkeleton`**.
+
+### Why
+
+Loading placeholders should match the page they represent so coaches see a stable preview of Film Room, Play Sheet, Tendencies, and game detail — not a generic film list on every tab.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Call Sheet: add situation full-page form
 
 ### What
