@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet: situation cards match Coach View colors and play count
+
+### What
+
+- **[`sideline/components/playbook/CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx):** Builder **Situations** tab cards use **`SITUATION_COLORS`** (tinted fill + accent text) to match Coach View; play count sits on the icon row and shows added plays only (e.g. **3 plays**), not slot cap.
+
+### Why
+
+Situation tiles should read as the same visual system as Coach View; coaches only need to see how many calls are in each bucket, not capacity limits on the grid.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-06-28 — Call Sheet: consolidate builder + Coach View on sheet editor
 
 ### What

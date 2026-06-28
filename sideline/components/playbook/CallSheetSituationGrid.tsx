@@ -1,18 +1,14 @@
 "use client";
 
-import {
-  appShellSurfaceCardClass,
-  appShellSurfaceCardHoverClass,
-} from "@/lib/constants/designTokens";
+import { SITUATION_COLORS, type CallSheetScenario } from "@/lib/constants";
 import {
   callSheetScenarioDisplayName,
   callSheetScenarioHelperText,
   callSheetScenarioMarker,
-  maxSlotsForSheetScenario,
+  callSheetScenarioPlayCountLabel,
 } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
-
-const situationCardClass = `${appShellSurfaceCardClass} flex min-h-[8.5rem] min-w-0 w-full flex-col p-4 text-start ${appShellSurfaceCardHoverClass}`;
+import { cn } from "@/lib/utils";
 
 export function CallSheetSituationGrid({
   scenarios,
@@ -25,9 +21,10 @@ export function CallSheetSituationGrid({
     <div className="grid grid-cols-2 gap-3" role="list" aria-label="Tactical situations">
       {scenarios.map((s) => {
         const count = s.plays.length;
-        const max = maxSlotsForSheetScenario(s.scenario);
         const helper = callSheetScenarioHelperText(s.scenario);
         const marker = callSheetScenarioMarker(s.scenario);
+        const colors =
+          SITUATION_COLORS[s.scenario as CallSheetScenario] ?? SITUATION_COLORS["Run Game"];
 
         return (
           <button
@@ -35,22 +32,34 @@ export function CallSheetSituationGrid({
             type="button"
             role="listitem"
             onClick={() => onSelect(s.scenario)}
-            className={situationCardClass}
+            className={cn(
+              "flex min-h-[8.5rem] min-w-0 w-full flex-col rounded-xl p-4 text-start transition-colors hover:brightness-110",
+              colors.bg,
+            )}
           >
-            <span className="font-mono text-base leading-none text-slate-500" aria-hidden>
-              {marker}
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className={cn("font-mono text-base leading-none", colors.text)} aria-hidden>
+                {marker}
+              </span>
+              <span className={cn("shrink-0 font-body text-xs opacity-80", colors.text)}>
+                {callSheetScenarioPlayCountLabel(count)}
+              </span>
+            </div>
             <div className="mt-2 min-w-0 flex-1">
-              <p className="font-heading text-base font-bold uppercase tracking-wide text-white sm:text-lg">
+              <p
+                className={cn(
+                  "font-heading text-base font-bold uppercase tracking-wide sm:text-lg",
+                  colors.text,
+                )}
+              >
                 {callSheetScenarioDisplayName(s.scenario)}
               </p>
               {helper ? (
-                <p className="mt-1 line-clamp-2 font-body text-sm text-slate-400">{helper}</p>
+                <p className={cn("mt-1 line-clamp-2 font-body text-sm opacity-70", colors.text)}>
+                  {helper}
+                </p>
               ) : null}
             </div>
-            <p className="mt-2 font-body text-xs text-slate-500">
-              {count}/{max} calls
-            </p>
           </button>
         );
       })}
