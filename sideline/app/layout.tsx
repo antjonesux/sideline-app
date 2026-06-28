@@ -4,6 +4,7 @@ import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import BottomTabNav from "@/components/shared/BottomTabNav";
+import { appShellMainClass } from "@/lib/constants/designTokens";
 
 import { EmailVerificationBanner } from "@/components/shared/EmailVerificationBanner";
 import { Toast } from "@/components/shared/Toast";
@@ -36,11 +37,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Suspense>
         <AppProviders>
           {/**
-           * Bottom padding must stay large at *all* breakpoints: `sm:py-8` previously overwrote `pb-24`
-           * and left only32px under the fixed tab bar (~60–72px + safe area).
-           * ~7rem (pb-28) + safe-area clears the nav with room to spare.
+           * Responsive shell: `globals.css` `.app-shell-main` + `--app-shell-*` tokens.
+           * Bottom padding must stay large when the tab bar is visible; chrome flags in
+           * `globals.css` reduce inset for hamburger / onboarding / call-sheet viewer routes.
            */}
-          <main className="mx-auto w-full max-w-3xl px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] sm:px-6">
+          <main className={appShellMainClass}>
             <EmailVerificationBanner />
             {children}
           </main>

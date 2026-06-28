@@ -116,13 +116,23 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-06-28 — Responsive app shell tokens (`--app-shell-*`, `.app-shell-main`)
+
+**Decision:** Root **`<main>`** layout width, horizontal padding, top inset, and tab-bar bottom padding live in **`globals.css`** as **`--app-shell-max-width`**, **`--app-shell-px`**, **`--app-shell-pt`**, and **`--app-shell-pb-tab`**, applied via **`.app-shell-main`**. Mobile stays **`48rem`** with **`1rem` / `1.5rem`** horizontal padding; **`md` / `lg` / `xl`** widen to **`56rem` / `64rem` / `72rem`** and increase padding at **`lg+`**. **`app/layout.tsx`** uses **`appShellMainClass`** from **`designTokens.ts`**. **`BottomTabNav`** and **`PlaySheetSituationChipScroll`** spacer math consume the same CSS variables so nav and full-bleed chips stay aligned when the shell changes.
+
+**Why:** Tablet and desktop need more usable width without page-specific breakpoint utilities or edge-to-edge stretch; one token path preserves mobile behavior and avoids duplicated **`max-w-3xl`** / **`48rem`** math.
+
+**Impact:** Shell width changes happen in **`globals.css`** only. Marketing **`/landing`**, onboarding, call-sheet viewer, and hamburger-nav chrome overrides in **`globals.css`** are unchanged. Do not reintroduce hardcoded **`max-w-3xl`** on **`main`** or chip spacers.
+
+---
+
 ## 2026-05-02 — Shared `PlaySheetSituationChipScroll` (Film My Sheet + Game Plan mobile)
 
-**Decision:** Full-bleed horizontal **n/max** situation pills for **Game Plan** mobile (**`SituationList`**) and **Film** **`PlayLoggerV2`** **My Sheet** live in **`components/shared/PlaySheetSituationChipScroll.tsx`**: **`ms/me [calc(50%-50vw)]`**, **`w-screen`**, **`max-w-[100vw]`**, scroll row with **leading/trailing spacers** sized to **`main`** (**`max-w-3xl`** + **`px-4` / `sm:px-6`** − flex **`gap-2`**). **`hideFromLg`** hides the strip at **`lg+`** on Game Plan (desktop sidebar). **`tabSemantics`** uses **`role="tablist"`** and per-chip **`role="tab"`** + **`aria-selected`** for **My Sheet** inside Radix **`Tabs`**; otherwise the scroll row is a **`nav`** labeled **Situations**.
+**Decision:** Full-bleed horizontal **n/max** situation pills for **Game Plan** mobile (**`SituationList`**) and **Film** **`PlayLoggerV2`** **My Sheet** live in **`components/shared/PlaySheetSituationChipScroll.tsx`**: **`ms/me [calc(50%-50vw)]`**, **`w-screen`**, **`max-w-[100vw]`**, scroll row with **leading/trailing spacers** sized to **`main`** (**`var(--app-shell-max-width)`** + **`var(--app-shell-px)`** − flex **`gap-2`**). **`hideFromLg`** hides the strip at **`lg+`** on Game Plan (desktop sidebar). **`tabSemantics`** uses **`role="tablist"`** and per-chip **`role="tab"`** + **`aria-selected`** for **My Sheet** inside Radix **`Tabs`**; otherwise the scroll row is a **`nav`** labeled **Situations**.
 
 **Why:** **`BUILD_CONTRACT.md`** ties Film **My Sheet** chips to Game Plan vocabulary and layout; one module avoids duplicated viewport math and keeps both surfaces aligned when the shell changes.
 
-**Impact:** Spacer / bleed tweaks happen only in **`PlaySheetSituationChipScroll`** (or a future shared token if **`layout.tsx`** and this component drift). **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
+**Impact:** Spacer / bleed tweaks happen only in **`PlaySheetSituationChipScroll`** (or **`globals.css`** **`--app-shell-*`** when the shared shell changes). **`CHANGELOG.md`** (root + **`sideline/CHANGELOG.md`**) records the ship.
 
 ---
 

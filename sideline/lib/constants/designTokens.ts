@@ -63,6 +63,9 @@ export const modalDialogTitleClass =
 export const appShellPageTitleClass =
   "font-sans text-3xl leading-none font-bold uppercase tracking-[1.08px] text-white sm:text-4xl";
 
+/** Root `<main>` shell — pairs with `globals.css` `.app-shell-main` and `--app-shell-*` tokens. */
+export const appShellMainClass = "app-shell-main";
+
 /** Standard bordered app shell card — situation tiles, Coach View accordions, etc. */
 export const appShellSurfaceCardClass = "rounded-xl border border-slate-700 bg-slate-900";
 

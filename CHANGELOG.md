@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Responsive layout foundation: shared app shell tokens
+
+### What
+
+- **[`sideline/app/globals.css`](sideline/app/globals.css):** **`--app-shell-max-width`**, **`--app-shell-px`**, **`--app-shell-pt`**, **`--app-shell-pb-tab`** CSS variables and **`.app-shell-main`** — mobile stays **`48rem`**; widens at **`md` / `lg` / `xl`** without edge-to-edge stretch.
+- **[`sideline/app/layout.tsx`](sideline/app/layout.tsx):** Root **`<main>`** uses **`appShellMainClass`** instead of inline **`max-w-3xl`** utilities.
+- **[`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx)**, **[`sideline/components/shared/PlaySheetSituationChipScroll.tsx`](sideline/components/shared/PlaySheetSituationChipScroll.tsx):** Tab bar and full-bleed situation chip spacers consume the same shell tokens.
+- **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts):** **`appShellMainClass`** export.
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md) (**2026-06-28 — Responsive app shell tokens**).
+
+### Why
+
+Tablet and desktop need more usable width from one shared foundation; mobile behavior and marketing/onboarding chrome exceptions stay unchanged.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-26 — Shell: slide-out menu enters from left edge only
 
 ### What

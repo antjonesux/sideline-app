@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Responsive layout — shared app shell tokens)
+
+**What:** **`globals.css`**: **`--app-shell-*`** variables + **`.app-shell-main`** (mobile **`48rem`**, scales at **`md` / `lg` / `xl`**). **`layout.tsx`**: **`appShellMainClass`**. **`BottomTabNav`**, **`PlaySheetSituationChipScroll`**: shell token alignment. **`designTokens.ts`**: **`appShellMainClass`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**.
+
+**Why:** One responsive foundation for tablet/desktop without page-specific breakpoint utilities or mobile regressions.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-26 (Shell — slide-out menu left-edge drawer)
 
 **What:** **`components/ui/dialog.tsx`**: **`drawer-left`** **`DialogContent`** variant (full-height left panel, slide-in). **`CallSheetViewerMenu.tsx`**: menu uses **`drawer-left`**.

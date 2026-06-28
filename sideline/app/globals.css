@@ -18,6 +18,43 @@
   --spacing-landing-hero-copy-to-cta: 3rem;
 }
 
+/**
+ * App shell layout tokens — shared by `layout.tsx` `<main>`, `BottomTabNav`, and
+ * `PlaySheetSituationChipScroll` bleed alignment. Mobile stays at `max-w-3xl`; wider
+ * breakpoints increase usable width without edge-to-edge stretch.
+ */
+:root {
+  --app-shell-max-width: 48rem;
+  --app-shell-px: 1rem;
+  --app-shell-pt: 1.5rem;
+  --app-shell-pb-tab: calc(7rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-shell-px: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --app-shell-max-width: 56rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --app-shell-max-width: 64rem;
+    --app-shell-px: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --app-shell-max-width: 72rem;
+  }
+}
+
 @layer base {
   /**
    * Root scroll: avoid `height: 100%` on html — it can pin the document to the viewport
@@ -121,8 +158,8 @@
   /**
    * Marketing landing at `/landing` only (`data-marketing-chrome` from BottomTabNav).
    * Full-width `<main>` so the hero grid / gradient (fixed SVG in HeroSection) align edge-to-edge with the
-   * viewport; horizontal padding lives on the landing section so copy stays readable. Other routes keep the
-   * default `max-w-3xl` shell from `layout.tsx`.
+   * viewport; horizontal padding lives on the landing section so copy stays readable. Other routes use
+   * `--app-shell-max-width` from `.app-shell-main`.
    * `padding-bottom: 0 !important` clears the tab-bar bottom padding utilities on `<main>` (nav is hidden).
    */
   html[data-marketing-chrome="true"] main {
@@ -157,6 +194,19 @@
     caret-color: #f1f5f9;
     box-shadow: 0 0 0 1000px #0f172a inset;
     transition: background-color 9999s ease-in-out 0s;
+  }
+}
+
+@layer components {
+  /** Authoritative app `<main>` shell — see `app/layout.tsx`. */
+  .app-shell-main {
+    box-sizing: border-box;
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--app-shell-max-width);
+    padding-inline: var(--app-shell-px);
+    padding-top: var(--app-shell-pt);
+    padding-bottom: var(--app-shell-pb-tab);
   }
 }
 

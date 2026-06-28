@@ -8,8 +8,9 @@ const BLEED_OUTER =
   "shrink-0 ms-[calc(50%-50vw)] me-[calc(50%-50vw)] w-screen max-w-[100vw]";
 const SCROLL_ROW =
   "overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] flex gap-2 pb-2 [&::-webkit-scrollbar]:hidden";
+/** Tracks `--app-shell-max-width` + `--app-shell-px` from `globals.css`. */
 const SPACER =
-  "shrink-0 w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.4)-theme(spacing.2))] sm:w-[calc((100vw-min(100vw,48rem))/2+theme(spacing.6)-theme(spacing.2))]";
+  "shrink-0 w-[calc((100vw-min(100vw,var(--app-shell-max-width)))/2+var(--app-shell-px)-theme(spacing.2))]";
 
 export function PlaySheetSituationChipScroll({
   scenarios,
