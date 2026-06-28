@@ -17,6 +17,9 @@ import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import {
   COULDNT_SAVE,
   BUILDER_ADD_PLAY,
+  BUILDER_BROWSE_SITUATION_PROMPT,
+  BUILDER_PLAY_ADDED_TO_SITUATION,
+  BUILDER_SITUATION_FULL,
   GO_TO_PLAY_ADDED,
   GO_TO_PLAY_ALREADY,
   GO_TO_PLAY_REMOVED,
@@ -46,6 +49,7 @@ import { CallSheetBuilderSheetHeader } from "./CallSheetBuilderSheetHeader";
 import { CallSheetBuilderSituationHeader } from "./CallSheetBuilderSituationHeader";
 import { CallSheetCoachView } from "./CallSheetCoachView";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEditorTabBar";
+import { CallSheetSituationGrid } from "./CallSheetSituationGrid";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
 import { SituationList } from "./SituationList";
@@ -87,6 +91,11 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [legacyActiveScenario, setLegacyActiveScenario] = useState<string>("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [browsePlaybookMode, setBrowsePlaybookMode] = useState(false);
+  const [pendingBrowsePick, setPendingBrowsePick] = useState<{ formation: string; play_name: string } | null>(
+    null,
+  );
+  const [browseSituationBusy, setBrowseSituationBusy] = useState(false);
   const [suggestBusy, setSuggestBusy] = useState<string | null>(null);
   const [replaceSuggest, setReplaceSuggest] = useState<SuggestionRow | null>(null);
   const [goToBusyId, setGoToBusyId] = useState<string | null>(null);
@@ -180,30 +189,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   }, [scenarios, legacyActiveScenario, useCallSheetBuilderLayout, onboardingEditor]);
 
   useEffect(() => {
-    const browse = searchParams.get("browse") === "1";
-    const onGoTo =
-      callSheetSheet &&
-      !onboardingEditor &&
-      situationParam === GO_TO_PLAYS_SCENARIO;
-    if (browse && isSituationEdit && !onGoTo) {
-      setDrawerOpen(true);
-      prevActiveScenarioRef.current = activeScenario;
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("browse");
-      const qs = params.toString();
-      router.replace(qs ? `/playbook/${sheetId}?${qs}` : `/playbook/${sheetId}`);
-      return;
-    }
-
     if (
       prevActiveScenarioRef.current !== null &&
       prevActiveScenarioRef.current !== activeScenario
     ) {
       setDrawerOpen(false);
+      setBrowsePlaybookMode(false);
+      setPendingBrowsePick(null);
       setReplaceSuggest(null);
     }
     prevActiveScenarioRef.current = activeScenario;
-  }, [activeScenario, callSheetSheet, isSituationEdit, onboardingEditor, router, searchParams, sheetId, situationParam]);
+  }, [activeScenario]);
 
   const activeBlock = useMemo(
     () => scenarios.find((s) => s.scenario === activeScenario),
@@ -459,17 +455,20 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   );
 
   const openAdd = useCallback(() => {
-    if (isGoToSituation) return;
     if (atCapacity) {
       addToast(`Situation full (${maxSlots}/${maxSlots} slots).`, "warning");
       return;
     }
+    setBrowsePlaybookMode(false);
     setDrawerOpen(true);
-  }, [addToast, atCapacity, isGoToSituation, maxSlots]);
+  }, [addToast, atCapacity, maxSlots]);
 
   const onDrawerPick = useCallback(
     async (formation: string, play_name: string) => {
-      if (isGoToSituation) return;
+      if (browsePlaybookMode) {
+        setPendingBrowsePick({ formation, play_name });
+        return;
+      }
       try {
         const sid = activeBlock?.id;
         if (!sid) {
@@ -478,13 +477,46 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         }
         await postPlay.mutateAsync({ scenarioId: sid, formation, play_name });
         addToast("Added to sheet.", "success");
-      } catch (e) {
+      } catch {
         addToast(COULDNT_SAVE, "error");
       } finally {
         setDrawerOpen(false);
       }
     },
-    [activeBlock?.id, postPlay, addToast, isGoToSituation],
+    [activeBlock?.id, addToast, browsePlaybookMode, postPlay],
+  );
+
+  const onBrowseSituationPick = useCallback(
+    async (scenario: string) => {
+      const pick = pendingBrowsePick;
+      if (!pick || browseSituationBusy) return;
+      const block = scenarios.find((s) => s.scenario === scenario);
+      if (!block?.id) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      const max = maxSlotsForSheetScenario(scenario);
+      if (block.plays.length >= max) {
+        addToast(`Situation full (${max}/${max} slots).`, "warning");
+        return;
+      }
+      setBrowseSituationBusy(true);
+      try {
+        await postPlay.mutateAsync({
+          scenarioId: block.id,
+          formation: pick.formation,
+          play_name: pick.play_name,
+        });
+        void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, scenario] });
+        addToast(BUILDER_PLAY_ADDED_TO_SITUATION(callSheetScenarioDisplayName(scenario)), "success");
+        setPendingBrowsePick(null);
+      } catch {
+        addToast(COULDNT_SAVE, "error");
+      } finally {
+        setBrowseSituationBusy(false);
+      }
+    },
+    [addToast, browseSituationBusy, pendingBrowsePick, postPlay, queryClient, scenarios, sheetId],
   );
 
   const onSuggestAdd = useCallback(
@@ -567,8 +599,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   );
 
   const navigateToDashboardBrowse = useCallback(() => {
-    router.push(`/playbook/${sheetId}?situation=${encodeURIComponent("Run Game")}&browse=1`);
-  }, [router, sheetId]);
+    setBrowsePlaybookMode(true);
+    setDrawerOpen(true);
+  }, []);
 
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
@@ -653,11 +686,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           <p className="mt-1 font-body text-sm text-slate-400">
             {isGoToSituation ? GO_TO_PLAYS_EMPTY_BODY : "Add calls to build your call sheet."}
           </p>
-          {!isGoToSituation ? (
-            <Button type="button" variant="default" className="mt-4 text-sm" onClick={openAdd}>
-              {BUILDER_ADD_PLAY}
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            variant="default"
+            className="mt-4 text-sm"
+            disabled={atCapacity}
+            onClick={openAdd}
+          >
+            {BUILDER_ADD_PLAY}
+          </Button>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
@@ -678,7 +715,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 atCapacity={atCapacity && !play}
               />
             ))}
-            {!isGoToSituation && filled < maxSlots ? (
+            {filled < maxSlots ? (
               <PlaySlot
                 key="slot-add-next"
                 play={null}
@@ -811,15 +848,73 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         open={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
+          setBrowsePlaybookMode(false);
+          setPendingBrowsePick(null);
         }}
         cfb26Playbook={cfb26}
-        scenarioName={activeScenario}
+        scenarioName={browsePlaybookMode ? "" : activeScenario}
+        closeOnPick={!browsePlaybookMode}
         onPick={onDrawerPick}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
         onToggleGoTo={onBrowseToggleGoTo}
       />
+      <Dialog
+        open={Boolean(pendingBrowsePick)}
+        onOpenChange={(next) => {
+          if (!next && !browseSituationBusy) setPendingBrowsePick(null);
+        }}
+      >
+        <DialogContent
+          className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+          onPointerDownOutside={(e) => {
+            if (browseSituationBusy) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (browseSituationBusy) e.preventDefault();
+          }}
+        >
+          <DialogHeader className="space-y-0 border-b border-slate-800 px-4 py-3 text-left sm:text-left">
+            <DialogTitle className="font-heading text-lg font-bold uppercase tracking-[0.12em] text-slate-100 pr-10 text-left">
+              {BUILDER_BROWSE_SITUATION_PROMPT}
+            </DialogTitle>
+            {pendingBrowsePick ? (
+              <DialogDescription className="mt-3 text-left font-body text-sm text-slate-400">
+                Choose a situation for{" "}
+                <span className="font-medium text-white">
+                  {normalizePlayName(pendingBrowsePick.play_name)}
+                </span>
+                .
+              </DialogDescription>
+            ) : null}
+          </DialogHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+            <CallSheetSituationGrid
+              scenarios={scenarios}
+              onSelect={(scenario) => {
+                void onBrowseSituationPick(scenario);
+              }}
+              getOptionState={(block) => {
+                const max = maxSlotsForSheetScenario(block.scenario);
+                const full = block.plays.length >= max;
+                return full ? { disabled: true, statusLabel: BUILDER_SITUATION_FULL } : {};
+              }}
+            />
+          </div>
+          <div className={modalCtaFooterClass}>
+            <Button
+              type="button"
+              variant="secondary"
+              className="flex-1 py-3"
+              disabled={browseSituationBusy}
+              onClick={() => setPendingBrowsePick(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {editorOpen ? (
         <div
           className={cn("fixed inset-0 bg-black/70", overlayZ.radixDialog)}

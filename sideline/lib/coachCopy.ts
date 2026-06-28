@@ -138,6 +138,13 @@ export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;
 /** Call Sheet builder — opens the CFB26 play browser for the active situation. */
 export const BUILDER_BROWSE_PLAYBOOK = "Browse Playbook";
 export const BUILDER_ADD_PLAY = "Add play";
+export const BUILDER_ADD_PLAY_FOR_SITUATION = (situationDisplay: string) =>
+  `Add play: ${situationDisplay}`;
+/** Browse playbook flow — pick which situation bucket receives the play. */
+export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
+export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>
+  `Added to ${situationDisplay}`;
+export const BUILDER_SITUATION_FULL = "Full";
 
 /** Call Sheet viewer — mobile reference surface for the active sheet. */
 export const CALL_SHEET_VIEWER_TAB_NEEDS = "Situations";

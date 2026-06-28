@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet builder: add-play flow QA fixes
+
+### What
+
+- **[`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx):** Drawer header shows **Add play: {situation}** when opened from a situation bucket; generic **Add play** for dashboard **Browse Playbook**; **`closeOnPick`** keeps the browser open after pick in browse mode.
+- **[`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** **Go-To Plays** gets the same **Add play** affordances as other situations (disabled at 15/15). **Browse Playbook** no longer auto-assigns to Run Game — pick opens a **What's this play for?** dialog reusing **`CallSheetSituationGrid`** with full buckets disabled; success toast **Added to {situation}**; user stays in the play browser.
+- **[`sideline/components/playbook/CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx):** Optional **`getOptionState`** for disabled tiles and custom status labels (e.g. **Full**).
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** Parameterized builder copy for situation headers, browse prompt, add confirmation, and full indicator.
+
+### Why
+
+Coaches need clear context when adding calls, a direct path into Go-To Plays, and an explicit situation choice when browsing the full playbook — not silent assignment to Run Game.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Call Sheet: situation cards match Coach View colors and play count
 
 ### What

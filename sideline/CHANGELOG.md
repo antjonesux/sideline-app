@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Call Sheet — builder add-play QA fixes)
+
+**What:** **`AddPlayDrawer`**: situation-aware header (**Add play: {situation}**); **`closeOnPick`** for browse mode. **`PlaybookEditor`**: Go-To **Add play** button + slot row; browse playbook opens situation picker dialog (**What's this play for?**) via **`CallSheetSituationGrid`** with **Full** disabled state; **Added to {situation}** toast; no Run Game auto-assign. **`CallSheetSituationGrid`**: **`getOptionState`**. **`coachCopy`**: builder browse/add strings.
+
+**Why:** Clear add context, Go-To parity with other buckets, and explicit situation choice when browsing the full playbook.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Call Sheet — builder + Coach View tab consolidation)
 
 **What:** **`PlaybookEditor`**, **`CallSheetCoachView`**, **`CallSheetEditorTabBar`**, **`SegmentTabBar`**: **Situations** / **Coach View** tabs on sheet editor; Coach View full-width accordions with **`SITUATION_COLORS`** headers; builder **My Situations** subheader + inline back. **`CallSheetViewerMenu`**, **`coachCopy`**, **`playSheetNav`**: single **Call Sheet** nav item; **`/playbook/view`** → **`/playbook`**. Deleted standalone **`CallSheetViewer*`** components; QA routes updated.

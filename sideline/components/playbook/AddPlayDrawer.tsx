@@ -4,7 +4,8 @@
 import { useCallback, useState } from "react";
 import { PlayBrowser, stripFormationGroupPrefix, type PlaySheetAddNav } from "@/components/film/PlayBrowser";
 import { IconBackButton } from "@/components/shared/IconBackButton";
-import { BUILDER_ADD_PLAY } from "@/lib/coachCopy";
+import { BUILDER_ADD_PLAY, BUILDER_ADD_PLAY_FOR_SITUATION } from "@/lib/coachCopy";
+import { callSheetScenarioDisplayName } from "@/lib/playbookUtils";
 import { overlayZ } from "@/lib/constants/designTokens";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { cn, normalizePlayName } from "@/lib/utils";
@@ -13,8 +14,9 @@ export function AddPlayDrawer({
   open,
   onClose,
   cfb26Playbook,
-  scenarioName: _scenarioName,
+  scenarioName = "",
   onPick,
+  closeOnPick = true,
   showGoToStar = false,
   goToPlayKeys,
   goToBusyComboKey = null,
@@ -25,8 +27,10 @@ export function AddPlayDrawer({
   open: boolean;
   onClose: () => void;
   cfb26Playbook: string;
-  scenarioName: string;
+  scenarioName?: string;
   onPick: (formation: string, playName: string) => void;
+  /** When false, drawer stays open after pick (browse-playbook flow). */
+  closeOnPick?: boolean;
   showGoToStar?: boolean;
   goToPlayKeys?: Set<string>;
   goToBusyComboKey?: string | null;
@@ -58,7 +62,9 @@ export function AddPlayDrawer({
   const headerTitle =
     nav.step === "plays" && nav.formationLabel
       ? nav.formationLabel.toUpperCase()
-      : BUILDER_ADD_PLAY;
+      : scenarioName.trim()
+        ? BUILDER_ADD_PLAY_FOR_SITUATION(callSheetScenarioDisplayName(scenarioName))
+        : BUILDER_ADD_PLAY;
   const headerBackLabel = nav.step === "plays" ? "Back to formations" : "Back";
 
   const handleHeaderBack = () => {
@@ -123,7 +129,7 @@ export function AddPlayDrawer({
               qaInitialUi={qaInitialUi}
               onSelect={(play) => {
                 void onPick(play.formation, normalizePlayName(play.play_name));
-                onClose();
+                if (closeOnPick) onClose();
               }}
               onPlaySheetNavChange={handleNavChange}
             />
