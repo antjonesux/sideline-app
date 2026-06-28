@@ -17,7 +17,9 @@
     "prepare": "husky",
     "playwright:install": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
     "screenshots:onboarding": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/onboarding-screenshots.spec.ts",
-    "screenshots:play-sheet": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/play-sheet-screenshots.spec.ts"
+    "screenshots:play-sheet": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/play-sheet-screenshots.spec.ts",
+    "screenshots:call-sheet": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/call-sheet-screenshots.spec.ts",
+    "screenshots:flows": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test playwright/play-sheet-screenshots.spec.ts playwright/call-sheet-screenshots.spec.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

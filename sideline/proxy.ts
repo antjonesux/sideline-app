@@ -15,6 +15,7 @@ function isPublic(pathname: string) {
   // Screenshot QA — no session; production routes use notFound() in app/qa layouts.
   if (pathname.startsWith("/qa/onboarding")) return true;
   if (pathname.startsWith("/qa/play-sheet")) return true;
+  if (pathname.startsWith("/qa/call-sheet")) return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 

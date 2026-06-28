@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Call Sheet — screenshot QA routes + Play Sheet baseline refresh)
+
+**What:** **`app/qa/call-sheet/*`**, **`components/qa/call-sheet/*`**: sessionless call sheet viewer QA frames (home, situation, empty, menu, switcher); production **`notFound()`**. **`playwright/call-sheet-screenshots.spec.ts`**, **`qa-screenshots/call-sheet/`**. **`proxy.ts`**: public **`/qa/call-sheet`**. **`package.json`**: **`screenshots:call-sheet`**, **`screenshots:flows`**. **`qa-screenshots/play-sheet/`** baselines refreshed.
+
+**Why:** Repeatable call sheet visual QA; play sheet PNGs aligned with responsive shell.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Responsive layout — shared app shell tokens)
 
 **What:** **`globals.css`**: **`--app-shell-*`** variables + **`.app-shell-main`** (mobile **`48rem`**, scales at **`md` / `lg` / `xl`**). **`layout.tsx`**: **`appShellMainClass`**. **`BottomTabNav`**, **`PlaySheetSituationChipScroll`**: shell token alignment. **`designTokens.ts`**: **`appShellMainClass`**. **`BUILD_CONTRACT.md`**, **`DECISIONS.md`**.

@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet screenshot QA routes + refreshed Play Sheet baselines
+
+### What
+
+- **[`sideline/app/qa/call-sheet/`](sideline/app/qa/call-sheet/)**, **[`sideline/components/qa/call-sheet/`](sideline/components/qa/call-sheet/)**: Sessionless preview routes for call sheet viewer home, situation, empty, menu, and sheet switcher — production **`notFound()`** via segment layout.
+- **[`sideline/playwright/call-sheet-screenshots.spec.ts`](sideline/playwright/call-sheet-screenshots.spec.ts)**, **`qa-screenshots/call-sheet/`**: Playwright capture for five call sheet states; **`npm run screenshots:call-sheet`** and **`npm run screenshots:flows`** in **`package.json`**.
+- **[`sideline/proxy.ts`](sideline/proxy.ts):** **`/qa/call-sheet`** prefix is public (matches onboarding / play-sheet QA).
+- **`qa-screenshots/play-sheet/`**: Baseline PNGs refreshed after responsive shell changes.
+
+### Why
+
+Repeatable visual QA for call sheet sideline flows without auth; keep play sheet screenshot baselines aligned with the updated app shell.
+
+### Status after this push
+
+- `npm run build` from `sideline/` expected to pass.
+
+---
+
 ## 2026-06-28 — Responsive layout foundation: shared app shell tokens
 
 ### What
