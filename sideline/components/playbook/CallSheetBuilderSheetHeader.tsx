@@ -1,7 +1,7 @@
 "use client";
 
 import { IconBackButton } from "@/components/shared/IconBackButton";
-import { appShellPageTitleClass } from "@/lib/constants/designTokens";
+import { appShellHeaderActionButtonClass, appShellPageTitleClass } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 
 export function CallSheetBuilderSheetHeader({
@@ -27,7 +27,7 @@ export function CallSheetBuilderSheetHeader({
       {onEditSheet ? (
         <button
           type="button"
-          className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+          className={appShellHeaderActionButtonClass}
           onClick={onEditSheet}
         >
           Edit

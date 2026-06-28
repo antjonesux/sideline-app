@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Shell — unified header action button sizing)
+
+**What:** **`designTokens.ts`**: **`appShellHeaderActionButtonClass`** for compact bordered header actions; **`appShellIconBackButtonClass`** now aliases it. **`IconBackButton`**: spacer updated to **`h-8 w-11`**. **`PlaySheetHomeHeader`**, **`CallSheetBuilderSheetHeader`**, **`PlaybookEditor`**: Add Sheet / Edit use shared token.
+
+**Why:** Back, menu, Add Sheet, and Edit controls should share the same compact header size on call sheet screens.
+
+**Status after this push:** `npm run build` from `sideline/` expected to pass; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Call Sheet — builder add-play QA fixes)
 
 **What:** **`AddPlayDrawer`**: situation-aware header (**Add play: {situation}**); **`closeOnPick`** for browse mode. **`PlaybookEditor`**: Go-To **Add play** button + slot row; browse playbook opens situation picker dialog (**What's this play for?**) via **`CallSheetSituationGrid`** with **Full** disabled state; **Added to {situation}** toast; no Run Game auto-assign. **`CallSheetSituationGrid`**: **`getOptionState`**. **`coachCopy`**: builder browse/add strings.

@@ -4,7 +4,7 @@
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
-import { appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellHeaderActionButtonClass, appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -803,7 +803,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 {!onboardingEditor ? (
                   <button
                     type="button"
-                    className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                    className={appShellHeaderActionButtonClass}
                     onClick={() => {
                       setEditName(sheet.name);
                       setEditPlaybook(cfb26);

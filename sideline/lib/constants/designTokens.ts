@@ -77,9 +77,12 @@ export const appShellSurfaceCardHoverClass =
 export const appShellSurfaceActionButtonClass =
   "h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white";
 
-/** Compact bordered back control — use `IconBackButton` / `BackNavLink` in UI. */
-export const appShellIconBackButtonClass =
-  "inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+/** Compact bordered header action — Add Sheet, Edit, back chevron, menu. */
+export const appShellHeaderActionButtonClass =
+  "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+
+/** Compact bordered back / menu control — use `IconBackButton` / `CallSheetMenuButton` in UI. */
+export const appShellIconBackButtonClass = appShellHeaderActionButtonClass;
 
 /** Formation tile in Play Sheet Add Play browse. */
 export const playSheetFormationTileClass =
