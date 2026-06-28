@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Call Sheet — custom situations + builder polish)
+
+**What:** **`20260628120000_play_sheet_scenario_metadata.sql`**: **`description`**, **`icon`**, **`color`**, **`is_locked`** on **`play_sheet_scenarios`**. **`/api/playbook/[id]/situations/*`**: create, patch, delete, reorder (16 max, Go-To locked). **`constants.ts`**: **`DEFAULT_SHEET_SITUATIONS`**, **`SITUATION_PRESET_COLORS`** (+ static **`swatch`**), **`situationIcons.ts`**, **`situationApiHelpers.ts`**. **`SituationFormModal`**: create drawer + **full-page edit**; shared form tokens. **`SituationIconBadge`**, **`CallSheetSituationGrid`**: tinted cards, edit-mode drag reorder. **`CallSheetBuilderDashboard`**: **My Situations** label, **Add situation**, tighter header gap. **`CallSheetBuilderSituationHeader`**: back + **Edit** row; situation icon fill (no border). **`designTokens.ts`**: **`appShellFieldLabelClass`**, **`appShellFormInputClass`**, square **`appShellIconBackButtonClass`**. **`coachCopy`**: delete body — *This will remove this situation. This action cannot be undone.*
+
+**Why:** Coaches need custom situation buckets with visual identity; edit should feel like a dedicated screen, not a clipped sheet.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Shell — unified header action button sizing)
 
 **What:** **`designTokens.ts`**: **`appShellHeaderActionButtonClass`** for compact bordered header actions; **`appShellIconBackButtonClass`** now aliases it. **`IconBackButton`**: spacer updated to **`h-8 w-11`**. **`PlaySheetHomeHeader`**, **`CallSheetBuilderSheetHeader`**, **`PlaybookEditor`**: Add Sheet / Edit use shared token.

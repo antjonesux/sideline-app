@@ -1,4 +1,4 @@
-import { CALL_SHEET_SCENARIOS } from "@/lib/constants";
+import { DEFAULT_SHEET_SITUATIONS } from "@/lib/constants";
 import { maybeSetActiveOnCreate, readActiveCallSheetId } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
@@ -148,10 +148,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
-  const scenarioRows = CALL_SHEET_SCENARIOS.map((scenario, index) => ({
+  const scenarioRows = DEFAULT_SHEET_SITUATIONS.map((situation, index) => ({
     user_id: user.id,
     play_sheet_id: sheet.id,
-    scenario,
+    scenario: situation.scenario,
+    description: situation.description,
+    icon: situation.icon,
+    color: situation.color,
+    is_locked: situation.isLocked,
     scenario_order: index + 1,
   }));
 

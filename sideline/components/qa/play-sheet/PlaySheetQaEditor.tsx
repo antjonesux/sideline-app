@@ -38,7 +38,6 @@ export function PlaySheetQaEditor({
           backHref="/playbook"
           sheetName={sheetName}
           cfb26Playbook={cfb26Playbook}
-          onEditSheet={() => {}}
         />
         <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
         {editorTab === "situations" ? (
@@ -46,6 +45,13 @@ export function PlaySheetQaEditor({
             scenarios={scenarios}
             onBrowsePlaybook={() => {}}
             onSelectSituation={() => {}}
+            editMode={false}
+            onToggleEditMode={() => {}}
+            onAddSituation={() => {}}
+            dragId={null}
+            setDragId={() => {}}
+            onReorderSituations={() => {}}
+            onDeleteSituation={() => {}}
           />
         ) : (
           <CallSheetCoachView scenarios={scenarios} />

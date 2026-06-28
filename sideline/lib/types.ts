@@ -98,5 +98,9 @@ export type SheetScenarioBlock = {
   id: string;
   scenario: string;
   scenario_order: number;
+  description?: string;
+  icon?: string | null;
+  color?: string;
+  is_locked?: boolean;
   plays: SheetPlayRow[];
 };

@@ -1,10 +1,10 @@
 "use client";
 
-import { CALL_SHEET_SCENARIOS, SITUATION_COLORS, type CallSheetScenario } from "@/lib/constants";
+import { SituationIconBadge } from "@/components/playbook/SituationIconBadge";
+import { getSituationColor } from "@/lib/constants";
 import { CALL_SHEET_COACH_VIEW_EMPTY, CALL_SHEET_VIEWER_SITUATION_EMPTY } from "@/lib/coachCopy";
 import {
   callSheetScenarioDisplayName,
-  callSheetScenarioMarker,
   callSheetScenarioPlayCountLabel,
 } from "@/lib/playbookUtils";
 import type { SheetScenarioBlock } from "@/lib/types";
@@ -12,10 +12,7 @@ import { cn, normalizePlayName } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
 function orderedScenarioBlocks(scenarios: SheetScenarioBlock[]): SheetScenarioBlock[] {
-  return CALL_SHEET_SCENARIOS.flatMap((name) => {
-    const block = scenarios.find((s) => s.scenario === name);
-    return block ? [block] : [];
-  });
+  return [...scenarios].sort((a, b) => a.scenario_order - b.scenario_order);
 }
 
 export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBlock[] }) {
@@ -50,9 +47,8 @@ export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBloc
         const isExpanded = expanded.has(block.id);
         const count = block.plays.length;
         const sectionLabel = callSheetScenarioDisplayName(block.scenario).toUpperCase();
-        const marker = callSheetScenarioMarker(block.scenario as CallSheetScenario);
-        const colors =
-          SITUATION_COLORS[block.scenario as CallSheetScenario] ?? SITUATION_COLORS["Run Game"];
+        const colorKey = block.color ?? "blue";
+        const colors = getSituationColor(colorKey);
         const sortedPlays = [...block.plays].sort((a, b) => a.play_order - b.play_order);
 
         return (
@@ -68,9 +64,12 @@ export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBloc
               aria-expanded={isExpanded}
             >
               <span className="flex min-w-0 flex-1 items-center gap-2">
-                <span className={cn("shrink-0 font-mono text-base leading-none", colors.text)} aria-hidden>
-                  {marker}
-                </span>
+                <SituationIconBadge
+                  icon={block.icon}
+                  colorKey={colorKey}
+                  name={block.scenario}
+                  size="md"
+                />
                 <span
                   className={cn(
                     "min-w-0 truncate font-heading text-sm font-bold uppercase tracking-wide",

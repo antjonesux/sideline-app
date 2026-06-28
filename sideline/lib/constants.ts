@@ -38,17 +38,58 @@ export type CallSheetScenario = (typeof CALL_SHEET_SCENARIOS)[number];
 /** First tactical bucket — Go-To is a normal situation, not a separate data model. */
 export const GO_TO_PLAYS_SCENARIO = CALL_SHEET_SCENARIOS[0];
 
-/** Situation accent colors — Coach View section headers (fill, border tag, accessible text on slate-900/950). */
-export const SITUATION_COLORS: Record<CallSheetScenario, { border: string; text: string; bg: string }> = {
-  "Go-To Plays": { border: "border-l-amber-500", text: "text-amber-400", bg: "bg-amber-500/15" },
-  Tempo: { border: "border-l-cyan-500", text: "text-cyan-400", bg: "bg-cyan-500/15" },
-  "Run Game": { border: "border-l-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/15" },
-  "Pass Game": { border: "border-l-blue-500", text: "text-blue-400", bg: "bg-blue-500/15" },
-  "Man Beaters": { border: "border-l-violet-500", text: "text-violet-400", bg: "bg-violet-500/15" },
-  "Zone Beaters": { border: "border-l-rose-500", text: "text-rose-400", bg: "bg-rose-500/15" },
-  "Take a Shot": { border: "border-l-orange-500", text: "text-orange-400", bg: "bg-orange-500/15" },
-  "Red Zone": { border: "border-l-red-500", text: "text-red-400", bg: "bg-red-500/15" },
-};
+/** Default situations seeded on new call sheets — database is runtime source of truth. */
+export const DEFAULT_SHEET_SITUATIONS = [
+  { scenario: "Go-To Plays", description: "Your most trusted plays", icon: "Star", color: "amber", isLocked: true },
+  { scenario: "Red Zone", description: "Punch it in", icon: "Flag", color: "red", isLocked: false },
+  { scenario: "Run Game", description: "Establish the run", icon: "Shield", color: "emerald", isLocked: false },
+  { scenario: "Pass Game", description: "Move the chains through the air", icon: "Target", color: "blue", isLocked: false },
+  { scenario: "Man Beaters", description: "Quick wins vs man coverage", icon: "Crosshair", color: "violet", isLocked: false },
+  { scenario: "Zone Beaters", description: "Read the zone and attack", icon: "Eye", color: "rose", isLocked: false },
+] as const;
+
+/** 16 selectable Lucide icon names for custom situations. Star is reserved for Go-to Plays. */
+export const SITUATION_PRESET_ICONS = [
+  "Zap",
+  "Flame",
+  "Rocket",
+  "Swords",
+  "Target",
+  "Eye",
+  "Crosshair",
+  "FastForward",
+  "Wind",
+  "Timer",
+  "Shield",
+  "Lock",
+  "Trophy",
+  "Flag",
+  "TrendingUp",
+  "ArrowUpRight",
+] as const;
+
+/** 12 accessible color presets for situations — Tailwind 400 shade for dark backgrounds. */
+export const SITUATION_PRESET_COLORS = [
+  { key: "red", label: "Red", text: "text-red-400", border: "border-l-red-400", bg: "bg-red-400/10", swatch: "bg-red-400" },
+  { key: "orange", label: "Orange", text: "text-orange-400", border: "border-l-orange-400", bg: "bg-orange-400/10", swatch: "bg-orange-400" },
+  { key: "amber", label: "Amber", text: "text-amber-400", border: "border-l-amber-400", bg: "bg-amber-400/10", swatch: "bg-amber-400" },
+  { key: "emerald", label: "Emerald", text: "text-emerald-400", border: "border-l-emerald-400", bg: "bg-emerald-400/10", swatch: "bg-emerald-400" },
+  { key: "teal", label: "Teal", text: "text-teal-400", border: "border-l-teal-400", bg: "bg-teal-400/10", swatch: "bg-teal-400" },
+  { key: "cyan", label: "Cyan", text: "text-cyan-400", border: "border-l-cyan-400", bg: "bg-cyan-400/10", swatch: "bg-cyan-400" },
+  { key: "sky", label: "Sky", text: "text-sky-400", border: "border-l-sky-400", bg: "bg-sky-400/10", swatch: "bg-sky-400" },
+  { key: "blue", label: "Blue", text: "text-blue-400", border: "border-l-blue-400", bg: "bg-blue-400/10", swatch: "bg-blue-400" },
+  { key: "violet", label: "Violet", text: "text-violet-400", border: "border-l-violet-400", bg: "bg-violet-400/10", swatch: "bg-violet-400" },
+  { key: "purple", label: "Purple", text: "text-purple-400", border: "border-l-purple-400", bg: "bg-purple-400/10", swatch: "bg-purple-400" },
+  { key: "pink", label: "Pink", text: "text-pink-400", border: "border-l-pink-400", bg: "bg-pink-400/10", swatch: "bg-pink-400" },
+  { key: "rose", label: "Rose", text: "text-rose-400", border: "border-l-rose-400", bg: "bg-rose-400/10", swatch: "bg-rose-400" },
+] as const;
+
+export type SituationPresetColor = (typeof SITUATION_PRESET_COLORS)[number];
+
+/** Resolve a color key to its Tailwind classes — defaults to blue. */
+export function getSituationColor(key: string): SituationPresetColor {
+  return SITUATION_PRESET_COLORS.find((c) => c.key === key) ?? SITUATION_PRESET_COLORS[7];
+}
 
 /** Compact labels for mobile situation chips in the Call Sheet builder. */
 export const CALL_SHEET_SCENARIO_SHORT: Record<CallSheetScenario, string> = {

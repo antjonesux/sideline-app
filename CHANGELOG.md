@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet: custom situations (builder CRUD + full-page edit)
+
+### What
+
+- **[`sideline/supabase/migrations/20260628120000_play_sheet_scenario_metadata.sql`](sideline/supabase/migrations/20260628120000_play_sheet_scenario_metadata.sql):** Adds **`description`**, **`icon`**, **`color`**, **`is_locked`** to **`play_sheet_scenarios`**.
+- **[`sideline/app/api/playbook/[id]/situations/`](sideline/app/api/playbook/[id]/situations/):** Create, patch, delete, and reorder routes (16 situations max; Go-To Plays locked at index 0).
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts)**, **[`situationIcons.ts`](sideline/lib/situationIcons.ts)**, **[`situationApiHelpers.ts`](sideline/lib/situationApiHelpers.ts):** **`DEFAULT_SHEET_SITUATIONS`** seeds new sheets; preset icons/colors with static Tailwind **`swatch`** classes for the color picker.
+- **[`sideline/components/playbook/SituationFormModal.tsx`](sideline/components/playbook/SituationFormModal.tsx):** **New situation** stays a bottom sheet; **Edit situation** is a full-page overlay with back navigation, shared inputs, and delete affordance.
+- **[`CallSheetBuilderDashboard`](sideline/components/playbook/CallSheetBuilderDashboard.tsx)**, **[`CallSheetSituationGrid`](sideline/components/playbook/CallSheetSituationGrid.tsx)**, **[`CallSheetBuilderSituationHeader`](sideline/components/playbook/CallSheetBuilderSituationHeader.tsx)**, **[`CallSheetCoachView`](sideline/components/playbook/CallSheetCoachView.tsx)**, **[`PlaybookEditor`](sideline/components/playbook/PlaybookEditor.tsx):** Colored situation cards, edit-mode reorder, add situation CTA, situation detail header polish, Coach View dynamic colors/icons.
+- **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts)**, **[`IconBackButton`](sideline/components/shared/IconBackButton.tsx):** **`appShellFieldLabelClass`**, **`appShellFormInputClass`**, square icon back button (**`size-8`**).
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** Delete confirmation — *This will remove this situation. This action cannot be undone.*
+
+### Why
+
+Coaches need named, colored situation buckets they can customize; editing a situation should occupy the full screen like other builder flows, with form styling consistent across the app.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Call Sheet builder: add-play flow QA fixes
 
 ### What

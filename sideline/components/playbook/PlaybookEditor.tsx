@@ -2,13 +2,15 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
+import { defaultColorForNewSituation } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackNavLink } from "@/components/shared/BackNavLink";
+import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -17,8 +19,13 @@ import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
 import {
   COULDNT_SAVE,
   BUILDER_ADD_PLAY,
-  BUILDER_BROWSE_SITUATION_PROMPT,
+  BUILDER_DELETE_SITUATION_BODY,
+  BUILDER_DELETE_SITUATION_TITLE,
   BUILDER_PLAY_ADDED_TO_SITUATION,
+  BUILDER_SITUATION_ADDED,
+  BUILDER_SITUATION_DELETED,
+  BUILDER_SITUATION_UPDATED,
+  BUILDER_BROWSE_SITUATION_PROMPT,
   BUILDER_SITUATION_FULL,
   GO_TO_PLAY_ADDED,
   GO_TO_PLAY_ALREADY,
@@ -52,6 +59,7 @@ import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEdito
 import { CallSheetSituationGrid } from "./CallSheetSituationGrid";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
+import { SituationFormModal, type SituationFormValues } from "./SituationFormModal";
 import { SituationList } from "./SituationList";
 
 const STALE_SCENARIO_MS = 5 * 60 * 1000;
@@ -105,6 +113,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const [startGuidedBusy, setStartGuidedBusy] = useState(false);
+  const [situationsEditMode, setSituationsEditMode] = useState(false);
+  const [situationDragId, setSituationDragId] = useState<string | null>(null);
+  const [editScenarios, setEditScenarios] = useState<SheetScenarioBlock[]>([]);
+  const [createSituationOpen, setCreateSituationOpen] = useState(false);
+  const [editSituationOpen, setEditSituationOpen] = useState(false);
+  const [deleteSituationTarget, setDeleteSituationTarget] = useState<SheetScenarioBlock | null>(null);
+  const [situationFormBusy, setSituationFormBusy] = useState(false);
   const prevActiveScenarioRef = useRef<string | null>(null);
   const addToast = useToastStore((s) => s.addToast);
   useScrollLock(editorOpen);
@@ -207,7 +222,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   );
 
   const goToBlock = useMemo(
-    () => scenarios.find((s) => s.scenario === GO_TO_PLAYS_SCENARIO),
+    () => scenarios.find((s) => s.is_locked || s.scenario === GO_TO_PLAYS_SCENARIO),
     [scenarios],
   );
 
@@ -228,7 +243,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   }, [goToBlock?.plays]);
 
   const isGoToSituation =
-    callSheetSheet && !onboardingEditor && activeScenario === GO_TO_PLAYS_SCENARIO;
+    callSheetSheet && !onboardingEditor && Boolean(activeBlock?.is_locked || activeScenario === GO_TO_PLAYS_SCENARIO);
   const useCallSheetPlayRows = callSheetSheet && !onboardingEditor && isSituationEdit;
   const showGoToStar = callSheetSheet && !onboardingEditor && Boolean(goToBlock?.id);
   const goToAtCapacity = (goToBlock?.plays.length ?? 0) >= maxSlotsForSheetScenario(GO_TO_PLAYS_SCENARIO);
@@ -267,11 +282,199 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     return optionByLower.get(legacyValue.toLowerCase()) ?? "";
   }, [sheet, cfb26PlaybookOptions]);
 
-  const invalidateScenario = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, activeScenario] });
+  const invalidateSheet = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
     void queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
-  }, [queryClient, sheetId, activeScenario]);
+  }, [queryClient, sheetId]);
+
+  const invalidateScenario = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, activeScenario] });
+    invalidateSheet();
+  }, [queryClient, sheetId, activeScenario, invalidateSheet]);
+
+  const reorderSituations = useMutation({
+    mutationFn: async (situationIds: string[]) => {
+      const res = await fetch(`/api/playbook/${sheetId}/situations/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situationIds }),
+      });
+      const j = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(j.error ?? "Could not reorder");
+      return j;
+    },
+    onSuccess: () => invalidateSheet(),
+  });
+
+  const createSituation = useMutation({
+    mutationFn: async (values: SituationFormValues) => {
+      const res = await fetch(`/api/playbook/${sheetId}/situations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          description: values.description,
+          icon: values.icon,
+          color: values.color,
+        }),
+      });
+      const j = (await res.json()) as { error?: string; data?: { situation: { scenario: string } } };
+      if (!res.ok) throw new Error(j.error ?? "Could not create situation");
+      return j;
+    },
+    onSuccess: () => invalidateSheet(),
+  });
+
+  const updateSituation = useMutation({
+    mutationFn: async ({
+      situationId,
+      values,
+    }: {
+      situationId: string;
+      values: SituationFormValues;
+    }) => {
+      const res = await fetch(`/api/playbook/${sheetId}/situations/${situationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          description: values.description,
+          icon: values.icon,
+          color: values.color,
+        }),
+      });
+      const j = (await res.json()) as {
+        error?: string;
+        data?: { situation: { scenario: string } };
+      };
+      if (!res.ok) throw new Error(j.error ?? "Could not update situation");
+      return j;
+    },
+    onSuccess: (_data, variables) => {
+      invalidateSheet();
+      if (variables.values.name !== activeScenario && activeScenario) {
+        void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, activeScenario] });
+      }
+    },
+  });
+
+  const deleteSituation = useMutation({
+    mutationFn: async (situationId: string) => {
+      const res = await fetch(`/api/playbook/${sheetId}/situations/${situationId}`, { method: "DELETE" });
+      const j = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(j.error ?? "Could not delete situation");
+      return j;
+    },
+    onSuccess: () => invalidateSheet(),
+  });
+
+  const dashboardScenarios = situationsEditMode ? editScenarios : scenarios;
+
+  const usedSituationColors = useMemo(
+    () => scenarios.map((s) => s.color ?? "blue").filter(Boolean),
+    [scenarios],
+  );
+
+  const toggleSituationsEditMode = useCallback(async () => {
+    if (!situationsEditMode) {
+      setEditScenarios([...scenarios]);
+      setSituationsEditMode(true);
+      return;
+    }
+
+    const orderChanged =
+      editScenarios.length === scenarios.length &&
+      editScenarios.some((block, index) => block.id !== scenarios[index]?.id);
+
+    setSituationsEditMode(false);
+    setSituationDragId(null);
+
+    if (orderChanged) {
+      try {
+        await reorderSituations.mutateAsync(editScenarios.map((s) => s.id));
+      } catch {
+        addToast(COULDNT_SAVE, "error");
+      }
+    }
+  }, [situationsEditMode, editScenarios, scenarios, reorderSituations, addToast]);
+
+  const onReorderSituations = useCallback((fromId: string, toIndex: number) => {
+    setEditScenarios((prev) => {
+      const ids = prev.map((s) => s.id);
+      const without = ids.filter((id) => id !== fromId);
+      const insertAt = Math.min(Math.max(0, toIndex), without.length);
+      const nextIds = [...without.slice(0, insertAt), fromId, ...without.slice(insertAt)];
+      return nextIds.map((id) => prev.find((s) => s.id === id)).filter((s): s is SheetScenarioBlock => Boolean(s));
+    });
+  }, []);
+
+  const onCreateSituation = useCallback(
+    async (values: SituationFormValues) => {
+      setSituationFormBusy(true);
+      try {
+        await createSituation.mutateAsync(values);
+        addToast(BUILDER_SITUATION_ADDED(values.name), "success");
+        setCreateSituationOpen(false);
+      } catch {
+        addToast(COULDNT_SAVE, "error");
+      } finally {
+        setSituationFormBusy(false);
+      }
+    },
+    [addToast, createSituation],
+  );
+
+  const onUpdateSituation = useCallback(
+    async (values: SituationFormValues) => {
+      if (!activeBlock?.id) return;
+      setSituationFormBusy(true);
+      try {
+        const result = await updateSituation.mutateAsync({ situationId: activeBlock.id, values });
+        const updatedName = result.data?.situation?.scenario ?? values.name;
+        addToast(BUILDER_SITUATION_UPDATED(updatedName), "success");
+        setEditSituationOpen(false);
+        if (updatedName !== activeScenario) {
+          router.replace(`/playbook/${sheetId}?situation=${encodeURIComponent(updatedName)}`);
+        }
+      } catch {
+        addToast(COULDNT_SAVE, "error");
+      } finally {
+        setSituationFormBusy(false);
+      }
+    },
+    [activeBlock?.id, activeScenario, addToast, router, sheetId, updateSituation],
+  );
+
+  const confirmDeleteSituation = useCallback(async () => {
+    if (!deleteSituationTarget) return;
+    const target = deleteSituationTarget;
+    setSituationFormBusy(true);
+    try {
+      await deleteSituation.mutateAsync(target.id);
+      addToast(BUILDER_SITUATION_DELETED(callSheetScenarioDisplayName(target.scenario)), "success");
+      setDeleteSituationTarget(null);
+      setEditSituationOpen(false);
+      if (isSituationEdit && target.scenario === activeScenario) {
+        router.replace(`/playbook/${sheetId}`);
+      }
+      if (situationsEditMode) {
+        setEditScenarios((prev) => prev.filter((s) => s.id !== target.id));
+      }
+    } catch {
+      addToast(COULDNT_SAVE, "error");
+    } finally {
+      setSituationFormBusy(false);
+    }
+  }, [
+    activeScenario,
+    addToast,
+    deleteSituation,
+    deleteSituationTarget,
+    isSituationEdit,
+    router,
+    sheetId,
+    situationsEditMode,
+  ]);
 
   const postPlay = useMutation({
     mutationFn: async (body: { scenarioId: string; formation: string; play_name: string }) => {
@@ -753,12 +956,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             <CallSheetBuilderSituationHeader
               backHref={`/playbook/${sheetId}`}
               title={callSheetScenarioDisplayName(activeScenario)}
-              subtitle={callSheetScenarioHelperText(activeScenario)}
-              playCountLabel={
-                isGoToSituation
-                  ? callSheetScenarioPlayCountLabel(filled)
-                  : callSheetScenarioPlayCountHeaderLabel(filled, maxSlots)
-              }
+              scenario={activeScenario}
+              description={activeBlock?.description}
+              colorKey={activeBlock?.color}
+              icon={activeBlock?.icon}
+              playCountLabel={callSheetScenarioPlayCountLabel(filled)}
+              showEdit={!isGoToSituation}
+              onEdit={() => setEditSituationOpen(true)}
             />
             {scenarioPlaysSection}
           </div>
@@ -768,18 +972,25 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               backHref="/playbook"
               sheetName={sheet.name}
               cfb26Playbook={cfb26}
-              onEditSheet={() => {
-                setEditName(sheet.name);
-                setEditPlaybook(cfb26);
-                setEditorOpen(true);
-              }}
             />
             <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
             {editorTab === "situations" ? (
               <CallSheetBuilderDashboard
-                scenarios={scenarios}
+                scenarios={dashboardScenarios}
                 onBrowsePlaybook={navigateToDashboardBrowse}
                 onSelectSituation={navigateToSituation}
+                editMode={situationsEditMode}
+                onToggleEditMode={() => void toggleSituationsEditMode()}
+                onAddSituation={() => setCreateSituationOpen(true)}
+                dragId={situationDragId}
+                setDragId={setSituationDragId}
+                onReorderSituations={onReorderSituations}
+                onDeleteSituation={(block) => setDeleteSituationTarget(block)}
+                getOptionState={(block) => {
+                  const max = maxSlotsForSheetScenario(block.scenario);
+                  const full = block.plays.length >= max;
+                  return full ? { disabled: true, statusLabel: BUILDER_SITUATION_FULL } : {};
+                }}
               />
             ) : (
               <CallSheetCoachView scenarios={scenarios} />
@@ -1033,6 +1244,55 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <SituationFormModal
+        open={createSituationOpen}
+        mode="create"
+        initialValues={{
+          name: "",
+          description: "",
+          icon: null,
+          color: defaultColorForNewSituation(usedSituationColors),
+        }}
+        usedColors={usedSituationColors}
+        busy={situationFormBusy}
+        onClose={() => setCreateSituationOpen(false)}
+        onSubmit={onCreateSituation}
+      />
+
+      {activeBlock && !isGoToSituation ? (
+        <SituationFormModal
+          open={editSituationOpen}
+          mode="edit"
+          presentation="page"
+          initialValues={{
+            name: activeBlock.scenario,
+            description: activeBlock.description ?? callSheetScenarioHelperText(activeBlock.scenario),
+            icon: activeBlock.icon ?? null,
+            color: activeBlock.color ?? "blue",
+          }}
+          usedColors={usedSituationColors.filter((c) => c !== (activeBlock.color ?? "blue"))}
+          busy={situationFormBusy}
+          onClose={() => setEditSituationOpen(false)}
+          onSubmit={onUpdateSituation}
+          onDelete={() => setDeleteSituationTarget(activeBlock)}
+        />
+      ) : null}
+
+      <ConfirmDestructiveModal
+        open={Boolean(deleteSituationTarget)}
+        onClose={() => {
+          if (!situationFormBusy) setDeleteSituationTarget(null);
+        }}
+        title={
+          deleteSituationTarget
+            ? BUILDER_DELETE_SITUATION_TITLE(callSheetScenarioDisplayName(deleteSituationTarget.scenario))
+            : ""
+        }
+        message={deleteSituationTarget ? BUILDER_DELETE_SITUATION_BODY : null}
+        busy={situationFormBusy}
+        onConfirm={() => void confirmDeleteSituation()}
+      />
 
       {onboardingEditor ? (
         <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-800 bg-slate-950/95 px-4 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-sm">

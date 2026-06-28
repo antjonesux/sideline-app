@@ -77,12 +77,21 @@ export const appShellSurfaceCardHoverClass =
 export const appShellSurfaceActionButtonClass =
   "h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white";
 
-/** Compact bordered header action — Add Sheet, Edit, back chevron, menu. */
+/** Uppercase field / section label — settings groups, form labels, builder section headers. */
+export const appShellFieldLabelClass =
+  "font-sans text-xs font-normal uppercase tracking-widest text-slate-500";
+
+/** Standard bordered form input on app shell surfaces. */
+export const appShellFormInputClass =
+  "hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25";
+
+/** Compact bordered header action — Add Sheet, Edit. */
 export const appShellHeaderActionButtonClass =
   "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
-/** Compact bordered back / menu control — use `IconBackButton` / `CallSheetMenuButton` in UI. */
-export const appShellIconBackButtonClass = appShellHeaderActionButtonClass;
+/** Square bordered icon control — back chevron, menu. Use `IconBackButton` / `CallSheetMenuButton` in UI. */
+export const appShellIconBackButtonClass =
+  "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-slate-700 p-0 font-sans text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
 /** Formation tile in Play Sheet Add Play browse. */
 export const playSheetFormationTileClass =

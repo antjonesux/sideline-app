@@ -51,5 +51,5 @@ export function IconBackButton(props: LinkProps | ButtonProps) {
 
 /** Invisible spacer matching `IconBackButton` width for centered headers. */
 export function IconBackButtonSpacer({ className }: { className?: string }) {
-  return <span className={cn("h-8 w-11 shrink-0 invisible", className)} aria-hidden />;
+  return <span className={cn("size-8 shrink-0 invisible", className)} aria-hidden />;
 }

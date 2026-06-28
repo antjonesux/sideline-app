@@ -77,7 +77,10 @@ export function PlaySheetQaSituationEditor({
       <CallSheetBuilderSituationHeader
         backHref="/playbook"
         title={callSheetScenarioDisplayName(activeScenario)}
-        subtitle={callSheetScenarioHelperText(activeScenario)}
+        scenario={activeScenario}
+        description={scenarios.find((s) => s.scenario === activeScenario)?.description}
+        colorKey={scenarios.find((s) => s.scenario === activeScenario)?.color ?? "emerald"}
+        icon={scenarios.find((s) => s.scenario === activeScenario)?.icon}
         playCountLabel={callSheetScenarioPlayCountHeaderLabel(filled, maxSlots)}
       />
 

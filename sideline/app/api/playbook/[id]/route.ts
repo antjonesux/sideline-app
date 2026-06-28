@@ -32,7 +32,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   const [{ data: scenarios, error: scErr }, { data: allPlays, error: plErr }] = await Promise.all([
     supabase
       .from("play_sheet_scenarios")
-      .select("id, scenario, scenario_order")
+      .select("id, scenario, scenario_order, description, icon, color, is_locked")
       .eq("play_sheet_id", id)
       .eq("user_id", user.id)
       .order("scenario_order", { ascending: true }),
@@ -66,6 +66,10 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
       id: s.id,
       scenario: s.scenario,
       scenario_order: s.scenario_order,
+      description: s.description ?? "",
+      icon: s.icon,
+      color: s.color ?? "blue",
+      is_locked: Boolean(s.is_locked),
       plays,
     };
   });

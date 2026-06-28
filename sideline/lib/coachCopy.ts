@@ -145,6 +145,18 @@ export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
 export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>
   `Added to ${situationDisplay}`;
 export const BUILDER_SITUATION_FULL = "Full";
+export const BUILDER_ADD_SITUATION = "Add situation";
+export const BUILDER_SITUATION_ADDED = (name: string) => `Added ${name}`;
+export const BUILDER_SITUATION_UPDATED = (name: string) => `Updated ${name}`;
+export const BUILDER_SITUATION_DELETED = (name: string) => `${name} deleted`;
+export const BUILDER_DELETE_SITUATION_TITLE = (name: string) => `Delete ${name}?`;
+export const BUILDER_DELETE_SITUATION_BODY =
+  "This will remove this situation. This action cannot be undone.";
+export const BUILDER_SITUATION_NAME_PLACEHOLDER = "e.g. Screen Game";
+export const BUILDER_SITUATION_DESC_PLACEHOLDER = "e.g. Quick throws to the edges";
+export const BUILDER_EDIT_SITUATION = "Edit situation";
+export const BUILDER_DELETE_SITUATION = "Delete situation";
+export const BUILDER_SITUATIONS_AT_CAPACITY = "16/16";
 
 /** Call Sheet viewer — mobile reference surface for the active sheet. */
 export const CALL_SHEET_VIEWER_TAB_NEEDS = "Situations";

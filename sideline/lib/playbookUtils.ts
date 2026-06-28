@@ -109,29 +109,17 @@ export function orderedScenarioList(): typeof SCENARIOS {
   return SCENARIOS;
 }
 
-const CALL_SHEET_ORDER_INDEX = new Map(CALL_SHEET_SCENARIOS.map((label, index) => [label, index]));
-
-/** Order Call Sheet situation badges like `CALL_SHEET_SCENARIOS`. */
+/** Order Call Sheet situations by persisted `scenario_order`. */
 export function sortCallSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
-  return [...blocks].sort((a, b) => {
-    const ia = CALL_SHEET_ORDER_INDEX.get(a.scenario as CallSheetScenario) ?? 999;
-    const ib = CALL_SHEET_ORDER_INDEX.get(b.scenario as CallSheetScenario) ?? 999;
-    return ia - ib;
-  });
+  return [...blocks].sort((a, b) => a.scenario_order - b.scenario_order);
 }
 
-/** Default max plays per tactical Call Sheet bucket (most situations). */
-export const CALL_SHEET_SCENARIO_MAX_DEFAULT = 7;
+/** Max plays per tactical / custom Call Sheet situation. */
+export const CALL_SHEET_SCENARIO_MAX = 25;
 
-/** Expanded cap for Go-To Plays and Tempo. */
-export const CALL_SHEET_SCENARIO_MAX_EXPANDED = 15;
-
-/** Max plays per tactical Call Sheet situation. */
-export function callSheetScenarioMaxSlots(scenario: string): number {
-  if (scenario === GO_TO_PLAYS_SCENARIO || scenario === "Tempo") {
-    return CALL_SHEET_SCENARIO_MAX_EXPANDED;
-  }
-  return CALL_SHEET_SCENARIO_MAX_DEFAULT;
+/** Max plays per tactical Call Sheet situation — uniform 25 across all buckets. */
+export function callSheetScenarioMaxSlots(_scenario: string): number {
+  return CALL_SHEET_SCENARIO_MAX;
 }
 
 export function orderedCallSheetScenarioList(): typeof CALL_SHEET_SCENARIOS {
@@ -151,10 +139,12 @@ export function isCallSheetScenario(scenario: string): boolean {
   return (CALL_SHEET_SCENARIOS as readonly string[]).includes(scenario);
 }
 
-/** Slot cap for builder/API — call sheet buckets use per-situation caps; legacy tabs keep special cases. */
+const LEGACY_SCENARIO_SET = new Set<string>(SCENARIOS);
+
+/** Slot cap for builder/API — legacy down-and-distance tabs keep special cases; call sheet + custom buckets use 25. */
 export function maxSlotsForSheetScenario(scenario: string): number {
-  if (isCallSheetScenario(scenario)) return callSheetScenarioMaxSlots(scenario);
-  return scenarioMaxSlots(scenario);
+  if (LEGACY_SCENARIO_SET.has(scenario)) return scenarioMaxSlots(scenario);
+  return CALL_SHEET_SCENARIO_MAX;
 }
 
 export function sortSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
@@ -179,7 +169,8 @@ export function callSheetPlayDisplayLabel(formation: string, play_name: string):
   return `${formation.trim()} ${normalizePlayName(play_name)}`;
 }
 
-export function callSheetScenarioHelperText(scenario: string): string {
+export function callSheetScenarioHelperText(scenario: string, description?: string | null): string {
+  if (description?.trim()) return description.trim();
   if (isCallSheetScenario(scenario)) {
     return CALL_SHEET_SCENARIO_HELP[scenario as CallSheetScenario];
   }
@@ -213,5 +204,9 @@ export function callSheetScenarioPlayCountLabel(count: number): string {
 }
 
 export function callSheetScenarioPlayCountHeaderLabel(count: number, max: number): string {
-  return `${count}/${max} plays`;
+  return `${count}/${max}`;
+}
+
+export function callSheetScenarioPlayCountCompact(count: number, max: number): string {
+  return `${count}/${max}`;
 }
