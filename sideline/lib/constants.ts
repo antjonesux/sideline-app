@@ -38,6 +38,18 @@ export type CallSheetScenario = (typeof CALL_SHEET_SCENARIOS)[number];
 /** First tactical bucket — Go-To is a normal situation, not a separate data model. */
 export const GO_TO_PLAYS_SCENARIO = CALL_SHEET_SCENARIOS[0];
 
+/** Situation accent colors — Coach View section headers (fill, border tag, accessible text on slate-900/950). */
+export const SITUATION_COLORS: Record<CallSheetScenario, { border: string; text: string; bg: string }> = {
+  "Go-To Plays": { border: "border-l-amber-500", text: "text-amber-400", bg: "bg-amber-500/15" },
+  Tempo: { border: "border-l-cyan-500", text: "text-cyan-400", bg: "bg-cyan-500/15" },
+  "Run Game": { border: "border-l-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/15" },
+  "Pass Game": { border: "border-l-blue-500", text: "text-blue-400", bg: "bg-blue-500/15" },
+  "Man Beaters": { border: "border-l-violet-500", text: "text-violet-400", bg: "bg-violet-500/15" },
+  "Zone Beaters": { border: "border-l-rose-500", text: "text-rose-400", bg: "bg-rose-500/15" },
+  "Take a Shot": { border: "border-l-orange-500", text: "text-orange-400", bg: "bg-orange-500/15" },
+  "Red Zone": { border: "border-l-red-500", text: "text-red-400", bg: "bg-red-500/15" },
+};
+
 /** Compact labels for mobile situation chips in the Call Sheet builder. */
 export const CALL_SHEET_SCENARIO_SHORT: Record<CallSheetScenario, string> = {
   "Go-To Plays": "Go-To",

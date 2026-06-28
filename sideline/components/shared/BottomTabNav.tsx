@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
-import { isPlaySheetBuilderPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
+import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useMemo } from "react";
 
@@ -41,30 +41,25 @@ export default function BottomTabNav() {
     return false;
   }, [pathname, searchParams]);
 
-  const callSheetViewerChrome = pathname === PLAY_SHEET_VIEWER_PATH;
-
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
     if (onboardingChrome) root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
-    if (callSheetViewerChrome) root.setAttribute("data-call-sheet-viewer-chrome", "true");
-    else root.removeAttribute("data-call-sheet-viewer-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
     if (!BOTTOM_TAB_NAV_ENABLED) root.setAttribute("data-hamburger-nav-chrome", "true");
     else root.removeAttribute("data-hamburger-nav-chrome");
     return () => {
       root.removeAttribute("data-onboarding-chrome");
-      root.removeAttribute("data-call-sheet-viewer-chrome");
       root.removeAttribute("data-marketing-chrome");
       root.removeAttribute("data-hamburger-nav-chrome");
     };
-  }, [onboardingChrome, callSheetViewerChrome, pathname]);
+  }, [onboardingChrome, pathname]);
 
   if (!BOTTOM_TAB_NAV_ENABLED) return null;
 
-  if (onboardingChrome || callSheetViewerChrome) return null;
+  if (onboardingChrome) return null;
 
   if (
     pathname === "/login" ||

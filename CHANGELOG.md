@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet: consolidate builder + Coach View on sheet editor
+
+### What
+
+- **[`sideline/components/playbook/PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx)**, **[`CallSheetBuilderDashboard.tsx`](sideline/components/playbook/CallSheetBuilderDashboard.tsx)**, **[`CallSheetBuilderSheetHeader.tsx`](sideline/components/playbook/CallSheetBuilderSheetHeader.tsx):** Sheet editor gains **Situations** / **Coach View** tabs (**[`SegmentTabBar`](sideline/components/shared/SegmentTabBar.tsx)** — shared with sign-in); inline back button beside sheet title; **My Situations** subheader on builder dashboard.
+- **[`sideline/components/playbook/CallSheetCoachView.tsx`](sideline/components/playbook/CallSheetCoachView.tsx):** Read-only Coach View accordion — full-width situation rows, **`SITUATION_COLORS`** tinted headers, play name + formation row layout; all sections collapsed on tab entry.
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts):** **`SITUATION_COLORS`** co-located with **`CALL_SHEET_SCENARIOS`**.
+- **[`sideline/components/playbook/CallSheetViewerMenu.tsx`](sideline/components/playbook/CallSheetViewerMenu.tsx)**, **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts)**, **[`sideline/lib/navigation/playSheetNav.ts`](sideline/lib/navigation/playSheetNav.ts):** Slide-out nav consolidates to single **Call Sheet** item; legacy **`/playbook/view`** redirects to **`/playbook`**.
+- **Removed:** standalone viewer tree (**`CallSheetViewer*`**, **`CallSheetViewerFullSheet`**, etc.). QA fixtures updated (**`CallSheetQaViews`**, **`PlaySheetQaEditor`**).
+
+### Why
+
+Coaches build and reference the same call sheet from one screen during prep and game use; separate builder and viewer routes added navigation overhead.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Call Sheet screenshot QA routes + refreshed Play Sheet baselines
 
 ### What

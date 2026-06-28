@@ -1,13 +1,12 @@
 "use client";
 
 import {
-  CALL_SHEET_VIEWER_MENU_BUILDER,
+  CALL_SHEET_MENU_LABEL,
   CALL_SHEET_VIEWER_MENU_SETTINGS,
-  CALL_SHEET_VIEWER_MENU_VIEW,
 } from "@/lib/coachCopy";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
-import { isPlaySheetBuilderPath, isPlaySheetViewerPath, PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
+import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/AuthProvider";
 import {
@@ -43,13 +42,11 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
   const router = useRouter();
   const { signOut } = useAuth();
   const [signOutBusy, setSignOutBusy] = useState(false);
-  const onBuilder = isPlaySheetBuilderPath(pathname);
-  const onViewer = isPlaySheetViewerPath(pathname);
+  const onCallSheet = isPlaySheetBuilderPath(pathname);
   const onSettings = pathname === "/settings" || pathname.startsWith("/settings/");
 
   const menuItems = [
-    { href: "/playbook", label: CALL_SHEET_VIEWER_MENU_BUILDER, active: onBuilder },
-    { href: PLAY_SHEET_VIEWER_PATH, label: CALL_SHEET_VIEWER_MENU_VIEW, active: onViewer },
+    { href: "/playbook", label: CALL_SHEET_MENU_LABEL, active: onCallSheet },
     { href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, active: onSettings },
   ];
 

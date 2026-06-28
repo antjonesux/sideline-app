@@ -10,6 +10,7 @@ import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
 import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
+import { SegmentTabBar } from "@/components/shared/SegmentTabBar";
 import { buildLandingHref, resolveSafeNextPath } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
 
@@ -368,34 +369,19 @@ export function LoginForm() {
         </div>
 
         {/* Mode toggle */}
-        <div className="grid grid-cols-2 gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1">
-          <button
-            type="button"
-            onClick={() => {
-              setView("sign-in");
-              setError(null);
-              clearFieldErrors();
-            }}
-            className={`rounded-md px-3 py-2 font-sans text-sm font-medium transition-colors ${
-              view === "sign-in" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Sign in
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setView("create-account");
-              setError(null);
-              clearFieldErrors();
-            }}
-            className={`rounded-md px-3 py-2 font-sans text-sm font-medium transition-colors ${
-              view === "create-account" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Create account
-          </button>
-        </div>
+        <SegmentTabBar
+          tabs={[
+            { id: "sign-in", label: "Sign in" },
+            { id: "create-account", label: "Create account" },
+          ]}
+          activeTab={view}
+          onTabChange={(next) => {
+            setView(next);
+            setError(null);
+            clearFieldErrors();
+          }}
+          ariaLabel="Sign in or create account"
+        />
 
         {/* Email form */}
         <form onSubmit={handleEmailSubmit} className="space-y-3">

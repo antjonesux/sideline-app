@@ -42,7 +42,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { AddPlayDrawer } from "./AddPlayDrawer";
 import { CallSheetBuilderDashboard } from "./CallSheetBuilderDashboard";
+import { CallSheetBuilderSheetHeader } from "./CallSheetBuilderSheetHeader";
 import { CallSheetBuilderSituationHeader } from "./CallSheetBuilderSituationHeader";
+import { CallSheetCoachView } from "./CallSheetCoachView";
+import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEditorTabBar";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
 import { SituationList } from "./SituationList";
@@ -89,6 +92,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [goToBusyId, setGoToBusyId] = useState<string | null>(null);
   const [goToBusyComboKey, setGoToBusyComboKey] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [editorTab, setEditorTab] = useState<CallSheetEditorTab>("situations");
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
   const [startGuidedBusy, setStartGuidedBusy] = useState(false);
@@ -722,18 +726,28 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             {scenarioPlaysSection}
           </div>
         ) : useCallSheetBuilderLayout ? (
-          <CallSheetBuilderDashboard
-            sheetName={sheet.name}
-            cfb26Playbook={cfb26}
-            scenarios={scenarios}
-            onBrowsePlaybook={navigateToDashboardBrowse}
-            onSelectSituation={navigateToSituation}
-            onEditSheet={() => {
-              setEditName(sheet.name);
-              setEditPlaybook(cfb26);
-              setEditorOpen(true);
-            }}
-          />
+          <div className="space-y-6">
+            <CallSheetBuilderSheetHeader
+              backHref="/playbook"
+              sheetName={sheet.name}
+              cfb26Playbook={cfb26}
+              onEditSheet={() => {
+                setEditName(sheet.name);
+                setEditPlaybook(cfb26);
+                setEditorOpen(true);
+              }}
+            />
+            <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
+            {editorTab === "situations" ? (
+              <CallSheetBuilderDashboard
+                scenarios={scenarios}
+                onBrowsePlaybook={navigateToDashboardBrowse}
+                onSelectSituation={navigateToSituation}
+              />
+            ) : (
+              <CallSheetCoachView scenarios={scenarios} />
+            )}
+          </div>
         ) : (
           <>
             {!onboardingEditor ? (

@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  CALL_SHEET_VIEWER_MENU_BUILDER,
-  CALL_SHEET_VIEWER_MENU_SETTINGS,
-  CALL_SHEET_VIEWER_MENU_VIEW,
-} from "@/lib/coachCopy";
+import { CALL_SHEET_MENU_LABEL, CALL_SHEET_VIEWER_MENU_SETTINGS } from "@/lib/coachCopy";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
-import { PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import { cn } from "@/lib/utils";
 import { ChevronRight, X } from "lucide-react";
 
@@ -18,10 +13,9 @@ const menuItemDefaultClass =
   "border-slate-800 bg-slate-900/50 text-slate-100 hover:border-slate-600 hover:bg-slate-800/60";
 
 /** Static open drawer for screenshot QA — mirrors CallSheetViewerMenu chrome without Radix Dialog. */
-export function CallSheetQaMenuDrawer({ activeHref = PLAY_SHEET_VIEWER_PATH }: { activeHref?: string }) {
+export function CallSheetQaMenuDrawer({ activeHref = "/playbook" }: { activeHref?: string }) {
   const menuItems = [
-    { href: "/playbook", label: CALL_SHEET_VIEWER_MENU_BUILDER },
-    { href: PLAY_SHEET_VIEWER_PATH, label: CALL_SHEET_VIEWER_MENU_VIEW },
+    { href: "/playbook", label: CALL_SHEET_MENU_LABEL },
     { href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS },
   ];
 

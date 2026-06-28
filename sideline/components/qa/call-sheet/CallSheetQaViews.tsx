@@ -1,9 +1,8 @@
 "use client";
 
 import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
+import { CallSheetCoachView } from "@/components/playbook/CallSheetCoachView";
 import { CallSheetSheetSwitcher } from "@/components/playbook/CallSheetSheetSwitcher";
-import { CallSheetViewerFullSheet } from "@/components/playbook/CallSheetViewerFullSheet";
-import { CallSheetViewerSituation } from "@/components/playbook/CallSheetViewerSituation";
 import { Button } from "@/components/ui/button";
 import {
   CALL_SHEET_VIEWER_EMPTY_BODY,
@@ -11,7 +10,6 @@ import {
   CALL_SHEET_VIEWER_EMPTY_HEADLINE,
 } from "@/lib/coachCopy";
 import { appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
-import { PLAY_SHEET_VIEWER_PATH } from "@/lib/navigation/playSheetNav";
 import {
   playSheetQaEditorScenarios,
   playSheetQaSheetName,
@@ -68,7 +66,7 @@ export function CallSheetQaHome() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader />
-      <CallSheetViewerFullSheet scenarios={playSheetQaEditorScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaEditorScenarios} />
     </div>
   );
 }
@@ -99,7 +97,7 @@ export function CallSheetQaMenu() {
   return (
     <>
       <CallSheetQaHome />
-      <CallSheetQaMenuDrawer activeHref={PLAY_SHEET_VIEWER_PATH} />
+      <CallSheetQaMenuDrawer activeHref="/playbook" />
     </>
   );
 }
@@ -108,17 +106,15 @@ export function CallSheetQaSwitcher() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader initialSwitcherOpen />
-      <CallSheetViewerFullSheet scenarios={playSheetQaEditorScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaEditorScenarios} />
     </div>
   );
 }
 
 export function CallSheetQaRunGameSituation() {
   return (
-    <CallSheetViewerSituation
-      backHref={PLAY_SHEET_VIEWER_PATH}
-      activeScenario="Run Game"
-      scenarios={playSheetQaEditorScenarios}
+    <CallSheetCoachView
+      scenarios={playSheetQaEditorScenarios.filter((block) => block.scenario === "Run Game")}
     />
   );
 }

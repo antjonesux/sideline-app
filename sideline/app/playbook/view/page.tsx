@@ -1,11 +1,6 @@
-import { Suspense } from "react";
-import { CallSheetViewer } from "@/components/playbook/CallSheetViewer";
-import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
+import { redirect } from "next/navigation";
 
-export default function CallSheetViewerPage() {
-  return (
-    <Suspense fallback={<PlaybookEditorSkeleton />}>
-      <CallSheetViewer />
-    </Suspense>
-  );
+/** Legacy bookmark — Call Sheet viewer now lives as a tab on the sheet editor. */
+export default function CallSheetViewerRedirectPage() {
+  redirect("/playbook");
 }

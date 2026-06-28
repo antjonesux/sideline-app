@@ -1,10 +1,14 @@
 "use client";
 
 import { CallSheetBuilderDashboard } from "@/components/playbook/CallSheetBuilderDashboard";
+import { CallSheetBuilderSheetHeader } from "@/components/playbook/CallSheetBuilderSheetHeader";
+import { CallSheetCoachView } from "@/components/playbook/CallSheetCoachView";
+import { CallSheetEditorTabBar, type CallSheetEditorTab } from "@/components/playbook/CallSheetEditorTabBar";
 import { Button } from "@/components/ui/button";
 import { modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 import type { SheetScenarioBlock } from "@/lib/types";
+import { useState } from "react";
 
 type EditUi = {
   sheetName: string;
@@ -25,16 +29,28 @@ export function PlaySheetQaEditor({
   scenarios,
   editUi = null,
 }: Props) {
+  const [editorTab, setEditorTab] = useState<CallSheetEditorTab>("situations");
+
   return (
     <>
-      <CallSheetBuilderDashboard
-        sheetName={sheetName}
-        cfb26Playbook={cfb26Playbook}
-        scenarios={scenarios}
-        onBrowsePlaybook={() => {}}
-        onSelectSituation={() => {}}
-        onEditSheet={() => {}}
-      />
+      <div className="space-y-6">
+        <CallSheetBuilderSheetHeader
+          backHref="/playbook"
+          sheetName={sheetName}
+          cfb26Playbook={cfb26Playbook}
+          onEditSheet={() => {}}
+        />
+        <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
+        {editorTab === "situations" ? (
+          <CallSheetBuilderDashboard
+            scenarios={scenarios}
+            onBrowsePlaybook={() => {}}
+            onSelectSituation={() => {}}
+          />
+        ) : (
+          <CallSheetCoachView scenarios={scenarios} />
+        )}
+      </div>
 
       {editUi ? (
         <div className={cn("fixed inset-0 bg-black/70", overlayZ.radixDialog)}>

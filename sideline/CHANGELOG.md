@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Call Sheet — builder + Coach View tab consolidation)
+
+**What:** **`PlaybookEditor`**, **`CallSheetCoachView`**, **`CallSheetEditorTabBar`**, **`SegmentTabBar`**: **Situations** / **Coach View** tabs on sheet editor; Coach View full-width accordions with **`SITUATION_COLORS`** headers; builder **My Situations** subheader + inline back. **`CallSheetViewerMenu`**, **`coachCopy`**, **`playSheetNav`**: single **Call Sheet** nav item; **`/playbook/view`** → **`/playbook`**. Deleted standalone **`CallSheetViewer*`** components; QA routes updated.
+
+**Why:** One surface for building and sideline reference — matches in-game coach workflow.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Call Sheet — screenshot QA routes + Play Sheet baseline refresh)
 
 **What:** **`app/qa/call-sheet/*`**, **`components/qa/call-sheet/*`**: sessionless call sheet viewer QA frames (home, situation, empty, menu, switcher); production **`notFound()`**. **`playwright/call-sheet-screenshots.spec.ts`**, **`qa-screenshots/call-sheet/`**. **`proxy.ts`**: public **`/qa/call-sheet`**. **`package.json`**: **`screenshots:call-sheet`**, **`screenshots:flows`**. **`qa-screenshots/play-sheet/`** baselines refreshed.
