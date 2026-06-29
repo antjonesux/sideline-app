@@ -6,6 +6,22 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-06-29 — CFB27 data coexistence with CFB26
+
+**Decision:** `game_version` filters the playbook picker. Users select game version when creating a play sheet (defaults to `cfb27`). Onboarding defaults to `cfb27`. CFB26 playbooks remain active and accessible but will be archived 6 months after CFB27 release (January 2027).
+
+**Why:** Players migrating to CFB27 need a clean default experience. Existing CFB26 users shouldn't lose access to their data immediately. A 6-month sunset gives time for natural migration without forcing it.
+
+**Impact:**
+- Play sheet creation must include a game version selector (default: `cfb27`)
+- Playbook picker filters `cfb26_plays` by selected `game_version`
+- Onboarding seeds with CFB27 playbook data
+- Seed scripts must support `game_version: 'cfb27'` for new data
+- No CFB26 data deletion until January 2027 — archive means hiding from default views, not deleting
+- Existing play sheets tied to CFB26 playbooks continue to function until archive
+
+---
+
 ## 2026-05-04 — Account deletion: explicit teardown order + step logging (`DELETE /api/account`)
 
 **Decision:** **`DELETE /api/account`** removes user-owned application rows in dependency-safe order (**`play_sheet_plays`** → **`play_sheet_scenarios`** → **`dismissed_suggestions`** → **`play_sheets`** → **`logged_plays`** → **`drives`** → **`game_sessions`** → **`user_profiles`**), then **`auth.admin.deleteUser`**. Each PostgREST **`delete()`** result **`error`** is checked; failures emit server **`console.error`** tagged **`[DELETE /api/account] step=<name>`** with the Supabase error payload.

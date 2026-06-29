@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-29 (Data — CFB27 playbook seed pipeline)
+
+**What:** **`lib/seed/types.ts`**: optional **`gameVersion`** (`cfb26` | `cfb27`) on **`TeamPlaybookSeed`**; optional **`isNewIn27`** on **`PlaySeed`**. **`scripts/seed-playbooks.ts`**: per-seed **`game_version`** for upserts and existing-row lookups (**`seed.gameVersion ?? CFB_CATALOG_GAME_VERSION`**); **`_`-prefixed** internal test playbooks skip **`TEAM_SCHEMES`** validation. **`lib/seed/playbooks/_template.ts`**: CFB27 format (**`gameVersion`**, **`cfb.fan/27/playbooks/`**, **`isNewIn27`**). **`DECISIONS.md`**: **2026-06-29 — CFB27 data coexistence with CFB26**.
+
+**Why:** Unblocks CFB27 team catalog seeding from cfb.fan while CFB26 seeds keep defaulting to **`cfb26`** with no file changes.
+
+**Status after this push:** **`npm run seed:playbook -- --all --dry-run`** passed; CFB27 probe upsert **`PROBE RESULT: null`**; **`npm run build`** passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Call Sheet — QA round 2)
 
 **What:** **`coachCopy`**: **`PLAY_SHEETS_HOME_TITLE`** / **`CALL_SHEET_MENU_LABEL`** → **My Call Sheets**; **`BUILDER_SITUATION_AT_CAPACITY`**. **`AddPlayDrawer`**, **`PlayBrowser`**, **`AddPlayBrowseRow`**, **`PlaybookEditor`**: add-play drawer stays open for multi-add; emerald checkmarks for plays already on the situation; capacity toasts and disabled add at 25/25. **`CallSheetSituationGrid`**, **`PlaybookEditor`**: situation drag reorder fixes (correct drop index, persist on drop, **`setQueryData`** cache update). **`CallSheetCoachView`**: plays grouped by formation in two columns (formation left, play list right). Full situation cards use normal styling and default play-count labels (no disabled **Full** state).

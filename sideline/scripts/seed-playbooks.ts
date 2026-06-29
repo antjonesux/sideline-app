@@ -82,13 +82,16 @@ function validateSeed(
 ): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const classified = getSchemeForTeam(seed.team);
-  if (classified == null) {
-    errors.push(`Team "${seed.team}" is not in TEAM_SCHEMES (check spelling vs scheme-classifications).`);
-  } else if (classified !== seed.scheme.trim()) {
-    errors.push(
-      `Scheme mismatch: seed has "${seed.scheme}" but TEAM_SCHEMES["${seed.team}"] is "${classified}".`,
-    );
+  const isInternalTestPlaybook = seed.team.trim().startsWith("_");
+  if (!isInternalTestPlaybook) {
+    const classified = getSchemeForTeam(seed.team);
+    if (classified == null) {
+      errors.push(`Team "${seed.team}" is not in TEAM_SCHEMES (check spelling vs scheme-classifications).`);
+    } else if (classified !== seed.scheme.trim()) {
+      errors.push(
+        `Scheme mismatch: seed has "${seed.scheme}" but TEAM_SCHEMES["${seed.team}"] is "${classified}".`,
+      );
+    }
   }
   if (!(ALL_SCHEMES as readonly string[]).includes(seed.scheme.trim())) {
     errors.push(`Scheme "${seed.scheme}" is not one of ALL_SCHEMES.`);
@@ -159,8 +162,13 @@ function mapToCanonicalPlayType(rawPlayType: string): "RUN" | "PASS" | "RPO" {
   return "RUN";
 }
 
+function resolveSeedGameVersion(seed: TeamPlaybookSeed): string {
+  return seed.gameVersion ?? CFB_CATALOG_GAME_VERSION;
+}
+
 function flattenSeedToRows(seed: TeamPlaybookSeed) {
   const playbook = seed.team.trim();
+  const gameVersion = resolveSeedGameVersion(seed);
   const rows: {
     playbook: string;
     formation: string;
@@ -188,7 +196,7 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
           }),
         ),
         is_new_in_26: Boolean(p.isNewIn26),
-        game_version: CFB_CATALOG_GAME_VERSION,
+        game_version: gameVersion,
       });
     }
   }
@@ -301,11 +309,12 @@ async function main() {
 
     const rows = flattenSeedToRows(seed);
     const playbook = seed.team.trim();
+    const gameVersion = resolveSeedGameVersion(seed);
 
     const { data: existingRows, error: exErr } = await supabase
       .from("cfb26_plays")
       .select("formation, play_name")
-      .eq("game_version", CFB_CATALOG_GAME_VERSION)
+      .eq("game_version", gameVersion)
       .eq("playbook", playbook);
 
     if (exErr && !dryRun) {

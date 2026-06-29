@@ -14,9 +14,12 @@ export const TEAM_NAME_SEED: TeamPlaybookSeed = {
   // Pulled automatically from TEAM_SCHEMES[team] but can be overridden here if needed
   scheme: "Scheme Name",
 
+  // Catalog game version — use 'cfb27' for CFB27 playbooks; omit for CFB26 (defaults to cfb26)
+  gameVersion: "cfb27",
+
   // Source attribution for traceability
   source: {
-    url: "https://cfb.fan/26/playbooks/{team}-off/",
+    url: "https://cfb.fan/27/playbooks/{team}-off/",
     verified: "YYYY-MM-DD",
   },
 
@@ -30,6 +33,7 @@ export const TEAM_NAME_SEED: TeamPlaybookSeed = {
         {
           playName: "PLAY NAME IN CAPS",
           isNewIn26: false, // true if this play is new for CFB26
+          isNewIn27: false, // true if this play is new for CFB27
           playType: "Medium Pass", // optional — tags the play for recommendation engine
         },
         // ... more plays

@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-29 — Data: CFB27 playbook seed pipeline
+
+### What
+
+- **[`sideline/lib/seed/types.ts`](sideline/lib/seed/types.ts):** Optional **`gameVersion`** (`'cfb26' | 'cfb27'`) on **`TeamPlaybookSeed`**; optional **`isNewIn27`** on **`PlaySeed`** (parallel to **`isNewIn26`**).
+- **[`sideline/scripts/seed-playbooks.ts`](sideline/scripts/seed-playbooks.ts):** Upserts and existing-row lookups use **`seed.gameVersion ?? CFB_CATALOG_GAME_VERSION`** so CFB26 seeds unchanged and CFB27 seeds can set **`gameVersion: 'cfb27'`**. Internal test playbooks (**`team`** prefixed with **`_`**) skip **`TEAM_SCHEMES`** validation.
+- **[`sideline/lib/seed/playbooks/_template.ts`](sideline/lib/seed/playbooks/_template.ts):** CFB27 template — **`gameVersion`**, **`cfb.fan/27/playbooks/`** source URL, **`isNewIn27`** example.
+- **[`DECISIONS.md`](DECISIONS.md):** **2026-06-29 — CFB27 data coexistence with CFB26** (picker filtering, onboarding default, 6-month archive sunset).
+
+### Why
+
+cfb.fan CFB27 playbook data is live; the seed pipeline must accept **`game_version: 'cfb27'`** before team catalog seeding can start. CFB26 and CFB27 rows coexist via the existing **`(playbook, formation, play_name, game_version)`** unique constraint.
+
+### Status after this push
+
+- `npm run seed:playbook -- --all --dry-run` passed (CFB26 seeds unchanged).
+- CFB27 test seed validated (**`PROBE RESULT: null`**); test rows cleaned up.
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Call Sheet: QA round 2
 
 ### What
