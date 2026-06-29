@@ -117,7 +117,7 @@ export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 export const GAME_PLAN_EMPTY_HEADLINE = "No play sheet built yet.";
 export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
-export const PLAY_SHEETS_HOME_TITLE = "Build Your Sheet";
+export const PLAY_SHEETS_HOME_TITLE = "My Call Sheets";
 export const PLAY_SHEET_CREATE_CTA = "Add sheet";
 export const PLAY_SHEET_ACTIVE_BADGE = "Active";
 export const PLAY_SHEET_SET_ACTIVE = "Set as Active";
@@ -145,6 +145,8 @@ export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
 export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>
   `Added to ${situationDisplay}`;
 export const BUILDER_SITUATION_FULL = "Full";
+export const BUILDER_SITUATION_AT_CAPACITY = (situationDisplay: string, max: number) =>
+  `${situationDisplay} is full (${max}/${max})`;
 export const BUILDER_ADD_SITUATION = "Add situation";
 export const BUILDER_SITUATION_ADDED = (name: string) => `Added ${name}`;
 export const BUILDER_SITUATION_UPDATED = (name: string) => `Updated ${name}`;
@@ -167,7 +169,7 @@ export const CALL_SHEET_VIEWER_EMPTY_BODY =
   "Create a play sheet in the builder and set one as active. Once you have sheets, tap the name in the header to switch between them.";
 export const CALL_SHEET_VIEWER_EMPTY_CTA = "Go to play sheet builder";
 export const CALL_SHEET_VIEWER_SITUATION_EMPTY = "No plays added yet.";
-export const CALL_SHEET_MENU_LABEL = "Call Sheet";
+export const CALL_SHEET_MENU_LABEL = PLAY_SHEETS_HOME_TITLE;
 /** @deprecated Use CALL_SHEET_MENU_LABEL — kept for QA screenshot fixtures until refreshed. */
 export const CALL_SHEET_VIEWER_MENU_BUILDER = CALL_SHEET_MENU_LABEL;
 export const CALL_SHEET_COACH_VIEW_EMPTY =

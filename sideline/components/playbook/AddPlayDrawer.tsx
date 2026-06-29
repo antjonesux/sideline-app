@@ -16,11 +16,13 @@ export function AddPlayDrawer({
   cfb26Playbook,
   scenarioName = "",
   onPick,
-  closeOnPick = true,
+  closeOnPick = false,
   showGoToStar = false,
   goToPlayKeys,
   goToBusyComboKey = null,
   onToggleGoTo,
+  addedPlayKeys,
+  addDisabled = false,
   qaStaticEntries,
   qaInitialUi,
 }: {
@@ -28,13 +30,15 @@ export function AddPlayDrawer({
   onClose: () => void;
   cfb26Playbook: string;
   scenarioName?: string;
-  onPick: (formation: string, playName: string) => void;
+  onPick: (formation: string, playName: string) => void | Promise<void>;
   /** When false, drawer stays open after pick (browse-playbook flow). */
   closeOnPick?: boolean;
   showGoToStar?: boolean;
   goToPlayKeys?: Set<string>;
   goToBusyComboKey?: string | null;
   onToggleGoTo?: (formation: string, playName: string) => void;
+  addedPlayKeys?: Set<string>;
+  addDisabled?: boolean;
   /** Local QA only: skip catalog fetch in embedded PlayBrowser. */
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
@@ -115,6 +119,8 @@ export function AddPlayDrawer({
               showGoToStar={showGoToStar}
               goToPlayKeys={goToPlayKeys}
               goToBusyComboKey={goToBusyComboKey}
+              addedPlayKeys={addedPlayKeys}
+              addDisabled={addDisabled}
               onToggleGoTo={
                 onToggleGoTo
                   ? (play) => {
@@ -128,8 +134,14 @@ export function AddPlayDrawer({
               qaStaticEntries={qaStaticEntries}
               qaInitialUi={qaInitialUi}
               onSelect={(play) => {
-                void onPick(play.formation, normalizePlayName(play.play_name));
-                if (closeOnPick) onClose();
+                void (async () => {
+                  try {
+                    await onPick(play.formation, normalizePlayName(play.play_name));
+                    if (closeOnPick) onClose();
+                  } catch {
+                    // Parent surfaces toasts for add failures.
+                  }
+                })();
               }}
               onPlaySheetNavChange={handleNavChange}
             />

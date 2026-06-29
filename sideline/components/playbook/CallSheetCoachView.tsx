@@ -7,12 +7,32 @@ import {
   callSheetScenarioDisplayName,
   callSheetScenarioPlayCountLabel,
 } from "@/lib/playbookUtils";
-import type { SheetScenarioBlock } from "@/lib/types";
+import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { cn, normalizePlayName } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
 function orderedScenarioBlocks(scenarios: SheetScenarioBlock[]): SheetScenarioBlock[] {
   return [...scenarios].sort((a, b) => a.scenario_order - b.scenario_order);
+}
+
+function coachViewFormationGroups(plays: SheetPlayRow[]): { formation: string; plays: SheetPlayRow[] }[] {
+  const sorted = [...plays].sort((a, b) => a.play_order - b.play_order);
+  const byFormation = new Map<string, SheetPlayRow[]>();
+  const formationOrder: string[] = [];
+
+  for (const play of sorted) {
+    const formation = play.formation;
+    if (!byFormation.has(formation)) {
+      byFormation.set(formation, []);
+      formationOrder.push(formation);
+    }
+    byFormation.get(formation)!.push(play);
+  }
+
+  return formationOrder.map((formation) => ({
+    formation,
+    plays: byFormation.get(formation) ?? [],
+  }));
 }
 
 export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBlock[] }) {
@@ -50,6 +70,7 @@ export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBloc
         const colorKey = block.color ?? "blue";
         const colors = getSituationColor(colorKey);
         const sortedPlays = [...block.plays].sort((a, b) => a.play_order - b.play_order);
+        const formationGroups = coachViewFormationGroups(sortedPlays);
 
         return (
           <section key={block.id} className="overflow-hidden rounded-xl">
@@ -104,15 +125,25 @@ export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBloc
                 {count === 0 ? (
                   <p className="py-2 font-body text-xs text-slate-500">{CALL_SHEET_VIEWER_SITUATION_EMPTY}</p>
                 ) : (
-                  sortedPlays.map((play) => (
+                  formationGroups.map((group, groupIndex) => (
                     <div
-                      key={play.id}
-                      className="flex min-h-11 items-center justify-between gap-3 border-b border-slate-700/50 py-3 last:border-b-0"
+                      key={`${group.formation}-${group.plays[0]?.id ?? groupIndex}`}
+                      className={cn(
+                        "grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-4 border-b border-slate-700/50 py-3",
+                        groupIndex === formationGroups.length - 1 && "border-b-0",
+                      )}
                     >
-                      <p className="min-w-0 truncate font-body text-sm uppercase tracking-wide text-white">
-                        {normalizePlayName(play.play_name)}
-                      </p>
-                      <p className="shrink-0 truncate font-body text-sm text-slate-400">{play.formation}</p>
+                      <p className="min-w-0 truncate font-body text-sm text-slate-400">{group.formation}</p>
+                      <div className="min-w-0 flex-1 space-y-2">
+                        {group.plays.map((play) => (
+                          <p
+                            key={play.id}
+                            className="truncate font-body text-sm uppercase tracking-wide text-white"
+                          >
+                            {normalizePlayName(play.play_name)}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   ))
                 )}

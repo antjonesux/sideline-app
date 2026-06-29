@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-28 (Call Sheet — QA round 2)
+
+**What:** **`coachCopy`**: **`PLAY_SHEETS_HOME_TITLE`** / **`CALL_SHEET_MENU_LABEL`** → **My Call Sheets**; **`BUILDER_SITUATION_AT_CAPACITY`**. **`AddPlayDrawer`**, **`PlayBrowser`**, **`AddPlayBrowseRow`**, **`PlaybookEditor`**: add-play drawer stays open for multi-add; emerald checkmarks for plays already on the situation; capacity toasts and disabled add at 25/25. **`CallSheetSituationGrid`**, **`PlaybookEditor`**: situation drag reorder fixes (correct drop index, persist on drop, **`setQueryData`** cache update). **`CallSheetCoachView`**: plays grouped by formation in two columns (formation left, play list right). Full situation cards use normal styling and default play-count labels (no disabled **Full** state).
+
+**Why:** Call Sheet builder QA — clearer nav copy, faster multi-add browsing, reliable situation reorder, and less noisy Coach View reference layout.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-28 (Call Sheet — add situation full-page form)
 
 **What:** **`SituationFormModal`**: **New situation** uses **`presentation="page"`** (matches edit); back label **Back to situations**. **`PlaybookEditor`**: create flow wired to full-page presentation.

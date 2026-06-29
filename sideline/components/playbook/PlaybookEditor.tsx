@@ -26,7 +26,7 @@ import {
   BUILDER_SITUATION_DELETED,
   BUILDER_SITUATION_UPDATED,
   BUILDER_BROWSE_SITUATION_PROMPT,
-  BUILDER_SITUATION_FULL,
+  BUILDER_SITUATION_AT_CAPACITY,
   GO_TO_PLAY_ADDED,
   GO_TO_PLAY_ALREADY,
   GO_TO_PLAY_REMOVED,
@@ -99,6 +99,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [legacyActiveScenario, setLegacyActiveScenario] = useState<string>("1st Down");
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerAddedKeys, setDrawerAddedKeys] = useState<Set<string>>(() => new Set());
+  const [drawerAddsThisSession, setDrawerAddsThisSession] = useState(0);
   const [browsePlaybookMode, setBrowsePlaybookMode] = useState(false);
   const [pendingBrowsePick, setPendingBrowsePick] = useState<{ formation: string; play_name: string } | null>(
     null,
@@ -211,6 +213,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       setDrawerOpen(false);
       setBrowsePlaybookMode(false);
       setPendingBrowsePick(null);
+      setDrawerAddedKeys(new Set());
+      setDrawerAddsThisSession(0);
       setReplaceSuggest(null);
     }
     prevActiveScenarioRef.current = activeScenario;
@@ -256,6 +260,16 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const maxSlots = maxSlotsForSheetScenario(activeScenario);
   const filled = sortedPlays.length;
   const atCapacity = filled >= maxSlots;
+
+  const drawerDisplayedPlayKeys = useMemo(() => {
+    const keys = new Set(drawerAddedKeys);
+    if (!browsePlaybookMode && activeBlock) {
+      for (const play of activeBlock.plays) {
+        keys.add(sheetPlayComboKey(play.formation, play.play_name));
+      }
+    }
+    return keys;
+  }, [activeBlock, browsePlaybookMode, drawerAddedKeys]);
 
   const cfb26PlaybookOptions = useMemo(() => {
     const set = new Set<string>();
@@ -303,7 +317,21 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       if (!res.ok) throw new Error(j.error ?? "Could not reorder");
       return j;
     },
-    onSuccess: () => invalidateSheet(),
+    onSuccess: (_data, situationIds) => {
+      queryClient.setQueryData<SheetPayload>(["playbook", sheetId], (old) => {
+        if (!old) return old;
+        const byId = new Map(old.scenarios.map((s) => [s.id, s]));
+        const reordered = situationIds
+          .map((id, index) => {
+            const block = byId.get(id);
+            if (!block) return null;
+            return { ...block, scenario_order: index + 1 };
+          })
+          .filter((s): s is SheetScenarioBlock => Boolean(s));
+        if (reordered.length !== old.scenarios.length) return old;
+        return { ...old, scenarios: reordered };
+      });
+    },
   });
 
   const createSituation = useMutation({
@@ -382,31 +410,32 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       return;
     }
 
-    const orderChanged =
-      editScenarios.length === scenarios.length &&
-      editScenarios.some((block, index) => block.id !== scenarios[index]?.id);
-
     setSituationsEditMode(false);
     setSituationDragId(null);
+  }, [situationsEditMode, scenarios]);
 
-    if (orderChanged) {
-      try {
-        await reorderSituations.mutateAsync(editScenarios.map((s) => s.id));
-      } catch {
-        addToast(COULDNT_SAVE, "error");
-      }
-    }
-  }, [situationsEditMode, editScenarios, scenarios, reorderSituations, addToast]);
+  const onReorderSituations = useCallback(
+    (fromId: string, toIndex: number) => {
+      setEditScenarios((prev) => {
+        const snapshot = prev.length ? prev : scenarios;
+        const ids = snapshot.map((s) => s.id);
+        const without = ids.filter((id) => id !== fromId);
+        const insertAt = Math.min(Math.max(0, toIndex), without.length);
+        const nextIds = [...without.slice(0, insertAt), fromId, ...without.slice(insertAt)];
+        const next = nextIds
+          .map((id) => snapshot.find((s) => s.id === id))
+          .filter((s): s is SheetScenarioBlock => Boolean(s));
 
-  const onReorderSituations = useCallback((fromId: string, toIndex: number) => {
-    setEditScenarios((prev) => {
-      const ids = prev.map((s) => s.id);
-      const without = ids.filter((id) => id !== fromId);
-      const insertAt = Math.min(Math.max(0, toIndex), without.length);
-      const nextIds = [...without.slice(0, insertAt), fromId, ...without.slice(insertAt)];
-      return nextIds.map((id) => prev.find((s) => s.id === id)).filter((s): s is SheetScenarioBlock => Boolean(s));
-    });
-  }, []);
+        void reorderSituations.mutateAsync(next.map((s) => s.id)).catch(() => {
+          addToast(COULDNT_SAVE, "error");
+          setEditScenarios([...scenarios]);
+        });
+
+        return next;
+      });
+    },
+    [addToast, reorderSituations, scenarios],
+  );
 
   const onCreateSituation = useCallback(
     async (values: SituationFormValues) => {
@@ -672,21 +701,46 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         setPendingBrowsePick({ formation, play_name });
         return;
       }
+      const sid = activeBlock?.id;
+      if (!sid) {
+        addToast(COULDNT_SAVE, "error");
+        throw new Error("missing scenario");
+      }
+      const comboKey = sheetPlayComboKey(formation, play_name);
+      const nextCount = filled + drawerAddsThisSession + 1;
+      if (nextCount > maxSlots) {
+        addToast(
+          BUILDER_SITUATION_AT_CAPACITY(callSheetScenarioDisplayName(activeScenario), maxSlots),
+          "warning",
+        );
+        throw new Error("at capacity");
+      }
       try {
-        const sid = activeBlock?.id;
-        if (!sid) {
-          addToast(COULDNT_SAVE, "error");
-          return;
-        }
         await postPlay.mutateAsync({ scenarioId: sid, formation, play_name });
-        addToast("Added to sheet.", "success");
+        setDrawerAddedKeys((prev) => new Set(prev).add(comboKey));
+        setDrawerAddsThisSession((count) => count + 1);
+        addToast(BUILDER_PLAY_ADDED_TO_SITUATION(callSheetScenarioDisplayName(activeScenario)), "success");
+        if (nextCount >= maxSlots) {
+          addToast(
+            BUILDER_SITUATION_AT_CAPACITY(callSheetScenarioDisplayName(activeScenario), maxSlots),
+            "warning",
+          );
+        }
       } catch {
         addToast(COULDNT_SAVE, "error");
-      } finally {
-        setDrawerOpen(false);
+        throw new Error("add failed");
       }
     },
-    [activeBlock?.id, addToast, browsePlaybookMode, postPlay],
+    [
+      activeBlock?.id,
+      activeScenario,
+      addToast,
+      browsePlaybookMode,
+      drawerAddsThisSession,
+      filled,
+      maxSlots,
+      postPlay,
+    ],
   );
 
   const onBrowseSituationPick = useCallback(
@@ -712,6 +766,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         });
         void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, scenario] });
         addToast(BUILDER_PLAY_ADDED_TO_SITUATION(callSheetScenarioDisplayName(scenario)), "success");
+        const nextCount = block.plays.length + 1;
+        if (nextCount >= max) {
+          addToast(BUILDER_SITUATION_AT_CAPACITY(callSheetScenarioDisplayName(scenario), max), "warning");
+        }
         setPendingBrowsePick(null);
       } catch {
         addToast(COULDNT_SAVE, "error");
@@ -986,11 +1044,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 setDragId={setSituationDragId}
                 onReorderSituations={onReorderSituations}
                 onDeleteSituation={(block) => setDeleteSituationTarget(block)}
-                getOptionState={(block) => {
-                  const max = maxSlotsForSheetScenario(block.scenario);
-                  const full = block.plays.length >= max;
-                  return full ? { disabled: true, statusLabel: BUILDER_SITUATION_FULL } : {};
-                }}
               />
             ) : (
               <CallSheetCoachView scenarios={scenarios} />
@@ -1061,11 +1114,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           setDrawerOpen(false);
           setBrowsePlaybookMode(false);
           setPendingBrowsePick(null);
+          setDrawerAddedKeys(new Set());
+          setDrawerAddsThisSession(0);
         }}
         cfb26Playbook={cfb26}
         scenarioName={browsePlaybookMode ? "" : activeScenario}
-        closeOnPick={!browsePlaybookMode}
         onPick={onDrawerPick}
+        addedPlayKeys={drawerDisplayedPlayKeys}
+        addDisabled={!browsePlaybookMode && filled + drawerAddsThisSession >= maxSlots}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
@@ -1105,11 +1161,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               scenarios={scenarios}
               onSelect={(scenario) => {
                 void onBrowseSituationPick(scenario);
-              }}
-              getOptionState={(block) => {
-                const max = maxSlotsForSheetScenario(block.scenario);
-                const full = block.plays.length >= max;
-                return full ? { disabled: true, statusLabel: BUILDER_SITUATION_FULL } : {};
               }}
             />
           </div>

@@ -113,13 +113,16 @@ export function CallSheetSituationGrid({
                 e.dataTransfer.setData("text/situation-id", s.id);
                 e.dataTransfer.effectAllowed = "move";
                 setDragId?.(s.id);
-                setDropTarget(index);
+                const startIndex = scenarios.findIndex((x) => x.id === s.id);
+                setDropTarget(startIndex === -1 ? index : startIndex);
               }}
               onDragEnd={clearDragState}
               onDragOver={(e) => {
                 if (!dragId || dragId === s.id) return;
                 e.preventDefault();
-                setDropTarget(resolveDropIndex(scenarios, index, locked));
+                const hoverIndex = scenarios.findIndex((x) => x.id === s.id);
+                if (hoverIndex === -1) return;
+                setDropTarget(resolveDropIndex(scenarios, hoverIndex, locked));
               }}
               onDrop={(e) => {
                 e.preventDefault();
@@ -128,10 +131,13 @@ export function CallSheetSituationGrid({
                   clearDragState();
                   return;
                 }
+                const hoverIndex = scenarios.findIndex((x) => x.id === s.id);
                 const target =
                   dropTargetIndexRef.current ??
-                  resolveDropIndex(scenarios, index, locked);
-                onReorder?.(id, target);
+                  (hoverIndex === -1 ? null : resolveDropIndex(scenarios, hoverIndex, locked));
+                if (target !== null) {
+                  onReorder?.(id, target);
+                }
                 clearDragState();
               }}
               className={cn(

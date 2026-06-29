@@ -39,6 +39,10 @@ interface PlayBrowserProps {
   goToPlayKeys?: Set<string>;
   goToBusyComboKey?: string | null;
   onToggleGoTo?: (play: PlaybookEntry) => void;
+  /** Play Sheet Add Play: combo keys added during this drawer session. */
+  addedPlayKeys?: Set<string>;
+  /** Play Sheet Add Play: disable add buttons (e.g. target situation at capacity). */
+  addDisabled?: boolean;
   /** Play Sheet Add Play: parent owns the drawer header when embedded inline. */
   onPlaySheetNavChange?: (nav: PlaySheetAddNav) => void;
 }
@@ -73,6 +77,8 @@ export function PlayBrowser({
   goToPlayKeys,
   goToBusyComboKey = null,
   onToggleGoTo,
+  addedPlayKeys,
+  addDisabled = false,
   onPlaySheetNavChange,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
@@ -360,6 +366,8 @@ export function PlayBrowser({
                         inGoTo={goToPlayKeys?.has(comboKey) ?? false}
                         goToBusy={goToBusyComboKey === comboKey}
                         showGoToStar={showGoToStar}
+                        added={addedPlayKeys?.has(comboKey) ?? false}
+                        addDisabled={addDisabled}
                         onAdd={onSelect}
                         onToggleGoTo={onToggleGoTo}
                       />

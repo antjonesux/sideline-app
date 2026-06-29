@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-28 — Call Sheet: QA round 2
+
+### What
+
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** **My Call Sheets** for home title and slide-out nav; **`BUILDER_SITUATION_AT_CAPACITY`** toast copy.
+- **[`sideline/components/playbook/AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx)**, **[`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx)**, **[`AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx)**, **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Add-play drawer stays open after each add; green checkmarks for plays already on the target situation; capacity enforcement at 25 plays.
+- **[`CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx)**, **`PlaybookEditor`:** Situation drag reorder persists on drop (fixed hover index; PATCH on drop; TanStack cache update).
+- **[`CallSheetCoachView.tsx`](sideline/components/playbook/CallSheetCoachView.tsx):** Coach View groups plays by formation — formation column left, stacked play names right.
+- Full situation cards remain tappable with standard play-count labels (no grayed-out **Full** state).
+
+### Why
+
+Second Call Sheet QA pass: nav copy, multi-add flow, reliable reorder, and a cleaner sideline reference layout in Coach View.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-28 — Page-specific loading skeletons
 
 ### What
