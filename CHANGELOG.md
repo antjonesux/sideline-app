@@ -87,6 +87,41 @@ Tablet and desktop should feel like a real coaching workspace (persistent nav, C
 
 Marketing visuals should show the actual Call Sheet builder and Coach View patterns coaches recognize, not placeholder list UI — and panel typography should stay consistent between hero and How It Works.
 
+---
+
+## 2026-06-29 — Data: CFB27 Blue Bloods seed (Session 1)
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Alabama, Georgia, Ohio State, Texas, Oregon, USC, LSU, Michigan, Penn State, Oklahoma — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (301 formations, 4,659 plays total).
+- **[`sideline/package.json`](sideline/package.json):** **`cheerio`** added for the one-shot scrape session (scraper script deleted after seeding).
+
+### Why
+
+CFB27 drops July 9; Blue Bloods are the highest-traffic playbooks. Session 1 of the CFB27 catalog rollout so the create-time picker can list real CFB27 teams before launch.
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**.
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-06-29 — Play Sheet: Create Call Sheet game selection
+
+### What
+
+- **[`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx):** **Select Game** field (default **CFB 27**); **Select Playbook** label; playbooks fetched with **`?game_version=`**; coach-facing empty state when no playbooks exist for the selected game.
+- **[`sideline/app/api/cfb26-playbooks/route.ts`](sideline/app/api/cfb26-playbooks/route.ts):** Optional **`game_version`** query param; backward compatible when omitted (**`cfb26`**).
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts):** **`CatalogGameVersion`**, **`DEFAULT_CATALOG_GAME_VERSION`** (`cfb27`), **`CATALOG_GAME_VERSIONS`**, display labels, **`parseCatalogGameVersion`**.
+- **[`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx):** **`disabled`** and **`emptyOptionsMessage`** props for empty catalog states.
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** **`PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE`** / **`BODY`**.
+
+### Why
+
+Play sheet creation must let coaches pick CFB 26 vs CFB 27 and show only playbooks for that catalog — no silent fallback to the other game version.
+
 ### Status after this push
 
 - `npm run build` from `sideline/` passed.

@@ -1,10 +1,15 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { CFB_CATALOG_GAME_VERSION, parseCatalogGameVersion } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
-/** Distinct CFB26 playbook names from reference plays (for playbook sheet setup). */
-export async function GET() {
+/** Distinct playbook names from reference plays (for play sheet setup), filtered by catalog game version. */
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const gameVersion = searchParams.has("game_version")
+    ? parseCatalogGameVersion(searchParams.get("game_version"))
+    : CFB_CATALOG_GAME_VERSION;
+
   const names = new Set<string>();
   // Respect PostgREST row caps (often 1,000) by paging in smaller slices.
   const pageSize = 1000;
@@ -12,7 +17,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("cfb26_plays")
       .select("playbook")
-      .eq("game_version", CFB_CATALOG_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .not("playbook", "is", null)
       .range(offset, offset + pageSize - 1);
 

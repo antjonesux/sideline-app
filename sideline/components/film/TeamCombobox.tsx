@@ -33,6 +33,10 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   showTrailingChevron?: boolean;
   /** Controls whether focusing the input should auto-open options. */
   openOnFocus?: boolean;
+  /** Coach-facing message when `options` is empty (replaces the default dev hint). */
+  emptyOptionsMessage?: string;
+  /** When true, the input cannot be edited or opened. */
+  disabled?: boolean;
 };
 
 function visibleTeams<T extends { team_name: string }>(
@@ -60,6 +64,8 @@ export function TeamCombobox<T extends { team_name: string }>({
   getOptionKey,
   showTrailingChevron = true,
   openOnFocus = true,
+  emptyOptionsMessage,
+  disabled = false,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -91,7 +97,7 @@ export function TeamCombobox<T extends { team_name: string }>({
   }, []);
 
   /** Dropdown only after explicit focus/click; loading fills the panel while open without closing. */
-  const showList = open;
+  const showList = open && !disabled;
 
   return (
     <div ref={rootRef} className="space-y-1">
@@ -104,9 +110,11 @@ export function TeamCombobox<T extends { team_name: string }>({
             name={inputId}
             type="text"
             autoComplete="off"
+            disabled={disabled}
             value={inputValue}
             placeholder={placeholder}
             onChange={(e) => {
+              if (disabled) return;
               const v = e.target.value;
               setFilterText(v);
               if (selected) onSelect(null);
@@ -114,6 +122,7 @@ export function TeamCombobox<T extends { team_name: string }>({
               updateDropPosition();
             }}
             onFocus={(e) => {
+              if (disabled) return;
               e.target.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
               if (openOnFocus) {
                 setOpen(true);
@@ -124,10 +133,11 @@ export function TeamCombobox<T extends { team_name: string }>({
               }
             }}
             onClick={() => {
+              if (disabled) return;
               if (!selected) setOpen(true);
               updateDropPosition();
             }}
-            className={`hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 py-2.5 ps-3 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 read-only:cursor-default ${showTrailingChevron ? "pe-20" : "pe-12"}`}
+            className={`hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 py-2.5 ps-3 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 read-only:cursor-default disabled:cursor-not-allowed disabled:opacity-60 ${showTrailingChevron ? "pe-20" : "pe-12"}`}
           />
           {inputValue.trim().length > 0 ? (
             <button
@@ -182,7 +192,8 @@ export function TeamCombobox<T extends { team_name: string }>({
               </div>
             ) : options.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">
-                No teams returned from Supabase. In ./sideline run npm run seed:teams (service role in .env.local), or check the browser Network tab for failed PostgREST requests.
+                {emptyOptionsMessage ??
+                  "No teams returned from Supabase. In ./sideline run npm run seed:teams (service role in .env.local), or check the browser Network tab for failed PostgREST requests."}
               </div>
             ) : filtered.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>

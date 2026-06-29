@@ -9,15 +9,30 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { modalCtaFooterClass, modalDialogTitleClass } from "@/lib/constants/designTokens";
 import {
+  CATALOG_GAME_VERSION_LABELS,
+  CATALOG_GAME_VERSIONS,
+  DEFAULT_CATALOG_GAME_VERSION,
+  type CatalogGameVersion,
+} from "@/lib/constants";
+import {
   COULDNT_LOAD,
   COULDNT_SAVE,
   ONBOARDING_DEFAULT_SHEET_NAME,
   PLAYBOOK_CREATE_CTA,
+  PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY,
+  PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE,
   PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER,
   PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER,
   PLAYBOOK_NEW_SHEET_SUBTITLE,
@@ -56,7 +71,11 @@ export function CreatePlaybookModal({
 }: Props) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [selectedGameVersion, setSelectedGameVersion] = useState<CatalogGameVersion>(() =>
+    initialCfb26Playbook?.trim() ? "cfb26" : DEFAULT_CATALOG_GAME_VERSION,
+  );
   const [playbooks, setPlaybooks] = useState<string[]>([]);
+  const [playbooksLoading, setPlaybooksLoading] = useState(false);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
   const [busy, setBusy] = useState(false);
@@ -85,24 +104,39 @@ export function CreatePlaybookModal({
   useEffect(() => {
     if (qaStaticPlaybooks?.length) {
       setPlaybooks([...qaStaticPlaybooks].sort((a, b) => a.localeCompare(b)));
+      setPlaybooksLoading(false);
       setLoadErr(null);
       return;
     }
     let cancelled = false;
+    setPlaybooksLoading(true);
+    setPlaybooks([]);
+    setLoadErr(null);
     void (async () => {
-      setLoadErr(null);
-      const res = await fetch("/api/cfb26-playbooks");
+      const res = await fetch(
+        `/api/cfb26-playbooks?game_version=${encodeURIComponent(selectedGameVersion)}`,
+      );
       const j = (await res.json()) as { playbooks?: string[]; error?: string };
+      if (cancelled) return;
       if (!res.ok) {
-        if (!cancelled) setLoadErr(COULDNT_LOAD);
+        setLoadErr(COULDNT_LOAD);
+        setPlaybooks([]);
+        setPlaybooksLoading(false);
         return;
       }
-      if (!cancelled) setPlaybooks(j.playbooks ?? []);
+      setPlaybooks(j.playbooks ?? []);
+      setPlaybooksLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [qaStaticPlaybooks]);
+  }, [qaStaticPlaybooks, selectedGameVersion]);
+
+  useEffect(() => {
+    if (qaStaticPlaybooks?.length || qaPrefill?.playbook?.trim()) return;
+    if (initialCfb26Playbook?.trim() && selectedGameVersion === "cfb26") return;
+    setSelectedPlaybook(null);
+  }, [selectedGameVersion, qaStaticPlaybooks, qaPrefill?.playbook, initialCfb26Playbook]);
 
   useEffect(() => {
     if (!qaPrefill) return;
@@ -111,6 +145,7 @@ export function CreatePlaybookModal({
   }, [qaPrefill]);
 
   const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
+  const catalogEmpty = !playbooksLoading && !loadErr && playbooks.length === 0;
 
   const canSubmit =
     (guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME.trim().length > 0 : name.trim().length > 0) &&
@@ -148,7 +183,7 @@ export function CreatePlaybookModal({
   }
 
   const stepDescription = guidedOnboardingFlow
-    ? "We start your sheet as “My First Play Sheet.” Pick your CFB26 book."
+    ? "We start your sheet as “My First Play Sheet.” Pick your playbook."
     : PLAYBOOK_NEW_SHEET_SUBTITLE;
 
   const formFields = (
@@ -178,21 +213,57 @@ export function CreatePlaybookModal({
           </label>
         )}
 
+        <label className="block space-y-1">
+          <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Select Game</span>
+          <Select
+            value={selectedGameVersion}
+            onValueChange={(value) => {
+              setSelectedGameVersion(value as CatalogGameVersion);
+            }}
+          >
+            <SelectTrigger className="hs-input h-auto w-full rounded-lg border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:ring-emerald-500/25">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-slate-700 bg-slate-950 text-slate-100">
+              {CATALOG_GAME_VERSIONS.map((version) => (
+                <SelectItem
+                  key={version}
+                  value={version}
+                  className="font-body text-sm text-slate-100 focus:bg-slate-800 focus:text-white"
+                >
+                  {CATALOG_GAME_VERSION_LABELS[version]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </label>
+
         <div className="block space-y-1">
           <TeamCombobox<PlaybookOption>
-            label="Select CFB26 Playbook"
+            label="Select Playbook"
             inputId="create-cfb26-playbook"
             selected={selectedPlaybook}
             onSelect={setSelectedPlaybook}
             options={options}
-            loading={playbooks.length === 0 && !loadErr}
+            loading={playbooksLoading}
+            disabled={catalogEmpty}
             placeholder={PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER}
+            emptyOptionsMessage={PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE}
             getOptionLabel={(o) => o.team_name}
             getOptionKey={(o) => o.team_name}
             getSearchText={(o) => o.team_name}
             showTrailingChevron={false}
             openOnFocus={false}
           />
+          {catalogEmpty ? (
+            <div
+              className="mt-2 rounded-lg border border-slate-800 bg-slate-950/60 px-4 py-3 text-center"
+              role="status"
+            >
+              <p className="font-body text-sm font-medium text-white">{PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE}</p>
+              <p className="mt-1 font-body text-xs text-slate-500">{PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY}</p>
+            </div>
+          ) : null}
         </div>
       </>
     </>

@@ -133,6 +133,10 @@ export const PLAYBOOK_NEW_SHEET_SUBTITLE =
   "Build your calls by situation so you know what you trust before kickoff.";
 export const PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER = "Base vs 3–3–5, Short Yardage, Red Zone";
 export const PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER = "Search playbooks";
+/** Create play sheet — no catalog playbooks for the selected game version. */
+export const PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE = "No playbooks available for this game yet.";
+export const PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY =
+  "We're building the catalog for this game. Switch to another game above if you need an existing book.";
 /** Primary CTA on Play Sheet create flow; same label as guided onboarding playbook step. */
 export const PLAYBOOK_CREATE_CTA = "Start building your calls";
 export const ONBOARDING_PLAYBOOK_CTA = PLAYBOOK_CREATE_CTA;

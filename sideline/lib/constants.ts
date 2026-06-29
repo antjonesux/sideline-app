@@ -185,3 +185,22 @@ export const SCENARIO_SHORT: Record<string, string> = {
 
 /** `cfb26_plays.game_version` for the shipped reference catalog (migrations + seeds; future cycles add new values). */
 export const CFB_CATALOG_GAME_VERSION = "cfb26" as const;
+
+/** Supported catalog game versions in `cfb26_plays.game_version`. */
+export type CatalogGameVersion = "cfb26" | "cfb27";
+
+export const CATALOG_GAME_VERSIONS = ["cfb27", "cfb26"] as const satisfies readonly CatalogGameVersion[];
+
+/** Default when creating a play sheet (CFB27-first product default). */
+export const DEFAULT_CATALOG_GAME_VERSION: CatalogGameVersion = "cfb27";
+
+export const CATALOG_GAME_VERSION_LABELS: Record<CatalogGameVersion, string> = {
+  cfb27: "CFB 27",
+  cfb26: "CFB 26",
+};
+
+export function parseCatalogGameVersion(raw: string | null | undefined): CatalogGameVersion {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (v === "cfb26" || v === "cfb27") return v;
+  return DEFAULT_CATALOG_GAME_VERSION;
+}
