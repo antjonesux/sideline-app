@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-29 — Play Sheet: remove obsolete Active Call Sheet UI
+
+### What
+
+- **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx):** Removed **Set as Active** from the overflow menu, the active-sheet handler, and the inline **Active** badge.
+- **[`sideline/components/playbook/PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx):** Stopped passing active-sheet state into list cards.
+- **[`sideline/components/playbook/PlaySheetActiveBadge.tsx`](sideline/components/playbook/PlaySheetActiveBadge.tsx):** Deleted (no longer used).
+- **[`sideline/components/playbook/CallSheetSheetSwitcher.tsx`](sideline/components/playbook/CallSheetSheetSwitcher.tsx):** Removed active-sheet badge and **`PUT /api/playbook/active`** mutation from the QA switcher preview.
+- **[`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** Removed **`PLAY_SHEET_ACTIVE_*`** and **Set as Active** menu copy.
+- **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts):** Removed **`playSheetActiveBadgeClass`**.
+
+### Why
+
+Call sheets are opened directly now — there is no global **Active Call Sheet** concept in the product. Keeping **Set as Active** exposed obsolete behavior and extra complexity on **My Call Sheets**.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-29 — Data: CFB27 playbook seed pipeline
 
 ### What

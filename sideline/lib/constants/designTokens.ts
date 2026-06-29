@@ -97,10 +97,6 @@ export const appShellIconBackButtonClass =
 export const playSheetFormationTileClass =
   "min-h-11 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-3 text-center font-sans text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
 
-/** Green status badge for the user's active play sheet (list + viewer switcher). */
-export const playSheetActiveBadgeClass =
-  "inline-flex shrink-0 items-center rounded-full border border-emerald-700/70 bg-emerald-900/30 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-emerald-300";
-
 /** Full-width primary CTA on app shell pages (Play Sheet home create). */
 export const appShellPrimaryCtaButtonClass =
   "h-auto min-h-11 w-full rounded-xl bg-white py-3 font-sans text-sm font-semibold text-slate-950 hover:bg-slate-100";

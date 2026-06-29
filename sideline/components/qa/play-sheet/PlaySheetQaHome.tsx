@@ -19,8 +19,6 @@ export function PlaySheetQaHomeEmpty() {
 }
 
 export function PlaySheetQaHomeList() {
-  const activeId = playSheetQaSummaries[0]?.id ?? null;
-
   return (
     <div className="flex min-h-[60vh] flex-col gap-6">
       <PlaySheetHomeHeader />
@@ -28,7 +26,7 @@ export function PlaySheetQaHomeList() {
       <ul className="space-y-3">
         {playSheetQaSummaries.map((item) => (
           <li key={item.id} className="relative">
-            <PlaybookCard item={item} isActive={item.id === activeId} />
+            <PlaybookCard item={item} />
           </li>
         ))}
       </ul>

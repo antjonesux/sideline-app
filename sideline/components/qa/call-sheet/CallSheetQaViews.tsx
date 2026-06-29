@@ -24,7 +24,6 @@ function CallSheetQaHeader({
 }: {
   initialSwitcherOpen?: boolean;
 }) {
-  const activeSheetId = playSheetQaSummaries[0]?.id ?? null;
   const [menuOpen, setMenuOpen] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(initialSwitcherOpen);
 
@@ -56,7 +55,6 @@ function CallSheetQaHeader({
         open={switcherOpen}
         onOpenChange={setSwitcherOpen}
         sheets={playSheetQaSummaries}
-        activeSheetId={activeSheetId}
       />
     </>
   );

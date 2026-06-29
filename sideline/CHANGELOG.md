@@ -4,6 +4,16 @@ All notable changes to The Sideline are documented here. Updated on every push.
 
 ---
 
+## 2026-06-29 (Play Sheet — remove obsolete Active Call Sheet UI)
+
+**What:** **`PlaybookCard`**: removed **Set as Active** overflow action, active handler, and **Active** badge. **`PlaybookHome`**: no active-sheet prop on list cards. **`PlaySheetActiveBadge`**: deleted. **`CallSheetSheetSwitcher`**: removed active badge and **`PUT /api/playbook/active`** from QA preview. **`coachCopy`**: removed **`PLAY_SHEET_ACTIVE_*`** strings. **`designTokens`**: removed **`playSheetActiveBadgeClass`**.
+
+**Why:** Coaches open the call sheet they need directly; global active-sheet UI is obsolete on **My Call Sheets**.
+
+**Status after this push:** `npm run build` from `sideline/` passed; repo-root **`CHANGELOG.md`**.
+
+---
+
 ## 2026-06-29 (Data — CFB27 playbook seed pipeline)
 
 **What:** **`lib/seed/types.ts`**: optional **`gameVersion`** (`cfb26` | `cfb27`) on **`TeamPlaybookSeed`**; optional **`isNewIn27`** on **`PlaySeed`**. **`scripts/seed-playbooks.ts`**: per-seed **`game_version`** for upserts and existing-row lookups (**`seed.gameVersion ?? CFB_CATALOG_GAME_VERSION`**); **`_`-prefixed** internal test playbooks skip **`TEAM_SCHEMES`** validation. **`lib/seed/playbooks/_template.ts`**: CFB27 format (**`gameVersion`**, **`cfb.fan/27/playbooks/`**, **`isNewIn27`**). **`DECISIONS.md`**: **2026-06-29 — CFB27 data coexistence with CFB26**.

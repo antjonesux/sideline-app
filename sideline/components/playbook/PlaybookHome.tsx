@@ -45,7 +45,6 @@ export function PlaybookHome() {
   });
 
   const list = data?.playbooks ?? [];
-  const activeCallSheetId = data?.active_call_sheet_id ?? null;
 
   if (error) {
     return (
@@ -78,7 +77,7 @@ export function PlaybookHome() {
         <ul className="space-y-3">
           {list.map((item) => (
             <li key={item.id} className="relative">
-              <PlaybookCard item={item} isActive={item.id === activeCallSheetId} />
+              <PlaybookCard item={item} />
             </li>
           ))}
         </ul>

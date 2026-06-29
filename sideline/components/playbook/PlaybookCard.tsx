@@ -5,14 +5,7 @@ import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
-import {
-  COULDNT_DELETE,
-  COULDNT_SAVE,
-  PLAY_SHEET_ALREADY_ACTIVE,
-  PLAY_SHEET_SET_ACTIVE,
-  PLAY_SHEET_SET_ACTIVE_DONE,
-} from "@/lib/coachCopy";
-import { PlaySheetActiveBadge } from "@/components/playbook/PlaySheetActiveBadge";
+import { COULDNT_DELETE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,18 +15,11 @@ import { useState } from "react";
 const menuItemClass =
   "flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none";
 
-export function PlaybookCard({
-  item,
-  isActive = false,
-}: {
-  item: PlaybookSummary;
-  isActive?: boolean;
-}) {
+export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [activeBusy, setActiveBusy] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
@@ -56,31 +42,6 @@ export function PlaybookCard({
     }
   }
 
-  async function setAsActive() {
-    if (isActive) {
-      addToast(PLAY_SHEET_ALREADY_ACTIVE, "warning");
-      setMenuOpen(false);
-      return;
-    }
-    setActiveBusy(true);
-    try {
-      const res = await fetch("/api/playbook/active", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ call_sheet_id: item.id }),
-      });
-      if (!res.ok) {
-        addToast(COULDNT_SAVE, "error");
-        return;
-      }
-      setMenuOpen(false);
-      addToast(PLAY_SHEET_SET_ACTIVE_DONE, "success");
-      await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
-    } finally {
-      setActiveBusy(false);
-    }
-  }
-
   return (
     <>
       <Link
@@ -89,10 +50,7 @@ export function PlaybookCard({
       >
         <div className="flex items-start justify-between gap-3 pr-10">
           <div className="min-w-0">
-            <div className="flex min-w-0 items-center gap-2">
-              <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white">{item.name}</h2>
-              {isActive ? <PlaySheetActiveBadge /> : null}
-            </div>
+            <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white">{item.name}</h2>
             <p className="mt-1 truncate font-body text-sm text-slate-500">{item.scheme}</p>
           </div>
         </div>
@@ -101,15 +59,6 @@ export function PlaybookCard({
       <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Play sheet actions">
         <DropdownMenuItem className={menuItemClass} onSelect={() => setEditOpen(true)}>
           Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className={menuItemClass}
-          disabled={activeBusy}
-          onSelect={() => {
-            void setAsActive();
-          }}
-        >
-          {PLAY_SHEET_SET_ACTIVE}
         </DropdownMenuItem>
         <DropdownMenuItem className={`${menuItemClass} text-red-300`} onSelect={() => setDeleteOpen(true)}>
           Delete
