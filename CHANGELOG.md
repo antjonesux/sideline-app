@@ -91,6 +91,25 @@ Marketing visuals should show the actual Call Sheet builder and Coach View patte
 
 ---
 
+## 2026-06-29 — Data: CFB27 P4 Mid-Tier seed (Session 3)
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven offensive **`TeamPlaybookSeed`** modules — Missouri, Michigan State, Iowa, UCLA, Indiana, Kentucky, Maryland, Minnesota, Illinois, Mississippi State, Purdue — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (316 formations, 5,133 plays total).
+- Six seed files use **`TEAM_SCHEMES`** canonical classifications (not CFB26 playbookgamer defaults) so the existing seed runner validation passes.
+
+### Why
+
+Session 3 of the CFB27 catalog rollout — P4 mid-tier programs that round out Power 4 conference coverage. Combined with Sessions 1–2, exceeds the release plan's top 25–30 most popular schemes target (**31 teams**).
+
+### Status after this push
+
+- All 11 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **31 teams**, **14,423 plays** (excluding internal test playbook).
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-29 — Data: CFB27 Major P4 Programs seed (Session 2)
 
 ### What
