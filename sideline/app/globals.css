@@ -247,6 +247,13 @@
   .app-shell-workspace-inner--builder {
     max-width: var(--app-shell-workspace-inner-wide-max-width);
   }
+
+  /** Situation detail browse panel — desktop side rail (Session 11). */
+  .app-shell-situation-browse-panel {
+    box-sizing: border-box;
+    width: 21.25rem;
+    flex-shrink: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

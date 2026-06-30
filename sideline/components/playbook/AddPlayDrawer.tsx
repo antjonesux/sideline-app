@@ -10,22 +10,7 @@ import { overlayZ } from "@/lib/constants/designTokens";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { cn, normalizePlayName } from "@/lib/utils";
 
-export function AddPlayDrawer({
-  open,
-  onClose,
-  cfb26Playbook,
-  scenarioName = "",
-  onPick,
-  closeOnPick = false,
-  showGoToStar = false,
-  goToPlayKeys,
-  goToBusyComboKey = null,
-  onToggleGoTo,
-  addedPlayKeys,
-  addDisabled = false,
-  qaStaticEntries,
-  qaInitialUi,
-}: {
+type AddPlayDrawerProps = {
   open: boolean;
   onClose: () => void;
   cfb26Playbook: string;
@@ -42,8 +27,27 @@ export function AddPlayDrawer({
   /** Local QA only: skip catalog fetch in embedded PlayBrowser. */
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
-}) {
-  useScrollLock(open);
+  /** `panel` embeds browse UI in the situation side rail without modal chrome. */
+  shell?: "modal" | "panel";
+};
+
+export function AddPlayDrawer({
+  open,
+  onClose,
+  cfb26Playbook,
+  scenarioName = "",
+  onPick,
+  closeOnPick = false,
+  showGoToStar = false,
+  goToPlayKeys,
+  goToBusyComboKey = null,
+  onToggleGoTo,
+  addedPlayKeys,
+  addDisabled = false,
+  qaStaticEntries,
+  qaInitialUi,
+  shell = "modal",
+}: AddPlayDrawerProps) {
   const [nav, setNav] = useState<PlaySheetAddNav>(() => {
     const initialStep = qaInitialUi?.step ?? "formations";
     const formation = qaInitialUi?.formation;
@@ -60,6 +64,8 @@ export function AddPlayDrawer({
   const handleNavChange = useCallback((next: PlaySheetAddNav) => {
     setNav(next);
   }, []);
+
+  useScrollLock(open && shell === "modal");
 
   if (!open) return null;
 
@@ -78,6 +84,71 @@ export function AddPlayDrawer({
     }
     onClose();
   };
+
+  const browser = (
+    <div
+      className={cn(
+        "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
+        shell === "modal" && "relative z-[1]",
+      )}
+    >
+      <PlayBrowser
+        playbook={cfb26Playbook}
+        presentation="inline"
+        playSheetAddLayout
+        showGoToStar={showGoToStar}
+        goToPlayKeys={goToPlayKeys}
+        goToBusyComboKey={goToBusyComboKey}
+        addedPlayKeys={addedPlayKeys}
+        addDisabled={addDisabled}
+        onToggleGoTo={
+          onToggleGoTo
+            ? (play) => {
+                void onToggleGoTo(play.formation, normalizePlayName(play.play_name));
+              }
+            : undefined
+        }
+        onClose={onClose}
+        showTopLevelBack={false}
+        excludePlaySheetSpecialTeams
+        qaStaticEntries={qaStaticEntries}
+        qaInitialUi={qaInitialUi}
+        onSelect={(play) => {
+          void (async () => {
+            try {
+              await onPick(play.formation, normalizePlayName(play.play_name));
+              if (closeOnPick) onClose();
+            } catch {
+              // Parent surfaces toasts for add failures.
+            }
+          })();
+        }}
+        onPlaySheetNavChange={handleNavChange}
+      />
+    </div>
+  );
+
+  if (shell === "panel") {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {nav.step === "plays" ? (
+          <div className="flex shrink-0 items-center gap-2 border-b border-slate-800/80 px-4 py-2.5">
+            <IconBackButton
+              data-no-press
+              aria-label={headerBackLabel}
+              onClick={() => {
+                handleHeaderBack();
+              }}
+            />
+            <h2 className="truncate font-display text-xs font-bold uppercase tracking-wide text-slate-300">
+              {headerTitle}
+            </h2>
+          </div>
+        ) : null}
+        {browser}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -111,41 +182,7 @@ export function AddPlayDrawer({
               {headerTitle}
             </h2>
           </div>
-          <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <PlayBrowser
-              playbook={cfb26Playbook}
-              presentation="inline"
-              playSheetAddLayout
-              showGoToStar={showGoToStar}
-              goToPlayKeys={goToPlayKeys}
-              goToBusyComboKey={goToBusyComboKey}
-              addedPlayKeys={addedPlayKeys}
-              addDisabled={addDisabled}
-              onToggleGoTo={
-                onToggleGoTo
-                  ? (play) => {
-                      void onToggleGoTo(play.formation, normalizePlayName(play.play_name));
-                    }
-                  : undefined
-              }
-              onClose={onClose}
-              showTopLevelBack={false}
-              excludePlaySheetSpecialTeams
-              qaStaticEntries={qaStaticEntries}
-              qaInitialUi={qaInitialUi}
-              onSelect={(play) => {
-                void (async () => {
-                  try {
-                    await onPick(play.formation, normalizePlayName(play.play_name));
-                    if (closeOnPick) onClose();
-                  } catch {
-                    // Parent surfaces toasts for add failures.
-                  }
-                })();
-              }}
-              onPlaySheetNavChange={handleNavChange}
-            />
-          </div>
+          {browser}
         </div>
       </div>
     </>

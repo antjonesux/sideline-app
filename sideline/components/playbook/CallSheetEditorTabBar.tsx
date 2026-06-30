@@ -18,7 +18,7 @@ export function CallSheetEditorTabBar({
 }: {
   activeTab: CallSheetEditorTab;
   onTabChange: (tab: CallSheetEditorTab) => void;
-  /** Compact pill for desktop/tablet builder toolbar row. */
+  /** Inline pill tabs for desktop/tablet builder toolbar — matches situation-detail control sizing. */
   density?: "default" | "compact";
 }) {
   const compact = density === "compact";
@@ -27,7 +27,7 @@ export function CallSheetEditorTabBar({
     <div
       className={cn(
         "grid grid-cols-2 gap-1 rounded-xl border border-slate-700 p-1",
-        compact && "inline-grid w-auto shrink-0 rounded-lg border-0 bg-slate-900 p-0.5",
+        compact && "inline-grid w-auto shrink-0 rounded-lg border border-slate-700 bg-slate-900 p-1",
       )}
       role="tablist"
       aria-label="Call sheet views"
@@ -43,7 +43,7 @@ export function CallSheetEditorTabBar({
             onClick={() => onTabChange(tab.id)}
             className={cn(
               "rounded-xl px-3 py-2.5 font-sans text-sm font-medium transition-colors",
-              compact && "rounded-md px-3.5 py-1.5 text-xs",
+              compact && "rounded-md px-4 py-2.5 md:min-h-11",
               active
                 ? "bg-emerald-600 text-white font-medium"
                 : compact

@@ -205,3 +205,34 @@ export function categorizeCfbPlayType(playType: string | null | undefined): Play
 export function isRunLeanBucket(bucket: PlayTypeBucket): boolean {
   return bucket === "Run" || bucket === "Option";
 }
+
+/** Canonical play-type order — matches Tendencies distribution rows. */
+export const PLAY_TYPE_BUCKET_SUMMARY_ORDER: readonly PlayTypeBucket[] = [
+  "Run",
+  "Pass",
+  "Play Action",
+  "Screen",
+  "RPO",
+  "Option",
+  "Other",
+] as const;
+
+/** Badge chrome for granular play-type buckets — aligned with `PlayTypeDistribution` colors. */
+export function playTypeBucketBadgeClass(bucket: PlayTypeBucket): string {
+  switch (bucket) {
+    case "Run":
+      return "border-emerald-700/70 bg-emerald-900/30 text-emerald-300";
+    case "Pass":
+      return "border-blue-700/70 bg-blue-900/30 text-blue-300";
+    case "Play Action":
+      return "border-cyan-700/70 bg-cyan-900/30 text-cyan-300";
+    case "Screen":
+      return "border-violet-700/70 bg-violet-900/30 text-violet-300";
+    case "RPO":
+      return "border-amber-700/70 bg-amber-900/30 text-amber-300";
+    case "Option":
+      return "border-slate-600/70 bg-slate-800/40 text-slate-400";
+    default:
+      return "border-slate-600/70 bg-slate-800/40 text-slate-500";
+  }
+}

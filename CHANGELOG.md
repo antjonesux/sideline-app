@@ -6,6 +6,42 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Call Sheet builder: situation workspace + browse side rail (Session 11)
+
+### What
+
+**Situation detail workspace (tablet / desktop)**
+
+- **[`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx)** / **[`CallSheetBuilderSituationToolbar.tsx`](sideline/components/playbook/CallSheetBuilderSituationToolbar.tsx)** / **[`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx):** Split layout at **`md+`** — main play list column plus fixed **Browse Playbook** / **Add play** side rail (**`21.25rem`** via **`globals.css`** **`.app-shell-situation-browse-panel`**); mobile stack unchanged (**`md:hidden`**).
+- **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx):** **`shell="panel"`** embeds **`PlayBrowser`** in the side rail without modal chrome; scroll lock only for modal shell.
+- **[`CallSheetBuilderSituationHeader.tsx`](sideline/components/playbook/CallSheetBuilderSituationHeader.tsx):** **`layout="workspace"`** compact header at **`md+`**; mobile keeps existing page-title stack.
+- **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Wires workspace shell, shared **`playBrowserPanelProps`**, and dashed **Add play** row token on situation detail.
+
+**Play-type summary pills**
+
+- **[`SituationPlayTypeSummary.tsx`](sideline/components/playbook/SituationPlayTypeSummary.tsx)** / **[`situationPlayTypeSummary.ts`](sideline/lib/situationPlayTypeSummary.ts):** At-a-glance RUN / PASS / RPO (etc.) counts using the Tendencies bucket ladder; pills on mobile under the situation title, on **`md+`** in the toolbar row beside **Browse Playbook**.
+- **[`tendenciesPlayType.ts`](sideline/lib/tendenciesPlayType.ts):** Shared **`playTypeBucketBadgeClass`** and summary order helper.
+
+**Call sheet landing (dashboard) parity**
+
+- **[`CallSheetBuilderWorkspaceChrome.tsx`](sideline/components/playbook/CallSheetBuilderWorkspaceChrome.tsx):** **Browse Playbook** opens the same side rail as situation detail; active-state styling on the header button; **`gap-4` / `lg:gap-6`** between main column and rail when browse is open.
+- **[`CallSheetEditorTabBar.tsx`](sideline/components/playbook/CallSheetEditorTabBar.tsx)** / **[`designTokens.ts`](sideline/lib/constants/designTokens.ts):** Larger touch targets on landing toolbar (**`md:min-h-11`**, **`text-sm`**) for **Browse Playbook**, **Add Situation**, and **Situations / Coach View** tabs; browse-panel title/subtitle tokens aligned with Add Play drawer typography.
+
+**QA**
+
+- **[`PlaySheetQaSituationEditor.tsx`](sideline/components/qa/play-sheet/PlaySheetQaSituationEditor.tsx):** Updated for workspace + browse-panel patterns.
+
+### Why
+
+Tablet and desktop Call Sheet editing should feel like one workspace: browse and add-play without full-screen modals, situation context visible alongside the playbook catalog, and landing + detail views sharing the same side-rail pattern. Controls should match situation-detail sizing and design tokens.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+- Mobile builder and situation layouts preserved.
+
+---
+
 ## 2026-06-30 — Data: CFB27 P4 Lower + Elite G5 seed (Session 4)
 
 ### What

@@ -5,7 +5,7 @@ import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
-import { appShellHeaderActionButtonClass, appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -25,6 +25,7 @@ import {
   BUILDER_SITUATION_ADDED,
   BUILDER_SITUATION_DELETED,
   BUILDER_SITUATION_UPDATED,
+  BUILDER_BROWSE_PLAYBOOK,
   BUILDER_BROWSE_SITUATION_PROMPT,
   BUILDER_SITUATION_AT_CAPACITY,
   GO_TO_PLAY_ADDED,
@@ -54,6 +55,7 @@ import { AddPlayDrawer } from "./AddPlayDrawer";
 import { CallSheetBuilderDashboard } from "./CallSheetBuilderDashboard";
 import { CallSheetBuilderSheetHeader } from "./CallSheetBuilderSheetHeader";
 import { CallSheetBuilderSituationHeader } from "./CallSheetBuilderSituationHeader";
+import { CallSheetBuilderSituationWorkspace } from "./CallSheetBuilderSituationWorkspace";
 import { CallSheetBuilderWorkspaceChrome } from "./CallSheetBuilderWorkspaceChrome";
 import { CallSheetCoachView } from "./CallSheetCoachView";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEditorTabBar";
@@ -123,6 +125,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editSituationOpen, setEditSituationOpen] = useState(false);
   const [deleteSituationTarget, setDeleteSituationTarget] = useState<SheetScenarioBlock | null>(null);
   const [situationFormBusy, setSituationFormBusy] = useState(false);
+  const [mdWorkspaceUp, setMdWorkspaceUp] = useState(false);
   const prevActiveScenarioRef = useRef<string | null>(null);
   const addToast = useToastStore((s) => s.addToast);
   useScrollLock(editorOpen);
@@ -147,6 +150,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const callSheetSheet = useMemo(() => isCallSheetPlaySheet(scenarios), [scenarios]);
   const useCallSheetBuilderLayout = callSheetSheet && !onboardingEditor;
   const isSituationEdit = useCallSheetBuilderLayout && Boolean(situationParam);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setMdWorkspaceUp(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const activeScenario = useMemo(() => {
     if (situationParam) return situationParam;
     if (onboardingEditor) {
@@ -865,6 +876,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     setDrawerOpen(true);
   }, []);
 
+  const closePlayBrowser = useCallback(() => {
+    setDrawerOpen(false);
+    setBrowsePlaybookMode(false);
+    setPendingBrowsePick(null);
+    setDrawerAddedKeys(new Set());
+    setDrawerAddsThisSession(0);
+  }, []);
+
   if (sheetQuery.isLoading) {
     return <PlaybookEditorSkeleton />;
   }
@@ -895,6 +914,27 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   };
 
   const suggestions = scenarioPayload?.suggestions ?? [];
+  const situationPlaysForSummary = scenarioPayload?.plays ?? sortedPlays;
+  const usePlayBrowserPanel = drawerOpen && mdWorkspaceUp && useCallSheetBuilderLayout;
+  const playBrowserPanelProps = usePlayBrowserPanel
+    ? {
+        open: true as const,
+        onClose: closePlayBrowser,
+        cfb26Playbook: cfb26,
+        scenarioName: browsePlaybookMode ? "" : activeScenario,
+        panelTitle: browsePlaybookMode ? BUILDER_BROWSE_PLAYBOOK : BUILDER_ADD_PLAY,
+        panelSubtitle: browsePlaybookMode
+          ? "Tap + to add to a situation"
+          : `Adds to ${callSheetScenarioDisplayName(activeScenario)}`,
+        onPick: onDrawerPick,
+        showGoToStar,
+        goToPlayKeys,
+        goToBusyComboKey,
+        onToggleGoTo: onBrowseToggleGoTo,
+        addedPlayKeys: drawerDisplayedPlayKeys,
+        addDisabled: !browsePlaybookMode && filled + drawerAddsThisSession >= maxSlots,
+      }
+    : null;
 
   const playSlotProps = {
     onAdd: openAdd,
@@ -918,8 +958,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onboardingEditor && totalSheetPlays >= MIN_ONBOARDING_SHEET_PLAYS && !startGuidedBusy;
   const playsStillNeeded = Math.max(0, MIN_ONBOARDING_SHEET_PLAYS - totalSheetPlays);
 
-  const scenarioPlaysSection = (
-    <section className="min-w-0 space-y-4">
+  const renderScenarioPlaysSection = (workspace = false) => (
+    <section className={cn("min-w-0", workspace ? "space-y-3" : "space-y-4")}>
       {!(useCallSheetBuilderLayout && isSituationEdit) ? (
         <h2 className="font-heading text-base font-bold uppercase tracking-wide text-slate-300">
           Calls for: <span className="text-white">{scenarioDisplayLabel(activeScenario)}</span>
@@ -959,35 +999,54 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           </Button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
-          <PlayTableHeader
-            showGoToColumn={showGoToStar}
-            stackFormation={useCallSheetPlayRows}
-            hideRemoveColumn={isGoToSituation}
-          />
-          <div>
-            {sortedPlays.map((play, slotIndex) => (
-              <PlaySlot
-                key={play.id}
-                play={play}
-                slotIndex={slotIndex}
-                {...playSlotProps}
-                inGoTo={isGoToSituation || goToPlayKeys.has(sheetPlayComboKey(play.formation, play.play_name))}
-                goToBusy={goToBusyId === play.id}
-                atCapacity={atCapacity && !play}
-              />
-            ))}
-            {filled < maxSlots ? (
-              <PlaySlot
-                key="slot-add-next"
-                play={null}
-                slotIndex={filled}
-                {...playSlotProps}
-                atCapacity={atCapacity}
-              />
-            ) : null}
+        <>
+          <div
+            className={cn(
+              "overflow-hidden border border-slate-800 bg-slate-950/60",
+              workspace ? "rounded-xl [&>div>div]:md:min-h-12" : "rounded-lg",
+            )}
+          >
+            <PlayTableHeader
+              showGoToColumn={showGoToStar}
+              stackFormation={useCallSheetPlayRows}
+              hideRemoveColumn={isGoToSituation}
+            />
+            <div>
+              {sortedPlays.map((play, slotIndex) => (
+                <PlaySlot
+                  key={play.id}
+                  play={play}
+                  slotIndex={slotIndex}
+                  {...playSlotProps}
+                  inGoTo={isGoToSituation || goToPlayKeys.has(sheetPlayComboKey(play.formation, play.play_name))}
+                  goToBusy={goToBusyId === play.id}
+                  atCapacity={atCapacity && !play}
+                />
+              ))}
+              {filled < maxSlots ? (
+                <div className={workspace ? "md:hidden" : undefined}>
+                  <PlaySlot
+                    key="slot-add-next"
+                    play={null}
+                    slotIndex={filled}
+                    {...playSlotProps}
+                    atCapacity={atCapacity}
+                  />
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
+          {workspace && !isGoToSituation && filled < maxSlots ? (
+            <button
+              type="button"
+              className={appShellSituationAddPlayButtonClass}
+              disabled={atCapacity}
+              onClick={openAdd}
+            >
+              {BUILDER_ADD_PLAY}
+            </button>
+          ) : null}
+        </>
       )}
 
       {!onboardingEditor && !isGoToSituation ? (
@@ -1011,20 +1070,43 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     >
       <div className={cn("space-y-6", onboardingEditor && "min-h-0 flex-1 overflow-y-auto pb-[calc(9.5rem+env(safe-area-inset-bottom,0px))]")}>
         {useCallSheetBuilderLayout && isSituationEdit ? (
-          <div className="space-y-6">
-            <CallSheetBuilderSituationHeader
-              backHref={`/playbook/${sheetId}`}
-              title={callSheetScenarioDisplayName(activeScenario)}
-              scenario={activeScenario}
-              description={activeBlock?.description}
-              colorKey={activeBlock?.color}
-              icon={activeBlock?.icon}
-              playCountLabel={callSheetScenarioPlayCountLabel(filled)}
-              showEdit={!isGoToSituation}
-              onEdit={() => setEditSituationOpen(true)}
-            />
-            {scenarioPlaysSection}
-          </div>
+          <>
+            <div className="space-y-6 md:hidden">
+              <CallSheetBuilderSituationHeader
+                backHref={`/playbook/${sheetId}`}
+                title={callSheetScenarioDisplayName(activeScenario)}
+                scenario={activeScenario}
+                description={activeBlock?.description}
+                colorKey={activeBlock?.color}
+                icon={activeBlock?.icon}
+                playCountLabel={callSheetScenarioPlayCountLabel(filled)}
+                plays={situationPlaysForSummary}
+                showEdit={!isGoToSituation}
+                onEdit={() => setEditSituationOpen(true)}
+              />
+              {renderScenarioPlaysSection(false)}
+            </div>
+
+            <CallSheetBuilderSituationWorkspace
+              header={{
+                backHref: `/playbook/${sheetId}`,
+                title: callSheetScenarioDisplayName(activeScenario),
+                scenario: activeScenario,
+                description: activeBlock?.description,
+                colorKey: activeBlock?.color,
+                icon: activeBlock?.icon,
+                playCountLabel: callSheetScenarioPlayCountLabel(filled),
+                plays: situationPlaysForSummary,
+                showEdit: !isGoToSituation,
+                onEdit: () => setEditSituationOpen(true),
+              }}
+              browseActive={drawerOpen && browsePlaybookMode}
+              onBrowsePlaybook={navigateToDashboardBrowse}
+              browsePanel={playBrowserPanelProps}
+            >
+              {renderScenarioPlaysSection(true)}
+            </CallSheetBuilderSituationWorkspace>
+          </>
         ) : useCallSheetBuilderLayout ? (
           <>
             <CallSheetBuilderWorkspaceChrome
@@ -1038,6 +1120,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               onBrowsePlaybook={navigateToDashboardBrowse}
               onAddSituation={() => setCreateSituationOpen(true)}
               addSituationDisabled={scenarios.length >= MAX_SITUATIONS_PER_SHEET || situationsEditMode}
+              browseActive={drawerOpen && browsePlaybookMode}
+              browsePanel={playBrowserPanelProps}
             >
               {editorTab === "situations" ? (
                 <CallSheetBuilderDashboard
@@ -1136,21 +1220,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 </aside>
               ) : null}
 
-              {scenarioPlaysSection}
+              {renderScenarioPlaysSection(false)}
             </div>
           </>
         )}
       </div>
 
       <AddPlayDrawer
-        open={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setBrowsePlaybookMode(false);
-          setPendingBrowsePick(null);
-          setDrawerAddedKeys(new Set());
-          setDrawerAddsThisSession(0);
-        }}
+        open={drawerOpen && !usePlayBrowserPanel}
+        onClose={closePlayBrowser}
         cfb26Playbook={cfb26}
         scenarioName={browsePlaybookMode ? "" : activeScenario}
         onPick={onDrawerPick}

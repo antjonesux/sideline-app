@@ -114,13 +114,32 @@ export const appShellWorkspaceStatValueClass = "font-sans text-[15px] font-semib
 export const appShellHeaderPrimaryCtaClass =
   "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400";
 
-/** Compact bordered browse control in builder header toolbar. */
+/** Bordered browse control in builder header / situation toolbar. */
 export const appShellBuilderBrowseButtonClass =
-  "inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700/80 px-3 py-1.5 font-sans text-xs font-medium text-slate-400 transition-colors hover:border-slate-600 hover:text-white";
+  "inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 font-sans text-xs font-medium transition-colors md:min-h-11 md:px-4 md:text-sm";
 
-/** Compact emerald Add Situation control in builder toolbar row. */
+/** Emerald Add Situation control in builder toolbar row. */
 export const appShellBuilderAddSituationClass =
-  "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-11 md:px-4 md:text-sm";
+
+/** Situation detail workspace — constrained play-list column (Session 11). */
+export const appShellSituationWorkspaceInnerClass =
+  "app-shell-situation-workspace-inner mx-auto w-full max-w-[47.5rem]";
+
+/** Situation workspace toolbar — Browse Playbook control. */
+export const appShellSituationToolbarBrowseButtonClass =
+  "inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 font-sans text-xs font-medium transition-colors md:min-h-11 md:px-4 md:text-sm";
+
+/** Situation workspace — dashed add-play control below the play table. */
+export const appShellSituationAddPlayButtonClass =
+  "mt-2 flex w-full min-h-11 items-center justify-center rounded-xl border border-dashed border-slate-800 font-sans text-sm text-slate-400 transition-colors hover:border-emerald-500/40 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-12";
+
+/** Browse / add-play side-rail panel title — matches Add Play drawer modal title scale. */
+export const appShellBrowsePanelTitleClass =
+  "font-display text-base font-bold uppercase tracking-[0.08em] text-white";
+
+/** Browse / add-play side-rail panel subtitle — matches builder workspace meta copy. */
+export const appShellBrowsePanelSubtitleClass = "mt-1 font-body text-xs text-slate-500";
 
 /** Square bordered icon control — back chevron, menu. Use `IconBackButton` / `CallSheetMenuButton` in UI. */
 export const appShellIconBackButtonClass =
