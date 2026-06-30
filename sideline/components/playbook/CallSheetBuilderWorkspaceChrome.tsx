@@ -96,7 +96,7 @@ export function CallSheetBuilderWorkspaceChrome({
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <CallSheetEditorTabBar activeTab={activeTab} onTabChange={onTabChange} density="compact" />
+              <CallSheetEditorTabBar activeTab={activeTab} onTabChange={onTabChange} />
               <button
                 type="button"
                 className={appShellBuilderAddSituationClass}

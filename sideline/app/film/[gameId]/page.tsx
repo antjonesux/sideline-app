@@ -50,7 +50,7 @@ import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
-import { modalCtaFooterClass, modalDialogTitleClass, overlayZ } from "@/lib/constants/designTokens";
+import { modalCtaFooterClass, modalDialogTitleClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass, responsiveOverlayInnerCardClass, responsiveOverlayShellPositionClass } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
@@ -940,9 +940,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         <DialogContent
           overlayClassName="z-[189] bg-black/70"
           className={cn(
-            "fixed inset-x-0 bottom-0 left-0 top-auto z-[190] flex max-h-[90vh] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border border-slate-700 bg-slate-900 p-0 text-slate-100 dark:bg-slate-900",
-            "sm:left-[50%] sm:top-[50%] sm:max-h-[90vh] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg",
-            "[&>button]:right-4 [&>button]:top-4 [&>button]:text-slate-400 [&>button]:hover:text-white [&>button]:ring-offset-slate-900",
+            responsiveOverlayDialogContentClass("md", "z-[190]"),
+            "[&>button]:right-4 [&>button]:top-4 [&>button]:ring-offset-slate-900",
           )}
         >
           <DialogHeader className="space-y-0 border-b border-slate-800 px-4 py-3 text-left sm:px-6 sm:text-left">
@@ -1002,8 +1001,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
       {showDriveSetup && game ? (
         <div className="fixed inset-0 z-[195] bg-black/60" onClick={() => setShowDriveSetup(false)}>
-          <div className="fixed inset-x-0 bottom-0 z-[196] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:rounded-xl">
+          <div className={cn("z-[196]", responsiveOverlayBottomShellPositionClass("lg"))} onClick={(e) => e.stopPropagation()}>
+            <div className="overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 md:rounded-xl">
               <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3 sm:px-6">
                 <h2 className={modalDialogTitleClass}>Drive Setup</h2>
                 <button type="button" className="p-2 text-slate-400 hover:text-white" onClick={() => setShowDriveSetup(false)}>
@@ -1053,13 +1052,10 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             }}
           />
           <div
-            className={cn(
-              "fixed inset-0 flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
-              overlayZ.filmShell,
-            )}
+            className={cn(responsiveOverlayShellPositionClass("4xl"), overlayZ.filmShell)}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 sm:h-auto sm:max-h-[85vh] sm:rounded-xl">
+            <div className={cn(responsiveOverlayInnerCardClass, "bg-slate-900")}>
               <div className="flex flex-shrink-0 items-start justify-between gap-3 border-b border-slate-800 px-4 py-3">
                 <div className="min-w-0 flex-1 space-y-1">
                   <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">

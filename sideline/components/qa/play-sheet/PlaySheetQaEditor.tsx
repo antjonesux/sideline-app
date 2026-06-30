@@ -5,7 +5,7 @@ import { CallSheetBuilderSheetHeader } from "@/components/playbook/CallSheetBuil
 import { CallSheetCoachView } from "@/components/playbook/CallSheetCoachView";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "@/components/playbook/CallSheetEditorTabBar";
 import { Button } from "@/components/ui/button";
-import { modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export function PlaySheetQaEditor({
           sheetName={sheetName}
           cfb26Playbook={cfb26Playbook}
         />
-        <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
+        <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} className="w-full" />
         {editorTab === "situations" ? (
           <CallSheetBuilderDashboard
             scenarios={scenarios}
@@ -60,13 +60,8 @@ export function PlaySheetQaEditor({
 
       {editUi ? (
         <div className={cn("fixed inset-0 bg-black/70", overlayZ.radixDialog)}>
-          <div
-            className={cn(
-              "fixed inset-x-0 bottom-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
-              overlayZ.sheetShell,
-            )}
-          >
-            <div className="flex h-full max-h-[90vh] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+          <div className={cn(responsiveOverlayBottomShellPositionClass("md"), overlayZ.sheetShell)}>
+            <div className="flex h-full max-h-[90vh] min-h-0 w-full flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 md:rounded-xl">
               <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100">Edit play sheet</h2>
               </div>

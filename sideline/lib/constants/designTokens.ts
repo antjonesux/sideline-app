@@ -153,6 +153,71 @@ export const playSheetFormationTileClass =
 export const appShellPrimaryCtaButtonClass =
   "h-auto min-h-11 w-full rounded-xl bg-white py-3 font-sans text-sm font-semibold text-slate-950 hover:bg-slate-100";
 
+/** Max width on tablet/desktop for responsive overlay shells (`md+`). */
+export type ResponsiveOverlayMaxWidth = "md" | "lg" | "2xl" | "4xl";
+
+const responsiveOverlayMaxWidthClass: Record<ResponsiveOverlayMaxWidth, string> = {
+  md: "md:max-w-md",
+  lg: "md:max-w-lg",
+  "2xl": "md:max-w-2xl",
+  "4xl": "md:max-w-4xl",
+};
+
+/** Radix dialog close control styling for app overlays. */
+export const responsiveOverlayDialogCloseButtonClass =
+  "[&>button]:text-slate-400 [&>button]:hover:text-white";
+
+/**
+ * Radix `DialogContent` — bottom sheet on mobile, centered modal at `md+`.
+ * Matches New Call Sheet / Edit Call Sheet responsive behavior.
+ */
+export function responsiveOverlayDialogContentClass(
+  maxWidth: ResponsiveOverlayMaxWidth = "lg",
+  extra?: string,
+): string {
+  return [
+    "inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 p-0 text-slate-100",
+    "md:left-[50%] md:top-[50%] md:max-h-[90vh] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg",
+    responsiveOverlayMaxWidthClass[maxWidth],
+    responsiveOverlayDialogCloseButtonClass,
+    extra,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** Hand-rolled shell — full viewport drawer on mobile, centered panel at `md+`. */
+export function responsiveOverlayShellPositionClass(maxWidth: ResponsiveOverlayMaxWidth = "4xl"): string {
+  return [
+    "fixed inset-0 flex flex-col",
+    "md:inset-auto md:left-1/2 md:top-1/2 md:h-auto md:max-h-[85vh] md:w-full md:-translate-x-1/2 md:-translate-y-1/2 md:px-4",
+    responsiveOverlayMaxWidthClass[maxWidth],
+  ].join(" ");
+}
+
+/** Hand-rolled shell — bottom-anchored sheet on mobile, centered modal at `md+`. */
+export function responsiveOverlayBottomShellPositionClass(maxWidth: ResponsiveOverlayMaxWidth = "lg"): string {
+  return [
+    "fixed inset-x-0 bottom-0 left-0 w-full",
+    "md:inset-auto md:left-1/2 md:top-1/2 md:w-full md:-translate-x-1/2 md:-translate-y-1/2 md:px-4",
+    responsiveOverlayMaxWidthClass[maxWidth],
+  ].join(" ");
+}
+
+/** Inner card for hand-rolled full-viewport / wide overlays (Add Play, Play Logger). */
+export const responsiveOverlayInnerCardClass =
+  "flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-950 md:h-auto md:max-h-[85vh] md:rounded-xl";
+
+/** Tablet/desktop centered dialog without mobile bottom-sheet positioning (forms already full-page on mobile). */
+export function responsiveOverlayCenteredDialogClass(maxWidth: ResponsiveOverlayMaxWidth = "lg"): string {
+  return [
+    "fixed left-[50%] top-[50%] z-[220] !flex w-full -translate-x-1/2 -translate-y-1/2 flex-col gap-0 !overflow-visible rounded-lg border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-lg",
+    "!h-auto !max-h-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+    responsiveOverlayMaxWidthClass[maxWidth],
+    responsiveOverlayDialogCloseButtonClass,
+  ].join(" ");
+}
+
 export const overlayZ = {
   bottomNav: "z-40",
   /** Tendencies playbook / opponent menus (`usePortalDropdown` path). */

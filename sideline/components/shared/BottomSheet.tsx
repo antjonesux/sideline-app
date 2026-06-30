@@ -1,6 +1,8 @@
 "use client";
 
+import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import { modalCtaFooterClass, modalDialogTitleClass, overlayZ } from "@/lib/constants/designTokens";
+import { useMdUp } from "@/lib/useMdUp";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { cn } from "@/lib/utils";
 import { useEffect, useId, type ReactNode } from "react";
@@ -25,21 +27,43 @@ export function BottomSheet({
   contentClassName?: string;
   shellClassName?: string;
 }) {
+  const mdUp = useMdUp();
   const titleId = useId();
   const descriptionId = useId();
 
-  useScrollLock(open);
+  useScrollLock(open && !mdUp);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || mdUp) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, mdUp]);
 
   if (!open) return null;
+
+  if (mdUp) {
+    return (
+      <ResponsiveOverlay open={open} onClose={onClose} maxWidth="lg" contentClassName={shellClassName}>
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-6 py-3">
+          <h2 id={titleId} className={modalDialogTitleClass}>
+            {title}
+          </h2>
+        </div>
+        <div className={cn("min-h-0 flex-1 overflow-y-auto p-6", contentClassName)}>
+          {description ? (
+            <p id={descriptionId} className="sr-only">
+              {description}
+            </p>
+          ) : null}
+          {children}
+        </div>
+        {footer ? <div className={modalCtaFooterClass}>{footer}</div> : null}
+      </ResponsiveOverlay>
+    );
+  }
 
   return (
     <>

@@ -24,28 +24,13 @@ import {
   appShellFormInputClass,
   modalCtaFooterClass,
   overlayZ,
+  responsiveOverlayCenteredDialogClass,
 } from "@/lib/constants/designTokens";
 import { getSituationIcon } from "@/lib/situationIcons";
+import { useMdUp } from "@/lib/useMdUp";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { cn } from "@/lib/utils";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-
-const MD_BREAKPOINT_PX = 768;
-
-/** Matches Tailwind `md` — tablet/desktop use centered modal; mobile keeps full-page sheet. */
-function useMdUp(): boolean {
-  const [mdUp, setMdUp] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${MD_BREAKPOINT_PX}px)`);
-    const sync = () => setMdUp(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  return mdUp;
-}
 
 function resolveSituationFormPresentation(
   presentation: "modal" | "page" | "responsive",
@@ -353,11 +338,7 @@ export function SituationFormModal({
   }
 
   /** Tablet / desktop centered dialog — natural height, no nested scroll pane. */
-  const centeredModalClass = cn(
-    `fixed left-[50%] top-[50%] ${overlayZ.radixDialog} !flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-0 !overflow-visible rounded-lg border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-lg`,
-    "!h-auto !max-h-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-    "[&>button]:text-slate-400 [&>button]:hover:text-white",
-  );
+  const centeredModalClass = responsiveOverlayCenteredDialogClass("lg");
 
   return (
     <Dialog

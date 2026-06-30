@@ -6,6 +6,33 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Responsive overlay standard (drawers mobile, modals tablet/desktop)
+
+### What
+
+**Shared responsive shell**
+
+- **[`ResponsiveOverlay.tsx`](sideline/components/shared/ResponsiveOverlay.tsx)** / **[`useMdUp.ts`](sideline/lib/useMdUp.ts)** / **[`designTokens.ts`](sideline/lib/constants/designTokens.ts):** Central **`md`** breakpoint behavior — bottom sheet / full-viewport drawer on mobile, centered Radix dialog at **`md+`**; shared positioning and dialog content class helpers.
+
+**Migrated surfaces**
+
+- **[`CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx)**, **[`EditPlaybookModal.tsx`](sideline/components/playbook/EditPlaybookModal.tsx)**, **[`ConfirmDestructiveModal.tsx`](sideline/components/shared/ConfirmDestructiveModal.tsx)**, **[`BottomSheet.tsx`](sideline/components/shared/BottomSheet.tsx)**, **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx)**, **[`SituationFormModal.tsx`](sideline/components/playbook/SituationFormModal.tsx)**, **[`EditGameDetailsModal.tsx`](sideline/components/film/EditGameDetailsModal.tsx)**, **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx)**, **[`app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx):** Form and confirm flows use shared tokens or **`ResponsiveOverlay`**; breakpoint alignment moved from **`sm`** to **`md`** where overlays were hand-rolled.
+
+**Call sheet landing tab switch**
+
+- **[`CallSheetEditorTabBar.tsx`](sideline/components/playbook/CallSheetEditorTabBar.tsx)** / **[`CallSheetBuilderWorkspaceChrome.tsx`](sideline/components/playbook/CallSheetBuilderWorkspaceChrome.tsx):** Removed separate **`compact`** desktop styling — **Situations / Coach View** uses one visual treatment everywhere; full width on mobile only (**`className="w-full"`**), content-sized on tablet/desktop.
+
+### Why
+
+Large screens should use centered modals for edit workflows while mobile keeps drawer/bottom-sheet interactions. One wrapper and token set avoids per-feature breakpoint drift and matches the New Call Sheet reference pattern.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+- Mobile drawer behavior preserved; tablet/desktop overlays centered at **`md+`**.
+
+---
+
 ## 2026-06-30 — Call Sheet builder: situation workspace + browse side rail (Session 11)
 
 ### What

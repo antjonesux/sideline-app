@@ -5,7 +5,7 @@ import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
-import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
+import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1148,7 +1148,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 sheetName={sheet.name}
                 cfb26Playbook={cfb26}
               />
-              <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
+              <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} className="w-full" />
               {editorTab === "situations" ? (
                 <CallSheetBuilderDashboard
                   scenarios={dashboardScenarios}
@@ -1246,7 +1246,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         }}
       >
         <DialogContent
-          className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+          className={responsiveOverlayDialogContentClass("lg")}
           onPointerDownOutside={(e) => {
             if (browseSituationBusy) e.preventDefault();
           }}
@@ -1295,13 +1295,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           onClick={() => setEditorOpen(false)}
         >
           <div
-            className={cn(
-              "fixed inset-x-0 bottom-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4",
-              overlayZ.sheetShell,
-            )}
+            className={cn(responsiveOverlayBottomShellPositionClass("md"), overlayZ.sheetShell)}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex h-full max-h-[90vh] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+            <div className="flex h-full max-h-[90vh] min-h-0 w-full flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 md:max-h-[90vh] md:rounded-xl">
               <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
                 <h2 className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100">Edit play sheet</h2>
                 <button type="button" data-no-press className="p-2 -mr-2 text-slate-400 hover:text-white" onClick={() => setEditorOpen(false)}>
@@ -1345,7 +1342,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         }}
       >
         <DialogContent
-          className="flex max-h-[90vh] flex-col gap-0 overflow-hidden border-slate-700 bg-slate-900 p-0 text-slate-100 sm:max-w-md [&>button]:text-slate-400 [&>button]:hover:text-white"
+          className={responsiveOverlayDialogContentClass("md")}
           onPointerDownOutside={(e) => {
             if (swapPlay.isPending) e.preventDefault();
           }}

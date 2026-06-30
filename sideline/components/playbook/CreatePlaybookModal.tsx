@@ -3,9 +3,8 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { BackNavLink } from "@/components/shared/BackNavLink";
+import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -349,22 +348,20 @@ export function CreatePlaybookModal({
   }
 
   return (
-    <Dialog
+    <ResponsiveOverlay
       open={open}
-      onOpenChange={(next) => {
-        if (!next && guidedOnboardingFlow) return;
-        if (!next) onClose?.();
-      }}
-    >
-      <DialogContent
-        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
-        onOpenAutoFocus={(e) => {
+      onClose={() => onClose?.()}
+      busy={busy}
+      dismissible={!guidedOnboardingFlow}
+      maxWidth="lg"
+      dialogContentProps={{
+        onOpenAutoFocus: (e) => {
           e.preventDefault();
           dialogTitleRef.current?.focus({ preventScroll: true });
-        }}
-      >
-        {modalInner}
-      </DialogContent>
-    </Dialog>
+        },
+      }}
+    >
+      {modalInner}
+    </ResponsiveOverlay>
   );
 }

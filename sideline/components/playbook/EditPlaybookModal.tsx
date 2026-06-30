@@ -3,13 +3,12 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import type { PlaybookSummary } from "@/lib/types";
 import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
@@ -89,68 +88,63 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose();
-      }}
-    >
-      <DialogContent
+    <ResponsiveOverlay open={open} onClose={onClose} busy={busy} maxWidth="lg">
+      <DialogHeader
         id={EDIT_PLAYBOOK_DIALOG_ID}
-        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+        className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left md:px-6 md:text-left"
       >
-        <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
-          <DialogTitle className="font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100 pr-10 text-left">Edit play sheet</DialogTitle>
-          <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">
-            Update the name and CFB26 playbook source.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogTitle className="pr-10 text-left font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100">
+          Edit play sheet
+        </DialogTitle>
+        <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">
+          Update the name and CFB26 playbook source.
+        </DialogDescription>
+      </DialogHeader>
 
-        <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-          <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
-            {loadErr ? (
-              <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-                {loadErr}
-              </p>
-            ) : null}
+      <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+        <div className="space-y-5 overflow-y-auto px-4 py-5 md:px-6">
+          {loadErr ? (
+            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
+              {loadErr}
+            </p>
+          ) : null}
 
-            <label className="block space-y-1">
-              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
-              <input
-                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                placeholder="e.g. My Base Sheet"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-
-            <TeamCombobox<PlaybookOption>
-              label="Select CFB26 Playbook"
-              inputId={`edit-playbook-cfb26-${playbook.id}`}
-              selected={selectedPlaybook}
-              onSelect={setSelectedPlaybook}
-              options={options}
-              loading={playbooks.length === 0 && !loadErr}
-              placeholder="Search CFB26 playbooks"
-              getOptionLabel={(o) => o.team_name}
-              getOptionKey={(o) => o.team_name}
-              getSearchText={(o) => o.team_name}
-              showTrailingChevron={false}
+          <label className="block space-y-1">
+            <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play sheet name</span>
+            <input
+              className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              placeholder="e.g. My Base Sheet"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
             />
-            <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
-          </div>
+          </label>
 
-          <div className={modalCtaFooterClass}>
-            <Button type="button" variant="secondary" className="min-h-11 flex-1" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="default" className="min-h-11 flex-1" disabled={busy || !canSave}>
-              {busy ? "Saving…" : "Save changes"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <TeamCombobox<PlaybookOption>
+            label="Select CFB26 Playbook"
+            inputId={`edit-playbook-cfb26-${playbook.id}`}
+            selected={selectedPlaybook}
+            onSelect={setSelectedPlaybook}
+            options={options}
+            loading={playbooks.length === 0 && !loadErr}
+            placeholder="Search CFB26 playbooks"
+            getOptionLabel={(o) => o.team_name}
+            getOptionKey={(o) => o.team_name}
+            getSearchText={(o) => o.team_name}
+            showTrailingChevron={false}
+          />
+          <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>
+        </div>
+
+        <div className={modalCtaFooterClass}>
+          <Button type="button" variant="secondary" className="min-h-11 flex-1" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="default" className="min-h-11 flex-1" disabled={busy || !canSave}>
+            {busy ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
+      </form>
+    </ResponsiveOverlay>
   );
 }

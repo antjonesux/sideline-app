@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { modalCtaFooterClass } from "@/lib/constants/designTokens";
+import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import type { GameSession } from "@/lib/types";
@@ -322,7 +322,7 @@ export function EditGameDetailsModal({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
           id={EDIT_GAME_DIALOG_ID}
-          className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg"
+          className={responsiveOverlayDialogContentClass("lg")}
           onOpenAutoFocus={(e) => {
             e.preventDefault();
             dialogTitleRef.current?.focus({ preventScroll: true });
