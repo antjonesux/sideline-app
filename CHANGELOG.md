@@ -6,6 +6,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Data: CFB27 P4 Lower + Elite G5 seed (Session 4)
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Northwestern, Rutgers, Vanderbilt, Memphis, Tulane, Army, Navy, Appalachian State, James Madison, Coastal Carolina — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (304 formations, 4,590 plays total).
+- Four seed files use **`TEAM_SCHEMES`** canonical classifications (Northwestern → Spread, Vanderbilt → Pistol, Tulane and Coastal Carolina → Power Spread) so the existing seed runner validation passes.
+
+### Why
+
+Session 4 of the CFB27 catalog rollout — remaining P4 programs plus elite G5 schools dynasty players frequently choose for underdog rebuilds (Army and Navy Option playbooks in particular). Combined with Sessions 1–3, **41 teams** are seeded ahead of Sessions 5–6 (remaining G5).
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **41 teams**, **19,015 plays** (excluding internal test playbook).
+- `npm run build` from `sideline/` passed (seed modules only; no app code changed).
+
+---
+
 ## 2026-06-30 — Play Sheet list cards: simpler tablet/desktop row
 
 ### What
