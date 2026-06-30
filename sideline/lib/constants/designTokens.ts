@@ -73,6 +73,10 @@ export const appShellSurfaceCardClass = "rounded-xl border border-slate-700 bg-s
 export const appShellSurfaceCardHoverClass =
   "transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70";
 
+/** Bordered auth surface — matches LoginForm Google OAuth control fill/border. */
+export const authOAuthButtonClass =
+  "border border-slate-700 bg-slate-900 text-slate-100 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100 focus-visible:border-emerald-600/60 focus-visible:ring-2 focus-visible:ring-emerald-500/25";
+
 /** Full-width surface action on app shell pages (Settings sign out, Builder Browse Playbook). Pair with `Button variant="outline"`. */
 export const appShellSurfaceActionButtonClass =
   "h-auto min-h-11 w-full rounded-xl border-slate-700 bg-slate-900 py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 hover:text-white";

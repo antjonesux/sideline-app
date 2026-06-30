@@ -8,11 +8,13 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { isValidEmail } from "@/lib/emailValidation";
 import { PASSWORD_HINT, passwordRuleChecks, isPasswordValid, passwordsMatch } from "@/lib/passwordValidation";
-import { appWordmarkStyle } from "@/lib/landing/appWordmarkStyle";
+import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
 import { SegmentTabBar } from "@/components/shared/SegmentTabBar";
 import { buildLandingHref, resolveSafeNextPath } from "@/lib/navigation/loginHref";
 import { buildPasswordRecoveryRedirectTo } from "@/lib/passwordRecoveryRedirect";
+import { authOAuthButtonClass } from "@/lib/constants/designTokens";
+import { cn } from "@/lib/utils";
 
 type View = "sign-in" | "create-account" | "forgot-password";
 
@@ -30,11 +32,9 @@ function LoginWordmarkHeader({ next }: { next?: string | null }) {
   return (
     <div className="flex items-center gap-4">
       <IconBackButton href={buildLandingHref(next)} aria-label="Back to welcome" />
-      <h1
-        className="min-w-0 flex-1 text-center font-sans text-[36px] font-bold uppercase leading-none tracking-[1.08px] text-white"
-        style={appWordmarkStyle}
-      >
-        The Sideline
+      <h1 className="flex min-w-0 flex-1 justify-center">
+        <AppCompactWordmark />
+        <span className="sr-only">The Sideline</span>
       </h1>
       <IconBackButtonSpacer />
     </div>
@@ -345,8 +345,8 @@ export function LoginForm() {
       <div className="w-full max-w-sm space-y-8">
         <header className="text-center">
           <LoginWordmarkHeader next={nextForLandingBack} />
-          <p className="mt-3 font-sans text-sm font-medium leading-snug text-[#94a3b8] sm:text-[15px]">
-            Study your game. Call it smarter.
+          <p className="mt-3 font-sans text-sm font-medium leading-snug text-slate-400 sm:text-[15px]">
+            Build better game plans. Call smarter plays.
           </p>
         </header>
 
@@ -355,7 +355,10 @@ export function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={anyBusy}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 font-sans text-sm font-medium tracking-normal text-slate-100 transition-colors hover:bg-slate-800 focus:outline-none focus-visible:border-emerald-600/60 focus-visible:ring-2 focus-visible:ring-emerald-500/25 disabled:opacity-50"
+          className={cn(
+            "flex min-h-12 w-full items-center justify-center gap-3 rounded-lg px-4 py-3 font-sans text-sm font-medium tracking-normal transition-colors focus:outline-none disabled:opacity-50",
+            authOAuthButtonClass,
+          )}
         >
           <GoogleIcon />
           {googleBusy ? "Redirecting\u2026" : "Continue with Google"}

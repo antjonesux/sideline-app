@@ -4,6 +4,29 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Marketing: full landing page + auth shell parity
+
+### What
+
+- **[`sideline/app/(marketing)/`](sideline/app/(marketing)/):** New route group with full-bleed layout and **`/landing`** page composing marketing sections (nav, hero, Call Sheet explainer, problem, how it works, features, product showcase, why Sideline, final CTA, footer). Replaces the single-screen **[`sideline/app/landing/page.tsx`](sideline/app/landing/page.tsx)** + **`HeroSection`** entry.
+- **[`sideline/components/marketing/`](sideline/components/marketing/):** Section components rebuilt on app tokens (Barlow / JetBrains Mono, slate/emerald Tailwind classes); **`AppMockup`** interactive product mockup (**`thesideline.pro`**); anchor nav (**`#features`**, **`#how-it-works`**, **`#about`**); CTAs via **`buildLoginHref`**.
+- **[`sideline/components/marketing/MarketingBlueprintBackground.tsx`](sideline/components/marketing/MarketingBlueprintBackground.tsx):** Shared emerald radial glow + blueprint grid — **`variant="viewport"`** on marketing layout and login layout so the texture covers the full scroll surface (not hero-only).
+- **[`sideline/lib/marketingHeroCopy.ts`](sideline/lib/marketingHeroCopy.ts):** Shared hero subtitle copy for landing + docs.
+- **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts):** **`authOAuthButtonClass`** — bordered slate auth surface shared by Google OAuth and landing **Sign In** buttons.
+- **[`sideline/app/login/`](sideline/app/login/):** **`layout.tsx`** adds the blueprint background; **`LoginForm`** uses **`AppCompactWordmark`**, subtitle **Build better game plans. Call smarter plays.**, and **`authOAuthButtonClass`** on the OAuth CTA.
+- **[`sideline/components/marketing/MarketingNav.tsx`](sideline/components/marketing/MarketingNav.tsx)** / **[`MarketingFooter.tsx`](sideline/components/marketing/MarketingFooter.tsx):** **`AppCompactWordmark`** (hamburger-menu lockup) instead of Target icon + full wordmark.
+
+### Why
+
+Session 08 — replace the auth-first welcome screen with a coach-facing marketing homepage that explains the digital Call Sheet, preserves existing auth routing, and stays on the production design system (no Figma export code).
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+- **`/landing`** still sets **`data-marketing-chrome`** via **`BottomTabNav`**; authenticated app routes unchanged.
+
+---
+
 ## 2026-06-29 — Play Sheet: remove obsolete Active Call Sheet UI
 
 ### What
