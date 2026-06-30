@@ -20,6 +20,8 @@ type Props = {
   trigger?: "icon" | "text";
   /** Visible label when `trigger` is `"text"` (also used for `aria-label` if set). */
   textTriggerLabel?: string;
+  /** Optional wrapper positioning — e.g. vertical center on desktop card rows. */
+  className?: string;
 };
 
 /**
@@ -32,10 +34,11 @@ export function CardKebabMenu({
   children,
   trigger = "icon",
   textTriggerLabel = "More",
+  className,
 }: Props) {
   const textLabel = textTriggerLabel.trim() || "More";
   return (
-    <div className="absolute right-4 top-4 z-10">
+    <div className={cn("absolute right-4 top-4 z-10", className)}>
       <DropdownMenu open={open} onOpenChange={onOpenChange}>
         <DropdownMenuTrigger asChild>
           <button

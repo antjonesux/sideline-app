@@ -30,6 +30,9 @@
   --app-shell-pb-tab: calc(7rem + env(safe-area-inset-bottom, 0px));
   /** Persistent sidebar width — tablet / desktop shell (Session 09). */
   --app-shell-sidebar-width: 16.25rem;
+  /** Inner workspace cap — playbook surfaces stay readable on large screens (Session 10). */
+  --app-shell-workspace-inner-max-width: 100%;
+  --app-shell-workspace-inner-wide-max-width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -41,6 +44,8 @@
 @media (min-width: 768px) {
   :root {
     --app-shell-max-width: 56rem;
+    --app-shell-workspace-inner-max-width: 53.75rem;
+    --app-shell-workspace-inner-wide-max-width: 53.75rem;
   }
 }
 
@@ -48,6 +53,7 @@
   :root {
     --app-shell-max-width: 64rem;
     --app-shell-px: 2rem;
+    --app-shell-workspace-inner-wide-max-width: 56.25rem;
   }
 }
 
@@ -157,7 +163,7 @@
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /** Tablet / desktop sidebar shell — no bottom tab bar inset. */
+  /** Tablet / desktop sidebar shell — legacy; hamburger nav uses reduced bottom inset instead. */
   @media (min-width: 768px) {
     html[data-app-shell-sidebar="true"] main {
       padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
@@ -228,6 +234,18 @@
   .app-shell-workspace {
     box-sizing: border-box;
     min-width: 0;
+  }
+
+  /** Constrained inner column for call sheet workspace — list + builder (Session 10). */
+  .app-shell-workspace-inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--app-shell-workspace-inner-max-width);
+    margin-inline: auto;
+  }
+
+  .app-shell-workspace-inner--builder {
+    max-width: var(--app-shell-workspace-inner-wide-max-width);
   }
 }
 

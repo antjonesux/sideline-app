@@ -4,7 +4,7 @@ import {
   CALL_SHEET_VIEWER_MENU_SETTINGS,
 } from "@/lib/coachCopy";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
-import { LayoutGrid, LogOut, Settings, Video } from "lucide-react";
+import { ClipboardList, Eye, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AppShellSidebarNavItem = {
@@ -15,10 +15,10 @@ export type AppShellSidebarNavItem = {
   comingSoon?: boolean;
 };
 
-/** Tablet / desktop persistent sidebar — Session 09 approved destinations. */
+/** Hamburger drawer destinations — call sheets, review (soon), and settings. */
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
-  { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: LayoutGrid },
-  { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video, comingSoon: true },
+  { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
+  { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Eye, comingSoon: true },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
 
@@ -28,15 +28,13 @@ export function isAppShellSidebarNavActive(pathname: string, item: AppShellSideb
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-/** Mobile bottom tab bar — unchanged Film / Play Sheet / Tendencies pillars. */
+/** Mobile bottom tab bar (disabled) — Play Sheet only when re-enabled. */
 export const APP_SHELL_MOBILE_TABS = [
-  { href: "/film", label: "Film Room", match: (pathname: string) => pathname.startsWith("/film") },
   {
     href: "/playbook",
     label: "Play Sheet",
     match: (pathname: string) => isPlaySheetBuilderPath(pathname),
   },
-  { href: "/tendencies", label: "Tendencies", match: (pathname: string) => pathname.startsWith("/tendencies") },
 ] as const;
 
 export const APP_SHELL_SIGN_OUT_LABEL = "Sign out";

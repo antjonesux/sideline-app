@@ -6,7 +6,9 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE } from "@/lib/coachCopy";
+import { formatSheetUpdatedAt } from "@/lib/formatSheetUpdatedAt";
 import { useToastStore } from "@/store/toastStore";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,6 +16,11 @@ import { useState } from "react";
 
 const menuItemClass =
   "flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none";
+
+function sheetInitial(name: string): string {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
+}
 
 export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,6 +30,8 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
+  const updatedLabel = formatSheetUpdatedAt(item.updated_at);
+  const situationLabel = `${item.scenario_filled} situation${item.scenario_filled === 1 ? "" : "s"}`;
 
   async function confirmDeletePlaybook() {
     setDeleteBusy(true);
@@ -46,17 +55,45 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
     <>
       <Link
         href={`/playbook/${item.id}`}
-        className="block rounded-xl border border-slate-800 bg-slate-900 p-4 transition-colors hover:border-slate-600 hover:bg-slate-800/60"
+        className="group block rounded-xl border border-slate-800 bg-slate-900 p-4 pr-14 transition-colors hover:border-emerald-500/20 hover:bg-emerald-500/[0.03] md:flex md:items-center md:gap-4 md:rounded-2xl md:px-5 md:py-4 md:pr-16"
       >
-        <div className="flex items-start justify-between gap-3 pr-10">
-          <div className="min-w-0">
-            <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white">{item.name}</h2>
-            <p className="mt-1 truncate font-body text-sm text-slate-500">{item.scheme}</p>
+        <div
+          className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 font-heading text-[15px] font-bold text-emerald-400 md:flex"
+          aria-hidden
+        >
+          {sheetInitial(item.name)}
+        </div>
+
+        <div className="flex min-w-0 flex-1 items-start justify-between gap-3 md:items-center">
+          <div className="min-w-0 flex-1">
+            <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
+              {item.name}
+            </h2>
+            <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">
+              {item.scheme || `Built from ${item.cfb26_playbook} playbook`}
+            </p>
           </div>
+
+          <div className="hidden shrink-0 text-right md:block">
+            <p className="font-body text-[13px] text-slate-400">{situationLabel}</p>
+            {updatedLabel ? (
+              <p className="mt-0.5 font-body text-[11px] text-slate-600">{updatedLabel}</p>
+            ) : null}
+          </div>
+
+          <ChevronRight
+            className="hidden h-4 w-4 shrink-0 text-slate-700 transition-colors group-hover:text-slate-400 md:block"
+            aria-hidden
+          />
         </div>
       </Link>
 
-      <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Play sheet actions">
+      <CardKebabMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        ariaLabel="Play sheet actions"
+        className="md:top-1/2 md:-translate-y-1/2"
+      >
         <DropdownMenuItem className={menuItemClass} onSelect={() => setEditOpen(true)}>
           Edit
         </DropdownMenuItem>

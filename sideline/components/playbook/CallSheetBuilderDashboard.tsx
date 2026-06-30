@@ -20,6 +20,7 @@ export function CallSheetBuilderDashboard({
   onReorderSituations,
   onDeleteSituation,
   getOptionState,
+  layout = "mobile",
 }: {
   scenarios: SheetScenarioBlock[];
   onBrowsePlaybook: () => void;
@@ -32,27 +33,37 @@ export function CallSheetBuilderDashboard({
   onReorderSituations: (fromId: string, toIndex: number) => void;
   onDeleteSituation: (block: SheetScenarioBlock) => void;
   getOptionState?: (block: SheetScenarioBlock) => { disabled?: boolean; statusLabel?: string };
+  /** Desktop/tablet — browse + add live in workspace chrome; grid uses tighter section header. */
+  layout?: "mobile" | "desktop";
 }) {
   const atCapacity = scenarios.length >= MAX_SITUATIONS_PER_SHEET;
+  const desktop = layout === "desktop";
 
   return (
-    <div className="space-y-6">
-      <Button
-        type="button"
-        variant="outline"
-        className="h-auto min-h-11 w-full rounded-xl border-slate-700 bg-transparent py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-transparent hover:text-white"
-        onClick={onBrowsePlaybook}
-      >
-        {BUILDER_BROWSE_PLAYBOOK}
-      </Button>
+    <div className={cn("space-y-6", desktop && "space-y-4")}>
+      {!desktop ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-auto min-h-11 w-full rounded-xl border-slate-700 bg-transparent py-3 font-sans text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-transparent hover:text-white"
+          onClick={onBrowsePlaybook}
+        >
+          {BUILDER_BROWSE_PLAYBOOK}
+        </Button>
+      ) : null}
 
-      <div className="space-y-3">
+      <div className={cn("space-y-3", desktop && "space-y-4")}>
         <div className="flex items-center justify-between gap-3">
-          <p className={cn(appShellFieldLabelClass, "font-medium")}>My Situations</p>
+          <p className={cn(appShellFieldLabelClass, "font-medium", desktop && "text-[11px] tracking-[0.15em]")}>
+            My Situations
+          </p>
           <button
             type="button"
             onClick={onToggleEditMode}
-            className="shrink-0 font-sans text-sm font-medium text-slate-500 transition-colors hover:text-slate-300"
+            className={cn(
+              "shrink-0 font-sans text-sm font-medium text-slate-500 transition-colors hover:text-slate-300",
+              desktop && "text-xs",
+            )}
           >
             {editMode ? "Done" : "Edit"}
           </button>
@@ -68,9 +79,10 @@ export function CallSheetBuilderDashboard({
             setDragId={setDragId}
             onReorder={onReorderSituations}
             onDelete={onDeleteSituation}
+            columns={desktop ? "responsive" : "two"}
           />
 
-          {editMode ? null : (
+          {!desktop && editMode ? null : !desktop ? (
             <button
               type="button"
               disabled={atCapacity}
@@ -84,7 +96,7 @@ export function CallSheetBuilderDashboard({
             >
               {atCapacity ? BUILDER_SITUATIONS_AT_CAPACITY : BUILDER_ADD_SITUATION}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

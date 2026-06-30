@@ -49,6 +49,7 @@ export function CallSheetSituationGrid({
   setDragId,
   onReorder,
   onDelete,
+  columns = "two",
 }: {
   scenarios: SheetScenarioBlock[];
   onSelect: (scenario: string) => void;
@@ -58,6 +59,7 @@ export function CallSheetSituationGrid({
   setDragId?: (id: string | null) => void;
   onReorder?: (fromId: string, toIndex: number) => void;
   onDelete?: (block: SheetScenarioBlock) => void;
+  columns?: "two" | "responsive";
 }) {
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   const dropTargetIndexRef = useRef<number | null>(null);
@@ -79,7 +81,10 @@ export function CallSheetSituationGrid({
 
   return (
     <div
-      className="grid grid-cols-2 gap-3"
+      className={cn(
+        "grid gap-3",
+        columns === "responsive" ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2",
+      )}
       role="list"
       aria-label="Tactical situations"
       onDragLeave={(e) => {
@@ -182,6 +187,7 @@ export function CallSheetSituationGrid({
             onClick={() => onSelect(s.scenario)}
             className={cn(
               "flex min-h-[5.5rem] min-w-0 w-full flex-col rounded-xl p-3 text-start transition-colors",
+              columns === "responsive" && "md:min-h-[6.5rem] md:rounded-2xl md:p-5",
               colors.bg,
               disabled ? "cursor-not-allowed opacity-50" : "hover:brightness-110",
             )}

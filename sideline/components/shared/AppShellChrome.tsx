@@ -7,8 +7,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useMemo } from "react";
 
 /**
- * Responsive authenticated shell — sidebar at `md+`, mobile bottom nav via `BottomTabNav`.
- * Marketing, auth, and onboarding routes render children without sidebar chrome.
+ * Responsive authenticated shell — persistent sidebar at `md+`, hamburger drawer on mobile.
+ * Marketing, auth, and onboarding routes render children without shell chrome.
  */
 export function AppShellChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

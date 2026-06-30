@@ -1,5 +1,5 @@
 /**
- * Routes that use the responsive authenticated app shell (sidebar at md+, bottom nav on mobile).
+ * Routes that use the authenticated app shell (sidebar at md+, hamburger drawer on mobile).
  * Marketing, auth, onboarding, and QA preview routes stay on the legacy full-width chrome.
  */
 

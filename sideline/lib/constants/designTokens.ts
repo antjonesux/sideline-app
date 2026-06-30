@@ -89,9 +89,38 @@ export const appShellFieldLabelClass =
 export const appShellFormInputClass =
   "hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25";
 
-/** Compact bordered header action — Add Sheet, Edit. */
+/** Compact header action — Add Sheet, Edit. */
 export const appShellHeaderActionButtonClass =
   "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-700 px-3 py-1.5 font-sans text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500";
+
+/** Constrained playbook workspace column — pairs with `.app-shell-workspace-inner` in `globals.css`. */
+export const appShellWorkspaceInnerClass = "app-shell-workspace-inner w-full";
+
+/** Builder workspace — slightly wider cap at `lg+` (`--app-shell-workspace-inner-wide-max-width`). */
+export const appShellWorkspaceBuilderClass = "app-shell-workspace-inner app-shell-workspace-inner--builder w-full";
+
+/** Desktop/tablet builder title — tighter than `appShellPageTitleClass`. */
+export const appShellBuilderTitleClass =
+  "font-sans text-2xl leading-tight font-bold uppercase tracking-[0.08em] text-white";
+
+/** Workspace stat block label (situations / plays). */
+export const appShellWorkspaceStatLabelClass =
+  "font-sans text-[11px] font-medium uppercase tracking-wide text-slate-600";
+
+/** Workspace stat block value. */
+export const appShellWorkspaceStatValueClass = "font-sans text-[15px] font-semibold text-white";
+
+/** Emerald primary header CTA — New Call Sheet on desktop/tablet home (matches landing Get started). */
+export const appShellHeaderPrimaryCtaClass =
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400";
+
+/** Compact bordered browse control in builder header toolbar. */
+export const appShellBuilderBrowseButtonClass =
+  "inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700/80 px-3 py-1.5 font-sans text-xs font-medium text-slate-400 transition-colors hover:border-slate-600 hover:text-white";
+
+/** Compact emerald Add Situation control in builder toolbar row. */
+export const appShellBuilderAddSituationClass =
+  "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50";
 
 /** Square bordered icon control — back chevron, menu. Use `IconBackButton` / `CallSheetMenuButton` in UI. */
 export const appShellIconBackButtonClass =

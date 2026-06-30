@@ -16,7 +16,7 @@ export function AppShellMenuHeader({
   className?: string;
   titleClassName?: string;
   trailing?: React.ReactNode;
-  /** Hamburger drawer — mobile only; tablet/desktop use the persistent sidebar. */
+  /** Hamburger drawer — primary nav on mobile; sidebar handles tablet and desktop. */
   showMenu?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);

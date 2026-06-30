@@ -118,6 +118,8 @@ export const GAME_PLAN_EMPTY_HEADLINE = "No play sheet built yet.";
 export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
 export const PLAY_SHEETS_HOME_TITLE = "My Call Sheets";
+export const playSheetsHomeCountLabel = (count: number) =>
+  `${count} call sheet${count === 1 ? "" : "s"}`;
 export const PLAY_SHEET_CREATE_CTA = "Add sheet";
 /** Desktop/tablet sidebar — create action under My Call Sheets submenu. */
 export const APP_SHELL_NEW_CALL_SHEET_LABEL = "New Call Sheet";

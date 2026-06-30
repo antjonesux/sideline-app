@@ -4,6 +4,39 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Play Sheet workspace refinement (tablet/desktop) + shell nav
+
+### What
+
+**Tablet / desktop workspace (Session 10)**
+
+- **[`sideline/app/globals.css`](sideline/app/globals.css)** / **[`sideline/lib/constants/designTokens.ts`](sideline/lib/constants/designTokens.ts):** Inner workspace caps (**`--app-shell-workspace-inner-max-width`**, wide builder variant), **`.app-shell-workspace-inner`**, and header CTA tokens (**`appShellHeaderPrimaryCtaClass`**) aligned with landing **Get started**.
+- **[`sideline/components/playbook/PlaySheetHomeHeader.tsx`](sideline/components/playbook/PlaySheetHomeHeader.tsx)** / **[`PlaybookHome.tsx`](sideline/components/playbook/PlaybookHome.tsx):** Constrained list column, sheet count subtitle, emerald **New Call Sheet** CTA at **`md+`** only (no mobile header create button).
+- **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx)** / **[`PlaybookCardSkeleton.tsx`](sideline/components/playbook/PlaybookCardSkeleton.tsx):** Horizontal row layout at **`md+`** with stats/chevron; kebab collision fix via optional **`CardKebabMenu`** positioning.
+- **[`sideline/lib/formatSheetUpdatedAt.ts`](sideline/lib/formatSheetUpdatedAt.ts):** Shared relative “updated” label for list cards.
+- **[`sideline/components/playbook/CallSheetBuilderWorkspaceChrome.tsx`](sideline/components/playbook/CallSheetBuilderWorkspaceChrome.tsx)** / **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Builder stats header, toolbar row (tabs + **Add Situation**), separator at **`md+`**; mobile builder branch unchanged.
+- **[`sideline/components/playbook/CallSheetBuilderDashboard.tsx`](sideline/components/playbook/CallSheetBuilderDashboard.tsx)** / **[`CallSheetEditorTabBar.tsx`](sideline/components/playbook/CallSheetEditorTabBar.tsx)** / **[`CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx):** Desktop dashboard layout, emerald active tab fill, 3-column situation grid at **`lg+`**.
+- **[`sideline/components/playbook/SituationFormModal.tsx`](sideline/components/playbook/SituationFormModal.tsx):** **`presentation="responsive"`** — full-page sheet on mobile, centered dialog with natural height on **`md+`** (no nested scroll unless content requires it).
+- **[`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx):** Removed breadcrumb; full-width playbook combobox on create flow.
+- **[`sideline/components/shared/PageSkeleton.tsx`](sideline/components/shared/PageSkeleton.tsx):** Play Sheet home skeleton aligned to constrained desktop layout; hamburger placeholder **`md:hidden`**.
+
+**App shell navigation**
+
+- **[`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx):** Mobile bottom tab bar disabled (**`BOTTOM_TAB_NAV_ENABLED = false`**); sets **`data-hamburger-nav-chrome`** for reduced bottom inset on mobile.
+- **[`sideline/components/shared/AppShellChrome.tsx`](sideline/components/shared/AppShellChrome.tsx)** / **[`AppShellMenuHeader.tsx`](sideline/components/shared/AppShellMenuHeader.tsx):** Persistent **`AppShellSidebar`** at **`md+`**; hamburger drawer on mobile only (**`md:hidden`**).
+- **[`sideline/lib/navigation/appShellNav.ts`](sideline/lib/navigation/appShellNav.ts):** Drawer and sidebar nav limited to **My Call Sheets**, **Review** (coming soon), and **Settings** — **Film Room** and **Tendencies** removed from app navigation.
+
+### Why
+
+Tablet and desktop should read as a focused Call Sheet workspace (toolbar, constrained width, list + builder hierarchy) while mobile keeps existing builder/home layouts. Navigation should be hamburger-only on mobile and sidebar on larger screens — without a bottom tab bar or Film/Tendencies sidebar entries.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+- Mobile builder and Play Sheet home layouts preserved; Film/Tendencies routes remain reachable by direct URL but are not in shell nav.
+
+---
+
 ## 2026-06-30 — App shell: tablet/desktop sidebar + Call Sheets submenu
 
 ### What

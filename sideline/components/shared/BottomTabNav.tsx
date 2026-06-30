@@ -12,8 +12,8 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useMemo } from "react";
 
-/** Mobile bottom tab bar — hidden at `md+` where the persistent sidebar is shown. */
-export const BOTTOM_TAB_NAV_ENABLED = true;
+/** Mobile bottom tab bar — disabled; hamburger drawer is the nav source on all breakpoints. */
+export const BOTTOM_TAB_NAV_ENABLED = false;
 
 const TAB_ICONS = {
   "/film": Video,
@@ -38,6 +38,8 @@ export default function BottomTabNav() {
   const showMobileTabBar =
     BOTTOM_TAB_NAV_ENABLED && shellActive && !onboardingChrome && !isAuthOrMarketingPath(pathname);
 
+  const hamburgerNavChrome = shellActive && !onboardingChrome && !isAuthOrMarketingPath(pathname);
+
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -45,14 +47,14 @@ export default function BottomTabNav() {
     else root.removeAttribute("data-onboarding-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
-    if (!showMobileTabBar) root.setAttribute("data-hamburger-nav-chrome", "true");
+    if (hamburgerNavChrome) root.setAttribute("data-hamburger-nav-chrome", "true");
     else root.removeAttribute("data-hamburger-nav-chrome");
     return () => {
       root.removeAttribute("data-onboarding-chrome");
       root.removeAttribute("data-marketing-chrome");
       root.removeAttribute("data-hamburger-nav-chrome");
     };
-  }, [onboardingChrome, pathname, showMobileTabBar]);
+  }, [onboardingChrome, pathname, hamburgerNavChrome]);
 
   if (!showMobileTabBar) return null;
 

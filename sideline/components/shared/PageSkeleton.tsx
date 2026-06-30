@@ -1,12 +1,21 @@
 import { SkeletonBlock, TendenciesWhatsWorkingBodySkeleton } from "@/components/shared/AppSkeleton";
 import { PlaybookCardSkeleton } from "@/components/playbook/PlaybookCardSkeleton";
+import { appShellWorkspaceInnerClass } from "@/lib/constants/designTokens";
 
-function AppShellMenuHeaderSkeleton({ trailing = false }: { trailing?: boolean }) {
+function AppShellMenuHeaderSkeleton({
+  trailing = false,
+  trailingClassName,
+}: {
+  trailing?: boolean;
+  trailingClassName?: string;
+}) {
   return (
     <header className="flex items-center gap-4">
       <SkeletonBlock className="size-8 shrink-0 rounded-lg md:hidden" />
       <SkeletonBlock className="h-9 flex-1 max-w-[12rem] sm:max-w-[14rem]" />
-      {trailing ? <SkeletonBlock className="h-9 w-24 shrink-0 rounded-lg" /> : null}
+      {trailing ? (
+        <SkeletonBlock className={`h-9 w-24 shrink-0 rounded-lg ${trailingClassName ?? ""}`} />
+      ) : null}
     </header>
   );
 }
@@ -74,9 +83,12 @@ export function FilmRoomSkeleton() {
 /** Play sheets home — header with create action and play sheet cards. */
 export function PlaySheetHomeSkeleton() {
   return (
-    <section className="space-y-6" aria-busy="true" aria-label="Loading play sheets">
-      <AppShellMenuHeaderSkeleton trailing />
-      <ul className="space-y-3">
+    <section className="flex min-h-[60vh] flex-col gap-6 md:gap-8" aria-busy="true" aria-label="Loading play sheets">
+      <div className={appShellWorkspaceInnerClass}>
+        <AppShellMenuHeaderSkeleton trailing trailingClassName="hidden md:block" />
+        <SkeletonBlock className="mt-2 hidden h-4 w-32 md:block" />
+      </div>
+      <ul className={`${appShellWorkspaceInnerClass} flex flex-col gap-3`}>
         {[0, 1, 2].map((i) => (
           <li key={i}>
             <PlaybookCardSkeleton />

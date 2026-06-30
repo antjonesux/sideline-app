@@ -4,7 +4,7 @@
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
-import { defaultColorForNewSituation } from "@/lib/situationApiHelpers";
+import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, modalCtaFooterClass, overlayZ } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
 import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -54,6 +54,7 @@ import { AddPlayDrawer } from "./AddPlayDrawer";
 import { CallSheetBuilderDashboard } from "./CallSheetBuilderDashboard";
 import { CallSheetBuilderSheetHeader } from "./CallSheetBuilderSheetHeader";
 import { CallSheetBuilderSituationHeader } from "./CallSheetBuilderSituationHeader";
+import { CallSheetBuilderWorkspaceChrome } from "./CallSheetBuilderWorkspaceChrome";
 import { CallSheetCoachView } from "./CallSheetCoachView";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEditorTabBar";
 import { CallSheetSituationGrid } from "./CallSheetSituationGrid";
@@ -1025,30 +1026,63 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             {scenarioPlaysSection}
           </div>
         ) : useCallSheetBuilderLayout ? (
-          <div className="space-y-6">
-            <CallSheetBuilderSheetHeader
+          <>
+            <CallSheetBuilderWorkspaceChrome
               backHref="/playbook"
               sheetName={sheet.name}
               cfb26Playbook={cfb26}
-            />
-            <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
-            {editorTab === "situations" ? (
-              <CallSheetBuilderDashboard
-                scenarios={dashboardScenarios}
-                onBrowsePlaybook={navigateToDashboardBrowse}
-                onSelectSituation={navigateToSituation}
-                editMode={situationsEditMode}
-                onToggleEditMode={() => void toggleSituationsEditMode()}
-                onAddSituation={() => setCreateSituationOpen(true)}
-                dragId={situationDragId}
-                setDragId={setSituationDragId}
-                onReorderSituations={onReorderSituations}
-                onDeleteSituation={(block) => setDeleteSituationTarget(block)}
+              situationCount={scenarios.length}
+              playCount={totalSheetPlays}
+              activeTab={editorTab}
+              onTabChange={setEditorTab}
+              onBrowsePlaybook={navigateToDashboardBrowse}
+              onAddSituation={() => setCreateSituationOpen(true)}
+              addSituationDisabled={scenarios.length >= MAX_SITUATIONS_PER_SHEET || situationsEditMode}
+            >
+              {editorTab === "situations" ? (
+                <CallSheetBuilderDashboard
+                  layout="desktop"
+                  scenarios={dashboardScenarios}
+                  onBrowsePlaybook={navigateToDashboardBrowse}
+                  onSelectSituation={navigateToSituation}
+                  editMode={situationsEditMode}
+                  onToggleEditMode={() => void toggleSituationsEditMode()}
+                  onAddSituation={() => setCreateSituationOpen(true)}
+                  dragId={situationDragId}
+                  setDragId={setSituationDragId}
+                  onReorderSituations={onReorderSituations}
+                  onDeleteSituation={(block) => setDeleteSituationTarget(block)}
+                />
+              ) : (
+                <CallSheetCoachView scenarios={scenarios} />
+              )}
+            </CallSheetBuilderWorkspaceChrome>
+
+            <div className="space-y-6 md:hidden">
+              <CallSheetBuilderSheetHeader
+                backHref="/playbook"
+                sheetName={sheet.name}
+                cfb26Playbook={cfb26}
               />
-            ) : (
-              <CallSheetCoachView scenarios={scenarios} />
-            )}
-          </div>
+              <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} />
+              {editorTab === "situations" ? (
+                <CallSheetBuilderDashboard
+                  scenarios={dashboardScenarios}
+                  onBrowsePlaybook={navigateToDashboardBrowse}
+                  onSelectSituation={navigateToSituation}
+                  editMode={situationsEditMode}
+                  onToggleEditMode={() => void toggleSituationsEditMode()}
+                  onAddSituation={() => setCreateSituationOpen(true)}
+                  dragId={situationDragId}
+                  setDragId={setSituationDragId}
+                  onReorderSituations={onReorderSituations}
+                  onDeleteSituation={(block) => setDeleteSituationTarget(block)}
+                />
+              ) : (
+                <CallSheetCoachView scenarios={scenarios} />
+              )}
+            </div>
+          </>
         ) : (
           <>
             {!onboardingEditor ? (
@@ -1299,7 +1333,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       <SituationFormModal
         open={createSituationOpen}
         mode="create"
-        presentation="page"
+        presentation="responsive"
         initialValues={{
           name: "",
           description: "",

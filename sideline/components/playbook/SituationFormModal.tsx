@@ -30,6 +30,31 @@ import { useScrollLock } from "@/lib/useScrollLock";
 import { cn } from "@/lib/utils";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+const MD_BREAKPOINT_PX = 768;
+
+/** Matches Tailwind `md` — tablet/desktop use centered modal; mobile keeps full-page sheet. */
+function useMdUp(): boolean {
+  const [mdUp, setMdUp] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${MD_BREAKPOINT_PX}px)`);
+    const sync = () => setMdUp(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return mdUp;
+}
+
+function resolveSituationFormPresentation(
+  presentation: "modal" | "page" | "responsive",
+  mdUp: boolean,
+): "modal" | "page" {
+  if (presentation === "responsive") return mdUp ? "modal" : "page";
+  return presentation;
+}
+
 export type SituationFormValues = {
   name: string;
   description: string;
@@ -203,7 +228,7 @@ export function SituationFormModal({
 }: {
   open: boolean;
   mode: "create" | "edit";
-  presentation?: "modal" | "page";
+  presentation?: "modal" | "page" | "responsive";
   initialValues: SituationFormValues;
   usedColors: string[];
   busy?: boolean;
@@ -211,12 +236,14 @@ export function SituationFormModal({
   onSubmit: (values: SituationFormValues) => void | Promise<void>;
   onDelete?: () => void;
 }) {
+  const mdUp = useMdUp();
+  const resolvedPresentation = resolveSituationFormPresentation(presentation, mdUp);
   const [name, setName] = useState(initialValues.name);
   const [description, setDescription] = useState(initialValues.description);
   const [icon, setIcon] = useState<string | null>(initialValues.icon);
   const [color, setColor] = useState(initialValues.color);
 
-  useScrollLock(open && presentation === "page");
+  useScrollLock(open && resolvedPresentation === "page");
 
   useEffect(() => {
     if (!open) return;
@@ -289,7 +316,7 @@ export function SituationFormModal({
     />
   );
 
-  if (presentation === "page") {
+  if (resolvedPresentation === "page") {
     if (!open) return null;
 
     return (
@@ -325,6 +352,13 @@ export function SituationFormModal({
     );
   }
 
+  /** Tablet / desktop centered dialog — natural height, no nested scroll pane. */
+  const centeredModalClass = cn(
+    `fixed left-[50%] top-[50%] ${overlayZ.radixDialog} !flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-0 !overflow-visible rounded-lg border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-lg`,
+    "!h-auto !max-h-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+    "[&>button]:text-slate-400 [&>button]:hover:text-white",
+  );
+
   return (
     <Dialog
       open={open}
@@ -333,7 +367,7 @@ export function SituationFormModal({
       }}
     >
       <DialogContent
-        className="inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl border-slate-700 bg-slate-900 p-0 text-slate-100 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg [&>button]:text-slate-400 [&>button]:hover:text-white"
+        className={centeredModalClass}
         onPointerDownOutside={(e) => {
           if (busy) e.preventDefault();
         }}
@@ -341,15 +375,15 @@ export function SituationFormModal({
           if (busy) e.preventDefault();
         }}
       >
-        <DialogHeader className="sticky top-0 z-10 space-y-0 border-b border-slate-800 bg-slate-900 px-4 py-4 text-left sm:px-6 sm:text-left">
+        <DialogHeader className="shrink-0 space-y-0 border-b border-slate-800 bg-slate-900 px-6 py-4 text-left">
           <DialogTitle className="pr-10 text-left font-heading text-xl font-bold uppercase tracking-[0.1em] text-slate-100">
             {title}
           </DialogTitle>
           <DialogDescription className="mt-1 text-left font-body text-sm text-slate-400">{subtitle}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 space-y-5 overflow-y-auto px-4 py-5 sm:px-6">{formBody}</div>
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <div className="space-y-5 px-6 py-5">{formBody}</div>
           {formFooter}
         </form>
       </DialogContent>

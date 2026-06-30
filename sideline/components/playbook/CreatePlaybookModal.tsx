@@ -3,7 +3,6 @@
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { BackNavLink } from "@/components/shared/BackNavLink";
-import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import {
   Dialog,
   DialogContent,
@@ -179,7 +178,7 @@ export function CreatePlaybookModal({
           </label>
         )}
 
-        <div className="md:max-w-2xl">
+        <div className="block space-y-1">
           <TeamCombobox<PlaybookOption>
             label="Select CFB26 Playbook"
             inputId="create-cfb26-playbook"
@@ -271,8 +270,7 @@ export function CreatePlaybookModal({
       );
     }
     return (
-      <section className="space-y-8">
-        <Breadcrumb segments={[{ label: "Playbook", href: "/playbook" }, { label: "New" }]} />
+      <section className="space-y-6">
         <BackNavLink href="/playbook" />
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">{pageForm}</div>
       </section>
