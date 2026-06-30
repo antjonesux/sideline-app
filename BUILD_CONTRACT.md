@@ -19,7 +19,7 @@ How we build **The Sideline**: a coach-first film and call-logging assistant (po
 
 1. **Running code** under `sideline/` (layouts, APIs, components).
 2. **Repo-root `.cursorrules`** — typography, UX principles, copy/terminology, TS strictness, dark-mode and layout rules, scaffolding, state/data patterns.
-3. **`CHANGELOG.md`** (root) and **`sideline/CHANGELOG.md`** (file-level detail) — what shipped and why.
+3. **`CHANGELOG.md`** (repo root) — what shipped and why.
 4. **`BUILD_CONTRACT.md` / `DECISIONS.md`** — alignment; they must not contradict 1–2 without an explicit product decision.
 
 If `.cursorrules` and an older code path disagree, **prefer the layout and pages that actually ship** (see UI contract below) and note drift in the session brief rather than “fixing” unrelated files.
