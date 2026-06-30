@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Marketing: app-faithful hero + How It Works illustrations
+
+### What
+
+- **[`sideline/components/marketing/MarketingCallSheetIllustrations.tsx`](sideline/components/marketing/MarketingCallSheetIllustrations.tsx):** Shared marketing mocks aligned with real Call Sheet UI — situation grid cards (**`getSituationColor`**, **`SituationIconBadge`**), Coach View accordions, add-play situation editor, and shared header tokens (**`marketingPanelHeaderClass`**, **`marketingSheetTitleClass`**).
+- **[`sideline/components/marketing/HeroPanels.tsx`](sideline/components/marketing/HeroPanels.tsx):** Hero floating panels now mirror production — Call Sheet Coach View accordions, 2×2 situation grid, Browse Playbook unchanged; removed generic **`PlayManagementChip`**.
+- **[`sideline/components/marketing/HowItWorks.tsx`](sideline/components/marketing/HowItWorks.tsx):** Replaced generic step mocks with shared illustrations — step 01 add-play situation editor, step 02 full situation grid, step 03 Coach View; illustration shell headers use **`text-sm`** to match hero sheet subtitle.
+
+### Why
+
+Marketing visuals should show the actual Call Sheet builder and Coach View patterns coaches recognize, not placeholder list UI — and panel typography should stay consistent between hero and How It Works.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-30 — Marketing: full landing page + auth shell parity
 
 ### What

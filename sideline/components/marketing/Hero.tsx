@@ -7,7 +7,6 @@ import { MARKETING_HERO_SUBTITLE } from "@/lib/marketingHeroCopy";
 import {
   CallSheetPanel,
   PlaybookPanel,
-  PlayManagementChip,
   SituationPanel,
 } from "@/components/marketing/HeroPanels";
 import { SectionBadge } from "@/components/marketing/SectionBadge";
@@ -66,9 +65,6 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
             </div>
             <div className="absolute bottom-5 left-5 z-30 -rotate-1">
               <SituationPanel />
-            </div>
-            <div className="absolute bottom-0 right-5 z-[15] rotate-2">
-              <PlayManagementChip />
             </div>
             <div
               className="pointer-events-none absolute inset-0"
