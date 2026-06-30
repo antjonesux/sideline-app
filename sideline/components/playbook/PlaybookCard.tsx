@@ -6,9 +6,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE } from "@/lib/coachCopy";
-import { formatSheetUpdatedAt } from "@/lib/formatSheetUpdatedAt";
 import { useToastStore } from "@/store/toastStore";
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,8 +28,6 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
-  const updatedLabel = formatSheetUpdatedAt(item.updated_at);
-  const situationLabel = `${item.scenario_filled} situation${item.scenario_filled === 1 ? "" : "s"}`;
 
   async function confirmDeletePlaybook() {
     setDeleteBusy(true);
@@ -64,27 +60,13 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
           {sheetInitial(item.name)}
         </div>
 
-        <div className="flex min-w-0 flex-1 items-start justify-between gap-3 md:items-center">
-          <div className="min-w-0 flex-1">
-            <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
-              {item.name}
-            </h2>
-            <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">
-              {item.scheme || `Built from ${item.cfb26_playbook} playbook`}
-            </p>
-          </div>
-
-          <div className="hidden shrink-0 text-right md:block">
-            <p className="font-body text-[13px] text-slate-400">{situationLabel}</p>
-            {updatedLabel ? (
-              <p className="mt-0.5 font-body text-[11px] text-slate-600">{updatedLabel}</p>
-            ) : null}
-          </div>
-
-          <ChevronRight
-            className="hidden h-4 w-4 shrink-0 text-slate-700 transition-colors group-hover:text-slate-400 md:block"
-            aria-hidden
-          />
+        <div className="min-w-0 flex-1">
+          <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
+            {item.name}
+          </h2>
+          <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">
+            {item.scheme || `Built from ${item.cfb26_playbook} playbook`}
+          </p>
         </div>
       </Link>
 

@@ -11,10 +11,6 @@ export function PlaybookCardSkeleton() {
         <SkeletonBlock className="h-5 w-2/3 max-w-xs md:h-[15px]" />
         <SkeletonBlock className="mt-1 h-4 w-40 md:mt-0.5 md:h-[13px]" />
       </div>
-      <div className="hidden shrink-0 space-y-1 md:block">
-        <SkeletonBlock className="ml-auto h-[13px] w-20" />
-        <SkeletonBlock className="ml-auto h-[11px] w-14" />
-      </div>
     </div>
   );
 }

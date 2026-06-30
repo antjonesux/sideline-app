@@ -4,6 +4,19 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — Play Sheet list cards: simpler tablet/desktop row
+
+### What
+
+- **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx)** / **[`PlaybookCardSkeleton.tsx`](sideline/components/playbook/PlaybookCardSkeleton.tsx):** At **`md+`**, list cards show only the initial badge, sheet name, and scheme/subtitle — removed situation count, last updated, and chevron.
+- Removed unused **[`sideline/lib/formatSheetUpdatedAt.ts`](sideline/lib/formatSheetUpdatedAt.ts)** helper.
+
+### Why
+
+Tablet and desktop **My Call Sheets** should stay scannable without extra metadata columns; the sidebar already surfaces sheet names for navigation.
+
+---
+
 ## 2026-06-30 — Play Sheet workspace refinement (tablet/desktop) + shell nav
 
 ### What
