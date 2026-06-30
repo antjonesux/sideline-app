@@ -4,6 +4,8 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+---
+
 ## 2026-06-30 — Play Sheet list cards: simpler tablet/desktop row
 
 ### What
@@ -86,6 +88,24 @@ Tablet and desktop should feel like a real coaching workspace (persistent nav, C
 ### Why
 
 Marketing visuals should show the actual Call Sheet builder and Coach View patterns coaches recognize, not placeholder list UI — and panel typography should stay consistent between hero and How It Works.
+
+---
+
+## 2026-06-29 — Data: CFB27 Major P4 Programs seed (Session 2)
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Tennessee, Florida, Ole Miss, Auburn, Texas A&M, Wisconsin, Nebraska, Arkansas, South Carolina, Washington — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (289 formations, 4,631 plays total).
+
+### Why
+
+Session 2 of the CFB27 catalog rollout — major P4 programs dynasty players frequently pick for rebuilds and rivalry runs. Combined with Session 1, covers the top 20 most-used offensive playbooks.
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **20 teams**, **9,290 plays**.
+- `npm run build` from `sideline/` passed.
 
 ---
 
