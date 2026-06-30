@@ -6,6 +6,31 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+---
+
+## 2026-06-30 — Landing page: Game Day Workspace section + rounded section panels
+
+### What
+
+**Your Game Day Workspace (product positioning)**
+
+- **[`ProductShowcase.tsx`](sideline/components/marketing/ProductShowcase.tsx)** / **[`MarketingWorkspaceIllustration.tsx`](sideline/components/marketing/MarketingWorkspaceIllustration.tsx):** Renamed **The full picture** → **Your Game Day Workspace** with preparation-focused copy; replaced generic **`AppMockup`** and callout chips with a production-style desktop workspace composite (persistent sidebar, situation dashboard, situation detail play table).
+
+**Landing section polish**
+
+- **[`WhatIsCallSheet.tsx`](sideline/components/marketing/WhatIsCallSheet.tsx)**, **[`HowItWorks.tsx`](sideline/components/marketing/HowItWorks.tsx)**, **[`ProductShowcase.tsx`](sideline/components/marketing/ProductShowcase.tsx)**, **[`FinalCTA.tsx`](sideline/components/marketing/FinalCTA.tsx):** Full-bleed section backgrounds moved into **`rounded-2xl`** bordered panels with outer spacing so tinted blocks match card radius elsewhere on the page.
+- **[`FinalCTA.tsx`](sideline/components/marketing/FinalCTA.tsx):** **Already have an account?** sign-in line stacks on its own row below **Get Started** at all breakpoints.
+
+### Why
+
+Visitors should understand The Sideline as a pre-kickoff workspace—not a collection of disconnected views. Rounded section panels align the landing page with the app’s card-based visual language.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-06-30 — Responsive overlay standard (drawers mobile, modals tablet/desktop)
 
 ### What

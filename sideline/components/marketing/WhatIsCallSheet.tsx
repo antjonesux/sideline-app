@@ -10,11 +10,8 @@ const ROWS = [
 
 export function WhatIsCallSheet() {
   return (
-    <section
-      id="about"
-      className="scroll-mt-24 border-y border-slate-700/50 bg-slate-900/40 py-28"
-    >
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="about" className="scroll-mt-24 px-6 py-6">
+      <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900/40 px-6 py-28">
         <div className="mx-auto mb-16 max-w-2xl text-center">
           <SectionBadge>The Concept</SectionBadge>
           <h2 className="mt-5 font-heading text-4xl font-extrabold normal-case tracking-tight text-white lg:text-5xl">
