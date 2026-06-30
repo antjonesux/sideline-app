@@ -119,6 +119,10 @@ export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
 export const PLAY_SHEETS_HOME_TITLE = "My Call Sheets";
 export const PLAY_SHEET_CREATE_CTA = "Add sheet";
+/** Desktop/tablet sidebar — create action under My Call Sheets submenu. */
+export const APP_SHELL_NEW_CALL_SHEET_LABEL = "New Call Sheet";
+export const APP_SHELL_CALL_SHEETS_EMPTY = "No call sheets yet";
+export const APP_SHELL_CALL_SHEETS_LOAD_ERROR = "Couldn't load sheets";
 
 /** Play Sheet `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
 export const PLAYBOOK_NEW_SHEET_TITLE = "Build your play sheet";
@@ -171,6 +175,8 @@ export const CALL_SHEET_VIEWER_MENU_BUILDER = CALL_SHEET_MENU_LABEL;
 export const CALL_SHEET_COACH_VIEW_EMPTY =
   "No plays on your sheet yet. Switch to Situations to start building.";
 export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
+export const CALL_SHEET_VIEWER_MENU_REVIEW = "Review";
+export const CALL_SHEET_VIEWER_MENU_REVIEW_SOON = "Coming Soon";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
 export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";
 

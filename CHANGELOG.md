@@ -4,6 +4,31 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-06-30 — App shell: tablet/desktop sidebar + Call Sheets submenu
+
+### What
+
+- **[`sideline/components/shared/AppShellChrome.tsx`](sideline/components/shared/AppShellChrome.tsx):** Responsive authenticated frame — persistent left sidebar at **`md+`**, existing mobile bottom tab bar below **`md`**.
+- **[`sideline/components/shared/AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx):** Session 09 sidebar with expanded **My Call Sheets** submenu (user sheets from **`GET /api/playbook`**, **New Call Sheet**, per-route active dot/fill), **Review** (Coming Soon), **Settings**, and footer **Sign out**.
+- **[`sideline/lib/navigation/appShellNav.ts`](sideline/lib/navigation/appShellNav.ts)** / **[`appShellRoutes.ts`](sideline/lib/navigation/appShellRoutes.ts):** Shared sidebar + mobile tab config and shell gating (excludes marketing, auth, onboarding, **`/qa/*`**).
+- **[`sideline/hooks/usePlaybookList.ts`](sideline/hooks/usePlaybookList.ts)** / **[`lib/playbookListQuery.ts`](sideline/lib/playbookListQuery.ts):** Shared React Query list fetch reused by sidebar and **`PlaybookHome`**.
+- **[`sideline/components/shared/BottomTabNav.tsx`](sideline/components/shared/BottomTabNav.tsx):** Tab bar re-enabled on mobile only (**`md:hidden`**); uses **`APP_SHELL_MOBILE_TABS`**.
+- **[`sideline/components/shared/AppShellMenuHeader.tsx`](sideline/components/shared/AppShellMenuHeader.tsx):** Hamburger drawer hidden at **`md+`** (sidebar replaces it).
+- **[`sideline/app/globals.css`](sideline/app/globals.css):** **`--app-shell-sidebar-width`**, **`data-app-shell-sidebar`** bottom inset, **`.app-shell-frame`** / **`.app-shell-workspace`** layout classes.
+- **[`sideline/components/marketing/MarketingNav.tsx`](sideline/components/marketing/MarketingNav.tsx):** Mobile hamburger **Get Started** uses primary **`Button`** (matches desktop).
+- **[`DECISIONS.md`](DECISIONS.md):** Documents responsive authenticated application shell decision.
+
+### Why
+
+Tablet and desktop should feel like a real coaching workspace (persistent nav, Call Sheet list in sidebar) without changing mobile Film / Play Sheet / Tendencies pillars or duplicating routes.
+
+### Status after this push
+
+- `npm run build` from `sideline/` passed.
+- Mobile bottom nav and marketing **`/landing`** behavior preserved.
+
+---
+
 ## 2026-06-30 — Marketing: app-faithful hero + How It Works illustrations
 
 ### What

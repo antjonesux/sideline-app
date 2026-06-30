@@ -1,14 +1,15 @@
 "use client";
 
-import {
-  CALL_SHEET_MENU_LABEL,
-  CALL_SHEET_VIEWER_MENU_SETTINGS,
-} from "@/lib/coachCopy";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
-import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
-import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { CALL_SHEET_VIEWER_MENU_REVIEW_SOON } from "@/lib/coachCopy";
+import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
+import {
+  APP_SHELL_SIDEBAR_NAV,
+  APP_SHELL_SIGN_OUT_LABEL,
+  isAppShellSidebarNavActive,
+} from "@/lib/navigation/appShellNav";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogClose,
@@ -27,9 +28,20 @@ const menuItemClass =
 const menuItemDefaultClass =
   "border-slate-800 bg-slate-900/50 text-slate-100 hover:border-slate-600 hover:bg-slate-800/60";
 
-export function CallSheetMenuButton({ onClick }: { onClick: () => void }) {
+export function CallSheetMenuButton({
+  onClick,
+  className,
+}: {
+  onClick: () => void;
+  className?: string;
+}) {
   return (
-    <button type="button" aria-label="Open menu" className={appShellIconBackButtonClass} onClick={onClick}>
+    <button
+      type="button"
+      aria-label="Open menu"
+      className={cn(appShellIconBackButtonClass, className)}
+      onClick={onClick}
+    >
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
         <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
       </svg>
@@ -42,13 +54,6 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
   const router = useRouter();
   const { signOut } = useAuth();
   const [signOutBusy, setSignOutBusy] = useState(false);
-  const onCallSheet = isPlaySheetBuilderPath(pathname);
-  const onSettings = pathname === "/settings" || pathname.startsWith("/settings/");
-
-  const menuItems = [
-    { href: "/playbook", label: CALL_SHEET_MENU_LABEL, active: onCallSheet },
-    { href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, active: onSettings },
-  ];
 
   async function handleSignOut() {
     setSignOutBusy(true);
@@ -86,33 +91,59 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
           </DialogClose>
         </div>
 
-        <DialogDescription className="sr-only">Call sheet navigation</DialogDescription>
+        <DialogDescription className="sr-only">Application navigation</DialogDescription>
 
         <div className="flex min-h-0 flex-1 flex-col">
-          <nav className="flex flex-col gap-2 px-4 py-5" aria-label="Call sheet menu">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  menuItemClass,
-                  item.active
-                    ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
-                    : menuItemDefaultClass,
-                )}
-                aria-current={item.active ? "page" : undefined}
-                onClick={() => onOpenChange(false)}
-              >
-                <span>{item.label}</span>
-                <ChevronRight
+          <nav className="flex flex-col gap-2 px-4 py-5" aria-label="Application menu">
+            {APP_SHELL_SIDEBAR_NAV.map((item) => {
+              const active = isAppShellSidebarNavActive(pathname, item);
+              const Icon = item.icon;
+
+              if (item.comingSoon || !item.href) {
+                return (
+                  <span
+                    key={item.id}
+                    className={cn(menuItemClass, menuItemDefaultClass, "cursor-default text-slate-600")}
+                    aria-disabled="true"
+                  >
+                    <span className="flex min-w-0 flex-1 items-center gap-3">
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                      <span className="truncate">{item.label}</span>
+                    </span>
+                    <span className="shrink-0 rounded bg-slate-800/80 px-1.5 py-0.5 font-sans text-[10px] font-medium leading-none text-slate-500">
+                      {CALL_SHEET_VIEWER_MENU_REVIEW_SOON}
+                    </span>
+                  </span>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
                   className={cn(
-                    "h-4 w-4 shrink-0 transition-colors",
-                    item.active ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
+                    menuItemClass,
+                    active
+                      ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
+                      : menuItemDefaultClass,
                   )}
-                  aria-hidden
-                />
-              </Link>
-            ))}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => onOpenChange(false)}
+                >
+                  <span className="flex min-w-0 flex-1 items-center gap-3">
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                    <span className="truncate">{item.label}</span>
+                  </span>
+                  <ChevronRight
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-colors",
+                      active ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
+                    )}
+                    aria-hidden
+                  />
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="shrink-0 border-t border-slate-800/80 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
@@ -122,7 +153,7 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
               disabled={signOutBusy}
               onClick={() => void handleSignOut()}
             >
-              {signOutBusy ? "Signing out…" : "Sign out"}
+              {signOutBusy ? "Signing out…" : APP_SHELL_SIGN_OUT_LABEL}
             </button>
           </div>
         </div>

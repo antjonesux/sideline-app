@@ -3,43 +3,40 @@
 
 import Link from "next/link";
 import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
-import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
+import { APP_SHELL_MOBILE_TABS } from "@/lib/navigation/appShellNav";
+import {
+  isAuthOrMarketingPath,
+  isOnboardingChromePath,
+  shouldUseAppShell,
+} from "@/lib/navigation/appShellRoutes";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useMemo } from "react";
 
-/** Set to `true` to restore the fixed bottom tab bar; hamburger menu is primary nav when `false`. */
-export const BOTTOM_TAB_NAV_ENABLED = false;
+/** Mobile bottom tab bar — hidden at `md+` where the persistent sidebar is shown. */
+export const BOTTOM_TAB_NAV_ENABLED = true;
 
-const tabs = [
-  {
-    href: "/film",
-    label: "Film Room",
-    icon: <Video className="h-5 w-5" aria-hidden />,
-  },
-  {
-    href: "/playbook",
-    label: "Play Sheet",
-    icon: <ClipboardList className="h-5 w-5" aria-hidden />,
-  },
-  {
-    href: "/tendencies",
-    label: "Tendencies",
-    icon: <ChartNoAxesCombined className="h-5 w-5" aria-hidden />,
-  },
-];
+const TAB_ICONS = {
+  "/film": Video,
+  "/playbook": ClipboardList,
+  "/tendencies": ChartNoAxesCombined,
+} as const;
 
 export default function BottomTabNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const onboardingChrome = useMemo(() => {
-    if (pathname === "/") return true;
-    if (pathname.startsWith("/qa/onboarding")) return true;
-    if (pathname === "/playbook" && searchParams.get("onboarding") === "1") return true;
-    if (pathname.startsWith("/playbook/") && searchParams.get("onboarding") === "1") return true;
-    if (pathname.startsWith("/film/") && searchParams.get("guided") === "1") return true;
-    return false;
-  }, [pathname, searchParams]);
+  const onboardingChrome = useMemo(
+    () => isOnboardingChromePath(pathname, searchParams),
+    [pathname, searchParams],
+  );
+
+  const shellActive = useMemo(
+    () => shouldUseAppShell(pathname, searchParams),
+    [pathname, searchParams],
+  );
+
+  const showMobileTabBar =
+    BOTTOM_TAB_NAV_ENABLED && shellActive && !onboardingChrome && !isAuthOrMarketingPath(pathname);
 
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
@@ -48,37 +45,26 @@ export default function BottomTabNav() {
     else root.removeAttribute("data-onboarding-chrome");
     if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
-    if (!BOTTOM_TAB_NAV_ENABLED) root.setAttribute("data-hamburger-nav-chrome", "true");
+    if (!showMobileTabBar) root.setAttribute("data-hamburger-nav-chrome", "true");
     else root.removeAttribute("data-hamburger-nav-chrome");
     return () => {
       root.removeAttribute("data-onboarding-chrome");
       root.removeAttribute("data-marketing-chrome");
       root.removeAttribute("data-hamburger-nav-chrome");
     };
-  }, [onboardingChrome, pathname]);
+  }, [onboardingChrome, pathname, showMobileTabBar]);
 
-  if (!BOTTOM_TAB_NAV_ENABLED) return null;
-
-  if (onboardingChrome) return null;
-
-  if (
-    pathname === "/login" ||
-    pathname === "/landing" ||
-    pathname === "/signup" ||
-    pathname.startsWith("/auth/") ||
-    pathname === "/reset-password"
-  )
-    return null;
+  if (!showMobileTabBar) return null;
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] md:hidden"
       aria-label="Main navigation"
     >
       <ul className="mx-auto grid w-full max-w-[var(--app-shell-max-width)] grid-cols-3 gap-2 px-[var(--app-shell-px)]">
-        {tabs.map((tab) => {
-          const active =
-            tab.href === "/playbook" ? isPlaySheetBuilderPath(pathname) : pathname.startsWith(tab.href);
+        {APP_SHELL_MOBILE_TABS.map((tab) => {
+          const active = tab.match(pathname);
+          const Icon = TAB_ICONS[tab.href];
           return (
             <li key={tab.href} className="min-w-0">
               <Link
@@ -88,9 +74,7 @@ export default function BottomTabNav() {
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 font-sans text-xs font-medium ${active ? "text-emerald-400" : "text-slate-500"}`}
               >
-                <span aria-hidden className="text-current">
-                  {tab.icon}
-                </span>
+                <Icon className="h-5 w-5" aria-hidden />
                 <span>{tab.label}</span>
               </Link>
             </li>

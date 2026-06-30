@@ -99,13 +99,11 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
                   Sign In
                 </Link>
               </Button>
-              <Link
-                href={getStartedHref}
-                className="text-sm font-semibold text-emerald-500"
-                onClick={() => setOpen(false)}
-              >
-                Get Started
-              </Link>
+              <Button size="default" asChild>
+                <Link href={getStartedHref} onClick={() => setOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

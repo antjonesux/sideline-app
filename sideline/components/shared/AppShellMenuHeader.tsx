@@ -10,22 +10,27 @@ export function AppShellMenuHeader({
   className,
   titleClassName,
   trailing,
+  showMenu = true,
 }: {
   title: string;
   className?: string;
   titleClassName?: string;
   trailing?: React.ReactNode;
+  /** Hamburger drawer — mobile only; tablet/desktop use the persistent sidebar. */
+  showMenu?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
       <header className={cn("flex items-center gap-4", className)}>
-        <CallSheetMenuButton onClick={() => setMenuOpen(true)} />
+        {showMenu ? (
+          <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
+        ) : null}
         <h1 className={cn(`${appShellPageTitleClass} min-w-0 flex-1 truncate`, titleClassName)}>{title}</h1>
         {trailing}
       </header>
-      <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
+      {showMenu ? <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} /> : null}
     </>
   );
 }

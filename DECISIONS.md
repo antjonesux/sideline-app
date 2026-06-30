@@ -6,6 +6,23 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-06-30 — Responsive authenticated application shell (sidebar + mobile tabs)
+
+**Decision:** One adaptive shell for authenticated app routes via **`AppShellChrome`** in **`app/layout.tsx`**. **Tablet / desktop (`md+`)** show a **persistent left sidebar** (**`AppShellSidebar`**, **`--app-shell-sidebar-width: 16.25rem` / 260px**, sticky). **Mobile (`< md`)** keeps the existing **three-pillar bottom tab bar** (**Film Room** · **Play Sheet** · **Tendencies**) via **`BottomTabNav`** (`md:hidden`). Sidebar and mobile drawer share nav config in **`lib/navigation/appShellNav.ts`** (**`APP_SHELL_SIDEBAR_NAV`**): **My Call Sheets** (`/playbook`), **Review** (coming soon — disabled), **Settings** (`/settings`), **Sign out** (footer). Builder and Coach View are **not** sidebar destinations. Call sheets stay in the workspace, not the sidebar. Shell gating lives in **`lib/navigation/appShellRoutes.ts`** (`shouldUseAppShell`); marketing, auth, onboarding/guided, and **`/qa/*`** preview routes are excluded. Workspace width stays on existing **`--app-shell-*`** / **`.app-shell-main`** tokens — large screens gain whitespace, not edge-to-edge stretch. **`html[data-app-shell-sidebar="true"]`** reduces bottom padding at **`md+`** (no tab bar). Mobile hamburger (**`AppShellMenuHeader`** → **`CallSheetViewerMenu`**) remains for Settings / Sign out access and reuses **`APP_SHELL_SIDEBAR_NAV`**.
+
+**Why:** Mobile is the source of truth; tablet and desktop should feel like purpose-built productivity software (persistent nav, hierarchy, breathing room) without duplicating pages or stretching builders across ultra-wide displays. Centralizing shell logic avoids per-page breakpoint implementations.
+
+**Impact:**
+- New: **`components/shared/AppShellChrome.tsx`**, **`AppShellSidebar.tsx`**, **`lib/navigation/appShellNav.ts`**, **`lib/navigation/appShellRoutes.ts`**
+- Extended: **`app/layout.tsx`**, **`globals.css`**, **`BottomTabNav`**, **`AppShellMenuHeader`**, **`CallSheetViewerMenu`**
+- Sidebar width / frame classes: **`globals.css`** only — do not hardcode **`260px`** in feature pages
+- Do **not** add Call Sheets, Builder, or Coach View to sidebar nav; do **not** introduce an “Active Call Sheet” in the shell
+- Marketing **`/landing`** and onboarding chrome behavior unchanged
+- When **Review** ships, wire its route in **`APP_SHELL_SIDEBAR_NAV`** and remove **`comingSoon`** — do not add a parallel nav list
+- Builds on **2026-06-28 — Responsive app shell tokens**; workspace max-width changes still belong in **`globals.css`** **`--app-shell-*`**
+
+---
+
 ## 2026-06-29 — CFB27 data coexistence with CFB26
 
 **Decision:** `game_version` filters the playbook picker. Users select game version when creating a play sheet (defaults to `cfb27`). Onboarding defaults to `cfb27`. CFB26 playbooks remain active and accessible but will be archived 6 months after CFB27 release (January 2027).
@@ -138,7 +155,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 **Why:** Tablet and desktop need more usable width without page-specific breakpoint utilities or edge-to-edge stretch; one token path preserves mobile behavior and avoids duplicated **`max-w-3xl`** / **`48rem`** math.
 
-**Impact:** Shell width changes happen in **`globals.css`** only. Marketing **`/landing`**, onboarding, call-sheet viewer, and hamburger-nav chrome overrides in **`globals.css`** are unchanged. Do not reintroduce hardcoded **`max-w-3xl`** on **`main`** or chip spacers.
+**Impact:** Shell width changes happen in **`globals.css`** only. Marketing **`/landing`**, onboarding, and QA preview chrome overrides in **`globals.css`** are unchanged. Do not reintroduce hardcoded **`max-w-3xl`** on **`main`** or chip spacers. Persistent sidebar chrome at **`md+`** is documented in **2026-06-30 — Responsive authenticated application shell**.
 
 ---
 

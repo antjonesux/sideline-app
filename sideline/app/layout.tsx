@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { AppShellChrome } from "@/components/shared/AppShellChrome";
 import BottomTabNav from "@/components/shared/BottomTabNav";
 import { appShellMainClass } from "@/lib/constants/designTokens";
 
@@ -37,14 +38,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Suspense>
         <AppProviders>
           {/**
-           * Responsive shell: `globals.css` `.app-shell-main` + `--app-shell-*` tokens.
-           * Bottom padding must stay large when the tab bar is visible; chrome flags in
-           * `globals.css` reduce inset for hamburger / onboarding / call-sheet viewer routes.
+           * Responsive shell: `AppShellChrome` (sidebar at md+), `globals.css` `.app-shell-main`
+           * + `--app-shell-*` tokens. Bottom padding clears the fixed tab bar on mobile only.
            */}
-          <main className={appShellMainClass}>
-            <EmailVerificationBanner />
-            {children}
-          </main>
+          <Suspense fallback={null}>
+            <AppShellChrome>
+              <main className={appShellMainClass}>
+                <EmailVerificationBanner />
+                {children}
+              </main>
+            </AppShellChrome>
+          </Suspense>
           <Toast />
         </AppProviders>
       </body>

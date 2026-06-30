@@ -28,6 +28,8 @@
   --app-shell-px: 1rem;
   --app-shell-pt: 1.5rem;
   --app-shell-pb-tab: calc(7rem + env(safe-area-inset-bottom, 0px));
+  /** Persistent sidebar width — tablet / desktop shell (Session 09). */
+  --app-shell-sidebar-width: 16.25rem;
 }
 
 @media (min-width: 640px) {
@@ -155,6 +157,13 @@
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
+  /** Tablet / desktop sidebar shell — no bottom tab bar inset. */
+  @media (min-width: 768px) {
+    html[data-app-shell-sidebar="true"] main {
+      padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   /**
    * Marketing landing at `/landing` only (`data-marketing-chrome` from BottomTabNav).
    * Full-width `<main>` so the hero grid / gradient (fixed SVG in HeroSection) align edge-to-edge with the
@@ -207,6 +216,18 @@
     padding-inline: var(--app-shell-px);
     padding-top: var(--app-shell-pt);
     padding-bottom: var(--app-shell-pb-tab);
+  }
+
+  /** Responsive authenticated frame — sidebar + workspace (`AppShellChrome`). */
+  .app-shell-frame {
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+  }
+
+  .app-shell-workspace {
+    box-sizing: border-box;
+    min-width: 0;
   }
 }
 
