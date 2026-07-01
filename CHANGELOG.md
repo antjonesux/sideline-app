@@ -12,6 +12,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Call Sheet: fix situation reorder persistence
+
+### What
+
+- **[`CallSheetSituationGrid.tsx`](sideline/components/playbook/CallSheetSituationGrid.tsx):** Situation edit-mode reorder uses pointer events on the drag handle (replacing unreliable HTML5 drag on a nested handle). Go-To Plays lock uses `isGoToPlaysSituation`; drop targets resolve via `data-situation-id` rows.
+- **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Optimistic TanStack cache sync on reorder; `pinGoToPlaysFirst` when entering edit mode; skip no-op reorder mutations.
+- **[`playbookUtils.ts`](sideline/lib/playbookUtils.ts):** Shared `pinGoToPlaysFirst` and `reorderSituationBlocks` helpers — Go-To stays at index 0, sequential `scenario_order` on every affected row.
+- **[`situationApiHelpers.ts`](sideline/lib/situationApiHelpers.ts):** `isGoToPlaysSituation` accepts optional `is_locked` for sheet blocks.
+
+### Why
+
+Coaches could not reliably reorder default situations after drop — HTML5 DnD failed on the small handle (especially Safari/touch), and reorder payloads could fail API validation when Go-To was not pinned first.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Play Sheet: Goal Line and Hail Mary / Prevent at bottom of add-play formations
 
 ### What

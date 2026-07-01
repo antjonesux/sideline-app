@@ -7,27 +7,16 @@ import {
   callSheetScenarioDisplayName,
   callSheetScenarioHelperText,
   callSheetScenarioPlayCountLabel,
+  reorderSituationBlocks,
 } from "@/lib/playbookUtils";
+import { isGoToPlaysSituation } from "@/lib/situationApiHelpers";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
-
-function previewSituationOrder(
-  scenarios: SheetScenarioBlock[],
-  dragId: string,
-  targetIndex: number,
-): SheetScenarioBlock[] {
-  const fromIndex = scenarios.findIndex((s) => s.id === dragId);
-  if (fromIndex === -1 || fromIndex === targetIndex) return scenarios;
-  const next = [...scenarios];
-  const [moved] = next.splice(fromIndex, 1);
-  next.splice(targetIndex, 0, moved);
-  return next;
-}
+import { useCallback, useMemo, useRef, useState } from "react";
 
 function minDropIndex(scenarios: SheetScenarioBlock[]): number {
-  return scenarios[0]?.is_locked ? 1 : 0;
+  return scenarios.some((block) => isGoToPlaysSituation(block)) ? 1 : 0;
 }
 
 function resolveDropIndex(
@@ -63,21 +52,89 @@ export function CallSheetSituationGrid({
 }) {
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   const dropTargetIndexRef = useRef<number | null>(null);
+  const dragIdRef = useRef<string | null>(null);
+  const scenariosRef = useRef(scenarios);
+  const pointerDragActiveRef = useRef(false);
+
+  scenariosRef.current = scenarios;
 
   const setDropTarget = (index: number | null) => {
     dropTargetIndexRef.current = index;
     setDropTargetIndex(index);
   };
 
-  const displayScenarios = useMemo(() => {
-    if (!editMode || !dragId || dropTargetIndex === null) return scenarios;
-    return previewSituationOrder(scenarios, dragId, dropTargetIndex);
-  }, [editMode, dragId, dropTargetIndex, scenarios]);
-
-  const clearDragState = () => {
+  const clearDragState = useCallback(() => {
+    dragIdRef.current = null;
+    pointerDragActiveRef.current = false;
     setDragId?.(null);
     setDropTarget(null);
-  };
+  }, [setDragId]);
+
+  const updateDropTargetFromPoint = useCallback((clientX: number, clientY: number, fromId: string) => {
+    const list = scenariosRef.current;
+    const el = document.elementFromPoint(clientX, clientY);
+    const row = el?.closest<HTMLElement>("[data-situation-id]");
+    if (!row) return;
+    const hoverId = row.dataset.situationId;
+    if (!hoverId || hoverId === fromId) return;
+    const block = list.find((item) => item.id === hoverId);
+    if (!block) return;
+    const hoverIndex = list.findIndex((item) => item.id === hoverId);
+    if (hoverIndex === -1) return;
+    setDropTarget(resolveDropIndex(list, hoverIndex, isGoToPlaysSituation(block)));
+  }, []);
+
+  const finishPointerDrag = useCallback(
+    (fromId: string, startIndex: number) => {
+      const target = dropTargetIndexRef.current;
+      if (target !== null && target !== startIndex) {
+        onReorder?.(fromId, target);
+      }
+      clearDragState();
+    },
+    [clearDragState, onReorder],
+  );
+
+  const startPointerDrag = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>, fromId: string) => {
+      if (pointerDragActiveRef.current) return;
+      if (e.button !== 0) return;
+
+      const list = scenariosRef.current;
+      const startIndex = list.findIndex((item) => item.id === fromId);
+      if (startIndex === -1) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.setPointerCapture(e.pointerId);
+
+      pointerDragActiveRef.current = true;
+      dragIdRef.current = fromId;
+      setDragId?.(fromId);
+      setDropTarget(startIndex);
+
+      const onMove = (ev: PointerEvent) => {
+        updateDropTargetFromPoint(ev.clientX, ev.clientY, fromId);
+      };
+
+      const onEnd = () => {
+        finishPointerDrag(fromId, startIndex);
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onEnd);
+        document.removeEventListener("pointercancel", onEnd);
+      };
+
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onEnd);
+      document.addEventListener("pointercancel", onEnd);
+    },
+    [finishPointerDrag, setDragId, updateDropTargetFromPoint],
+  );
+
+  const displayScenarios = useMemo(() => {
+    if (!editMode || !dragId || dropTargetIndex === null) return scenarios;
+    return reorderSituationBlocks(scenarios, dragId, dropTargetIndex);
+  }, [editMode, dragId, dropTargetIndex, scenarios]);
 
   return (
     <div
@@ -87,17 +144,12 @@ export function CallSheetSituationGrid({
       )}
       role="list"
       aria-label="Tactical situations"
-      onDragLeave={(e) => {
-        if (!editMode || !dragId) return;
-        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-        setDropTarget(null);
-      }}
     >
-      {displayScenarios.map((s, index) => {
-        const count = s.plays.length;
+      {displayScenarios.map((s) => {
+        const count = s.plays?.length ?? 0;
         const optionState = getOptionState?.(s);
         const disabled = optionState?.disabled ?? false;
-        const locked = Boolean(s.is_locked);
+        const locked = isGoToPlaysSituation(s);
         const colorKey = s.color ?? "blue";
         const colors = getSituationColor(colorKey);
         const displayName = callSheetScenarioDisplayName(s.scenario);
@@ -111,40 +163,8 @@ export function CallSheetSituationGrid({
           return (
             <div
               key={s.id}
+              data-situation-id={s.id}
               role="listitem"
-              draggable={!locked}
-              onDragStart={(e) => {
-                if (locked) return;
-                e.dataTransfer.setData("text/situation-id", s.id);
-                e.dataTransfer.effectAllowed = "move";
-                setDragId?.(s.id);
-                const startIndex = scenarios.findIndex((x) => x.id === s.id);
-                setDropTarget(startIndex === -1 ? index : startIndex);
-              }}
-              onDragEnd={clearDragState}
-              onDragOver={(e) => {
-                if (!dragId || dragId === s.id) return;
-                e.preventDefault();
-                const hoverIndex = scenarios.findIndex((x) => x.id === s.id);
-                if (hoverIndex === -1) return;
-                setDropTarget(resolveDropIndex(scenarios, hoverIndex, locked));
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData("text/situation-id");
-                if (!id || id === s.id || locked) {
-                  clearDragState();
-                  return;
-                }
-                const hoverIndex = scenarios.findIndex((x) => x.id === s.id);
-                const target =
-                  dropTargetIndexRef.current ??
-                  (hoverIndex === -1 ? null : resolveDropIndex(scenarios, hoverIndex, locked));
-                if (target !== null) {
-                  onReorder?.(id, target);
-                }
-                clearDragState();
-              }}
               className={cn(
                 "flex min-h-[3.5rem] min-w-0 w-full items-center gap-2 rounded-xl border px-3 py-3 transition-[border-color,background-color,opacity,box-shadow] duration-150",
                 locked
@@ -158,7 +178,13 @@ export function CallSheetSituationGrid({
                 {locked ? (
                   <span className="w-4" aria-hidden />
                 ) : (
-                  <DragHandleIcon className="h-4 w-4 text-slate-500" />
+                  <div
+                    onPointerDown={(e) => startPointerDrag(e, s.id)}
+                    className="cursor-grab touch-none select-none active:cursor-grabbing"
+                    aria-label={`Drag ${displayName}`}
+                  >
+                    <DragHandleIcon className="h-4 w-4 text-slate-500" />
+                  </div>
                 )}
               </div>
               <p className="min-w-0 flex-1 truncate font-heading text-sm font-bold text-white">
@@ -168,6 +194,7 @@ export function CallSheetSituationGrid({
                 <button
                   type="button"
                   aria-label={`Delete ${displayName}`}
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={() => onDelete?.(s)}
                   className="shrink-0 p-1 text-slate-500 hover:text-red-400"
                 >

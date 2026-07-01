@@ -13,6 +13,7 @@ import {
 } from "@/lib/constants";
 import type { CallSheetScenario, PlaySheetScenario } from "@/lib/constants";
 import type { CatalogPlaybookLookup } from "@/lib/playbooks/catalog-playbooks";
+import { isGoToPlaysSituation } from "@/lib/situationApiHelpers";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { normalizePlayName } from "@/lib/utils";
 
@@ -151,6 +152,48 @@ export function orderedScenarioList(): typeof SCENARIOS {
 /** Order Call Sheet situations by persisted `scenario_order`. */
 export function sortCallSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
   return [...blocks].sort((a, b) => a.scenario_order - b.scenario_order);
+}
+
+function withSequentialScenarioOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
+  return blocks.map((block, index) => ({ ...block, scenario_order: index + 1 }));
+}
+
+/** Keep Go-To Plays first; reassign sequential `scenario_order` (1-based). */
+export function pinGoToPlaysFirst(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {
+  const goTo = blocks.find((block) => isGoToPlaysSituation(block));
+  if (!goTo) return withSequentialScenarioOrder(blocks);
+  const rest = blocks.filter((block) => block.id !== goTo.id);
+  return withSequentialScenarioOrder([goTo, ...rest]);
+}
+
+/** Reorder situations by id; Go-To stays at index 0; returns sequential `scenario_order`. */
+export function reorderSituationBlocks(
+  blocks: SheetScenarioBlock[],
+  fromId: string,
+  toIndex: number,
+): SheetScenarioBlock[] {
+  const ordered = pinGoToPlaysFirst(blocks);
+  const goTo = ordered.find((block) => isGoToPlaysSituation(block));
+  const reorderable = goTo ? ordered.filter((block) => !isGoToPlaysSituation(block)) : ordered;
+  const moving = ordered.find((block) => block.id === fromId);
+
+  if (!moving || (goTo && isGoToPlaysSituation(moving))) return ordered;
+
+  const minFullIndex = goTo ? 1 : 0;
+  const clampedFullIndex = Math.min(Math.max(minFullIndex, toIndex), ordered.length - 1);
+  const reorderableTarget = goTo ? clampedFullIndex - 1 : clampedFullIndex;
+
+  const reorderableIds = reorderable.map((block) => block.id);
+  const without = reorderableIds.filter((id) => id !== fromId);
+  const insertAt = Math.min(Math.max(0, reorderableTarget), without.length);
+  const nextReorderableIds = [...without.slice(0, insertAt), fromId, ...without.slice(insertAt)];
+
+  const byId = new Map(ordered.map((block) => [block.id, block]));
+  const nextReorderable = nextReorderableIds
+    .map((id) => byId.get(id))
+    .filter((block): block is SheetScenarioBlock => Boolean(block));
+
+  return withSequentialScenarioOrder(goTo ? [goTo, ...nextReorderable] : nextReorderable);
 }
 
 /** Max plays per tactical / custom Call Sheet situation. */

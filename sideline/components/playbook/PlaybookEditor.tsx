@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel, reorderSituationBlocks, pinGoToPlaysFirst } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
@@ -147,7 +147,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const sheet = sheetQuery.data;
   const scenarios = useMemo(
-    () => sortSheetScenariosByCanonicalOrder(sheet?.scenarios ?? []),
+    () => pinGoToPlaysFirst(sortSheetScenariosByCanonicalOrder(sheet?.scenarios ?? [])),
     [sheet?.scenarios],
   );
   const callSheetSheet = useMemo(() => isCallSheetPlaySheet(scenarios), [scenarios]);
@@ -351,6 +351,16 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     },
   });
 
+  const syncSheetScenarioOrder = useCallback(
+    (next: SheetScenarioBlock[]) => {
+      queryClient.setQueryData<SheetPayload>(["playbook", sheetId], (old) => {
+        if (!old || next.length !== old.scenarios.length) return old;
+        return { ...old, scenarios: next };
+      });
+    },
+    [queryClient, sheetId],
+  );
+
   const createSituation = useMutation({
     mutationFn: async (values: SituationFormValues) => {
       const res = await fetch(`/api/playbook/${sheetId}/situations`, {
@@ -422,7 +432,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const toggleSituationsEditMode = useCallback(async () => {
     if (!situationsEditMode) {
-      setEditScenarios([...scenarios]);
+      setEditScenarios(pinGoToPlaysFirst([...scenarios]));
       setSituationsEditMode(true);
       return;
     }
@@ -433,25 +443,32 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const onReorderSituations = useCallback(
     (fromId: string, toIndex: number) => {
-      setEditScenarios((prev) => {
-        const snapshot = prev.length ? prev : scenarios;
-        const ids = snapshot.map((s) => s.id);
-        const without = ids.filter((id) => id !== fromId);
-        const insertAt = Math.min(Math.max(0, toIndex), without.length);
-        const nextIds = [...without.slice(0, insertAt), fromId, ...without.slice(insertAt)];
-        const next = nextIds
-          .map((id) => snapshot.find((s) => s.id === id))
-          .filter((s): s is SheetScenarioBlock => Boolean(s));
+      const base =
+        situationsEditMode && editScenarios.length === scenarios.length ? editScenarios : scenarios;
+      const snapshot = pinGoToPlaysFirst(base);
+      const previous = snapshot;
+      const next = reorderSituationBlocks(snapshot, fromId, toIndex);
+      if (next.length !== snapshot.length) return;
 
-        void reorderSituations.mutateAsync(next.map((s) => s.id)).catch(() => {
-          addToast(COULDNT_SAVE, "error");
-          setEditScenarios([...scenarios]);
-        });
+      const prevIds = snapshot.map((s) => s.id).join(",");
+      const nextIds = next.map((s) => s.id).join(",");
+      if (prevIds === nextIds) return;
 
-        return next;
-      });
+      setEditScenarios(next);
+      syncSheetScenarioOrder(next);
+
+      reorderSituations.mutate(
+        next.map((s) => s.id),
+        {
+          onError: () => {
+            addToast(COULDNT_SAVE, "error");
+            setEditScenarios(previous);
+            syncSheetScenarioOrder(previous);
+          },
+        },
+      );
     },
-    [addToast, reorderSituations, scenarios],
+    [addToast, editScenarios, reorderSituations, scenarios, situationsEditMode, syncSheetScenarioOrder],
   );
 
   const onCreateSituation = useCallback(

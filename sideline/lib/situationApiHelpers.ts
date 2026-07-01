@@ -59,8 +59,8 @@ export function defaultColorForNewSituation(usedColors: string[]): string {
   return available?.key ?? SITUATION_PRESET_COLORS[7].key;
 }
 
-export function isGoToPlaysSituation(row: Pick<SituationRow, "scenario" | "is_locked">): boolean {
-  return row.is_locked || row.scenario === GO_TO_PLAYS_SCENARIO || row.scenario === "Go-to Plays";
+export function isGoToPlaysSituation(row: Pick<SituationRow, "scenario"> & { is_locked?: boolean }): boolean {
+  return Boolean(row.is_locked) || row.scenario === GO_TO_PLAYS_SCENARIO || row.scenario === "Go-to Plays";
 }
 
 export { DEFAULT_OFFENSIVE_SITUATIONS, DEFAULT_DEFENSIVE_SITUATIONS };
