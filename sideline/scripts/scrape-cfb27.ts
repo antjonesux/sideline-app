@@ -21,16 +21,21 @@ const CACHE_DIR = join(ROOT, "tmp", "cfb27");
 const PLAY_TEAM_CACHE_PATH = join(CACHE_DIR, "_play-team-cache.json");
 
 const TEAMS = [
-  { slug: "ucf-off", team: "UCF", scheme: "Spread" },
-  { slug: "utah-off", team: "Utah", scheme: "Multiple" },
-  { slug: "west-virginia-off", team: "West Virginia", scheme: "Spread" },
-  { slug: "uconn-off", team: "UConn", scheme: "Pro Style" },
-  { slug: "nc-state-off", team: "NC State", scheme: "Multiple" },
-  { slug: "liberty-off", team: "Liberty", scheme: "Spread" },
-  { slug: "unlv-off", team: "UNLV", scheme: "Spread" },
-  { slug: "air-force-off", team: "Air Force", scheme: "Option" },
-  { slug: "nevada-off", team: "Nevada", scheme: "Spread" },
-  { slug: "northern-illinois-off", team: "Northern Illinois", scheme: "Multiple" },
+  { slug: "new-mexico-off", team: "New Mexico", scheme: "Multiple" },
+  { slug: "new-mexico-state-off", team: "New Mexico State", scheme: "Multiple" },
+  { slug: "hawaii-off", team: "Hawaii", scheme: "Run and Shoot" },
+  { slug: "wyoming-off", team: "Wyoming", scheme: "Pro Style" },
+  { slug: "utep-off", team: "UTEP", scheme: "Multiple" },
+  { slug: "western-kentucky-off", team: "Western Kentucky", scheme: "Air Raid" },
+  { slug: "san-jose-state-off", team: "San Jose State", scheme: "Spread" },
+  { slug: "sam-houston-state-off", team: "Sam Houston", scheme: "Spread" },
+  { slug: "middle-tennessee-state-off", team: "Middle Tennessee", scheme: "Spread" },
+  { slug: "jacksonville-state-off", team: "Jacksonville State", scheme: "Spread" },
+  { slug: "kennesaw-state-off", team: "Kennesaw State", scheme: "Option" },
+  { slug: "missouri-state-off", team: "Missouri State", scheme: "Multiple" },
+  { slug: "north-dakota-state-off", team: "North Dakota State", scheme: "Pro Style" },
+  { slug: "delaware-off", team: "Delaware", scheme: "Multiple" },
+  { slug: "florida-international-off", team: "Florida International", scheme: "Spread" },
 ];
 
 const BASE_URL = "https://cfb.fan";

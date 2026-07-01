@@ -79,6 +79,7 @@ export const TEAM_SCHEMES: Record<string, string> = {
   "New Mexico": "Spread",
   "New Mexico State": "Spread",
   "North Carolina": "Multiple",
+  "North Dakota State": "Pro Style",
   "North Texas": "Air Raid",
   "Northern Illinois": "Multiple",
   Northwestern: "Spread",

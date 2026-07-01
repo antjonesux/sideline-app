@@ -8,6 +8,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 Final Remaining Teams seed (Session 11)
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 11 — New Mexico, New Mexico State, Hawaii, Wyoming, UTEP, Western Kentucky, San Jose State, Sam Houston, Middle Tennessee, Jacksonville State, Kennesaw State, Missouri State, North Dakota State, Delaware, Florida International.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Fifteen offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added **North Dakota State** → Pro Style (required for scrape/seed validation).
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (419 formations, 7,042 plays total).
+
+### Why
+
+Session 11 completes the CFB27 offensive playbook seeding effort — final niche G5 and FCS programs so the full cfb.fan catalog is available for launch validation.
+
+### Status after this push
+
+- All 15 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **108 teams**, **49,719 plays** (excluding internal test playbook; paginated query).
+- **Middle Tennessee:** brief slug **`middle-tennessee-state-off`** returns 404 on cfb.fan; seeded from prior **`cfb27-middle-tennessee.ts`** (**`mid-tenn-state-off`**).
+- **Sam Houston / Middle Tennessee:** seed files use **`TEAM_SCHEMES`** canonical names (**`cfb27-sam-houston`**, **`cfb27-middle-tennessee`**).
+- `npm run build` from `sideline/` passed (seed modules + scraper only; no app code changed).
+
+---
+
 ## 2026-07-01 — Data: CFB27 G5 Mid seed (Session 10)
 
 ### What
