@@ -8,6 +8,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 G5 Mid seed (Session 10)
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 10 — UCF, Utah, West Virginia, UConn, NC State, Liberty, UNLV, Air Force, Nevada, Northern Illinois.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (307 formations, 4,656 plays total).
+
+### Why
+
+Session 10 of the CFB27 catalog rollout — mid-tier G5 programs plus P4 stragglers (Utah, West Virginia, NC State). Air Force's Option playbook is a popular dynasty pick alongside Army and Navy. Brings cumulative coverage to **92 teams** ahead of Sessions 11–12 (niche G5 and FCS).
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **92 teams**, **42,715 plays** (excluding internal test playbook; paginated query).
+- `npm run build` from `sideline/` passed (seed modules + scraper only; no app code changed).
+
+---
+
 ## 2026-07-01 — Data: CFB27 ACC/P4 Lower + Major G5 seed (Session 9)
 
 ### What
