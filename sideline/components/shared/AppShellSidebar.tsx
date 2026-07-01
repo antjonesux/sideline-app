@@ -1,12 +1,14 @@
 "use client";
 
 import { usePlaybookList } from "@/hooks/usePlaybookList";
+import { useSchemeList } from "@/hooks/useSchemeList";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { useAuth } from "@/components/providers/AuthProvider";
 import {
   APP_SHELL_CALL_SHEETS_EMPTY,
   APP_SHELL_CALL_SHEETS_LOAD_ERROR,
   APP_SHELL_NEW_CALL_SHEET_LABEL,
+  APP_SHELL_NEW_SCHEME_LABEL,
   CALL_SHEET_VIEWER_MENU_REVIEW_SOON,
 } from "@/lib/coachCopy";
 import {
@@ -20,6 +22,11 @@ import {
   isPlaySheetNewPath,
   playSheetIdFromPath,
 } from "@/lib/navigation/playSheetNav";
+import {
+  isSchemeListPath,
+  isSchemeNewPath,
+  schemeIdFromPath,
+} from "@/lib/navigation/schemeNav";
 import { cn } from "@/lib/utils";
 import { LayoutGrid, LogOut, Plus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -163,6 +170,69 @@ function CallSheetsNavGroup() {
   );
 }
 
+function SchemesNavGroup() {
+  const pathname = usePathname();
+  const { data, isLoading } = useSchemeList();
+  const schemes = data ?? [];
+  const activeSchemeId = schemeIdFromPath(pathname);
+  const listActive = isSchemeListPath(pathname);
+  const newActive = isSchemeNewPath(pathname);
+  const schemesItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "schemes");
+  const Icon = schemesItem?.icon ?? LayoutGrid;
+  const label = schemesItem?.label ?? "My Schemes";
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      <Link
+        href="/schemes"
+        className={cn(navItemClass, listActive ? navItemActiveClass : navItemInactiveClass)}
+        aria-current={listActive ? "page" : undefined}
+      >
+        <Icon className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+        {listActive ? <NavActiveDot /> : null}
+      </Link>
+
+      <div className="flex flex-col gap-0.5 pb-1" role="group" aria-label={`${label} submenu`}>
+        {isLoading ? (
+          <div className="space-y-1.5 py-1 pl-9 pr-3" aria-hidden>
+            <div className="h-8 animate-pulse rounded-md bg-slate-900/80" />
+            <div className="h-8 animate-pulse rounded-md bg-slate-900/60" />
+          </div>
+        ) : null}
+
+        {!isLoading
+          ? schemes.map((scheme) => {
+              const active = activeSchemeId === scheme.id;
+              return (
+                <Link
+                  key={scheme.id}
+                  href={`/schemes/${scheme.id}`}
+                  className={cn(subNavItemClass, active ? navItemActiveClass : subNavItemInactiveClass)}
+                  aria-current={active ? "page" : undefined}
+                  title={scheme.name}
+                >
+                  <span className="min-w-0 flex-1 truncate">{scheme.name}</span>
+                  {active ? <NavActiveDot /> : null}
+                </Link>
+              );
+            })
+          : null}
+
+        <Link
+          href="/schemes/new"
+          className={cn(subNavItemClass, newActive ? navItemActiveClass : subNavItemInactiveClass)}
+          aria-current={newActive ? "page" : undefined}
+        >
+          <Plus className={cn("h-3.5 w-3.5 shrink-0", newActive ? "text-white" : "text-slate-500")} aria-hidden />
+          <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_SCHEME_LABEL}</span>
+          {newActive ? <NavActiveDot /> : null}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function SidebarSignOutButton({ icon: Icon }: { icon: LucideIcon }) {
   const router = useRouter();
   const { signOut } = useAuth();
@@ -191,7 +261,9 @@ function SidebarSignOutButton({ icon: Icon }: { icon: LucideIcon }) {
 /** Persistent left navigation for tablet (`md`) and desktop — approved Session 09 shell. */
 export function AppShellSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const secondaryNav = APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "call-sheets");
+  const secondaryNav = APP_SHELL_SIDEBAR_NAV.filter(
+    (item) => item.id !== "call-sheets" && item.id !== "schemes",
+  );
 
   return (
     <aside
@@ -207,6 +279,7 @@ export function AppShellSidebar({ className }: { className?: string }) {
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-2">
         <CallSheetsNavGroup />
+        <SchemesNavGroup />
 
         {secondaryNav.map((item) => (
           <SidebarNavItem

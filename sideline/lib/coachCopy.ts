@@ -126,6 +126,74 @@ export const APP_SHELL_NEW_CALL_SHEET_LABEL = "New Call Sheet";
 export const APP_SHELL_CALL_SHEETS_EMPTY = "No call sheets yet";
 export const APP_SHELL_CALL_SHEETS_LOAD_ERROR = "Couldn't load sheets";
 
+/** Schemes list — page title and navigation label. */
+export const SCHEMES_HOME_TITLE = "My Schemes";
+export const APP_SHELL_SCHEMES_MENU_LABEL = SCHEMES_HOME_TITLE;
+export const schemesHomeCountLabel = (count: number) =>
+  `${count} scheme${count === 1 ? "" : "s"}`;
+export const SCHEMES_CREATE_CTA = "Create Scheme";
+export const APP_SHELL_NEW_SCHEME_LABEL = "New Scheme";
+export const APP_SHELL_SCHEMES_EMPTY = "No schemes yet";
+export const APP_SHELL_SCHEMES_LOAD_ERROR = "Couldn't load schemes";
+export const SCHEMES_EMPTY_HEADLINE = "No schemes yet";
+export const SCHEMES_EMPTY_BODY =
+  "Create a scheme to group your offensive and defensive call sheets together for quick access on game day.";
+export const SCHEME_CARD_OFFENSE_LABEL = "Offense";
+export const SCHEME_CARD_DEFENSE_LABEL = "Defense";
+export const SCHEME_CARD_SIDE_UNATTACHED = "Not attached";
+
+export const SCHEME_FORM_CREATE_TITLE = "Create scheme";
+export const SCHEME_FORM_EDIT_TITLE = "Edit scheme";
+export const SCHEME_FORM_CREATE_SUBTITLE =
+  "Group an offensive and defensive call sheet for game day.";
+export const SCHEME_FORM_EDIT_SUBTITLE = "Update scheme details and attached call sheets.";
+export const SCHEME_FORM_NAME_LABEL = "Scheme name";
+export const SCHEME_FORM_NAME_PLACEHOLDER = "e.g. Base vs Spread";
+export const SCHEME_FORM_DESCRIPTION_LABEL = "Description";
+export const SCHEME_FORM_DESCRIPTION_PLACEHOLDER = "Optional — what this scheme is for";
+export const SCHEME_FORM_NOTE_LABEL = "Note";
+export const SCHEME_FORM_NOTE_PLACEHOLDER = "Optional coach note";
+export const SCHEME_FORM_OFFENSE_SHEET_LABEL = "Offensive call sheet";
+export const SCHEME_FORM_DEFENSE_SHEET_LABEL = "Defensive call sheet";
+export const SCHEME_FORM_SHEET_NONE = "None";
+export const SCHEME_FORM_SHEET_PLACEHOLDER = "Select a call sheet";
+export const SCHEME_FORM_SHEETS_LOADING = "Loading call sheets…";
+export const SCHEME_FORM_SHEETS_EMPTY = "No call sheets for this side yet.";
+export const SCHEME_FORM_SHEETS_EMPTY_HINT = "Create one in My Call Sheets.";
+export const SCHEME_FORM_VALIDATION_SHEET_REQUIRED = "Attach at least one call sheet.";
+export const SCHEME_FORM_CREATE_CTA = "Create scheme";
+export const SCHEME_FORM_SAVE_CTA = "Save changes";
+export const SCHEME_FORM_DELETE_SCHEME_TITLE = "Delete scheme?";
+export const SCHEME_FORM_DELETE_SCHEME_CONFIRM = "Delete scheme";
+export const SCHEME_FORM_DELETE_SCHEME_MESSAGE =
+  "A scheme needs at least one call sheet. Removing all sheets will delete this scheme. Your call sheets stay in My Call Sheets.";
+export const SCHEME_DELETED_TOAST = "Scheme removed.";
+
+export const SCHEME_DETAIL_EDIT_SCHEME = "Edit scheme";
+export const SCHEME_DETAIL_EDIT_SHEET = "Edit sheet";
+export const SCHEME_DETAIL_SIDE_TOGGLE_LABEL = "Side of ball";
+export const SCHEME_DETAIL_LOADING_SHEET = "Loading call sheet…";
+export const SCHEME_DETAIL_NO_SHEETS =
+  "No call sheets attached. Edit this scheme to add offensive or defensive sheets.";
+
+export const ADD_TO_SCHEME_MENU_LABEL = "Add to Scheme";
+export const ADD_TO_SCHEME_MODAL_TITLE = "Add to Scheme";
+export const ADD_TO_SCHEME_MODAL_BODY = "Choose a scheme for this call sheet.";
+export const ADD_TO_SCHEME_EMPTY_HEADLINE = "No schemes yet.";
+export const ADD_TO_SCHEME_EMPTY_BODY = "Create a scheme first, then attach call sheets from here.";
+export const ADD_TO_SCHEME_EMPTY_CTA = "Create Scheme";
+export const ADD_TO_SCHEME_ALREADY_ADDED = "Added";
+export const ADD_TO_SCHEME_REPLACE_TITLE = "Replace call sheet?";
+export const ADD_TO_SCHEME_REPLACE_CONFIRM = "Replace";
+export const addToSchemeReplaceMessage = (
+  sideLabel: string,
+  existingName: string,
+  nextName: string,
+) =>
+  `This scheme already has ${existingName} as its ${sideLabel.toLowerCase()} call sheet. Replace it with ${nextName}?`;
+export const ADD_TO_SCHEME_SUCCESS = "Added to scheme.";
+export const ADD_TO_SCHEME_REPLACE_SUCCESS = "Call sheet replaced in scheme.";
+
 /** Play Sheet `/playbook/new` — card heading above the step line (same pattern as `FILM_NEW_GAME_TITLE` on Film.new). */
 export const PLAYBOOK_NEW_SHEET_TITLE = "Build your play sheet";
 /** Subtitle on create play sheet (non–guided flow). */
@@ -182,7 +250,7 @@ export const CALL_SHEET_MENU_LABEL = PLAY_SHEETS_HOME_TITLE;
 /** @deprecated Use CALL_SHEET_MENU_LABEL — kept for QA screenshot fixtures until refreshed. */
 export const CALL_SHEET_VIEWER_MENU_BUILDER = CALL_SHEET_MENU_LABEL;
 export const CALL_SHEET_COACH_VIEW_EMPTY =
-  "No plays on your sheet yet. Switch to Situations to start building.";
+  "No plays on your sheet yet. Edit the call sheet to add plays.";
 export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
 export const CALL_SHEET_VIEWER_MENU_REVIEW = "Review";
 export const CALL_SHEET_VIEWER_MENU_REVIEW_SOON = "Coming Soon";

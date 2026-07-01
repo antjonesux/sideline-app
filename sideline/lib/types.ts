@@ -84,6 +84,37 @@ export type PlaybookListResponse = {
   active_call_sheet_id: string | null;
 };
 
+export type SchemeSummary = {
+  id: string;
+  name: string;
+  description: string | null;
+  note: string | null;
+  offense_call_sheet_id: string | null;
+  defense_call_sheet_id: string | null;
+  offense_call_sheet_name: string | null;
+  defense_call_sheet_name: string | null;
+  updated_at: string | null;
+};
+
+export type SchemeDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  note: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  call_sheets: {
+    call_sheet_id: string;
+    side_of_ball: "offense" | "defense";
+    call_sheet: {
+      id: string;
+      name: string;
+      cfb26_playbook: string;
+      scheme: string;
+    };
+  }[];
+};
+
 export type SheetPlayRow = {
   id: string;
   play_order: number;

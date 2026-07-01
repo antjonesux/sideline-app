@@ -1,6 +1,7 @@
 "use client";
 
 import { EditPlaybookModal } from "@/components/playbook/EditPlaybookModal";
+import { AddToSchemeModal } from "@/components/schemes/AddToSchemeModal";
 import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -8,7 +9,7 @@ import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveM
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
 import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
 import type { PlaybookSummary } from "@/lib/types";
-import { COULDNT_DELETE } from "@/lib/coachCopy";
+import { COULDNT_DELETE, ADD_TO_SCHEME_MENU_LABEL } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,7 @@ function sheetInitial(name: string): string {
 export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [addToSchemeOpen, setAddToSchemeOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const queryClient = useQueryClient();
@@ -90,6 +92,15 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
         <DropdownMenuItem className={menuItemClass} onSelect={() => setEditOpen(true)}>
           Edit
         </DropdownMenuItem>
+        <DropdownMenuItem
+          className={menuItemClass}
+          onSelect={() => {
+            setMenuOpen(false);
+            setAddToSchemeOpen(true);
+          }}
+        >
+          {ADD_TO_SCHEME_MENU_LABEL}
+        </DropdownMenuItem>
         <DropdownMenuItem className={`${menuItemClass} text-red-300`} onSelect={() => setDeleteOpen(true)}>
           Delete
         </DropdownMenuItem>
@@ -104,6 +115,15 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
           router.refresh();
         }}
       />
+
+      {addToSchemeOpen ? (
+        <AddToSchemeModal
+          open={addToSchemeOpen}
+          onClose={() => setAddToSchemeOpen(false)}
+          callSheet={item}
+          sideOfBall={catalogMeta?.side_of_ball ?? "offense"}
+        />
+      ) : null}
 
       <ConfirmDestructiveModal
         open={deleteOpen}

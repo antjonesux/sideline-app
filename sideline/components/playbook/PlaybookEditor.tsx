@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel, reorderSituationBlocks, pinGoToPlaysFirst } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
@@ -67,6 +67,7 @@ import { SituationList } from "./SituationList";
 import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
 import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
+import { playbookEditorHref, playbookEditorListBackHref } from "@/lib/navigation/playSheetNav";
 
 const STALE_SCENARIO_MS = 5 * 60 * 1000;
 
@@ -79,6 +80,17 @@ type SheetPayload = {
   cfb26_display?: string;
   scenarios: SheetScenarioBlock[];
 };
+
+type PlaySheetOverviewCache = {
+  sheetName?: string | null;
+  scenarios?: SheetScenarioBlock[];
+};
+
+function isPlaySheetEditorPayload(data: unknown): data is SheetPayload {
+  if (!data || typeof data !== "object") return false;
+  const row = data as Record<string, unknown>;
+  return typeof row.name === "string" && typeof row.playbook === "string" && Array.isArray(row.scenarios);
+}
 
 type ScenarioPayload = {
   scenarioId: string;
@@ -100,6 +112,16 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const searchParams = useSearchParams();
   const onboardingEditor = searchParams.get("onboarding") === "1";
   const situationParam = searchParams.get("situation")?.trim() ?? "";
+  const returnFrom = searchParams.get("from");
+  const listBackHref = useMemo(() => playbookEditorListBackHref(returnFrom), [returnFrom]);
+  const editorNavOpts = useMemo(
+    () => ({ from: returnFrom, onboarding: onboardingEditor || undefined }),
+    [returnFrom, onboardingEditor],
+  );
+  const sheetDashboardHref = useMemo(
+    () => playbookEditorHref(sheetId, editorNavOpts),
+    [sheetId, editorNavOpts],
+  );
   const setLastGame = useLastGamePrefsStore((s) => s.setLastGame);
   const queryClient = useQueryClient();
   const [legacyActiveScenario, setLegacyActiveScenario] = useState<string>("1st Down");
@@ -144,6 +166,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     retry: 2,
     staleTime: 5 * 60 * 1000,
   });
+
+  // Scheme detail previously cached a slim `{ sheetName, scenarios }` payload under this key.
+  useEffect(() => {
+    const data = sheetQuery.data;
+    if (!data || sheetQuery.isFetching) return;
+    if (!isPlaySheetEditorPayload(data)) {
+      void sheetQuery.refetch();
+    }
+  }, [sheetQuery.data, sheetQuery.isFetching, sheetQuery.refetch]);
 
   const sheet = sheetQuery.data;
   const scenarios = useMemo(
@@ -209,9 +240,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   useEffect(() => {
     if (!scenarios.length || !useCallSheetBuilderLayout || !situationParam) return;
     if (!scenarios.some((s) => s.scenario === situationParam)) {
-      router.replace(`/playbook/${sheetId}`);
+      router.replace(sheetDashboardHref);
     }
-  }, [scenarios, situationParam, router, sheetId, useCallSheetBuilderLayout]);
+  }, [scenarios, situationParam, router, sheetDashboardHref, useCallSheetBuilderLayout]);
 
   useEffect(() => {
     if (!scenarios.length || useCallSheetBuilderLayout || onboardingEditor) return;
@@ -295,21 +326,19 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   }, [setupQuery.data?.offensiveTeams]);
   const cfb26 = useMemo(() => {
     if (!sheet) return "";
-    const optionByLower = new Map<string, string>();
-    for (const option of cfb26PlaybookOptions) {
-      optionByLower.set(option.toLowerCase(), option);
-    }
-    const explicitCfb26 = (sheet.cfb26_playbook ?? "").trim();
-    if (explicitCfb26) {
-      return optionByLower.get(explicitCfb26.toLowerCase()) ?? explicitCfb26;
-    }
-    const legacyValue = (sheet.playbook ?? "").trim();
-    if (!legacyValue) return "";
-    // If setup options are unavailable, do not over-block legacy rows; let PlayBrowser fetch and surface catalog errors.
-    if (optionByLower.size === 0) return legacyValue;
-    // Legacy rows can store a display label in `playbook`; pass through only when it maps to a known catalog entry.
-    return optionByLower.get(legacyValue.toLowerCase()) ?? "";
-  }, [sheet, cfb26PlaybookOptions]);
+    const display = (sheet.cfb26_display ?? "").trim();
+    if (display) return display;
+    return sheetCfb26Playbook(sheet);
+  }, [sheet]);
+
+  const sheetTitle = useMemo(() => {
+    if (!sheet) return "";
+    const overview = sheet as SheetPayload & PlaySheetOverviewCache;
+    const name = (overview.name ?? overview.sheetName ?? "").trim();
+    if (name) return name;
+    const playbook = sheetCfb26Playbook(sheet);
+    return playbook || "Call sheet";
+  }, [sheet]);
 
   const { data: catalogMeta } = useCatalogPlaybookMeta(cfb26);
 
@@ -497,7 +526,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         addToast(BUILDER_SITUATION_UPDATED(updatedName), "success");
         setEditSituationOpen(false);
         if (updatedName !== activeScenario) {
-          router.replace(`/playbook/${sheetId}?situation=${encodeURIComponent(updatedName)}`);
+          router.replace(playbookEditorHref(sheetId, { ...editorNavOpts, situation: updatedName }));
         }
       } catch {
         addToast(COULDNT_SAVE, "error");
@@ -505,7 +534,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         setSituationFormBusy(false);
       }
     },
-    [activeBlock?.id, activeScenario, addToast, router, sheetId, updateSituation],
+    [activeBlock?.id, activeScenario, addToast, editorNavOpts, router, sheetId, updateSituation],
   );
 
   const confirmDeleteSituation = useCallback(async () => {
@@ -518,7 +547,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       setDeleteSituationTarget(null);
       setEditSituationOpen(false);
       if (isSituationEdit && target.scenario === activeScenario) {
-        router.replace(`/playbook/${sheetId}`);
+        router.replace(sheetDashboardHref);
       }
       if (situationsEditMode) {
         setEditScenarios((prev) => prev.filter((s) => s.id !== target.id));
@@ -535,7 +564,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     deleteSituationTarget,
     isSituationEdit,
     router,
-    sheetId,
+    sheetDashboardHref,
     situationsEditMode,
   ]);
 
@@ -888,9 +917,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const navigateToSituation = useCallback(
     (scenario: string) => {
-      router.push(`/playbook/${sheetId}?situation=${encodeURIComponent(scenario)}`);
+      router.push(playbookEditorHref(sheetId, { ...editorNavOpts, situation: scenario }));
     },
-    [router, sheetId],
+    [editorNavOpts, router, sheetId],
   );
 
   const navigateToDashboardBrowse = useCallback(() => {
@@ -914,7 +943,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     return (
       <div className="space-y-3">
         <p className="font-body text-red-300">{(sheetQuery.error as Error)?.message ?? "Play sheet not found"}</p>
-        <BackNavLink href="/playbook" />
+        <BackNavLink href={listBackHref} />
       </div>
     );
   }
@@ -1096,7 +1125,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           <>
             <div className="space-y-6 md:hidden">
               <CallSheetBuilderSituationHeader
-                backHref={`/playbook/${sheetId}`}
+                backHref={sheetDashboardHref}
                 title={callSheetScenarioDisplayName(activeScenario)}
                 scenario={activeScenario}
                 description={activeBlock?.description}
@@ -1112,7 +1141,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
             <CallSheetBuilderSituationWorkspace
               header={{
-                backHref: `/playbook/${sheetId}`,
+                backHref: sheetDashboardHref,
                 title: callSheetScenarioDisplayName(activeScenario),
                 scenario: activeScenario,
                 description: activeBlock?.description,
@@ -1133,8 +1162,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         ) : useCallSheetBuilderLayout ? (
           <>
             <CallSheetBuilderWorkspaceChrome
-              backHref="/playbook"
-              sheetName={sheet.name}
+              backHref={listBackHref}
+              sheetName={sheetTitle}
               cfb26Playbook={cfb26}
               scheme={sheet.scheme}
               catalogMeta={catalogMeta}
@@ -1169,8 +1198,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
             <div className="space-y-6 md:hidden">
               <CallSheetBuilderSheetHeader
-                backHref="/playbook"
-                sheetName={sheet.name}
+                backHref={listBackHref}
+                sheetName={sheetTitle}
                 cfb26Playbook={cfb26}
                 scheme={sheet.scheme}
                 catalogMeta={catalogMeta}
@@ -1198,15 +1227,15 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
           <>
             {!onboardingEditor ? (
               <div className="space-y-3">
-                <Breadcrumb segments={[{ label: "Play Sheet", href: "/playbook" }, { label: sheet.name }]} />
-                <BackNavLink href="/playbook" />
+                <Breadcrumb segments={[{ label: "Play Sheet", href: listBackHref }, { label: sheetTitle }]} />
+                <BackNavLink href={listBackHref} />
               </div>
             ) : null}
 
             <div>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
+                  <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheetTitle}</h1>
                   {catalogMeta ? (
                     <CallSheetMetadataRow
                       labels={callSheetDetailsMetadataLabels(catalogMeta, sheet.scheme, cfb26)}

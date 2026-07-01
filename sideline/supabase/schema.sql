@@ -166,6 +166,26 @@ create table if not exists dismissed_suggestions (
   dismiss_until_game_count int default 5
 );
 
+create table if not exists schemes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  description text,
+  note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists scheme_call_sheets (
+  scheme_id uuid not null references schemes(id) on delete cascade,
+  call_sheet_id uuid not null references play_sheets(id) on delete cascade,
+  side_of_ball text not null check (side_of_ball in ('offense', 'defense')),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (scheme_id, side_of_ball),
+  unique (scheme_id, call_sheet_id)
+);
+
 create table if not exists team_offensive_playbooks (
   team_name text primary key,
   playbook_name text not null,
@@ -186,6 +206,9 @@ create index if not exists idx_drives_user_game         on drives (user_id, game
 
 create index if not exists idx_game_sessions_user on game_sessions(user_id);
 create index if not exists idx_play_sheets_user on play_sheets(user_id);
+create index if not exists idx_schemes_user on schemes(user_id);
+create index if not exists idx_scheme_call_sheets_user on scheme_call_sheets(user_id);
+create index if not exists idx_scheme_call_sheets_call_sheet on scheme_call_sheets(call_sheet_id);
 create index if not exists idx_drives_user on drives(user_id);
 create index if not exists idx_logged_plays_user on logged_plays(user_id);
 
@@ -329,6 +352,24 @@ drop policy if exists "Owner access" on dismissed_suggestions;
 create policy "Owner access" on dismissed_suggestions for all to authenticated
   using (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()))
   with check (auth.uid() = user_id and exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid()));
+
+alter table schemes enable row level security;
+drop policy if exists "Owner access" on schemes;
+create policy "Owner access" on schemes for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table scheme_call_sheets enable row level security;
+drop policy if exists "Owner access" on scheme_call_sheets;
+create policy "Owner access" on scheme_call_sheets for all to authenticated
+  using (
+    auth.uid() = user_id
+    and exists (select 1 from schemes s where s.id = scheme_id and s.user_id = auth.uid())
+    and exists (select 1 from play_sheets ps where ps.id = call_sheet_id and ps.user_id = auth.uid())
+  )
+  with check (
+    auth.uid() = user_id
+    and exists (select 1 from schemes s where s.id = scheme_id and s.user_id = auth.uid())
+    and exists (select 1 from play_sheets ps where ps.id = call_sheet_id and ps.user_id = auth.uid())
+  );
 
 -- Catalog table: public read, writes only via service role (bypasses RLS).
 alter table scheme_play_weights enable row level security;

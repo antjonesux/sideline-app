@@ -2,9 +2,11 @@ import {
   CALL_SHEET_MENU_LABEL,
   CALL_SHEET_VIEWER_MENU_REVIEW,
   CALL_SHEET_VIEWER_MENU_SETTINGS,
+  APP_SHELL_SCHEMES_MENU_LABEL,
 } from "@/lib/coachCopy";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
-import { ClipboardList, Eye, Settings } from "lucide-react";
+import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
+import { ClipboardList, Eye, Layers, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AppShellSidebarNavItem = {
@@ -15,9 +17,10 @@ export type AppShellSidebarNavItem = {
   comingSoon?: boolean;
 };
 
-/** Hamburger drawer destinations — call sheets, review (soon), and settings. */
+/** Hamburger drawer destinations — call sheets, schemes, review (soon), and settings. */
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
+  { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Layers },
   { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Eye, comingSoon: true },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
@@ -25,6 +28,7 @@ export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
 export function isAppShellSidebarNavActive(pathname: string, item: AppShellSidebarNavItem): boolean {
   if (item.comingSoon || !item.href) return false;
   if (item.href === "/playbook") return isPlaySheetBuilderPath(pathname);
+  if (item.href === "/schemes") return isSchemeBuilderPath(pathname);
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 

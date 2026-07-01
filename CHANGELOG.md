@@ -4,9 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
----
+## 2026-07-01 — Schemes: group offensive and defensive call sheets
 
----
+### What
+
+- **[`20260701160000_schemes.sql`](sideline/supabase/migrations/20260701160000_schemes.sql), [`schema.sql`](sideline/supabase/schema.sql):** Added **`schemes`** and **`scheme_call_sheets`** tables with RLS, indexes, and account-delete cascade.
+- **[`sideline/app/api/schemes/`](sideline/app/api/schemes/), [`schemeApiHelpers.ts`](sideline/lib/schemeApiHelpers.ts):** Scheme list, create, update, delete, and attach/replace call sheets by side of ball.
+- **[`sideline/app/schemes/`](sideline/app/schemes/), [`sideline/components/schemes/`](sideline/components/schemes/):** Scheme home (empty state + cards), create/edit form with call sheet pickers, detail view with offense/defense toggle and embedded coach view, and **Add to Scheme** modal from call sheet cards.
+- **[`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx), [`appShellNav.ts`](sideline/lib/navigation/appShellNav.ts), [`schemeNav.ts`](sideline/lib/navigation/schemeNav.ts):** **My Schemes** sidebar group (scheme list + **New Scheme**), mobile hamburger link, and route helpers.
+- **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx), [`playSheetNav.ts`](sideline/lib/navigation/playSheetNav.ts), [`SchemeDetailView.tsx`](sideline/components/schemes/SchemeDetailView.tsx):** Editing a sheet from a scheme passes **`?from=`** so back returns to scheme detail; header uses **`sheetCfb26Playbook`** / **`cfb26_display`** for playbook subtitle; separate overview query key avoids React Query cache collision that showed **Call sheet** instead of the sheet name.
+- **[`coachCopy.ts`](sideline/lib/coachCopy.ts):** Scheme and add-to-scheme coach-facing copy; coach view empty state copy tweak.
+
+### Why
+
+Coaches need to pair offensive and defensive call sheets into named schemes for quick access on game day, without losing their place when editing a sheet from within a scheme.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
 
 ---
 
