@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_UTAH_SEED: TeamPlaybookSeed = {
   team: "Utah",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/utah-off/",

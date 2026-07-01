@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const UTAH_STATE_SEED: TeamPlaybookSeed = {
   "team": "Utah State",
   "scheme": "Run & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/utah-state-off/",
     "verified": "2026-05-04"

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const BOISE_STATE_SEED: TeamPlaybookSeed = {
   "team": "Boise State",
   "scheme": "Pro Style",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/boise-state-off/",
     "verified": "2026-05-04"

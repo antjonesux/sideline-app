@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const AKRON_SEED: TeamPlaybookSeed = {
   "team": "Akron",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/akron-off/",
     "verified": "2026-05-04"

@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_RICE_SEED: TeamPlaybookSeed = {
   team: "Rice",
   scheme: "Spread Option",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/rice-off/",

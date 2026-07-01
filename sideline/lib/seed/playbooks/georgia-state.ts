@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const GEORGIA_STATE_SEED: TeamPlaybookSeed = {
   "team": "Georgia State",
   "scheme": "Multiple",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/georgia-state-off/",
     "verified": "2026-05-04"

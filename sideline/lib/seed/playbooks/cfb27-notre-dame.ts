@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_NOTRE_DAME_SEED: TeamPlaybookSeed = {
   team: "Notre Dame",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/notre-dame-off/",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const PURDUE_SEED: TeamPlaybookSeed = {
   team: "Purdue",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/purdue-off/",
     verified: "2026-05-02",

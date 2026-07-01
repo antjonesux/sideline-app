@@ -96,6 +96,9 @@ function validateSeed(
   if (!(ALL_SCHEMES as readonly string[]).includes(seed.scheme.trim())) {
     errors.push(`Scheme "${seed.scheme}" is not one of ALL_SCHEMES.`);
   }
+  if (seed.sideOfBall !== "offense" && seed.sideOfBall !== "defense") {
+    errors.push(`sideOfBall must be "offense" or "defense" (got "${seed.sideOfBall}").`);
+  }
   if (!seed.formations?.length) {
     errors.push("At least one formation is required.");
   }
@@ -166,9 +169,14 @@ function resolveSeedGameVersion(seed: TeamPlaybookSeed): string {
   return seed.gameVersion ?? CFB_CATALOG_GAME_VERSION;
 }
 
+function resolveSeedSideOfBall(seed: TeamPlaybookSeed): "offense" | "defense" {
+  return seed.sideOfBall;
+}
+
 function flattenSeedToRows(seed: TeamPlaybookSeed) {
   const playbook = seed.team.trim();
   const gameVersion = resolveSeedGameVersion(seed);
+  const sideOfBall = resolveSeedSideOfBall(seed);
   const rows: {
     playbook: string;
     formation: string;
@@ -177,6 +185,7 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
     play_type: string;
     is_new_in_26: boolean;
     game_version: string;
+    side_of_ball: "offense" | "defense";
   }[] = [];
 
   for (const f of seed.formations) {
@@ -197,6 +206,7 @@ function flattenSeedToRows(seed: TeamPlaybookSeed) {
         ),
         is_new_in_26: Boolean(p.isNewIn26),
         game_version: gameVersion,
+        side_of_ball: sideOfBall,
       });
     }
   }
@@ -214,6 +224,7 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
     play_type: "RUN",
     is_new_in_26: false,
     game_version: CFB_CATALOG_GAME_VERSION,
+    side_of_ball: "offense" as const,
   };
 
   const { error } = await supabase.from("cfb26_plays").upsert([probeRow], {

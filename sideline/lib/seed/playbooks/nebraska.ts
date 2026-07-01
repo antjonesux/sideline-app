@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const NEBRASKA_SEED: TeamPlaybookSeed = {
   team: "Nebraska",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/nebraska-off/",
     verified: "2026-05-02",

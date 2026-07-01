@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const BAYLOR_SEED: TeamPlaybookSeed = {
   team: "Baylor",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/baylor-off/",
     verified: "2026-05-02",

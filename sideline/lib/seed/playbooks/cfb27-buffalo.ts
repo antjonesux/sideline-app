@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_BUFFALO_SEED: TeamPlaybookSeed = {
   team: "Buffalo",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/buffalo-off/",

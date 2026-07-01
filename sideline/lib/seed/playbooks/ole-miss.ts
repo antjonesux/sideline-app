@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const OLE_MISS_SEED: TeamPlaybookSeed = {
   team: "Ole Miss",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/ole-miss-off/",
     verified: "2026-05-02",

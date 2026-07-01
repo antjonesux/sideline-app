@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_MARSHALL_SEED: TeamPlaybookSeed = {
   team: "Marshall",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/marshall-off/",

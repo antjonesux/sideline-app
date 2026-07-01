@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_EASTERN_MICHIGAN_SEED: TeamPlaybookSeed = {
   team: "Eastern Michigan",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/eastern-michigan-off/",

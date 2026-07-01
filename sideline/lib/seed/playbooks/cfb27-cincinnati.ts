@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_CINCINNATI_SEED: TeamPlaybookSeed = {
   team: "Cincinnati",
   scheme: "Pistol",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/cincinnati-off/",

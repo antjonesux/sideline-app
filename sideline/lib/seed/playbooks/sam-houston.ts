@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const SAM_HOUSTON_SEED: TeamPlaybookSeed = {
   "team": "Sam Houston",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/sam-houston-state-off/",
     "verified": "2026-05-04"

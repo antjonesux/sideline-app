@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_SOUTHERN_MISS_SEED: TeamPlaybookSeed = {
   team: "Southern Miss",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/southern-miss-off/",

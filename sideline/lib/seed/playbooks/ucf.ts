@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const UCF_SEED: TeamPlaybookSeed = {
   team: "UCF",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/ucf-off/",
     verified: "2026-05-02",

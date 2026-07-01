@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const CLEMSON_SEED: TeamPlaybookSeed = {
   "team": "Clemson",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/clemson-off/",
     "verified": "2026-05-04"

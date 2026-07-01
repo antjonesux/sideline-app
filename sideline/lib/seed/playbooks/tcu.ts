@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const TCU_SEED: TeamPlaybookSeed = {
   team: "TCU",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/tcu-off/",
     verified: "2026-04-16",

@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_SAN_JOSE_STATE_SEED: TeamPlaybookSeed = {
   team: "San Jose State",
   scheme: "Run & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/san-jose-state-off/",

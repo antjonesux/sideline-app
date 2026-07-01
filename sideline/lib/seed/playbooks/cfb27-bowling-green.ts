@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_BOWLING_GREEN_SEED: TeamPlaybookSeed = {
   team: "Bowling Green",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/bowling-green-off/",

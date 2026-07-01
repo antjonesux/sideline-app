@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const WAKE_FOREST_SEED: TeamPlaybookSeed = {
   "team": "Wake Forest",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/wake-forest-off/",
     "verified": "2026-05-04"

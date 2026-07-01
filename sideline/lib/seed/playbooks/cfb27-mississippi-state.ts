@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_MISSISSIPPI_STATE_SEED: TeamPlaybookSeed = {
   team: "Mississippi State",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/mississippi-state-off/",

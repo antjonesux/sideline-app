@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const INDIANA_SEED: TeamPlaybookSeed = {
   team: "Indiana",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/indiana-off/",
     verified: "2026-04-21",

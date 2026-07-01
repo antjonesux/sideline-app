@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const SMU_SEED: TeamPlaybookSeed = {
   "team": "SMU",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/smu-off/",
     "verified": "2026-05-04"

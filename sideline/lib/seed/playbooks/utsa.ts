@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const UTSA_SEED: TeamPlaybookSeed = {
   "team": "UTSA",
   "scheme": "Power Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/utsa-off/",
     "verified": "2026-05-04"

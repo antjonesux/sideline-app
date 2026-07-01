@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_NORTH_CAROLINA_SEED: TeamPlaybookSeed = {
   team: "North Carolina",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/north-carolina-off/",

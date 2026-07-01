@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_WASHINGTON_STATE_SEED: TeamPlaybookSeed = {
   team: "Washington State",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/washington-state-off/",

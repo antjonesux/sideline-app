@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_OHIO_STATE_SEED: TeamPlaybookSeed = {
   team: "Ohio State",
   scheme: "Multiple O",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/ohio-state-off/",

@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_OREGON_STATE_SEED: TeamPlaybookSeed = {
   team: "Oregon State",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/oregon-state-off/",

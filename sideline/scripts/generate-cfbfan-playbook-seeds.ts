@@ -216,6 +216,7 @@ async function buildSeed(team: string, urlSlug: string): Promise<TeamPlaybookSee
   return {
     team,
     scheme,
+    sideOfBall: "offense",
     source: { url: `${base}/`, verified: VERIFIED },
     formations,
   };

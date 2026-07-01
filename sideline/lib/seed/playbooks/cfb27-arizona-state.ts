@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_ARIZONA_STATE_SEED: TeamPlaybookSeed = {
   team: "Arizona State",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/arizona-state-off/",

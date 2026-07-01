@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const LSU_SEED: TeamPlaybookSeed = {
   team: "LSU",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/lsu-off/",
     verified: "2026-05-02",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const UTEP_SEED: TeamPlaybookSeed = {
   "team": "UTEP",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/utep-off/",
     "verified": "2026-05-04"

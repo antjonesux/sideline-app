@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const WYOMING_SEED: TeamPlaybookSeed = {
   "team": "Wyoming",
   "scheme": "Multiple",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/wyoming-off/",
     "verified": "2026-05-04"

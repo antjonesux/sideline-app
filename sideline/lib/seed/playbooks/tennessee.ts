@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const TENNESSEE_SEED: TeamPlaybookSeed = {
   team: "Tennessee",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/tennessee-off/",
     verified: "2026-05-02",

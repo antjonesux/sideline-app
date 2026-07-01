@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const HAWAII_SEED: TeamPlaybookSeed = {
   "team": "Hawaii",
   "scheme": "Run & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/hawaii-off/",
     "verified": "2026-05-04"

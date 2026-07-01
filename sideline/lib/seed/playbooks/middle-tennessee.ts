@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const MIDDLE_TENNESSEE_SEED: TeamPlaybookSeed = {
   "team": "Middle Tennessee",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/mid-tenn-state-off/",
     "verified": "2026-05-04"

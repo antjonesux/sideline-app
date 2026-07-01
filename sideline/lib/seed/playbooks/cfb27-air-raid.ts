@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_AIR_RAID_SEED: TeamPlaybookSeed = {
   team: "Air Raid",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/air-raid-off/",

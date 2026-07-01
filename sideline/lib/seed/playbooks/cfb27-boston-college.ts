@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_BOSTON_COLLEGE_SEED: TeamPlaybookSeed = {
   team: "Boston College",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/boston-college-off/",

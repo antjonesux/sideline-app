@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const HOUSTON_SEED: TeamPlaybookSeed = {
   team: "Houston",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/houston-off/",
     verified: "2026-04-16",

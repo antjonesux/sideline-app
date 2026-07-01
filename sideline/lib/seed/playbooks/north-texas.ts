@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const NORTH_TEXAS_SEED: TeamPlaybookSeed = {
   "team": "North Texas",
   "scheme": "Air Raid",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/north-texas-off/",
     "verified": "2026-05-04"

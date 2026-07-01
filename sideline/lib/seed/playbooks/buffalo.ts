@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const BUFFALO_SEED: TeamPlaybookSeed = {
   "team": "Buffalo",
   "scheme": "Power Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/buffalo-off/",
     "verified": "2026-05-04"

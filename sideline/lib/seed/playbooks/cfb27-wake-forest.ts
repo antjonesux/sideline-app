@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_WAKE_FOREST_SEED: TeamPlaybookSeed = {
   team: "Wake Forest",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/wake-forest-off/",

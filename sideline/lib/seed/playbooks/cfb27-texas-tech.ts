@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_TEXAS_TECH_SEED: TeamPlaybookSeed = {
   team: "Texas Tech",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/texas-tech-off/",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const BYU_SEED: TeamPlaybookSeed = {
   team: "BYU",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/byu-off/",
     verified: "2026-04-16",

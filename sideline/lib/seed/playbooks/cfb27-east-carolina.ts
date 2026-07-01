@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_EAST_CAROLINA_SEED: TeamPlaybookSeed = {
   team: "East Carolina",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/east-carolina-off/",

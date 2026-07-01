@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const OKLAHOMA_STATE_SEED: TeamPlaybookSeed = {
   team: "Oklahoma State",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/oklahoma-state-off/",
     verified: "2026-05-02",

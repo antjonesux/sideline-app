@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const LIBERTY_SEED: TeamPlaybookSeed = {
   team: "Liberty",
   scheme: "Spread Option",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/liberty-off/",
     verified: "2026-05-02",

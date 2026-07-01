@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const JAMES_MADISON_SEED: TeamPlaybookSeed = {
   team: "James Madison",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/james-madison-off/",
     verified: "2026-05-02",

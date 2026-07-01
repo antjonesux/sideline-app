@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_ALABAMA_SEED: TeamPlaybookSeed = {
   team: "Alabama",
   scheme: "Multiple O",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/alabama-off/",

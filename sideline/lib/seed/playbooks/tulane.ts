@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const TULANE_SEED: TeamPlaybookSeed = {
   "team": "Tulane",
   "scheme": "Power Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/tulane-off/",
     "verified": "2026-05-04"

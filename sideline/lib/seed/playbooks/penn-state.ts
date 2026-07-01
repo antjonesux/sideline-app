@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const PENN_STATE_SEED: TeamPlaybookSeed = {
   team: "Penn State",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/penn-state-off/",
     verified: "2026-04-16",

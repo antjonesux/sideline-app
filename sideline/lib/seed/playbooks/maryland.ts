@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const MARYLAND_SEED: TeamPlaybookSeed = {
   team: "Maryland",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/maryland-off/",
     verified: "2026-04-16",

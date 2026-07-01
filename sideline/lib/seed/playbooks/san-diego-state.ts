@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const SAN_DIEGO_STATE_SEED: TeamPlaybookSeed = {
   "team": "San Diego State",
   "scheme": "Veer & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/san-diego-state-off/",
     "verified": "2026-05-04"

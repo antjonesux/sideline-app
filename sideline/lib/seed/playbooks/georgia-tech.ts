@@ -4,6 +4,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const GEORGIA_TECH_SEED: TeamPlaybookSeed = {
   team: "Georgia Tech",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/georgia-tech-off/",
     verified: "2026-04-16",

@@ -9,6 +9,19 @@ export interface PlayTypeWeight {
   weight: number;
 }
 
+const DEFENSE_SCHEME_DEFAULT_WEIGHTS: PlayTypeWeight[] = [
+  { playType: "Inside Run", weight: 0.5 },
+  { playType: "Outside Run", weight: 0.5 },
+  { playType: "QB Run", weight: 0.5 },
+  { playType: "Option", weight: 0.5 },
+  { playType: "Quick Pass", weight: 0.5 },
+  { playType: "Medium Pass", weight: 0.5 },
+  { playType: "Deep Pass", weight: 0.5 },
+  { playType: "Play Action", weight: 0.5 },
+  { playType: "Screen", weight: 0.5 },
+  { playType: "RPO", weight: 0.5 },
+];
+
 export const SCHEME_ARCHETYPE_WEIGHTS: Record<SchemeType, PlayTypeWeight[]> = {
   "Power Spread": [
     { playType: "Inside Run", weight: 0.75 },
@@ -142,4 +155,34 @@ export const SCHEME_ARCHETYPE_WEIGHTS: Record<SchemeType, PlayTypeWeight[]> = {
     { playType: "Screen", weight: 0.6 },
     { playType: "RPO", weight: 0.3 },
   ],
+  "3-2-6": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Man": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Man Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Shell": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Three High": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Tite": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Zone": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-3-5 Zone Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Man": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Man Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Multiple": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Shell": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Zone": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "3-4 Zone Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5 Man": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5 Man Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5 Shell": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5 Zone": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-2-5 Zone Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Man": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Man Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Multiple": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Press Quarters": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Shell": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Zone": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
+  "4-3 Zone Pressure": DEFENSE_SCHEME_DEFAULT_WEIGHTS,
 };

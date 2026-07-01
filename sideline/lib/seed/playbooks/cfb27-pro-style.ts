@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_PRO_STYLE_SEED: TeamPlaybookSeed = {
   team: "Pro Style",
   scheme: "Pro Style",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/pro-style-off/",

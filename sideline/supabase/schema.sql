@@ -129,7 +129,8 @@ create table if not exists cfb26_plays (
   play_name text not null,
   play_type text not null,
   is_new_in_26 boolean default false,
-  game_version text not null default 'CFB26'
+  game_version text not null default 'CFB26',
+  side_of_ball text not null default 'offense'
 );
 
 -- Natural key for playbook seed upserts (per game_version; see migrations for constraint upgrades on existing DBs).

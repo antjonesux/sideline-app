@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const COLORADO_STATE_SEED: TeamPlaybookSeed = {
   team: "Colorado State",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/colorado-state-off/",
     verified: "2026-04-21",

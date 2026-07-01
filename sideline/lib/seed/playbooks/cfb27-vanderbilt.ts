@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_VANDERBILT_SEED: TeamPlaybookSeed = {
   team: "Vanderbilt",
   scheme: "Pistol",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/vanderbilt-off/",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const USC_SEED: TeamPlaybookSeed = {
   team: "USC",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/usc-off/",
     verified: "2026-04-16",

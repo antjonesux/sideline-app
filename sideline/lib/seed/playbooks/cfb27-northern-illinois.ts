@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_NORTHERN_ILLINOIS_SEED: TeamPlaybookSeed = {
   team: "Northern Illinois",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/northern-illinois-off/",

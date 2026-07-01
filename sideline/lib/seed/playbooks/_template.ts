@@ -13,6 +13,7 @@ export const TEAM_NAME_SEED: TeamPlaybookSeed = {
   // Scheme classification — must match a value in ALL_SCHEMES
   // Pulled automatically from TEAM_SCHEMES[team] but can be overridden here if needed
   scheme: "Scheme Name",
+  sideOfBall: 'offense',
 
   // Catalog game version — use 'cfb27' for CFB27 playbooks; omit for CFB26 (defaults to cfb26)
   gameVersion: "cfb27",

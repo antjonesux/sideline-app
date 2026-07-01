@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const COLORADO_SEED: TeamPlaybookSeed = {
   team: "Colorado",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/colorado-off/",
     verified: "2026-04-21",

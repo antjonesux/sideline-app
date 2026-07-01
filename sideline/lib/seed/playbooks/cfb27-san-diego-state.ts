@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_SAN_DIEGO_STATE_SEED: TeamPlaybookSeed = {
   team: "San Diego State",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/san-diego-state-off/",

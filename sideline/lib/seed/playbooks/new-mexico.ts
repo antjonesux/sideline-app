@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const NEW_MEXICO_SEED: TeamPlaybookSeed = {
   "team": "New Mexico",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/new-mexico-off/",
     "verified": "2026-05-04"

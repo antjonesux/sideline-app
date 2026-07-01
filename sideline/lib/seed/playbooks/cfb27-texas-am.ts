@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_TEXAS_AM_SEED: TeamPlaybookSeed = {
   team: "Texas A&M",
   scheme: "Pro Style",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/texas-am-off/",

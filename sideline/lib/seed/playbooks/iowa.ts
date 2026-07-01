@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const IOWA_SEED: TeamPlaybookSeed = {
   team: "Iowa",
   scheme: "Pro Style",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/iowa-off/",
     verified: "2026-05-02",

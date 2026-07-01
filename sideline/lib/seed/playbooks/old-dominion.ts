@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const OLD_DOMINION_SEED: TeamPlaybookSeed = {
   "team": "Old Dominion",
   "scheme": "Veer & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/old-dominion-off/",
     "verified": "2026-05-04"

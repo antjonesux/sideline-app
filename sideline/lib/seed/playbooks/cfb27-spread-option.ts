@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_SPREAD_OPTION_SEED: TeamPlaybookSeed = {
   team: "Spread Option",
   scheme: "Option",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/spread-option-off/",

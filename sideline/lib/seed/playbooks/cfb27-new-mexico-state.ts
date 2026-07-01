@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_NEW_MEXICO_STATE_SEED: TeamPlaybookSeed = {
   team: "New Mexico State",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/new-mexico-state-off/",

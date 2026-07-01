@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const WESTERN_MICHIGAN_SEED: TeamPlaybookSeed = {
   "team": "Western Michigan",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/western-michigan-off/",
     "verified": "2026-05-04"

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const BOSTON_COLLEGE_SEED: TeamPlaybookSeed = {
   "team": "Boston College",
   "scheme": "Multiple",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/boston-college-off/",
     "verified": "2026-05-04"

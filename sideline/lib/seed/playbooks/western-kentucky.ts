@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const WESTERN_KENTUCKY_SEED: TeamPlaybookSeed = {
   team: "Western Kentucky",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/western-kentucky-off/",
     verified: "2026-04-21",

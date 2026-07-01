@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const NC_STATE_SEED: TeamPlaybookSeed = {
   "team": "NC State",
   "scheme": "Power Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/nc-state-off/",
     "verified": "2026-05-04"

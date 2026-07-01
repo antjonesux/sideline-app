@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const UAB_SEED: TeamPlaybookSeed = {
   "team": "UAB",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/uab-off/",
     "verified": "2026-05-04"

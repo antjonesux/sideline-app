@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const FIU_SEED: TeamPlaybookSeed = {
   "team": "Florida International",
   "scheme": "Power Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/florida-international-off/",
     "verified": "2026-05-04"

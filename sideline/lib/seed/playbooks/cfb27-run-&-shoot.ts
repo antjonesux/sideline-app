@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_RUN__SHOOT_SEED: TeamPlaybookSeed = {
   team: "Run & Shoot",
   scheme: "Run & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/run-shoot-off/",

@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_GEORGIA_TECH_SEED: TeamPlaybookSeed = {
   team: "Georgia Tech",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/georgia-tech-off/",

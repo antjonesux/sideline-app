@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const KENTUCKY_SEED: TeamPlaybookSeed = {
   team: "Kentucky",
   scheme: "Pro Style",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/kentucky-off/",
     verified: "2026-05-02",

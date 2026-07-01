@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const ILLINOIS_SEED: TeamPlaybookSeed = {
   team: "Illinois",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/illinois-off/",
     verified: "2026-05-02",

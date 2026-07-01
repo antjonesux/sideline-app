@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const AIR_FORCE_SEED: TeamPlaybookSeed = {
   team: "Air Force",
   scheme: "Option",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/air-force-off/",
     verified: "2026-05-02",

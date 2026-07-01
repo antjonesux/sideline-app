@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_LOUISIANA_TECH_SEED: TeamPlaybookSeed = {
   team: "Louisiana Tech",
   scheme: "Air Raid",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/louisiana-tech-off/",

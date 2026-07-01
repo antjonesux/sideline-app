@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const MINNESOTA_SEED: TeamPlaybookSeed = {
   team: "Minnesota",
   scheme: "Multiple",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/minnesota-off/",
     verified: "2026-05-02",

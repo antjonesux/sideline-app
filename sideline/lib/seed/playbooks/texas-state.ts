@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const TEXAS_STATE_SEED: TeamPlaybookSeed = {
   team: "Texas State",
   scheme: "Veer & Shoot",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/texas-state-off/",
     verified: "2026-04-16",

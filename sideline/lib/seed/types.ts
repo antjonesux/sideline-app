@@ -15,6 +15,7 @@ export interface FormationSeed {
 export interface TeamPlaybookSeed {
   team: string;
   scheme: string;
+  sideOfBall: "offense" | "defense";
   /** Catalog game version; defaults to `cfb26` when omitted (existing seed files). */
   gameVersion?: "cfb26" | "cfb27";
   source: {

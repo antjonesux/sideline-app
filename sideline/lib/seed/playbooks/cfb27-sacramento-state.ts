@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_SACRAMENTO_STATE_SEED: TeamPlaybookSeed = {
   team: "Sacramento State",
   scheme: "Spread Option",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/sacramento-state-off/",

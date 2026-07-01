@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_WEST_VIRGINIA_SEED: TeamPlaybookSeed = {
   team: "West Virginia",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/west-virginia-off/",

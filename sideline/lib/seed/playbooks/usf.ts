@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const USF_SEED: TeamPlaybookSeed = {
   "team": "USF",
   "scheme": "Veer & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/usf-off/",
     "verified": "2026-05-04"

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const KENNESAW_STATE_SEED: TeamPlaybookSeed = {
   "team": "Kennesaw State",
   "scheme": "Veer & Shoot",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/kennesaw-state-off/",
     "verified": "2026-05-04"

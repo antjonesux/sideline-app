@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const RUTGERS_SEED: TeamPlaybookSeed = {
   "team": "Rutgers",
   "scheme": "Spread",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/rutgers-off/",
     "verified": "2026-05-04"

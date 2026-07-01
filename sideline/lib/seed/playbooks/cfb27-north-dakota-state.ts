@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_NORTH_DAKOTA_STATE_SEED: TeamPlaybookSeed = {
   team: "North Dakota State",
   scheme: "Pro Style",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/north-dakota-state-off/",

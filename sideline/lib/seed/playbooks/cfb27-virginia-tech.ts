@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_VIRGINIA_TECH_SEED: TeamPlaybookSeed = {
   team: "Virginia Tech",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/virginia-tech-off/",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const CALIFORNIA_SEED: TeamPlaybookSeed = {
   "team": "California",
   "scheme": "Multiple",
+  "sideOfBall": "offense",
   "source": {
     "url": "https://cfb.fan/26/playbooks/cal-off/",
     "verified": "2026-05-04"

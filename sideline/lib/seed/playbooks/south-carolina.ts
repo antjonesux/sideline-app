@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const SOUTH_CAROLINA_SEED: TeamPlaybookSeed = {
   team: "South Carolina",
   scheme: "Power Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/south-carolina-off/",
     verified: "2026-05-02",

@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const AUBURN_SEED: TeamPlaybookSeed = {
   team: "Auburn",
   scheme: "Spread",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/auburn-off/",
     verified: "2026-04-21",

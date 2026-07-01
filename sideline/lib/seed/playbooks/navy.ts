@@ -3,6 +3,7 @@ import type { TeamPlaybookSeed } from "../types";
 export const NAVY_SEED: TeamPlaybookSeed = {
   team: "Navy",
   scheme: "Option",
+  sideOfBall: 'offense',
   source: {
     url: "https://cfb.fan/26/playbooks/navy-off/",
     verified: "2026-05-02",

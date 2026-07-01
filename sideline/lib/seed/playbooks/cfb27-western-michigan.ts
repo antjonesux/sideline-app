@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_WESTERN_MICHIGAN_SEED: TeamPlaybookSeed = {
   team: "Western Michigan",
   scheme: "Spread",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/western-michigan-off/",

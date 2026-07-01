@@ -3,6 +3,7 @@ import { TeamPlaybookSeed } from '../types';
 export const CFB27_HAWAII_SEED: TeamPlaybookSeed = {
   team: "Hawaii",
   scheme: "Run & Shoot",
+  sideOfBall: 'offense',
   gameVersion: 'cfb27',
   source: {
     url: "https://cfb.fan/playbooks/hawaii-off/",

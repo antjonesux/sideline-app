@@ -8,6 +8,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 generic defensive playbooks + `side_of_ball` catalog metadata
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** for all **31 Alternate Defensive Playbooks** on cfb.fan (3-2-6 through 4-3 variants, Multiple); defensive schemes use **playbook name = scheme** (e.g. **3-4** → **3-4**).
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** **31** new generic defensive **`TeamPlaybookSeed`** modules (**486 formations, 6,268 plays**) plus **`cfb27-multiple-def.ts`** for defensive **Multiple** (offensive **Multiple** remains in **`cfb27-multiple.ts`**).
+- **[`sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql`](sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql):** Added **`side_of_ball text NOT NULL DEFAULT 'offense'`** to **`cfb26_plays`** (applied via **`supabase db push`**).
+- **[`sideline/lib/seed/types.ts`](sideline/lib/seed/types.ts), [`sideline/scripts/seed-playbooks.ts`](sideline/scripts/seed-playbooks.ts):** **`sideOfBall: 'offense' | 'defense'`** on **`TeamPlaybookSeed`**; seed runner persists **`side_of_ball`** on every upsert.
+- **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts), [`sideline/lib/seed/scheme-weights-archetypes.ts`](sideline/lib/seed/scheme-weights-archetypes.ts):** Added all **30** defensive scheme names to **`ALL_SCHEMES`** / **`TEAM_SCHEMES`** (plus archetype weight defaults).
+- All **180** CFB27 seed files and CFB26 seed modules updated with **`sideOfBall`**; reseeded into **`cfb26_plays`**.
+
+### Why
+
+CFB27 has no team-specific defensive playbooks — the full defensive catalog is EA's generic defensive playbook list on cfb.fan. **`side_of_ball`** makes offense vs defense explicit in the database (including disambiguating offensive vs defensive **Multiple**) so future UI can filter by **`game_version`** + **`side_of_ball`** without name heuristics.
+
+### Status after this push
+
+- CFB27 catalog complete: **149 offense + 31 defense playbooks**, **74,761 plays** (paginated query); **`side_of_ball`** values **`offense`** / **`defense`** only, **0** NULL rows.
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Data: CFB27 generic offensive playbooks + catalog dropdown sections
 
 ### What
