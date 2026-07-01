@@ -24,6 +24,7 @@ export function CallSheetBuilderSituationBrowsePanel({
   addDisabled,
   qaStaticEntries,
   qaInitialUi,
+  catalogSideOfBall,
 }: {
   open: boolean;
   onClose: () => void;
@@ -40,6 +41,7 @@ export function CallSheetBuilderSituationBrowsePanel({
   addDisabled?: boolean;
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
+  catalogSideOfBall?: import("@/lib/constants").CatalogSideOfBall;
 }) {
   if (!open) return null;
 
@@ -85,6 +87,7 @@ export function CallSheetBuilderSituationBrowsePanel({
           addDisabled={addDisabled}
           qaStaticEntries={qaStaticEntries}
           qaInitialUi={qaInitialUi}
+          catalogSideOfBall={catalogSideOfBall}
         />
       </div>
     </aside>

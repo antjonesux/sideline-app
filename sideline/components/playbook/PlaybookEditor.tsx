@@ -927,6 +927,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         onClose: closePlayBrowser,
         cfb26Playbook: cfb26,
         scenarioName: browsePlaybookMode ? "" : activeScenario,
+        catalogSideOfBall: catalogMeta?.side_of_ball,
         panelTitle: browsePlaybookMode ? BUILDER_BROWSE_PLAYBOOK : BUILDER_ADD_PLAY,
         panelSubtitle: browsePlaybookMode
           ? "Tap + to add to a situation"
@@ -1246,6 +1247,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         open={drawerOpen && !usePlayBrowserPanel}
         onClose={closePlayBrowser}
         cfb26Playbook={cfb26}
+        catalogSideOfBall={catalogMeta?.side_of_ball}
         scenarioName={browsePlaybookMode ? "" : activeScenario}
         onPick={onDrawerPick}
         addedPlayKeys={drawerDisplayedPlayKeys}

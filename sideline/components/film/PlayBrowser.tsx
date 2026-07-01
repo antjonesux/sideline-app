@@ -11,6 +11,12 @@ import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } f
 import { sheetPlayComboKey } from "@/lib/playbookUtils";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 import { playSheetFormationTileClass } from "@/lib/constants/designTokens";
+import type { CatalogSideOfBall } from "@/lib/constants";
+import {
+  DEFENSE_TRAILING_FORMATION_GROUPS,
+  OFFENSE_TRAILING_FORMATION_GROUPS,
+  pinTrailingFormationGroups,
+} from "@/lib/playbooks/formation-types";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
 
 type BrowserStep = "formations" | "plays";
@@ -45,6 +51,8 @@ interface PlayBrowserProps {
   addDisabled?: boolean;
   /** Play Sheet Add Play: parent owns the drawer header when embedded inline. */
   onPlaySheetNavChange?: (nav: PlaySheetAddNav) => void;
+  /** Play Sheet add-play: pins Goal Line + Hail Mary (offense) or Goal Line + Prevent (defense) to the bottom. */
+  catalogSideOfBall?: CatalogSideOfBall;
 }
 
 export type PlaySheetAddNav = {
@@ -80,6 +88,7 @@ export function PlayBrowser({
   addedPlayKeys,
   addDisabled = false,
   onPlaySheetNavChange,
+  catalogSideOfBall,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
@@ -155,7 +164,14 @@ export function PlayBrowser({
   }, [query, entries, excludePlaySheetSpecialTeams]);
 
   const displayGroups = useMemo((): FormationGroup[] => {
-    if (excludePlaySheetSpecialTeams) return groups;
+    if (excludePlaySheetSpecialTeams) {
+      const side =
+        catalogSideOfBall ??
+        (groups.some((g) => g.group === "Prevent") ? "defense" : "offense");
+      const trailing =
+        side === "defense" ? DEFENSE_TRAILING_FORMATION_GROUPS : OFFENSE_TRAILING_FORMATION_GROUPS;
+      return pinTrailingFormationGroups(groups, trailing);
+    }
     const stBlock: FormationGroup = {
       group: "Special Teams",
       formations: [{ name: "Special Teams", plays: [...FILM_LOGGER_SPECIAL_TEAMS_PLAYS] }],
@@ -165,7 +181,7 @@ export function PlayBrowser({
     const next = [...groups];
     next.splice(glIdx + 1, 0, stBlock);
     return next;
-  }, [groups, excludePlaySheetSpecialTeams]);
+  }, [groups, excludePlaySheetSpecialTeams, catalogSideOfBall]);
 
   const selectedPlays = useMemo(() => {
     if (!selectedFormation) return [];

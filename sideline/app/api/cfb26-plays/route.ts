@@ -1,5 +1,5 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { resolveCatalogGameVersionForPlaybook } from "@/lib/playbooks/catalog-playbook-server";
 import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { normalizePlayLabel } from "@/lib/normalizePlayLabel";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
@@ -74,12 +74,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "playbook query parameter is required" }, { status: 400, headers: NO_STORE });
   }
 
+  const gameVersion = await resolveCatalogGameVersionForPlaybook(
+    playbook,
+    req.nextUrl.searchParams.get("game_version"),
+  );
+
   const listAll = req.nextUrl.searchParams.get("list") === "all";
   if (listAll && !formation) {
     const { data, error } = await supabase
       .from("playbooks")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
-      .ilike("game_version", CFB_CATALOG_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
       .order("formation", { ascending: true })
       .order("play_name", { ascending: true })
@@ -109,7 +114,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from("playbooks")
       .select("play_name, is_new_in_26")
-      .ilike("game_version", CFB_CATALOG_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
       .eq("formation", formation)
       .order("play_name", { ascending: true });
@@ -139,7 +144,7 @@ export async function GET(req: NextRequest) {
     let searchQuery = supabase
       .from("playbooks")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
-      .ilike("game_version", CFB_CATALOG_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("playbook", playbookIlikeExactPattern(playbook));
     for (const term of terms) {
       const pattern = `%${term}%`.replace(/"/g, '""');
@@ -183,7 +188,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from("playbooks")
     .select("formation, formation_type")
-    .ilike("game_version", CFB_CATALOG_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(playbook));
 
   if (error) {

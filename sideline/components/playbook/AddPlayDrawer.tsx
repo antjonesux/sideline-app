@@ -6,6 +6,7 @@ import { PlayBrowser, stripFormationGroupPrefix, type PlaySheetAddNav } from "@/
 import { IconBackButton } from "@/components/shared/IconBackButton";
 import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import { BUILDER_ADD_PLAY, BUILDER_ADD_PLAY_FOR_SITUATION } from "@/lib/coachCopy";
+import type { CatalogSideOfBall } from "@/lib/constants";
 import { callSheetScenarioDisplayName } from "@/lib/playbookUtils";
 import { cn, normalizePlayName } from "@/lib/utils";
 
@@ -26,6 +27,8 @@ type AddPlayDrawerProps = {
   /** Local QA only: skip catalog fetch in embedded PlayBrowser. */
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
+  /** Pins Goal Line + Hail Mary / Prevent to the bottom of the formation list. */
+  catalogSideOfBall?: CatalogSideOfBall;
   /** `panel` embeds browse UI in the situation side rail without modal chrome. */
   shell?: "modal" | "panel";
 };
@@ -45,6 +48,7 @@ export function AddPlayDrawer({
   addDisabled = false,
   qaStaticEntries,
   qaInitialUi,
+  catalogSideOfBall,
   shell = "modal",
 }: AddPlayDrawerProps) {
   const [nav, setNav] = useState<PlaySheetAddNav>(() => {
@@ -110,6 +114,7 @@ export function AddPlayDrawer({
         excludePlaySheetSpecialTeams
         qaStaticEntries={qaStaticEntries}
         qaInitialUi={qaInitialUi}
+        catalogSideOfBall={catalogSideOfBall}
         onSelect={(play) => {
           void (async () => {
             try {

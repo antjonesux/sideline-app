@@ -12,6 +12,39 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Play Sheet: Goal Line and Hail Mary / Prevent at bottom of add-play formations
+
+### What
+
+- **[`sideline/lib/playbooks/formation-types.ts`](sideline/lib/playbooks/formation-types.ts), [`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx):** Add-play formation browse pins **Goal Line** and **Hail Mary** to the bottom for offense, and **Goal Line** and **Prevent** for defense. Side comes from catalog metadata when available, or is inferred from formation groups.
+- **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx), [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Thread **`catalogSideOfBall`** into the browse UI.
+
+### Why
+
+Situational packages (goal line, hail mary / prevent) should appear last when coaches are picking formations to add to a call sheet.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-07-01 — Play Sheet: defensive playbook browse formations
+
+### What
+
+- **[`sideline/app/api/cfb26-plays/route.ts`](sideline/app/api/cfb26-plays/route.ts), [`sideline/lib/playbooks/catalog-playbook-server.ts`](sideline/lib/playbooks/catalog-playbook-server.ts):** Play catalog API resolves **`game_version`** from the selected playbook name (CFB27 for defensive playbooks) instead of always querying CFB26. Fixes empty formation lists when browsing a defensive call sheet playbook.
+
+### Why
+
+Defensive playbooks live in the CFB27 catalog; the browse UI loads formations through `/api/cfb26-plays`, which previously hardcoded `cfb26` and returned no rows.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Play Sheet: catalog metadata on cards and defensive default situations
 
 ### What
