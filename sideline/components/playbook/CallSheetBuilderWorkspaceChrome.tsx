@@ -2,8 +2,11 @@
 
 import { CallSheetBuilderSituationBrowsePanel } from "@/components/playbook/CallSheetBuilderSituationBrowsePanel";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "@/components/playbook/CallSheetEditorTabBar";
+import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
 import { IconBackButton } from "@/components/shared/IconBackButton";
 import { BUILDER_ADD_SITUATION, BUILDER_BROWSE_PLAYBOOK } from "@/lib/coachCopy";
+import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
+import type { CatalogPlaybookLookup } from "@/lib/playbooks/catalog-playbooks";
 import {
   appShellBuilderAddSituationClass,
   appShellBuilderBrowseButtonClass,
@@ -23,6 +26,8 @@ export function CallSheetBuilderWorkspaceChrome({
   backHref,
   sheetName,
   cfb26Playbook,
+  scheme,
+  catalogMeta,
   situationCount,
   playCount,
   activeTab,
@@ -37,6 +42,8 @@ export function CallSheetBuilderWorkspaceChrome({
   backHref: string;
   sheetName: string;
   cfb26Playbook: string;
+  scheme?: string;
+  catalogMeta?: CatalogPlaybookLookup | null;
   situationCount: number;
   playCount: number;
   activeTab: CallSheetEditorTab;
@@ -63,7 +70,16 @@ export function CallSheetBuilderWorkspaceChrome({
                 <IconBackButton href={backHref} aria-label="Back to play sheets" />
                 <div className="min-w-0">
                   <h1 className={`${appShellBuilderTitleClass} min-w-0 truncate`}>{sheetName}</h1>
-                  <p className="mt-0.5 font-body text-sm text-slate-400">Built from {cfb26Playbook} playbook</p>
+                  {catalogMeta ? (
+                    <CallSheetMetadataRow
+                      labels={callSheetDetailsMetadataLabels(catalogMeta, scheme, cfb26Playbook)}
+                      className="mt-0.5 font-body text-sm text-slate-400"
+                    />
+                  ) : (
+                    <p className="mt-0.5 truncate font-body text-sm text-slate-400">
+                      Built from {cfb26Playbook} playbook
+                    </p>
+                  )}
                 </div>
               </div>
 

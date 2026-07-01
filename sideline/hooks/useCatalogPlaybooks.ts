@@ -1,8 +1,22 @@
 "use client";
 
-import { fetchCatalogPlaybooksList } from "@/lib/playbooks/catalog-playbooks";
+import { fetchCatalogPlaybooksList, lookupCatalogPlaybookMeta } from "@/lib/playbooks/catalog-playbooks";
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+
+export const catalogPlaybookMetaQueryKey = (playbookName: string) =>
+  ["catalog-playbook-meta", playbookName.trim()] as const;
+
+export function useCatalogPlaybookMeta(playbookName: string | undefined) {
+  const trimmed = playbookName?.trim() ?? "";
+  return useQuery({
+    queryKey: catalogPlaybookMetaQueryKey(trimmed),
+    queryFn: () => lookupCatalogPlaybookMeta(trimmed),
+    enabled: Boolean(trimmed),
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 type Options = {
   gameVersion: CatalogGameVersion | null;

@@ -1,4 +1,4 @@
-import { DEFAULT_SHEET_SITUATIONS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
+import { DEFAULT_OFFENSIVE_SITUATIONS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { PlaybookSummary, SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -50,7 +50,7 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
     cfb26_playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
     scheme: "Spread",
     scenario_filled: 4,
-    scenario_total: DEFAULT_SHEET_SITUATIONS.length,
+    scenario_total: DEFAULT_OFFENSIVE_SITUATIONS.length,
     play_count: 12,
     updated_at: new Date().toISOString(),
   },
@@ -60,14 +60,14 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
     cfb26_playbook: "Ohio State",
     scheme: "Spread",
     scenario_filled: 2,
-    scenario_total: DEFAULT_SHEET_SITUATIONS.length,
+    scenario_total: DEFAULT_OFFENSIVE_SITUATIONS.length,
     play_count: 6,
     updated_at: new Date(Date.now() - 3 * 86_400_000).toISOString(),
   },
 ];
 
 export function playSheetQaScenarios(filledScenario: string, plays: SheetPlayRow[]): SheetScenarioBlock[] {
-  return DEFAULT_SHEET_SITUATIONS.map((situation, index) =>
+  return DEFAULT_OFFENSIVE_SITUATIONS.map((situation, index) =>
     qaScenarioBlock(
       situation.scenario,
       index,
@@ -80,7 +80,7 @@ export function playSheetQaScenarios(filledScenario: string, plays: SheetPlayRow
 export const playSheetQaRunGamePlays = playSheetQaSheetPlays;
 export const playSheetQaGoToPlays = playSheetQaSheetPlays.slice(0, 2);
 
-export const playSheetQaEditorScenarios: SheetScenarioBlock[] = DEFAULT_SHEET_SITUATIONS.map((situation, index) => {
+export const playSheetQaEditorScenarios: SheetScenarioBlock[] = DEFAULT_OFFENSIVE_SITUATIONS.map((situation, index) => {
   const goToSubset = playSheetQaSheetPlays.slice(0, 2);
   const plays =
     situation.scenario === GO_TO_PLAYS_SCENARIO
@@ -91,7 +91,7 @@ export const playSheetQaEditorScenarios: SheetScenarioBlock[] = DEFAULT_SHEET_SI
   return qaScenarioBlock(situation.scenario, index, plays);
 });
 
-export const playSheetQaEmptyScenarios: SheetScenarioBlock[] = DEFAULT_SHEET_SITUATIONS.map((situation, index) =>
+export const playSheetQaEmptyScenarios: SheetScenarioBlock[] = DEFAULT_OFFENSIVE_SITUATIONS.map((situation, index) =>
   qaScenarioBlock(situation.scenario, index, []),
 );
 

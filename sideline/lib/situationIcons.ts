@@ -1,4 +1,5 @@
 import {
+  User,
   Zap,
   Flame,
   Rocket,
@@ -21,6 +22,7 @@ import {
 
 export const SITUATION_ICON_MAP: Record<string, LucideIcon> = {
   Zap,
+  User,
   Flame,
   Rocket,
   Swords,

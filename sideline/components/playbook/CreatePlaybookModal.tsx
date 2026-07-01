@@ -182,7 +182,11 @@ export function CreatePlaybookModal({
       const res = await fetch("/api/playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: sheetName, cfb26_playbook: selectedPlaybook!.team_name }),
+        body: JSON.stringify({
+          name: sheetName,
+          cfb26_playbook: selectedPlaybook!.team_name,
+          side_of_ball: selectedSide,
+        }),
       });
       const j = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {

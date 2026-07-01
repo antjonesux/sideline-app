@@ -38,8 +38,8 @@ export type CallSheetScenario = (typeof CALL_SHEET_SCENARIOS)[number];
 /** First tactical bucket — Go-To is a normal situation, not a separate data model. */
 export const GO_TO_PLAYS_SCENARIO = CALL_SHEET_SCENARIOS[0];
 
-/** Default situations seeded on new call sheets — database is runtime source of truth. */
-export const DEFAULT_SHEET_SITUATIONS = [
+/** Default situations seeded on new offensive call sheets — database is runtime source of truth. */
+export const DEFAULT_OFFENSIVE_SITUATIONS = [
   { scenario: "Go-To Plays", description: "Your most trusted plays", icon: "Star", color: "amber", isLocked: true },
   { scenario: "Red Zone", description: "Punch it in", icon: "Flag", color: "red", isLocked: false },
   { scenario: "Run Game", description: "Establish the run", icon: "Shield", color: "emerald", isLocked: false },
@@ -47,6 +47,27 @@ export const DEFAULT_SHEET_SITUATIONS = [
   { scenario: "Man Beaters", description: "Quick wins vs man coverage", icon: "Crosshair", color: "violet", isLocked: false },
   { scenario: "Zone Beaters", description: "Read the zone and attack", icon: "Eye", color: "rose", isLocked: false },
 ] as const;
+
+/** Default situations seeded on new defensive call sheets. */
+export const DEFAULT_DEFENSIVE_SITUATIONS = [
+  { scenario: "Go-To Plays", description: "Your most trusted calls", icon: "Star", color: "amber", isLocked: true },
+  { scenario: "Red Zone", description: "Protect the goal line", icon: "Flag", color: "red", isLocked: false },
+  { scenario: "Stop the Run", description: "Shut down the ground game", icon: "Shield", color: "emerald", isLocked: false },
+  { scenario: "Man-to-Man", description: "Lock down your assignment", icon: "User", color: "violet", isLocked: false },
+  { scenario: "Zone Coverage", description: "Defend the deep field", icon: "Eye", color: "rose", isLocked: false },
+  { scenario: "Send the Blitz", description: "Create pressure", icon: "Zap", color: "orange", isLocked: false },
+] as const;
+
+export type DefaultSheetSituation = {
+  scenario: string;
+  description: string;
+  icon: string;
+  color: string;
+  isLocked: boolean;
+};
+
+/** @deprecated Use `DEFAULT_OFFENSIVE_SITUATIONS`. */
+export const DEFAULT_SHEET_SITUATIONS = DEFAULT_OFFENSIVE_SITUATIONS;
 
 /** 16 selectable Lucide icon names for custom situations. Star is reserved for Go-to Plays. */
 export const SITUATION_PRESET_ICONS = [
@@ -215,8 +236,23 @@ export const CATALOG_SIDE_OF_BALL_LABELS: Record<CatalogSideOfBall, string> = {
   defense: "Defense",
 };
 
+/** Uppercase badge copy for call sheet metadata (`OFFENSE` / `DEFENSE`). */
+export const CATALOG_SIDE_OF_BALL_BADGE_LABELS: Record<CatalogSideOfBall, string> = {
+  offense: "OFFENSE",
+  defense: "DEFENSE",
+};
+
+/** Compact game label for call sheet metadata rows (`CFB27`, `CFB26`). */
+export function catalogGameVersionCompactLabel(version: CatalogGameVersion): string {
+  return version.toUpperCase();
+}
+
 export function parseCatalogSideOfBall(raw: string | null | undefined): CatalogSideOfBall | null {
   const v = (raw ?? "").trim().toLowerCase();
   if (v === "offense" || v === "defense") return v;
   return null;
+}
+
+export function defaultSheetSituationsForSide(sideOfBall: CatalogSideOfBall): readonly DefaultSheetSituation[] {
+  return sideOfBall === "defense" ? DEFAULT_DEFENSIVE_SITUATIONS : DEFAULT_OFFENSIVE_SITUATIONS;
 }

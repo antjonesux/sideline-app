@@ -64,6 +64,9 @@ import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
 import { SituationFormModal, type SituationFormValues } from "./SituationFormModal";
 import { SituationList } from "./SituationList";
+import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
+import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
+import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
 
 const STALE_SCENARIO_MS = 5 * 60 * 1000;
 
@@ -307,6 +310,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     // Legacy rows can store a display label in `playbook`; pass through only when it maps to a known catalog entry.
     return optionByLower.get(legacyValue.toLowerCase()) ?? "";
   }, [sheet, cfb26PlaybookOptions]);
+
+  const { data: catalogMeta } = useCatalogPlaybookMeta(cfb26);
 
   const invalidateSheet = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
@@ -1113,6 +1118,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               backHref="/playbook"
               sheetName={sheet.name}
               cfb26Playbook={cfb26}
+              scheme={sheet.scheme}
+              catalogMeta={catalogMeta}
               situationCount={scenarios.length}
               playCount={totalSheetPlays}
               activeTab={editorTab}
@@ -1147,6 +1154,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 backHref="/playbook"
                 sheetName={sheet.name}
                 cfb26Playbook={cfb26}
+                scheme={sheet.scheme}
+                catalogMeta={catalogMeta}
               />
               <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} className="w-full" />
               {editorTab === "situations" ? (
@@ -1180,7 +1189,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheet.name}</h1>
-                  <p className="mt-1 font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
+                  {catalogMeta ? (
+                    <CallSheetMetadataRow
+                      labels={callSheetDetailsMetadataLabels(catalogMeta, sheet.scheme, cfb26)}
+                      className="mt-1 font-body text-sm text-slate-400"
+                    />
+                  ) : (
+                    <p className="mt-1 truncate font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
+                  )}
                 </div>
                 {!onboardingEditor ? (
                   <button

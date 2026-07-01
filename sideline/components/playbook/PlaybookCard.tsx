@@ -1,9 +1,12 @@
 "use client";
 
 import { EditPlaybookModal } from "@/components/playbook/EditPlaybookModal";
+import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
+import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -28,6 +31,9 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
+  const { data: catalogMeta } = useCatalogPlaybookMeta(item.cfb26_playbook);
+
+  const fallbackMeta = item.scheme || `Built from ${item.cfb26_playbook} playbook`;
 
   async function confirmDeletePlaybook() {
     setDeleteBusy(true);
@@ -64,9 +70,14 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
           <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
             {item.name}
           </h2>
-          <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">
-            {item.scheme || `Built from ${item.cfb26_playbook} playbook`}
-          </p>
+          {catalogMeta ? (
+            <CallSheetMetadataRow
+              labels={callSheetDetailsMetadataLabels(catalogMeta, item.scheme, item.cfb26_playbook)}
+              className="mt-1 font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]"
+            />
+          ) : (
+            <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">{fallbackMeta}</p>
+          )}
         </div>
       </Link>
 

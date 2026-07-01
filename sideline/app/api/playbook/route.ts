@@ -1,4 +1,4 @@
-import { DEFAULT_SHEET_SITUATIONS } from "@/lib/constants";
+import { defaultSheetSituationsForSide, parseCatalogSideOfBall } from "@/lib/constants";
 import { maybeSetActiveOnCreate, readActiveCallSheetId } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { sheetCfb26Playbook } from "@/lib/playbookUtils";
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let body: { name?: string; cfb26_playbook?: string };
+  let body: { name?: string; cfb26_playbook?: string; side_of_ball?: string };
   try {
     body = await req.json();
   } catch {
@@ -119,6 +119,17 @@ export async function POST(req: NextRequest) {
   const cfb26_playbook = String(body.cfb26_playbook ?? "").trim();
   if (!name || !cfb26_playbook) {
     return NextResponse.json({ error: "name and cfb26_playbook are required" }, { status: 400 });
+  }
+
+  let sideOfBall = parseCatalogSideOfBall(body.side_of_ball);
+  if (!sideOfBall) {
+    const { data: catalogRows } = await supabase
+      .from("playbooks")
+      .select("side_of_ball")
+      .eq("playbook", cfb26_playbook)
+      .not("playbook", "is", null)
+      .limit(1);
+    sideOfBall = parseCatalogSideOfBall(catalogRows?.[0]?.side_of_ball as string | undefined) ?? "offense";
   }
 
   const { data: schemeRow } = await supabase
@@ -148,7 +159,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
-  const scenarioRows = DEFAULT_SHEET_SITUATIONS.map((situation, index) => ({
+  const defaultSituations = defaultSheetSituationsForSide(sideOfBall);
+  const scenarioRows = defaultSituations.map((situation, index) => ({
     user_id: user.id,
     play_sheet_id: sheet.id,
     scenario: situation.scenario,

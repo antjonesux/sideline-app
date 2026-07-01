@@ -10,6 +10,29 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+---
+
+## 2026-07-01 — Play Sheet: catalog metadata on cards and defensive default situations
+
+### What
+
+- **[`sideline/components/playbook/PlaybookCard.tsx`](sideline/components/playbook/PlaybookCard.tsx), [`CallSheetBuilderSheetHeader.tsx`](sideline/components/playbook/CallSheetBuilderSheetHeader.tsx), [`CallSheetBuilderWorkspaceChrome.tsx`](sideline/components/playbook/CallSheetBuilderWorkspaceChrome.tsx), [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Call sheet cards and details headers show catalog metadata as plain text — game version, side of ball, scheme, and source playbook — separated by `/` (e.g. `CFB27 / Offense / Spread / Alabama`). Defensive sheets omit the playbook when it matches the scheme name.
+- **[`sideline/components/playbook/CallSheetMetadataRow.tsx`](sideline/components/playbook/CallSheetMetadataRow.tsx), [`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts), [`sideline/hooks/useCatalogPlaybooks.ts`](sideline/hooks/useCatalogPlaybooks.ts):** Shared metadata label helpers and cached catalog lookup via **`useCatalogPlaybookMeta`**.
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts):** Renamed **`DEFAULT_OFFENSIVE_SITUATIONS`** (unchanged content); added **`DEFAULT_DEFENSIVE_SITUATIONS`** and **`defaultSheetSituationsForSide()`** for side-aware sheet seeding.
+- **[`sideline/app/api/playbook/route.ts`](sideline/app/api/playbook/route.ts), [`CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx):** New sheets seed offensive or defensive default situations based on **`side_of_ball`** (from create payload or catalog lookup). Existing sheets unchanged.
+- **[`sideline/lib/situationIcons.ts`](sideline/lib/situationIcons.ts):** Added **`User`** icon for defensive Man-to-Man default.
+
+### Why
+
+CFB27 defensive playbooks need distinct default situations and immediate visual context (game, side, scheme, playbook) on list cards and sheet headers without redesigning the card or editor chrome.
+
+### Status
+
+- No schema changes; existing sheets retain their seeded situations.
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Play Sheet: Game + side playbook filtering on create and edit
 
 ### What

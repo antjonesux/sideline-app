@@ -5,11 +5,14 @@ import {
   CALL_SHEET_SCENARIO_SHORT,
   CALL_SHEET_SCENARIOS,
   CALL_SHEET_VIEWER_SCENARIO_HELP,
+  CATALOG_SIDE_OF_BALL_LABELS,
   GO_TO_PLAYS_SCENARIO,
   SCENARIO_SHORT,
   SCENARIOS,
+  catalogGameVersionCompactLabel,
 } from "@/lib/constants";
 import type { CallSheetScenario, PlaySheetScenario } from "@/lib/constants";
+import type { CatalogPlaybookLookup } from "@/lib/playbooks/catalog-playbooks";
 import type { SheetScenarioBlock } from "@/lib/types";
 import { normalizePlayName } from "@/lib/utils";
 
@@ -103,6 +106,42 @@ export function sheetCfb26Playbook(row: { cfb26_playbook?: string | null; playbo
   const v = (row.cfb26_playbook ?? "").trim();
   if (v) return v;
   return (row.playbook ?? "").trim();
+}
+
+function catalogLabelsMatch(a: string, b: string): boolean {
+  return a.localeCompare(b, undefined, { sensitivity: "accent" }) === 0;
+}
+
+/** Call sheet list card metadata: game version, side of ball, scheme. */
+export function callSheetListMetadataLabels(
+  meta: CatalogPlaybookLookup,
+  scheme?: string | null,
+): string[] {
+  const labels = [
+    catalogGameVersionCompactLabel(meta.game_version),
+    CATALOG_SIDE_OF_BALL_LABELS[meta.side_of_ball],
+  ];
+  const schemeTrim = scheme?.trim();
+  if (schemeTrim) labels.push(schemeTrim);
+  return labels;
+}
+
+/** Call sheet details metadata: adds source playbook when it adds context beyond scheme. */
+export function callSheetDetailsMetadataLabels(
+  meta: CatalogPlaybookLookup,
+  scheme: string | undefined | null,
+  playbookName: string,
+): string[] {
+  const labels = callSheetListMetadataLabels(meta, scheme);
+  const schemeTrim = scheme?.trim();
+  const playbookTrim = playbookName.trim();
+  const omitPlaybook =
+    meta.side_of_ball === "defense" &&
+    schemeTrim &&
+    playbookTrim &&
+    catalogLabelsMatch(schemeTrim, playbookTrim);
+  if (playbookTrim && !omitPlaybook) labels.push(playbookTrim);
+  return labels;
 }
 
 export function orderedScenarioList(): typeof SCENARIOS {

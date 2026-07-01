@@ -1,5 +1,6 @@
 import {
-  DEFAULT_SHEET_SITUATIONS,
+  DEFAULT_DEFENSIVE_SITUATIONS,
+  DEFAULT_OFFENSIVE_SITUATIONS,
   GO_TO_PLAYS_SCENARIO,
   SITUATION_PRESET_COLORS,
   SITUATION_PRESET_ICONS,
@@ -62,4 +63,4 @@ export function isGoToPlaysSituation(row: Pick<SituationRow, "scenario" | "is_lo
   return row.is_locked || row.scenario === GO_TO_PLAYS_SCENARIO || row.scenario === "Go-to Plays";
 }
 
-export { DEFAULT_SHEET_SITUATIONS };
+export { DEFAULT_OFFENSIVE_SITUATIONS, DEFAULT_DEFENSIVE_SITUATIONS };
