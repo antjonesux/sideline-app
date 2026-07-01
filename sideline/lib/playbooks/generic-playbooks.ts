@@ -1,3 +1,5 @@
+import type { CatalogSideOfBall } from "@/lib/constants";
+
 /** EA generic offensive playbooks (not tied to a college team). */
 export const GENERIC_OFFENSIVE_PLAYBOOKS = [
   "Air Raid",
@@ -26,10 +28,32 @@ export const PLAYBOOK_CATALOG_SECTIONS = [
   { id: "generic", label: "Generic Playbooks" },
 ] as const;
 
-export type PlaybookCatalogSectionId = (typeof PLAYBOOK_CATALOG_SECTIONS)[number]["id"];
+export const OFFENSE_CATALOG_SECTIONS = [
+  { id: "team", label: "Team Offensive Playbooks" },
+  { id: "generic", label: "Generic Offensive Playbooks" },
+] as const;
+
+export const DEFENSE_CATALOG_SECTIONS = [{ id: "generic", label: "Generic Defensive Playbooks" }] as const;
+
+export type PlaybookCatalogSectionId =
+  | (typeof PLAYBOOK_CATALOG_SECTIONS)[number]["id"]
+  | (typeof OFFENSE_CATALOG_SECTIONS)[number]["id"]
+  | (typeof DEFENSE_CATALOG_SECTIONS)[number]["id"];
+
+export function getCatalogSectionsForSide(side: CatalogSideOfBall) {
+  return side === "defense" ? DEFENSE_CATALOG_SECTIONS : OFFENSE_CATALOG_SECTIONS;
+}
 
 export function getCatalogPlaybookSection(playbookName: string): PlaybookCatalogSectionId {
   return isGenericOffensivePlaybook(playbookName) ? "generic" : "team";
+}
+
+export function getCatalogPlaybookSectionForSide(
+  playbookName: string,
+  side: CatalogSideOfBall,
+): PlaybookCatalogSectionId {
+  if (side === "defense") return "generic";
+  return getCatalogPlaybookSection(playbookName);
 }
 
 export function sortCatalogPlaybookNames(playbooks: string[]): string[] {
@@ -44,6 +68,16 @@ export function sortCatalogPlaybookNames(playbooks: string[]): string[] {
   team.sort((a, b) => a.localeCompare(b));
   generic.sort((a, b) => a.localeCompare(b));
   return [...team, ...generic];
+}
+
+export function sortCatalogPlaybookNamesForSide(playbooks: string[], side: CatalogSideOfBall): string[] {
+  if (side === "defense") {
+    return [...playbooks]
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  }
+  return sortCatalogPlaybookNames(playbooks);
 }
 
 export function sortByCatalogPlaybookSection<T extends { playbook_name: string }>(rows: T[]): T[] {

@@ -204,3 +204,19 @@ export function parseCatalogGameVersion(raw: string | null | undefined): Catalog
   if (v === "cfb26" || v === "cfb27") return v;
   return DEFAULT_CATALOG_GAME_VERSION;
 }
+
+/** `playbooks.side_of_ball` — offense or defense catalog slice. */
+export type CatalogSideOfBall = "offense" | "defense";
+
+export const CATALOG_SIDES_OF_BALL = ["offense", "defense"] as const satisfies readonly CatalogSideOfBall[];
+
+export const CATALOG_SIDE_OF_BALL_LABELS: Record<CatalogSideOfBall, string> = {
+  offense: "Offense",
+  defense: "Defense",
+};
+
+export function parseCatalogSideOfBall(raw: string | null | undefined): CatalogSideOfBall | null {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (v === "offense" || v === "defense") return v;
+  return null;
+}

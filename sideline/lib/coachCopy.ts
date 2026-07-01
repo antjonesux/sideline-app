@@ -133,6 +133,9 @@ export const PLAYBOOK_NEW_SHEET_SUBTITLE =
   "Build your calls by situation so you know what you trust before kickoff.";
 export const PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER = "Base vs 3–3–5, Short Yardage, Red Zone";
 export const PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER = "Search playbooks";
+export const PLAYBOOK_SELECT_PLACEHOLDER = "Select a playbook";
+export const PLAYBOOK_SELECT_LOADING = "Loading playbooks...";
+export const PLAYBOOK_SELECT_EMPTY = "No playbooks available.";
 /** Create play sheet — no catalog playbooks for the selected game version. */
 export const PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE = "No playbooks available for this game yet.";
 export const PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY =

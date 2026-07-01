@@ -8,6 +8,29 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+---
+
+## 2026-07-01 — Play Sheet: Game + side playbook filtering on create and edit
+
+### What
+
+- **[`sideline/components/playbook/CreatePlaybookModal.tsx`](sideline/components/playbook/CreatePlaybookModal.tsx), [`EditPlaybookModal.tsx`](sideline/components/playbook/EditPlaybookModal.tsx):** Create and edit flows now require **Game → Side of Ball → Playbook**. Offense shows **Team Offensive** + **Generic Offensive** sections; defense shows **Generic Defensive** only. Playbook picker stays disabled until both game and side are selected; changing game clears side and playbook; changing side clears playbook.
+- **[`sideline/components/playbook/CatalogSideOfBallField.tsx`](sideline/components/playbook/CatalogSideOfBallField.tsx):** Shared Offense / Defense toggle field (existing repo toggle styling).
+- **[`sideline/hooks/useCatalogPlaybooks.ts`](sideline/hooks/useCatalogPlaybooks.ts), [`sideline/lib/playbooks/catalog-playbooks.ts`](sideline/lib/playbooks/catalog-playbooks.ts):** Shared catalog fetch and playbook metadata lookup (no duplicate fetch logic in modals).
+- **[`sideline/app/api/cfb26-playbooks/route.ts`](sideline/app/api/cfb26-playbooks/route.ts):** List endpoint requires **`side_of_ball`**; added **`lookup_playbook`** for edit/onboarding hydration from **`playbooks.game_version`** + **`playbooks.side_of_ball`**.
+- **[`sideline/lib/constants.ts`](sideline/lib/constants.ts), [`sideline/lib/playbooks/generic-playbooks.ts`](sideline/lib/playbooks/generic-playbooks.ts), [`sideline/lib/coachCopy.ts`](sideline/lib/coachCopy.ts):** **`CatalogSideOfBall`** types, side-aware section labels, and picker placeholder/loading/empty copy.
+
+### Why
+
+The catalog now spans multiple game versions and both sides of the ball. Filtering the picker by game and side removes ambiguity and prepares the app for CFB27 defensive sheets without hardcoding playbook names.
+
+### Status
+
+- Save/update still persists **`cfb26_playbook`** only (no schema change in this pass).
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Data: Rename `cfb26_plays` catalog table to `playbooks`
 
 ### What

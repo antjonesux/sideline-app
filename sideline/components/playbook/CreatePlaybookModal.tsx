@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { CatalogSideOfBallField } from "@/components/playbook/CatalogSideOfBallField";
 import { BackNavLink } from "@/components/shared/BackNavLink";
 import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import {
@@ -16,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useCatalogPlaybooks } from "@/hooks/useCatalogPlaybooks";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { modalCtaFooterClass, modalDialogTitleClass } from "@/lib/constants/designTokens";
@@ -24,6 +26,7 @@ import {
   CATALOG_GAME_VERSIONS,
   DEFAULT_CATALOG_GAME_VERSION,
   type CatalogGameVersion,
+  type CatalogSideOfBall,
 } from "@/lib/constants";
 import {
   COULDNT_LOAD,
@@ -32,17 +35,20 @@ import {
   PLAYBOOK_CREATE_CTA,
   PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY,
   PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE,
-  PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER,
   PLAYBOOK_NEW_SHEET_NAME_PLACEHOLDER,
   PLAYBOOK_NEW_SHEET_SUBTITLE,
   PLAYBOOK_NEW_SHEET_TITLE,
+  PLAYBOOK_SELECT_EMPTY,
+  PLAYBOOK_SELECT_LOADING,
+  PLAYBOOK_SELECT_PLACEHOLDER,
 } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
 import {
-  getCatalogPlaybookSection,
-  PLAYBOOK_CATALOG_SECTIONS,
-  sortCatalogPlaybookNames,
+  getCatalogPlaybookSectionForSide,
+  getCatalogSectionsForSide,
+  sortCatalogPlaybookNamesForSide,
 } from "@/lib/playbooks/generic-playbooks";
+import { lookupCatalogPlaybookMeta } from "@/lib/playbooks/catalog-playbooks";
 
 type PlaybookOption = { team_name: string };
 
@@ -78,13 +84,22 @@ export function CreatePlaybookModal({
   const [selectedGameVersion, setSelectedGameVersion] = useState<CatalogGameVersion>(() =>
     initialCfb26Playbook?.trim() ? "cfb26" : DEFAULT_CATALOG_GAME_VERSION,
   );
-  const [playbooks, setPlaybooks] = useState<string[]>([]);
-  const [playbooksLoading, setPlaybooksLoading] = useState(false);
-  const [loadErr, setLoadErr] = useState<string | null>(null);
+  const [selectedSide, setSelectedSide] = useState<CatalogSideOfBall | null>(() =>
+    qaStaticPlaybooks?.length ? "offense" : null,
+  );
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>(null);
   const [busy, setBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const dialogTitleRef = useRef<HTMLHeadingElement>(null);
+
+  const effectiveSide = qaStaticPlaybooks?.length ? ("offense" as const) : selectedSide;
+
+  const { playbooks, loading: playbooksLoading, failed: loadErr } = useCatalogPlaybooks({
+    gameVersion: selectedGameVersion,
+    sideOfBall: effectiveSide,
+    qaStaticPlaybooks,
+    enabled: open,
+  });
 
   useEffect(() => {
     if (variant === "modal" && open) {
@@ -99,48 +114,31 @@ export function CreatePlaybookModal({
   }, [guidedOnboardingFlow]);
 
   useEffect(() => {
-    if (!open || !initialCfb26Playbook?.trim()) return;
-    const want = initialCfb26Playbook.trim().toLowerCase();
-    const match = playbooks.find((p) => p.trim().toLowerCase() === want);
-    if (match) setSelectedPlaybook({ team_name: match });
-  }, [open, initialCfb26Playbook, playbooks]);
-
-  useEffect(() => {
-    if (qaStaticPlaybooks?.length) {
-      setPlaybooks([...qaStaticPlaybooks].sort((a, b) => a.localeCompare(b)));
-      setPlaybooksLoading(false);
-      setLoadErr(null);
-      return;
-    }
+    if (!open || !initialCfb26Playbook?.trim() || qaStaticPlaybooks?.length) return;
     let cancelled = false;
-    setPlaybooksLoading(true);
-    setPlaybooks([]);
-    setLoadErr(null);
     void (async () => {
-      const res = await fetch(
-        `/api/cfb26-playbooks?game_version=${encodeURIComponent(selectedGameVersion)}`,
-      );
-      const j = (await res.json()) as { playbooks?: string[]; error?: string };
+      const trimmed = initialCfb26Playbook.trim();
+      const meta = await lookupCatalogPlaybookMeta(trimmed);
       if (cancelled) return;
-      if (!res.ok) {
-        setLoadErr(COULDNT_LOAD);
-        setPlaybooks([]);
-        setPlaybooksLoading(false);
-        return;
+      if (meta) {
+        setSelectedGameVersion(meta.game_version);
+        setSelectedSide(meta.side_of_ball);
+      } else {
+        setSelectedGameVersion("cfb26");
+        setSelectedSide("offense");
       }
-      setPlaybooks(j.playbooks ?? []);
-      setPlaybooksLoading(false);
+      setSelectedPlaybook({ team_name: trimmed });
     })();
     return () => {
       cancelled = true;
     };
-  }, [qaStaticPlaybooks, selectedGameVersion]);
+  }, [open, initialCfb26Playbook, qaStaticPlaybooks]);
 
   useEffect(() => {
     if (qaStaticPlaybooks?.length || qaPrefill?.playbook?.trim()) return;
-    if (initialCfb26Playbook?.trim() && selectedGameVersion === "cfb26") return;
+    if (initialCfb26Playbook?.trim()) return;
     setSelectedPlaybook(null);
-  }, [selectedGameVersion, qaStaticPlaybooks, qaPrefill?.playbook, initialCfb26Playbook]);
+  }, [selectedGameVersion, selectedSide, qaStaticPlaybooks, qaPrefill?.playbook, initialCfb26Playbook]);
 
   useEffect(() => {
     if (!qaPrefill) return;
@@ -148,15 +146,34 @@ export function CreatePlaybookModal({
     if (qaPrefill.playbook?.trim()) setSelectedPlaybook({ team_name: qaPrefill.playbook.trim() });
   }, [qaPrefill]);
 
-  const options = useMemo<PlaybookOption[]>(
-    () => sortCatalogPlaybookNames(playbooks).map((p) => ({ team_name: p })),
-    [playbooks],
+  const options = useMemo<PlaybookOption[]>(() => {
+    if (!effectiveSide) return [];
+    return sortCatalogPlaybookNamesForSide(playbooks, effectiveSide).map((p) => ({ team_name: p }));
+  }, [playbooks, effectiveSide]);
+
+  const catalogSections = useMemo(
+    () => (effectiveSide ? [...getCatalogSectionsForSide(effectiveSide)] : []),
+    [effectiveSide],
   );
-  const catalogEmpty = !playbooksLoading && !loadErr && playbooks.length === 0;
+
+  const playbookPickerDisabled = !effectiveSide || (!playbooksLoading && !loadErr && playbooks.length === 0);
+  const catalogEmpty = Boolean(effectiveSide) && !playbooksLoading && !loadErr && playbooks.length === 0;
 
   const canSubmit =
     (guidedOnboardingFlow ? ONBOARDING_DEFAULT_SHEET_NAME.trim().length > 0 : name.trim().length > 0) &&
-    Boolean(selectedPlaybook);
+    Boolean(selectedPlaybook) &&
+    Boolean(effectiveSide);
+
+  function handleGameChange(value: CatalogGameVersion) {
+    setSelectedGameVersion(value);
+    if (!qaStaticPlaybooks?.length) setSelectedSide(null);
+    setSelectedPlaybook(null);
+  }
+
+  function handleSideChange(side: CatalogSideOfBall) {
+    setSelectedSide(side);
+    setSelectedPlaybook(null);
+  }
 
   async function createSheetAndNavigate() {
     setBusy(true);
@@ -197,7 +214,7 @@ export function CreatePlaybookModal({
     <>
       {loadErr ? (
         <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-3 font-body text-sm text-amber-100" role="alert">
-          {loadErr}
+          {COULDNT_LOAD}
         </p>
       ) : null}
 
@@ -222,12 +239,7 @@ export function CreatePlaybookModal({
 
         <label className="block space-y-1">
           <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Select Game</span>
-          <Select
-            value={selectedGameVersion}
-            onValueChange={(value) => {
-              setSelectedGameVersion(value as CatalogGameVersion);
-            }}
-          >
+          <Select value={selectedGameVersion} onValueChange={(value) => handleGameChange(value as CatalogGameVersion)}>
             <SelectTrigger className="hs-input h-auto w-full rounded-lg border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:ring-emerald-500/25">
               <SelectValue />
             </SelectTrigger>
@@ -245,6 +257,14 @@ export function CreatePlaybookModal({
           </Select>
         </label>
 
+        {qaStaticPlaybooks?.length ? null : (
+          <CatalogSideOfBallField
+            value={selectedSide}
+            onChange={handleSideChange}
+            disabled={!selectedGameVersion}
+          />
+        )}
+
         <div className="block space-y-1">
           <TeamCombobox<PlaybookOption>
             label="Select Playbook"
@@ -253,24 +273,35 @@ export function CreatePlaybookModal({
             onSelect={setSelectedPlaybook}
             options={options}
             loading={playbooksLoading}
-            disabled={catalogEmpty}
-            placeholder={PLAYBOOK_CREATE_PLAYBOOK_SEARCH_PLACEHOLDER}
-            emptyOptionsMessage={PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE}
+            disabled={playbookPickerDisabled}
+            placeholder={PLAYBOOK_SELECT_PLACEHOLDER}
+            emptyOptionsMessage={PLAYBOOK_SELECT_EMPTY}
             getOptionLabel={(o) => o.team_name}
             getOptionKey={(o) => o.team_name}
             getSearchText={(o) => o.team_name}
-            getOptionSection={(o) => getCatalogPlaybookSection(o.team_name)}
-            optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
+            getOptionSection={
+              effectiveSide
+                ? (o) => getCatalogPlaybookSectionForSide(o.team_name, effectiveSide)
+                : undefined
+            }
+            optionSections={catalogSections}
             showTrailingChevron={false}
             openOnFocus={false}
           />
+          {playbooksLoading && effectiveSide ? (
+            <p className="mt-1 font-body text-xs text-slate-500" role="status">
+              {PLAYBOOK_SELECT_LOADING}
+            </p>
+          ) : null}
           {catalogEmpty ? (
             <div
               className="mt-2 rounded-lg border border-slate-800 bg-slate-950/60 px-4 py-3 text-center"
               role="status"
             >
-              <p className="font-body text-sm font-medium text-white">{PLAYBOOK_CREATE_NO_PLAYBOOKS_HEADLINE}</p>
-              <p className="mt-1 font-body text-xs text-slate-500">{PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY}</p>
+              <p className="font-body text-sm font-medium text-white">{PLAYBOOK_SELECT_EMPTY}</p>
+              {!effectiveSide ? null : (
+                <p className="mt-1 font-body text-xs text-slate-500">{PLAYBOOK_CREATE_NO_PLAYBOOKS_BODY}</p>
+              )}
             </div>
           ) : null}
         </div>
