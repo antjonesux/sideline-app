@@ -36,6 +36,7 @@ const TEAMS = [
   { slug: "north-dakota-state-off", team: "North Dakota State", scheme: "Pro Style" },
   { slug: "delaware-off", team: "Delaware", scheme: "Multiple" },
   { slug: "florida-international-off", team: "Florida International", scheme: "Spread" },
+  { slug: "sacramento-state-off", team: "Sacramento State", scheme: "Spread Option" },
 ];
 
 const BASE_URL = "https://cfb.fan";

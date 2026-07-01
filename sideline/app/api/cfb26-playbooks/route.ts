@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const rows = data ?? [];
     for (const row of rows) {
       const p = String((row as { playbook?: string }).playbook ?? "").trim();
-      if (p) names.add(p);
+      if (p && !p.startsWith("_")) names.add(p);
     }
 
     if (rows.length < pageSize) break;

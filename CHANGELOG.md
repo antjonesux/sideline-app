@@ -8,6 +8,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: Sacramento State CFB27 + catalog dropdown cleanup
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-sacramento-state.ts`](sideline/lib/seed/playbooks/cfb27-sacramento-state.ts):** New offensive **`TeamPlaybookSeed`** for **Sacramento State** (`sacramento-state-off` on cfb.fan) — Brennan Marion Go-Go offense; **27 formations, 455 plays**; seeded into **`cfb26_plays`** with **`game_version: 'cfb27'`**.
+- **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added **Sacramento State** → Spread Option (placeholder until Go-Go is a first-class scheme).
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Added Sacramento State to **`TEAMS`** for future annual pulls.
+- **[`sideline/app/api/cfb26-playbooks/route.ts`](sideline/app/api/cfb26-playbooks/route.ts):** Exclude internal playbooks whose names start with **`_`** from the Create Call Sheet dropdown (e.g. removed **`_cfb27_test`** from coach-facing lists).
+- **Removed** duplicate **`cfb27-florida-international.ts`** — Florida International is already covered by **`cfb27-fiu.ts`**.
+
+### Why
+
+cfb.fan added **Sacramento State** after the original 137-team CFB27 catalog scrape. Coaches searching for the Hornets / Go-Go offense need it in the playbook picker. Duplicate FIU seed file and test playbook rows were polluting the catalog surface.
+
+### Status after this push
+
+- **Sacramento State** verified in Supabase (**455 plays**); cumulative unique CFB27 catalog **138 teams** (137 prior + Sacramento State).
+- `_cfb27_test` removed from database; dropdown API filters underscore-prefixed internal playbooks.
+
+---
+
 ## 2026-07-01 — Data: Revert incidental playType drift on Sessions 1–10 CFB27 seeds
 
 ### What

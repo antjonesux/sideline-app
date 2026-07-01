@@ -98,6 +98,7 @@ export const TEAM_SCHEMES: Record<string, string> = {
   Rice: "Spread Option",
   Rutgers: "Spread",
   "Sam Houston": "Air Raid",
+  "Sacramento State": "Spread Option",
   "San Diego State": "Veer & Shoot",
   "San Jose State": "Run & Shoot",
   SMU: "Spread",
