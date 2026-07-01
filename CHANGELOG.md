@@ -94,6 +94,26 @@ Tablet and desktop Call Sheet editing should feel like one workspace: browse and
 
 ---
 
+## 2026-06-30 — Data: CFB27 Mid G5 seed (Session 5)
+
+### What
+
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven offensive **`TeamPlaybookSeed`** modules — South Florida (USF), East Carolina, Louisiana, Troy, Marshall, Old Dominion, North Texas, Louisiana Tech, Temple, Tulsa, Southern Miss — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (309 formations, 5,085 plays total).
+- Two teams use cfb.fan slugs that differ from the brief (`usf-off`, `southern-miss-off`); seed files are named **`cfb27-south-florida`** and **`cfb27-southern-mississippi`** but **`team`** values match **`TEAM_SCHEMES`** (`USF`, `Southern Miss`).
+- Eight seed files use **`TEAM_SCHEMES`** canonical classifications (e.g. East Carolina → Veer & Shoot, Louisiana → Spread, Troy → Power Spread, North Texas / Louisiana Tech → Air Raid) so the existing seed runner validation passes.
+
+### Why
+
+Session 5 of the CFB27 catalog rollout — mid-tier Group of 5 programs that complete deep-rebuild coverage for dynasty players. Combined with Sessions 1–4, **52 teams** are seeded ahead of Session 6 (final 10 G5).
+
+### Status after this push
+
+- All 11 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **52 teams**, **24,098 plays** (excluding internal test playbook).
+- `npm run build` from `sideline/` passed (seed modules only; no app code changed).
+
+---
+
 ## 2026-06-30 — Data: CFB27 P4 Lower + Elite G5 seed (Session 4)
 
 ### What
