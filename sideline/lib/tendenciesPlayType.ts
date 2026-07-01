@@ -1,4 +1,4 @@
-/** Normalize `cfb26_plays.play_type` (and similar labels) for grouping. */
+/** Normalize `playbooks.play_type` (and similar labels) for grouping. */
 export function normalizePlayTypeKey(raw: string | null | undefined): string {
   if (!raw) return "";
   return raw
@@ -53,7 +53,7 @@ function playNameStartsWith(name: string, prefixes: string[]): boolean {
 
 /**
  * When the play name resolves to one of these granular `deriveCfbPlayTypeFromName` labels,
- * Tendencies prefer that label over a catalog `cfb26_plays.play_type` hit so distribution
+ * Tendencies prefer that label over a catalog `playbooks.play_type` hit so distribution
  * shows Screen / Play Action / RPO / Option instead of generic Pass/Run/Other.
  */
 export function derivedRawOverridesCatalogForTendencies(derived: string): boolean {

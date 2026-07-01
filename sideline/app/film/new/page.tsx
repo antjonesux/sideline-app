@@ -117,7 +117,7 @@ export default function NewGamePage() {
           .order("team_name", { ascending: true })
           .limit(20000),
         supabase
-          .from("cfb26_plays")
+          .from("playbooks")
           .select("playbook")
           .eq("game_version", CFB_CATALOG_GAME_VERSION)
           .not("playbook", "is", null)

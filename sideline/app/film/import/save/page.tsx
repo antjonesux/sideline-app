@@ -95,7 +95,7 @@ export default function FilmImportSavePage() {
         supabase.from("team_offensive_playbooks").select("team_name, playbook_name, scheme_style").order("team_name"),
         supabase.from("team_defensive_schemes").select("team_name, defensive_scheme").order("team_name"),
         supabase
-          .from("cfb26_plays")
+          .from("playbooks")
           .select("playbook")
           .eq("game_version", CFB_CATALOG_GAME_VERSION)
           .not("playbook", "is", null)

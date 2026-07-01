@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
   const listAll = req.nextUrl.searchParams.get("list") === "all";
   if (listAll && !formation) {
     const { data, error } = await supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
       .ilike("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
 
   if (formation) {
     const { data, error } = await supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("play_name, is_new_in_26")
       .ilike("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook))
@@ -137,7 +137,7 @@ export async function GET(req: NextRequest) {
     }
 
     let searchQuery = supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("formation, play_name, formation_type, is_new_in_26, play_type")
       .ilike("game_version", CFB_CATALOG_GAME_VERSION)
       .ilike("playbook", playbookIlikeExactPattern(playbook));
@@ -181,7 +181,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error } = await supabase
-    .from("cfb26_plays")
+    .from("playbooks")
     .select("formation, formation_type")
     .ilike("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(playbook));

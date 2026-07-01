@@ -1,5 +1,5 @@
 /**
- * Seed cfb26_plays from /lib/seed/playbooks/{slug}.ts
+ * Seed playbooks from /lib/seed/playbooks/{slug}.ts
  *
  * Usage:
  *   npm run seed:playbook -- tcu
@@ -23,8 +23,8 @@ import { CFB_CATALOG_GAME_VERSION } from "../lib/constants";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const UNIQUE_CONSTRAINT_SQL = `ALTER TABLE cfb26_plays
-ADD CONSTRAINT cfb26_plays_unique_play
+const UNIQUE_CONSTRAINT_SQL = `ALTER TABLE playbooks
+ADD CONSTRAINT playbooks_unique_play
 UNIQUE (playbook, formation, play_name, game_version);`;
 
 const PROBE_PLAYBOOK = "__sideline_seed_probe__";
@@ -227,14 +227,14 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
     side_of_ball: "offense" as const,
   };
 
-  const { error } = await supabase.from("cfb26_plays").upsert([probeRow], {
+  const { error } = await supabase.from("playbooks").upsert([probeRow], {
     onConflict: "playbook,formation,play_name,game_version",
   });
 
   console.log("PROBE RESULT:", JSON.stringify(error, null, 2));
 
   await supabase
-    .from("cfb26_plays")
+    .from("playbooks")
     .delete()
     .eq("playbook", PROBE_PLAYBOOK)
     .eq("game_version", CFB_CATALOG_GAME_VERSION);
@@ -248,7 +248,7 @@ async function assertCfb26UpsertSupported(supabase: SupabaseClient, dryRun: bool
       /no unique constraint/i.test(error.message))
   ) {
     console.error(
-      "cfb26_plays is missing a unique constraint on (playbook, formation, play_name, game_version).\n" +
+      "playbooks is missing a unique constraint on (playbook, formation, play_name, game_version).\n" +
         "Run this in the Supabase SQL editor (after removing any duplicate rows):\n\n" +
         UNIQUE_CONSTRAINT_SQL +
         "\n",
@@ -323,7 +323,7 @@ async function main() {
     const gameVersion = resolveSeedGameVersion(seed);
 
     const { data: existingRows, error: exErr } = await supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("formation, play_name")
       .eq("game_version", gameVersion)
       .eq("playbook", playbook);
@@ -357,7 +357,7 @@ async function main() {
     const chunk = 200;
     for (let i = 0; i < rows.length; i += chunk) {
       const slice = rows.slice(i, i + chunk);
-      const { error: upErr } = await supabase.from("cfb26_plays").upsert(slice, {
+      const { error: upErr } = await supabase.from("playbooks").upsert(slice, {
         onConflict: "playbook,formation,play_name,game_version",
       });
       if (upErr) {

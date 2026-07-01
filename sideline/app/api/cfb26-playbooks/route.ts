@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const pageSize = 1000;
   for (let offset = 0; offset < 200000; offset += pageSize) {
     const { data, error } = await supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("playbook")
       .ilike("game_version", gameVersion)
       .not("playbook", "is", null)

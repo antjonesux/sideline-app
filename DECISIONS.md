@@ -31,7 +31,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 **Impact:**
 - Play sheet creation must include a game version selector (default: `cfb27`)
-- Playbook picker filters `cfb26_plays` by selected `game_version`
+- Playbook picker filters `playbooks` by selected `game_version`
 - Onboarding seeds with CFB27 playbook data
 - Seed scripts must support `game_version: 'cfb27'` for new data
 - No CFB26 data deletion until January 2027 — archive means hiding from default views, not deleting
@@ -91,7 +91,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-05-02 — Bulk CFB26 offensive playbook seed catalog (`lib/seed/playbooks/`)
 
-**Decision:** Ship **additional** offensive playbook seeds as **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**one `TeamPlaybookSeed` per team**). Primary **source** attribution is **cfb.fan** (`source.url` per file). Loading into **`cfb26_plays`** uses existing **`npm run seed:playbook`** / **`scripts/seed-playbooks.ts`**; canonical **`play_type`** storage remains **`RUN` / `PASS` / `RPO`** via **`resolveSeedPlayType`** and **`mapToCanonicalPlayType`** (see **2026-05-02 — Seed playbook script: canonical `play_type` mapping**). Bulk catalog expansion is an explicit product choice—not a requirement to land one school per PR.
+**Decision:** Ship **additional** offensive playbook seeds as **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**one `TeamPlaybookSeed` per team**). Primary **source** attribution is **cfb.fan** (`source.url` per file). Loading into **`playbooks`** uses existing **`npm run seed:playbook`** / **`scripts/seed-playbooks.ts`**; canonical **`play_type`** storage remains **`RUN` / `PASS` / `RPO`** via **`resolveSeedPlayType`** and **`mapToCanonicalPlayType`** (see **2026-05-02 — Seed playbook script: canonical `play_type` mapping**). Bulk catalog expansion is an explicit product choice—not a requirement to land one school per PR.
 
 **Why:** Early Sideline needs broad, credible offensive vocabulary for Game Plan setup, Film **`PlayBrowser`**, and catalog-backed badges without blocking on dozens of tiny seed PRs.
 
@@ -111,7 +111,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-05-02 — Seed playbook script: canonical `play_type` mapping for classifier output
 
-**Decision:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels from **`resolveSeedPlayType`** (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`cfb26_plays`** upserts, not only substring **`Run` / `Pass` / `RPO`**.
+**Decision:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels from **`resolveSeedPlayType`** (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`playbooks`** upserts, not only substring **`Run` / `Pass` / `RPO`**.
 
 **Why:** Batch playbook seeds often omit per-play **`playType`**; the classifier returns **`SeedPlayType`** enums; previous mapper warned and defaulted many rows to **`RUN`**.
 
@@ -171,7 +171,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-05-02 — Game Plan: 10 default sheet slots per situation; suggestions UI + API play types; mobile situation strip alignment
 
-**Decision:** Default max offensive calls per sheet situation (everything except **Opening Script** and the 2-/4-minute buckets) is **10**, via **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** and **`scenarioMaxSlots`** in **`lib/playbookUtils.ts`** — same helper used by **`POST /api/playbook/[id]/plays`**, **`SituationList`**, **`PlaybookEditor`**, and Film **`PlayLoggerV2`** **My Sheet** chip caps. **Suggested plays** on the sheet editor use a **Tendencies top-plays-style** row (rank, formation → play, metrics row with **avg yards** and call count, **RUN/PASS/RPO** badge from **`cfb26_plays`**); **`GET /api/playbook/[id]/plays`** attaches **`play_type`** on each suggestion using **`resolveCfbDisplayPlayType`** and the existing type map. **Add / Replace** on a suggestion is an **icon** control with **`aria-label`**. Mobile **Game Plan** situation pills use **`PlaySheetSituationChipScroll`** (see chip-scroll entry above).
+**Decision:** Default max offensive calls per sheet situation (everything except **Opening Script** and the 2-/4-minute buckets) is **10**, via **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** and **`scenarioMaxSlots`** in **`lib/playbookUtils.ts`** — same helper used by **`POST /api/playbook/[id]/plays`**, **`SituationList`**, **`PlaybookEditor`**, and Film **`PlayLoggerV2`** **My Sheet** chip caps. **Suggested plays** on the sheet editor use a **Tendencies top-plays-style** row (rank, formation → play, metrics row with **avg yards** and call count, **RUN/PASS/RPO** badge from **`playbooks`**); **`GET /api/playbook/[id]/plays`** attaches **`play_type`** on each suggestion using **`resolveCfbDisplayPlayType`** and the existing type map. **Add / Replace** on a suggestion is an **icon** control with **`aria-label`**. Mobile **Game Plan** situation pills use **`PlaySheetSituationChipScroll`** (see chip-scroll entry above).
 
 **Why:** Five-slot ceilings were tight for real situational depth; suggestions should read as the same coaching data vocabulary as Tendencies rows; play-type badges must stay on the shared catalog ladder; mobile chips should use horizontal edge without breaking alignment with titles and body copy.
 
@@ -372,7 +372,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 ## 2026-04-20
 
 **Single play-type resolution across features**  
-**Decision:** Shared `playTypeResolution` (with `tendenciesServer` / `cfb26_plays` map, stored `logged_plays.play_type`, name fallback) is the ladder for canonical **RUN / PASS / RPO**; migrations backfill and constrain `logged_plays.play_type`.  
+**Decision:** Shared `playTypeResolution` (with `tendenciesServer` / `playbooks` map, stored `logged_plays.play_type`, name fallback) is the ladder for canonical **RUN / PASS / RPO**; migrations backfill and constrain `logged_plays.play_type`.  
 **Why:** Film, Game Plan, import, and Tendencies showed different badges/filters from divergent lookups and case-sensitive playbook matching.  
 **Impact:** Any new surface that shows or persists play type must use this stack; changing the ladder requires coordinated API + UI + migration thinking.
 
@@ -417,7 +417,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 ## 2026-04-22
 
 **Game Plan suggestion scenario pools**  
-**Decision:** For sparse Game Plan tabs (`4 Minute`, `2 Point`, `3rd & Short`, `4th Down`, `Backed Up`), the suggestion query pools situationally related logged scenarios (e.g. `4 Minute` includes `2 Minute` clock-offense data; `2 Point` includes `Goal Line` / `Red Zone`). This is logged-data only — no `cfb26_plays` catalog backfill. When a suggestion's evidence comes entirely from a pooled scenario, it is labeled "similar situations" in the UI. Exact-scenario evidence is always preferred and shown with honest exact-only stats.  
+**Decision:** For sparse Game Plan tabs (`4 Minute`, `2 Point`, `3rd & Short`, `4th Down`, `Backed Up`), the suggestion query pools situationally related logged scenarios (e.g. `4 Minute` includes `2 Minute` clock-offense data; `2 Point` includes `Goal Line` / `Red Zone`). This is logged-data only — no `playbooks` catalog backfill. When a suggestion's evidence comes entirely from a pooled scenario, it is labeled "similar situations" in the UI. Exact-scenario evidence is always preferred and shown with honest exact-only stats.  
 **Why:** These tabs are rarely assigned by `deriveScenario` and have too few logged plays for the suggestion pipeline to produce useful results from exact matches alone. Pooling from defensible proxy situations surfaces real outcomes without fabricating data.  
 **Impact:** `loggedPlayScenarioLabelsForSuggestions` in `playbookUtils.ts` defines the pool map. Changes to pool membership should be documented here.
 

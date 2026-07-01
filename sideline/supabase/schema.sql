@@ -121,7 +121,7 @@ create table if not exists play_sheet_plays (
   script_note text
 );
 
-create table if not exists cfb26_plays (
+create table if not exists playbooks (
   id uuid primary key default gen_random_uuid(),
   playbook text not null,
   formation text not null,
@@ -136,16 +136,16 @@ create table if not exists cfb26_plays (
 -- Natural key for playbook seed upserts (per game_version; see migrations for constraint upgrades on existing DBs).
 do $cfb26uniq$
 begin
-  if not exists (select 1 from pg_constraint where conname = 'cfb26_plays_unique_play') then
-    alter table cfb26_plays add constraint cfb26_plays_unique_play unique (playbook, formation, play_name, game_version);
+  if not exists (select 1 from pg_constraint where conname = 'playbooks_unique_play') then
+    alter table playbooks add constraint playbooks_unique_play unique (playbook, formation, play_name, game_version);
   end if;
 end
 $cfb26uniq$;
 
 -- Reference playbook rows: readable by the anon key (film + tendencies). Service role used for seeding.
-alter table cfb26_plays enable row level security;
-drop policy if exists "Allow public read" on cfb26_plays;
-create policy "Allow public read" on cfb26_plays for select using (true);
+alter table playbooks enable row level security;
+drop policy if exists "Allow public read" on playbooks;
+create policy "Allow public read" on playbooks for select using (true);
 
 create table if not exists scheme_play_weights (
   id uuid primary key default gen_random_uuid(),
@@ -340,17 +340,17 @@ alter table logged_plays drop constraint if exists logged_plays_result_tag_check
 alter table logged_plays add constraint logged_plays_result_tag_check
   check (result_tag in ('FIRST_DOWN', 'TOUCHDOWN', 'GAIN', 'NO_GAIN', 'INCOMPLETE', 'SACK', 'LOSS', 'TURNOVER', 'PUNT', 'FIELD_GOAL', 'OUT_OF_BOUNDS', 'PENALTY'));
 
--- Optional manual cleanup (Supabase SQL editor): remove cfb26_plays duplicates after normalizing whitespace in play_name.
+-- Optional manual cleanup (Supabase SQL editor): remove playbooks duplicates after normalizing whitespace in play_name.
 -- select playbook, formation,
 --   upper(trim(regexp_replace(play_name, '\s+', ' ', 'g'))) as normalized_name,
 --   count(*) as dupes, array_agg(id) as ids
--- from cfb26_plays
+-- from playbooks
 -- group by playbook, formation, upper(trim(regexp_replace(play_name, '\s+', ' ', 'g')))
 -- having count(*) > 1;
--- delete from cfb26_plays where id in (
+-- delete from playbooks where id in (
 --   select unnest(ids[2:]) from (
 --     select array_agg(id order by id) as ids
---     from cfb26_plays
+--     from playbooks
 --     group by playbook, formation, upper(trim(regexp_replace(play_name, '\s+', ' ', 'g')))
 --     having count(*) > 1
 --   ) dupes

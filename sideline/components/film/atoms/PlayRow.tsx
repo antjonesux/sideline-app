@@ -120,7 +120,7 @@ export function PlayRow(props: PlayRowProps) {
 
   const { play, onSelect } = props;
   const filmSt = isFilmLoggerSpecialTeamsEntry(play);
-  // QA24: Badge uses `play.play_type` on PlaybookEntry — populated from `cfb26_plays` + `resolveCfbDisplayPlayType` (same ladder as Tendencies `attachPlayTypes`), not name-only inference.
+  // QA24: Badge uses `play.play_type` on PlaybookEntry — populated from `playbooks` + `resolveCfbDisplayPlayType` (same ladder as Tendencies `attachPlayTypes`), not name-only inference.
   const playType = getPlayType(play.play_type);
   return (
     <button

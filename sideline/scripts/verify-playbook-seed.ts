@@ -1,5 +1,5 @@
 /**
- * Compare lib/seed/playbooks/{slug}.ts to rows in cfb26_plays (diagnostic only; no writes).
+ * Compare lib/seed/playbooks/{slug}.ts to rows in playbooks (diagnostic only; no writes).
  *
  * Usage:
  *   npm run verify:playbook -- tcu
@@ -85,7 +85,7 @@ async function verifySlug(supabase: SupabaseClient, slug: string) {
   const seedPlayCount = seedMap.size;
 
   const { data: dbRows, error } = await supabase
-    .from("cfb26_plays")
+    .from("playbooks")
     .select("formation, play_name, is_new_in_26")
     .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .eq("playbook", playbook);

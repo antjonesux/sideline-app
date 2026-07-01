@@ -1,4 +1,4 @@
-/** PostgREST `.ilike` pattern for case-insensitive exact match on `cfb26_plays.playbook`. */
+/** PostgREST `.ilike` pattern for case-insensitive exact match on `playbooks.playbook`. */
 export function playbookIlikeExactPattern(playbook: string): string {
   return playbook
     .trim()

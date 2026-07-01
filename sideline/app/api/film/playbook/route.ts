@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (!playbook) return NextResponse.json({ formations: [] });
 
   const { data } = await supabase
-    .from("cfb26_plays")
+    .from("playbooks")
     .select("formation, play_name")
     .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(playbook))

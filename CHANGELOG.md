@@ -8,16 +8,32 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: Rename `cfb26_plays` catalog table to `playbooks`
+
+### What
+
+- **[`sideline/supabase/migrations/20260701150000_rename_cfb26_plays_to_playbooks.sql`](sideline/supabase/migrations/20260701150000_rename_cfb26_plays_to_playbooks.sql):** `ALTER TABLE cfb26_plays RENAME TO playbooks` (applied via **`supabase db push`**). Indexes, constraints, RLS, and grants preserved automatically.
+- **[`sideline/supabase/schema.sql`](sideline/supabase/schema.sql):** Table DDL and RLS policies updated to **`playbooks`**.
+- **Application queries:** All `.from("playbooks")` references across API routes (`cfb26-plays`, `cfb26-playbooks`, `film/playbook`, `tendencies/predictability`), Film setup pages, and **`tendenciesServer.ts`**.
+- **Seed / verify:** [`sideline/scripts/seed-playbooks.ts`](sideline/scripts/seed-playbooks.ts), [`sideline/scripts/verify-playbook-seed.ts`](sideline/scripts/verify-playbook-seed.ts).
+- **Docs:** [`BUILD_CONTRACT.md`](BUILD_CONTRACT.md), [`DECISIONS.md`](DECISIONS.md).
+
+### Why
+
+The catalog holds CFB26/CFB27+ offensive and defensive playbooks — not CFB26-only data. **`playbooks`** reflects long-term multi-game purpose.
+
+---
+
 ## 2026-07-01 — Data: CFB27 generic defensive playbooks + `side_of_ball` catalog metadata
 
 ### What
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** for all **31 Alternate Defensive Playbooks** on cfb.fan (3-2-6 through 4-3 variants, Multiple); defensive schemes use **playbook name = scheme** (e.g. **3-4** → **3-4**).
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** **31** new generic defensive **`TeamPlaybookSeed`** modules (**486 formations, 6,268 plays**) plus **`cfb27-multiple-def.ts`** for defensive **Multiple** (offensive **Multiple** remains in **`cfb27-multiple.ts`**).
-- **[`sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql`](sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql):** Added **`side_of_ball text NOT NULL DEFAULT 'offense'`** to **`cfb26_plays`** (applied via **`supabase db push`**).
+- **[`sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql`](sideline/supabase/migrations/20260701140000_cfb26_plays_side_of_ball.sql):** Added **`side_of_ball text NOT NULL DEFAULT 'offense'`** to **`playbooks`** (applied via **`supabase db push`**).
 - **[`sideline/lib/seed/types.ts`](sideline/lib/seed/types.ts), [`sideline/scripts/seed-playbooks.ts`](sideline/scripts/seed-playbooks.ts):** **`sideOfBall: 'offense' | 'defense'`** on **`TeamPlaybookSeed`**; seed runner persists **`side_of_ball`** on every upsert.
 - **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts), [`sideline/lib/seed/scheme-weights-archetypes.ts`](sideline/lib/seed/scheme-weights-archetypes.ts):** Added all **30** defensive scheme names to **`ALL_SCHEMES`** / **`TEAM_SCHEMES`** (plus archetype weight defaults).
-- All **180** CFB27 seed files and CFB26 seed modules updated with **`sideOfBall`**; reseeded into **`cfb26_plays`**.
+- All **180** CFB27 seed files and CFB26 seed modules updated with **`sideOfBall`**; reseeded into **`playbooks`**.
 
 ### Why
 
@@ -35,7 +51,7 @@ CFB27 has no team-specific defensive playbooks — the full defensive catalog is
 ### What
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** for all 11 **Alternate Offensive Playbooks** on cfb.fan — Air Raid, Go Go, Multiple, Option, Pistol, Power Spread, Pro Style, Run & Shoot, Spread, Spread Option, Veer & Shoot.
-- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven generic offensive **`TeamPlaybookSeed`** modules (**297 formations, 4,492 plays**) with **`gameVersion: 'cfb27'`**; seeded into **`cfb26_plays`** via **`npm run seed:playbook`**.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven generic offensive **`TeamPlaybookSeed`** modules (**297 formations, 4,492 plays**) with **`gameVersion: 'cfb27'`**; seeded into **`playbooks`** via **`npm run seed:playbook`**.
 - **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added generic playbook names to **`TEAM_SCHEMES`** with EA scheme mappings (e.g. Go Go → Multiple, Spread Option → Option).
 - **[`sideline/lib/playbooks/generic-playbooks.ts`](sideline/lib/playbooks/generic-playbooks.ts):** Canonical generic offensive playbook list and sort/partition helpers.
 - **[`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx):** Optional section headers for grouped dropdown rows.
@@ -56,7 +72,7 @@ Dynasty and Online Dynasty coaches commonly use EA's generic offensive playbooks
 
 ### What
 
-- **[`sideline/lib/seed/playbooks/cfb27-sacramento-state.ts`](sideline/lib/seed/playbooks/cfb27-sacramento-state.ts):** New offensive **`TeamPlaybookSeed`** for **Sacramento State** (`sacramento-state-off` on cfb.fan) — Brennan Marion Go-Go offense; **27 formations, 455 plays**; seeded into **`cfb26_plays`** with **`game_version: 'cfb27'`**.
+- **[`sideline/lib/seed/playbooks/cfb27-sacramento-state.ts`](sideline/lib/seed/playbooks/cfb27-sacramento-state.ts):** New offensive **`TeamPlaybookSeed`** for **Sacramento State** (`sacramento-state-off` on cfb.fan) — Brennan Marion Go-Go offense; **27 formations, 455 plays**; seeded into **`playbooks`** with **`game_version: 'cfb27'`**.
 - **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added **Sacramento State** → Spread Option (placeholder until Go-Go is a first-class scheme).
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Added Sacramento State to **`TEAMS`** for future annual pulls.
 - **[`sideline/app/api/cfb26-playbooks/route.ts`](sideline/app/api/cfb26-playbooks/route.ts):** Exclude internal playbooks whose names start with **`_`** from the Create Call Sheet dropdown (e.g. removed **`_cfb27_test`** from coach-facing lists).
@@ -81,7 +97,7 @@ cfb.fan added **Sacramento State** after the original 137-team CFB27 catalog scr
 
 ### Why
 
-Session 11 commit **`af82881`** bundled new team catalog files together with incidental play-type reclassification on already-committed seeds. Play-type normalization is out of scope; source files should match what was originally seeded to **`cfb26_plays`**.
+Session 11 commit **`af82881`** bundled new team catalog files together with incidental play-type reclassification on already-committed seeds. Play-type normalization is out of scope; source files should match what was originally seeded to **`playbooks`**.
 
 ---
 
@@ -92,7 +108,7 @@ Session 11 commit **`af82881`** bundled new team catalog files together with inc
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 11 — New Mexico, New Mexico State, Hawaii, Wyoming, UTEP, Western Kentucky, San Jose State, Sam Houston, Middle Tennessee, Jacksonville State, Kennesaw State, Missouri State, North Dakota State, Delaware, Florida International.
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Fifteen offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
 - **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added **North Dakota State** → Pro Style (required for scrape/seed validation).
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (419 formations, 7,042 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (419 formations, 7,042 plays total).
 
 ### Why
 
@@ -113,7 +129,7 @@ Session 11 completes the CFB27 offensive playbook seeding effort — final niche
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 10 — UCF, Utah, West Virginia, UConn, NC State, Liberty, UNLV, Air Force, Nevada, Northern Illinois.
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (307 formations, 4,656 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (307 formations, 4,656 plays total).
 
 ### Why
 
@@ -132,7 +148,7 @@ Session 10 of the CFB27 catalog rollout — mid-tier G5 programs plus P4 straggl
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 9 — Duke, Georgia Tech, Virginia, Virginia Tech, Wake Forest, Syracuse, Stanford, California, Boston College, Houston.
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (310 formations, 4,667 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (310 formations, 4,667 plays total).
 
 ### Why
 
@@ -151,7 +167,7 @@ Session 9 of the CFB27 catalog rollout — remaining ACC programs plus Houston, 
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 8 — Louisville, Pittsburgh, Kansas, Kansas State, Cincinnati, BYU, Arizona, Arizona State, Baylor, SMU.
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (315 formations, 4,663 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (315 formations, 4,663 plays total).
 
 ### Why
 
@@ -170,7 +186,7 @@ Session 8 of the CFB27 catalog rollout — mid-tier Power 4 programs and recentl
 
 - **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Permanent reusable **cfb.fan** scraper — swap the **`TEAMS`** array per session; discovers formations from team playbook pages, resolves plays via formation catalog + play-team membership, writes **`cfb27-{slug}.ts`** seed modules. Retained in-repo for Sessions 8–12 and future annual pulls (supersedes one-time tmp scraper guidance).
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Notre Dame, Clemson, Miami, Florida State, Colorado, TCU, Oklahoma State, Texas Tech, Iowa State, North Carolina — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (303 formations, 4,631 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (303 formations, 4,631 plays total).
 - Seven seed files use **`TEAM_SCHEMES`** canonical classifications (e.g. Notre Dame → Power Spread, Clemson / TCU → Air Raid, Texas Tech → Veer & Shoot, North Carolina → Multiple) so the existing seed runner validation passes.
 
 ### Why
@@ -275,7 +291,7 @@ Tablet and desktop Call Sheet editing should feel like one workspace: browse and
 ### What
 
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven offensive **`TeamPlaybookSeed`** modules — South Florida (USF), East Carolina, Louisiana, Troy, Marshall, Old Dominion, North Texas, Louisiana Tech, Temple, Tulsa, Southern Miss — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (309 formations, 5,085 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (309 formations, 5,085 plays total).
 - Two teams use cfb.fan slugs that differ from the brief (`usf-off`, `southern-miss-off`); seed files are named **`cfb27-south-florida`** and **`cfb27-southern-mississippi`** but **`team`** values match **`TEAM_SCHEMES`** (`USF`, `Southern Miss`).
 - Eight seed files use **`TEAM_SCHEMES`** canonical classifications (e.g. East Carolina → Veer & Shoot, Louisiana → Spread, Troy → Power Spread, North Texas / Louisiana Tech → Air Raid) so the existing seed runner validation passes.
 
@@ -295,7 +311,7 @@ Session 5 of the CFB27 catalog rollout — mid-tier Group of 5 programs that com
 ### What
 
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Northwestern, Rutgers, Vanderbilt, Memphis, Tulane, Army, Navy, Appalachian State, James Madison, Coastal Carolina — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (304 formations, 4,590 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (304 formations, 4,590 plays total).
 - Four seed files use **`TEAM_SCHEMES`** canonical classifications (Northwestern → Spread, Vanderbilt → Pistol, Tulane and Coastal Carolina → Power Spread) so the existing seed runner validation passes.
 
 ### Why
@@ -399,7 +415,7 @@ Marketing visuals should show the actual Call Sheet builder and Coach View patte
 ### What
 
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven offensive **`TeamPlaybookSeed`** modules — Missouri, Michigan State, Iowa, UCLA, Indiana, Kentucky, Maryland, Minnesota, Illinois, Mississippi State, Purdue — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (316 formations, 5,133 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (316 formations, 5,133 plays total).
 - Six seed files use **`TEAM_SCHEMES`** canonical classifications (not CFB26 playbookgamer defaults) so the existing seed runner validation passes.
 
 ### Why
@@ -418,7 +434,7 @@ Session 3 of the CFB27 catalog rollout — P4 mid-tier programs that round out P
 ### What
 
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Tennessee, Florida, Ole Miss, Auburn, Texas A&M, Wisconsin, Nebraska, Arkansas, South Carolina, Washington — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (289 formations, 4,631 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (289 formations, 4,631 plays total).
 
 ### Why
 
@@ -436,7 +452,7 @@ Session 2 of the CFB27 catalog rollout — major P4 programs dynasty players fre
 ### What
 
 - **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Alabama, Georgia, Ohio State, Texas, Oregon, USC, LSU, Michigan, Penn State, Oklahoma — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
-- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (301 formations, 4,659 plays total).
+- Seeded into **`playbooks`** via **`npm run seed:playbook -- cfb27-{slug}`** (301 formations, 4,659 plays total).
 - **[`sideline/package.json`](sideline/package.json):** **`cheerio`** added for the one-shot scrape session (scraper script deleted after seeding).
 
 ### Why
@@ -1075,7 +1091,7 @@ Align in-app language with how coaches talk about call sheets; reduce confusion 
 ### What
 
 - **Playbook data:** Additional **`sideline/lib/seed/playbooks/{slug}.ts`** modules (**`TeamPlaybookSeed`**, **`scheme`** aligned with **`lib/playbooks/scheme-classifications`**, **`source.url`** on **cfb.fan**, formations + plays). Intentional **bulk catalog** expansion, not a single-school add.
-- **Ops:** Load into **`cfb26_plays`** with **`npm run seed:playbook -- <slug> [slug…] | --all`** (**`scripts/seed-playbooks.ts`**); compare DB to seeds with **`npm run verify:playbook -- …`** after upsert. Canonical **`play_type`** for stored rows still flows through **`resolveSeedPlayType`** → **`mapToCanonicalPlayType`** → **`RUN` / `PASS` / `RPO`** per **`DECISIONS.md`** **2026-05-02 — Seed playbook script**.
+- **Ops:** Load into **`playbooks`** with **`npm run seed:playbook -- <slug> [slug…] | --all`** (**`scripts/seed-playbooks.ts`**); compare DB to seeds with **`npm run verify:playbook -- …`** after upsert. Canonical **`play_type`** for stored rows still flows through **`resolveSeedPlayType`** → **`mapToCanonicalPlayType`** → **`RUN` / `PASS` / `RPO`** per **`DECISIONS.md`** **2026-05-02 — Seed playbook script**.
 
 ### Why
 
@@ -1110,7 +1126,7 @@ Faster Game Plan setup; copy emphasizes trusted calls by situation (outcome-firs
 ### What
 
 - **Game Plan UX / routing:** **`app/playbook/new/page.tsx`** renders **`CreatePlaybookModal`** full-page; **`HomeOnboardingGate`** → **`/playbook/new?onboarding=1`**; **`PlaybookHome`** links to **`/playbook/new`**; **`app/playbook/page.tsx`** **`redirect`**s **`?create=1`** (optional **`onboarding`**, **`cfb26`**) to **`/playbook/new`**. **`CreatePlaybookModal`**: Film.new-style shell (**`Breadcrumb`**, **`BackNavLink`**, card), in-card title **`PLAYBOOK_NEW_SHEET_TITLE`**; page flow drops redundant **Cancel** (back link only). **`components/shared/BackNavLink.tsx`** replaces **`BackToFilmLink`** (same default **`href="/film"`**; use **`href="/playbook"`** from **`/playbook/new`**).
-- **Seed scripts:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`cfb26_plays`** upserts when seeds omit explicit **`playType`**.
+- **Seed scripts:** **`scripts/seed-playbooks.ts`** **`mapToCanonicalPlayType`** maps full **`SeedPlayType`** labels (**`Option`**, **`Play Action`**, **`Screen`**, etc.) to **`RUN` / `PASS` / `RPO`** for **`playbooks`** upserts when seeds omit explicit **`playType`**.
 
 ### Why
 
@@ -1183,7 +1199,7 @@ Immersive end to guided onboarding (**`?guided=1`**); consistent with other full
 
 - [`sideline/lib/playbookUtils.ts`](sideline/lib/playbookUtils.ts): **`PLAY_SHEET_SCENARIO_MAX_DEFAULT`** (**10**); **`scenarioMaxSlots`** default branch (Opening Script **15** and 2-/4-minute **10** unchanged). **`POST /api/playbook/[id]/plays`** already uses **`scenarioMaxSlots`** — capacity stays consistent with Film **My Sheet** chips and **`SituationList`** counts.
 - [`sideline/components/playbook/PlaySuggestions.tsx`](sideline/components/playbook/PlaySuggestions.tsx): Suggested plays use **Tendencies-style** ranked rows (formation → play, **avg yds** + call count, pooled hint); **`PlayTypeBadge`** on the metrics row; **`GET`** supplies **`play_type`** via catalog resolution. **Add** / **Replace** use a **plus** icon with **`aria-label`**.
-- [`sideline/app/api/playbook/[id]/plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts): Enrich **`suggestions`** with **`resolveCfbDisplayPlayType`** after **`buildSuggestions`** (same **`cfb26_plays`** map as sheet rows).
+- [`sideline/app/api/playbook/[id]/plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts): Enrich **`suggestions`** with **`resolveCfbDisplayPlayType`** after **`buildSuggestions`** (same **`playbooks`** map as sheet rows).
 - [`sideline/lib/loggedPlayStats.ts`](sideline/lib/loggedPlayStats.ts): **`SuggestionRow`** includes **`avg_yards`** (and optional **`play_type`** from API).
 - [`sideline/components/playbook/SituationList.tsx`](sideline/components/playbook/SituationList.tsx): Mobile situation strip uses **`PlaySheetSituationChipScroll`** (see chip-scroll entry above).
 
@@ -1666,7 +1682,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 ### What
 
 - [`sideline/app/api/tendencies/predictability/route.ts`](sideline/app/api/tendencies/predictability/route.ts): Play-type distribution counts **every** in-scope logged play (not only catalog-matched rows); percentage denominator is total plays; **`meta.classified_play_count`** matches that denominator for client cards. Server log labels distinguish **catalog-matched** vs **catalog-unmatched**.
-- [`sideline/lib/tendenciesServer.ts`](sideline/lib/tendenciesServer.ts): **`attachPlayTypes`** prefers **`deriveCfbPlayTypeFromName`** over a catalog **`cfb26_plays.play_type`** hit when the derived raw is **Screen**, **Play Action**, **RPO** (`rpo_read`), or **Option** (`option_qb_run`), so generic sheet labels (e.g. quick pass) do not hide those tendency buckets; existing **`shouldOverrideCfbPassLabelToRun`** still runs after.
+- [`sideline/lib/tendenciesServer.ts`](sideline/lib/tendenciesServer.ts): **`attachPlayTypes`** prefers **`deriveCfbPlayTypeFromName`** over a catalog **`playbooks.play_type`** hit when the derived raw is **Screen**, **Play Action**, **RPO** (`rpo_read`), or **Option** (`option_qb_run`), so generic sheet labels (e.g. quick pass) do not hide those tendency buckets; existing **`shouldOverrideCfbPassLabelToRun`** still runs after.
 - [`sideline/lib/tendenciesPlayType.ts`](sideline/lib/tendenciesPlayType.ts): **`derivedRawOverridesCatalogForTendencies`** helper; **`deriveCfbPlayTypeFromName`** extended for **`play action`** text, **`PA`** token patterns (including **`MTN PA …`**), and option-family phrases (**speed / triple / load option**, **invert veer**).
 - [`sideline/lib/playbook.ts`](sideline/lib/playbook.ts): **`nameHasExplicitPassOrRpoSignal`** includes **`screen`**, **`play action`**, and token **`PA`** so numbered-personnel pass-family overrides do not misclassify screens and play-action calls.
 - [`sideline/lib/playTypeResolution.ts`](sideline/lib/playTypeResolution.ts): Header comment notes Tendencies may prefer name-derived Screen / PA / RPO / Option on catalog hits.
@@ -1741,7 +1757,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 
 ### What
 
-- [`sideline/app/api/cfb26-plays/route.ts`](sideline/app/api/cfb26-plays/route.ts): Replaced strict `game_version` equality checks with case-insensitive matching (`.ilike("game_version", CFB_CATALOG_GAME_VERSION)`) across list/search/formation queries so production catalog rows load even when `cfb26_plays.game_version` casing is inconsistent.
+- [`sideline/app/api/cfb26-plays/route.ts`](sideline/app/api/cfb26-plays/route.ts): Replaced strict `game_version` equality checks with case-insensitive matching (`.ilike("game_version", CFB_CATALOG_GAME_VERSION)`) across list/search/formation queries so production catalog rows load even when `playbooks.game_version` casing is inconsistent.
 - [`sideline/hooks/useFormationGroups.ts`](sideline/hooks/useFormationGroups.ts): Exposes catalog query state to callers with `error` and `hasAttemptedLoad`.
 - [`sideline/components/film/PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx): Adds explicit formation-level error and empty states instead of silently rendering an empty list; copy is shared-surface safe for both Film and Game Plan flows.
 
@@ -2143,7 +2159,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 ### What
 
 - **Migration `20260423110000_user_facing_rls.sql`**: Enables RLS on **`user_profiles`**, **`game_sessions`**, **`drives`**, **`logged_plays`**, **`play_sheets`**, **`play_sheet_scenarios`**, **`play_sheet_plays`**, and **`dismissed_suggestions`** with **`FOR ALL`** policies for the **`authenticated`** role scoped to the signed-in user; child rows require a resolvable parent owned by the same user (including **`logged_plays`** drive vs session consistency and **`game_sessions.play_sheet_id`** ownership on insert/update).
-- **Catalog / shared reads**: **`cfb26_plays`**, **`team_offensive_playbooks`**, **`team_defensive_schemes`**, and **`scheme_play_weights`** use **`SELECT`** policies with **`using (true)`** so anon reads used by setup and tendencies stay available; writes remain service-role only where applicable.
+- **Catalog / shared reads**: **`playbooks`**, **`team_offensive_playbooks`**, **`team_defensive_schemes`**, and **`scheme_play_weights`** use **`SELECT`** policies with **`using (true)`** so anon reads used by setup and tendencies stay available; writes remain service-role only where applicable.
 - **`supabase/schema.sql`**: Greenfield parity with the migration for the RLS block (replaces the prior “RLS disabled” film logging note for **`drives`**, **`logged_plays`**, and **`game_sessions`**).
 
 ### Why
@@ -2435,7 +2451,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 
 ### What
 
-- Added shared play-type resolution helpers so Film and Playbook use the same matching ladder as Tendencies (`cfb26_plays` lookup by normalized keys, then stored value, then safe fallback).
+- Added shared play-type resolution helpers so Film and Playbook use the same matching ladder as Tendencies (`playbooks` lookup by normalized keys, then stored value, then safe fallback).
 - Updated affected Film, Playbook, Import, and Tendencies surfaces to consistently render canonical `RUN` / `PASS` / `RPO` badges from the unified resolver.
 - Added Supabase migrations to populate and constrain `logged_plays.play_type`, map granular CFB labels into badge categories, apply numbered-call run overrides, and deduplicate normalized `play_sheet_plays.play_name` entries.
 
@@ -2471,7 +2487,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 
 ### What
 
-- **QA18:** Implicit drive completion for the fast logger (no End Drive / no in-header dismiss); sticky header and `PlayBrowser` full-bleed `bg-slate-900` treatment; formation browser as one scroll with sticky group headers then formation rows (superseded by QA19 chip grid); chevron consistency; Supabase migration normalizing `cfb26_plays.play_type` to `RUN`/`PASS`/`RPO` with a check constraint; `PlayRow` / `inferPlayType` guard removing `OTHER`; film page dropped the empty-drive confirm modal.
+- **QA18:** Implicit drive completion for the fast logger (no End Drive / no in-header dismiss); sticky header and `PlayBrowser` full-bleed `bg-slate-900` treatment; formation browser as one scroll with sticky group headers then formation rows (superseded by QA19 chip grid); chevron consistency; Supabase migration normalizing `playbooks.play_type` to `RUN`/`PASS`/`RPO` with a check constraint; `PlayRow` / `inferPlayType` guard removing `OTHER`; film page dropped the empty-drive confirm modal.
 - **QA19:** Single-row compressed `PlayLoggerV2` header (drive label, situation + field, call accordion); emerald flash on the full header bar; `PlayBrowser` flat header bar (Back + search), two-column formation chips, plays view with identical Back control and no search, no gap under headers.
 
 ### Why
@@ -2621,7 +2637,7 @@ Coaches should not pre-fill final score or outcome when starting a log; visible 
 
 ### Added
 
-- **`GET /api/cfb26-plays`** — Queries `cfb26_plays` by playbook: list formations grouped by formation type, list plays for a formation, or search (≥2 chars) with grouped results; formation types ordered (Pistol, Gun, Goal Line, then alphabetical).
+- **`GET /api/cfb26-plays`** — Queries `playbooks` by playbook: list formations grouped by formation type, list plays for a formation, or search (≥2 chars) with grouped results; formation types ordered (Pistol, Gun, Goal Line, then alphabetical).
 - **`PlayLogger` client component** (`sideline/components/film/PlayLogger.tsx`) — Dedicated film play-entry UI: formation/play pickers backed by the new API, result tags, down-and-distance carry logic (including drive-ending tags: touchdown, turnover, punt, field goal), and success toast.
 - **`filmResultTags`** (`sideline/lib/filmResultTags.ts`) — Shared film result tag types and button config (no gain, gain, loss, touchdown, incomplete, turnover, punt, field goal).
 - **`/film` loading UI** (`sideline/app/film/loading.tsx`) — Skeleton state for the film room route.

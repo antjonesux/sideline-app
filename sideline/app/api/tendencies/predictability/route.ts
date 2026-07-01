@@ -71,7 +71,7 @@ typed_plays AS (
     sp.play_name,
     cp.play_type
   FROM scoped_plays sp
-  LEFT JOIN cfb26_plays cp
+  LEFT JOIN playbooks cp
     ON LOWER(TRIM(cp.playbook)) = LOWER(TRIM(sp.game_playbook))
    AND LOWER(TRIM(cp.formation)) = LOWER(TRIM(sp.formation))
    AND LOWER(TRIM(cp.play_name)) = LOWER(TRIM(sp.play_name))

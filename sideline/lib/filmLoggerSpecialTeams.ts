@@ -1,6 +1,6 @@
 import type { PlaybookEntry } from "@/lib/playbook";
 
-/** Film logger / Browse Playbook only — not in `cfb26_plays`; excluded from Play Sheet via `excludePlaySheetSpecialTeams`. */
+/** Film logger / Browse Playbook only — not in `playbooks`; excluded from Play Sheet via `excludePlaySheetSpecialTeams`. */
 export const FILM_LOGGER_ST_PUNT: PlaybookEntry = {
   play_id: "__film_logger_st_punt__",
   formation: "Special Teams",

@@ -4,17 +4,17 @@
  *
  * Code-path audit:
  * - Tendencies: `fetchLoggedPlaysForGames` omits `play_type`; `fetchCfbPlayTypeMap` + `attachPlayTypes`
- *   resolve type from `cfb26_plays` using playbook labels from `game_sessions` (`playbookForGame`), with
+ *   resolve type from `playbooks` using playbook labels from `game_sessions` (`playbookForGame`), with
  *   case-insensitive playbook matching (`ilike` / `or` filters). On catalog hits, `attachPlayTypes` can still
  *   prefer `deriveCfbPlayTypeFromName` for Screen / Play Action / RPO / Option so distribution matches call names.
  * - Film (play browser / suggestions / yardage): `/api/cfb26-plays` used `.eq("playbook", …)` (Postgres case-sensitive).
  * - Play Sheet: `/api/playbook/[id]/plays` duplicated lookup-key logic and used `.eq("playbook", …)` for the type map.
  *
  * Diagnosis: Hypothesis B (missing / divergent join path vs Tendencies) plus case-sensitivity on the playbook filter
- * (Hypothesis C on the `cfb26_plays.playbook` predicate, not on formation/name keys — those already match Tendencies).
+ * (Hypothesis C on the `playbooks.playbook` predicate, not on formation/name keys — those already match Tendencies).
  * `logged_plays.play_type` was not populated in production; adding it keeps Film/API responses aligned with Tendencies.
  *
- * Numbered personnel calls (e.g. `94 WILL`): `cfb26_plays.play_type` often marks them as pass family; `playbook.ts`
+ * Numbered personnel calls (e.g. `94 WILL`): `playbooks.play_type` often marks them as pass family; `playbook.ts`
  * `shouldOverrideCfbPassLabelToRun` forces RUN when the play name matches `playNameLooksLikeNumberedPersonnelCall` and
  * has no explicit pass/RPO tokens (same rule in Tendencies `attachPlayTypes`).
  */
@@ -29,7 +29,7 @@ export type CanonicalPlayType = PlaybookEntry["play_type"];
 
 export { fetchCfbPlayTypeMap, playbookForGame, playTypeLookupKey, type GameRow } from "@/lib/tendenciesServer";
 
-/** Prefer granular `cfb26_plays.play_type` from the lookup map, then stored `logged_plays.play_type`, then name ladder (same as Tendencies `attachPlayTypes`). */
+/** Prefer granular `playbooks.play_type` from the lookup map, then stored `logged_plays.play_type`, then name ladder (same as Tendencies `attachPlayTypes`). */
 export function coalesceCfbAndLoggedPlayType(
   playName: string,
   fromCfbLookup: string | undefined,

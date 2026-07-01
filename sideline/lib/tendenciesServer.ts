@@ -193,7 +193,7 @@ export async function fetchCfbPlayTypeMap(
       .map((book) => `playbook.ilike."${book}"`)
       .join(",");
     const withPlayTypeQuery = supabase
-      .from("cfb26_plays")
+      .from("playbooks")
       .select("playbook, formation, play_name, play_type")
       .eq("game_version", CFB_CATALOG_GAME_VERSION);
     let data: { playbook: unknown; formation: unknown; play_name: unknown; play_type?: unknown }[] | null = null;
@@ -204,9 +204,9 @@ export async function fetchCfbPlayTypeMap(
     const errorMessage =
       error && typeof error === "object" && "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
     if (errorMessage && /play_type/i.test(errorMessage) && /column/i.test(errorMessage)) {
-      console.warn("[Tendencies] cfb26_plays.play_type missing; falling back to play_name-derived type.");
+      console.warn("[Tendencies] playbooks.play_type missing; falling back to play_name-derived type.");
       const fallbackQuery = supabase
-        .from("cfb26_plays")
+        .from("playbooks")
         .select("playbook, formation, play_name")
         .eq("game_version", CFB_CATALOG_GAME_VERSION);
       const fallbackResult = ilikeFilters ? await fallbackQuery.or(ilikeFilters) : await fallbackQuery.in("playbook", slice);
@@ -217,7 +217,7 @@ export async function fetchCfbPlayTypeMap(
       error = fallbackResult.error as typeof error;
     }
     if (error) {
-      console.error("tendencies cfb26_plays:", error);
+      console.error("tendencies playbooks:", error);
       continue;
     }
     for (const row of data ?? []) {
@@ -242,7 +242,7 @@ export function attachPlayTypes(
     const pb = g ? playbookForGame(g) : "";
     const key = pb ? playTypeLookupKey(pb, p.formation, p.play_name) : "";
     const matched = key ? cfbTypes.has(key) : false;
-    // QA24: Tendencies prefer `cfb26_plays.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Play Sheet UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
+    // QA24: Tendencies prefer `playbooks.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Play Sheet UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
     const fromLookup = matched ? (cfbTypes.get(key) ?? "").trim() : "";
     const derived = deriveCfbPlayTypeFromName(p.play_name);
     let raw = fromLookup || derived;
@@ -427,7 +427,7 @@ export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook:
   const pb = playbook.trim();
   if (!pb) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const { data, error } = await supabase
-    .from("cfb26_plays")
+    .from("playbooks")
     .select("play_name")
     .eq("game_version", CFB_CATALOG_GAME_VERSION)
     .ilike("playbook", playbookIlikeExactPattern(pb));
