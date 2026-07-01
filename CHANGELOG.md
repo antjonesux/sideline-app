@@ -8,6 +8,18 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: Revert incidental playType drift on Sessions 1–10 CFB27 seeds
+
+### What
+
+- Restored **51** existing **`cfb27-*.ts`** modules (Sessions 1–10) to their pre–Session 11 committed versions after a bulk tmp-scraper pass had rewritten **`playType`** labels and **`verified`** dates without changing formations or play rosters.
+
+### Why
+
+Session 11 commit **`af82881`** bundled new team catalog files together with incidental play-type reclassification on already-committed seeds. Play-type normalization is out of scope; source files should match what was originally seeded to **`cfb26_plays`**.
+
+---
+
 ## 2026-07-01 — Data: CFB27 Final Remaining Teams seed (Session 11)
 
 ### What
