@@ -8,6 +8,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 ACC/P4 Lower + Major G5 seed (Session 9)
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 9 — Duke, Georgia Tech, Virginia, Virginia Tech, Wake Forest, Syracuse, Stanford, California, Boston College, Houston.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (310 formations, 4,667 plays total).
+
+### Why
+
+Session 9 of the CFB27 catalog rollout — remaining ACC programs plus Houston, rounding out Power 4 coverage before Sessions 10–12 (remaining G5 and FCS teams).
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **82 teams**, **38,059 plays** (excluding internal test playbook; paginated query).
+- `npm run build` from `sideline/` passed (seed modules + scraper only; no app code changed).
+
+---
+
 ## 2026-07-01 — Data: CFB27 P4 Mid-Tier seed (Session 8)
 
 ### What

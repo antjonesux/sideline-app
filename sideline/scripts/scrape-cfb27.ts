@@ -21,16 +21,16 @@ const CACHE_DIR = join(ROOT, "tmp", "cfb27");
 const PLAY_TEAM_CACHE_PATH = join(CACHE_DIR, "_play-team-cache.json");
 
 const TEAMS = [
-  { slug: "louisville-off", team: "Louisville" },
-  { slug: "pittsburgh-off", team: "Pittsburgh" },
-  { slug: "kansas-off", team: "Kansas" },
-  { slug: "kansas-state-off", team: "Kansas State" },
-  { slug: "cincinnati-off", team: "Cincinnati" },
-  { slug: "byu-off", team: "BYU" },
-  { slug: "arizona-off", team: "Arizona" },
-  { slug: "arizona-state-off", team: "Arizona State" },
-  { slug: "baylor-off", team: "Baylor" },
-  { slug: "smu-off", team: "SMU" },
+  { slug: "ucf-off", team: "UCF", scheme: "Spread" },
+  { slug: "utah-off", team: "Utah", scheme: "Multiple" },
+  { slug: "west-virginia-off", team: "West Virginia", scheme: "Spread" },
+  { slug: "uconn-off", team: "UConn", scheme: "Pro Style" },
+  { slug: "nc-state-off", team: "NC State", scheme: "Multiple" },
+  { slug: "liberty-off", team: "Liberty", scheme: "Spread" },
+  { slug: "unlv-off", team: "UNLV", scheme: "Spread" },
+  { slug: "air-force-off", team: "Air Force", scheme: "Option" },
+  { slug: "nevada-off", team: "Nevada", scheme: "Spread" },
+  { slug: "northern-illinois-off", team: "Northern Illinois", scheme: "Multiple" },
 ];
 
 const BASE_URL = "https://cfb.fan";
