@@ -21,16 +21,16 @@ const CACHE_DIR = join(ROOT, "tmp", "cfb27");
 const PLAY_TEAM_CACHE_PATH = join(CACHE_DIR, "_play-team-cache.json");
 
 const TEAMS = [
-  { slug: "notre-dame-off", team: "Notre Dame" },
-  { slug: "clemson-off", team: "Clemson" },
-  { slug: "miami-off", team: "Miami" },
-  { slug: "florida-state-off", team: "Florida State" },
-  { slug: "colorado-off", team: "Colorado" },
-  { slug: "tcu-off", team: "TCU" },
-  { slug: "oklahoma-state-off", team: "Oklahoma State" },
-  { slug: "texas-tech-off", team: "Texas Tech" },
-  { slug: "iowa-state-off", team: "Iowa State" },
-  { slug: "north-carolina-off", team: "North Carolina" },
+  { slug: "louisville-off", team: "Louisville" },
+  { slug: "pittsburgh-off", team: "Pittsburgh" },
+  { slug: "kansas-off", team: "Kansas" },
+  { slug: "kansas-state-off", team: "Kansas State" },
+  { slug: "cincinnati-off", team: "Cincinnati" },
+  { slug: "byu-off", team: "BYU" },
+  { slug: "arizona-off", team: "Arizona" },
+  { slug: "arizona-state-off", team: "Arizona State" },
+  { slug: "baylor-off", team: "Baylor" },
+  { slug: "smu-off", team: "SMU" },
 ];
 
 const BASE_URL = "https://cfb.fan";

@@ -8,6 +8,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 P4 Mid-Tier seed (Session 8)
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** array for Session 8 — Louisville, Pittsburgh, Kansas, Kansas State, Cincinnati, BYU, Arizona, Arizona State, Baylor, SMU.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (315 formations, 4,663 plays total).
+
+### Why
+
+Session 8 of the CFB27 catalog rollout — mid-tier Power 4 programs and recently elevated schools (SMU, Cincinnati, BYU) that dynasty players frequently pick. Brings the cumulative CFB27 catalog to **72 teams** ahead of Sessions 9–12 (remaining ACC, G5, and FCS teams).
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **72 teams**, **33,394 plays** (excluding internal test playbook; paginated query).
+- `npm run build` from `sideline/` passed (seed modules + scraper only; no app code changed).
+
+---
+
 ## 2026-07-01 — Data: CFB27 Major Missing Programs seed (Session 7)
 
 ### What
