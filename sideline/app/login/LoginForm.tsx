@@ -504,6 +504,24 @@ export function LoginForm() {
         )}
 
         {error && <p className="text-center font-sans text-sm text-red-400">{error}</p>}
+
+        <p className="text-center font-sans text-xs text-slate-400">
+          By signing up, you agree to our{" "}
+          <Link
+            href="/terms"
+            className="text-slate-300 underline underline-offset-2 transition-colors hover:text-white"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/privacy"
+            className="text-slate-300 underline underline-offset-2 transition-colors hover:text-white"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

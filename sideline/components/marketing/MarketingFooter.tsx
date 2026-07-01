@@ -5,9 +5,8 @@ const FOOTER_LINKS = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "About", href: "#about" },
-  { label: "Privacy", href: "#" },
-  { label: "Terms", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
 ] as const;
 
 export function MarketingFooter() {
@@ -20,15 +19,25 @@ export function MarketingFooter() {
         </Link>
 
         <nav className="flex flex-wrap items-center justify-center gap-6" aria-label="Footer">
-          {FOOTER_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-xs text-slate-500 transition-colors hover:text-slate-300"
-            >
-              {link.label}
-            </a>
-          ))}
+          {FOOTER_LINKS.map((link) =>
+            link.href.startsWith("/") ? (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-xs text-slate-500 transition-colors hover:text-slate-300"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-xs text-slate-500 transition-colors hover:text-slate-300"
+              >
+                {link.label}
+              </a>
+            ),
+          )}
         </nav>
 
         <p className="font-mono text-xs text-slate-500">© 2026 The Sideline</p>

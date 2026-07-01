@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Terms of Service and Privacy Policy pages
+
+### What
+
+- **[`sideline/app/(marketing)/terms/page.tsx`](sideline/app/(marketing)/terms/page.tsx), [`sideline/app/(marketing)/privacy/page.tsx`](sideline/app/(marketing)/privacy/page.tsx), [`LegalDocumentPage.tsx`](sideline/components/legal/LegalDocumentPage.tsx):** Public `/terms` and `/privacy` pages with full legal copy (EA disclaimer, Google OAuth data, Supabase storage), dark-theme typography, and marketing layout chrome.
+- **[`MarketingFooter.tsx`](sideline/components/marketing/MarketingFooter.tsx):** Footer links to Terms of Service and Privacy Policy; removed placeholder Contact link.
+- **[`LoginForm.tsx`](sideline/app/login/LoginForm.tsx):** Agreement line at the bottom of the sign-in surface linking to both pages.
+- **[`proxy.ts`](sideline/proxy.ts), [`appShellRoutes.ts`](sideline/lib/navigation/appShellRoutes.ts):** `/terms` and `/privacy` are public and skip authenticated app shell.
+
+### Why
+
+Legal requirement before strangers sign up — coaches must be able to read terms and privacy policy from the landing page and auth flow without an account.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Schemes: group offensive and defensive call sheets
 
 ### What

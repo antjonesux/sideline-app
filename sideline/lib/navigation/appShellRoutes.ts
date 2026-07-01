@@ -3,7 +3,15 @@
  * Marketing, auth, onboarding, and QA preview routes stay on the legacy full-width chrome.
  */
 
-const AUTH_MARKETING_PREFIXES = ["/login", "/signup", "/auth/", "/reset-password", "/landing"] as const;
+const AUTH_MARKETING_PREFIXES = [
+  "/login",
+  "/signup",
+  "/auth/",
+  "/reset-password",
+  "/landing",
+  "/terms",
+  "/privacy",
+] as const;
 
 export function isOnboardingChromePath(pathname: string, searchParams: URLSearchParams): boolean {
   if (pathname === "/") return true;
