@@ -13,6 +13,11 @@ import { Button } from "@/components/ui/button";
 import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import {
+  getCatalogPlaybookSection,
+  PLAYBOOK_CATALOG_SECTIONS,
+  sortByCatalogPlaybookSection,
+} from "@/lib/playbooks/generic-playbooks";
 import type { GameSession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -46,7 +51,7 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
       scheme_style: fallbackScheme,
     });
   }
-  return [...byPlaybook.values()].sort((a, b) => a.playbook_name.localeCompare(b.playbook_name));
+  return sortByCatalogPlaybookSection([...byPlaybook.values()]);
 }
 
 let cachedOffensive: OffensiveTeam[] | null = null;
@@ -388,6 +393,8 @@ export function EditGameDetailsModal({
                   getOptionLabel={playbookOptionLabel}
                   getOptionKey={(row) => row.playbook_name}
                   getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
+                  getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
+                  optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
                 />
               </div>
 

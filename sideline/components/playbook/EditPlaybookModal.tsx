@@ -12,6 +12,11 @@ import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import type { PlaybookSummary } from "@/lib/types";
 import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD, COULDNT_SAVE } from "@/lib/coachCopy";
+import {
+  getCatalogPlaybookSection,
+  PLAYBOOK_CATALOG_SECTIONS,
+  sortCatalogPlaybookNames,
+} from "@/lib/playbooks/generic-playbooks";
 import { useToastStore } from "@/store/toastStore";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -37,7 +42,10 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   const [busy, setBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
 
-  const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
+  const options = useMemo<PlaybookOption[]>(
+    () => sortCatalogPlaybookNames(playbooks).map((p) => ({ team_name: p })),
+    [playbooks],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -131,6 +139,8 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
             getOptionLabel={(o) => o.team_name}
             getOptionKey={(o) => o.team_name}
             getSearchText={(o) => o.team_name}
+            getOptionSection={(o) => getCatalogPlaybookSection(o.team_name)}
+            optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
             showTrailingChevron={false}
           />
           <p className="font-body text-xs text-slate-500">This controls which formations and plays appear in the picker.</p>

@@ -37,6 +37,9 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   emptyOptionsMessage?: string;
   /** When true, the input cannot be edited or opened. */
   disabled?: boolean;
+  /** Group dropdown rows under section headers (e.g. team vs generic playbooks). */
+  getOptionSection?: (item: T) => string;
+  optionSections?: { id: string; label: string }[];
 };
 
 function visibleTeams<T extends { team_name: string }>(
@@ -66,6 +69,8 @@ export function TeamCombobox<T extends { team_name: string }>({
   openOnFocus = true,
   emptyOptionsMessage,
   disabled = false,
+  getOptionSection,
+  optionSections,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -79,6 +84,21 @@ export function TeamCombobox<T extends { team_name: string }>({
   const setInputRef = mergeRefs(innerInputRef, inputRefProp);
 
   const filtered = useMemo(() => visibleTeams(options, filterText, optionSearchText), [options, filterText, optionSearchText]);
+
+  const groupedFiltered = useMemo(() => {
+    if (!getOptionSection || !optionSections?.length) return null;
+    const buckets = new Map<string, T[]>();
+    for (const section of optionSections) buckets.set(section.id, []);
+    const fallbackId = optionSections[0]?.id ?? "default";
+    for (const item of filtered) {
+      const sectionId = getOptionSection(item);
+      const bucket = buckets.get(sectionId) ?? buckets.get(fallbackId);
+      if (bucket) bucket.push(item);
+    }
+    return optionSections
+      .map((section) => ({ ...section, items: buckets.get(section.id) ?? [] }))
+      .filter((section) => section.items.length > 0);
+  }, [filtered, getOptionSection, optionSections]);
 
   const updateDropPosition = useCallback(() => {
     const el = innerInputRef.current;
@@ -197,6 +217,30 @@ export function TeamCombobox<T extends { team_name: string }>({
               </div>
             ) : filtered.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>
+            ) : groupedFiltered ? (
+              groupedFiltered.map((section) => (
+                <div key={section.id}>
+                  <div className="sticky top-0 border-b border-slate-800 bg-slate-900/95 px-3 py-1.5 font-sans text-[10px] font-normal uppercase tracking-widest text-slate-500">
+                    {section.label}
+                  </div>
+                  {section.items.map((item) => (
+                    <button
+                      key={optionKey(item)}
+                      type="button"
+                      className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        onSelect(item);
+                        setFilterText("");
+                        setOpen(false);
+                        requestAnimationFrame(() => nextFocusRef?.current?.focus());
+                      }}
+                    >
+                      {optionLabel(item)}
+                    </button>
+                  ))}
+                </div>
+              ))
             ) : (
               filtered.map((item) => (
                 <button

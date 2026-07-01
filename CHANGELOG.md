@@ -8,6 +8,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 generic offensive playbooks + catalog dropdown sections
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Updated **`TEAMS`** for all 11 **Alternate Offensive Playbooks** on cfb.fan — Air Raid, Go Go, Multiple, Option, Pistol, Power Spread, Pro Style, Run & Shoot, Spread, Spread Option, Veer & Shoot.
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Eleven generic offensive **`TeamPlaybookSeed`** modules (**297 formations, 4,492 plays**) with **`gameVersion: 'cfb27'`**; seeded into **`cfb26_plays`** via **`npm run seed:playbook`**.
+- **[`sideline/lib/playbooks/scheme-classifications.ts`](sideline/lib/playbooks/scheme-classifications.ts):** Added generic playbook names to **`TEAM_SCHEMES`** with EA scheme mappings (e.g. Go Go → Multiple, Spread Option → Option).
+- **[`sideline/lib/playbooks/generic-playbooks.ts`](sideline/lib/playbooks/generic-playbooks.ts):** Canonical generic offensive playbook list and sort/partition helpers.
+- **[`sideline/components/film/TeamCombobox.tsx`](sideline/components/film/TeamCombobox.tsx):** Optional section headers for grouped dropdown rows.
+- **Playbook pickers** ([`CreatePlaybookModal`](sideline/components/playbook/CreatePlaybookModal.tsx), [`EditPlaybookModal`](sideline/components/playbook/EditPlaybookModal.tsx), Film new/edit/import): **Team Playbooks** section first, **Generic Playbooks** at the bottom.
+
+### Why
+
+Dynasty and Online Dynasty coaches commonly use EA's generic offensive playbooks (Air Raid, Spread, etc.) alongside team playbooks. Completing the CFB27 offensive catalog requires these entries before launch. Separating team vs generic in the picker reduces scroll noise when coaches know which bucket they want.
+
+### Status after this push
+
+- All 11 generic playbooks verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **113 playbooks**, **68,493 plays** (paginated query).
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Data: Sacramento State CFB27 + catalog dropdown cleanup
 
 ### What

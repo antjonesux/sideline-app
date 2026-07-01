@@ -21,22 +21,17 @@ const CACHE_DIR = join(ROOT, "tmp", "cfb27");
 const PLAY_TEAM_CACHE_PATH = join(CACHE_DIR, "_play-team-cache.json");
 
 const TEAMS = [
-  { slug: "new-mexico-off", team: "New Mexico", scheme: "Multiple" },
-  { slug: "new-mexico-state-off", team: "New Mexico State", scheme: "Multiple" },
-  { slug: "hawaii-off", team: "Hawaii", scheme: "Run and Shoot" },
-  { slug: "wyoming-off", team: "Wyoming", scheme: "Pro Style" },
-  { slug: "utep-off", team: "UTEP", scheme: "Multiple" },
-  { slug: "western-kentucky-off", team: "Western Kentucky", scheme: "Air Raid" },
-  { slug: "san-jose-state-off", team: "San Jose State", scheme: "Spread" },
-  { slug: "sam-houston-state-off", team: "Sam Houston", scheme: "Spread" },
-  { slug: "middle-tennessee-state-off", team: "Middle Tennessee", scheme: "Spread" },
-  { slug: "jacksonville-state-off", team: "Jacksonville State", scheme: "Spread" },
-  { slug: "kennesaw-state-off", team: "Kennesaw State", scheme: "Option" },
-  { slug: "missouri-state-off", team: "Missouri State", scheme: "Multiple" },
-  { slug: "north-dakota-state-off", team: "North Dakota State", scheme: "Pro Style" },
-  { slug: "delaware-off", team: "Delaware", scheme: "Multiple" },
-  { slug: "florida-international-off", team: "Florida International", scheme: "Spread" },
-  { slug: "sacramento-state-off", team: "Sacramento State", scheme: "Spread Option" },
+  { slug: "air-raid-off", team: "Air Raid", scheme: "Air Raid" },
+  { slug: "go-go-off", team: "Go Go", scheme: "Multiple" },
+  { slug: "multiple-off", team: "Multiple", scheme: "Multiple" },
+  { slug: "option-off", team: "Option", scheme: "Option" },
+  { slug: "pistol-off", team: "Pistol", scheme: "Pistol" },
+  { slug: "power-spread-off", team: "Power Spread", scheme: "Power Spread" },
+  { slug: "pro-style-off", team: "Pro Style", scheme: "Pro Style" },
+  { slug: "run-shoot-off", team: "Run & Shoot", scheme: "Run & Shoot" },
+  { slug: "spread-off", team: "Spread", scheme: "Spread" },
+  { slug: "spread-option-off", team: "Spread Option", scheme: "Option" },
+  { slug: "veer-shoot-off", team: "Veer & Shoot", scheme: "Veer & Shoot" },
 ];
 
 const BASE_URL = "https://cfb.fan";

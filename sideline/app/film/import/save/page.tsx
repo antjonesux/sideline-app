@@ -9,6 +9,11 @@ import { COULDNT_LOAD_TEAM_LIST, IMPORT_FAILED } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import {
+  getCatalogPlaybookSection,
+  PLAYBOOK_CATALOG_SECTIONS,
+  sortByCatalogPlaybookSection,
+} from "@/lib/playbooks/generic-playbooks";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { createClient } from "@/lib/supabase/client";
 import { useImportStore } from "@/store/importStore";
@@ -43,7 +48,7 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
     if (!key || byPlaybook.has(key)) continue;
     byPlaybook.set(key, { team_name: key, playbook_name: key });
   }
-  return [...byPlaybook.values()].sort((a, b) => a.playbook_name.localeCompare(b.playbook_name));
+  return sortByCatalogPlaybookSection([...byPlaybook.values()]);
 }
 
 export default function FilmImportSavePage() {
@@ -272,6 +277,8 @@ export default function FilmImportSavePage() {
               placeholder="Tap to browse or type to filter"
               getOptionLabel={(row) => row.playbook_name}
               getSearchText={(row) => row.playbook_name}
+              getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
+              optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
             />
             <p className="font-body text-xs text-slate-500">All playbooks are available.</p>
           </div>

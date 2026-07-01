@@ -16,6 +16,11 @@ import {
   ONBOARDING_DEFAULT_SHEET_NAME,
 } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import {
+  getCatalogPlaybookSection,
+  PLAYBOOK_CATALOG_SECTIONS,
+  sortByCatalogPlaybookSection,
+} from "@/lib/playbooks/generic-playbooks";
 import { emitProductEvent } from "@/lib/productAnalytics";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
@@ -52,7 +57,7 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
       scheme_style: fallbackScheme,
     });
   }
-  return [...byPlaybook.values()].sort((a, b) => a.playbook_name.localeCompare(b.playbook_name));
+  return sortByCatalogPlaybookSection([...byPlaybook.values()]);
 }
 
 let cachedOffensive: OffensiveTeam[] | null = null;
@@ -348,6 +353,8 @@ export default function NewGamePage() {
               getOptionLabel={playbookOptionLabel}
               getOptionKey={(row) => row.playbook_name}
               getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
+              getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
+              optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
             />
             {!usePlaybookSelect ? <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p> : null}
           </div>

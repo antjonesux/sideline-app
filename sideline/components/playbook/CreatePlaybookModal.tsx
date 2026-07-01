@@ -38,6 +38,11 @@ import {
   PLAYBOOK_NEW_SHEET_TITLE,
 } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
+import {
+  getCatalogPlaybookSection,
+  PLAYBOOK_CATALOG_SECTIONS,
+  sortCatalogPlaybookNames,
+} from "@/lib/playbooks/generic-playbooks";
 
 type PlaybookOption = { team_name: string };
 
@@ -143,7 +148,10 @@ export function CreatePlaybookModal({
     if (qaPrefill.playbook?.trim()) setSelectedPlaybook({ team_name: qaPrefill.playbook.trim() });
   }, [qaPrefill]);
 
-  const options = useMemo<PlaybookOption[]>(() => playbooks.map((p) => ({ team_name: p })), [playbooks]);
+  const options = useMemo<PlaybookOption[]>(
+    () => sortCatalogPlaybookNames(playbooks).map((p) => ({ team_name: p })),
+    [playbooks],
+  );
   const catalogEmpty = !playbooksLoading && !loadErr && playbooks.length === 0;
 
   const canSubmit =
@@ -251,6 +259,8 @@ export function CreatePlaybookModal({
             getOptionLabel={(o) => o.team_name}
             getOptionKey={(o) => o.team_name}
             getSearchText={(o) => o.team_name}
+            getOptionSection={(o) => getCatalogPlaybookSection(o.team_name)}
+            optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
             showTrailingChevron={false}
             openOnFocus={false}
           />
