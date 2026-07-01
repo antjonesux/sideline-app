@@ -8,6 +8,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-01 — Data: CFB27 Major Missing Programs seed (Session 7)
+
+### What
+
+- **[`sideline/scripts/scrape-cfb27.ts`](sideline/scripts/scrape-cfb27.ts):** Permanent reusable **cfb.fan** scraper — swap the **`TEAMS`** array per session; discovers formations from team playbook pages, resolves plays via formation catalog + play-team membership, writes **`cfb27-{slug}.ts`** seed modules. Retained in-repo for Sessions 8–12 and future annual pulls (supersedes one-time tmp scraper guidance).
+- **[`sideline/lib/seed/playbooks/cfb27-*.ts`](sideline/lib/seed/playbooks/):** Ten offensive **`TeamPlaybookSeed`** modules — Notre Dame, Clemson, Miami, Florida State, Colorado, TCU, Oklahoma State, Texas Tech, Iowa State, North Carolina — with **`gameVersion: 'cfb27'`**, **`source.url`** on **cfb.fan**, and name-based **`playType`** heuristics.
+- Seeded into **`cfb26_plays`** via **`npm run seed:playbook -- cfb27-{slug}`** (303 formations, 4,631 plays total).
+- Seven seed files use **`TEAM_SCHEMES`** canonical classifications (e.g. Notre Dame → Power Spread, Clemson / TCU → Air Raid, Texas Tech → Veer & Shoot, North Carolina → Multiple) so the existing seed runner validation passes.
+
+### Why
+
+Session 7 of the CFB27 catalog rollout — marquee P4 programs dynasty players frequently pick that were missing from the initial 62-team cfb.fan scrape. Combined with Sessions 1–5 (committed) plus Session 7, **62 teams** are in the seed catalog ahead of Sessions 8–12 (remaining new cfb.fan teams).
+
+### Status after this push
+
+- All 10 teams verified in Supabase with **`game_version: 'cfb27'`**; cumulative CFB27 catalog **62 teams**, **28,731 plays** (excluding internal test playbook; paginated query).
+- `npm run build` from `sideline/` passed (seed modules + scraper only; no app code changed).
+
+---
+
 ## 2026-06-30 — Landing page: Game Day Workspace section + rounded section panels
 
 ### What
