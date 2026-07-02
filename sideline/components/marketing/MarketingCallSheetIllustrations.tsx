@@ -2,7 +2,7 @@ import { SituationIconBadge } from "@/components/playbook/SituationIconBadge";
 import { PlayTypeBadge } from "@/components/game-plan/PlayTypeBadge";
 import type { GamePlanPlayType } from "@/components/game-plan/PlayTableRow";
 import { BUILDER_ADD_PLAY } from "@/lib/coachCopy";
-import { CALL_SHEET_SCENARIO_HELP, getSituationColor } from "@/lib/constants";
+import { CALL_SHEET_VIEWER_SCENARIO_HELP, getSituationColor } from "@/lib/constants";
 import {
   callSheetScenarioDisplayName,
   callSheetScenarioPlayCountLabel,
@@ -164,7 +164,7 @@ function SituationGridCard({ situation }: { situation: SituationCardMock }) {
   const colors = getSituationColor(situation.colorKey);
   const displayName = callSheetScenarioDisplayName(situation.scenario);
   const helper =
-    CALL_SHEET_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_SCENARIO_HELP] ?? "";
+    CALL_SHEET_VIEWER_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_VIEWER_SCENARIO_HELP] ?? "";
   const countLabel = callSheetScenarioPlayCountLabel(situation.count);
 
   return (
@@ -279,7 +279,7 @@ function IllustrationShell({
 
 export function MarketingSituationGrid({ situations }: { situations: SituationCardMock[] }) {
   return (
-    <div className="grid grid-cols-2 gap-2 p-2" role="list" aria-label="Tactical situations">
+    <div className="grid grid-cols-2 gap-2 p-2" role="list" aria-label="Custom situations">
       {situations.map((situation) => (
         <div key={situation.scenario} role="listitem">
           <SituationGridCard situation={situation} />
@@ -348,7 +348,7 @@ export function MarketingAddPlayIllustration({
   const colors = getSituationColor(situation.colorKey);
   const displayName = callSheetScenarioDisplayName(situation.scenario);
   const helper =
-    CALL_SHEET_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_SCENARIO_HELP] ?? "";
+    CALL_SHEET_VIEWER_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_VIEWER_SCENARIO_HELP] ?? "";
 
   return (
     <IllustrationShell label={label} className={className}>

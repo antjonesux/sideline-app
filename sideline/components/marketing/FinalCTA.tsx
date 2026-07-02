@@ -28,7 +28,8 @@ export function FinalCTA({ nextFromUrl }: { nextFromUrl?: string }) {
             Walk into every game with a plan.
           </h2>
           <p className="mt-5 text-lg text-slate-400">
-            Create your first Call Sheet in minutes and start calling games with more confidence.
+            Create your first Call Sheet in minutes. Build for offense, defense, or both — and start calling games with
+            confidence.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4">
             <Button size="lg" className="px-8" asChild>

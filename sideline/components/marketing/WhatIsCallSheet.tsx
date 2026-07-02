@@ -19,8 +19,8 @@ export function WhatIsCallSheet() {
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-slate-400">
             A Call Sheet is a coach&apos;s game plan — a curated list of the plays they trust most, organized by
-            situation. The Sideline brings that same workflow to EA SPORTS College Football, helping you find the right
-            play in seconds instead of scrolling through an entire playbook.
+            situation. The Sideline brings that same workflow to EA SPORTS College Football 27, helping you find the
+            right play in seconds on both offense and defense instead of scrolling through an entire playbook.
           </p>
         </div>
 

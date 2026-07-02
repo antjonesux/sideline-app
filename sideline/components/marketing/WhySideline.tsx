@@ -8,12 +8,12 @@ const VALUES = [
   {
     icon: Award,
     title: "Think like a coordinator",
-    body: "Build a game plan before the first snap. Enter every game with a strategy, not just a prayer.",
+    body: "Build offensive and defensive game plans before the first snap. Enter every game with a strategy, not just a prayer.",
   },
   {
     icon: Layers,
     title: "Stay organized",
-    body: "Keep your best plays exactly where you expect them. No more scrolling. No more forgetting.",
+    body: "Keep your best plays exactly where you expect them — grouped into schemes and organized by situation. No more scrolling. No more forgetting.",
   },
   {
     icon: Shield,

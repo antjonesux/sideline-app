@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-02 — Landing page copy refresh for CFB27
+
+### What
+
+- **[`landing/page.tsx`](sideline/app/(marketing)/landing/page.tsx), [`marketingHeroCopy.ts`](sideline/lib/marketingHeroCopy.ts), marketing components:** Updated landing copy for CFB27, offense/defense call sheets, schemes, and custom situations — hero, What Is a Call Sheet, How It Works (4 steps), features, workspace, Why Sideline, and final CTA.
+- **[`Hero.tsx`](sideline/components/marketing/Hero.tsx), [`Problem.tsx`](sideline/components/marketing/Problem.tsx):** Coach-facing messaging shifts from memory to preparation — “Stop guessing and start playing with a plan” and “Calling plays shouldn’t rely on guessing.”
+- **[`FeatureGrid.tsx`](sideline/components/marketing/FeatureGrid.tsx):** Four feature cards — Digital Call Sheets, Schemes, Situational Organization, Fast During Gameplay.
+- **[`MarketingWorkspaceIllustration.tsx`](sideline/components/marketing/MarketingWorkspaceIllustration.tsx):** Workspace mock shows My Call Sheets, My Schemes, Review (Coming Soon), and Settings; browse playbook moved to the header row.
+- **[`MarketingCallSheetIllustrations.tsx`](sideline/components/marketing/MarketingCallSheetIllustrations.tsx):** Situation helper text uses finalized viewer copy; aria label reads “Custom situations.”
+- **[`icon.svg`](sideline/app/icon.svg):** New SL favicon; removed legacy `favicon.ico`.
+
+### Why
+
+The landing page is the first impression for new users during the CFB27 launch window — copy needed to reflect defense, schemes, and the current product without CFB26 or “tactical situations” language.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-02 — Hide onboarding from active user flow
 
 ### What

@@ -25,7 +25,7 @@ export function Problem() {
       <div className="mb-16 text-center">
         <SectionBadge>The Problem</SectionBadge>
         <h2 className="mt-5 font-heading text-4xl font-extrabold normal-case tracking-tight text-white lg:text-5xl">
-          Calling plays shouldn&apos;t rely on memory.
+          Calling plays shouldn&apos;t rely on guessing.
         </h2>
       </div>
 

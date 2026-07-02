@@ -1,21 +1,21 @@
-import { Layers, Shield, Target, Zap } from "lucide-react";
+import { Layers, LayoutGrid, Target, Zap } from "lucide-react";
 import { SectionBadge } from "@/components/marketing/SectionBadge";
 
 const FEATURES = [
   {
     icon: Target,
     title: "Digital Call Sheets",
-    body: "Create personalized game plans for every offensive playbook. Your call sheet, tailored to how you actually play.",
+    body: "Create personalized game plans for every playbook — offense and defense. Your call sheets, tailored to how you actually play.",
   },
   {
     icon: Layers,
-    title: "Situational Organization",
-    body: "Organize your best plays into tactical situations for faster decision making when the game is on the line.",
+    title: "Schemes",
+    body: "Pair your offensive and defensive call sheets into named schemes. One scheme, both sides of the ball, ready for game day.",
   },
   {
-    icon: Shield,
-    title: "Built for College Football",
-    body: "Designed specifically for EA SPORTS College Football players. Not a generic football app.",
+    icon: LayoutGrid,
+    title: "Situational Organization",
+    body: "Organize your best plays into custom situations for faster decisions when the game is on the line.",
   },
   {
     icon: Zap,

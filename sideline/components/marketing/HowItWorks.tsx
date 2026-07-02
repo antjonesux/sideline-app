@@ -10,14 +10,14 @@ import { SectionBadge } from "@/components/marketing/SectionBadge";
 const STEPS = [
   {
     num: "01",
-    title: "Build your Call Sheet",
-    body: "Browse your playbook and organize your favorite plays into tactical situations. Your game plan starts taking shape before kickoff.",
+    title: "Build your Call Sheets",
+    body: "Browse your playbook and organize your favorite plays into custom situations — on offense and defense. Your game plan starts taking shape before kickoff.",
     ui: <MarketingAddPlayIllustration />,
   },
   {
     num: "02",
     title: "Prepare your strategy",
-    body: "Build Go-To Plays, Tempo, Run Game, Pass Game, Man Beaters, Zone Beaters, Red Zone, and Take a Shot packages — each situation covered.",
+    body: "Build Go-To Plays, Tempo, Run Game, Pass Game, Man Beaters, Zone Beaters, Take a Shot, and Redzone packages — every situation covered, both sides of the ball.",
     ui: (
       <MarketingSituationGridIllustration
         situations={BUILDER_SITUATION_GRID_MOCK}
@@ -27,8 +27,20 @@ const STEPS = [
   },
   {
     num: "03",
+    title: "Group into a Scheme",
+    body: "Pair your offensive and defensive call sheets into a named scheme. One tap gives you both sides of the ball, ready for game day.",
+    ui: (
+      <MarketingCoachViewIllustration
+        sections={COACH_VIEW_SECTIONS_MOCK}
+        label="Scheme"
+        sheetTitle="Base vs Spread"
+      />
+    ),
+  },
+  {
+    num: "04",
     title: "Call with confidence",
-    body: "Open your Call Sheet during gameplay and quickly reference your game plan without searching through the entire playbook. Your best plays, always ready.",
+    body: "Open your Call Sheet during gameplay and reference your game plan in seconds. Your best plays on offense and defense, always ready.",
     ui: (
       <MarketingCoachViewIllustration
         sections={COACH_VIEW_SECTIONS_MOCK}
@@ -45,7 +57,7 @@ export function HowItWorks() {
         <div className="mb-20 text-center">
           <SectionBadge>How It Works</SectionBadge>
           <h2 className="mt-5 font-heading text-4xl font-extrabold normal-case tracking-tight text-white lg:text-5xl">
-            Three steps to a smarter game.
+            Four steps to a smarter game.
           </h2>
         </div>
 

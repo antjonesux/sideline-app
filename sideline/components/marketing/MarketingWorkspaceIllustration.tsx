@@ -8,11 +8,13 @@ import {
   type SituationCardMock,
 } from "@/components/marketing/MarketingCallSheetIllustrations";
 import {
-  APP_SHELL_NEW_CALL_SHEET_LABEL,
   BUILDER_ADD_PLAY,
   BUILDER_ADD_SITUATION,
   BUILDER_BROWSE_PLAYBOOK,
   CALL_SHEET_MENU_LABEL,
+  APP_SHELL_SCHEMES_MENU_LABEL,
+  CALL_SHEET_VIEWER_MENU_REVIEW,
+  CALL_SHEET_VIEWER_MENU_REVIEW_SOON,
   CALL_SHEET_VIEWER_MENU_SETTINGS,
   CALL_SHEET_VIEWER_TAB_FULL,
   CALL_SHEET_VIEWER_TAB_NEEDS,
@@ -21,18 +23,33 @@ import {
   appShellBuilderBrowseButtonClass,
   appShellBuilderTitleClass,
   appShellFieldLabelClass,
-  appShellWorkspaceStatLabelClass,
-  appShellWorkspaceStatValueClass,
 } from "@/lib/constants/designTokens";
-import { CALL_SHEET_SCENARIO_HELP, getSituationColor } from "@/lib/constants";
+import { CALL_SHEET_VIEWER_SCENARIO_HELP, getSituationColor } from "@/lib/constants";
 import { callSheetScenarioDisplayName, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { cn } from "@/lib/utils";
-import { BookOpen, ChevronLeft, ClipboardList, LogOut, Plus, Settings } from "lucide-react";
+import { BookOpen, ChevronLeft, ClipboardList, Eye, Layers, LogOut, Plus, Settings } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 const DASHBOARD_SITUATIONS: SituationCardMock[] = BUILDER_SITUATION_GRID_MOCK.slice(0, 4);
 const ACTIVE_SHEET = "Week 7 — vs Alabama";
 const SHEET_PLAYBOOK = "Spread Offense";
-const SIDEBAR_SHEETS = ["Week 6 — vs Auburn", ACTIVE_SHEET, "Week 8 — vs Georgia"] as const;
+
+const WORKSPACE_NAV: {
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  comingSoon?: boolean;
+}[] = [
+  { label: CALL_SHEET_MENU_LABEL, icon: ClipboardList, active: true },
+  { label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Layers, active: false },
+  {
+    label: CALL_SHEET_VIEWER_MENU_REVIEW,
+    icon: Eye,
+    active: false,
+    comingSoon: true,
+  },
+  { label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings, active: false },
+];
 
 function NavActiveDot() {
   return <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden />;
@@ -41,8 +58,6 @@ function NavActiveDot() {
 function MarketingWorkspaceSidebar() {
   const navItemClass =
     "flex w-full items-center gap-3 rounded-lg px-3 py-2 font-body text-xs font-medium";
-  const subNavItemClass =
-    "flex w-full items-center gap-2 rounded-lg py-1.5 pl-9 pr-3 font-body text-xs font-medium";
 
   return (
     <aside
@@ -54,37 +69,24 @@ function MarketingWorkspaceSidebar() {
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden px-2.5 py-1.5">
-        <div className={cn(navItemClass, "text-slate-400")}>
-          <ClipboardList className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 truncate text-left">{CALL_SHEET_MENU_LABEL}</span>
-        </div>
-
-        <div className="flex flex-col gap-0.5 pb-1" role="group" aria-label={`${CALL_SHEET_MENU_LABEL} submenu`}>
-          {SIDEBAR_SHEETS.map((sheet) => {
-            const active = sheet === ACTIVE_SHEET;
-            return (
-              <div
-                key={sheet}
-                className={cn(
-                  subNavItemClass,
-                  active ? "bg-emerald-950/30 text-white" : "text-slate-500",
-                )}
-              >
-                <span className="min-w-0 flex-1 truncate">{sheet}</span>
-                {active ? <NavActiveDot /> : null}
-              </div>
-            );
-          })}
-          <div className={cn(subNavItemClass, "text-slate-500")}>
-            <Plus className="h-3 w-3 shrink-0 text-slate-500" aria-hidden />
-            <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_CALL_SHEET_LABEL}</span>
+        {WORKSPACE_NAV.map((item) => (
+          <div
+            key={item.label}
+            className={cn(
+              navItemClass,
+              item.active ? "bg-emerald-950/30 text-white" : item.comingSoon ? "text-slate-600" : "text-slate-400",
+            )}
+          >
+            <item.icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
+            {item.active ? <NavActiveDot /> : null}
+            {item.comingSoon ? (
+              <span className="shrink-0 rounded bg-slate-800/80 px-1.5 py-0.5 font-sans text-[10px] font-medium leading-none text-slate-500">
+                {CALL_SHEET_VIEWER_MENU_REVIEW_SOON}
+              </span>
+            ) : null}
           </div>
-        </div>
-
-        <div className={cn(navItemClass, "text-slate-400")}>
-          <Settings className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 truncate text-left">{CALL_SHEET_VIEWER_MENU_SETTINGS}</span>
-        </div>
+        ))}
       </nav>
 
       <div className="shrink-0 border-t border-slate-800/80 px-2.5 py-2.5">
@@ -123,7 +125,7 @@ function MarketingWorkspaceSituationDetail() {
   const colors = getSituationColor(situation.colorKey);
   const displayName = callSheetScenarioDisplayName(situation.scenario);
   const helper =
-    CALL_SHEET_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_SCENARIO_HELP] ?? "";
+    CALL_SHEET_VIEWER_SCENARIO_HELP[situation.scenario as keyof typeof CALL_SHEET_VIEWER_SCENARIO_HELP] ?? "";
   const countLabel = callSheetScenarioPlayCountLabel(situation.filled);
 
   return (
@@ -202,9 +204,6 @@ function MarketingWorkspaceSituationDetail() {
 
 /** Production desktop workspace — sidebar, dashboard grid, and situation detail (marketing composite). */
 export function MarketingWorkspaceIllustration() {
-  const situationCount = BUILDER_SITUATION_GRID_MOCK.length;
-  const playCount = BUILDER_SITUATION_GRID_MOCK.reduce((sum, s) => sum + s.count, 0);
-
   return (
     <div className="mx-auto w-full overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-950 shadow-2xl shadow-black/20">
       <div className="flex min-h-[26rem] lg:min-h-[28rem]">
@@ -218,35 +217,19 @@ export function MarketingWorkspaceIllustration() {
                 <p className="mt-0.5 font-body text-xs text-slate-400">Built from {SHEET_PLAYBOOK} playbook</p>
               </div>
 
-              <div className="flex shrink-0 items-center gap-3">
-                <div className="text-right">
-                  <p className={appShellWorkspaceStatValueClass}>{situationCount}</p>
-                  <p className={appShellWorkspaceStatLabelClass}>situations</p>
-                </div>
-                <div className="h-7 w-px bg-slate-800/80" aria-hidden />
-                <div className="text-right">
-                  <p className={appShellWorkspaceStatValueClass}>{playCount}</p>
-                  <p className={appShellWorkspaceStatLabelClass}>plays</p>
-                </div>
-                <div className="hidden h-7 w-px bg-slate-800/80 sm:block" aria-hidden />
-                <div
-                  className={cn(
-                    appShellBuilderBrowseButtonClass,
-                    "hidden border-emerald-500/30 bg-emerald-500/10 text-emerald-400 sm:inline-flex",
-                  )}
-                >
-                  <BookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {BUILDER_BROWSE_PLAYBOOK}
-                </div>
+              <div
+                className={cn(
+                  appShellBuilderBrowseButtonClass,
+                  "inline-flex shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+                )}
+              >
+                <BookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                {BUILDER_BROWSE_PLAYBOOK}
               </div>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <MarketingWorkspaceTabBar />
-              <div className={cn(appShellBuilderBrowseButtonClass, "inline-flex border-slate-700/80 text-emerald-400 sm:hidden")}>
-                <BookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                {BUILDER_BROWSE_PLAYBOOK}
-              </div>
               <div className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400">
                 <Plus className="h-3.5 w-3.5 shrink-0" aria-hidden />
                 {BUILDER_ADD_SITUATION}

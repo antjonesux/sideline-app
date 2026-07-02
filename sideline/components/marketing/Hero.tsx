@@ -22,7 +22,7 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
           <div>
             <SectionBadge>
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
-              EA SPORTS College Football
+              EA SPORTS College Football 27
             </SectionBadge>
 
             <h1 className="mt-6 font-heading text-5xl font-extrabold normal-case leading-[1.05] tracking-tight text-white lg:text-6xl xl:text-7xl">
@@ -32,7 +32,7 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-400">{MARKETING_HERO_SUBTITLE}</p>
 
             <p className="mt-3 text-base font-semibold text-slate-400">
-              Stop relying on memory. <span className="text-emerald-500">Start playing with a plan.</span>
+              Stop guessing and <span className="text-emerald-500">start playing with a plan.</span>
             </p>
 
             <div className="mt-10 flex flex-wrap gap-3">
@@ -47,7 +47,7 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
             </div>
 
             <div className="mt-10 flex flex-wrap items-center gap-6">
-              {["Free to use", "No credit card", "Built for College Football"].map((item) => (
+              {["Free to use", "No credit card", "Built for CFB27"].map((item) => (
                 <div key={item} className="flex items-center gap-1.5">
                   <CheckCircle size={13} className="text-emerald-500" aria-hidden />
                   <span className="font-mono text-xs text-slate-500">{item}</span>

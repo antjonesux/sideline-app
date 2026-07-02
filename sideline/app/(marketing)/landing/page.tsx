@@ -11,9 +11,9 @@ import { WhatIsCallSheet } from "@/components/marketing/WhatIsCallSheet";
 import { WhySideline } from "@/components/marketing/WhySideline";
 
 export const metadata: Metadata = {
-  title: "Welcome — The Sideline",
+  title: "The Sideline",
   description:
-    "The modern digital Call Sheet for EA SPORTS College Football. Build personalized game plans and organize your favorite plays into tactical situations.",
+    "The modern digital Call Sheet for EA SPORTS College Football 27. Build offensive and defensive game plans, organize your plays into custom situations, and call every game with confidence.",
 };
 
 function first(param: string | string[] | undefined): string | undefined {

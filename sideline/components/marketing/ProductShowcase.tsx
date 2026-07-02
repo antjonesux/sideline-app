@@ -11,9 +11,9 @@ export function ProductShowcase() {
             Your Game Day Workspace
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-400">
-            Build your Call Sheet, organize your situations, and walk into every game with a plan you trust. Your
-            workspace keeps everything you need for game day in one place—from building your game plan to making
-            confident play calls.
+            Build your Call Sheets, organize them into Schemes, and walk into every game with a plan you trust. Your
+            workspace keeps everything you need for game day in one place — from building offensive and defensive game
+            plans to making confident play calls on both sides of the ball.
           </p>
         </div>
 
