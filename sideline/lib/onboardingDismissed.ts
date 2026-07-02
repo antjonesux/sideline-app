@@ -2,6 +2,9 @@
 
 export const ONBOARDING_KEY_PREFIX = "sideline-onboarding-dismissed";
 
+/** Product gate: when false, onboarding UI is skipped; implementation stays in repo. */
+export const ONBOARDING_ENABLED = false;
+
 /** Dev-only: force carousel; must stay `false` in commits. */
 export const FORCE_ONBOARDING = false;
 

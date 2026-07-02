@@ -1,4 +1,5 @@
 import { CreatePlaybookModal } from "@/components/playbook/CreatePlaybookModal";
+import { ONBOARDING_ENABLED } from "@/lib/onboardingDismissed";
 
 function first(param: string | string[] | undefined): string | undefined {
   if (Array.isArray(param)) return param[0];
@@ -14,7 +15,7 @@ export default async function NewPlaybookPage({
   const onboarding = first(sp.onboarding);
   const cfb26 = first(sp.cfb26)?.trim();
 
-  if (onboarding === "1") {
+  if (ONBOARDING_ENABLED && onboarding === "1") {
     return (
       <CreatePlaybookModal
         variant="page"

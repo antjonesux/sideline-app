@@ -4,7 +4,12 @@ import { DEFAULT_POST_AUTH_PATH } from "@/lib/navigation/loginHref";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { OnboardingCarousel } from "@/components/shared/OnboardingCarousel";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
-import { dismissOnboarding, FORCE_ONBOARDING, isOnboardingDismissed } from "@/lib/onboardingDismissed";
+import {
+  dismissOnboarding,
+  FORCE_ONBOARDING,
+  isOnboardingDismissed,
+  ONBOARDING_ENABLED,
+} from "@/lib/onboardingDismissed";
 import { createClient } from "@/lib/supabase/client";
 import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useRouter } from "next/navigation";
@@ -60,6 +65,12 @@ export function HomeOnboardingGate() {
 
       if (!uid) {
         router.replace("/landing");
+        return;
+      }
+
+      if (!ONBOARDING_ENABLED && !FORCE_ONBOARDING) {
+        setPhase("redirecting");
+        router.replace(DEFAULT_POST_AUTH_PATH);
         return;
       }
 

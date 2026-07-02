@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-02 — Hide onboarding from active user flow
+
+### What
+
+- **[`onboardingDismissed.ts`](sideline/lib/onboardingDismissed.ts):** Added **`ONBOARDING_ENABLED`** (`false`) as the product gate to skip onboarding while keeping all implementation in the repo.
+- **[`app/page.tsx`](sideline/app/page.tsx), [`HomeOnboardingGate.tsx`](sideline/components/shared/HomeOnboardingGate.tsx):** Authenticated **`/`** redirects to **`/playbook`** when onboarding is disabled; carousel eligibility logic preserved for re-enable.
+- **[`app/playbook/new/page.tsx`](sideline/app/playbook/new/page.tsx), [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx), [`app/film/[gameId]/page.tsx`](sideline/app/film/[gameId]/page.tsx):** **`?onboarding=1`** and **`?guided=1`** query flags are ignored when onboarding is off so direct URLs do not surface guided chrome.
+
+### Why
+
+Onboarding is out of the MVP path — new coaches should land in the app after auth while carousel, guided play sheet, and guided film code stay available for future use and **`/qa/onboarding/*`** capture.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-01 — Terms of Service and Privacy Policy pages
 
 ### What

@@ -45,7 +45,7 @@ import {
   GUIDED_LOGGER_TITLE,
   GUIDED_ONBOARDING_EDITOR_SCENARIO,
 } from "@/lib/coachCopy";
-import { dismissOnboarding } from "@/lib/onboardingDismissed";
+import { dismissOnboarding, ONBOARDING_ENABLED } from "@/lib/onboardingDismissed";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
@@ -130,7 +130,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const guidedMode = searchParams.get("guided") === "1";
+  const guidedMode = ONBOARDING_ENABLED && searchParams.get("guided") === "1";
   const guidedSheetScenarioParam = searchParams.get("sheetScenario")?.trim();
   const guidedMySheetScenario = guidedMode
     ? guidedSheetScenarioParam || GUIDED_ONBOARDING_EDITOR_SCENARIO

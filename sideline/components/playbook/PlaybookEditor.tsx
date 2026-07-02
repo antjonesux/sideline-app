@@ -68,6 +68,7 @@ import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
 import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
 import { playbookEditorHref, playbookEditorListBackHref } from "@/lib/navigation/playSheetNav";
+import { ONBOARDING_ENABLED } from "@/lib/onboardingDismissed";
 
 const STALE_SCENARIO_MS = 5 * 60 * 1000;
 
@@ -110,7 +111,7 @@ const MIN_ONBOARDING_SHEET_PLAYS = 3;
 export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const onboardingEditor = searchParams.get("onboarding") === "1";
+  const onboardingEditor = ONBOARDING_ENABLED && searchParams.get("onboarding") === "1";
   const situationParam = searchParams.get("situation")?.trim() ?? "";
   const returnFrom = searchParams.get("from");
   const listBackHref = useMemo(() => playbookEditorListBackHref(returnFrom), [returnFrom]);
