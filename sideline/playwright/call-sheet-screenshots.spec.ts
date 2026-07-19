@@ -10,8 +10,9 @@ const shots: { path: string; file: string }[] = [
 
 for (const { path: urlPath, file } of shots) {
   test(`call sheet QA: ${file}`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(urlPath, { waitUntil: "load", timeout: 60_000 });
+    await page.goto(urlPath, { waitUntil: "domcontentloaded", timeout: 90_000 });
     await page.locator("body").waitFor({ state: "visible" });
     if (file === "04-menu.png") {
       await page.getByRole("dialog", { name: "Call sheet navigation" }).waitFor({ state: "visible" });

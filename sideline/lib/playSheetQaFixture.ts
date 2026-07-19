@@ -11,12 +11,57 @@ import {
   onboardingQaSheetPlays,
   onboardingQaStaticCfb26Playbooks,
 } from "@/lib/onboardingQaFixture";
+import { CALL_SHEET_SCENARIO_MAX } from "@/lib/playbookUtils";
 
 export const playSheetQaCfb26Playbook = ONBOARDING_QA_CFB26_PLAYBOOK;
 export const playSheetQaStaticCfb26Playbooks = onboardingQaStaticCfb26Playbooks;
 export const playSheetQaSheetName = ONBOARDING_DEFAULT_SHEET_NAME;
+/** Call Sheet coach-view QA / mobile screenshots — product mock title. */
+export const playSheetQaCallSheetName = "My First Sheet";
 export const playSheetQaEditorScenario = GUIDED_ONBOARDING_EDITOR_SCENARIO;
 export const playSheetQaSheetPlays = onboardingQaSheetPlays;
+
+const QA_MAX_FILL_CATALOG: { formation: string; play_name: string; play_type: "RUN" | "PASS" | "RPO" }[] = [
+  { formation: "GUN EMPTY", play_name: "JET TOUCH PASS", play_type: "PASS" },
+  { formation: "GUN TRIPS", play_name: "CROSS DRAG", play_type: "PASS" },
+  { formation: "ACE", play_name: "HB ZONE WK", play_type: "RUN" },
+  { formation: "GUN Y OFF", play_name: "MESH", play_type: "PASS" },
+  { formation: "GUN BUNCH", play_name: "FLOOD", play_type: "PASS" },
+  { formation: "ACE TWINS", play_name: "POWER", play_type: "RUN" },
+  { formation: "GUN TRIPS TE", play_name: "STICK", play_type: "PASS" },
+  { formation: "PISTOL", play_name: "INSIDE ZONE", play_type: "RUN" },
+  { formation: "GUN DOUBLES", play_name: "SMASH", play_type: "PASS" },
+  { formation: "ACE SLOT", play_name: "COUNTER", play_type: "RUN" },
+  { formation: "GUN EMPTY", play_name: "FOUR VERTS", play_type: "PASS" },
+  { formation: "GUN TRIPS", play_name: "RPO PEEK", play_type: "RPO" },
+  { formation: "ACE", play_name: "ISO", play_type: "RUN" },
+  { formation: "GUN Y OFF", play_name: "CURL FLAT", play_type: "PASS" },
+  { formation: "GUN BUNCH", play_name: "HITCH SEAM", play_type: "PASS" },
+  { formation: "ACE TWINS", play_name: "TOSS", play_type: "RUN" },
+  { formation: "GUN TRIPS TE", play_name: "LEVELS", play_type: "PASS" },
+  { formation: "PISTOL", play_name: "SPLIT ZONE", play_type: "RUN" },
+  { formation: "GUN DOUBLES", play_name: "DAGGERS", play_type: "PASS" },
+  { formation: "ACE SLOT", play_name: "OUTSIDE ZONE", play_type: "RUN" },
+  { formation: "GUN EMPTY", play_name: "SPACING", play_type: "PASS" },
+  { formation: "GUN TRIPS", play_name: "Y CROSS", play_type: "PASS" },
+  { formation: "ACE", play_name: "TRAP", play_type: "RUN" },
+  { formation: "GUN Y OFF", play_name: "SHALLOW CROSS", play_type: "PASS" },
+  { formation: "GUN BUNCH", play_name: "SNAG", play_type: "PASS" },
+];
+
+function qaMaxFilledPlays(scenarioKey: string): SheetPlayRow[] {
+  return Array.from({ length: CALL_SHEET_SCENARIO_MAX }, (_, play_order) => {
+    const entry = QA_MAX_FILL_CATALOG[play_order % QA_MAX_FILL_CATALOG.length]!;
+    return {
+      id: `qa-max-${scenarioKey}-${play_order}`,
+      play_order,
+      formation: entry.formation,
+      play_name: entry.play_name,
+      script_note: null,
+      play_type: entry.play_type,
+    };
+  });
+}
 
 const QA_SCENARIO_META: Record<string, { description: string; icon: string; color: string; is_locked?: boolean }> = {
   "Go-To Plays": { description: "Your most trusted plays", icon: "Star", color: "amber", is_locked: true },
@@ -43,15 +88,17 @@ function qaScenarioBlock(scenario: string, index: number, plays: SheetPlayRow[] 
   };
 }
 
+const callSheetQaMaxPlayCount = DEFAULT_OFFENSIVE_SITUATIONS.length * CALL_SHEET_SCENARIO_MAX;
+
 export const playSheetQaSummaries: PlaybookSummary[] = [
   {
     id: "qa-sheet-1",
-    name: "Week 5 vs Washington",
+    name: playSheetQaCallSheetName,
     cfb26_playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
     scheme: "Spread",
-    scenario_filled: 4,
+    scenario_filled: DEFAULT_OFFENSIVE_SITUATIONS.length,
     scenario_total: DEFAULT_OFFENSIVE_SITUATIONS.length,
-    play_count: 12,
+    play_count: callSheetQaMaxPlayCount,
     updated_at: new Date().toISOString(),
   },
   {
@@ -90,6 +137,16 @@ export const playSheetQaEditorScenarios: SheetScenarioBlock[] = DEFAULT_OFFENSIV
         : [];
   return qaScenarioBlock(situation.scenario, index, plays);
 });
+
+/** Call Sheet coach-view QA: every default situation filled to max play count. */
+export const playSheetQaCoachViewScenarios: SheetScenarioBlock[] = DEFAULT_OFFENSIVE_SITUATIONS.map(
+  (situation, index) =>
+    qaScenarioBlock(
+      situation.scenario,
+      index,
+      qaMaxFilledPlays(situation.scenario.replace(/\s+/g, "-").toLowerCase()),
+    ),
+);
 
 export const playSheetQaEmptyScenarios: SheetScenarioBlock[] = DEFAULT_OFFENSIVE_SITUATIONS.map((situation, index) =>
   qaScenarioBlock(situation.scenario, index, []),

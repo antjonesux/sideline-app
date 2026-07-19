@@ -6,6 +6,7 @@ export function PlayTableHeader({
   stackFormation = false,
   hideRemoveColumn = false,
   hideDragColumn = false,
+  hideTypeColumn = false,
   actionColumn = "remove",
 }: {
   showGoToColumn?: boolean;
@@ -13,6 +14,8 @@ export function PlayTableHeader({
   hideRemoveColumn?: boolean;
   /** Hide drag-handle gutter (e.g. Add Play browse table). */
   hideDragColumn?: boolean;
+  /** Call Sheet situation detail — omit Type column. */
+  hideTypeColumn?: boolean;
   /** Right action column — hidden when `hideRemoveColumn`. */
   actionColumn?: "remove" | "add";
 }) {
@@ -26,9 +29,11 @@ export function PlayTableHeader({
           Formation
         </div>
       ) : null}
-      <div className="flex w-16 shrink-0 justify-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
-        Type
-      </div>
+      {!hideTypeColumn ? (
+        <div className="flex w-16 shrink-0 justify-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+          Type
+        </div>
+      ) : null}
       {showGoToColumn ? <div className="w-8 shrink-0" aria-label="Go-To" /> : null}
       {showActionColumn ? (
         <div className="w-8 shrink-0" aria-label={actionColumn === "add" ? "Add" : "Remove"} />

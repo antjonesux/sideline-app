@@ -28,14 +28,18 @@ export function CallSheetBuilderSituationWorkspace({
 }) {
   return (
     <div className={cn("hidden min-h-0 flex-col overflow-hidden md:flex md:min-h-[50vh]", className)}>
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-          <div className={cn(appShellSituationWorkspaceInnerClass, "px-0 py-0 md:px-2 md:py-1 lg:px-8 lg:py-2")}>
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 overflow-hidden",
+          browsePanel && "gap-3 lg:gap-6",
+        )}
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+          <div className={cn(appShellSituationWorkspaceInnerClass, "min-w-0 px-0 py-0 md:px-2 md:py-1 lg:px-8 lg:py-2")}>
             <CallSheetBuilderSituationHeader {...header} layout="workspace" />
             <CallSheetBuilderSituationToolbar
               browseActive={browseActive}
               onBrowsePlaybook={onBrowsePlaybook}
-              plays={header.plays ?? []}
             />
             {children}
           </div>

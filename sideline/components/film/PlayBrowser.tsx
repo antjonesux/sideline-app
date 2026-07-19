@@ -18,6 +18,7 @@ import {
   pinTrailingFormationGroups,
 } from "@/lib/playbooks/formation-types";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
+import { X } from "lucide-react";
 
 type BrowserStep = "formations" | "plays";
 
@@ -104,6 +105,7 @@ export function PlayBrowser({
     qaInitialUi?.formation ?? null,
   );
   const playsScrollRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useLayoutEffect(() => {
     if (!selectedFormation) return;
@@ -206,17 +208,33 @@ export function PlayBrowser({
         {effectiveShowTopLevelBack ? (
           <IconBackButton aria-label="Back" onClick={onClose} />
         ) : null}
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search plays & formations"
-          autoComplete="off"
-          enterKeyHint="search"
-          className={`min-h-11 min-w-0 flex-1 touch-manipulation rounded-xl border border-slate-700 bg-slate-900 px-3 font-sans text-sm text-white placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 ${
-            playSheetAddLayout ? "" : "rounded-lg"
-          }`}
-        />
+        <div className="relative min-h-11 min-w-0 flex-1">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search plays & formations"
+            autoComplete="off"
+            enterKeyHint="search"
+            className={`min-h-11 w-full touch-manipulation rounded-xl border border-slate-700 bg-slate-900 py-2 pl-3 font-sans text-sm text-white placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 ${
+              query.length > 0 ? "pr-10" : "pr-3"
+            } ${playSheetAddLayout ? "" : "rounded-lg"}`}
+          />
+          {query.length > 0 ? (
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-500 transition-colors hover:text-slate-300"
+              aria-label="Clear search"
+              onClick={() => {
+                setQuery("");
+                searchInputRef.current?.focus();
+              }}
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ export function PlayTableRow({
   showGoToStar = false,
   stackFormation = false,
   hideRemove = false,
+  hidePlayType = false,
   readOnly = false,
   formationFirstLabel = false,
   className = "",
@@ -34,6 +35,8 @@ export function PlayTableRow({
   showGoToStar?: boolean;
   stackFormation?: boolean;
   hideRemove?: boolean;
+  /** Call Sheet situation detail — omit RUN/PASS/RPO pill. */
+  hidePlayType?: boolean;
   /** Read-only reference rows (Call Sheet viewer) — no drag, remove, or Go-To toggle. */
   readOnly?: boolean;
   /** Show `formation → play` in the Play column (Call Sheet viewer). */
@@ -65,9 +68,11 @@ export function PlayTableRow({
       {!stackFormation ? (
         <div className="hidden w-36 shrink-0 truncate font-mono text-xs text-slate-500 sm:block">{play.formation}</div>
       ) : null}
-      <div className="flex w-16 shrink-0 justify-center">
-        <PlayTypeBadge type={playType} />
-      </div>
+      {!hidePlayType ? (
+        <div className="flex w-16 shrink-0 justify-center">
+          <PlayTypeBadge type={playType} />
+        </div>
+      ) : null}
       {showGoToControl ? (
         <div className="flex w-8 shrink-0 justify-center">
           <button

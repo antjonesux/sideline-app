@@ -60,15 +60,15 @@ export function CallSheetBuilderWorkspaceChrome({
       <div
         className={cn(
           "flex min-h-0 flex-1 overflow-hidden",
-          browseActive && "gap-4 lg:gap-6",
+          browsePanel && "gap-4 lg:gap-6",
         )}
       >
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-          <div className={`${appShellWorkspaceBuilderClass} flex flex-col`}>
-            <div className="flex items-start justify-between gap-6 pb-5">
-              <div className="flex min-w-0 items-start gap-3">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+          <div className={`${appShellWorkspaceBuilderClass} flex min-w-0 flex-col`}>
+            <div className="flex min-w-0 items-start justify-between gap-3 overflow-hidden pb-5 lg:gap-6">
+              <div className="flex min-w-0 flex-1 items-start gap-3">
                 <IconBackButton href={backHref} aria-label="Back to play sheets" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <h1 className={`${appShellBuilderTitleClass} min-w-0 truncate`}>{sheetName}</h1>
                   {catalogMeta ? (
                     <CallSheetMetadataRow
@@ -83,17 +83,17 @@ export function CallSheetBuilderWorkspaceChrome({
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-4 pt-0.5">
-                <div className="text-right">
+              <div className="flex shrink-0 items-center gap-2 pt-0.5 md:gap-3 lg:gap-4">
+                <div className="hidden text-right sm:block">
                   <p className={appShellWorkspaceStatValueClass}>{situationCount}</p>
                   <p className={appShellWorkspaceStatLabelClass}>situations</p>
                 </div>
-                <div className="h-8 w-px bg-slate-800/80" aria-hidden />
-                <div className="text-right">
+                <div className="hidden h-8 w-px bg-slate-800/80 sm:block" aria-hidden />
+                <div className="hidden text-right sm:block">
                   <p className={appShellWorkspaceStatValueClass}>{playCount}</p>
                   <p className={appShellWorkspaceStatLabelClass}>plays</p>
                 </div>
-                <div className="h-8 w-px bg-slate-800/80" aria-hidden />
+                <div className="hidden h-8 w-px bg-slate-800/80 sm:block" aria-hidden />
                 <button
                   type="button"
                   className={cn(
@@ -106,7 +106,8 @@ export function CallSheetBuilderWorkspaceChrome({
                   aria-pressed={browseActive}
                 >
                   <BookOpen className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
-                  {BUILDER_BROWSE_PLAYBOOK}
+                  <span className="hidden lg:inline">{BUILDER_BROWSE_PLAYBOOK}</span>
+                  <span className="lg:hidden">Browse</span>
                 </button>
               </div>
             </div>

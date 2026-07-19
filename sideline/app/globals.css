@@ -248,11 +248,18 @@
     max-width: var(--app-shell-workspace-inner-wide-max-width);
   }
 
-  /** Situation detail browse panel — desktop side rail (Session 11). */
+  /** Situation detail browse panel — desktop side rail (Session 11). Narrower on tablet so the header fits. */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
-    width: 21.25rem;
+    width: min(21.25rem, 42%);
+    max-width: 21.25rem;
     flex-shrink: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .app-shell-situation-browse-panel {
+      width: 21.25rem;
+    }
   }
 }
 

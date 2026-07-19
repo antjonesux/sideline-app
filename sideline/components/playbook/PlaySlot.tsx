@@ -20,6 +20,7 @@ export function PlaySlot({
   showGoToStar = false,
   stackFormation = false,
   hideRemove = false,
+  hidePlayType = false,
 }: {
   play: SheetPlayRow | null;
   slotIndex: number;
@@ -35,6 +36,7 @@ export function PlaySlot({
   showGoToStar?: boolean;
   stackFormation?: boolean;
   hideRemove?: boolean;
+  hidePlayType?: boolean;
 }) {
   if (!play) {
     return (
@@ -79,6 +81,7 @@ export function PlaySlot({
       showGoToStar={showGoToStar}
       stackFormation={stackFormation}
       hideRemove={hideRemove}
+      hidePlayType={hidePlayType}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData("text/play-id", play.id);

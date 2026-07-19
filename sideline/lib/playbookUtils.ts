@@ -44,14 +44,11 @@ export function sortScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): She
   });
 }
 
-/** Default max calls per situation; see `scenarioMaxSlots` (API + Play Sheet + Film). */
-export const PLAY_SHEET_SCENARIO_MAX_DEFAULT = 10;
+/** Max calls per situation — uniform across all scenarios (API + Play Sheet + Film). */
+export const PLAY_SHEET_SCENARIO_MAX_DEFAULT = 25;
 
-export function scenarioMaxSlots(scenario: string): number {
-  if (scenario === "Opening Script") return 15;
-  if (scenario === "2 Minute" || scenario === "4 Minute" || scenario === "2-Minute Drill" || scenario === "4-Minute") {
-    return 10;
-  }
+/** Slot helper kept for existing call sites — always returns the shared uniform cap. */
+export function scenarioMaxSlots(_scenario?: string): number {
   return PLAY_SHEET_SCENARIO_MAX_DEFAULT;
 }
 
@@ -196,11 +193,11 @@ export function reorderSituationBlocks(
   return withSequentialScenarioOrder(goTo ? [goTo, ...nextReorderable] : nextReorderable);
 }
 
-/** Max plays per tactical / custom Call Sheet situation. */
-export const CALL_SHEET_SCENARIO_MAX = 25;
+/** Max plays per tactical / custom Call Sheet situation (alias of the shared cap). */
+export const CALL_SHEET_SCENARIO_MAX = PLAY_SHEET_SCENARIO_MAX_DEFAULT;
 
-/** Max plays per tactical Call Sheet situation — uniform 25 across all buckets. */
-export function callSheetScenarioMaxSlots(_scenario: string): number {
+/** Max plays per tactical Call Sheet situation — uniform across all buckets. */
+export function callSheetScenarioMaxSlots(_scenario?: string): number {
   return CALL_SHEET_SCENARIO_MAX;
 }
 
@@ -221,12 +218,9 @@ export function isCallSheetScenario(scenario: string): boolean {
   return (CALL_SHEET_SCENARIOS as readonly string[]).includes(scenario);
 }
 
-const LEGACY_SCENARIO_SET = new Set<string>(SCENARIOS);
-
-/** Slot cap for builder/API — legacy down-and-distance tabs keep special cases; call sheet + custom buckets use 25. */
-export function maxSlotsForSheetScenario(scenario: string): number {
-  if (LEGACY_SCENARIO_SET.has(scenario)) return scenarioMaxSlots(scenario);
-  return CALL_SHEET_SCENARIO_MAX;
+/** Slot cap for builder/API — uniform 25 for every situation (including Go-To Plays). */
+export function maxSlotsForSheetScenario(_scenario?: string): number {
+  return PLAY_SHEET_SCENARIO_MAX_DEFAULT;
 }
 
 export function sortSheetScenariosByCanonicalOrder(blocks: SheetScenarioBlock[]): SheetScenarioBlock[] {

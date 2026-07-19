@@ -35,9 +35,18 @@ function coachViewFormationGroups(plays: SheetPlayRow[]): { formation: string; p
   }));
 }
 
-export function CallSheetCoachView({ scenarios }: { scenarios: SheetScenarioBlock[] }) {
+export function CallSheetCoachView({
+  scenarios,
+  initiallyExpanded = false,
+}: {
+  scenarios: SheetScenarioBlock[];
+  /** When true, open every situation accordion on mount (QA / deep-link previews). */
+  initiallyExpanded?: boolean;
+}) {
   const orderedBlocks = useMemo(() => orderedScenarioBlocks(scenarios), [scenarios]);
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(() =>
+    initiallyExpanded ? new Set(scenarios.map((block) => block.id)) : new Set(),
+  );
 
   const totalPlays = useMemo(
     () => scenarios.reduce((acc, scenario) => acc + scenario.plays.length, 0),

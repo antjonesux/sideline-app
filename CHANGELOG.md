@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-19 — QA38 Call Sheet builder fixes
+
+### What
+
+- **[`playbookUtils.ts`](sideline/lib/playbookUtils.ts):** Uniform **25-play** cap for every situation (including Go-To Plays); removed per-scenario slot overrides. Client and **[`plays/route.ts`](sideline/app/api/playbook/[id]/plays/route.ts)** share `maxSlotsForSheetScenario`.
+- **[`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** After add/remove, optimistically patches the sheet + scenario TanStack Query caches so max-checks use live play-array length (fixes false “full” warnings and exceeding max). Situation detail header shows **`n/25`**, amber at capacity.
+- **[`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx):** Clear (X) control on the add-play / browse search input.
+- **[`PlayTableRow.tsx`](sideline/components/game-plan/PlayTableRow.tsx) / [`PlaySlot.tsx`](sideline/components/playbook/PlaySlot.tsx) / situation header & toolbar:** Removed RUN/PASS/RPO badges and aggregate type summary pills from situation detail; browse/search results unchanged.
+- **Builder chrome / [`globals.css`](sideline/app/globals.css):** Tablet header shrinks cleanly beside the browse side rail (responsive rail width, truncation, compact Browse label).
+- **Call Sheet QA:** Fixture fills situations to the shared max; Coach View preview `initiallyExpanded`; refreshed **`qa-screenshots/call-sheet/*`**.
+
+### Why
+
+QA38 coach feedback: caps and counts must be trustworthy, situation detail should stay uncluttered, and tablet browse layout must not clip the header.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-02 — Landing page copy refresh for CFB27
 
 ### What

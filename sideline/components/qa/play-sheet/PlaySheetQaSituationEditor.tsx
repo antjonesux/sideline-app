@@ -73,6 +73,7 @@ export function PlaySheetQaSituationEditor({
     showGoToStar,
     stackFormation: true,
     hideRemove: isGoToSituation,
+    hidePlayType: true,
   } as const;
 
   const headerProps = {
@@ -83,7 +84,7 @@ export function PlaySheetQaSituationEditor({
     colorKey: activeBlock?.color ?? "emerald",
     icon: activeBlock?.icon,
     playCountLabel: callSheetScenarioPlayCountHeaderLabel(filled, maxSlots),
-    plays,
+    playCountAtCapacity: atCapacity,
   };
 
   const renderPlays = (workspace = false) => (
@@ -110,7 +111,7 @@ export function PlaySheetQaSituationEditor({
               workspace ? "rounded-xl [&>div>div]:md:min-h-12" : "rounded-lg",
             )}
           >
-            <PlayTableHeader showGoToColumn={showGoToStar} stackFormation hideRemoveColumn={isGoToSituation} />
+            <PlayTableHeader showGoToColumn={showGoToStar} stackFormation hideRemoveColumn={isGoToSituation} hideTypeColumn />
             <div>
               {plays.map((play, slotIndex) => (
                 <PlaySlot

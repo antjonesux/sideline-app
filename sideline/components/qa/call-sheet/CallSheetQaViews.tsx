@@ -11,8 +11,8 @@ import {
 } from "@/lib/coachCopy";
 import { appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
 import {
-  playSheetQaEditorScenarios,
-  playSheetQaSheetName,
+  playSheetQaCallSheetName,
+  playSheetQaCoachViewScenarios,
   playSheetQaSummaries,
 } from "@/lib/playSheetQaFixture";
 import Link from "next/link";
@@ -43,7 +43,7 @@ function CallSheetQaHeader({
           aria-haspopup="listbox"
           aria-expanded={switcherOpen}
         >
-          <span className="truncate font-sans text-lg font-semibold text-white">{playSheetQaSheetName}</span>
+          <span className="truncate font-sans text-lg font-semibold text-white">{playSheetQaCallSheetName}</span>
           <svg className="h-4 w-4 shrink-0 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="m6 9 6 6 6-6" />
           </svg>
@@ -64,7 +64,7 @@ export function CallSheetQaHome() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader />
-      <CallSheetCoachView scenarios={playSheetQaEditorScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} />
     </div>
   );
 }
@@ -104,7 +104,7 @@ export function CallSheetQaSwitcher() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader initialSwitcherOpen />
-      <CallSheetCoachView scenarios={playSheetQaEditorScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} />
     </div>
   );
 }
@@ -112,7 +112,8 @@ export function CallSheetQaSwitcher() {
 export function CallSheetQaRunGameSituation() {
   return (
     <CallSheetCoachView
-      scenarios={playSheetQaEditorScenarios.filter((block) => block.scenario === "Run Game")}
+      initiallyExpanded
+      scenarios={playSheetQaCoachViewScenarios.filter((block) => block.scenario === "Run Game")}
     />
   );
 }

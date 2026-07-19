@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetCfb26Playbook } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetCfb26Playbook } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
@@ -129,7 +129,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerAddedKeys, setDrawerAddedKeys] = useState<Set<string>>(() => new Set());
-  const [drawerAddsThisSession, setDrawerAddsThisSession] = useState(0);
   const [browsePlaybookMode, setBrowsePlaybookMode] = useState(false);
   const [pendingBrowsePick, setPendingBrowsePick] = useState<{ formation: string; play_name: string } | null>(
     null,
@@ -261,7 +260,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       setBrowsePlaybookMode(false);
       setPendingBrowsePick(null);
       setDrawerAddedKeys(new Set());
-      setDrawerAddsThisSession(0);
       setReplaceSuggest(null);
     }
     prevActiveScenarioRef.current = activeScenario;
@@ -352,6 +350,51 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     void queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId, activeScenario] });
     invalidateSheet();
   }, [queryClient, sheetId, activeScenario, invalidateSheet]);
+
+  /** Keep capacity checks on `activeBlock.plays.length` in sync immediately after mutations. */
+  const patchSheetPlayAdded = useCallback(
+    (scenarioId: string, play: SheetPlayRow) => {
+      queryClient.setQueryData<SheetPayload>(["playbook", sheetId], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          scenarios: old.scenarios.map((block) => {
+            if (block.id !== scenarioId) return block;
+            if (block.plays.some((p) => p.id === play.id)) return block;
+            return { ...block, plays: [...block.plays, play] };
+          }),
+        };
+      });
+      queryClient.setQueriesData<ScenarioPayload>({ queryKey: ["playbook-scenario", sheetId] }, (old) => {
+        if (!old || old.scenarioId !== scenarioId) return old;
+        if (old.plays.some((p) => p.id === play.id)) return old;
+        return { ...old, plays: [...old.plays, play] };
+      });
+    },
+    [queryClient, sheetId],
+  );
+
+  const patchSheetPlayRemoved = useCallback(
+    (playId: string) => {
+      queryClient.setQueryData<SheetPayload>(["playbook", sheetId], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          scenarios: old.scenarios.map((block) => ({
+            ...block,
+            plays: block.plays.filter((p) => p.id !== playId),
+          })),
+        };
+      });
+      queryClient.setQueriesData<ScenarioPayload>({ queryKey: ["playbook-scenario", sheetId] }, (old) => {
+        if (!old) return old;
+        const nextPlays = old.plays.filter((p) => p.id !== playId);
+        if (nextPlays.length === old.plays.length) return old;
+        return { ...old, plays: nextPlays };
+      });
+    },
+    [queryClient, sheetId],
+  );
 
   const reorderSituations = useMutation({
     mutationFn: async (situationIds: string[]) => {
@@ -576,11 +619,21 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const j = (await res.json()) as { error?: string };
+      const j = (await res.json()) as SheetPlayRow & { error?: string };
       if (!res.ok) throw new Error(j.error ?? "Could not add play");
       return j;
     },
-    onSuccess: () => invalidateScenario(),
+    onSuccess: (row, variables) => {
+      patchSheetPlayAdded(variables.scenarioId, {
+        id: row.id,
+        play_order: row.play_order,
+        formation: row.formation,
+        play_name: row.play_name,
+        script_note: row.script_note ?? null,
+        play_type: row.play_type ?? null,
+      });
+      invalidateScenario();
+    },
   });
 
   const deletePlay = useMutation({
@@ -590,7 +643,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       if (!res.ok) throw new Error(j.error ?? "Could not remove");
       return j;
     },
-    onSuccess: () => invalidateScenario(),
+    onSuccess: (_data, playId) => {
+      patchSheetPlayRemoved(playId);
+      invalidateScenario();
+    },
   });
 
   const reorderPlays = useMutation({
@@ -771,8 +827,11 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         throw new Error("missing scenario");
       }
       const comboKey = sheetPlayComboKey(formation, play_name);
-      const nextCount = filled + drawerAddsThisSession + 1;
-      if (nextCount > maxSlots) {
+      const liveFilled =
+        queryClient
+          .getQueryData<SheetPayload>(["playbook", sheetId])
+          ?.scenarios.find((s) => s.id === sid)?.plays.length ?? filled;
+      if (liveFilled >= maxSlots) {
         addToast(
           BUILDER_SITUATION_AT_CAPACITY(callSheetScenarioDisplayName(activeScenario), maxSlots),
           "warning",
@@ -782,29 +841,20 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       try {
         await postPlay.mutateAsync({ scenarioId: sid, formation, play_name });
         setDrawerAddedKeys((prev) => new Set(prev).add(comboKey));
-        setDrawerAddsThisSession((count) => count + 1);
         addToast(BUILDER_PLAY_ADDED_TO_SITUATION(callSheetScenarioDisplayName(activeScenario)), "success");
-        if (nextCount >= maxSlots) {
+        if (liveFilled + 1 >= maxSlots) {
           addToast(
             BUILDER_SITUATION_AT_CAPACITY(callSheetScenarioDisplayName(activeScenario), maxSlots),
             "warning",
           );
         }
-      } catch {
+      } catch (e) {
+        if (e instanceof Error && e.message === "at capacity") throw e;
         addToast(COULDNT_SAVE, "error");
         throw new Error("add failed");
       }
     },
-    [
-      activeBlock?.id,
-      activeScenario,
-      addToast,
-      browsePlaybookMode,
-      drawerAddsThisSession,
-      filled,
-      maxSlots,
-      postPlay,
-    ],
+    [activeBlock?.id, activeScenario, addToast, browsePlaybookMode, filled, maxSlots, postPlay, queryClient, sheetId],
   );
 
   const onBrowseSituationPick = useCallback(
@@ -933,7 +983,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     setBrowsePlaybookMode(false);
     setPendingBrowsePick(null);
     setDrawerAddedKeys(new Set());
-    setDrawerAddsThisSession(0);
   }, []);
 
   if (sheetQuery.isLoading) {
@@ -966,7 +1015,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   };
 
   const suggestions = scenarioPayload?.suggestions ?? [];
-  const situationPlaysForSummary = scenarioPayload?.plays ?? sortedPlays;
   const usePlayBrowserPanel = drawerOpen && mdWorkspaceUp && useCallSheetBuilderLayout;
   const playBrowserPanelProps = usePlayBrowserPanel
     ? {
@@ -985,7 +1033,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         goToBusyComboKey,
         onToggleGoTo: onBrowseToggleGoTo,
         addedPlayKeys: drawerDisplayedPlayKeys,
-        addDisabled: !browsePlaybookMode && filled + drawerAddsThisSession >= maxSlots,
+        addDisabled: !browsePlaybookMode && atCapacity,
       }
     : null;
 
@@ -1005,6 +1053,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     goToBusy: goToBusyId !== null,
     stackFormation: useCallSheetPlayRows,
     hideRemove: isGoToSituation,
+    hidePlayType: useCallSheetPlayRows,
   } as const;
 
   const canTakeField =
@@ -1063,6 +1112,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               showGoToColumn={showGoToStar}
               stackFormation={useCallSheetPlayRows}
               hideRemoveColumn={isGoToSituation}
+              hideTypeColumn={useCallSheetPlayRows}
             />
             <div>
               {sortedPlays.map((play, slotIndex) => (
@@ -1132,8 +1182,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 description={activeBlock?.description}
                 colorKey={activeBlock?.color}
                 icon={activeBlock?.icon}
-                playCountLabel={callSheetScenarioPlayCountLabel(filled)}
-                plays={situationPlaysForSummary}
+                playCountLabel={callSheetScenarioPlayCountHeaderLabel(filled, maxSlots)}
+                playCountAtCapacity={atCapacity}
                 showEdit={!isGoToSituation}
                 onEdit={() => setEditSituationOpen(true)}
               />
@@ -1148,8 +1198,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 description: activeBlock?.description,
                 colorKey: activeBlock?.color,
                 icon: activeBlock?.icon,
-                playCountLabel: callSheetScenarioPlayCountLabel(filled),
-                plays: situationPlaysForSummary,
+                playCountLabel: callSheetScenarioPlayCountHeaderLabel(filled, maxSlots),
+                playCountAtCapacity: atCapacity,
                 showEdit: !isGoToSituation,
                 onEdit: () => setEditSituationOpen(true),
               }}
@@ -1298,7 +1348,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         scenarioName={browsePlaybookMode ? "" : activeScenario}
         onPick={onDrawerPick}
         addedPlayKeys={drawerDisplayedPlayKeys}
-        addDisabled={!browsePlaybookMode && filled + drawerAddsThisSession >= maxSlots}
+        addDisabled={!browsePlaybookMode && atCapacity}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
