@@ -202,7 +202,11 @@ export function PlayBrowser({
 
   const level1Header = (
     <div
-      className={`relative z-[2] w-full shrink-0 ${playSheetAddLayout ? "px-4 py-3" : "border-b border-slate-700 bg-slate-900"}`}
+      className={`relative z-[2] w-full shrink-0 ${
+        playSheetAddLayout
+          ? "sticky top-0 z-10 bg-slate-950 px-4 py-3"
+          : "border-b border-slate-700 bg-slate-900"
+      }`}
     >
       <div className={`flex w-full items-center gap-3 ${playSheetAddLayout ? "" : "px-4 py-3"}`}>
         {effectiveShowTopLevelBack ? (
@@ -282,7 +286,7 @@ export function PlayBrowser({
       {searching ? (
         <>
           {level1Header}
-          <div className={`min-h-0 w-full flex-1 overflow-y-auto pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
+          <div className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             <div className="flex flex-col gap-2 px-4 pb-4">
               {!hasPlaybook ? (
                 <p className="font-body text-sm text-slate-400">
@@ -307,7 +311,7 @@ export function PlayBrowser({
       ) : step === "formations" ? (
         <>
           {level1Header}
-          <div className={`min-h-0 w-full flex-1 overflow-y-auto pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
+          <div className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             {!hasPlaybook ? (
               <div className="px-4 py-6">
                 <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3">
@@ -380,7 +384,10 @@ export function PlayBrowser({
       ) : selectedFormation ? (
         <>
           {playsViewHeader}
-          <div ref={playsScrollRef} className={`min-h-0 w-full flex-1 overflow-y-auto ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}>
+          <div
+            ref={playsScrollRef}
+            className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}
+          >
             {playSheetAddLayout ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
                 <PlayTableHeader

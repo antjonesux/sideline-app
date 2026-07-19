@@ -122,6 +122,9 @@ export const appShellBuilderBrowseButtonClass =
 export const appShellBuilderAddSituationClass =
   "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-11 md:px-4 md:text-sm";
 
+/** Situation detail workspace shell — viewport height lock + independent column scroll (md+). */
+export const appShellSituationWorkspaceClass = "app-shell-situation-workspace";
+
 /** Situation detail workspace — constrained play-list column (Session 11). */
 export const appShellSituationWorkspaceInnerClass =
   "app-shell-situation-workspace-inner mx-auto w-full max-w-[47.5rem]";

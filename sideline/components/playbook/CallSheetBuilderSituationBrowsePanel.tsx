@@ -48,7 +48,7 @@ export function CallSheetBuilderSituationBrowsePanel({
   return (
     <aside
       className={cn(
-        "app-shell-situation-browse-panel hidden min-h-0 flex-col overflow-hidden border-l border-slate-800/80 bg-slate-950 md:flex",
+        "app-shell-situation-browse-panel hidden h-full min-h-0 flex-col overflow-hidden border-l border-slate-800/80 bg-slate-950 md:flex",
       )}
       aria-label={panelTitle}
     >

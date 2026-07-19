@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-19 — Situation detail: independent column scroll + pinned add-play search
+
+### What
+
+- **[`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx) / [`globals.css`](sideline/app/globals.css):** Tablet/desktop situation detail locks to a viewport-height shell (`.app-shell-situation-workspace`) so the main play list and add-play side rail each scroll independently instead of sharing page scroll.
+- **[`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx) / [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx):** Panel mode fills the rail height; PlayBrowser owns a full-height results scroller with search pinned above (`bg-slate-950`). Mobile modal/drawer add-play unchanged; rail width unchanged (`21.25rem`).
+
+### Why
+
+Scrolling add-play results was moving the situation play list (and vice versa), and an earlier rail-level scroll owner made the wheel hit target too small.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-19 — Coach View empty situations + situation Browse cleanup
 
 ### What

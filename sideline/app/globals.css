@@ -248,6 +248,26 @@
     max-width: var(--app-shell-workspace-inner-wide-max-width);
   }
 
+  /**
+   * Situation detail workspace — tablet / desktop height lock so the main play list
+   * and add-play side rail each own independent overflow (not the page scroller).
+   * Bottom inset matches sidebar-shell `main` padding (`1.5rem` + safe area).
+   */
+  .app-shell-situation-workspace {
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 768px) {
+    .app-shell-situation-workspace {
+      height: calc(
+        100dvh - var(--app-shell-pt) - 1.5rem - env(safe-area-inset-bottom, 0px)
+      );
+      max-height: calc(
+        100dvh - var(--app-shell-pt) - 1.5rem - env(safe-area-inset-bottom, 0px)
+      );
+    }
+  }
+
   /** Situation detail browse panel — desktop side rail (Session 11). Narrower on tablet so the header fits. */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
