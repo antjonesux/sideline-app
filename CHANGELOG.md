@@ -4,6 +4,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-07-19 — Coach View empty situations + situation Browse cleanup
+
+### What
+
+- **[`CallSheetCoachView.tsx`](sideline/components/playbook/CallSheetCoachView.tsx):** Coach View hides situations with **0 plays** (client-side filter before render). Empty call sheets still show the existing Coach View empty state. Situations tab unchanged.
+- **Situation detail workspace:** Removed the redundant **Browse Playbook** toolbar control from situation detail (`CallSheetBuilderSituationToolbar` deleted). Dashboard / landing Browse Playbook and the add-play side rail remain.
+
+### Why
+
+Coach View is a glanceable game-day surface — empty situations add noise. Coaches add plays via the existing add-play flow, so Browse Playbook on situation detail was redundant.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-19 — QA38 Call Sheet builder fixes
 
 ### What

@@ -126,10 +126,6 @@ export const appShellBuilderAddSituationClass =
 export const appShellSituationWorkspaceInnerClass =
   "app-shell-situation-workspace-inner mx-auto w-full max-w-[47.5rem]";
 
-/** Situation workspace toolbar — Browse Playbook control. */
-export const appShellSituationToolbarBrowseButtonClass =
-  "inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 font-sans text-xs font-medium transition-colors md:min-h-11 md:px-4 md:text-sm";
-
 /** Situation workspace — dashed add-play control below the play table. */
 export const appShellSituationAddPlayButtonClass =
   "mt-2 flex w-full min-h-11 items-center justify-center rounded-xl border border-dashed border-slate-800 font-sans text-sm text-slate-400 transition-colors hover:border-emerald-500/40 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-12";

@@ -2,7 +2,7 @@
 
 import { SituationIconBadge } from "@/components/playbook/SituationIconBadge";
 import { getSituationColor } from "@/lib/constants";
-import { CALL_SHEET_COACH_VIEW_EMPTY, CALL_SHEET_VIEWER_SITUATION_EMPTY } from "@/lib/coachCopy";
+import { CALL_SHEET_COACH_VIEW_EMPTY } from "@/lib/coachCopy";
 import {
   callSheetScenarioDisplayName,
   callSheetScenarioPlayCountLabel,
@@ -43,9 +43,14 @@ export function CallSheetCoachView({
   /** When true, open every situation accordion on mount (QA / deep-link previews). */
   initiallyExpanded?: boolean;
 }) {
-  const orderedBlocks = useMemo(() => orderedScenarioBlocks(scenarios), [scenarios]);
+  const orderedBlocks = useMemo(
+    () => orderedScenarioBlocks(scenarios).filter((block) => block.plays.length > 0),
+    [scenarios],
+  );
   const [expanded, setExpanded] = useState<Set<string>>(() =>
-    initiallyExpanded ? new Set(scenarios.map((block) => block.id)) : new Set(),
+    initiallyExpanded
+      ? new Set(scenarios.filter((block) => block.plays.length > 0).map((block) => block.id))
+      : new Set(),
   );
 
   const totalPlays = useMemo(
@@ -131,31 +136,27 @@ export function CallSheetCoachView({
             </button>
             {isExpanded ? (
               <div className="rounded-b-xl bg-slate-900 px-4 pb-2">
-                {count === 0 ? (
-                  <p className="py-2 font-body text-xs text-slate-500">{CALL_SHEET_VIEWER_SITUATION_EMPTY}</p>
-                ) : (
-                  formationGroups.map((group, groupIndex) => (
-                    <div
-                      key={`${group.formation}-${group.plays[0]?.id ?? groupIndex}`}
-                      className={cn(
-                        "grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-4 border-b border-slate-700/50 py-3",
-                        groupIndex === formationGroups.length - 1 && "border-b-0",
-                      )}
-                    >
-                      <p className="min-w-0 truncate font-body text-sm text-slate-400">{group.formation}</p>
-                      <div className="min-w-0 flex-1 space-y-2">
-                        {group.plays.map((play) => (
-                          <p
-                            key={play.id}
-                            className="truncate font-body text-sm uppercase tracking-wide text-white"
-                          >
-                            {normalizePlayName(play.play_name)}
-                          </p>
-                        ))}
-                      </div>
+                {formationGroups.map((group, groupIndex) => (
+                  <div
+                    key={`${group.formation}-${group.plays[0]?.id ?? groupIndex}`}
+                    className={cn(
+                      "grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-4 border-b border-slate-700/50 py-3",
+                      groupIndex === formationGroups.length - 1 && "border-b-0",
+                    )}
+                  >
+                    <p className="min-w-0 truncate font-body text-sm text-slate-400">{group.formation}</p>
+                    <div className="min-w-0 flex-1 space-y-2">
+                      {group.plays.map((play) => (
+                        <p
+                          key={play.id}
+                          className="truncate font-body text-sm uppercase tracking-wide text-white"
+                        >
+                          {normalizePlayName(play.play_name)}
+                        </p>
+                      ))}
                     </div>
-                  ))
-                )}
+                  </div>
+                ))}
               </div>
             ) : null}
           </section>

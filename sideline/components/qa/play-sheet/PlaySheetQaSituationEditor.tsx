@@ -11,7 +11,6 @@ import type { SuggestionRow } from "@/lib/loggedPlayStats";
 import type { PlaybookEntry } from "@/lib/playbook";
 import {
   BUILDER_ADD_PLAY,
-  BUILDER_BROWSE_PLAYBOOK,
   GO_TO_PLAYS_EMPTY_BODY,
   GO_TO_PLAYS_EMPTY_HEADLINE,
 } from "@/lib/coachCopy";
@@ -165,8 +164,6 @@ export function PlaySheetQaSituationEditor({
 
       <CallSheetBuilderSituationWorkspace
         header={headerProps}
-        browseActive={Boolean(drawerUi?.open)}
-        onBrowsePlaybook={noop}
         browsePanel={
           drawerUi?.open
             ? {

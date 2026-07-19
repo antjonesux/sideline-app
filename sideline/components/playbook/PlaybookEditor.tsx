@@ -1203,8 +1203,6 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 showEdit: !isGoToSituation,
                 onEdit: () => setEditSituationOpen(true),
               }}
-              browseActive={drawerOpen && browsePlaybookMode}
-              onBrowsePlaybook={navigateToDashboardBrowse}
               browsePanel={playBrowserPanelProps}
             >
               {renderScenarioPlaysSection(true)}
