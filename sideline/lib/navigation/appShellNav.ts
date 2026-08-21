@@ -6,7 +6,7 @@ import {
 } from "@/lib/coachCopy";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
-import { ClipboardList, Layers, Settings, Video } from "lucide-react";
+import { ClipboardList, Headset, Settings, Video } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AppShellSidebarNavItem = {
@@ -20,7 +20,7 @@ export type AppShellSidebarNavItem = {
 /** Hamburger drawer destinations — call sheets, schemes, review (soon), and settings. */
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
-  { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Layers },
+  { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Headset },
   { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video, comingSoon: true },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];

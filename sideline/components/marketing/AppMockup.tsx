@@ -80,7 +80,7 @@ export function AppMockup() {
           </div>
 
           <div className="mt-auto p-3">
-            <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">My Call Sheets</div>
+            <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">Call Sheets</div>
             {[
               ["vs Alabama", "Active"],
               ["vs Georgia", "Draft"],

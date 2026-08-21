@@ -117,17 +117,17 @@ export const FILM_NEW_GAME_PLAYBOOK_LABEL = "Playbook";
 export const GAME_PLAN_EMPTY_HEADLINE = "No play sheet built yet.";
 export const GAME_PLAN_EMPTY_BODY =
   "Start with a CFB26 playbook and build the calls you trust by situation.";
-export const PLAY_SHEETS_HOME_TITLE = "My Call Sheets";
+export const PLAY_SHEETS_HOME_TITLE = "Call Sheets";
 export const playSheetsHomeCountLabel = (count: number) =>
   `${count} call sheet${count === 1 ? "" : "s"}`;
 export const PLAY_SHEET_CREATE_CTA = "Add sheet";
-/** Desktop/tablet sidebar — create action under My Call Sheets submenu. */
+/** Desktop/tablet sidebar — create action under Call Sheets submenu. */
 export const APP_SHELL_NEW_CALL_SHEET_LABEL = "New Call Sheet";
 export const APP_SHELL_CALL_SHEETS_EMPTY = "No call sheets yet";
 export const APP_SHELL_CALL_SHEETS_LOAD_ERROR = "Couldn't load sheets";
 
 /** Schemes list — page title and navigation label. */
-export const SCHEMES_HOME_TITLE = "My Schemes";
+export const SCHEMES_HOME_TITLE = "Schemes";
 export const APP_SHELL_SCHEMES_MENU_LABEL = SCHEMES_HOME_TITLE;
 export const schemesHomeCountLabel = (count: number) =>
   `${count} scheme${count === 1 ? "" : "s"}`;
@@ -159,14 +159,14 @@ export const SCHEME_FORM_SHEET_NONE = "None";
 export const SCHEME_FORM_SHEET_PLACEHOLDER = "Select a call sheet";
 export const SCHEME_FORM_SHEETS_LOADING = "Loading call sheets…";
 export const SCHEME_FORM_SHEETS_EMPTY = "No call sheets for this side yet.";
-export const SCHEME_FORM_SHEETS_EMPTY_HINT = "Create one in My Call Sheets.";
+export const SCHEME_FORM_SHEETS_EMPTY_HINT = "Create one in Call Sheets.";
 export const SCHEME_FORM_VALIDATION_SHEET_REQUIRED = "Attach at least one call sheet.";
 export const SCHEME_FORM_CREATE_CTA = "Create scheme";
 export const SCHEME_FORM_SAVE_CTA = "Save changes";
 export const SCHEME_FORM_DELETE_SCHEME_TITLE = "Delete scheme?";
 export const SCHEME_FORM_DELETE_SCHEME_CONFIRM = "Delete scheme";
 export const SCHEME_FORM_DELETE_SCHEME_MESSAGE =
-  "A scheme needs at least one call sheet. Removing all sheets will delete this scheme. Your call sheets stay in My Call Sheets.";
+  "A scheme needs at least one call sheet. Removing all sheets will delete this scheme. Your call sheets stay in Call Sheets.";
 export const SCHEME_DELETED_TOAST = "Scheme removed.";
 
 export const SCHEME_DETAIL_EDIT_SCHEME = "Edit scheme";

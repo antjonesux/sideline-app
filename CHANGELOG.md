@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — Film Room nav uses Video icon
+
+### What
+
+- **[`appShellNav.ts`](sideline/lib/navigation/appShellNav.ts) / [`MarketingWorkspaceIllustration.tsx`](sideline/components/marketing/MarketingWorkspaceIllustration.tsx):** Film Room shell nav item uses Lucide **`Video`** (was `Eye`).
+
+### Why
+
+Match Film Room naming with a clearer film/video affordance in the sidebar and marketing shell mock.
+
+### Status
+
+- Icon-only change; no build gate required beyond existing app compile.
+
+---
+
 ## 2026-08-21 — QA41 follow-up: situation padding, one scrollbar, PLAY label
 
 ### What
