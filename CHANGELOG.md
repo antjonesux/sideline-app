@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — Shell nav: Call Sheets / Schemes labels + Headset icon
+
+### What
+
+- **[`coachCopy.ts`](sideline/lib/coachCopy.ts):** Home/nav titles are **Call Sheets** and **Schemes** (was My Call Sheets / My Schemes); related scheme-form hints updated.
+- **[`appShellNav.ts`](sideline/lib/navigation/appShellNav.ts) / [`MarketingWorkspaceIllustration.tsx`](sideline/components/marketing/MarketingWorkspaceIllustration.tsx):** Schemes nav uses Lucide **`Headset`** (was `Layers`).
+- **[`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx) / [`AppMockup.tsx`](sideline/components/marketing/AppMockup.tsx):** Fallbacks and marketing mock match the new labels.
+
+### Why
+
+Shorter shell labels and a distinct Schemes affordance next to Call Sheets and Film Room.
+
+### Status
+
+- Copy/icon-only; no schema or API changes.
+
+---
+
 ## 2026-08-21 — Film Room nav uses Video icon
 
 ### What
