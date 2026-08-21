@@ -4,6 +4,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — QA41: Collapsible sidebar Call Sheets / Schemes groups
+
+### What
+
+- **[`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx):** My Call Sheets and My Schemes each get an independent expand/collapse control (Lucide `ChevronDown`, local `useState`, `aria-expanded` / `aria-controls`). Group headers stay visible and keep their list links; nested sheet/scheme links and New Call Sheet / New Scheme hide when collapsed. When a group is collapsed, the header uses section builder-path active styling so nested routes still show a current-location cue. No persistence, global store, or mobile hamburger changes (`AppShellSidebar` remains `md+` only).
+
+### Why
+
+QA41: long Call Sheet and Scheme lists clutter the persistent tablet/desktop sidebar; coaches need to collapse either group without losing primary nav structure or active-route awareness.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-21 — QA41: Add Play + situation detail refinement
 
 ### What
@@ -11,7 +27,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 - **[`PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx):** Situation header Add Play is the trailing flex item so its right edge aligns with the remove × column (same row grid; handler/capacity unchanged).
 - **[`globals.css`](sideline/app/globals.css) / [`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx):** Open Add Play rail flex-grows within percentage caps and bleeds past `.app-shell-main` right padding + centering gap to the app-shell workspace edge (`--with-browse`).
 - **[`AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx):** Play name and actions sit above featured play art (QA40 art size preserved).
-- **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts) / [`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx):** Selected formation heading (visible panel/modal header) reuses shared active sidebar nav tokens (`appShellNavItemActiveClass`).
+- **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts) / [`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx):** Selected formation heading reuses active sidebar nav typography/`text-white` (`appShellNavItemActiveTextClass`) without the emerald pill background; sidebar keeps the full active fill token.
 
 ### Why
 

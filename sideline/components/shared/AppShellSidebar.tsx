@@ -22,20 +22,22 @@ import {
   type AppShellSidebarNavItem,
 } from "@/lib/navigation/appShellNav";
 import {
+  isPlaySheetBuilderPath,
   isPlaySheetListPath,
   isPlaySheetNewPath,
   playSheetIdFromPath,
 } from "@/lib/navigation/playSheetNav";
 import {
+  isSchemeBuilderPath,
   isSchemeListPath,
   isSchemeNewPath,
   schemeIdFromPath,
 } from "@/lib/navigation/schemeNav";
 import { cn } from "@/lib/utils";
-import { LayoutGrid, LogOut, Plus, type LucideIcon } from "lucide-react";
+import { ChevronDown, LayoutGrid, LogOut, Plus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 const navItemClass = cn("group flex w-full items-center gap-3", appShellNavItemClass);
 
@@ -46,8 +48,42 @@ const navItemActiveClass = appShellNavItemActiveClass;
 const navItemInactiveClass = "text-slate-400 hover:bg-slate-900/80 hover:text-white";
 const subNavItemInactiveClass = "text-slate-500 hover:bg-slate-900/60 hover:text-slate-300";
 
+const groupToggleClass =
+  "flex h-9 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-900/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60";
+
 function NavActiveDot() {
   return <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden />;
+}
+
+function SidebarNavGroupToggle({
+  expanded,
+  label,
+  controlsId,
+  onToggle,
+}: {
+  expanded: boolean;
+  label: string;
+  controlsId: string;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={groupToggleClass}
+      aria-expanded={expanded}
+      aria-controls={controlsId}
+      aria-label={expanded ? `Collapse ${label}` : `Expand ${label}`}
+      onClick={onToggle}
+    >
+      <ChevronDown
+        className={cn(
+          "h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none",
+          !expanded && "-rotate-90",
+        )}
+        aria-hidden
+      />
+    </button>
+  );
 }
 
 function SidebarNavItem({
@@ -112,63 +148,96 @@ function CallSheetsNavGroup() {
   const callSheetsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "call-sheets");
   const Icon = callSheetsItem?.icon ?? LayoutGrid;
   const label = callSheetsItem?.label ?? "My Call Sheets";
+  const [expanded, setExpanded] = useState(true);
+  const submenuId = useId();
+  // When collapsed, surface section active on the header so nested routes stay visible.
+  const headerActive = expanded ? listActive : isPlaySheetBuilderPath(pathname);
 
   return (
     <div className="flex flex-col gap-0.5">
-      <Link
-        href="/playbook"
-        className={cn(navItemClass, listActive ? navItemActiveClass : navItemInactiveClass)}
-        aria-current={listActive ? "page" : undefined}
-      >
-        <Icon className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-        {listActive ? <NavActiveDot /> : null}
-      </Link>
-
-      <div className="flex flex-col gap-0.5 pb-1" role="group" aria-label={`${label} submenu`}>
-        {isLoading ? (
-          <div className="space-y-1.5 py-1 pl-9 pr-3" aria-hidden>
-            <div className="h-8 animate-pulse rounded-md bg-slate-900/80" />
-            <div className="h-8 animate-pulse rounded-md bg-slate-900/60" />
-          </div>
-        ) : null}
-
-        {!isLoading && isError ? (
-          <p className="px-3 py-1.5 pl-9 font-sans text-[11px] text-red-300/80">{APP_SHELL_CALL_SHEETS_LOAD_ERROR}</p>
-        ) : null}
-
-        {!isLoading && !isError && sheets.length === 0 ? (
-          <p className="px-3 py-1.5 pl-9 font-sans text-[11px] text-slate-600">{APP_SHELL_CALL_SHEETS_EMPTY}</p>
-        ) : null}
-
-        {!isLoading && !isError
-          ? sheets.map((sheet) => {
-              const active = activeSheetId === sheet.id;
-              return (
-                <Link
-                  key={sheet.id}
-                  href={`/playbook/${sheet.id}`}
-                  className={cn(subNavItemClass, active ? navItemActiveClass : subNavItemInactiveClass)}
-                  aria-current={active ? "page" : undefined}
-                  title={sheet.name}
-                >
-                  <span className="min-w-0 flex-1 truncate">{sheet.name}</span>
-                  {active ? <NavActiveDot /> : null}
-                </Link>
-              );
-            })
-          : null}
-
+      <div className="flex items-center gap-0.5">
         <Link
-          href="/playbook/new"
-          className={cn(subNavItemClass, newActive ? navItemActiveClass : subNavItemInactiveClass)}
-          aria-current={newActive ? "page" : undefined}
+          href="/playbook"
+          className={cn(
+            navItemClass,
+            "min-w-0 flex-1",
+            headerActive ? navItemActiveClass : navItemInactiveClass,
+          )}
+          aria-current={headerActive ? "page" : undefined}
         >
-          <Plus className={cn("h-3.5 w-3.5 shrink-0", newActive ? "text-white" : "text-slate-500")} aria-hidden />
-          <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_CALL_SHEET_LABEL}</span>
-          {newActive ? <NavActiveDot /> : null}
+          <Icon className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+          {headerActive ? <NavActiveDot /> : null}
         </Link>
+        <SidebarNavGroupToggle
+          expanded={expanded}
+          label={label}
+          controlsId={submenuId}
+          onToggle={() => setExpanded((open) => !open)}
+        />
       </div>
+
+      {expanded ? (
+        <div
+          id={submenuId}
+          className="flex flex-col gap-0.5 pb-1"
+          role="group"
+          aria-label={`${label} submenu`}
+        >
+          {isLoading ? (
+            <div className="space-y-1.5 py-1 pl-9 pr-3" aria-hidden>
+              <div className="h-8 animate-pulse rounded-md bg-slate-900/80" />
+              <div className="h-8 animate-pulse rounded-md bg-slate-900/60" />
+            </div>
+          ) : null}
+
+          {!isLoading && isError ? (
+            <p className="px-3 py-1.5 pl-9 font-sans text-[11px] text-red-300/80">
+              {APP_SHELL_CALL_SHEETS_LOAD_ERROR}
+            </p>
+          ) : null}
+
+          {!isLoading && !isError && sheets.length === 0 ? (
+            <p className="px-3 py-1.5 pl-9 font-sans text-[11px] text-slate-600">
+              {APP_SHELL_CALL_SHEETS_EMPTY}
+            </p>
+          ) : null}
+
+          {!isLoading && !isError
+            ? sheets.map((sheet) => {
+                const active = activeSheetId === sheet.id;
+                return (
+                  <Link
+                    key={sheet.id}
+                    href={`/playbook/${sheet.id}`}
+                    className={cn(
+                      subNavItemClass,
+                      active ? navItemActiveClass : subNavItemInactiveClass,
+                    )}
+                    aria-current={active ? "page" : undefined}
+                    title={sheet.name}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{sheet.name}</span>
+                    {active ? <NavActiveDot /> : null}
+                  </Link>
+                );
+              })
+            : null}
+
+          <Link
+            href="/playbook/new"
+            className={cn(subNavItemClass, newActive ? navItemActiveClass : subNavItemInactiveClass)}
+            aria-current={newActive ? "page" : undefined}
+          >
+            <Plus
+              className={cn("h-3.5 w-3.5 shrink-0", newActive ? "text-white" : "text-slate-500")}
+              aria-hidden
+            />
+            <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_CALL_SHEET_LABEL}</span>
+            {newActive ? <NavActiveDot /> : null}
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -183,55 +252,84 @@ function SchemesNavGroup() {
   const schemesItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "schemes");
   const Icon = schemesItem?.icon ?? LayoutGrid;
   const label = schemesItem?.label ?? "My Schemes";
+  const [expanded, setExpanded] = useState(true);
+  const submenuId = useId();
+  // When collapsed, surface section active on the header so nested routes stay visible.
+  const headerActive = expanded ? listActive : isSchemeBuilderPath(pathname);
 
   return (
     <div className="flex flex-col gap-0.5">
-      <Link
-        href="/schemes"
-        className={cn(navItemClass, listActive ? navItemActiveClass : navItemInactiveClass)}
-        aria-current={listActive ? "page" : undefined}
-      >
-        <Icon className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-        {listActive ? <NavActiveDot /> : null}
-      </Link>
-
-      <div className="flex flex-col gap-0.5 pb-1" role="group" aria-label={`${label} submenu`}>
-        {isLoading ? (
-          <div className="space-y-1.5 py-1 pl-9 pr-3" aria-hidden>
-            <div className="h-8 animate-pulse rounded-md bg-slate-900/80" />
-            <div className="h-8 animate-pulse rounded-md bg-slate-900/60" />
-          </div>
-        ) : null}
-
-        {!isLoading
-          ? schemes.map((scheme) => {
-              const active = activeSchemeId === scheme.id;
-              return (
-                <Link
-                  key={scheme.id}
-                  href={`/schemes/${scheme.id}`}
-                  className={cn(subNavItemClass, active ? navItemActiveClass : subNavItemInactiveClass)}
-                  aria-current={active ? "page" : undefined}
-                  title={scheme.name}
-                >
-                  <span className="min-w-0 flex-1 truncate">{scheme.name}</span>
-                  {active ? <NavActiveDot /> : null}
-                </Link>
-              );
-            })
-          : null}
-
+      <div className="flex items-center gap-0.5">
         <Link
-          href="/schemes/new"
-          className={cn(subNavItemClass, newActive ? navItemActiveClass : subNavItemInactiveClass)}
-          aria-current={newActive ? "page" : undefined}
+          href="/schemes"
+          className={cn(
+            navItemClass,
+            "min-w-0 flex-1",
+            headerActive ? navItemActiveClass : navItemInactiveClass,
+          )}
+          aria-current={headerActive ? "page" : undefined}
         >
-          <Plus className={cn("h-3.5 w-3.5 shrink-0", newActive ? "text-white" : "text-slate-500")} aria-hidden />
-          <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_SCHEME_LABEL}</span>
-          {newActive ? <NavActiveDot /> : null}
+          <Icon className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+          {headerActive ? <NavActiveDot /> : null}
         </Link>
+        <SidebarNavGroupToggle
+          expanded={expanded}
+          label={label}
+          controlsId={submenuId}
+          onToggle={() => setExpanded((open) => !open)}
+        />
       </div>
+
+      {expanded ? (
+        <div
+          id={submenuId}
+          className="flex flex-col gap-0.5 pb-1"
+          role="group"
+          aria-label={`${label} submenu`}
+        >
+          {isLoading ? (
+            <div className="space-y-1.5 py-1 pl-9 pr-3" aria-hidden>
+              <div className="h-8 animate-pulse rounded-md bg-slate-900/80" />
+              <div className="h-8 animate-pulse rounded-md bg-slate-900/60" />
+            </div>
+          ) : null}
+
+          {!isLoading
+            ? schemes.map((scheme) => {
+                const active = activeSchemeId === scheme.id;
+                return (
+                  <Link
+                    key={scheme.id}
+                    href={`/schemes/${scheme.id}`}
+                    className={cn(
+                      subNavItemClass,
+                      active ? navItemActiveClass : subNavItemInactiveClass,
+                    )}
+                    aria-current={active ? "page" : undefined}
+                    title={scheme.name}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{scheme.name}</span>
+                    {active ? <NavActiveDot /> : null}
+                  </Link>
+                );
+              })
+            : null}
+
+          <Link
+            href="/schemes/new"
+            className={cn(subNavItemClass, newActive ? navItemActiveClass : subNavItemInactiveClass)}
+            aria-current={newActive ? "page" : undefined}
+          >
+            <Plus
+              className={cn("h-3.5 w-3.5 shrink-0", newActive ? "text-white" : "text-slate-500")}
+              aria-hidden
+            />
+            <span className="min-w-0 flex-1 truncate">{APP_SHELL_NEW_SCHEME_LABEL}</span>
+            {newActive ? <NavActiveDot /> : null}
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }
