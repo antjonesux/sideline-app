@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-21 — Situation detail: page scroll owner (supersedes independent column scroll)
+
+**Decision:** Situation detail on tablet/desktop uses **document/`html` vertical scroll** as the single scroll owner. The Add Play side rail no longer nests its own `overflow-y` results pane; **`PlayBrowser`** **`pageScrollResults`** (panel shell only) lets catalog results flow in the page with **sticky** search. Mobile Add Play modal keeps nested scroll. This **adjusts** the earlier independent-column-scroll approach that left two visible scrollbars.
+
+**Why:** QA41 found dual scrollbars and wheel conflicts from height-locked columns each owning overflow; coaches need one scrollbar without losing reachability or pinned search.
+
+**Impact:** Do not reintroduce per-column `overflow-y-auto` height locks on situation detail without an explicit product decision. Modal Add Play and Film **`PlayBrowser`** nested scroll stay unchanged.
+
+---
+
 ## 2026-06-30 — Responsive authenticated application shell (sidebar + mobile tabs)
 
 **Decision:** One adaptive shell for authenticated app routes via **`AppShellChrome`** in **`app/layout.tsx`**. **Tablet / desktop (`md+`)** show a **persistent left sidebar** (**`AppShellSidebar`**, **`--app-shell-sidebar-width: 16.25rem` / 260px**, sticky). **Mobile (`< md`)** keeps the existing **three-pillar bottom tab bar** (**Film Room** · **Play Sheet** · **Tendencies**) via **`BottomTabNav`** (`md:hidden`). Sidebar and mobile drawer share nav config in **`lib/navigation/appShellNav.ts`** (**`APP_SHELL_SIDEBAR_NAV`**): **My Call Sheets** (`/playbook`), **Review** (coming soon — disabled), **Settings** (`/settings`), **Sign out** (footer). Builder and Coach View are **not** sidebar destinations. Call sheets stay in the workspace, not the sidebar. Shell gating lives in **`lib/navigation/appShellRoutes.ts`** (`shouldUseAppShell`); marketing, auth, onboarding/guided, and **`/qa/*`** preview routes are excluded. Workspace width stays on existing **`--app-shell-*`** / **`.app-shell-main`** tokens — large screens gain whitespace, not edge-to-edge stretch. **`html[data-app-shell-sidebar="true"]`** reduces bottom padding at **`md+`** (no tab bar). Mobile hamburger (**`AppShellMenuHeader`** → **`CallSheetViewerMenu`**) remains for Settings / Sign out access and reuses **`APP_SHELL_SIDEBAR_NAV`**.

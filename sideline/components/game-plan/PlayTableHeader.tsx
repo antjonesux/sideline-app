@@ -31,21 +31,21 @@ export function PlayTableHeader({
   const showActionColumn = !hideRemoveColumn;
   return (
     <div className="flex min-h-11 items-center gap-3 border-b border-slate-700 px-4 py-2">
-      {!hideDragColumn ? <div className="w-6 shrink-0" aria-hidden /> : null}
-      <div className="min-w-0 flex-1 font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+      {!hideDragColumn ? <div className="w-6 shrink-0 self-stretch" aria-hidden /> : null}
+      <div className="flex min-h-0 min-w-0 flex-1 items-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
         Play
       </div>
       {!stackFormation ? (
-        <div className="hidden w-36 shrink-0 font-mono text-xs font-semibold uppercase tracking-widest text-slate-500 sm:block">
+        <div className="hidden w-36 shrink-0 items-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500 sm:flex">
           Formation
         </div>
       ) : null}
       {!hideTypeColumn ? (
-        <div className="flex w-16 shrink-0 justify-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+        <div className="flex w-16 shrink-0 items-center justify-center font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
           Type
         </div>
       ) : null}
-      {showGoToColumn ? <div className="w-8 shrink-0" aria-label="Go-To" /> : null}
+      {showGoToColumn ? <div className="w-8 shrink-0 self-stretch" aria-label="Go-To" /> : null}
       {onAddPlay ? (
         <button
           type="button"
@@ -53,13 +53,13 @@ export function PlayTableHeader({
           onClick={onAddPlay}
           className={cn(
             appShellHeaderActionButtonClass,
-            "shrink-0 min-h-8 px-2.5 text-xs md:min-h-9 md:px-3 md:text-sm",
+            "shrink-0 self-center min-h-8 px-2.5 text-xs md:min-h-9 md:px-3 md:text-sm",
           )}
         >
           {BUILDER_ADD_PLAY}
         </button>
       ) : showActionColumn ? (
-        <div className="w-8 shrink-0" aria-label={actionColumn === "add" ? "Add" : "Remove"} />
+        <div className="w-8 shrink-0 self-stretch" aria-label={actionColumn === "add" ? "Add" : "Remove"} />
       ) : null}
     </div>
   );

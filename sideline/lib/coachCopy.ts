@@ -252,7 +252,7 @@ export const CALL_SHEET_VIEWER_MENU_BUILDER = CALL_SHEET_MENU_LABEL;
 export const CALL_SHEET_COACH_VIEW_EMPTY =
   "No plays on your sheet yet. Edit the call sheet to add plays.";
 export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
-export const CALL_SHEET_VIEWER_MENU_REVIEW = "Review";
+export const CALL_SHEET_VIEWER_MENU_REVIEW = "Film Room";
 export const CALL_SHEET_VIEWER_MENU_REVIEW_SOON = "Coming Soon";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
 export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";

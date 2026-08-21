@@ -1,41 +1,32 @@
-# SESSION BRIEF — QA41 Collapsible Sidebar Groups
+# SESSION BRIEF — QA41 Add Play + Situation Detail Refinement (follow-up)
 
 **Objective:**  
-Add independent collapse/expand controls for the My Call Sheets and My Schemes groups in the persistent tablet/desktop application sidebar.
+Continue QA41 polish: balance situation-detail horizontal padding, collapse to one vertical scrollbar, and vertically center the PLAY table-header label.
 
 **Why this matters:**  
-Both groups can become long as coaches create more content. Collapse controls reduce sidebar clutter while keeping primary navigation structure visible.
+Prior QA41 shipped rail/CTA/art hierarchy; remaining padding, dual scrollbars, and header label alignment still make the situation workspace feel unfinished.
 
 **In scope:**  
-- Make My Call Sheets collapsible  
-- Make My Schemes collapsible  
-- Independent local UI state per group  
-- Accessible expand/collapse affordance (`aria-expanded`)  
-- Preserve New Call Sheet / New Scheme and active-route behavior  
+- Equal L/R inset on situation-detail primary content (shell tokens)  
+- One visible vertical scrollbar (remove redundant scroll owner; document decision adjust)  
+- Vertically center PLAY in `PlayTableHeader`  
+- Preserve Add Play rail alignment, pinned search, mobile drawer  
 
 **Out of scope:**  
-- Call Sheet / Add Play changes  
-- Route / schema / API changes  
-- Persistence of collapsed state  
-- Sidebar width / full sidebar collapse  
-- Mobile navigation redesign  
+- Sidebar collapse (separate QA41 sidebar session)  
+- Schema / API / Coach View / capacity / mutations  
 
 **Constraints:**  
-- Local component state only (no Zustand / localStorage / Context)  
-- Prefer existing Lucide icons and AppShellSidebar patterns  
-- Scope primarily to `md+` persistent sidebar; do not break mobile hamburger nav  
-- `npm run build` must pass  
+- Prefer app-shell spacing tokens; no cosmetic scrollbar hiding; `npm run build` must pass  
 
 **Done means:**  
-- [x] My Call Sheets expands and collapses  
-- [x] My Schemes expands and collapses independently  
-- [x] Headers remain visible when collapsed; nested links hide  
-- [x] New Call Sheet / New Scheme and active nav still work  
-- [x] Controls keyboard-accessible with `aria-expanded`  
-- [x] Build + sideline review approved  
+- [x] Equal visual L/R padding (Add Play open and closed)  
+- [x] One vertical scrollbar; plays + Add Play results reachable; search pinned  
+- [x] PLAY vertically centered; Add Play CTA still right-aligned  
+- [x] Build + review  
 
 **Handoff notes:**  
-- State: local `useState(true)` inside `CallSheetsNavGroup` and `SchemesNavGroup` (independent; no persistence)  
-- Mobile: `AppShellSidebar` is `md:flex` only — disclosure bypasses mobile; hamburger (`CallSheetViewerMenu`) unchanged  
-- When collapsed, group header uses section builder-path active (`isPlaySheetBuilderPath` / `isSchemeBuilderPath`) so nested routes keep a visible active cue  
-- Follow-up: optional later auto-expand the group containing the active route when collapsed  
+- Padding: with Add Play closed, inner uses `px-[var(--app-shell-px)]` + `mx-auto` / max-width. With Add Play open, workspace bleeds past main padding on **both** sides; situation column uses the same `--app-shell-px` L/R with `gap-0` (no stacked left-only main pad, no md/lg column gap).  
+- Scroll: page/`html` is the sole vertical owner on situation detail; removed height-lock + column `overflow-y-auto`. Panel Add Play uses `pageScrollResults` + sticky search. Modal unchanged. Decision logged 2026-08-21 in `DECISIONS.md`  
+- PLAY: header label cells `flex items-center` so content centers inside `md:min-h-12` row cells from the table wrapper  
+- Remaining visual QA: confirm sticky search at tablet/wide desktop with long catalogs; confirm no clipping when rail open  

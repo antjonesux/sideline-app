@@ -122,7 +122,7 @@ export const appShellBuilderBrowseButtonClass =
 export const appShellBuilderAddSituationClass =
   "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-11 md:px-4 md:text-sm";
 
-/** Situation detail workspace shell — viewport height lock + independent column scroll (md+). */
+/** Situation detail workspace shell — document-flow columns (md+); page owns vertical scroll. */
 export const appShellSituationWorkspaceClass = "app-shell-situation-workspace";
 
 /**
@@ -132,9 +132,16 @@ export const appShellSituationWorkspaceClass = "app-shell-situation-workspace";
 export const appShellSituationWorkspaceWithBrowseClass =
   "app-shell-situation-workspace--with-browse";
 
-/** Situation detail workspace — constrained play-list column (Session 11). */
+/** Situation detail workspace — play-list column; equal shell inset L/R. */
 export const appShellSituationWorkspaceInnerClass =
-  "app-shell-situation-workspace-inner mx-auto w-full max-w-[47.5rem]";
+  "app-shell-situation-workspace-inner w-full max-w-[47.5rem] px-[var(--app-shell-px)]";
+
+/**
+ * When Add Play is open the workspace already bleeds past `.app-shell-main` padding, so
+ * keep a single equal inset on the situation column (no mx-auto dead space vs the rail).
+ */
+export const appShellSituationWorkspaceInnerWithBrowseClass =
+  "app-shell-situation-workspace-inner w-full px-[var(--app-shell-px)]";
 
 /** Persistent sidebar nav item base — shared with active-formation heading in Add Play. */
 export const appShellNavItemClass =

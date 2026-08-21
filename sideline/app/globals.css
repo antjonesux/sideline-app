@@ -254,23 +254,12 @@
   }
 
   /**
-   * Situation detail workspace — tablet / desktop height lock so the main play list
-   * and add-play side rail each own independent overflow (not the page scroller).
-   * Bottom inset matches sidebar-shell `main` padding (`1.5rem` + safe area).
+   * Situation detail workspace — natural document height (md+).
+   * Vertical scroll is owned by the page (`html` overflow-y); columns no longer nest
+   * independent overflow (QA41). Add Play search stays sticky in the rail.
    */
   .app-shell-situation-workspace {
     box-sizing: border-box;
-  }
-
-  @media (min-width: 768px) {
-    .app-shell-situation-workspace {
-      height: calc(
-        100dvh - var(--app-shell-pt) - 1.5rem - env(safe-area-inset-bottom, 0px)
-      );
-      max-height: calc(
-        100dvh - var(--app-shell-pt) - 1.5rem - env(safe-area-inset-bottom, 0px)
-      );
-    }
   }
 
   /**
@@ -303,19 +292,20 @@
   }
 
   /**
-   * QA41 — when Add Play / browse is open, cancel `.app-shell-main` right padding and
-   * the sidebar-shell centering gap so the rail reaches the app-shell workspace edge.
+   * QA41 — when Add Play / browse is open, cancel `.app-shell-main` horizontal padding and
+   * the sidebar-shell centering gap on both sides so the workspace fills the app-shell
+   * frame. Situation column content then uses equal `--app-shell-px` inset L/R (no stacked
+   * left-only main pad).
    */
   @media (min-width: 768px) {
     html[data-app-shell-sidebar="true"] .app-shell-situation-workspace--with-browse {
-      width: calc(
-        100% + var(--app-shell-px) +
-          max(0px, (100vw - var(--app-shell-sidebar-width) - var(--app-shell-max-width)) / 2)
+      --app-shell-situation-browse-bleed: max(
+        0px,
+        (100vw - var(--app-shell-sidebar-width) - var(--app-shell-max-width)) / 2
       );
-      margin-inline-end: calc(
-        -1 * var(--app-shell-px) -
-          max(0px, (100vw - var(--app-shell-sidebar-width) - var(--app-shell-max-width)) / 2)
-      );
+      width: calc(100% + (2 * var(--app-shell-px)) + (2 * var(--app-shell-situation-browse-bleed)));
+      margin-inline-start: calc(-1 * var(--app-shell-px) - var(--app-shell-situation-browse-bleed));
+      margin-inline-end: calc(-1 * var(--app-shell-px) - var(--app-shell-situation-browse-bleed));
     }
   }
 }

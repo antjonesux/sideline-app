@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — QA41 follow-up: situation padding, one scrollbar, PLAY label
+
+### What
+
+- **[`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts):** Situation inner column uses equal `--app-shell-px` horizontal inset (replacing asymmetric `md:px-2` / `lg:px-8`).
+- **[`globals.css`](sideline/app/globals.css) / [`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx) / [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx):** Dropped viewport height-lock + dual column overflow. Page owns vertical scroll; panel Add Play uses `pageScrollResults` with sticky search. Mobile modal nested scroll unchanged. Documents decision adjust in **`DECISIONS.md`**.
+- **[`PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx):** PLAY (and sibling header labels) use flex `items-center` so the label centers when row cells get `md:min-h-12`; Add Play CTA stays trailing/right-aligned.
+
+### Why
+
+QA41 follow-up: unequal situation insets, two vertical scrollbars from independent column scroll, and PLAY sitting high in the taller header row.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-21 — QA41: Collapsible sidebar Call Sheets / Schemes groups
 
 ### What

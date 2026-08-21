@@ -50,11 +50,11 @@ export function CallSheetBuilderSituationBrowsePanel({
   return (
     <aside
       className={cn(
-        "app-shell-situation-browse-panel hidden h-full min-h-0 flex-col overflow-hidden border-l border-slate-800/80 bg-slate-950 md:flex",
+        "app-shell-situation-browse-panel hidden min-h-0 min-w-0 flex-col border-l border-slate-800/80 bg-slate-950 md:flex",
       )}
       aria-label={panelTitle}
     >
-      <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-800/80 px-5 py-4">
+      <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-800/80 bg-slate-950 px-5 py-4">
         <div className="min-w-0">
           <h2 className={cn(appShellBrowsePanelTitleClass, "truncate")}>{panelTitle}</h2>
           {panelSubtitle ? (
@@ -73,7 +73,7 @@ export function CallSheetBuilderSituationBrowsePanel({
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-col">
         <AddPlayDrawer
           open
           shell="panel"

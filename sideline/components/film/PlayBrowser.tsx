@@ -51,6 +51,11 @@ interface PlayBrowserProps {
   addDisabled?: boolean;
   /** Play Sheet Add Play: parent owns the drawer header when embedded inline. */
   onPlaySheetNavChange?: (nav: PlaySheetAddNav) => void;
+  /**
+   * Situation side rail: results flow in the parent workspace scrollport with sticky search
+   * (no nested overflow-y). Modal / Film keep nested scroll (default).
+   */
+  pageScrollResults?: boolean;
   /** Play Sheet add-play: pins Goal Line + Hail Mary (offense) or Goal Line + Prevent (defense) to the bottom. */
   catalogSideOfBall?: CatalogSideOfBall;
   /** Play Sheet add-play: catalog game version for cfb.fan play-art URLs. */
@@ -90,11 +95,19 @@ export function PlayBrowser({
   addedPlayKeys,
   addDisabled = false,
   onPlaySheetNavChange,
+  pageScrollResults = false,
   catalogSideOfBall,
   catalogGameVersion,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
+  const usePageScrollResults = pageScrollResults && playSheetAddLayout;
+  const resultsScrollClass = usePageScrollResults
+    ? "w-full pb-4"
+    : "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4";
+  const playsResultsScrollClass = usePageScrollResults
+    ? "w-full py-4"
+    : "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain";
   const catalog = useFormationGroups(qaStaticEntries ? "" : playbook);
   const groups = qaStaticEntries ? formationGroupsFromEntries(qaStaticEntries) : catalog.groups;
   const entries = qaStaticEntries ?? catalog.entries;
@@ -112,8 +125,13 @@ export function PlayBrowser({
   useLayoutEffect(() => {
     if (!selectedFormation) return;
     const el = playsScrollRef.current;
-    if (el) el.scrollTop = 0;
-  }, [selectedFormation?.group, selectedFormation?.name]);
+    if (!el) return;
+    if (usePageScrollResults) {
+      el.scrollIntoView({ block: "start" });
+      return;
+    }
+    el.scrollTop = 0;
+  }, [selectedFormation?.group, selectedFormation?.name, usePageScrollResults]);
 
   useLayoutEffect(() => {
     if (!playSheetAddLayout || !onPlaySheetNavChange) return;
@@ -279,7 +297,9 @@ export function PlayBrowser({
     : "";
 
   const rootClassName = isInline
-    ? "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-slate-950"
+    ? usePageScrollResults
+      ? "flex w-full min-w-0 flex-col bg-slate-950"
+      : "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-slate-950"
     : "absolute inset-0 z-30 flex min-h-0 w-full flex-col bg-slate-950 motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-200";
   const hasPlaybook = playbook.trim().length > 0;
 
@@ -288,7 +308,7 @@ export function PlayBrowser({
       {searching ? (
         <>
           {level1Header}
-          <div className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
+          <div className={`${resultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             <div className="flex flex-col gap-2 px-4 pb-4">
               {!hasPlaybook ? (
                 <p className="font-body text-sm text-slate-400">
@@ -336,7 +356,7 @@ export function PlayBrowser({
       ) : step === "formations" ? (
         <>
           {level1Header}
-          <div className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
+          <div className={`${resultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
             {!hasPlaybook ? (
               <div className="px-4 py-6">
                 <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3">
@@ -411,7 +431,7 @@ export function PlayBrowser({
           {playsViewHeader}
           <div
             ref={playsScrollRef}
-            className={`min-h-0 w-full flex-1 overflow-y-auto overscroll-contain ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}
+            className={`${playsResultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}
           >
             {playSheetAddLayout ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">

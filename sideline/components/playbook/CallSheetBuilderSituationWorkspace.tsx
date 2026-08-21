@@ -5,6 +5,7 @@ import { CallSheetBuilderSituationHeader } from "@/components/playbook/CallSheet
 import {
   appShellSituationWorkspaceClass,
   appShellSituationWorkspaceInnerClass,
+  appShellSituationWorkspaceInnerWithBrowseClass,
   appShellSituationWorkspaceWithBrowseClass,
 } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ import type { ComponentProps } from "react";
 type HeaderProps = ComponentProps<typeof CallSheetBuilderSituationHeader>;
 type BrowsePanelProps = ComponentProps<typeof CallSheetBuilderSituationBrowsePanel>;
 
-/** Tablet / desktop situation detail workspace shell (Session 11). */
+/** Tablet / desktop situation detail workspace shell (Session 11 + QA41 scroll). */
 export function CallSheetBuilderSituationWorkspace({
   header,
   browsePanel,
@@ -30,18 +31,21 @@ export function CallSheetBuilderSituationWorkspace({
       className={cn(
         appShellSituationWorkspaceClass,
         browsePanel && appShellSituationWorkspaceWithBrowseClass,
-        "hidden min-h-0 flex-col overflow-hidden md:flex",
+        "hidden min-h-0 flex-col md:flex",
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex h-full min-h-0 flex-1 overflow-hidden",
-          browsePanel && "gap-3 lg:gap-4 xl:gap-0",
-        )}
-      >
-        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
-          <div className={cn(appShellSituationWorkspaceInnerClass, "min-w-0 px-0 py-0 md:px-2 md:py-1 lg:px-8 lg:py-2")}>
+      <div className={cn("flex min-h-0 flex-1 items-start", browsePanel && "gap-0")}>
+        <div className="min-w-0 flex-1">
+          <div
+            className={cn(
+              browsePanel
+                ? appShellSituationWorkspaceInnerWithBrowseClass
+                : appShellSituationWorkspaceInnerClass,
+              "min-w-0 py-0 md:py-1 lg:py-2",
+              !browsePanel && "mx-auto",
+            )}
+          >
             <CallSheetBuilderSituationHeader {...header} layout="workspace" />
             {children}
           </div>

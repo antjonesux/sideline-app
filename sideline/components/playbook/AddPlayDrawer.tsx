@@ -99,7 +99,8 @@ export function AddPlayDrawer({
   const browser = (
     <div
       className={cn(
-        "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
+        "flex min-w-0 flex-col",
+        shell === "panel" ? "w-full" : "min-h-0 flex-1 overflow-hidden",
         shell === "modal" && "relative z-[1]",
       )}
     >
@@ -107,6 +108,7 @@ export function AddPlayDrawer({
         playbook={cfb26Playbook}
         presentation="inline"
         playSheetAddLayout
+        pageScrollResults={shell === "panel"}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
@@ -143,9 +145,9 @@ export function AddPlayDrawer({
 
   if (shell === "panel") {
     return (
-      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex w-full flex-col">
         {formationSelected ? (
-          <div className="flex shrink-0 items-center gap-2 border-b border-slate-800/80 bg-slate-950 px-4 py-2.5">
+          <div className="flex items-center gap-2 border-b border-slate-800/80 bg-slate-950 px-4 py-2.5">
             <IconBackButton
               data-no-press
               aria-label={headerBackLabel}
