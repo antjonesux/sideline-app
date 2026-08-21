@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — Film Room pre-migration: dead code cleanup
+
+### What
+
+- Deleted orphan `play-logger/` components (superseded by `PlayLoggerV2`): `CompactGameStateBar`, `ResultGrid`, `YardsInput`, `PlayLogFeed`, `PlayLogFeedRow`.
+- Deleted orphan store `gameStore.ts`, orphan lib `filmResultTags.ts`.
+- Deleted orphan API routes: `api/film/playbook`, `api/import/validate`, `api/import/template`.
+- Removed guided onboarding: `GuidedFirstDriveInsight.tsx`, `guidedOnboardingInsight.ts`, `guidedFirstDriveCopy.ts`, `onboardingDismissed.ts`, and related references in `[gameId]/page.tsx` and `lastGamePrefsStore.ts`.
+
+### Why
+
+Pre-migration cleanup before Film Room shell migration. Guided onboarding removed by product decision — original "log your first drive" framing no longer fits the preparation/decision support product direction.
+
+### Status
+
+- Deletion only; no feature or behavior changes to active surfaces.
+
+---
+
 ## 2026-08-21 — Shell nav: Call Sheets / Schemes labels + Headset icon
 
 ### What

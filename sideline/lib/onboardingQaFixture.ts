@@ -1,4 +1,3 @@
-import type { FirstDriveCoachingReadout } from "@/lib/guidedOnboardingInsight";
 import type { PlaybookEntry } from "@/lib/playbook";
 import type { GameState } from "@/lib/gameStateEngine";
 import type { LoggedPlay, SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
@@ -108,22 +107,5 @@ export const onboardingQaLoggerSheetScenarios: SheetScenarioBlock[] = [
   },
 ];
 
-/** Remaining coach calls before breakdown (matches guided copy thresholds). */
+/** Remaining coach calls before breakdown (legacy QA fixture value). */
 export const onboardingQaLoggerRemainingCalls = 2;
-
-export const onboardingQaFirstDriveReadout: FirstDriveCoachingReadout = {
-  headline: "FIRST DRIVE: PASS TILT WITH A TRUSTED RUN ANSWER",
-  primaryInsight:
-    "You leaned on the pass game early (60%), but your best efficiency came when you tagged HB ZONE WK in the run game.",
-  supportingStats: [
-    { label: "Run", value: "40%", barFraction: 0.4 },
-    { label: "Pass", value: "60%", barFraction: 0.6 },
-    { label: "Best play", value: "HB ZONE WK · +6" },
-  ],
-  coachingNudge:
-    "Keep early-down answers tight so third down stays in your favor — let your run answers show up before the sticks get long.",
-  playTypeDistribution: [
-    { name: "Run", pct: 40, count: 2 },
-    { name: "Pass", pct: 60, count: 3 },
-  ],
-};

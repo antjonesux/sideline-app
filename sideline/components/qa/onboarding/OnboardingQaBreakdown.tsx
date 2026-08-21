@@ -1,16 +1,6 @@
 "use client";
 
-import { GuidedFirstDriveInsight } from "@/components/film/GuidedFirstDriveInsight";
-import { onboardingQaFirstDriveReadout } from "@/lib/onboardingQaFixture";
-
+/** Guided first-drive insight was removed; QA breakdown route stays as a no-op shell. */
 export function OnboardingQaBreakdown() {
-  return (
-    <GuidedFirstDriveInsight
-      open
-      readout={onboardingQaFirstDriveReadout}
-      onCallAnotherDrive={() => {}}
-      onGoToFilmRoom={() => {}}
-      anotherDriveBusy={false}
-    />
-  );
+  return null;
 }

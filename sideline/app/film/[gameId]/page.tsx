@@ -2,14 +2,11 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { buildFirstDriveCoachingReadout, GUIDED_ONBOARDING_MIN_COACH_CALLS } from "@/lib/guidedOnboardingInsight";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { GameStatsInline } from "@/components/film/GameStatsInline";
 import { DropdownMenu } from "@/components/shared/DropdownMenu";
-import { GuidedFirstDriveInsight } from "@/components/film/GuidedFirstDriveInsight";
 import { PlayLoggerV2 } from "@/components/film/PlayLoggerV2";
 import { DriveCardOutcomeBadge } from "@/components/film/DriveCardOutcomeBadge";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
@@ -31,9 +28,7 @@ import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
 import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { BackNavLink } from "@/components/shared/BackNavLink";
-import { useLastGamePrefsStore } from "@/store/lastGamePrefsStore";
 import { useToastStore } from "@/store/toastStore";
 import {
   COULDNT_SAVE,
@@ -41,11 +36,7 @@ import {
   FILM_END_GAME_SCORE_BODY,
   FILM_END_GAME_SCORE_TITLE,
   FILM_RESUME_GAME_CTA,
-  GUIDED_LOGGER_HEADER_SUBLINE,
-  GUIDED_LOGGER_TITLE,
-  GUIDED_ONBOARDING_EDITOR_SCENARIO,
 } from "@/lib/coachCopy";
-import { dismissOnboarding, ONBOARDING_ENABLED } from "@/lib/onboardingDismissed";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { useScrollLock } from "@/lib/useScrollLock";
@@ -127,14 +118,6 @@ const gameDetailTabTriggerClass =
 
 export default function GameLogPage({ params }: GameLogPageProps) {
   const { gameId } = use(params);
-  const { user } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const guidedMode = ONBOARDING_ENABLED && searchParams.get("guided") === "1";
-  const guidedSheetScenarioParam = searchParams.get("sheetScenario")?.trim();
-  const guidedMySheetScenario = guidedMode
-    ? guidedSheetScenarioParam || GUIDED_ONBOARDING_EDITOR_SCENARIO
-    : null;
   const queryClient = useQueryClient();
   const [detailTab, setDetailTab] = useState<DetailTab>("drives");
 
@@ -157,11 +140,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [pendingDriveDelete, setPendingDriveDelete] = useState<string | null>(null);
   const [pendingPlayDelete, setPendingPlayDelete] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [guidedInsightOpen, setGuidedInsightOpen] = useState(false);
-  const [guidedAnotherDriveBusy, setGuidedAnotherDriveBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
-  const setGuidedOnboardingDone = useLastGamePrefsStore((s) => s.setGuidedOnboardingDone);
-  const guidedBootRef = useRef<"off" | "pending" | "done">("off");
   const loggerOpenFlowIdRef = useRef<string | null>(null);
   const endGameScoresSeededRef = useRef(false);
   /** End-game uses Radix `Dialog` (body scroll lock). Logger overlay still uses legacy `fixed` shell. */
@@ -221,12 +200,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
   useEffect(() => {
     setDetailTab("drives");
-    setGuidedInsightOpen(false);
   }, [gameId]);
-
-  useEffect(() => {
-    guidedBootRef.current = "off";
-  }, [gameId, guidedMode]);
 
   useEffect(() => {
     if (!gameId) return;
@@ -501,51 +475,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setExpandedDriveIds([driveId]);
   }
 
-  useEffect(() => {
-    if (!pageReady || !game || !guidedMode) return;
-    if (guidedBootRef.current === "done") return;
-
-    const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
-    if (focus) {
-      const coachLogged = (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length;
-      if (coachLogged >= GUIDED_ONBOARDING_MIN_COACH_CALLS) {
-        guidedBootRef.current = "done";
-        setShowLogger(false);
-        setGuidedInsightOpen(true);
-        return;
-      }
-    }
-
-    if (drives.length > 0) {
-      guidedBootRef.current = "done";
-      const first = drives[0];
-      setActiveDrive(first.id);
-      setExpandedDriveIds([first.id]);
-      openForCreate(first.id);
-      return;
-    }
-    if (guidedBootRef.current === "pending") return;
-    guidedBootRef.current = "pending";
-    void createDrive().then((created) => {
-      if (created) {
-        guidedBootRef.current = "done";
-        openForCreate(created.id);
-      } else {
-        guidedBootRef.current = "off";
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once per pageReady/game/guided/drives; avoid re-binding createDrive in deps
-  }, [pageReady, game, guidedMode, drives, activeDrive]);
-
-  useEffect(() => {
-    if (!guidedMode || !pageReady) return;
-    const focus = drives.find((d) => d.id === activeDrive) ?? drives[0];
-    const coachLogged = focus ? (focus.plays ?? []).filter((p) => isCoachCallPlay(p)).length : 0;
-    if (coachLogged < GUIDED_ONBOARDING_MIN_COACH_CALLS) return;
-    setShowLogger(false);
-    setGuidedInsightOpen(true);
-  }, [guidedMode, pageReady, drives, activeDrive]);
-
   async function performDeletePlay(playId: string) {
     const prevDrives = drives;
     setDrives((current) =>
@@ -562,28 +491,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
     addToast("Call removed.", "success");
     await refresh();
-  }
-
-  async function handleGuidedCallAnotherDrive() {
-    setGuidedAnotherDriveBusy(true);
-    try {
-      setGuidedInsightOpen(false);
-      const created = await createDrive();
-      if (created) {
-        openForCreate(created.id);
-      } else {
-        setGuidedInsightOpen(true);
-      }
-    } finally {
-      setGuidedAnotherDriveBusy(false);
-    }
-  }
-
-  function handleGuidedGoToFilmRoom() {
-    if (user?.id) dismissOnboarding(user.id);
-    setGuidedOnboardingDone(true, user?.id ?? null);
-    setGuidedInsightOpen(false);
-    router.replace("/film");
   }
 
   function findPlayById(playId: string): LoggedPlay | undefined {
@@ -637,14 +544,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
   const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
-
-  const guidedCallCount = activeDriveObj
-    ? (activeDriveObj.plays ?? []).filter((p) => isCoachCallPlay(p)).length
-    : 0;
-  const guidedReadout =
-    guidedMode && activeDriveObj && guidedCallCount >= GUIDED_ONBOARDING_MIN_COACH_CALLS
-      ? buildFirstDriveCoachingReadout(activeDriveObj.plays ?? [])
-      : null;
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
@@ -1048,7 +947,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           <div
             className={cn("fixed inset-0 bg-black/60", overlayZ.filmBackdrop)}
             onClick={() => {
-              if (!guidedMode) setShowLogger(false);
+              setShowLogger(false);
             }}
           />
           <div
@@ -1059,31 +958,22 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <div className="flex flex-shrink-0 items-start justify-between gap-3 border-b border-slate-800 px-4 py-3">
                 <div className="min-w-0 flex-1 space-y-1">
                   <h2 className="font-display text-base font-bold uppercase tracking-wider text-slate-100">
-                    {guidedMode ? GUIDED_LOGGER_TITLE : "Play Logger"}
+                    Play Logger
                   </h2>
-                  {guidedMode ? (
-                    <p className="font-body text-sm leading-snug text-slate-400">
-                      {GUIDED_LOGGER_HEADER_SUBLINE(
-                        Math.max(0, GUIDED_ONBOARDING_MIN_COACH_CALLS - guidedCallCount),
-                      )}
-                    </p>
-                  ) : null}
                 </div>
-                {guidedMode ? null : (
-                  <button
-                    type="button"
-                    data-no-press
-                    className="shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
-                    onClick={() => {
-                      setShowLogger(false);
-                    }}
-                  >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                      <path d="M6 6 18 18M18 6 6 18" />
-                    </svg>
-                    <span className="sr-only">Close</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  data-no-press
+                  className="shrink-0 p-2 -mr-2 text-slate-400 hover:text-white"
+                  onClick={() => {
+                    setShowLogger(false);
+                  }}
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M6 6 18 18M18 6 6 18" />
+                  </svg>
+                  <span className="sr-only">Close</span>
+                </button>
               </div>
               <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <PlayLoggerV2
@@ -1094,8 +984,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
                   onRefresh={refresh}
                   sheetId={activeSheetId}
                   loggerOpenFlowId={loggerOpenFlowIdRef.current}
-                  guidedOnboarding={guidedMode}
-                  guidedMySheetScenario={guidedMySheetScenario}
                   totalPlayRowsInGame={totalPlayRowsInGame}
                   totalCoachCallsInGame={totalPlays}
                   allGameCoachCalls={allGameCoachCalls}
@@ -1107,16 +995,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
             </div>
           </div>
         </>
-      ) : null}
-
-      {guidedMode && activeDriveObj && guidedReadout ? (
-        <GuidedFirstDriveInsight
-          open={guidedInsightOpen}
-          readout={guidedReadout}
-          onCallAnotherDrive={handleGuidedCallAnotherDrive}
-          onGoToFilmRoom={handleGuidedGoToFilmRoom}
-          anotherDriveBusy={guidedAnotherDriveBusy}
-        />
       ) : null}
 
       <ConfirmDestructiveModal

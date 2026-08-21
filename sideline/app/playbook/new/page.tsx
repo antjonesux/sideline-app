@@ -1,5 +1,4 @@
 import { CreatePlaybookModal } from "@/components/playbook/CreatePlaybookModal";
-import { ONBOARDING_ENABLED } from "@/lib/onboardingDismissed";
 
 function first(param: string | string[] | undefined): string | undefined {
   if (Array.isArray(param)) return param[0];
@@ -12,20 +11,9 @@ export default async function NewPlaybookPage({
   searchParams: Promise<{ onboarding?: string | string[]; cfb26?: string | string[] }>;
 }) {
   const sp = await searchParams;
-  const onboarding = first(sp.onboarding);
   const cfb26 = first(sp.cfb26)?.trim();
 
-  if (ONBOARDING_ENABLED && onboarding === "1") {
-    return (
-      <CreatePlaybookModal
-        variant="page"
-        open
-        guidedOnboardingFlow
-        initialCfb26Playbook={cfb26 || undefined}
-        onboardingFullPage
-      />
-    );
-  }
-
-  return <CreatePlaybookModal variant="page" open />;
+  return (
+    <CreatePlaybookModal variant="page" open initialCfb26Playbook={cfb26 || undefined} />
+  );
 }
