@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — QA40: Play art browse refinement + header Add Play
+
+### What
+
+- **[`PlayArtImage.tsx`](sideline/components/playbook/PlayArtImage.tsx) / [`AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx):** Featured stacked play-art layout (`aspect-[16/10]`) for Add Play results. Play name stays; formation label only when disambiguating search; RUN/PASS/RPO badge removed from these rows. Failed art still hides the `<img>` and keeps the reserved slot.
+- **[`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx):** Formation drill-in omits redundant formation context; search passes `showFormationLabel`. Add-play play lists are card-shaped (no browse `PlayTableHeader`).
+- **[`globals.css`](sideline/app/globals.css) / [`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx):** Add Play side rail grows via `--app-shell-situation-browse-panel-width` (`21.25rem` md → `28rem` lg → `36rem` xl) with percentage caps; `xl:gap-0` so the open rail reaches the workspace right edge. Mobile drawer unchanged; independent column scroll preserved.
+- **[`PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx) / [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Situation play table header gains Add Play wired to existing `openAdd` + 25-play capacity. Dashed Add Play row kept. QA situation editor fixture updated.
+
+### Why
+
+QA40: tiny thumbs and a narrow rail made play art hard to use; coaches also needed an Add Play entry point in the situation table header without a second add flow.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-21 — Add-play browse: cfb.fan play art thumbnails
 
 ### What
