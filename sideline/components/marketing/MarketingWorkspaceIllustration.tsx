@@ -27,7 +27,7 @@ import {
 import { CALL_SHEET_VIEWER_SCENARIO_HELP, getSituationColor } from "@/lib/constants";
 import { callSheetScenarioDisplayName, callSheetScenarioPlayCountLabel } from "@/lib/playbookUtils";
 import { cn } from "@/lib/utils";
-import { BookOpen, ChevronLeft, ClipboardList, Eye, Layers, LogOut, Plus, Settings } from "lucide-react";
+import { BookOpen, ChevronLeft, ClipboardList, Layers, LogOut, Plus, Settings, Video } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const DASHBOARD_SITUATIONS: SituationCardMock[] = BUILDER_SITUATION_GRID_MOCK.slice(0, 4);
@@ -44,7 +44,7 @@ const WORKSPACE_NAV: {
   { label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Layers, active: false },
   {
     label: CALL_SHEET_VIEWER_MENU_REVIEW,
-    icon: Eye,
+    icon: Video,
     active: false,
     comingSoon: true,
   },

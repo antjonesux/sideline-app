@@ -6,7 +6,7 @@ import {
 } from "@/lib/coachCopy";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
-import { ClipboardList, Eye, Layers, Settings } from "lucide-react";
+import { ClipboardList, Layers, Settings, Video } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AppShellSidebarNavItem = {
@@ -21,7 +21,7 @@ export type AppShellSidebarNavItem = {
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
   { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Layers },
-  { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Eye, comingSoon: true },
+  { id: "review", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video, comingSoon: true },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
 

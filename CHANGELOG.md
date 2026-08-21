@@ -8,13 +8,14 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### What
 
-- **[`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts):** Situation inner column uses equal `--app-shell-px` horizontal inset (replacing asymmetric `md:px-2` / `lg:px-8`).
-- **[`globals.css`](sideline/app/globals.css) / [`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx) / [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx):** Dropped viewport height-lock + dual column overflow. Page owns vertical scroll; panel Add Play uses `pageScrollResults` with sticky search. Mobile modal nested scroll unchanged. Documents decision adjust in **`DECISIONS.md`**.
+- **[`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts) / [`globals.css`](sideline/app/globals.css):** Situation content uses equal `--app-shell-px` inset L/R. With Add Play open, the workspace bleeds past `.app-shell-main` padding on **both** sides (`gap-0` to the rail) so left is not double-padded vs the rail.
+- **[`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx) / [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx):** Dropped viewport height-lock + dual column overflow. Page owns vertical scroll; panel Add Play uses `pageScrollResults` with sticky search. Mobile modal nested scroll unchanged. Documents decision adjust in **`DECISIONS.md`**.
 - **[`PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx):** PLAY (and sibling header labels) use flex `items-center` so the label centers when row cells get `md:min-h-12`; Add Play CTA stays trailing/right-aligned.
+- **[`coachCopy.ts`](sideline/lib/coachCopy.ts):** Sidebar / menu coming-soon item label is **Film Room** (was Review).
 
 ### Why
 
-QA41 follow-up: unequal situation insets, two vertical scrollbars from independent column scroll, and PLAY sitting high in the taller header row.
+QA41 follow-up: unequal situation insets (especially with Add Play open), two vertical scrollbars from independent column scroll, PLAY sitting high in the taller header row, and clearer Film Room naming in the shell nav.
 
 ### Status
 
