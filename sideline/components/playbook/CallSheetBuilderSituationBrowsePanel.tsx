@@ -25,6 +25,7 @@ export function CallSheetBuilderSituationBrowsePanel({
   qaStaticEntries,
   qaInitialUi,
   catalogSideOfBall,
+  catalogGameVersion,
 }: {
   open: boolean;
   onClose: () => void;
@@ -42,6 +43,7 @@ export function CallSheetBuilderSituationBrowsePanel({
   qaStaticEntries?: import("@/lib/playbook").PlaybookEntry[];
   qaInitialUi?: { step: "formations" | "plays"; formation?: { group: string; name: string } };
   catalogSideOfBall?: import("@/lib/constants").CatalogSideOfBall;
+  catalogGameVersion?: import("@/lib/constants").CatalogGameVersion;
 }) {
   if (!open) return null;
 
@@ -88,6 +90,7 @@ export function CallSheetBuilderSituationBrowsePanel({
           qaStaticEntries={qaStaticEntries}
           qaInitialUi={qaInitialUi}
           catalogSideOfBall={catalogSideOfBall}
+          catalogGameVersion={catalogGameVersion}
         />
       </div>
     </aside>

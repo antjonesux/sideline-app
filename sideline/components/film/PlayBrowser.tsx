@@ -11,7 +11,7 @@ import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } f
 import { sheetPlayComboKey } from "@/lib/playbookUtils";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 import { playSheetFormationTileClass } from "@/lib/constants/designTokens";
-import type { CatalogSideOfBall } from "@/lib/constants";
+import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
 import {
   DEFENSE_TRAILING_FORMATION_GROUPS,
   OFFENSE_TRAILING_FORMATION_GROUPS,
@@ -54,6 +54,8 @@ interface PlayBrowserProps {
   onPlaySheetNavChange?: (nav: PlaySheetAddNav) => void;
   /** Play Sheet add-play: pins Goal Line + Hail Mary (offense) or Goal Line + Prevent (defense) to the bottom. */
   catalogSideOfBall?: CatalogSideOfBall;
+  /** Play Sheet add-play: catalog game version for cfb.fan play-art URLs. */
+  catalogGameVersion?: CatalogGameVersion;
 }
 
 export type PlaySheetAddNav = {
@@ -90,6 +92,7 @@ export function PlayBrowser({
   addDisabled = false,
   onPlaySheetNavChange,
   catalogSideOfBall,
+  catalogGameVersion,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
@@ -302,6 +305,26 @@ export function PlayBrowser({
                 </div>
               ) : filtered.length === 0 ? (
                 <p className="font-body text-sm text-slate-500">No plays match this search.</p>
+              ) : playSheetAddLayout ? (
+                filtered.map((play) => {
+                  const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+                  return (
+                    <AddPlayBrowseRow
+                      key={play.play_id}
+                      play={play}
+                      formationLabel={stripGroupPrefix(play.formation, play.group)}
+                      inGoTo={goToPlayKeys?.has(comboKey) ?? false}
+                      goToBusy={goToBusyComboKey === comboKey}
+                      showGoToStar={showGoToStar}
+                      added={addedPlayKeys?.has(comboKey) ?? false}
+                      addDisabled={addDisabled}
+                      onAdd={onSelect}
+                      onToggleGoTo={onToggleGoTo}
+                      catalogSideOfBall={catalogSideOfBall}
+                      catalogGameVersion={catalogGameVersion}
+                    />
+                  );
+                })
               ) : (
                 filtered.map((play) => <PlayRow key={play.play_id} play={play} onSelect={onSelect} />)
               )}
@@ -411,6 +434,8 @@ export function PlayBrowser({
                         addDisabled={addDisabled}
                         onAdd={onSelect}
                         onToggleGoTo={onToggleGoTo}
+                        catalogSideOfBall={catalogSideOfBall}
+                        catalogGameVersion={catalogGameVersion}
                       />
                     );
                   })}

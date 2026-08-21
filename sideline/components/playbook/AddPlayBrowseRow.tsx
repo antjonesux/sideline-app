@@ -2,8 +2,11 @@
 
 import { PlayTypeBadge } from "@/components/game-plan/PlayTypeBadge";
 import type { GamePlanPlayType } from "@/components/game-plan/PlayTableRow";
+import { PlayArtImage } from "@/components/playbook/PlayArtImage";
+import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { resolveCfbDisplayPlayType } from "@/lib/playbook";
+import { buildPlayArtUrl } from "@/lib/playArtUrl";
 import { normalizePlayName } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -17,6 +20,8 @@ export function AddPlayBrowseRow({
   addDisabled = false,
   onAdd,
   onToggleGoTo,
+  catalogSideOfBall,
+  catalogGameVersion,
 }: {
   play: PlaybookEntry;
   formationLabel: string;
@@ -27,13 +32,27 @@ export function AddPlayBrowseRow({
   addDisabled?: boolean;
   onAdd: (play: PlaybookEntry) => void;
   onToggleGoTo?: (play: PlaybookEntry) => void;
+  catalogSideOfBall?: CatalogSideOfBall;
+  catalogGameVersion?: CatalogGameVersion;
 }) {
   const playType = resolveCfbDisplayPlayType(play.play_name, play.play_type) as GamePlanPlayType;
+  const displayName = normalizePlayName(play.play_name);
+  const artSrc =
+    catalogSideOfBall && catalogGameVersion
+      ? buildPlayArtUrl({
+          formation: play.formation,
+          formationType: play.group,
+          playName: play.play_name,
+          gameVersion: catalogGameVersion,
+          side: catalogSideOfBall,
+        })
+      : null;
 
   return (
     <div className="flex min-h-11 items-center gap-3 border-b border-slate-700/50 px-4 py-3 last:border-b-0">
+      <PlayArtImage src={artSrc} alt="" />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-sans text-sm font-semibold text-slate-100">{normalizePlayName(play.play_name)}</p>
+        <p className="truncate font-sans text-sm font-semibold text-slate-100">{displayName}</p>
         <p className="mt-0.5 truncate font-body text-xs text-slate-500">{formationLabel}</p>
       </div>
       <div className="flex w-16 shrink-0 justify-center">
@@ -69,8 +88,8 @@ export function AddPlayBrowseRow({
             disabled={addDisabled}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-slate-500 transition-colors hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-500"
             onClick={() => onAdd(play)}
-            aria-label={`Add ${normalizePlayName(play.play_name)}`}
-            title={`Add ${normalizePlayName(play.play_name)}`}
+            aria-label={`Add ${displayName}`}
+            title={`Add ${displayName}`}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
               <path strokeLinecap="round" d="M12 5v14M5 12h14" />
