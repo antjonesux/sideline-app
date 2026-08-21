@@ -1114,6 +1114,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               stackFormation={useCallSheetPlayRows}
               hideRemoveColumn={isGoToSituation}
               hideTypeColumn={useCallSheetPlayRows}
+              onAddPlay={!isGoToSituation ? openAdd : undefined}
+              addPlayDisabled={atCapacity}
             />
             <div>
               {sortedPlays.map((play, slotIndex) => (

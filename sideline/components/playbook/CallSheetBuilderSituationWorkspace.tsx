@@ -35,7 +35,7 @@ export function CallSheetBuilderSituationWorkspace({
       <div
         className={cn(
           "flex h-full min-h-0 flex-1 overflow-hidden",
-          browsePanel && "gap-3 lg:gap-6",
+          browsePanel && "gap-3 lg:gap-4 xl:gap-0",
         )}
       >
         <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">

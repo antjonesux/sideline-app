@@ -4,7 +4,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AddPlayBrowseRow } from "@/components/playbook/AddPlayBrowseRow";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
-import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
 import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } from "@/hooks/useFormationGroups";
@@ -306,25 +305,28 @@ export function PlayBrowser({
               ) : filtered.length === 0 ? (
                 <p className="font-body text-sm text-slate-500">No plays match this search.</p>
               ) : playSheetAddLayout ? (
-                filtered.map((play) => {
-                  const comboKey = sheetPlayComboKey(play.formation, play.play_name);
-                  return (
-                    <AddPlayBrowseRow
-                      key={play.play_id}
-                      play={play}
-                      formationLabel={stripGroupPrefix(play.formation, play.group)}
-                      inGoTo={goToPlayKeys?.has(comboKey) ?? false}
-                      goToBusy={goToBusyComboKey === comboKey}
-                      showGoToStar={showGoToStar}
-                      added={addedPlayKeys?.has(comboKey) ?? false}
-                      addDisabled={addDisabled}
-                      onAdd={onSelect}
-                      onToggleGoTo={onToggleGoTo}
-                      catalogSideOfBall={catalogSideOfBall}
-                      catalogGameVersion={catalogGameVersion}
-                    />
-                  );
-                })
+                <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
+                  {filtered.map((play) => {
+                    const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+                    return (
+                      <AddPlayBrowseRow
+                        key={play.play_id}
+                        play={play}
+                        formationLabel={stripGroupPrefix(play.formation, play.group)}
+                        showFormationLabel
+                        inGoTo={goToPlayKeys?.has(comboKey) ?? false}
+                        goToBusy={goToBusyComboKey === comboKey}
+                        showGoToStar={showGoToStar}
+                        added={addedPlayKeys?.has(comboKey) ?? false}
+                        addDisabled={addDisabled}
+                        onAdd={onSelect}
+                        onToggleGoTo={onToggleGoTo}
+                        catalogSideOfBall={catalogSideOfBall}
+                        catalogGameVersion={catalogGameVersion}
+                      />
+                    );
+                  })}
+                </div>
               ) : (
                 filtered.map((play) => <PlayRow key={play.play_id} play={play} onSelect={onSelect} />)
               )}
@@ -413,33 +415,25 @@ export function PlayBrowser({
           >
             {playSheetAddLayout ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
-                <PlayTableHeader
-                  hideDragColumn
-                  stackFormation
-                  showGoToColumn={showGoToStar}
-                  actionColumn="add"
-                />
-                <div>
-                  {selectedPlays.map((play) => {
-                    const comboKey = sheetPlayComboKey(play.formation, play.play_name);
-                    return (
-                      <AddPlayBrowseRow
-                        key={play.play_id}
-                        play={play}
-                        formationLabel={formationDisplayLabel}
-                        inGoTo={goToPlayKeys?.has(comboKey) ?? false}
-                        goToBusy={goToBusyComboKey === comboKey}
-                        showGoToStar={showGoToStar}
-                        added={addedPlayKeys?.has(comboKey) ?? false}
-                        addDisabled={addDisabled}
-                        onAdd={onSelect}
-                        onToggleGoTo={onToggleGoTo}
-                        catalogSideOfBall={catalogSideOfBall}
-                        catalogGameVersion={catalogGameVersion}
-                      />
-                    );
-                  })}
-                </div>
+                {selectedPlays.map((play) => {
+                  const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+                  return (
+                    <AddPlayBrowseRow
+                      key={play.play_id}
+                      play={play}
+                      formationLabel={formationDisplayLabel}
+                      inGoTo={goToPlayKeys?.has(comboKey) ?? false}
+                      goToBusy={goToBusyComboKey === comboKey}
+                      showGoToStar={showGoToStar}
+                      added={addedPlayKeys?.has(comboKey) ?? false}
+                      addDisabled={addDisabled}
+                      onAdd={onSelect}
+                      onToggleGoTo={onToggleGoTo}
+                      catalogSideOfBall={catalogSideOfBall}
+                      catalogGameVersion={catalogGameVersion}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col gap-2 px-4 pb-4">

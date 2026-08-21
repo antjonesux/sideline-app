@@ -110,7 +110,14 @@ export function PlaySheetQaSituationEditor({
               workspace ? "rounded-xl [&>div>div]:md:min-h-12" : "rounded-lg",
             )}
           >
-            <PlayTableHeader showGoToColumn={showGoToStar} stackFormation hideRemoveColumn={isGoToSituation} hideTypeColumn />
+            <PlayTableHeader
+              showGoToColumn={showGoToStar}
+              stackFormation
+              hideRemoveColumn={isGoToSituation}
+              hideTypeColumn
+              onAddPlay={!isGoToSituation ? noop : undefined}
+              addPlayDisabled={atCapacity}
+            />
             <div>
               {plays.map((play, slotIndex) => (
                 <PlaySlot

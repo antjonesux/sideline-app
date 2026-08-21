@@ -46,6 +46,8 @@
     --app-shell-max-width: 56rem;
     --app-shell-workspace-inner-max-width: 53.75rem;
     --app-shell-workspace-inner-wide-max-width: 53.75rem;
+    /** Situation Add Play side rail — tablet stays conservative (QA40). */
+    --app-shell-situation-browse-panel-width: 21.25rem;
   }
 }
 
@@ -54,12 +56,15 @@
     --app-shell-max-width: 64rem;
     --app-shell-px: 2rem;
     --app-shell-workspace-inner-wide-max-width: 56.25rem;
+    --app-shell-situation-browse-panel-width: 28rem;
   }
 }
 
 @media (min-width: 1280px) {
   :root {
     --app-shell-max-width: 72rem;
+    /** Wide desktop — room for featured play art; rail reaches workspace right edge. */
+    --app-shell-situation-browse-panel-width: 36rem;
   }
 }
 
@@ -268,17 +273,27 @@
     }
   }
 
-  /** Situation detail browse panel — desktop side rail (Session 11). Narrower on tablet so the header fits. */
+  /**
+   * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA40).
+   * Width tokens live on `:root` (`--app-shell-situation-browse-panel-width`).
+   * Percentage caps keep the main situation column usable at intermediate sizes.
+   */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
-    width: min(21.25rem, 42%);
-    max-width: 21.25rem;
+    width: min(var(--app-shell-situation-browse-panel-width, 21.25rem), 42%);
+    max-width: var(--app-shell-situation-browse-panel-width, 21.25rem);
     flex-shrink: 0;
   }
 
   @media (min-width: 1024px) {
     .app-shell-situation-browse-panel {
-      width: 21.25rem;
+      width: min(var(--app-shell-situation-browse-panel-width), 46%);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .app-shell-situation-browse-panel {
+      width: min(var(--app-shell-situation-browse-panel-width), 50%);
     }
   }
 }
