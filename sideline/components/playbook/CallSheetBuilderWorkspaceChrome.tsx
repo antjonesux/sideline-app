@@ -11,6 +11,7 @@ import {
   appShellBuilderAddSituationClass,
   appShellBuilderBrowseButtonClass,
   appShellBuilderTitleClass,
+  appShellSituationWorkspaceWithBrowseClass,
   appShellWorkspaceBuilderClass,
   appShellWorkspaceStatLabelClass,
   appShellWorkspaceStatValueClass,
@@ -56,11 +57,16 @@ export function CallSheetBuilderWorkspaceChrome({
   children: React.ReactNode;
 }) {
   return (
-    <div className="hidden min-h-0 flex-col overflow-hidden md:flex md:min-h-[50vh]">
+    <div
+      className={cn(
+        "hidden min-h-0 flex-col overflow-hidden md:flex md:min-h-[50vh]",
+        browsePanel && appShellSituationWorkspaceWithBrowseClass,
+      )}
+    >
       <div
         className={cn(
           "flex min-h-0 flex-1 overflow-hidden",
-          browsePanel && "gap-4 lg:gap-6",
+          browsePanel && "gap-4 lg:gap-6 xl:gap-0",
         )}
       >
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">

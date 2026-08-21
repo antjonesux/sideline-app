@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — QA41: Add Play + situation detail refinement
+
+### What
+
+- **[`PlayTableHeader.tsx`](sideline/components/game-plan/PlayTableHeader.tsx):** Situation header Add Play is the trailing flex item so its right edge aligns with the remove × column (same row grid; handler/capacity unchanged).
+- **[`globals.css`](sideline/app/globals.css) / [`CallSheetBuilderSituationWorkspace.tsx`](sideline/components/playbook/CallSheetBuilderSituationWorkspace.tsx):** Open Add Play rail flex-grows within percentage caps and bleeds past `.app-shell-main` right padding + centering gap to the app-shell workspace edge (`--with-browse`).
+- **[`AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx):** Play name and actions sit above featured play art (QA40 art size preserved).
+- **[`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`designTokens.ts`](sideline/lib/constants/designTokens.ts) / [`AppShellSidebar.tsx`](sideline/components/shared/AppShellSidebar.tsx):** Selected formation heading (visible panel/modal header) reuses shared active sidebar nav tokens (`appShellNavItemActiveClass`).
+
+### Why
+
+QA41: larger play art works; remaining polish was header CTA alignment, unused right-side rail space, name/actions hierarchy, and formation context that did not match active nav styling.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-21 — QA40: Play art browse refinement + header Add Play
 
 ### What

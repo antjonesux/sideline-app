@@ -45,18 +45,20 @@ export function PlayTableHeader({
           Type
         </div>
       ) : null}
+      {showGoToColumn ? <div className="w-8 shrink-0" aria-label="Go-To" /> : null}
       {onAddPlay ? (
         <button
           type="button"
           disabled={addPlayDisabled}
           onClick={onAddPlay}
-          className={cn(appShellHeaderActionButtonClass, "min-h-8 px-2.5 text-xs md:min-h-9 md:px-3 md:text-sm")}
+          className={cn(
+            appShellHeaderActionButtonClass,
+            "shrink-0 min-h-8 px-2.5 text-xs md:min-h-9 md:px-3 md:text-sm",
+          )}
         >
           {BUILDER_ADD_PLAY}
         </button>
-      ) : null}
-      {showGoToColumn ? <div className="w-8 shrink-0" aria-label="Go-To" /> : null}
-      {showActionColumn ? (
+      ) : showActionColumn ? (
         <div className="w-8 shrink-0" aria-label={actionColumn === "add" ? "Add" : "Remove"} />
       ) : null}
     </div>

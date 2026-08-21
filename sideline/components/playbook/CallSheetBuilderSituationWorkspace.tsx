@@ -5,6 +5,7 @@ import { CallSheetBuilderSituationHeader } from "@/components/playbook/CallSheet
 import {
   appShellSituationWorkspaceClass,
   appShellSituationWorkspaceInnerClass,
+  appShellSituationWorkspaceWithBrowseClass,
 } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
@@ -28,6 +29,7 @@ export function CallSheetBuilderSituationWorkspace({
     <div
       className={cn(
         appShellSituationWorkspaceClass,
+        browsePanel && appShellSituationWorkspaceWithBrowseClass,
         "hidden min-h-0 flex-col overflow-hidden md:flex",
         className,
       )}

@@ -274,26 +274,48 @@
   }
 
   /**
-   * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA40).
+   * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA40/QA41).
    * Width tokens live on `:root` (`--app-shell-situation-browse-panel-width`).
-   * Percentage caps keep the main situation column usable at intermediate sizes.
+   * Flex-grow fills leftover workspace beside the situation column; percentage max
+   * keeps the main column usable. Prefer grow over bumping the rem token alone.
    */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
+    flex: 1 1 auto;
+    min-width: min(var(--app-shell-situation-browse-panel-width, 21.25rem), 42%);
     width: min(var(--app-shell-situation-browse-panel-width, 21.25rem), 42%);
-    max-width: var(--app-shell-situation-browse-panel-width, 21.25rem);
-    flex-shrink: 0;
+    max-width: 42%;
   }
 
   @media (min-width: 1024px) {
     .app-shell-situation-browse-panel {
-      width: min(var(--app-shell-situation-browse-panel-width), 46%);
+      min-width: min(var(--app-shell-situation-browse-panel-width), 40%);
+      width: auto;
+      max-width: 46%;
     }
   }
 
   @media (min-width: 1280px) {
     .app-shell-situation-browse-panel {
-      width: min(var(--app-shell-situation-browse-panel-width), 50%);
+      min-width: min(var(--app-shell-situation-browse-panel-width), 42%);
+      max-width: 50%;
+    }
+  }
+
+  /**
+   * QA41 — when Add Play / browse is open, cancel `.app-shell-main` right padding and
+   * the sidebar-shell centering gap so the rail reaches the app-shell workspace edge.
+   */
+  @media (min-width: 768px) {
+    html[data-app-shell-sidebar="true"] .app-shell-situation-workspace--with-browse {
+      width: calc(
+        100% + var(--app-shell-px) +
+          max(0px, (100vw - var(--app-shell-sidebar-width) - var(--app-shell-max-width)) / 2)
+      );
+      margin-inline-end: calc(
+        -1 * var(--app-shell-px) -
+          max(0px, (100vw - var(--app-shell-sidebar-width) - var(--app-shell-max-width)) / 2)
+      );
     }
   }
 }

@@ -7,6 +7,9 @@ import { IconBackButton } from "@/components/shared/IconBackButton";
 import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import { BUILDER_ADD_PLAY, BUILDER_ADD_PLAY_FOR_SITUATION } from "@/lib/coachCopy";
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
+import {
+  appShellNavItemActiveTextClass,
+} from "@/lib/constants/designTokens";
 import { callSheetScenarioDisplayName } from "@/lib/playbookUtils";
 import { cn, normalizePlayName } from "@/lib/utils";
 
@@ -73,13 +76,17 @@ export function AddPlayDrawer({
 
   if (!open) return null;
 
-  const headerTitle =
-    nav.step === "plays" && nav.formationLabel
-      ? nav.formationLabel.toUpperCase()
-      : scenarioName.trim()
-        ? BUILDER_ADD_PLAY_FOR_SITUATION(callSheetScenarioDisplayName(scenarioName))
-        : BUILDER_ADD_PLAY;
+  const formationSelected = nav.step === "plays" && Boolean(nav.formationLabel);
+  const headerTitle = formationSelected
+    ? nav.formationLabel!
+    : scenarioName.trim()
+      ? BUILDER_ADD_PLAY_FOR_SITUATION(callSheetScenarioDisplayName(scenarioName))
+      : BUILDER_ADD_PLAY;
   const headerBackLabel = nav.step === "plays" ? "Back to formations" : "Back";
+  const formationHeadingClass = cn(
+    "min-w-0 flex-1 truncate font-body text-sm font-medium normal-case tracking-normal",
+    appShellNavItemActiveTextClass,
+  );
 
   const handleHeaderBack = () => {
     if (nav.step === "plays") {
@@ -137,7 +144,7 @@ export function AddPlayDrawer({
   if (shell === "panel") {
     return (
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-        {nav.step === "plays" ? (
+        {formationSelected ? (
           <div className="flex shrink-0 items-center gap-2 border-b border-slate-800/80 bg-slate-950 px-4 py-2.5">
             <IconBackButton
               data-no-press
@@ -146,9 +153,7 @@ export function AddPlayDrawer({
                 handleHeaderBack();
               }}
             />
-            <h2 className="truncate font-display text-xs font-bold uppercase tracking-wide text-slate-300">
-              {headerTitle}
-            </h2>
+            <h2 className={formationHeadingClass}>{headerTitle}</h2>
           </div>
         ) : null}
         {browser}
@@ -173,7 +178,14 @@ export function AddPlayDrawer({
               handleHeaderBack();
             }}
           />
-          <h2 id="add-play-drawer-title" className="font-display text-base font-bold uppercase text-white">
+          <h2
+            id="add-play-drawer-title"
+            className={
+              formationSelected
+                ? formationHeadingClass
+                : "font-display text-base font-bold uppercase text-white"
+            }
+          >
             {headerTitle}
           </h2>
         </div>

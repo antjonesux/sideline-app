@@ -12,6 +12,10 @@ import {
   CALL_SHEET_VIEWER_MENU_REVIEW_SOON,
 } from "@/lib/coachCopy";
 import {
+  appShellNavItemActiveClass,
+  appShellNavItemClass,
+} from "@/lib/constants/designTokens";
+import {
   APP_SHELL_SIDEBAR_NAV,
   APP_SHELL_SIGN_OUT_LABEL,
   isAppShellSidebarNavActive,
@@ -33,13 +37,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const navItemClass =
-  "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm font-medium transition-colors";
+const navItemClass = cn("group flex w-full items-center gap-3", appShellNavItemClass);
 
 const subNavItemClass =
   "flex w-full items-center gap-2 rounded-lg py-2 pl-9 pr-3 font-body text-sm font-medium transition-colors";
 
-const navItemActiveClass = "bg-emerald-950/30 text-white";
+const navItemActiveClass = appShellNavItemActiveClass;
 const navItemInactiveClass = "text-slate-400 hover:bg-slate-900/80 hover:text-white";
 const subNavItemInactiveClass = "text-slate-500 hover:bg-slate-900/60 hover:text-slate-300";
 

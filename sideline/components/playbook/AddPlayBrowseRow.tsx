@@ -49,12 +49,7 @@ export function AddPlayBrowseRow({
 
   return (
     <div className="border-b border-slate-700/50 last:border-b-0">
-      {artSrc ? (
-        <div className="px-3 pt-3">
-          <PlayArtImage src={artSrc} alt="" />
-        </div>
-      ) : null}
-      <div className="flex min-h-11 items-center gap-3 px-4 py-3">
+      <div className="flex min-h-11 items-center gap-3 px-4 pt-3 pb-2">
         <div className="min-w-0 flex-1">
           <p className="truncate font-sans text-sm font-semibold text-slate-100">{displayName}</p>
           {showFormationLabel ? (
@@ -101,6 +96,11 @@ export function AddPlayBrowseRow({
           )}
         </div>
       </div>
+      {artSrc ? (
+        <div className="px-3 pb-3">
+          <PlayArtImage src={artSrc} alt="" />
+        </div>
+      ) : null}
     </div>
   );
 }

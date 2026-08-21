@@ -125,9 +125,26 @@ export const appShellBuilderAddSituationClass =
 /** Situation detail workspace shell — viewport height lock + independent column scroll (md+). */
 export const appShellSituationWorkspaceClass = "app-shell-situation-workspace";
 
+/**
+ * When Add Play / browse rail is open — bleeds to the app-shell workspace right edge
+ * (cancels `.app-shell-main` padding + centering gap). See `.app-shell-situation-workspace--with-browse`.
+ */
+export const appShellSituationWorkspaceWithBrowseClass =
+  "app-shell-situation-workspace--with-browse";
+
 /** Situation detail workspace — constrained play-list column (Session 11). */
 export const appShellSituationWorkspaceInnerClass =
   "app-shell-situation-workspace-inner mx-auto w-full max-w-[47.5rem]";
+
+/** Persistent sidebar nav item base — shared with active-formation heading in Add Play. */
+export const appShellNavItemClass =
+  "rounded-lg px-3 py-2.5 font-body text-sm font-medium transition-colors";
+
+/** Active sidebar nav item text — reuse for selected formation name without the nav pill fill. */
+export const appShellNavItemActiveTextClass = "text-white";
+
+/** Active sidebar nav item surface (fill + text). */
+export const appShellNavItemActiveClass = `bg-emerald-950/30 ${appShellNavItemActiveTextClass}`;
 
 /** Situation workspace — dashed add-play control below the play table. */
 export const appShellSituationAddPlayButtonClass =
