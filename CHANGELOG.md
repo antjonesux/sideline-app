@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-21 — Add-play browse: cfb.fan play art thumbnails
+
+### What
+
+- **[`playArtUrl.ts`](sideline/lib/playArtUrl.ts):** Client-side URL builder for cfb.fan play art from existing catalog fields (`formation`, formation type via `group`, `play_name`, `game_version`, `side_of_ball`). Slug rules: lowercase → literal `-` to `--` → spaces to `-`.
+- **[`PlayArtImage.tsx`](sideline/components/playbook/PlayArtImage.tsx) / [`AddPlayBrowseRow.tsx`](sideline/components/playbook/AddPlayBrowseRow.tsx):** Fixed-size thumb beside the play name in add-play browse (formation list + search). Failed loads hide the `<img>` but keep the slot (no broken icon, no row shift). Missing URL stays text-only.
+- **[`PlayBrowser.tsx`](sideline/components/film/PlayBrowser.tsx) / [`AddPlayDrawer.tsx`](sideline/components/playbook/AddPlayDrawer.tsx) / [`CallSheetBuilderSituationBrowsePanel.tsx`](sideline/components/playbook/CallSheetBuilderSituationBrowsePanel.tsx) / [`PlaybookEditor.tsx`](sideline/components/playbook/PlaybookEditor.tsx):** Threads `catalogGameVersion` + existing `catalogSideOfBall` into the add-play path only. No Coach View, situation detail rows, DB, scraper, or API changes.
+
+### Why
+
+Text-only play names require coaches to already know the art; thumbnails make browsing a call sheet playbook intuitive and competitive with tools that show formation/play diagrams.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-07-19 — Situation detail: independent column scroll + pinned add-play search
 
 ### What
