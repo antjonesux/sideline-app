@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Film Room Pass 2: game detail shell + drive management
+
+### What
+
+- Decomposed `app/film/[gameId]/page.tsx` into focused components: `GameDetailHeader.tsx` (matchup, stats, actions), `DriveList.tsx` (drive cards, expand/collapse, play tables, drive CRUD), plus `FilmDriveSetupOverlay.tsx`, `FilmPlayLoggerOverlay.tsx`, and `FilmEndGameScoreDialog.tsx`.
+- Shared helpers moved to `lib/filmGameDetailHelpers.ts` (drive outcome labels, tab/action classes, date formatting).
+- Page file is now a thin orchestrator: data loading, tab state, coordination.
+- Drive management behavior preserved: create, delete, edit field position, inline scores, outcome badges, play tables.
+- Tab navigation: "Drive Summary" (default) and "Tendencies" per `.cursorrules`.
+- Verified no guided onboarding references remain in Pass 2 files.
+
+### Why
+
+Pass 2 of 4-pass Film Room shell migration. Decomposition creates a clean structure for Pass 3 (play logger) and Pass 4 (tendencies) to wire into without fighting a monolithic page file.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Film Room Pass 1: session list + creation flow migration
 
 ### What
