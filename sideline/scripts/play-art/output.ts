@@ -46,6 +46,7 @@ export function manifestRecordsFromMapped(
     playbook: reference.playbook,
     formation: item.formation,
     play_name: item.playName,
+    asset_id: item.assetId,
     asset_path: item.assetPath,
   }));
 }

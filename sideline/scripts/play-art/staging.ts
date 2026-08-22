@@ -25,16 +25,29 @@ export function clearStaging(slug: string): void {
   }
 }
 
+/**
+ * Write unique content-addressed assets into staging.
+ * Duplicate hashes within the playbook are written once.
+ */
 export function writeMappedAssetsToStaging(
   slug: string,
   mapped: MappedPlayArt[],
   mediaFiles: Map<string, Buffer>,
-): number {
+): { written: number; uniqueAssetCount: number } {
   clearStaging(slug);
   const stagingAssetsRoot = join(stagingDirForSlug(slug), "assets");
+  const writtenIds = new Set<string>();
   let written = 0;
 
   for (const item of mapped) {
+    if (!item.assetId || !item.assetPath) {
+      throw new Error(
+        `Mapped play "${item.formation}" / "${item.playName}" is missing content-hash asset identity`,
+      );
+    }
+    if (writtenIds.has(item.assetId)) {
+      continue;
+    }
     const buffer = mediaFiles.get(item.mediaPath);
     if (!buffer) {
       throw new Error(`Missing media buffer for ${item.mediaPath}`);
@@ -43,10 +56,11 @@ export function writeMappedAssetsToStaging(
     const absolute = join(stagingAssetsRoot, relative);
     mkdirSync(dirname(absolute), { recursive: true });
     writeFileSync(absolute, buffer);
+    writtenIds.add(item.assetId);
     written += 1;
   }
 
-  return written;
+  return { written, uniqueAssetCount: writtenIds.size };
 }
 
 type ManifestFile = {
@@ -78,17 +92,7 @@ function copyDirRecursive(src: string, dest: string): void {
   }
 }
 
-/** Copy staged assets into public/ and update generated manifest. Clears staging on success. */
-export function publishStaging(
-  slug: string,
-  reference: PlayArtReference,
-  manifest: ManifestFile,
-): { assetCount: number; manifestPath: string; publicRoot: string } {
-  const stagingAssetsRoot = join(stagingDirForSlug(slug), "assets");
-  if (!existsSync(stagingAssetsRoot)) {
-    throw new Error(`Staging assets missing for ${slug}`);
-  }
-
+function removeLegacyPlaybookAssetTree(reference: PlayArtReference): string | null {
   const playbookRoot = join(
     PUBLIC_ROOT,
     "play-art",
@@ -96,9 +100,28 @@ export function publishStaging(
     reference.sideOfBall.toLowerCase(),
     slugifyPlaybookName(reference.playbook),
   );
+  if (!existsSync(playbookRoot)) {
+    return null;
+  }
+  rmSync(playbookRoot, { recursive: true, force: true });
+  return playbookRoot;
+}
 
-  if (existsSync(playbookRoot)) {
-    rmSync(playbookRoot, { recursive: true, force: true });
+/** Copy staged content-addressed assets into public/ and update generated manifest. */
+export function publishStaging(
+  slug: string,
+  reference: PlayArtReference,
+  manifest: ManifestFile,
+): {
+  assetCount: number;
+  uniqueAssetCount: number;
+  manifestPath: string;
+  publicRoot: string;
+  removedLegacyRoot: string | null;
+} {
+  const stagingAssetsRoot = join(stagingDirForSlug(slug), "assets");
+  if (!existsSync(stagingAssetsRoot)) {
+    throw new Error(`Staging assets missing for ${slug}`);
   }
 
   const stagedPlayArt = join(stagingAssetsRoot, "play-art");
@@ -106,18 +129,23 @@ export function publishStaging(
     throw new Error(`Staging play-art tree missing for ${slug}`);
   }
 
+  // Merge into public/play-art (shared assets/ dir is additive; do not wipe other hashes).
   copyDirRecursive(stagedPlayArt, join(PUBLIC_ROOT, "play-art"));
+
+  const removedLegacyRoot = removeLegacyPlaybookAssetTree(reference);
 
   mkdirSync(dirname(GENERATED_MANIFEST_PATH), { recursive: true });
   writeFileSync(GENERATED_MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-  const assetCount = countFilesRecursive(stagingAssetsRoot);
+  const uniqueAssetCount = countFilesRecursive(stagingAssetsRoot);
   clearStaging(slug);
 
   return {
-    assetCount,
+    assetCount: uniqueAssetCount,
+    uniqueAssetCount,
     manifestPath: GENERATED_MANIFEST_PATH,
     publicRoot: join(PUBLIC_ROOT, "play-art"),
+    removedLegacyRoot,
   };
 }
 

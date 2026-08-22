@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Owned play art: SHA-256 dedup and source discovery
+
+### What
+
+- Added content-hash asset deduplication at ingest time: final play-card bytes are hashed with **SHA-256** (Node `crypto`); identical images publish once to `public/play-art/cfb27/assets/<hash>.jpg`.
+- Manifest entries now include `asset_id` + `asset_path` while keeping one logical row per playbook/formation/play; Add Play lookup unchanged (`gameVersion` + side + playbook + formation + play → `asset_path`).
+- Regenerated USC through the existing pipeline: **465** logical mappings, **465** unique physical assets, legacy `public/play-art/cfb27/offense/usc/` tree removed after publish.
+- Added read-only recursive source discovery (`npm run play-art:discover`) against `scripts/play-art/source/` with CFB27 seed matching and explicit alias support (`source-aliases.json`, e.g. `Miami FL` → `Miami`).
+- Discovery statuses: `MATCH`, `ALIAS`, `UNRESOLVED`, `AMBIGUOUS` — no silent fuzzy matching, no automatic ingestion.
+
+### Why
+
+Scaling beyond the USC pilot requires reusing identical play-art across playbooks without duplicating image files, and licensed DOCX files use human-readable names in nested folders. Operators need discovery before playbook #2 without renaming source files.
+
+### Status
+
+- USC: **26 formations / 465 plays / 465 manifest entries** — PASS; Wildcat U Off Trips and Hail Mary cfb.fan fallback verified.
+- Source discovery (local collection): **126** DOCX — **124** MATCH, **1** ALIAS (`Miami FL`), **0** UNRESOLVED, **1** AMBIGUOUS (`Multiple.docx` offense vs defense).
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Owned play art pilot: USC ingestion pipeline and Add Play resolver
 
 ### What

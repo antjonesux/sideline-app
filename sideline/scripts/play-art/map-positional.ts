@@ -1,4 +1,3 @@
-import { buildOwnedPlayArtAssetPath } from "../../lib/playArtUrl";
 import { normalizePlayName } from "../../lib/utils";
 import type {
   ClassifiedDocxBlock,
@@ -16,6 +15,7 @@ type PositionalMapResult = {
 /**
  * Map extracted DOCX blocks to reference formations/plays by document order.
  * Never shifts or recovers from count mismatches — caller must validate first.
+ * Asset identity/path are assigned later via content hashing of final card bytes.
  */
 export function mapPlayArtPositionally(
   reference: PlayArtReference,
@@ -65,14 +65,8 @@ export function mapPlayArtPositionally(
       playName: normalizePlayName(playName),
       mediaPath: block.mediaPath,
       extension: block.extension,
-      assetPath: buildOwnedPlayArtAssetPath({
-        gameVersion: reference.gameVersion,
-        sideOfBall: reference.sideOfBall,
-        playbook: reference.playbook,
-        formation: refFormation.name,
-        playName,
-        extension: block.extension,
-      }),
+      assetId: "",
+      assetPath: "",
       blockIndex: block.index,
     });
     playIndexInFormation += 1;

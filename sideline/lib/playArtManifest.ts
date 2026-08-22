@@ -7,6 +7,8 @@ export type PlayArtManifestEntry = {
   playbook: string;
   formation: string;
   play_name: string;
+  /** SHA-256 of published card bytes when present (ingestion-time identity). */
+  asset_id?: string;
   asset_path: string;
 };
 

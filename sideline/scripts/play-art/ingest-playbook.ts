@@ -3,20 +3,20 @@
  * Owned play-art ingestion pipeline (offline operator workflow).
  *
  * Usage (from sideline/):
- *   npm run ingest:play-art -- \
+ *   npm run play-art:ingest -- \
  *     --reference scripts/play-art/references/cfb27-offense-usc.json \
- *     --source scripts/play-art/source/cfb27-offense-USC.docx
+ *     --source "scripts/play-art/source/Air Raid/cfb27-offense-USC.docx"
  */
 
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assignContentHashedAssets } from "./content-hash";
 import { extractPlayArtDocx, summarizeDocxStructure } from "./extract-docx";
 import { mapPlayArtPositionally } from "./map-positional";
 import {
   manifestRecordsFromMapped,
   mergeManifestForPlaybook,
-  writeValidationReport,
 } from "./output";
 import { loadPlayArtReference, referenceSlug, totalExpectedPlays } from "./reference";
 import {
@@ -120,8 +120,21 @@ async function main(): Promise<void> {
       `(${extracted.structure.formationHeaders} headers, ${extracted.structure.playStrips} play strips) → ` +
       `${extracted.structure.generatedPlayCards} play cards`,
   );
-  const { mapped, formationHeaders, playCards } = mapPlayArtPositionally(reference, extracted);
-  const report = validatePlayArtMapping(reference, mapped, formationHeaders, playCards);
+
+  const positional = mapPlayArtPositionally(reference, extracted);
+  const hashed = assignContentHashedAssets(
+    reference,
+    positional.mapped,
+    extracted.mediaFiles,
+  );
+  const mapped = hashed.mapped;
+  const uniqueAssetCount = hashed.uniqueAssetCount;
+  const report = validatePlayArtMapping(
+    reference,
+    mapped,
+    positional.formationHeaders,
+    positional.playCards,
+  );
 
   mkdirSync(args.reportDir, { recursive: true });
   const reportFileName = `${reference.playbook.trim().toLowerCase().replace(/\s+/g, "-")}-validation.json`;
@@ -138,19 +151,30 @@ async function main(): Promise<void> {
   }
 
   if (args.validateOnly) {
-    console.log("Validate-only mode: skipping asset publish and manifest update.");
+    console.log(
+      `Validate-only mode: ${mapped.length} logical mappings → ${uniqueAssetCount} unique physical assets ` +
+        `(${mapped.length - uniqueAssetCount} duplicates eliminated). Skipping publish.`,
+    );
     process.exit(0);
   }
 
-  const assetCount = writeMappedAssetsToStaging(slug, mapped, extracted.mediaFiles);
+  const staged = writeMappedAssetsToStaging(slug, mapped, extracted.mediaFiles);
   const records = manifestRecordsFromMapped(reference, mapped);
   const manifest = mergeManifestForPlaybook(reference, records);
   writeManifestToStaging(slug, manifest);
 
   const published = publishStaging(slug, reference, manifest);
 
-  console.log(`Published ${published.assetCount} assets under ${published.publicRoot}`);
+  console.log(
+    `Published ${published.uniqueAssetCount} unique assets ` +
+      `(${records.length} logical mappings, ${records.length - published.uniqueAssetCount} duplicates eliminated)`,
+  );
+  console.log(`  Public root: ${published.publicRoot}`);
+  if (published.removedLegacyRoot) {
+    console.log(`  Removed legacy playbook tree: ${published.removedLegacyRoot}`);
+  }
   console.log(`Manifest: ${published.manifestPath} (${records.length} entries for ${reference.playbook})`);
+  console.log(`Staged unique writes: ${staged.uniqueAssetCount}`);
   console.log("Done.");
 }
 

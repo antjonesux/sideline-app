@@ -12,7 +12,7 @@ No OCR. Formation and play names come **only** from the canonical reference JSON
 | Side | `offense` |
 | Seed module | `lib/seed/playbooks/cfb27-usc.ts` |
 | Reference | `scripts/play-art/references/cfb27-offense-usc.json` |
-| Source DOCX | `scripts/play-art/source/cfb27-offense-USC.docx` (gitignored) |
+| Source DOCX | `scripts/play-art/source/Air Raid/cfb27-offense-USC.docx` (gitignored; nested folders OK) |
 
 ## Commands (from `sideline/`)
 
@@ -52,9 +52,10 @@ On validation failure: **published assets and manifest are not modified** (stagi
 
 On success:
 
-- Assets → `public/play-art/cfb27/offense/usc/...`
-- Manifest → `lib/generated/play-art-manifest.json`
+- Assets → `public/play-art/cfb27/assets/<sha256>.jpg` (content-addressed; shared across playbooks)
+- Manifest → `lib/generated/play-art-manifest.json` (logical mappings with `asset_id` + `asset_path`)
 - Report → `scripts/play-art/reports/usc-validation.json`
+- Legacy playbook-scoped trees under `public/play-art/cfb27/offense/<team>/` are removed after a successful publish
 
 ## Processing playbook #2
 
@@ -98,6 +99,10 @@ NODE_PATH=./node_modules npx tsx ./scripts/play-art/debug-formation-map.ts \
 | `reference.ts` | Load / validate reference |
 | `extract-docx.ts` | DOCX extraction + classification |
 | `map-positional.ts` | Positional mapping |
+| `content-hash.ts` | SHA-256 asset IDs + shared paths |
+| `source-discovery.ts` | Recursive DOCX discovery + name resolution |
+| `discover-sources.ts` | `play-art:discover` CLI |
+| `source-aliases.json` | Explicit basename → team exceptions |
 | `validate.ts` | Validation gates + console report |
 | `staging.ts` | Stage assets/manifest before publish |
 | `output.ts` | Manifest merge helpers |
@@ -105,3 +110,26 @@ NODE_PATH=./node_modules npx tsx ./scripts/play-art/debug-formation-map.ts \
 ## App resolution
 
 `resolvePlayArtUrl()` in `lib/playArtUrl.ts`: owned manifest → cfb.fan → null.
+
+
+## Source discovery
+
+Recursively scan licensed DOCX sources and resolve names against CFB27 seeds (read-only — does not ingest or rename files):
+
+```bash
+npm run play-art:discover
+```
+
+Statuses: `MATCH` · `ALIAS` · `UNRESOLVED` · `AMBIGUOUS`
+
+Aliases live in `scripts/play-art/source-aliases.json` (exceptions only). Prefer exact normalized matches; do not fuzzy-guess ambiguous names.
+
+## Content-addressed assets
+
+Final play-card bytes are hashed with **SHA-256** (Node `crypto`) at ingest time only.
+
+Physical storage:
+
+`public/play-art/{gameVersion}/assets/{sha256}.jpg`
+
+Manifest entries remain one logical row per playbook + formation + play, each pointing at `asset_id` / `asset_path`. Identical bytes across playbooks share one physical file. Application lookup is unchanged (game version + side + playbook + formation + play → `asset_path`).

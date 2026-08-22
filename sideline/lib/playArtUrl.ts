@@ -71,7 +71,10 @@ export function slugifyPlaybookName(playbook: string): string {
   return slugifyPlayArtSegment(playbook);
 }
 
-/** Deterministic public path for a Sideline-owned play-art asset. */
+/**
+ * Legacy playbook-scoped public path (formation/play slug layout).
+ * Prefer {@link buildContentAddressedPlayArtAssetPath} for new publishes.
+ */
 export function buildOwnedPlayArtAssetPath(input: {
   gameVersion: string;
   sideOfBall: string;
@@ -90,6 +93,24 @@ export function buildOwnedPlayArtAssetPath(input: {
     return "";
   }
   return `/play-art/${gameVersion}/${sideOfBall}/${playbook}/${formation}/${play}.${extension}`;
+}
+
+/**
+ * Content-addressed public path for a Sideline-owned play-art asset.
+ * Physical identity is the content hash (`assetId`), not formation/play metadata.
+ */
+export function buildContentAddressedPlayArtAssetPath(input: {
+  gameVersion: string;
+  assetId: string;
+  extension: string;
+}): string {
+  const gameVersion = input.gameVersion.trim().toLowerCase();
+  const assetId = input.assetId.trim().toLowerCase();
+  const extension = input.extension.replace(/^\./, "").toLowerCase();
+  if (!gameVersion || !assetId || !extension) {
+    return "";
+  }
+  return `/play-art/${gameVersion}/assets/${assetId}.${extension}`;
 }
 
 /**

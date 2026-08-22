@@ -26,6 +26,9 @@ export type MappedPlayArt = {
   playName: string;
   mediaPath: string;
   extension: string;
+  /** SHA-256 of final play-card bytes; empty until content-hash assignment. */
+  assetId: string;
+  /** Public path under `/play-art/{version}/assets/{assetId}.{ext}`. */
   assetPath: string;
   blockIndex: number;
 };
@@ -54,5 +57,25 @@ export type PlayArtManifestRecord = {
   playbook: string;
   formation: string;
   play_name: string;
+  /** SHA-256 content hash of the published play-card bytes. */
+  asset_id: string;
+  /** Public path; multiple logical mappings may share one path. */
   asset_path: string;
+};
+
+export type PlayArtSourceDiscoveryStatus =
+  | "MATCH"
+  | "ALIAS"
+  | "UNRESOLVED"
+  | "AMBIGUOUS";
+
+export type PlayArtSourceDiscoveryResult = {
+  sourcePath: string;
+  fileName: string;
+  basename: string;
+  status: PlayArtSourceDiscoveryStatus;
+  resolvedSeed?: string;
+  resolvedPlaybook?: string;
+  candidates?: string[];
+  aliasTarget?: string;
 };
