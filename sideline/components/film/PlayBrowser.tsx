@@ -343,6 +343,7 @@ export function PlayBrowser({
                         onToggleGoTo={onToggleGoTo}
                         catalogSideOfBall={catalogSideOfBall}
                         catalogGameVersion={catalogGameVersion}
+                        catalogPlaybook={playbook}
                       />
                     );
                   })}
@@ -451,6 +452,7 @@ export function PlayBrowser({
                       onToggleGoTo={onToggleGoTo}
                       catalogSideOfBall={catalogSideOfBall}
                       catalogGameVersion={catalogGameVersion}
+                      catalogPlaybook={playbook}
                     />
                   );
                 })}

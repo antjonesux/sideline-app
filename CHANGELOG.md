@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Owned play art pilot: USC ingestion pipeline and Add Play resolver
+
+### What
+
+- Added offline play-art ingestion pipeline under `sideline/scripts/play-art/` — DOCX strip extraction, three-card crop, positional mapping, fail-closed validation, staging → publish, and manifest generation.
+- Published **465** USC owned play-art JPEGs under `public/play-art/cfb27/offense/usc/` with matching entries in `lib/generated/play-art-manifest.json`.
+- Wired Add Play browse to resolve owned manifest assets first, then cfb.fan, then no image (`playArtUrl.ts`, `playArtManifest.ts`, `AddPlayBrowseRow`, `PlayBrowser`).
+- USC source model: **182** embedded **2048×355** strips classified as formation headers or three-card play strips; reference-driven consumption with duplicate title-band drop for overfull formations (Wildcat U Off Trips mirror **DIY REVERSE** slot).
+- Operator tools: `npm run ingest:play-art`, `npm run play-art:reference`, `--structure-report`, `--validate-only`, and `debug-formation-map.ts`.
+
+### Why
+
+The first USC pilot failed correctly because embedded DOCX images are wide play strips, not individual plays. This session adapted extraction/segmentation to the real source format while preserving the existing positional mapper, validator, and owned-first app resolver. Non-USC playbooks continue using cfb.fan fallback.
+
+### Status
+
+- USC validation: **26 formations / 465 plays / 465 manifest entries** — PASS.
+- Wildcat U Off Trips mapping corrected and visually verified.
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Film Room creation form: call sheet picker bottom nav fix
 
 ### What

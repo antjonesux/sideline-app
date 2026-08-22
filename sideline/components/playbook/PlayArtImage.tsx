@@ -24,7 +24,7 @@ export function PlayArtImage({
       aria-hidden={failed}
     >
       {failed ? null : (
-        // eslint-disable-next-line @next/next/no-img-element -- remote cfb.fan art; no next/image domain allowlist
+        // eslint-disable-next-line @next/next/no-img-element -- owned /play-art paths and remote cfb.fan URLs
         <img
           src={src}
           alt={alt}

@@ -1,4 +1,5 @@
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
+import { resolveOwnedPlayArtPath } from "@/lib/playArtManifest";
 
 export type PlayArtUrlInput = {
   formation: string;
@@ -6,6 +7,10 @@ export type PlayArtUrlInput = {
   playName: string;
   gameVersion: CatalogGameVersion | string;
   side: CatalogSideOfBall;
+};
+
+export type PlayArtResolveInput = PlayArtUrlInput & {
+  playbook: string;
 };
 
 /** Lowercase → literal `-` to `--` → spaces to `-`. */
@@ -59,4 +64,46 @@ export function buildPlayArtUrl(input: PlayArtUrlInput): string | null {
   if (!categorySlug || !setSlug || !playSlug) return null;
 
   return `https://media.cfb.fan/${version}/playbookdb/${input.side}/${categorySlug}/${setSlug}/${playSlug}.jpg`;
+}
+
+/** Slug for owned asset directories (playbook team name). */
+export function slugifyPlaybookName(playbook: string): string {
+  return slugifyPlayArtSegment(playbook);
+}
+
+/** Deterministic public path for a Sideline-owned play-art asset. */
+export function buildOwnedPlayArtAssetPath(input: {
+  gameVersion: string;
+  sideOfBall: string;
+  playbook: string;
+  formation: string;
+  playName: string;
+  extension: string;
+}): string {
+  const gameVersion = input.gameVersion.trim().toLowerCase();
+  const sideOfBall = input.sideOfBall.trim().toLowerCase();
+  const playbook = slugifyPlaybookName(input.playbook);
+  const formation = slugifyPlayArtSegment(input.formation);
+  const play = slugifyPlayArtSegment(input.playName);
+  const extension = input.extension.replace(/^\./, "").toLowerCase();
+  if (!gameVersion || !sideOfBall || !playbook || !formation || !play || !extension) {
+    return "";
+  }
+  return `/play-art/${gameVersion}/${sideOfBall}/${playbook}/${formation}/${play}.${extension}`;
+}
+
+/**
+ * Resolve play-art for Add Play browse: owned Sideline asset first, then cfb.fan URL.
+ * Returns `null` when neither source can resolve (caller renders text-only).
+ */
+export function resolvePlayArtUrl(input: PlayArtResolveInput): string | null {
+  const owned = resolveOwnedPlayArtPath({
+    gameVersion: input.gameVersion,
+    sideOfBall: input.side,
+    playbook: input.playbook,
+    formation: input.formation,
+    playName: input.playName,
+  });
+  if (owned) return owned;
+  return buildPlayArtUrl(input);
 }

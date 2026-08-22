@@ -1,0 +1,3725 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "COUNTER Y LEAD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/counter-y-lead.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "SLANTS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/slants.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "TR OPT LEAD LT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/tr-opt-lead-lt.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "MTN TRIPLE OPTION RT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/mtn-triple-option-rt.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "MTN CROSS SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/mtn-cross-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "MTN RPO ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/mtn-rpo-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "VERTICALS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/verticals.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Y Offset",
+      "play_name": "PA SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-y-offset/pa-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "PA F SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/pa-f-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "RPO READ SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/rpo-read-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "FB INSIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/fb-inside.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "PA WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/pa-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "HB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/hb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "MESH POST WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/mesh-post-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "SLANTS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/slants.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "HB OFF TACKLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/hb-off-tackle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "SLOT POST ANGLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/slot-post-angle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "689 HOOK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/689-hook.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "SHOVEL OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/shovel-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "FLAT COMBO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/flat-combo.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "WR SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/wr-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "SHAKES",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/shakes.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "DIY SWEEP REVERSE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/diy-sweep-reverse.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "PA SNEAK BANG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/pa-sneak-bang.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot",
+      "play_name": "HB SWEEP WK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot/hb-sweep-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "SHAKES",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/shakes.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "HB COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/hb-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "PA GT Z TUNNEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/pa-gt-z-tunnel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN LEAD SPOT MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-lead-spot-mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN RPO PEEK STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-rpo-peek-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN MESH WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-mesh-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN STICK WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-stick-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN RPO SWING QB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-rpo-swing-qb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN Y STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-y-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN RPO PEEK SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-rpo-peek-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN DOUBLE PASS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-double-pass.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "RPO READ CNTR",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/rpo-read-cntr.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN PA COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-pa-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "MTN PA HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/mtn-pa-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "HB OFF TACKLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/hb-off-tackle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "FL DRAG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/fl-drag.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "HB SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/hb-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "PA SNEAK CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/pa-sneak-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "SPEED OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/speed-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "SLANTS MIDDLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/slants-middle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Split Slot Offset",
+      "play_name": "RPO READ COUNTER SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-split-slot-offset/rpo-read-counter-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "MTN WR SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/mtn-wr-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "MTN PA SWEEP HB SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/mtn-pa-sweep-hb-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "MTN WR SWEEP DIY REVERSE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/mtn-wr-sweep-diy-reverse.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "PA GT Z TUNNEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/pa-gt-z-tunnel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "GT COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/gt-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "PA COUNTER SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/pa-counter-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "ORBIT ALERT COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/orbit-alert-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "ORBIT PA COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/orbit-pa-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "ORBIT RPO ALERT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/orbit-rpo-alert.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "COUNTER Y",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/counter-y.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "CURL COMBO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/curl-combo.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "RPO ALERT COUNTER BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/rpo-alert-counter-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "HB SCISSORS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/hb-scissors.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/rpo-alert-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "PA GO SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/pa-go-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "ZONE FAKE JET",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/zone-fake-jet.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "PA JET SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/pa-jet-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET PASS FK ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-pass-fk-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET COUNTER Y",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-counter-y.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET CNTR Y READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-cntr-y-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET GT COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-gt-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET HB ANGLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-hb-angle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "JET TOUCH PASS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/jet-touch-pass.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off",
+      "play_name": "FAKE JET HB WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off/fake-jet-hb-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "POST CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/post-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "GT READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/gt-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "STRIKE HB SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/strike-hb-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "OUTSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/outside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "PA BUBBLE Y OVER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/pa-bubble-y-over.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "HB TOSS FK JET",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/hb-toss-fk-jet.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "FK JET TOSS PASS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/fk-jet-toss-pass.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "JET PASS FK TOSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/jet-pass-fk-toss.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "RPO ALERT FLIP COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/rpo-alert-flip-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "PA FLIP COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/pa-flip-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "RPO PEEK FLIP Y POP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/rpo-peek-flip-y-pop.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "H SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/h-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "HB POWER O",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/hb-power-o.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "PA POWER Y POP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/pa-power-y-pop.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "RPO SPLIT ALERT SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/rpo-split-alert-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/y-lead-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "HB SLOW SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/hb-slow-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "RPO GLANCE POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/rpo-glance-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "PA JAILBREAK SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/pa-jailbreak-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "COUNTER Y",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/counter-y.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Doubles Y Off Wk",
+      "play_name": "RPO READ COUNTER BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-doubles-y-off-wk/rpo-read-counter-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "COUNTER Y READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/counter-y-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "PA SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/pa-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO READ COUNTER SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-read-counter-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO COUNTER ALERT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-counter-alert.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "CURLS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/curls.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO COUNTER PEEK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-counter-peek.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "PA Y FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/pa-y-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO READ GT FLAT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-read-gt-flat.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO READ Y FLAT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-read-y-flat.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "PA BOOT STUTTER WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/pa-boot-stutter-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "HB POWER RT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/hb-power-rt.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "VERTICALS Y OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/verticals-y-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO BUBBLE Y POP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/rpo-bubble-y-pop.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "PA READ SMASH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/pa-read-smash.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/mtn-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN STICK N NOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/mtn-stick-n-nod.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN Y SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/mtn-y-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "DIY HB DIRECT REVERSE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/diy-hb-direct-reverse.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "SPRINT FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/sprint-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips",
+      "play_name": "HB DIRECT SNAP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips/hb-direct-snap.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO PEEK FLIP COUNTER FLAT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-peek-flip-counter-flat.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "PA FLIP COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/pa-flip-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO GLANCE FLIP COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-glance-flip-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO ALERT COUNTER HITCH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-alert-counter-hitch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "SNAG Y SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/snag-y-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "GT COUNTER WK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/gt-counter-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "BOUNCE INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/bounce-inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "BOUNCE PA POST CURLS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/bounce-pa-post-curls.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "BOUNCE SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/bounce-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "POST N CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/post-n-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "GT READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/gt-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO ALERT SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-alert-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MTN X SLANT SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mtn-x-slant-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MTN HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mtn-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MTN PUMP AND GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mtn-pump-and-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "HB SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/hb-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "PA SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/pa-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "OUTSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/outside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/y-lead-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "PA SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/pa-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO ALERT SPLIT BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-alert-split-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "HB POWER O",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/hb-power-o.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "TE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/te-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "RPO ALERT BUBBLE DIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/rpo-alert-bubble-dive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MESH WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mesh-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trips Wk",
+      "play_name": "MESH Y DIG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trips-wk/mesh-y-dig.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "PA HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/pa-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "SPOT Y SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/spot-y-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/y-lead-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "SPOT SLOT OUT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/spot-slot-out.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "SHOCK H OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/shock-h-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "BUCK SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/buck-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "PA POST DIG SHOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/pa-post-dig-shot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/hb-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "IN GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/in-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB BASE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/hb-base.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-y-off-trio-wk/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "BUBBLE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/bubble-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "BUBBLE SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/bubble-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "FK BUBBLE ANGLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/fk-bubble-angle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "SPACING SWITCH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/spacing-switch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "MTN ALL CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/mtn-all-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "MTN WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/mtn-wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "MTN LEAD SWING SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/mtn-lead-swing-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "SPEED DIG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/speed-dig.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "MESH POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/mesh-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "HB CROSS SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/hb-cross-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "MESH SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/mesh-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "OUTSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/outside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "PA DIG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/pa-dig.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Bunch Ace Offset",
+      "play_name": "COUNTER Y",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-bunch-ace-offset/counter-y.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "JET TOUCH PASS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/jet-touch-pass.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "PA JET SWEEP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/pa-jet-sweep.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "ZONE FAKE JET",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/zone-fake-jet.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "HB PUMP DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/hb-pump-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "RPO READ COUNTER SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/rpo-read-counter-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "DEEP CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/deep-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "PA DEEP OUTS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/pa-deep-outs.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "MESH SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/mesh-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "SPEED OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/speed-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "CROSS Z POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/cross-z-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "Y SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/y-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "INSIDE CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/inside-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "SMASH CORNERS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/smash-corners.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "WR POST CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/wr-post-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "RPO ALERT OUT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/rpo-alert-out.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Flex",
+      "play_name": "DEEP COMEBACKS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-flex/deep-comebacks.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN MESH HB WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-mesh-hb-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN MESH OUTS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-mesh-outs.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "H STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/h-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "PA Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/pa-y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "RPO ALERT SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/rpo-alert-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "SMASH HB ANGLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/smash-hb-angle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "MTN Y STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/mtn-y-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "HB BASE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/hb-base.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "X SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/x-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "H MTN Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/h-mtn-z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "H MTN Y STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/h-mtn-y-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "H MTN FOUR VERTICALS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/h-mtn-four-verticals.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "X REPLACE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/x-replace.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "RPO PEEK SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/rpo-peek-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Y-Flex Wk",
+      "play_name": "PA SWITCH SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-y--flex-wk/pa-switch-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "CROSS DBL POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/cross-dbl-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "DRAW FK BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/draw-fk-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "PA SHOT DINO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/pa-shot-dino.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "H WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/h-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "GT READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/gt-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "PA GT Z TUNNEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/pa-gt-z-tunnel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "PA SLIDE HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/pa-slide-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "RPO READ SLOT SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/rpo-read-slot-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "PA SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/pa-slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "HB QUICK BASE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/hb-quick-base.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "SMASH HB SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/smash-hb-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "P AH CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/p-ah-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "WHIP HB RAIL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/whip-hb-rail.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "MESH POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/mesh-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "Y STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/y-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "SLOT FADES",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/slot-fades.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "H SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/h-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "Y SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/y-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread",
+      "play_name": "OUTSIDE COMEBACKS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread/outside-comebacks.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "MTN Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/mtn-z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "MTN HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/mtn-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "MTN ALL CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/mtn-all-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "HB SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/hb-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "OUTSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/outside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "H CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/h-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "RPO READ BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/rpo-read-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread HB Wk",
+      "play_name": "DOUBLE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-hb-wk/double-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "STICK Z POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/stick-z-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "PA SLOT POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/pa-slot-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "RPO PEEK SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/rpo-peek-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "CROSS H DIVIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/cross-h-divide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "MTN SLOT SHALLOW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/mtn-slot-shallow.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "MTN WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/mtn-wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "MTN MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/mtn-mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "Y SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/y-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "RPO ALERT Z SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/rpo-alert-z-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "PA HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/pa-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "SHALLOW SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/shallow-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "HB QUICK BASE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/hb-quick-base.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "ZIG HB WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/zig-hb-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Spread Dbl Flex",
+      "play_name": "SLOT FADES HB SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-spread-dbl-flex/slot-fades-hb-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "TROJANS SPOT SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/trojans-spot-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "RPO PEEK Y SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/rpo-peek-y-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "SLOT MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/slot-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "H MTN MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/h-mtn-mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "H MTN MESH POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/h-mtn-mesh-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "H MTN MESH WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/h-mtn-mesh-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "RPO PEEK SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/rpo-peek-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "STICK WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/stick-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "HB MID DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/hb-mid-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "LEVELS SWITCH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/levels-switch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "SLOT FADE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/slot-fade.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "HB DIRECT SNAP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/hb-direct-snap.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "SCISSORS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/scissors.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "HB MIDDLE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/hb-middle-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open HB Str",
+      "play_name": "DEEP STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-hb-str/deep-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "UNDER Y OUT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/under-y-out.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "OUTSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/outside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "H MTN MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/h-mtn-mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "H MTN X SHALLOW CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/h-mtn-x-shallow-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "H MTN MESH POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/h-mtn-mesh-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "HB BASE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/hb-base.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "Y SAIL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/y-sail.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "MESH DIG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/mesh-dig.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "SHALLOW CROSS SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/shallow-cross-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "X DRAG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/x-drag.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "PA WR IN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/pa-wr-in.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "SHAKES",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/shakes.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "Y CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/y-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "HB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/hb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "RZ Z UNDER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/rz-z-under.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "HB CROSS SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/hb-cross-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open",
+      "play_name": "CLEAROUT RUB RETURN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open/clearout-rub-return.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "DRIVE UNDER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/drive-under.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "CROSS Z CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/cross-z-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "SHOCK SNAG",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/shock-snag.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "RPO PEEK SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/rpo-peek-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "INSIDE SHOCK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/inside-shock.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "MTN FOUR VERTICALS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/mtn-four-verticals.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "MTN HB SWING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/mtn-hb-swing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "MTN SPOT Y CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/mtn-spot-y-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "REDZONE UP",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/redzone-up.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "CAKE READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/cake-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "Y CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/y-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "RPO ALERT X OUT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/rpo-alert-x-out.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "MESH WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/mesh-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "INSIDE SEAM",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/inside-seam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "HB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/hb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trey Open Offset",
+      "play_name": "PA READ",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trey-open-offset/pa-read.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "TRIPS CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/trips-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "RPO ZONE STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/rpo-zone-stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "STICK WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/stick-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "PA DRIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/pa-drive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "PA SHALLOW STING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/pa-shallow-sting.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "SLOT DRIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/slot-drive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "RPO BASE ALERT BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/rpo-base-alert-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "SWITCH VERTS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/switch-verts.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "RPO BUBBLE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/rpo-bubble.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "SAIL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/sail.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "RPO READ SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/rpo-read-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "FAKE SCREEN WHEEL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/fake-screen-wheel.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "RPO READ GT SLOT SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/rpo-read-gt-slot-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Trips",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-trips/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "SHOCK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/shock.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "QB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/qb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "SHOCK SHAKE CROSSERS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/shock-shake-crossers.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "DRIVE UNDER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/drive-under.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "SHALLOW SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/shallow-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "STICK Z POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/stick-z-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "686",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/686.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "986",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/986.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "986 SWITCH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/986-switch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "Y CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/y-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "WR MID SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/wr-mid-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "INSIDE CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/inside-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "STICK N NOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/stick-n-nod.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "WR SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/wr-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "Y CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/y-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "Y CROSS FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/y-cross-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "Y POST",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/y-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "DRAG DOUBLE SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/drag-double-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "MESH",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/mesh.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Base",
+      "play_name": "DOUBLE SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-base/double-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "SLOT CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/slot-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "CURL FLAT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/curl-flat.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "CORNER STRIKE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/corner-strike.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "DAGGER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/dagger.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "DEEP POST OUT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/deep-post-out.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "POST CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/post-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "SLOT SAIL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/slot-sail.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Chips",
+      "play_name": "TE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-chips/te-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "BUBBLE ALL CURL",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/bubble-all-curl.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "BUBBLE SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/bubble-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "BUBBLE VERTICALS",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/bubble-verticals.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "INSIDE CROSSES",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/inside-crosses.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "QB DRAW",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/qb-draw.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "ALL GO",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/all-go.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "SLOT PIVOT",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/slot-pivot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "SPACING",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/spacing.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "STRONG FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/strong-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "STICK",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/stick.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "CURL FLAT CORNER",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/curl-flat-corner.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Gun Empty Quads HB",
+      "play_name": "DRIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/gun-empty-quads-hb/drive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "QUICK SLANTS",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/quick-slants.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "WIDE ZONE WK",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/wide-zone-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "PA BOOT SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/pa-boot-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "HB DIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/hb-dive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "PA FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/pa-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off",
+      "play_name": "HB STRETCH",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off/hb-stretch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA BOOT SLIDE",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/pa-boot-slide.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB COUNTER STR",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/hb-counter-str.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA DAGGER U CROSS",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/pa-dagger-u-cross.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/inside-zone.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA FLOOD",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/pa-flood.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB SLAM",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/hb-slam.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "SLANTS",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/slants.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB MISDIRECTION",
+      "asset_path": "/play-art/cfb27/offense/usc/singleback-u-off-trips/hb-misdirection.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "HB DIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/hb-dive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "PA DOUBLE POST",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/pa-double-post.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "GT COUNTER",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/gt-counter.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "Z SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/z-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/inside-zone-split.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "VERTICALS",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/verticals.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "HB STRETCH",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/hb-stretch.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "PA BOOT",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/pa-boot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "COUNTER F",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/counter-f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "FL SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/fl-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "HB ZONE WK",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/hb-zone-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "PA BOOT RT",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/pa-boot-rt.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "HB SLIP SCREEN",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/hb-slip-screen.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "F LEAD READ OPTION",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/f-lead-read-option.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Pistol Open Flex",
+      "play_name": "PA X SLANT",
+      "asset_path": "/play-art/cfb27/offense/usc/pistol-open-flex/pa-x-slant.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Wildcat U Off Trips",
+      "play_name": "BLAST WK",
+      "asset_path": "/play-art/cfb27/offense/usc/wildcat-u-off-trips/blast-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Wildcat U Off Trips",
+      "play_name": "DIY REVERSE",
+      "asset_path": "/play-art/cfb27/offense/usc/wildcat-u-off-trips/diy-reverse.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Wildcat U Off Trips",
+      "play_name": "QB WRAP",
+      "asset_path": "/play-art/cfb27/offense/usc/wildcat-u-off-trips/qb-wrap.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Wildcat U Off Trips",
+      "play_name": "POWER",
+      "asset_path": "/play-art/cfb27/offense/usc/wildcat-u-off-trips/power.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Wildcat U Off Trips",
+      "play_name": "POWER EXTRA",
+      "asset_path": "/play-art/cfb27/offense/usc/wildcat-u-off-trips/power-extra.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "HB DIVE",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/hb-dive.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPOT",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/pa-spot.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "QB SNEAK",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/qb-sneak.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "POWER O",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/power-o.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "PA POWER O",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/pa-power-o.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "FB DIVE WEAK",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/fb-dive-weak.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "HB SPLIT 0",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/hb-split-0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPRINT HB FLAT",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/pa-sprint-hb-flat.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "HB COUNTER WK",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/hb-counter-wk.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "HB STING",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/hb-sting.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "PA WAGGLE",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/pa-waggle.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "USC",
+      "formation": "Goal Line Normal",
+      "play_name": "STRONG TOSS",
+      "asset_path": "/play-art/cfb27/offense/usc/goal-line-normal/strong-toss.jpg"
+    }
+  ]
+}

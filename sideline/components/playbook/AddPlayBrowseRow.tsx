@@ -3,7 +3,7 @@
 import { PlayArtImage } from "@/components/playbook/PlayArtImage";
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
 import type { PlaybookEntry } from "@/lib/playbook";
-import { buildPlayArtUrl } from "@/lib/playArtUrl";
+import { resolvePlayArtUrl } from "@/lib/playArtUrl";
 import { normalizePlayName } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -20,6 +20,7 @@ export function AddPlayBrowseRow({
   onToggleGoTo,
   catalogSideOfBall,
   catalogGameVersion,
+  catalogPlaybook,
 }: {
   play: PlaybookEntry;
   formationLabel: string;
@@ -34,11 +35,14 @@ export function AddPlayBrowseRow({
   onToggleGoTo?: (play: PlaybookEntry) => void;
   catalogSideOfBall?: CatalogSideOfBall;
   catalogGameVersion?: CatalogGameVersion;
+  /** Catalog playbook name for owned play-art resolution. */
+  catalogPlaybook?: string;
 }) {
   const displayName = normalizePlayName(play.play_name);
   const artSrc =
-    catalogSideOfBall && catalogGameVersion
-      ? buildPlayArtUrl({
+    catalogSideOfBall && catalogGameVersion && catalogPlaybook
+      ? resolvePlayArtUrl({
+          playbook: catalogPlaybook,
           formation: play.formation,
           formationType: play.group,
           playName: play.play_name,

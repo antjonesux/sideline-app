@@ -1,0 +1,3 @@
+# Licensed purchased playbook DOCX files — do not commit.
+*.docx
+*.doc
