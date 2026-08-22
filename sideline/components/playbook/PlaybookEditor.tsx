@@ -2,7 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetCfb26Playbook } from "@/lib/playbookUtils";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetPlaybookName } from "@/lib/playbookUtils";
 import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
@@ -75,9 +75,8 @@ type SheetPayload = {
   id: string;
   name: string;
   playbook: string;
-  cfb26_playbook?: string | null;
   scheme: string;
-  cfb26_display?: string;
+  playbook_display?: string;
   scenarios: SheetScenarioBlock[];
 };
 
@@ -324,9 +323,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   }, [setupQuery.data?.offensiveTeams]);
   const cfb26 = useMemo(() => {
     if (!sheet) return "";
-    const display = (sheet.cfb26_display ?? "").trim();
+    const display = (sheet.playbook_display ?? sheet.playbook ?? "").trim();
     if (display) return display;
-    return sheetCfb26Playbook(sheet);
+    return sheetPlaybookName(sheet);
   }, [sheet]);
 
   const sheetTitle = useMemo(() => {
@@ -334,7 +333,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     const overview = sheet as SheetPayload & PlaySheetOverviewCache;
     const name = (overview.name ?? overview.sheetName ?? "").trim();
     if (name) return name;
-    const playbook = sheetCfb26Playbook(sheet);
+    const playbook = sheetPlaybookName(sheet);
     return playbook || "Call sheet";
   }, [sheet]);
 
@@ -677,7 +676,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   });
 
   const updateSheet = useMutation({
-    mutationFn: async (body: { name: string; cfb26_playbook: string }) => {
+    mutationFn: async (body: { name: string; playbook: string }) => {
       const res = await fetch(`/api/playbook/${sheetId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1005,7 +1004,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       return;
     }
     try {
-      await updateSheet.mutateAsync({ name: trimmedName, cfb26_playbook: trimmedPlaybook });
+      await updateSheet.mutateAsync({ name: trimmedName, playbook: trimmedPlaybook });
       addToast("Play sheet saved.", "success");
       setEditorOpen(false);
     } catch (error) {

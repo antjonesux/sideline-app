@@ -55,7 +55,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   const [selectedSide, setSelectedSide] = useState<CatalogSideOfBall | null>(null);
   const [hydrating, setHydrating] = useState(false);
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>({
-    team_name: playbook.cfb26_playbook,
+    team_name: playbook.playbook,
   });
   const [busy, setBusy] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
@@ -82,12 +82,12 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   useEffect(() => {
     if (!open) return;
     setName(playbook.name);
-    setSelectedPlaybook({ team_name: playbook.cfb26_playbook });
+    setSelectedPlaybook({ team_name: playbook.playbook });
     setHydrating(true);
 
     let cancelled = false;
     void (async () => {
-      const meta = await lookupCatalogPlaybookMeta(playbook.cfb26_playbook);
+      const meta = await lookupCatalogPlaybookMeta(playbook.playbook);
       if (cancelled) return;
       if (meta) {
         setSelectedGameVersion(meta.game_version);
@@ -102,16 +102,16 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, playbook.id, playbook.name, playbook.cfb26_playbook]);
+  }, [open, playbook.id, playbook.name, playbook.playbook]);
 
   useEffect(() => {
     if (!open || hydrating || !selectedSide) return;
-    const saved = playbook.cfb26_playbook.trim();
+    const saved = playbook.playbook.trim();
     if (!saved) return;
     if (playbooks.some((p) => p.trim() === saved)) {
       setSelectedPlaybook({ team_name: saved });
     }
-  }, [open, hydrating, playbook.cfb26_playbook, playbooks, selectedSide]);
+  }, [open, hydrating, playbook.playbook, playbooks, selectedSide]);
 
   function handleGameChange(value: CatalogGameVersion) {
     setSelectedGameVersion(value);
@@ -134,7 +134,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
       const res = await fetch(`/api/playbook/${playbook.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), cfb26_playbook: selectedPlaybook.team_name }),
+        body: JSON.stringify({ name: name.trim(), playbook: selectedPlaybook.team_name }),
       });
       const j = (await res.json()) as { error?: string };
       if (!res.ok || j.error) {

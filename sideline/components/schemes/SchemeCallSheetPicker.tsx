@@ -31,7 +31,8 @@ function pinnedSheetOption(sheet: PinnedSheet): PlaybookSummary {
   return {
     id: sheet.id,
     name: sheet.name,
-    cfb26_playbook: "",
+    playbook: "",
+    game_version: "cfb26",
     scheme: "",
     scenario_filled: 0,
     scenario_total: 0,
@@ -86,7 +87,7 @@ export function SchemeCallSheetPicker({
   disabled = false,
   pinnedSheet,
 }: Props) {
-  const { sheets, isLoading } = useCallSheetsForSide(side);
+  const { sheets, isLoading } = useCallSheetsForSide(side, null);
   const { data: playbookData } = usePlaybookList();
   const allSheets = playbookData?.playbooks ?? [];
   const options = useMemo(

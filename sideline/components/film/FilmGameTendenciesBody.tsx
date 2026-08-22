@@ -162,17 +162,13 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
         {hasPlays ? (
           <PlayTypeDistribution data={data.play_type_distribution} />
         ) : (
-          <p className="font-sans text-sm text-slate-500">Log calls to see run, pass, and RPO splits.</p>
+          <p className="font-sans text-sm text-slate-500">
+            Log calls to see run/pass/RPO splits, top calls, formations, and plays to reconsider.
+          </p>
         )}
       </section>
 
-      {!hasPlays ? (
-        <section>
-          <p className="font-sans text-sm text-slate-500">
-            Log calls to see top calls, formations, and plays to reconsider for this game.
-          </p>
-        </section>
-      ) : (
+      {hasPlays ? (
         <>
           <section>
             <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">TOP PLAYS</h2>
@@ -238,7 +234,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
             </section>
           ) : null}
         </>
-      )}
+      ) : null}
 
       <section>
         <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">BY SITUATION</h2>

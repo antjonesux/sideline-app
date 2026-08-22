@@ -38,15 +38,16 @@ export function CardKebabMenu({
 }: Props) {
   const textLabel = textTriggerLabel.trim() || "More";
   return (
-    <div className={cn("absolute right-4 top-4 z-10", className)}>
-      <DropdownMenu open={open} onOpenChange={onOpenChange}>
+    <div className={cn("pointer-events-none absolute right-4 top-4 z-10", className)}>
+      <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
             className={cn(
+              "pointer-events-auto",
               trigger === "text"
-                ? "inline-flex min-h-11 items-center justify-center rounded-md border border-transparent px-3 font-body text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100"
-                : "inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100",
+                ? "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-transparent px-3 font-body text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100"
+                : "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-transparent text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-100",
             )}
             aria-label={trigger === "text" ? `${ariaLabel}: ${textLabel}` : ariaLabel}
             onClick={(e) => e.stopPropagation()}

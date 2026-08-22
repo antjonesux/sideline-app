@@ -33,9 +33,9 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
-  const { data: catalogMeta } = useCatalogPlaybookMeta(item.cfb26_playbook);
+  const { data: catalogMeta } = useCatalogPlaybookMeta(item.playbook);
 
-  const fallbackMeta = item.scheme || `Built from ${item.cfb26_playbook} playbook`;
+  const fallbackMeta = item.scheme || `Built from ${item.playbook} playbook`;
 
   async function confirmDeletePlaybook() {
     setDeleteBusy(true);
@@ -74,7 +74,7 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
           </h2>
           {catalogMeta ? (
             <CallSheetMetadataRow
-              labels={callSheetDetailsMetadataLabels(catalogMeta, item.scheme, item.cfb26_playbook)}
+              labels={callSheetDetailsMetadataLabels(catalogMeta, item.scheme, item.playbook)}
               className="mt-1 font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]"
             />
           ) : (

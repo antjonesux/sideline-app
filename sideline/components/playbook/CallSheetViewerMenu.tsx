@@ -17,7 +17,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, Settings, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -54,6 +54,10 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
   const router = useRouter();
   const { signOut } = useAuth();
   const [signOutBusy, setSignOutBusy] = useState(false);
+
+  const settingsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "settings");
+  const primaryNav = APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "settings");
+  const settingsActive = settingsItem ? isAppShellSidebarNavActive(pathname, settingsItem) : false;
 
   async function handleSignOut() {
     setSignOutBusy(true);
@@ -95,7 +99,7 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
 
         <div className="flex min-h-0 flex-1 flex-col">
           <nav className="flex flex-col gap-2 px-4 py-5" aria-label="Application menu">
-            {APP_SHELL_SIDEBAR_NAV.map((item) => {
+            {primaryNav.map((item) => {
               const active = isAppShellSidebarNavActive(pathname, item);
               const Icon = item.icon;
 
@@ -146,7 +150,32 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
             })}
           </nav>
 
-          <div className="shrink-0 border-t border-slate-800/80 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+          <div className="mt-auto shrink-0 border-t border-slate-800/80 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] space-y-2">
+            {settingsItem?.href ? (
+              <Link
+                href={settingsItem.href}
+                className={cn(
+                  menuItemClass,
+                  settingsActive
+                    ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
+                    : menuItemDefaultClass,
+                )}
+                aria-current={settingsActive ? "page" : undefined}
+                onClick={() => onOpenChange(false)}
+              >
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  <Settings className="h-4 w-4 shrink-0" aria-hidden />
+                  <span className="truncate">{settingsItem.label}</span>
+                </span>
+                <ChevronRight
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-colors",
+                    settingsActive ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
+                  )}
+                  aria-hidden
+                />
+              </Link>
+            ) : null}
             <button
               type="button"
               className={cn(menuItemClass, menuItemDefaultClass, "disabled:opacity-60")}

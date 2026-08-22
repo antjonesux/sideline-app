@@ -1,4 +1,5 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
+import { DEFAULT_CATALOG_GAME_VERSION, parseCatalogGameVersion } from "@/lib/constants";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -42,6 +43,8 @@ type GameSessionInsert = {
   import_source: "live" | "csv" | typeof GAME_SESSION_IMPORT_SOURCE_ONBOARDING;
   quarter_started_logging?: number;
   play_sheet_id?: string | null;
+  defensive_play_sheet_id?: string | null;
+  game_version?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -77,6 +80,9 @@ export async function POST(req: NextRequest) {
     opponent_score: Number.isFinite(Number(body.opponent_score)) ? Number(body.opponent_score) : 0,
     result: body.result === "L" ? "L" : "W",
     import_source: wantsOnboarding ? GAME_SESSION_IMPORT_SOURCE_ONBOARDING : "live",
+    game_version: parseCatalogGameVersion(
+      typeof body.game_version === "string" ? body.game_version : DEFAULT_CATALOG_GAME_VERSION,
+    ),
   };
 
   const q = body.quarter_started_logging;
@@ -88,18 +94,42 @@ export async function POST(req: NextRequest) {
   if (rawSheetId) {
     const { data: sheet } = await supabase
       .from("play_sheets")
-      .select("id, cfb26_playbook, playbook")
+      .select("id, playbook")
       .eq("id", rawSheetId)
       .eq("user_id", user.id)
       .maybeSingle();
     if (!sheet) {
       return NextResponse.json({ error: "Play sheet not found" }, { status: 400 });
     }
-    const sheetPb = (sheet.cfb26_playbook ?? sheet.playbook ?? "").trim().toLowerCase();
+    const sheetPb = (sheet.playbook ?? "").trim().toLowerCase();
     if (sheetPb !== offensivePlaybook.toLowerCase()) {
       return NextResponse.json({ error: "Play sheet does not match the selected playbook" }, { status: 400 });
     }
     insertPayload.play_sheet_id = sheet.id;
+  }
+
+  const rawDefenseSheetId =
+    typeof body.defensive_play_sheet_id === "string" ? body.defensive_play_sheet_id.trim() : "";
+  const defensivePlaybook =
+    typeof body.opponent_scheme === "string" ? body.opponent_scheme.trim() : "";
+  if (rawDefenseSheetId) {
+    const { data: sheet } = await supabase
+      .from("play_sheets")
+      .select("id, playbook")
+      .eq("id", rawDefenseSheetId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!sheet) {
+      return NextResponse.json({ error: "Defensive play sheet not found" }, { status: 400 });
+    }
+    const sheetPb = (sheet.playbook ?? "").trim().toLowerCase();
+    if (defensivePlaybook && sheetPb !== defensivePlaybook.toLowerCase()) {
+      return NextResponse.json({ error: "Defensive play sheet does not match the selected playbook" }, { status: 400 });
+    }
+    insertPayload.defensive_play_sheet_id = sheet.id;
+    if (!insertPayload.opponent_scheme) {
+      insertPayload.opponent_scheme = (sheet.playbook ?? "").trim();
+    }
   }
 
   const { data, error } = await supabase.from("game_sessions").insert(insertPayload).select().single();

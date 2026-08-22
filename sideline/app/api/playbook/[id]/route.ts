@@ -1,6 +1,7 @@
+import { parseCatalogGameVersion } from "@/lib/constants";
 import { reassignActiveCallSheetAfterDelete, wasActiveCallSheet } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { sheetCfb26Playbook } from "@/lib/playbookUtils";
+import { sheetPlaybookName } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -76,7 +77,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 
   return NextResponse.json({
     ...sheet,
-    cfb26_display: sheetCfb26Playbook(sheet as { cfb26_playbook?: string | null; playbook: string }),
+    playbook_display: sheetPlaybookName(sheet as { playbook: string }),
     scenarios: normalized,
   });
 }
@@ -86,7 +87,7 @@ async function patchPlaySheet(req: NextRequest, id: string) {
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let body: { name?: string; cfb26_playbook?: string };
+  let body: { name?: string; playbook?: string; game_version?: string };
   try {
     body = await req.json();
   } catch {
@@ -95,10 +96,23 @@ async function patchPlaySheet(req: NextRequest, id: string) {
 
   const patch: Record<string, string> = {};
   if (typeof body.name === "string" && body.name.trim()) patch.name = body.name.trim();
-  if (typeof body.cfb26_playbook === "string" && body.cfb26_playbook.trim()) {
-    const pb = body.cfb26_playbook.trim();
-    patch.cfb26_playbook = pb;
+  if (typeof body.playbook === "string" && body.playbook.trim()) {
+    const pb = body.playbook.trim();
     patch.playbook = pb;
+    if (typeof body.game_version === "string" && body.game_version.trim()) {
+      patch.game_version = parseCatalogGameVersion(body.game_version);
+    } else {
+      const { data: catalogRow } = await supabase
+        .from("playbooks")
+        .select("game_version")
+        .eq("playbook", pb)
+        .not("playbook", "is", null)
+        .limit(1)
+        .maybeSingle();
+      if (catalogRow?.game_version) {
+        patch.game_version = parseCatalogGameVersion(catalogRow.game_version as string);
+      }
+    }
     const { data: schemeRow } = await supabase
       .from("team_offensive_playbooks")
       .select("scheme_style")

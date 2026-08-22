@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -9,6 +10,14 @@ import {
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
 import { FilmRoomHomeHeader } from "@/components/film/FilmRoomHomeHeader";
+import { FilmRoomVersionFilter } from "@/components/film/FilmRoomVersionFilter";
+import {
+  FILM_ROOM_VERSION_ALL,
+  filmRoomNewGameHref,
+  gameMatchesFilmRoomVersionFilter,
+  parseFilmRoomVersionFilter,
+  type FilmRoomVersionFilterValue,
+} from "@/lib/filmRoomVersionFilter";
 import { appShellWorkspaceInnerClass } from "@/lib/constants/designTokens";
 import { redirect } from "next/navigation";
 
@@ -28,6 +37,9 @@ type GameSessionRow = {
   quarter_started_logging: number | null;
   created_at: string;
   import_source?: string | null;
+  game_version?: string | null;
+  play_sheet_id?: string | null;
+  defensive_play_sheet_id?: string | null;
 };
 
 type LoggedPlayStatsRow = {
@@ -43,17 +55,26 @@ type GameWithCounts = GameSessionRow & {
   totalYards: number;
   tds: number;
   turnovers: number;
+  defenseLabel: string;
 };
 
-async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
+async function getGamesWithCounts(
+  userId: string,
+  versionFilter: FilmRoomVersionFilterValue,
+): Promise<GameWithCounts[]> {
   const supabase = await createClient();
-  const { data: gamesRaw, error: gameError } = await supabase
+  let query = supabase
     .from("game_sessions")
     .select(
-      "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at, import_source",
+      "id, my_playbook, my_scheme, offensive_playbook, opponent_team, opponent_scheme, my_score, opponent_score, result, game_date, quarter_started_logging, created_at, import_source, game_version, play_sheet_id, defensive_play_sheet_id",
     )
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .eq("user_id", userId);
+
+  if (versionFilter !== FILM_ROOM_VERSION_ALL) {
+    query = query.eq("game_version", versionFilter);
+  }
+
+  const { data: gamesRaw, error: gameError } = await query.order("created_at", { ascending: false });
 
   if (gameError || !gamesRaw?.length) return [];
 
@@ -63,6 +84,23 @@ async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
   if (games.length === 0) return [];
 
   const gameIds = games.map((g) => g.id);
+  const sheetIds = [
+    ...new Set(
+      games.flatMap((g) => [g.play_sheet_id, g.defensive_play_sheet_id].filter(Boolean) as string[]),
+    ),
+  ];
+
+  const sheetNameById = new Map<string, string>();
+  if (sheetIds.length > 0) {
+    const { data: sheets } = await supabase
+      .from("play_sheets")
+      .select("id, name")
+      .eq("user_id", userId)
+      .in("id", sheetIds);
+    for (const row of sheets ?? []) {
+      sheetNameById.set(row.id, String(row.name ?? "").trim());
+    }
+  }
 
   const [{ data: drives }, { data: loggedPlays, error: playError }] = await Promise.all([
     supabase.from("drives").select("id, game_session_id").eq("user_id", userId).in("game_session_id", gameIds),
@@ -86,6 +124,7 @@ async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
       totalYards: 0,
       tds: 0,
       turnovers: 0,
+      defenseLabel: resolveDefenseLabel(game, sheetNameById),
     }));
   }
 
@@ -117,35 +156,63 @@ async function getGamesWithCounts(userId: string): Promise<GameWithCounts[]> {
       totalYards: agg?.totalYards ?? 0,
       tds: agg?.tds ?? 0,
       turnovers: agg?.turnovers ?? 0,
+      defenseLabel: resolveDefenseLabel(game, sheetNameById),
     };
   });
 }
 
-export default async function FilmRoomPage() {
+function resolveDefenseLabel(
+  game: GameSessionRow,
+  sheetNameById: Map<string, string>,
+): string {
+  const defenseSheetId = game.defensive_play_sheet_id?.trim();
+  if (defenseSheetId) {
+    const sheetName = sheetNameById.get(defenseSheetId);
+    if (sheetName) return sheetName;
+  }
+  const defensivePlaybook = game.opponent_scheme?.trim();
+  if (defensivePlaybook) return defensivePlaybook;
+  return "None";
+}
+
+type FilmRoomPageProps = {
+  searchParams: Promise<{ version?: string }>;
+};
+
+export default async function FilmRoomPage({ searchParams }: FilmRoomPageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/landing?next=${encodeURIComponent("/film")}`);
 
-  const games = await getGamesWithCounts(user.id);
+  const { version: versionRaw } = await searchParams;
+  const versionFilter = parseFilmRoomVersionFilter(versionRaw);
+  const games = (
+    await getGamesWithCounts(user.id, versionFilter)
+  ).filter((game) => gameMatchesFilmRoomVersionFilter(game.game_version, versionFilter));
+  const newGameHref = filmRoomNewGameHref(versionFilter);
 
   return (
     <div className="flex min-h-[60vh] flex-col gap-6 md:gap-8">
-      <FilmRoomHomeHeader gameCount={games.length} />
+      <FilmRoomHomeHeader gameCount={games.length} newGameHref={newGameHref} />
 
       <div className={appShellWorkspaceInnerClass}>
+        <Suspense fallback={null}>
+          <FilmRoomVersionFilter className="mb-4" />
+        </Suspense>
+
         {games.length === 0 ? (
           <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
             <p className="font-body text-base font-medium text-white">{FILM_ROOM_EMPTY_HEADLINE}</p>
             <p className="mt-1 font-body text-sm text-slate-400">{FILM_ROOM_EMPTY_BODY}</p>
             <Button asChild variant="default" className="mt-4 text-sm">
-              <Link href="/film/new">{FILM_ROOM_EMPTY_CTA}</Link>
+              <Link href={newGameHref}>{FILM_ROOM_EMPTY_CTA}</Link>
             </Button>
           </div>
         ) : (
           <ul className="flex flex-col gap-3">
             {games.map((game) => (
               <li key={game.id} className="relative">
-                <FilmGameCard game={game} />
+                <FilmGameCard game={game} defenseLabel={game.defenseLabel} />
               </li>
             ))}
           </ul>

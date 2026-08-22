@@ -94,7 +94,8 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
   {
     id: "qa-sheet-1",
     name: playSheetQaCallSheetName,
-    cfb26_playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
+    playbook: ONBOARDING_QA_CFB26_PLAYBOOK,
+    game_version: "cfb26",
     scheme: "Spread",
     scenario_filled: DEFAULT_OFFENSIVE_SITUATIONS.length,
     scenario_total: DEFAULT_OFFENSIVE_SITUATIONS.length,
@@ -104,7 +105,8 @@ export const playSheetQaSummaries: PlaybookSummary[] = [
   {
     id: "qa-sheet-2",
     name: "Goal Line Package",
-    cfb26_playbook: "Ohio State",
+    playbook: "Ohio State",
+    game_version: "cfb26",
     scheme: "Spread",
     scenario_filled: 2,
     scenario_total: DEFAULT_OFFENSIVE_SITUATIONS.length,

@@ -78,7 +78,9 @@ export function PlayLoggerV2({
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [view, setView] = useState<LoggerView>("suggestions");
-  const [pickTab, setPickTab] = useState<LoggerPickTab>("browse");
+  const [pickTab, setPickTab] = useState<LoggerPickTab>(() =>
+    sheetId?.trim() ? "my_sheet" : "situational",
+  );
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
   /**
    * Where the pending selection came from. Distinguishes app-curated surfaces from unguided PlayBrowser
@@ -100,7 +102,7 @@ export function PlayLoggerV2({
 
   useEffect(() => {
     if (!hasMySheet && pickTab === "my_sheet") {
-      setPickTab("browse");
+      setPickTab("situational");
     }
   }, [hasMySheet, pickTab]);
 
@@ -459,53 +461,20 @@ export function PlayLoggerV2({
               aria-label="Play pick views"
               className={`grid h-auto w-full shrink-0 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground ${hasMySheet ? "grid-cols-3" : "grid-cols-2"}`}
             >
+              {hasMySheet ? (
+                <TabsTrigger value="my_sheet" className={filmLoggerPickTabTriggerClass}>
+                  My Call Sheet
+                </TabsTrigger>
+              ) : null}
+              <TabsTrigger value="situational" className={filmLoggerPickTabTriggerClass}>
+                Recommended
+              </TabsTrigger>
               <TabsTrigger value="browse" className={filmLoggerPickTabTriggerClass}>
                 Browse
               </TabsTrigger>
-              <TabsTrigger value="situational" className={filmLoggerPickTabTriggerClass}>
-                Situational
-              </TabsTrigger>
-              {hasMySheet ? (
-                <TabsTrigger value="my_sheet" className={filmLoggerPickTabTriggerClass}>
-                  My Sheet
-                </TabsTrigger>
-              ) : null}
             </TabsList>
 
             <div className="relative z-[5] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
-              <TabsContent
-                value="browse"
-                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
-              >
-                <PlayBrowser
-                  playbook={playbook}
-                  presentation="inline"
-                  onClose={() => {}}
-                  showTopLevelBack={false}
-                  onSelect={(play) => handlePlaySelect(play, "browser")}
-                />
-              </TabsContent>
-
-              <TabsContent
-                value="situational"
-                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
-              >
-                <div className="px-4 pb-2">
-                  <p className="font-sans text-xs text-slate-400">
-                    {filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 px-4 pb-4">
-                  {suggestions.map((play) => (
-                    <PlayRow
-                      key={play.play_id}
-                      play={play}
-                      onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
-
               {hasMySheet ? (
                 <TabsContent
                   value="my_sheet"
@@ -558,6 +527,39 @@ export function PlayLoggerV2({
                   </div>
                 </TabsContent>
               ) : null}
+
+              <TabsContent
+                value="situational"
+                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+              >
+                <div className="px-4 pb-2">
+                  <p className="font-sans text-xs text-slate-400">
+                    {filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 px-4 pb-4">
+                  {suggestions.map((play) => (
+                    <PlayRow
+                      key={play.play_id}
+                      play={play}
+                      onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent
+                value="browse"
+                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+              >
+                <PlayBrowser
+                  playbook={playbook}
+                  presentation="inline"
+                  onClose={() => {}}
+                  showTopLevelBack={false}
+                  onSelect={(play) => handlePlaySelect(play, "browser")}
+                />
+              </TabsContent>
             </div>
           </Tabs>
         ) : null}

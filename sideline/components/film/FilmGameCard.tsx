@@ -23,7 +23,13 @@ type GameCardData = GameSession & {
 const menuItemClass =
   "flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none";
 
-export function FilmGameCard({ game }: { game: GameCardData }) {
+export function FilmGameCard({
+  game,
+  defenseLabel,
+}: {
+  game: GameCardData;
+  defenseLabel: string;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -80,6 +86,11 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
           <p className="font-body text-sm text-slate-500 md:text-[13px]">
             <span className="text-slate-400">Offense:</span>{" "}
             <span className="text-slate-300">{offensivePlaybook}</span>
+          </p>
+
+          <p className="font-body text-sm text-slate-500 md:text-[13px]">
+            <span className="text-slate-400">Defense:</span>{" "}
+            <span className={defenseLabel === "None" ? "text-slate-500" : "text-slate-300"}>{defenseLabel}</span>
           </p>
 
           <p className="font-mono text-xl font-bold tabular-nums md:text-lg">

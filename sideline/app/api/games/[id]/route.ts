@@ -34,7 +34,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     if (rawSheetId) {
       const { data: sheet } = await supabase
         .from("play_sheets")
-        .select("id, cfb26_playbook, playbook")
+        .select("id, playbook")
         .eq("id", rawSheetId)
         .eq("user_id", user.id)
         .maybeSingle();
@@ -52,7 +52,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
           .maybeSingle();
         gamePb = ((game?.offensive_playbook ?? game?.my_playbook) ?? "").trim().toLowerCase();
       }
-      const sheetPb = (sheet.cfb26_playbook ?? sheet.playbook ?? "").trim().toLowerCase();
+      const sheetPb = (sheet.playbook ?? "").trim().toLowerCase();
       if (gamePb && sheetPb !== gamePb) {
         return NextResponse.json({ error: "Play sheet does not match the game playbook" }, { status: 400 });
       }

@@ -99,10 +99,8 @@ export function loggedPlayScenarioLabelsForSuggestions(sheetScenario: string): s
   return Array.from(labels);
 }
 
-/** CFB26 source name for pickers (prefers explicit column). */
-export function sheetCfb26Playbook(row: { cfb26_playbook?: string | null; playbook: string }): string {
-  const v = (row.cfb26_playbook ?? "").trim();
-  if (v) return v;
+/** Catalog playbook name stored on a call sheet row. */
+export function sheetPlaybookName(row: { playbook: string | null | undefined }): string {
   return (row.playbook ?? "").trim();
 }
 

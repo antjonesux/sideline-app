@@ -41,17 +41,17 @@ function defaultSide(scheme: SchemeDetail): CatalogSideOfBall {
 function SchemeActiveSheetPanel({
   sheetId,
   sheetName,
-  cfb26Playbook,
+  playbook,
   schemeStyle,
   returnTo,
 }: {
   sheetId: string;
   sheetName: string;
-  cfb26Playbook: string;
+  playbook: string;
   schemeStyle: string;
   returnTo: string;
 }) {
-  const { data: catalogMeta } = useCatalogPlaybookMeta(cfb26Playbook);
+  const { data: catalogMeta } = useCatalogPlaybookMeta(playbook);
   const { data, isLoading, error } = useQuery({
     queryKey: filmLoggerQueryKeys.playSheetOverview(sheetId),
     queryFn: () => fetchPlaySheetOverview(sheetId),
@@ -64,11 +64,11 @@ function SchemeActiveSheetPanel({
           <p className="truncate font-sans text-sm font-semibold text-white">{sheetName}</p>
           {catalogMeta ? (
             <CallSheetMetadataRow
-              labels={callSheetDetailsMetadataLabels(catalogMeta, schemeStyle, cfb26Playbook)}
+              labels={callSheetDetailsMetadataLabels(catalogMeta, schemeStyle, playbook)}
               className="mt-1 font-body text-xs text-slate-500"
             />
           ) : (
-            <p className="mt-1 truncate font-body text-xs text-slate-500">Built from {cfb26Playbook} playbook</p>
+            <p className="mt-1 truncate font-body text-xs text-slate-500">Built from {playbook} playbook</p>
           )}
         </div>
         <Link
@@ -179,7 +179,7 @@ export function SchemeDetailView({ schemeId }: { schemeId: string }) {
             <SchemeActiveSheetPanel
               sheetId={activeEntry.call_sheet_id}
               sheetName={activeEntry.call_sheet.name}
-              cfb26Playbook={activeEntry.call_sheet.cfb26_playbook}
+              playbook={activeEntry.call_sheet.playbook}
               schemeStyle={activeEntry.call_sheet.scheme}
               returnTo={`/schemes/${schemeId}`}
             />

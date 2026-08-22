@@ -5,7 +5,7 @@ import { TeamCombobox } from "@/components/film/TeamCombobox";
 import { NewGameFormSkeleton } from "@/components/shared/AppSkeleton";
 import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { COULDNT_LOAD_TEAM_LIST, IMPORT_FAILED } from "@/lib/coachCopy";
+import { COULDNT_LOAD_TEAM_LIST, FILM_ROOM_HOME_TITLE, IMPORT_FAILED } from "@/lib/coachCopy";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
@@ -224,7 +224,7 @@ export default function FilmImportSavePage() {
 
   return (
     <section className="space-y-8">
-      <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import", href: "/film/import" }, { label: "Tag Game" }]} />
+      <Breadcrumb segments={[{ label: FILM_ROOM_HOME_TITLE, href: "/film" }, { label: "Import", href: "/film/import" }, { label: "Tag Game" }]} />
       <BackNavLink />
 
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">

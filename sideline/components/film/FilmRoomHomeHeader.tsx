@@ -10,7 +10,13 @@ import { appShellHeaderPrimaryCtaClass, appShellWorkspaceInnerClass } from "@/li
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export function FilmRoomHomeHeader({ gameCount }: { gameCount?: number }) {
+export function FilmRoomHomeHeader({
+  gameCount,
+  newGameHref = "/film/new",
+}: {
+  gameCount?: number;
+  newGameHref?: string;
+}) {
   const countLabel = gameCount !== undefined ? filmRoomHomeCountLabel(gameCount) : null;
 
   return (
@@ -20,7 +26,7 @@ export function FilmRoomHomeHeader({ gameCount }: { gameCount?: number }) {
         className="md:items-start md:justify-between md:gap-6"
         titleClassName="md:text-[2rem] md:leading-none md:tracking-tight"
         trailing={
-          <Link href="/film/new" className={`${appShellHeaderPrimaryCtaClass} hidden md:inline-flex`}>
+          <Link href={newGameHref} className={`${appShellHeaderPrimaryCtaClass} hidden md:inline-flex`}>
             <Plus className="h-4 w-4 shrink-0" aria-hidden />
             {APP_SHELL_NEW_GAME_LABEL}
           </Link>

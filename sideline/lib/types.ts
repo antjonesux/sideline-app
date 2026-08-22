@@ -15,6 +15,10 @@ export type GameSession = {
   ended_at?: string | null;
   /** UUID of the play sheet chosen for this game (nullable = no sheet). */
   play_sheet_id?: string | null;
+  /** Catalog game version for this session (cfb26 | cfb27). */
+  game_version?: string | null;
+  /** UUID of the defensive call sheet (nullable = none). */
+  defensive_play_sheet_id?: string | null;
   drive_count?: number;
   play_count?: number;
 };
@@ -71,7 +75,8 @@ export type PlayStatRow = {
 export type PlaybookSummary = {
   id: string;
   name: string;
-  cfb26_playbook: string;
+  playbook: string;
+  game_version: string;
   scheme: string;
   scenario_filled: number;
   scenario_total: number;
@@ -109,7 +114,7 @@ export type SchemeDetail = {
     call_sheet: {
       id: string;
       name: string;
-      cfb26_playbook: string;
+      playbook: string;
       scheme: string;
     };
   }[];

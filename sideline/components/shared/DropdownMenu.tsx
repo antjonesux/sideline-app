@@ -103,7 +103,7 @@ export function DropdownMenu({
 
   return (
     <div className="inline-flex shrink-0 items-center">
-      <ShadDropdownMenu open={open} onOpenChange={onOpenChange}>
+      <ShadDropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
         <DropdownMenuTrigger asChild>
           <button
             ref={triggerRef}

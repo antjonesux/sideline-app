@@ -3,7 +3,7 @@ import {
   type CatalogSideOfBall,
 } from "@/lib/constants";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
-import { sheetCfb26Playbook } from "@/lib/playbookUtils";
+import { sheetPlaybookName } from "@/lib/playbookUtils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type SchemeCallSheetInput = {
@@ -22,7 +22,6 @@ export type SchemeCallSheetRow = {
 type CallSheetRow = {
   id: string;
   name: string;
-  cfb26_playbook: string | null;
   playbook: string;
   scheme: string;
 };
@@ -33,7 +32,7 @@ export type AttachedCallSheet = {
   call_sheet: {
     id: string;
     name: string;
-    cfb26_playbook: string;
+    playbook: string;
     scheme: string;
   };
 };
@@ -64,7 +63,7 @@ async function resolveCallSheetSideOfBall(
   supabase: SupabaseClient,
   callSheet: CallSheetRow,
 ): Promise<CatalogSideOfBall | null> {
-  const playbookName = sheetCfb26Playbook(callSheet);
+  const playbookName = sheetPlaybookName(callSheet);
   if (!playbookName) return null;
 
   const { data, error } = await supabase
@@ -121,7 +120,7 @@ export async function validateOwnedCallSheets(
   const ids = callSheets.map((c) => c.call_sheet_id);
   const { data, error } = await supabase
     .from("play_sheets")
-    .select("id, name, cfb26_playbook, playbook, scheme")
+    .select("id, name, playbook, scheme")
     .eq("user_id", userId)
     .in("id", ids);
 
@@ -191,7 +190,7 @@ export async function fetchAttachedCallSheets(
 ): Promise<AttachedCallSheet[]> {
   const { data, error } = await supabase
     .from("scheme_call_sheets")
-    .select("call_sheet_id, side_of_ball, play_sheets(id, name, cfb26_playbook, playbook, scheme)")
+    .select("call_sheet_id, side_of_ball, play_sheets(id, name, playbook, scheme)")
     .eq("scheme_id", schemeId)
     .eq("user_id", userId)
     .order("side_of_ball", { ascending: true });
@@ -212,7 +211,7 @@ export async function fetchAttachedCallSheets(
       call_sheet: {
         id: sheet.id,
         name: sheet.name,
-        cfb26_playbook: sheetCfb26Playbook(sheet),
+        playbook: sheetPlaybookName(sheet),
         scheme: sheet.scheme?.trim() || "Multiple",
       },
     }];

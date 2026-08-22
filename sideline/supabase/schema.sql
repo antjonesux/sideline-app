@@ -91,8 +91,20 @@ create table if not exists play_sheets (
   updated_at timestamptz default now()
 );
 
-alter table play_sheets add column if not exists cfb26_playbook text;
-update play_sheets set cfb26_playbook = playbook where cfb26_playbook is null;
+alter table play_sheets add column if not exists game_version text;
+update play_sheets ps
+set game_version = lower(p.game_version)
+from (
+  select distinct on (playbook) playbook, game_version
+  from playbooks
+  where playbook is not null
+  order by playbook, game_version
+) p
+where ps.playbook = p.playbook
+  and ps.game_version is null;
+update play_sheets set game_version = 'cfb26' where game_version is null;
+alter table play_sheets alter column game_version set default 'cfb27';
+alter table play_sheets alter column game_version set not null;
 
 create table if not exists user_call_sheet_prefs (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -101,6 +113,16 @@ create table if not exists user_call_sheet_prefs (
 );
 
 alter table game_sessions add column if not exists play_sheet_id uuid references play_sheets(id) on delete set null;
+alter table game_sessions add column if not exists game_version text;
+update game_sessions set game_version = 'cfb26' where game_version is null;
+alter table game_sessions alter column game_version set default 'cfb27';
+alter table game_sessions alter column game_version set not null;
+update game_sessions
+  set game_version = 'cfb26'
+  where game_version = 'cfb27'
+    and play_sheet_id is null
+    and defensive_play_sheet_id is null;
+alter table game_sessions add column if not exists defensive_play_sheet_id uuid references play_sheets(id) on delete set null;
 
 create table if not exists play_sheet_scenarios (
   id uuid primary key default gen_random_uuid(),
@@ -305,7 +327,17 @@ alter table game_sessions enable row level security;
 drop policy if exists "Owner access" on game_sessions;
 create policy "Owner access" on game_sessions for all to authenticated
   using (auth.uid() = user_id)
-  with check (auth.uid() = user_id and (play_sheet_id is null or exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid())));
+  with check (
+    auth.uid() = user_id
+    and (
+      play_sheet_id is null
+      or exists (select 1 from play_sheets ps where ps.id = play_sheet_id and ps.user_id = auth.uid())
+    )
+    and (
+      defensive_play_sheet_id is null
+      or exists (select 1 from play_sheets ps where ps.id = defensive_play_sheet_id and ps.user_id = auth.uid())
+    )
+  );
 
 alter table drives enable row level security;
 drop policy if exists "Owner access" on drives;

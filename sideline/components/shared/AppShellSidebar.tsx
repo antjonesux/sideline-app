@@ -363,8 +363,9 @@ function SidebarSignOutButton({ icon: Icon }: { icon: LucideIcon }) {
 export function AppShellSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const secondaryNav = APP_SHELL_SIDEBAR_NAV.filter(
-    (item) => item.id !== "call-sheets" && item.id !== "schemes",
+    (item) => item.id !== "call-sheets" && item.id !== "schemes" && item.id !== "settings",
   );
+  const settingsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "settings");
 
   return (
     <aside
@@ -391,7 +392,13 @@ export function AppShellSidebar({ className }: { className?: string }) {
         ))}
       </nav>
 
-      <div className="shrink-0 border-t border-slate-800/80 px-3 py-3">
+      <div className="shrink-0 space-y-0.5 border-t border-slate-800/80 px-3 py-3">
+        {settingsItem ? (
+          <SidebarNavItem
+            item={settingsItem}
+            active={isAppShellSidebarNavActive(pathname, settingsItem)}
+          />
+        ) : null}
         <SidebarSignOutButton icon={LogOut} />
       </div>
     </aside>

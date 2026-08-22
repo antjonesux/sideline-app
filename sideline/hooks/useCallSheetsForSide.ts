@@ -1,12 +1,13 @@
 "use client";
 
 import { usePlaybookList } from "@/hooks/usePlaybookList";
-import type { CatalogSideOfBall } from "@/lib/constants";
+import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
+import { parseCatalogGameVersion } from "@/lib/constants";
 import { lookupCatalogPlaybookMeta } from "@/lib/playbooks/catalog-playbooks";
 import type { PlaybookSummary } from "@/lib/types";
 import { useEffect, useState } from "react";
 
-export function useCallSheetsForSide(side: CatalogSideOfBall) {
+export function useCallSheetsForSide(side: CatalogSideOfBall, gameVersion: CatalogGameVersion | null) {
   const { data, isLoading, isError } = usePlaybookList();
   const allSheets = data?.playbooks ?? [];
   const sheetIdsKey = allSheets.map((sheet) => sheet.id).join(",");
@@ -26,7 +27,10 @@ export function useCallSheetsForSide(side: CatalogSideOfBall) {
     void (async () => {
       const matched: PlaybookSummary[] = [];
       for (const sheet of allSheets) {
-        const meta = await lookupCatalogPlaybookMeta(sheet.cfb26_playbook);
+        const sheetVersion = parseCatalogGameVersion(sheet.game_version);
+        if (gameVersion && sheetVersion !== gameVersion) continue;
+
+        const meta = await lookupCatalogPlaybookMeta(sheet.playbook);
         const sheetSide = meta?.side_of_ball;
         if (sheetSide === side) matched.push(sheet);
       }
@@ -39,7 +43,7 @@ export function useCallSheetsForSide(side: CatalogSideOfBall) {
     return () => {
       cancelled = true;
     };
-  }, [allSheets, isLoading, sheetIdsKey, side]);
+  }, [allSheets, gameVersion, isLoading, sheetIdsKey, side]);
 
   return {
     sheets,

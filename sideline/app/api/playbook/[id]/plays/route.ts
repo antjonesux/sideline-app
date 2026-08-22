@@ -118,7 +118,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
 
   const { data: sheetMeta, error: sheetMetaErr } = await supabase
     .from("play_sheets")
-    .select("name, cfb26_playbook, playbook")
+    .select("name, playbook")
     .eq("id", sheetId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -127,7 +127,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
   }
 
-  const cfbBook = String(sheetMeta?.cfb26_playbook ?? sheetMeta?.playbook ?? "").trim();
+  const cfbBook = String(sheetMeta?.playbook ?? "").trim();
   const typeByKey = cfbBook ? await fetchCfbPlayTypeMap(supabase, [cfbBook]) : new Map<string, string>();
 
   const playsOut: PlayRowWithCfbType[] = (plays ?? []).map((p) => {

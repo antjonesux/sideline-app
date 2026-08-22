@@ -184,7 +184,8 @@ export function CreatePlaybookModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: sheetName,
-          cfb26_playbook: selectedPlaybook!.team_name,
+          playbook: selectedPlaybook!.team_name,
+          game_version: selectedGameVersion,
           side_of_ball: selectedSide,
         }),
       });

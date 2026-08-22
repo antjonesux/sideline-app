@@ -33,7 +33,7 @@ export function CallSheetSheetSwitcher({
               <span className="flex w-full min-w-0 items-center gap-2">
                 <span className="min-w-0 truncate font-sans text-sm font-medium text-slate-200">{sheet.name}</span>
               </span>
-              <span className="font-body text-sm text-slate-500">{sheet.cfb26_playbook}</span>
+              <span className="font-body text-sm text-slate-500">{sheet.playbook}</span>
               <span className="font-body text-xs text-slate-500">
                 {sheet.play_count === 1 ? "1 play" : `${sheet.play_count} plays`}
               </span>

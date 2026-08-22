@@ -290,12 +290,12 @@ export function EditGameDetailsModal({
     void (async () => {
       const res = await fetch("/api/playbook", { cache: "no-store" });
       const json = (await res.json()) as {
-        playbooks?: Array<{ id: string; name: string; cfb26_playbook?: string | null }>;
+        playbooks?: Array<{ id: string; name: string; playbook?: string | null }>;
       };
       if (cancelled) return;
       const norm = selectedPlaybookName.trim().toLowerCase();
       const matching = (json.playbooks ?? []).filter(
-        (row) => (row.cfb26_playbook ?? "").trim().toLowerCase() === norm,
+        (row) => (row.playbook ?? "").trim().toLowerCase() === norm,
       );
       setAvailableSheets(matching.map((row) => ({ id: row.id, name: row.name })));
       const matchingIds = new Set(matching.map((r) => r.id));

@@ -1,7 +1,7 @@
-import { defaultSheetSituationsForSide, parseCatalogSideOfBall } from "@/lib/constants";
+import { defaultSheetSituationsForSide, parseCatalogGameVersion, parseCatalogSideOfBall } from "@/lib/constants";
 import { maybeSetActiveOnCreate, readActiveCallSheetId } from "@/lib/callSheetPrefs";
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { sheetCfb26Playbook } from "@/lib/playbookUtils";
+import { sheetPlaybookName } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,7 +9,7 @@ type SheetRow = {
   id: string;
   name: string;
   playbook: string;
-  cfb26_playbook: string | null;
+  game_version: string;
   scheme: string;
   updated_at: string | null;
   created_at: string | null;
@@ -31,7 +31,7 @@ export async function GET() {
 
   const { data: sheets, error } = await supabase
     .from("play_sheets")
-    .select("id, name, playbook, cfb26_playbook, scheme, updated_at, created_at")
+    .select("id, name, playbook, game_version, scheme, updated_at, created_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
@@ -91,7 +91,8 @@ export async function GET() {
     return {
       id: sheet.id,
       name: sheet.name,
-      cfb26_playbook: sheetCfb26Playbook(sheet),
+      playbook: sheetPlaybookName(sheet),
+      game_version: parseCatalogGameVersion(sheet.game_version),
       scheme: sheet.scheme?.trim() || "Multiple",
       scenario_filled: filled,
       scenario_total: sc.length,
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let body: { name?: string; cfb26_playbook?: string; side_of_ball?: string };
+  let body: { name?: string; playbook?: string; game_version?: string; side_of_ball?: string };
   try {
     body = await req.json();
   } catch {
@@ -116,26 +117,35 @@ export async function POST(req: NextRequest) {
   }
 
   const name = String(body.name ?? "").trim();
-  const cfb26_playbook = String(body.cfb26_playbook ?? "").trim();
-  if (!name || !cfb26_playbook) {
-    return NextResponse.json({ error: "name and cfb26_playbook are required" }, { status: 400 });
+  const playbook = String(body.playbook ?? "").trim();
+  if (!name || !playbook) {
+    return NextResponse.json({ error: "name and playbook are required" }, { status: 400 });
   }
 
   let sideOfBall = parseCatalogSideOfBall(body.side_of_ball);
-  if (!sideOfBall) {
-    const { data: catalogRows } = await supabase
-      .from("playbooks")
-      .select("side_of_ball")
-      .eq("playbook", cfb26_playbook)
-      .not("playbook", "is", null)
-      .limit(1);
-    sideOfBall = parseCatalogSideOfBall(catalogRows?.[0]?.side_of_ball as string | undefined) ?? "offense";
+  let gameVersion = parseCatalogGameVersion(body.game_version);
+
+  const { data: catalogRows } = await supabase
+    .from("playbooks")
+    .select("side_of_ball, game_version")
+    .eq("playbook", playbook)
+    .not("playbook", "is", null)
+    .limit(1);
+
+  if (catalogRows?.[0]) {
+    if (!sideOfBall) {
+      sideOfBall = parseCatalogSideOfBall(catalogRows[0].side_of_ball as string | undefined) ?? "offense";
+    }
+    if (!body.game_version?.trim()) {
+      gameVersion = parseCatalogGameVersion(catalogRows[0].game_version as string);
+    }
   }
+  if (!sideOfBall) sideOfBall = "offense";
 
   const { data: schemeRow } = await supabase
     .from("team_offensive_playbooks")
     .select("scheme_style")
-    .eq("playbook_name", cfb26_playbook)
+    .eq("playbook_name", playbook)
     .limit(1)
     .maybeSingle();
 
@@ -146,12 +156,12 @@ export async function POST(req: NextRequest) {
     .insert({
       user_id: user.id,
       name,
-      playbook: cfb26_playbook,
-      cfb26_playbook,
+      playbook,
+      game_version: gameVersion,
       scheme,
       is_active: false,
     })
-    .select("id, name, playbook, cfb26_playbook, scheme, updated_at, created_at")
+    .select("id, name, playbook, game_version, scheme, updated_at, created_at")
     .single();
 
   if (insErr || !sheet) {

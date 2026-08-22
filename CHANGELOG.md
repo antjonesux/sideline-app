@@ -4,7 +4,91 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
-## 2026-08-22 — Film Room Pass 4: in-game tendencies integration
+## 2026-08-22 — Film Room creation form: call sheet picker bottom nav fix
+
+### What
+
+- Replaced offensive/defensive call sheet Radix Select with inline `CallSheetPicker` on `/film/new`, matching the TeamCombobox overlay pattern (absolute menu, drop-up near the bottom edge, stacks above the bottom tab bar).
+- Fixes bottom nav layout shift when opening call sheet menus with the form scrolled to the bottom.
+
+### Why
+
+Radix Select scroll-lock and collision handling near the fixed bottom tab bar (`z-40`) shifted the nav; other pickers on the same form already used absolute overlays without scroll lock.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-22 — Schema migration: play_sheets.cfb26_playbook → playbook + layout shift fix
+
+### SQL migration (run manually in Supabase SQL editor)
+
+See `sideline/supabase/migrations/20260822130000_play_sheets_playbook_and_game_version.sql`.
+
+Backfill uses **Option A**: `play_sheets.playbook` stores the catalog playbook name (e.g. "Ohio State"), matched against `playbooks.playbook` to derive `game_version`. Rows without a catalog match default to `cfb26`.
+
+### What
+
+- Renamed `play_sheets.cfb26_playbook` column to `playbook`. Added `game_version` column to `play_sheets` table with NOT NULL constraint. Backfilled existing rows.
+- Updated all code references: Supabase queries, TypeScript types, API routes, components.
+- Call sheet pickers now filter by game version.
+- Fixed root cause of layout shift on all select/dropdown components across the app. Dropdown content now renders as an overlay without affecting document flow.
+
+### Why
+
+Column name `cfb26_playbook` hardcoded a game version into the schema, breaking multi-version support. Layout shift bug persisted through QA42 and QA43 — traced to dropdown content rendering inline instead of as an overlay.
+
+### Status
+
+- SQL migration run manually in Supabase. `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-22 — Film Room QA43: follow-up fixes
+
+### What
+
+- Landing page: removed game version filter label, added spacing below filter, fixed version filtering to correctly scope sessions by selected game version.
+- Landing page: fixed layout shift when opening game version dropdown.
+- Creation form: game version field is now editable (defaults from landing page context, re-scopes pickers on change).
+- Creation form: session name field fills full width. Offense/Defense section labels moved inside their containers.
+- Creation form: fixed layout shift when opening call sheet dropdowns.
+
+### Why
+
+QA43 follow-up to QA42 Film Room fixes. Layout shift bugs traced to dropdown menus rendering inline instead of as overlays. Filtering bug prevented game version scoping from working correctly.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-22 — Film Room QA42: post-migration fixes
+
+### What
+
+- Landing page: added game version filter dropdown (defaults to most recent version, "All" option). Added defense field on session cards ("Defense: None" when empty).
+- Creation form: removed side selector; always shows offensive + defensive sections with at least one required. Introduced call sheet-first model — selecting a call sheet displays associated playbook as read-only ("Offensive Playbook: {name}" / "Defensive Playbook: {name}"). Manual playbook picker available when no call sheet selected.
+- Creation form: playbook and call sheet pickers scoped by game version. Game version stored on session.
+- Breadcrumbs updated: "Film" → "Film Room."
+- Tendencies empty state: merged two copy lines into one.
+- Play logger: renamed tabs ("My Call Sheet", "Recommended", "Browse") and reordered with My Call Sheet first. Logger now uses sidebar layout on desktop/tablet and full-page modal on mobile, matching call sheet add-play behavior.
+- Fixed ellipsis layout shift on Film Room, call sheet, and scheme cards.
+- Sidebar nav: moved Settings above Sign Out.
+
+### Why
+
+QA42 post-migration polish. Creation form restructure aligns with preparation-first product positioning — call sheet is the plan, playbook is the fallback. Game version filtering ensures CFB27 is the default experience.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 
 ### What
 

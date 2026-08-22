@@ -4,7 +4,7 @@ import { CSVUploader } from "@/components/import/CSVUploader";
 import { TemplateDownload } from "@/components/import/TemplateDownload";
 import { BackNavLink } from "@/components/shared/BackNavLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { IMPORT_FAILED, IMPORT_PARTIAL } from "@/lib/coachCopy";
+import { IMPORT_FAILED, IMPORT_PARTIAL, FILM_ROOM_HOME_TITLE } from "@/lib/coachCopy";
 import { useImportStore } from "@/store/importStore";
 import { useToastStore } from "@/store/toastStore";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ export default function FilmCsvImportClient({ initialAttachSessionId }: Props) {
 
   return (
     <section className="space-y-8 pb-8">
-      <Breadcrumb segments={[{ label: "Film", href: "/film" }, { label: "Import" }]} />
+      <Breadcrumb segments={[{ label: FILM_ROOM_HOME_TITLE, href: "/film" }, { label: "Import" }]} />
       <BackNavLink />
 
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 sm:p-6">
