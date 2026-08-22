@@ -1,36 +1,31 @@
-# SESSION BRIEF — Film Room Pass 2: game detail shell + drive management
+# SESSION BRIEF — Film Room Pass 3: play logger integration
 
 **Objective:**  
-Migrate the Film Room game detail shell and drive management into the new app shell, and decompose the monolithic `[gameId]/page.tsx` into focused components.
+Wire the play logger (`PlayLoggerV2`, `PlayBrowser`, `YardageSheet`) into the decomposed game detail shell from Pass 2 and verify the full logging loop works end-to-end.
 
 **Why this matters:**  
-This is the container that Passes 3 and 4 build inside. The play logger and in-game tendencies need a clean, decomposed game detail shell to wire into.
+The play logger is the core coaching loop — play lookup → select → ball spot → result → log must feel fast and seamless during the play clock.
 
 **In scope:**  
-- `app/film/[gameId]/page.tsx` — thin orchestrator
-- `app/film/[gameId]/layout.tsx` — Suspense boundary (unchanged)
-- `GameDetailHeader.tsx`, `DriveList.tsx`, overlay/dialog shells
-- Existing drive components: `DriveSetupForm`, `DriveStartingFieldPanel`, `DriveInlineScores`, `DriveCardOutcomeBadge`, `filmDriveDetailCardClasses`, `GameStatsInline`
-- Drive API routes (unchanged): `games/[id]/drives`, `drives/[id]`
+- `PlayLoggerV2`, `PlayBrowser`, `YardageSheet`, logger hooks/lib (unchanged internals)
+- `app/film/[gameId]/page.tsx` — logger integration point only
+- `FilmPlayLoggerOverlay.tsx` — overlay wrapper
+- `DriveList.tsx` → logger wiring via `onOpenLogger` / active drive
 
 **Out of scope:**  
-- Pass 1 session list/creation; Pass 3 logger improvements; Pass 4 tendencies content; CSV import; guided onboarding; schema changes
+- Pass 1 session list/creation; Pass 2 shell restructure; Pass 4 tendencies; CSV import; new logger features; API/schema changes
 
 **Done means:**  
-- [x] `[gameId]/page.tsx` decomposed into focused components  
-- [x] Game detail header: matchup, score, stats strip, drive/end-game actions  
-- [x] Tab navigation: "Drive Summary" (default) and "Tendencies"  
-- [x] Drive list: outcome badges, scores, expandable play tables, CRUD  
-- [x] Create/delete drive, edit starting field, inline scores preserved  
-- [x] `PlayLoggerV2` and `FilmGameTendenciesBody` still wired through decomposition  
-- [x] No guided onboarding references in Pass 2 files  
+- [x] Logger opens for active/open drives via overlay (`Log a call` / post–drive-setup)
+- [x] Browse, My Sheet, and Situational paths wired through `PlayLoggerV2`
+- [x] POST/DELETE plays, game state advancement, drive-ending behavior via page `refresh()` + invalidation
+- [x] Logger state resets when switching drives (`key={activeDrive.id}` on overlay mount)
+- [x] `PlayBrowser` shared interface unchanged for Call Sheet Builder
 - [x] `npm run build` passes  
 
 **Handoff notes:**  
-- **Files touched:** `app/film/[gameId]/page.tsx`, `components/film/{GameDetailHeader,DriveList,FilmDriveSetupOverlay,FilmPlayLoggerOverlay,FilmEndGameScoreDialog}.tsx`, `lib/filmGameDetailHelpers.ts`, `CHANGELOG.md`, `SESSION_BRIEF.md`
-- **New components:** `GameDetailHeader`, `DriveList`, `FilmDriveSetupOverlay`, `FilmPlayLoggerOverlay`, `FilmEndGameScoreDialog`; helpers in `filmGameDetailHelpers.ts`
-- **Props/interfaces for Pass 3:** `FilmPlayLoggerOverlay` wraps `PlayLoggerV2` with same props as before (`gameId`, `driveId`, `playbook`, `drive`, `onRefresh`, `sheetId`, `loggerOpenFlowId`, play counts, `allGameCoachCalls`, `onPossessionEndedAfterLog`). Page owns `showLogger`, `activeDrive`, `openForCreate(driveId)`.
-- **Props/interfaces for Pass 4:** Tendencies tab renders `<FilmGameTendenciesBody gameId={gameId} />` when tab active; no prop changes needed.
-- **Open risks / gaps:** Game detail header uses inline Add Drive / End Game buttons (not kebab edit/delete — those remain on session list cards). `DriveList.tsx` is ~257 lines (slightly above ~200 JSX guideline). Page orchestrator still ~616 lines total (logic retained in page per data-flow rules).
-- **Notes for Pass 3:** Logger overlay is `FilmPlayLoggerOverlay`; slot opens via `openForCreate` from drive cards or post–drive-setup. Pass 3 can refine logger UX without touching drive list structure.
-- **Notes for Pass 4:** Tendencies tab lazy-mounts `FilmGameTendenciesBody` when selected; invalidation already flows through page `refresh()` → `tendenciesQueryKeys.all`.
+- **Files touched:** `components/film/FilmPlayLoggerOverlay.tsx` (`key={activeDrive.id}` for drive-switch reset), `CHANGELOG.md`, `SESSION_BRIEF.md`
+- **Prop changes to `PlayLoggerV2`:** None — same interface as Pass 2 (`FilmPlayLoggerOverlay` passes through unchanged)
+- **Wiring issues encountered:** Pass 2 already wired the logger; Pass 3 was Scenario A (verification). One polish fix: remount logger on drive change so yardage/suggestion state does not leak when `openForCreate` targets a different drive without closing the overlay.
+- **Open risks / gaps:** Logger is overlay-only (not inline in drive card) — matches Pass 2 design. Play deletion from drive table uses page-level confirm modal; logger stream delete is separate in-overlay path. Manual QA of full Browse → Yardage → log loop recommended in browser with a real game session.
+- **Notes for Pass 4:** Tendencies tab already lazy-mounts `FilmGameTendenciesBody`; invalidation flows through page `refresh()` → `tendenciesQueryKeys.all`. No logger changes needed for Pass 4.

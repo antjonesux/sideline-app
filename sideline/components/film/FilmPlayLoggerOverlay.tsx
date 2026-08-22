@@ -54,6 +54,7 @@ export function FilmPlayLoggerOverlay({
           </div>
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <PlayLoggerV2
+              key={activeDrive.id}
               gameId={gameId}
               driveId={activeDrive.id}
               playbook={game.offensive_playbook ?? ""}

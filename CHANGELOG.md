@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Film Room Pass 3: play logger integration
+
+### What
+
+- Verified `PlayLoggerV2`, `PlayBrowser`, and `YardageSheet` integration through `FilmPlayLoggerOverlay` in the decomposed game detail shell from Pass 2.
+- Confirmed full logging loop wiring: Browse, My Sheet, and Situational paths → ball spot → result → POST; page `refresh()` invalidates drives, tendencies, and `filmLoggerQueryKeys`.
+- Added `key={activeDrive.id}` on `PlayLoggerV2` in `FilmPlayLoggerOverlay` so logger state resets when switching drives without closing the overlay.
+- No changes to logger internals, `PlayBrowser` public interface, or API routes — integration and verification only.
+
+### Why
+
+Pass 3 of 4-pass Film Room shell migration. The play logger is the core coaching loop; this pass confirms it works correctly within the restructured game detail shell.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Film Room Pass 2: game detail shell + drive management
 
 ### What
