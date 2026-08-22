@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Film Room Pass 4: in-game tendencies integration
+
+### What
+
+- Verified `FilmGameTendenciesBody` is wired into the Tendencies tab of the game detail shell (lazy-mount on tab switch).
+- Confirmed all sub-components render via the existing body: play type distribution, top plays, top formations, reconsider plays, situation breakdowns, and pagination.
+- Confirmed query invalidation: page `refresh()` invalidates `tendenciesQueryKeys.all` after play log/delete — no new invalidation path added.
+- No modifications to shared `components/tendencies/` files or the tendencies API.
+
+### Why
+
+Final pass of 4-pass Film Room shell migration. Closes the coaching loop: log plays → see analysis. Tendencies are the payoff that answers "what am I doing and is it working?"
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Film Room migration complete: session list, game detail shell, play logger, and in-game tendencies all functional in the new app shell.
+
+---
+
 ## 2026-08-22 — Film Room Pass 3: play logger integration
 
 ### What
