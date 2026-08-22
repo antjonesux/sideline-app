@@ -39,7 +39,7 @@ export function AddPlayBrowseRow({
   catalogPlaybook?: string;
 }) {
   const displayName = normalizePlayName(play.play_name);
-  const artSrc =
+  const resolvedArt =
     catalogSideOfBall && catalogGameVersion && catalogPlaybook
       ? resolvePlayArtUrl({
           playbook: catalogPlaybook,
@@ -100,9 +100,9 @@ export function AddPlayBrowseRow({
           )}
         </div>
       </div>
-      {artSrc ? (
+      {resolvedArt ? (
         <div className="px-3 pb-3">
-          <PlayArtImage src={artSrc} alt="" />
+          <PlayArtImage src={resolvedArt.src} source={resolvedArt.source} alt="" />
         </div>
       ) : null}
     </div>

@@ -13,6 +13,13 @@ export type PlayArtResolveInput = PlayArtUrlInput & {
   playbook: string;
 };
 
+export type PlayArtSource = "owned" | "cfb-fan";
+
+export type ResolvedPlayArt = {
+  src: string;
+  source: PlayArtSource;
+};
+
 /** Lowercase → literal `-` to `--` → spaces to `-`. */
 export function slugifyPlayArtSegment(raw: string): string {
   return raw
@@ -117,7 +124,7 @@ export function buildContentAddressedPlayArtAssetPath(input: {
  * Resolve play-art for Add Play browse: owned Sideline asset first, then cfb.fan URL.
  * Returns `null` when neither source can resolve (caller renders text-only).
  */
-export function resolvePlayArtUrl(input: PlayArtResolveInput): string | null {
+export function resolvePlayArtUrl(input: PlayArtResolveInput): ResolvedPlayArt | null {
   const owned = resolveOwnedPlayArtPath({
     gameVersion: input.gameVersion,
     sideOfBall: input.side,
@@ -125,6 +132,8 @@ export function resolvePlayArtUrl(input: PlayArtResolveInput): string | null {
     formation: input.formation,
     playName: input.playName,
   });
-  if (owned) return owned;
-  return buildPlayArtUrl(input);
+  if (owned) return { src: owned, source: "owned" };
+  const fallback = buildPlayArtUrl(input);
+  if (fallback) return { src: fallback, source: "cfb-fan" };
+  return null;
 }

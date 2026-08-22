@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Owned play art: render-time SIDELINE.PRO watermark
+
+### What
+
+- Extended `resolvePlayArtUrl()` to return `{ src, source }` (`owned` | `cfb-fan`) so the UI can distinguish Sideline-owned assets from cfb.fan fallback without URL parsing.
+- `PlayArtImage` renders a centered **SIDELINE.PRO** watermark overlay at **9% opacity** for owned art only — scaled to ~85% of the image via container queries; not baked into JPEGs or manifest hashes.
+- Added client-side save deterrents on play-art display (context menu block, drag disabled, selection/touch-callout suppressed). cfb.fan fallback art remains unwatermarked.
+
+### Why
+
+Before ingesting additional playbooks, owned play art needs visible Sideline attribution at display time without modifying the ingestion pipeline, content hashes, or shared physical assets.
+
+### Status
+
+- USC owned art: centered **SIDELINE.PRO** watermark verified via resolver (`source: "owned"`).
+- Hail Mary and non-USC playbooks: `source: "cfb-fan"` — no watermark.
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Owned play art: SHA-256 dedup and source discovery
 
 ### What

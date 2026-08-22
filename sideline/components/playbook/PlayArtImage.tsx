@@ -1,38 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import type { PlayArtSource } from "@/lib/playArtUrl";
+import { useState, type SyntheticEvent } from "react";
 
 /**
  * Featured play-art region for Add Play browse. On load failure, hides the `<img>`
  * but keeps the reserved aspect slot so row layout does not shift. When `src` is
  * null, renders nothing (text-only browse row).
+ *
+ * Owned Sideline art (`source: "owned"`) shows a centered low-opacity watermark
+ * overlay at render time — not baked into the asset.
  */
 export function PlayArtImage({
   src,
+  source,
   alt,
 }: {
   src: string | null;
+  source?: PlayArtSource;
   alt: string;
 }) {
   const [failed, setFailed] = useState(false);
 
   if (!src) return null;
 
+  const showWatermark = source === "owned" && !failed;
+
+  const blockImageSave = (event: SyntheticEvent) => {
+    event.preventDefault();
+  };
+
   return (
     <div
-      className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-900/80"
+      className="@container relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-900/80 select-none [-webkit-touch-callout:none]"
       aria-hidden={failed}
+      onContextMenu={blockImageSave}
     >
       {failed ? null : (
-        // eslint-disable-next-line @next/next/no-img-element -- owned /play-art paths and remote cfb.fan URLs
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-contain"
-          onError={() => setFailed(true)}
-        />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element -- owned /play-art paths and remote cfb.fan URLs */}
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className="h-full w-full object-contain select-none [-webkit-user-drag:none]"
+            onContextMenu={blockImageSave}
+            onDragStart={blockImageSave}
+            onError={() => setFailed(true)}
+          />
+          {showWatermark ? (
+            <div
+              className="pointer-events-none absolute inset-0 flex items-center justify-center select-none"
+              aria-hidden
+            >
+              <span className="block text-center font-sans font-bold uppercase leading-none tracking-[0.2em] text-white opacity-[0.09] text-[length:calc(85cqw/8.8)]">
+                SIDELINE.PRO
+              </span>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );
