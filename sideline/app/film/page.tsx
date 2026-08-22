@@ -8,7 +8,8 @@ import {
 } from "@/lib/coachCopy";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { FilmGameCard } from "@/components/film/FilmGameCard";
-import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
+import { FilmRoomHomeHeader } from "@/components/film/FilmRoomHomeHeader";
+import { appShellWorkspaceInnerClass } from "@/lib/constants/designTokens";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -128,37 +129,28 @@ export default async function FilmRoomPage() {
   const games = await getGamesWithCounts(user.id);
 
   return (
-    <section className="space-y-6">
-      <header className="space-y-4">
-        <AppShellMenuHeader title="Film room" />
-        {games.length > 0 && (
-          <>
-            <div className="grid grid-cols-1 gap-3">
-              <Link href="/film/new" className="rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70 group block">
-                <p className="font-heading text-lg font-bold uppercase tracking-wide text-white">New game</p>
-                <p className="mt-1 font-sans text-sm text-slate-400">Log plays live during a game.</p>
-              </Link>
-            </div>
-            <div className="border-b border-slate-700" aria-hidden />
-          </>
-        )}
-      </header>
+    <div className="flex min-h-[60vh] flex-col gap-6 md:gap-8">
+      <FilmRoomHomeHeader gameCount={games.length} />
 
-      {games.length === 0 ? (
-        <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-10 text-center sm:px-8">
-          <p className="font-sans text-base font-medium text-white">{FILM_ROOM_EMPTY_HEADLINE}</p>
-          <p className="mt-2 font-sans text-sm text-slate-500">{FILM_ROOM_EMPTY_BODY}</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild variant="default" className="text-sm">
+      <div className={appShellWorkspaceInnerClass}>
+        {games.length === 0 ? (
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+            <p className="font-body text-base font-medium text-white">{FILM_ROOM_EMPTY_HEADLINE}</p>
+            <p className="mt-1 font-body text-sm text-slate-400">{FILM_ROOM_EMPTY_BODY}</p>
+            <Button asChild variant="default" className="mt-4 text-sm">
               <Link href="/film/new">{FILM_ROOM_EMPTY_CTA}</Link>
             </Button>
           </div>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {games.map((game) => <FilmGameCard key={game.id} game={game} />)}
-        </ul>
-      )}
-    </section>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {games.map((game) => (
+              <li key={game.id} className="relative">
+                <FilmGameCard game={game} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

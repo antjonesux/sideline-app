@@ -1,5 +1,4 @@
 "use client";
-// QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -20,6 +19,9 @@ type GameCardData = GameSession & {
   tds: number;
   turnovers: number;
 };
+
+const menuItemClass =
+  "flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none";
 
 export function FilmGameCard({ game }: { game: GameCardData }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,42 +65,51 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
       : "text-slate-100";
 
   return (
-    <li className="relative">
-      <Link href={`/film/${game.id}`} className="rounded-xl border border-slate-700 bg-slate-900 p-4 transition-colors hover:border-emerald-600/50 hover:bg-slate-800/70 block hover:border-slate-600">
-        <div className="flex items-start justify-between gap-2 pr-14">
-          <div>
-            <p className="font-heading text-lg font-bold uppercase tracking-[0.1em] text-slate-100 leading-tight">
-              {game.my_playbook}
-              <span className="mx-2 font-body font-normal text-slate-500">vs</span>
-              {game.opponent_team}
-            </p>
-          </div>
-        </div>
+    <>
+      <Link
+        href={`/film/${game.id}`}
+        className="group block rounded-xl border border-slate-800 bg-slate-900 p-4 pr-14 transition-colors hover:border-emerald-500/20 hover:bg-emerald-500/[0.03] md:rounded-2xl md:px-5 md:py-4 md:pr-16"
+      >
+        <div className="min-w-0 space-y-2 md:space-y-1.5">
+          <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
+            {game.my_playbook}
+            <span className="mx-1.5 font-normal text-slate-500">vs</span>
+            {game.opponent_team}
+          </h2>
 
-        <div className="mt-2">
-          <p className="text-[11px] uppercase tracking-wide text-slate-500">
-            <span className="font-body">Offense Used:</span> <span className="font-mono text-slate-300">{offensivePlaybook}</span>
+          <p className="font-body text-sm text-slate-500 md:text-[13px]">
+            <span className="text-slate-400">Offense:</span>{" "}
+            <span className="text-slate-300">{offensivePlaybook}</span>
           </p>
-        </div>
 
-        <div className="mt-2 flex items-center justify-between">
-          <span className="font-mono text-2xl font-bold tabular-nums">
+          <p className="font-mono text-xl font-bold tabular-nums md:text-lg">
             <span className={myScoreClass}>{game.my_score ?? "—"}</span>
             <span className="mx-1.5 text-slate-500">—</span>
             <span className="text-slate-300">{game.opponent_score ?? "—"}</span>
-          </span>
-        </div>
+          </p>
 
-        <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] mt-2">
-          <GameStatsInline playCount={game.playCount} driveCount={game.driveCount} totalYards={game.totalYards} tds={game.tds} turnovers={game.turnovers} />
+          <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
+            <GameStatsInline
+              playCount={game.playCount}
+              driveCount={game.driveCount}
+              totalYards={game.totalYards}
+              tds={game.tds}
+              turnovers={game.turnovers}
+            />
+          </div>
         </div>
       </Link>
 
-      <CardKebabMenu open={menuOpen} onOpenChange={setMenuOpen} ariaLabel="Game actions">
-        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setEditOpen(true)}>
+      <CardKebabMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        ariaLabel="Game actions"
+        className="md:top-1/2 md:-translate-y-1/2"
+      >
+        <DropdownMenuItem className={menuItemClass} onSelect={() => setEditOpen(true)}>
           Edit Game Details
         </DropdownMenuItem>
-        <DropdownMenuItem className="flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-red-300 transition-colors hover:bg-slate-800 rounded-none" onSelect={() => setDeleteOpen(true)}>
+        <DropdownMenuItem className={`${menuItemClass} text-red-300`} onSelect={() => setDeleteOpen(true)}>
           Delete Game
         </DropdownMenuItem>
       </CardKebabMenu>
@@ -129,6 +140,6 @@ export function FilmGameCard({ game }: { game: GameCardData }) {
         busy={deleteBusy}
         onConfirm={confirmDeleteGame}
       />
-    </li>
+    </>
   );
 }

@@ -1,32 +1,25 @@
-# SESSION BRIEF — QA41 Add Play + Situation Detail Refinement (follow-up)
+# SESSION BRIEF — Film Room Pass 1: session list + creation flow
 
 **Objective:**  
-Continue QA41 polish: balance situation-detail horizontal padding, collapse to one vertical scrollbar, and vertically center the PLAY table-header label.
+Migrate the Film Room session list and creation flow into the new app shell, with streamlined session creation (auto-generated name, offense default, recency-surfaced teams, no opponent playbook).
 
 **Why this matters:**  
-Prior QA41 shipped rail/CTA/art hierarchy; remaining padding, dual scrollbars, and header label alignment still make the situation workspace feel unfinished.
+This is the front door to Film Room. Pass 2–4 all depend on this surface being solid in the new shell.
 
 **In scope:**  
-- Equal L/R inset on situation-detail primary content (shell tokens)  
-- One visible vertical scrollbar (remove redundant scroll owner; document decision adjust)  
-- Vertically center PLAY in `PlayTableHeader`  
-- Preserve Add Play rail alignment, pinned search, mobile drawer  
+- Session list (`/film`), create (`/film/new`), FilmGameCard, EditGameDetailsModal, TeamCombobox, GameStatsInline, games POST/PATCH, recent teams via game_sessions + lastGamePrefsStore patterns
 
 **Out of scope:**  
-- Sidebar collapse (separate QA41 sidebar session)  
-- Schema / API / Coach View / capacity / mutations  
-
-**Constraints:**  
-- Prefer app-shell spacing tokens; no cosmetic scrollbar hiding; `npm run build` must pass  
+- Game detail, logger, tendencies (Passes 2–4); CSV import (parked); opponent playbook selection; schema changes
 
 **Done means:**  
-- [x] Equal visual L/R padding (Add Play open and closed)  
-- [x] One vertical scrollbar; plays + Add Play results reachable; search pinned  
-- [x] PLAY vertically centered; Add Play CTA still right-aligned  
-- [x] Build + review  
+- [x] Session list in app shell with cards, empty state, edit/delete, no import CTAs  
+- [x] Create: side defaults Offense; auto session name; no opponent playbook; recent teams  
+- [x] Edit modal matches stripped creation  
+- [x] `npm run build` passes; reviews approved  
 
 **Handoff notes:**  
-- Padding: with Add Play closed, inner uses `px-[var(--app-shell-px)]` + `mx-auto` / max-width. With Add Play open, workspace bleeds past main padding on **both** sides; situation column uses the same `--app-shell-px` L/R with `gap-0` (no stacked left-only main pad, no md/lg column gap).  
-- Scroll: page/`html` is the sole vertical owner on situation detail; removed height-lock + column `overflow-y-auto`. Panel Add Play uses `pageScrollResults` + sticky search. Modal unchanged. Decision logged 2026-08-21 in `DECISIONS.md`  
-- PLAY: header label cells `flex items-center` so content centers inside `md:min-h-12` row cells from the table wrapper  
-- Remaining visual QA: confirm sticky search at tablet/wide desktop with long catalogs; confirm no clipping when rail open  
+- **Files touched:** `app/film/page.tsx`, `app/film/new/page.tsx`, `app/film/loading.tsx` (unchanged pattern), `components/film/{FilmGameCard,EditGameDetailsModal,TeamCombobox,GameStatsInline}.tsx`, `app/api/games/route.ts`, `app/api/games/[id]/route.ts` (optional opponent_scheme via omit/empty), deleted `app/film/new/preview/`, `CHANGELOG.md`  
+- **Patterns reused:** AppShellMenuHeader, PageSkeleton/FilmRoomSkeleton, BackNavLink, Breadcrumb, CardKebabMenu, ConfirmDestructiveModal, toastStore, coachCopy, generic-playbooks sections  
+- **Open risks / gaps:** Session name is UI-only (no DB column — card title remains `my_playbook` vs `opponent_team`). Defense-only stores D scheme in `offensive_playbook`/`my_scheme`. Both-side optional D book reuses `opponent_scheme`. FilmGameCard still labels playbook as “Offense Used”.  
+- **Notes for Pass 2:** Game detail should read side/D metadata carefully; consider card copy for defense sessions; do not revive import entry points; preserve empty `opponent_scheme` semantics vs Both coach-D reuse.

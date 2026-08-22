@@ -13,9 +13,9 @@ import {
   FILM_NEW_GAME_SUBTITLE,
   FILM_NEW_GAME_TITLE,
   FILM_NEW_GAME_YOUR_TEAM_LABEL,
-  ONBOARDING_DEFAULT_SHEET_NAME,
 } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import {
   getCatalogPlaybookSection,
   PLAYBOOK_CATALOG_SECTIONS,
@@ -33,6 +33,9 @@ type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: s
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 type TeamOption = { team_name: string };
 type CfbPlaybookRow = { playbook: string | null };
+type FilmSide = "offense" | "defense" | "both";
+
+const RECENT_TEAM_LIMIT = 5;
 
 function playbookOptionLabel(row: OffensiveTeam): string {
   if (row.playbook_name.trim() === row.team_name.trim()) {
@@ -60,12 +63,43 @@ function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[
   return sortByCatalogPlaybookSection([...byPlaybook.values()]);
 }
 
+function buildMatchupSessionName(myTeam: string, opponentTeam: string): string {
+  return `${myTeam} vs. ${opponentTeam}`;
+}
+
+function collectRecentTeamNames(
+  rows: Array<{ my_playbook?: string | null; opponent_team?: string | null }>,
+  limit: number,
+): string[] {
+  const seen = new Set<string>();
+  const ordered: string[] = [];
+  for (const row of rows) {
+    for (const raw of [row.my_playbook, row.opponent_team]) {
+      const name = String(raw ?? "").trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      ordered.push(name);
+      if (ordered.length >= limit) return ordered;
+    }
+  }
+  return ordered;
+}
+
 let cachedOffensive: OffensiveTeam[] | null = null;
 let cachedDefensive: DefensiveTeam[] | null = null;
 let cachedFallbackPlaybooks: string[] | null = null;
 
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
+
+const FILM_SIDES: { id: FilmSide; label: string }[] = [
+  { id: "offense", label: "Offense" },
+  { id: "defense", label: "Defense" },
+  { id: "both", label: "Both" },
+];
+
 export default function NewGamePage() {
   const supabase = createClient();
   const router = useRouter();
@@ -79,11 +113,15 @@ export default function NewGamePage() {
     () => cachedOffensive === null || cachedDefensive === null || cachedFallbackPlaybooks === null,
   );
   const [setupError, setSetupError] = useState<string | null>(null);
-  const [offensePick, setOffensePick] = useState<TeamOption | null>(null);
-  const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
+  const [side, setSide] = useState<FilmSide>("offense");
+  const [myTeamPick, setMyTeamPick] = useState<TeamOption | null>(null);
+  const [opponentPick, setOpponentPick] = useState<TeamOption | null>(null);
   /** Store only the playbook id string — never an object from `playbookOptions` — so nothing can "default" to the first row. */
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
+  const [selectedDefenseScheme, setSelectedDefenseScheme] = useState<string | null>(null);
+  const [sessionName, setSessionName] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
+  const [recentTeamNames, setRecentTeamNames] = useState<string[]>([]);
 
   type SheetOption = { id: string; name: string };
   const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
@@ -92,8 +130,7 @@ export default function NewGamePage() {
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const playbookInputRef = useRef<HTMLInputElement>(null);
-  /** True after the playbook combobox fires `onSelect` (including clear) so async prefill cannot override. */
-  const playbookUserTouchedRef = useRef(false);
+  const lastAutoSessionNameRef = useRef("");
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +199,34 @@ export default function NewGamePage() {
     };
   }, []);
 
-  /** Full `team_defensive_schemes` team list (same rows as Opponent), sorted for stable combobox order. */
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      const { data, error } = await supabase
+        .from("game_sessions")
+        .select("my_playbook, opponent_team, created_at, import_source")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(40);
+
+      if (cancelled || error) return;
+
+      const rows = (data ?? []).filter(
+        (row) => row.import_source !== GAME_SESSION_IMPORT_SOURCE_ONBOARDING,
+      );
+      setRecentTeamNames(collectRecentTeamNames(rows, RECENT_TEAM_LIMIT));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase]);
+
+  /** Full team list from defensive catalog (same pool as opponent), sorted for stable combobox order. */
   const allTeamOptions = useMemo<TeamOption[]>(
     () =>
       [...new Set(defensiveTeams.map((t) => t.team_name.trim()).filter(Boolean))]
@@ -171,10 +235,36 @@ export default function NewGamePage() {
     [defensiveTeams],
   );
 
+  const recentTeamOptions = useMemo<TeamOption[]>(() => {
+    if (recentTeamNames.length === 0 || allTeamOptions.length === 0) return [];
+    const byName = new Map(allTeamOptions.map((row) => [row.team_name.toLowerCase(), row]));
+    const out: TeamOption[] = [];
+    for (const name of recentTeamNames) {
+      const match = byName.get(name.toLowerCase());
+      if (match) out.push(match);
+    }
+    return out;
+  }, [recentTeamNames, allTeamOptions]);
+
   const playbookOptions = useMemo<OffensiveTeam[]>(
     () => uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, "Multiple"),
     [offensiveTeams, fallbackPlaybooks],
   );
+
+  const defenseSchemeOptions = useMemo<DefensiveTeam[]>(() => {
+    const byScheme = new Map<string, DefensiveTeam>();
+    for (const row of defensiveTeams) {
+      const key = row.defensive_scheme.trim();
+      if (!key || byScheme.has(key)) continue;
+      byScheme.set(key, { team_name: key, defensive_scheme: key });
+    }
+    return [...byScheme.values()].sort((a, b) => a.defensive_scheme.localeCompare(b.defensive_scheme));
+  }, [defensiveTeams]);
+
+  const needsOffensePlaybook = side === "offense" || side === "both";
+  const needsDefensePlaybook = side === "defense" || side === "both";
+  /** Defense picker on "Both" is optional (offense playbook is required). */
+  const defensePlaybookRequired = side === "defense";
 
   const usePlaybookSelect = playbookOptions.length > 0 && !setupError;
 
@@ -183,6 +273,11 @@ export default function NewGamePage() {
     return playbookOptions.find((row) => row.playbook_name === selectedPlaybookName) ?? null;
   }, [playbookOptions, selectedPlaybookName]);
 
+  const defenseSchemeRow = useMemo(() => {
+    if (!selectedDefenseScheme) return null;
+    return defenseSchemeOptions.find((row) => row.defensive_scheme === selectedDefenseScheme) ?? null;
+  }, [defenseSchemeOptions, selectedDefenseScheme]);
+
   useEffect(() => {
     if (!selectedPlaybookName || playbookOptions.length === 0) return;
     if (!playbookOptions.some((row) => row.playbook_name === selectedPlaybookName)) {
@@ -190,33 +285,31 @@ export default function NewGamePage() {
     }
   }, [playbookOptions, selectedPlaybookName]);
 
-  /** Prefill CFB26 playbook from Play Sheet: onboarding sheet name first, else most-recent sheet (`/api/playbook` order). */
   useEffect(() => {
-    if (setupLoading || setupError || playbookOptions.length === 0) return;
-    let cancelled = false;
-    void (async () => {
-      const res = await fetch("/api/playbook", { cache: "no-store" });
-      const json = (await res.json()) as {
-        playbooks?: Array<{ name: string; cfb26_playbook?: string | null }>;
-      };
-      if (cancelled || playbookUserTouchedRef.current) return;
-      const sheets = json.playbooks ?? [];
-      const preferred =
-        sheets.find((s) => s.name === ONBOARDING_DEFAULT_SHEET_NAME) ?? sheets[0];
-      const cfb = (preferred?.cfb26_playbook ?? "").trim();
-      if (!cfb) return;
-      if (!playbookOptions.some((row) => row.playbook_name === cfb)) return;
-      if (playbookUserTouchedRef.current) return;
-      setSelectedPlaybookName(cfb);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [setupLoading, setupError, playbookOptions]);
+    if (!selectedDefenseScheme || defenseSchemeOptions.length === 0) return;
+    if (!defenseSchemeOptions.some((row) => row.defensive_scheme === selectedDefenseScheme)) {
+      setSelectedDefenseScheme(null);
+    }
+  }, [defenseSchemeOptions, selectedDefenseScheme]);
+
+  useEffect(() => {
+    const my = myTeamPick?.team_name.trim() ?? "";
+    const opp = opponentPick?.team_name.trim() ?? "";
+    if (!my || !opp) return;
+    const autoName = buildMatchupSessionName(my, opp);
+    setSessionName((prev) => {
+      const trimmed = prev.trim();
+      if (!trimmed || trimmed === lastAutoSessionNameRef.current) {
+        lastAutoSessionNameRef.current = autoName;
+        return autoName;
+      }
+      return prev;
+    });
+  }, [myTeamPick, opponentPick]);
 
   useEffect(() => {
     setSelectedSheetId(null);
-    if (!selectedPlaybookName) {
+    if (!needsOffensePlaybook || !selectedPlaybookName) {
       setAvailableSheets([]);
       return;
     }
@@ -238,27 +331,52 @@ export default function NewGamePage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedPlaybookName]);
+  }, [selectedPlaybookName, needsOffensePlaybook]);
 
-  const canContinue = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
+  const canContinue = Boolean(
+    myTeamPick &&
+      opponentPick &&
+      sessionName.trim() &&
+      !setupLoading &&
+      (side === "offense"
+        ? playbookRow
+        : side === "defense"
+          ? defenseSchemeRow
+          : playbookRow),
+  );
 
   const buildGameSetup = useCallback(() => {
-    if (!offensePick || !defensePick || !playbookRow) return null;
+    if (!myTeamPick || !opponentPick) return null;
+    if (side === "offense" && !playbookRow) return null;
+    if (side === "defense" && !defenseSchemeRow) return null;
+    if (side === "both" && !playbookRow) return null;
+
+    const offensivePlaybook =
+      side === "defense"
+        ? defenseSchemeRow?.defensive_scheme ?? ""
+        : playbookRow?.playbook_name ?? "";
+    const myScheme =
+      side === "defense"
+        ? defenseSchemeRow?.defensive_scheme ?? "Multiple"
+        : playbookRow?.scheme_style ?? "Multiple";
+
     return {
-      offensive_team: offensePick.team_name,
-      offensive_scheme: playbookRow.scheme_style,
-      offensive_playbook: playbookRow.playbook_name,
-      opponent_team: defensePick.team_name,
-      opponent_defensive_scheme: defensePick.defensive_scheme,
+      my_playbook: myTeamPick.team_name,
+      my_scheme: myScheme,
+      offensive_playbook: offensivePlaybook,
+      opponent_team: opponentPick.team_name,
+      /** When side is Both and a D book is chosen, reuse stripped opponent_scheme column for coach D metadata. */
+      opponent_scheme:
+        side === "both" && defenseSchemeRow ? defenseSchemeRow.defensive_scheme : "",
       game_date: new Date().toISOString().slice(0, 10),
     };
-  }, [offensePick, defensePick, playbookRow]);
+  }, [myTeamPick, opponentPick, playbookRow, defenseSchemeRow, side]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const setup = buildGameSetup();
     if (!setup) {
-      addToast("Set offense, defense, and play sheet first.", "error");
+      addToast("Set your team, opponent, and playbook first.", "error");
       return;
     }
 
@@ -268,13 +386,13 @@ export default function NewGamePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          my_playbook: setup.offensive_team,
-          my_scheme: setup.offensive_scheme,
+          my_playbook: setup.my_playbook,
+          my_scheme: setup.my_scheme,
           offensive_playbook: setup.offensive_playbook,
           opponent_team: setup.opponent_team,
-          opponent_scheme: setup.opponent_defensive_scheme,
+          opponent_scheme: setup.opponent_scheme,
           game_date: setup.game_date,
-          play_sheet_id: selectedSheetId ?? null,
+          play_sheet_id: needsOffensePlaybook ? selectedSheetId ?? null : null,
         }),
       });
       const game = (await res.json()) as { id?: string; error?: string };
@@ -283,7 +401,7 @@ export default function NewGamePage() {
         return;
       }
       emitProductEvent("game_created", { gameId: game.id, source: "film_new" });
-      setLastGame({ my_playbook: setup.offensive_team, my_scheme: setup.offensive_scheme });
+      setLastGame({ my_playbook: setup.my_playbook, my_scheme: setup.my_scheme });
       addToast("Game ready.", "success");
       router.push(`/film/${game.id}`);
     } finally {
@@ -301,106 +419,166 @@ export default function NewGamePage() {
           <NewGameFormSkeleton />
         ) : (
           <form onSubmit={onSubmit} className="space-y-6">
-          <header className="space-y-2">
-            <h1 className={modalDialogTitleClass}>{FILM_NEW_GAME_TITLE}</h1>
-            <p className="font-body text-sm text-slate-400">{FILM_NEW_GAME_SUBTITLE}</p>
-          </header>
+            <header className="space-y-2">
+              <h1 className={modalDialogTitleClass}>{FILM_NEW_GAME_TITLE}</h1>
+              <p className="font-body text-sm text-slate-400">{FILM_NEW_GAME_SUBTITLE}</p>
+            </header>
 
-          {setupError ? (
-            <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
-              {setupError}
-            </p>
-          ) : null}
+            {setupError ? (
+              <p className="rounded-lg border border-amber-800/30 bg-amber-950/40 p-4 font-body text-sm text-amber-100" role="alert">
+                {setupError}
+              </p>
+            ) : null}
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <TeamCombobox<TeamOption>
-              label={FILM_NEW_GAME_YOUR_TEAM_LABEL}
-              inputId="film-my-playbook"
-              selected={offensePick}
-              onSelect={setOffensePick}
-              options={allTeamOptions}
-              loading={setupLoading}
-              placeholder="Select your team"
-              nextFocusRef={opponentInputRef}
-            />
-
-            <TeamCombobox<DefensiveTeam>
-              label="Opponent"
-              inputId="film-opponent"
-              inputRef={opponentInputRef}
-              selected={defensePick}
-              onSelect={setDefensePick}
-              options={defensiveTeams}
-              loading={setupLoading}
-              placeholder="Select opponent"
-              nextFocusRef={playbookInputRef}
-            />
-          </div>
-
-          <div className="space-y-1 md:max-w-2xl">
-            <TeamCombobox<OffensiveTeam>
-              label={FILM_NEW_GAME_PLAYBOOK_LABEL}
-              inputId="film-offensive-playbook"
-              inputRef={playbookInputRef}
-              selected={playbookRow}
-              onSelect={(row) => {
-                playbookUserTouchedRef.current = true;
-                setSelectedPlaybookName(row?.playbook_name ?? null);
-              }}
-              options={playbookOptions}
-              loading={setupLoading}
-              placeholder="Select playbook"
-              getOptionLabel={playbookOptionLabel}
-              getOptionKey={(row) => row.playbook_name}
-              getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
-              getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
-              optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
-            />
-            {!usePlaybookSelect ? <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p> : null}
-          </div>
-
-          {selectedPlaybookName ? (
-            <div className="space-y-2 md:max-w-2xl">
-              <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play Sheet</p>
-              {sheetsLoading ? (
-                <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
-              ) : availableSheets.length === 0 ? (
-                <p className="font-body text-xs text-slate-500">
-                  No play sheets for this playbook yet.{" "}
-                  <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Play Sheet</a>.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
+            <fieldset className="space-y-2">
+              <legend className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">
+                Side
+              </legend>
+              <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Side">
+                {FILM_SIDES.map((option) => (
                   <button
+                    key={option.id}
                     type="button"
-                    onClick={() => setSelectedSheetId(null)}
-                    className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
-                      selectedSheetId === null ? toggleOn : toggleOff
+                    role="radio"
+                    aria-checked={side === option.id}
+                    onClick={() => setSide(option.id)}
+                    className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm font-semibold transition-colors ${
+                      side === option.id ? toggleOn : toggleOff
                     }`}
                   >
-                    None
+                    {option.label}
                   </button>
-                  {availableSheets.map((sheet) => (
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <TeamCombobox<TeamOption>
+                label={FILM_NEW_GAME_YOUR_TEAM_LABEL}
+                inputId="film-my-playbook"
+                selected={myTeamPick}
+                onSelect={setMyTeamPick}
+                options={allTeamOptions}
+                recentOptions={recentTeamOptions}
+                loading={setupLoading}
+                placeholder="Select your team"
+                nextFocusRef={opponentInputRef}
+              />
+
+              <TeamCombobox<TeamOption>
+                label="Opponent"
+                inputId="film-opponent"
+                inputRef={opponentInputRef}
+                selected={opponentPick}
+                onSelect={setOpponentPick}
+                options={allTeamOptions}
+                recentOptions={recentTeamOptions}
+                loading={setupLoading}
+                placeholder="Select opponent"
+                nextFocusRef={playbookInputRef}
+              />
+            </div>
+
+            <label className="block space-y-1 md:max-w-2xl">
+              <span className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">
+                Session name
+              </span>
+              <input
+                type="text"
+                value={sessionName}
+                onChange={(e) => setSessionName(e.target.value)}
+                placeholder="Select both teams to auto-fill"
+                className="hs-input block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              />
+            </label>
+
+            {needsOffensePlaybook ? (
+              <div className="space-y-1 md:max-w-2xl">
+                <TeamCombobox<OffensiveTeam>
+                  label={FILM_NEW_GAME_PLAYBOOK_LABEL}
+                  inputId="film-offensive-playbook"
+                  inputRef={playbookInputRef}
+                  selected={playbookRow}
+                  onSelect={(row) => {
+                    setSelectedPlaybookName(row?.playbook_name ?? null);
+                  }}
+                  options={playbookOptions}
+                  loading={setupLoading}
+                  placeholder="Select playbook"
+                  getOptionLabel={playbookOptionLabel}
+                  getOptionKey={(row) => row.playbook_name}
+                  getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
+                  getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
+                  optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
+                />
+                {!usePlaybookSelect ? (
+                  <p className="font-body text-xs text-slate-500">Playbook list is unavailable.</p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {needsDefensePlaybook ? (
+              <div className="space-y-1 md:max-w-2xl">
+                <TeamCombobox<DefensiveTeam>
+                  label={defensePlaybookRequired ? "Defensive playbook" : "Defensive playbook (optional)"}
+                  inputId="film-defensive-playbook"
+                  selected={defenseSchemeRow}
+                  onSelect={(row) => setSelectedDefenseScheme(row?.defensive_scheme ?? null)}
+                  options={defenseSchemeOptions}
+                  loading={setupLoading}
+                  placeholder="Select defensive playbook"
+                  getOptionLabel={(row) => row.defensive_scheme}
+                  getOptionKey={(row) => row.defensive_scheme}
+                  getSearchText={(row) => row.defensive_scheme}
+                />
+              </div>
+            ) : null}
+
+            {needsOffensePlaybook && selectedPlaybookName ? (
+              <div className="space-y-2 md:max-w-2xl">
+                <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play Sheet</p>
+                {sheetsLoading ? (
+                  <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
+                ) : availableSheets.length === 0 ? (
+                  <p className="font-body text-xs text-slate-500">
+                    No play sheets for this playbook yet.{" "}
+                    <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">
+                      Create one in Play Sheet
+                    </a>
+                    .
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      key={sheet.id}
                       type="button"
-                      onClick={() => setSelectedSheetId(sheet.id)}
+                      onClick={() => setSelectedSheetId(null)}
                       className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
-                        selectedSheetId === sheet.id ? toggleOn : toggleOff
+                        selectedSheetId === null ? toggleOn : toggleOff
                       }`}
                     >
-                      {sheet.name}
+                      None
                     </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : null}
+                    {availableSheets.map((sheet) => (
+                      <button
+                        key={sheet.id}
+                        type="button"
+                        onClick={() => setSelectedSheetId(sheet.id)}
+                        className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
+                          selectedSheetId === sheet.id ? toggleOn : toggleOff
+                        }`}
+                      >
+                        {sheet.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
 
-          <Button type="submit" variant="default" className="w-full py-3 text-sm" disabled={!canContinue || submitBusy}>
-            {submitBusy ? "Starting…" : FILM_NEW_GAME_CTA}
-          </Button>
-        </form>
+            <Button type="submit" variant="default" className="w-full py-3 text-sm" disabled={!canContinue || submitBusy}>
+              {submitBusy ? "Starting…" : FILM_NEW_GAME_CTA}
+            </Button>
+          </form>
         )}
       </div>
     </section>

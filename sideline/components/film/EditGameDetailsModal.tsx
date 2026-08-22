@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
 import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import {
   getCatalogPlaybookSection,
   PLAYBOOK_CATALOG_SECTIONS,
@@ -27,6 +28,28 @@ type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: s
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 type TeamOption = { team_name: string };
 type CfbPlaybookRow = { playbook: string | null };
+
+const RECENT_TEAM_LIMIT = 5;
+
+function collectRecentTeamNames(
+  rows: Array<{ my_playbook?: string | null; opponent_team?: string | null }>,
+  limit: number,
+): string[] {
+  const seen = new Set<string>();
+  const ordered: string[] = [];
+  for (const row of rows) {
+    for (const raw of [row.my_playbook, row.opponent_team]) {
+      const name = String(raw ?? "").trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      ordered.push(name);
+      if (ordered.length >= limit) return ordered;
+    }
+  }
+  return ordered;
+}
 
 function playbookOptionLabel(row: OffensiveTeam): string {
   if (row.playbook_name.trim() === row.team_name.trim()) {
@@ -105,11 +128,12 @@ export function EditGameDetailsModal({
   );
   const [setupError, setSetupError] = useState<string | null>(null);
 
-  const [offensePick, setOffensePick] = useState<TeamOption | null>(null);
-  const [defensePick, setDefensePick] = useState<DefensiveTeam | null>(null);
+  const [myTeamPick, setMyTeamPick] = useState<TeamOption | null>(null);
+  const [opponentPick, setOpponentPick] = useState<TeamOption | null>(null);
   const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
   const [form, setForm] = useState({ my_score: "0", opponent_score: "0", result: "W" as "W" | "L" });
   const [saveBusy, setSaveBusy] = useState(false);
+  const [recentTeamNames, setRecentTeamNames] = useState<string[]>([]);
   type SheetOption = { id: string; name: string };
   const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
   const [sheetsLoading, setSheetsLoading] = useState(false);
@@ -187,13 +211,52 @@ export function EditGameDetailsModal({
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      const { data, error } = await supabase
+        .from("game_sessions")
+        .select("my_playbook, opponent_team, created_at, import_source")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(40);
+
+      if (cancelled || error) return;
+
+      const rows = (data ?? []).filter(
+        (row) => row.import_source !== GAME_SESSION_IMPORT_SOURCE_ONBOARDING,
+      );
+      setRecentTeamNames(collectRecentTeamNames(rows, RECENT_TEAM_LIMIT));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase]);
+
   const allTeamOptions = useMemo<TeamOption[]>(() => {
     const names = new Set(defensiveTeams.map((t) => t.team_name.trim()).filter(Boolean));
     names.add(game.my_playbook.trim());
+    if (game.opponent_team.trim()) names.add(game.opponent_team.trim());
     return [...names]
       .sort((a, b) => a.localeCompare(b))
       .map((team_name) => ({ team_name }));
-  }, [defensiveTeams, game.my_playbook]);
+  }, [defensiveTeams, game.my_playbook, game.opponent_team]);
+
+  const recentTeamOptions = useMemo<TeamOption[]>(() => {
+    if (recentTeamNames.length === 0 || allTeamOptions.length === 0) return [];
+    const byName = new Map(allTeamOptions.map((row) => [row.team_name.toLowerCase(), row]));
+    const out: TeamOption[] = [];
+    for (const name of recentTeamNames) {
+      const match = byName.get(name.toLowerCase());
+      if (match) out.push(match);
+    }
+    return out;
+  }, [recentTeamNames, allTeamOptions]);
 
   const playbookOptions = useMemo<OffensiveTeam[]>(() => {
     const base = uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, "Multiple");
@@ -245,9 +308,8 @@ export function EditGameDetailsModal({
   }, [selectedPlaybookName]);
 
   const hydrateFromGame = useCallback(() => {
-    setOffensePick({ team_name: game.my_playbook });
-    const opp = defensiveTeams.find((t) => t.team_name === game.opponent_team);
-    setDefensePick(opp ?? { team_name: game.opponent_team, defensive_scheme: game.opponent_scheme });
+    setMyTeamPick({ team_name: game.my_playbook });
+    setOpponentPick({ team_name: game.opponent_team });
     const ob = (game.offensive_playbook ?? "").trim();
     setSelectedPlaybookName(ob.length ? ob : null);
     setSelectedSheetId(game.play_sheet_id ?? null);
@@ -256,7 +318,7 @@ export function EditGameDetailsModal({
       opponent_score: String(game.opponent_score ?? 0),
       result: game.result === "L" ? "L" : "W",
     });
-  }, [game, defensiveTeams]);
+  }, [game]);
 
   useEffect(() => {
     hydrateFromGame();
@@ -267,14 +329,15 @@ export function EditGameDetailsModal({
     hydrateFromGame();
   }, [isOpen, hydrateFromGame]);
 
-  const canSave = Boolean(offensePick && defensePick && playbookRow && !setupLoading);
+  const canSave = Boolean(myTeamPick && opponentPick && playbookRow && !setupLoading);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!offensePick || !defensePick || !playbookRow) return;
+    if (!myTeamPick || !opponentPick || !playbookRow) return;
 
-    const myRes = await supabase.from("team_offensive_playbooks").select("scheme_style").eq("team_name", offensePick.team_name.trim()).single();
-    const myScheme = myRes.data?.scheme_style?.trim() || game.my_scheme;
+    // Prefer the selected playbook's scheme — do not re-derive from the team name
+    // (that would overwrite defense-created sessions that store D metadata in my_scheme).
+    const myScheme = playbookRow.scheme_style.trim() || game.my_scheme;
 
     setSaveBusy(true);
     try {
@@ -282,11 +345,10 @@ export function EditGameDetailsModal({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          my_playbook: offensePick.team_name.trim(),
+          my_playbook: myTeamPick.team_name.trim(),
           my_scheme: myScheme,
           offensive_playbook: playbookRow.playbook_name.trim(),
-          opponent_team: defensePick.team_name.trim(),
-          opponent_scheme: defensePick.defensive_scheme.trim(),
+          opponent_team: opponentPick.team_name.trim(),
           my_score: Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0),
           opponent_score: Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0),
           result: form.result,
@@ -358,22 +420,24 @@ export function EditGameDetailsModal({
                 <TeamCombobox<TeamOption>
                   label="Your Team"
                   inputId="edit-film-my-team"
-                  selected={offensePick}
-                  onSelect={setOffensePick}
+                  selected={myTeamPick}
+                  onSelect={setMyTeamPick}
                   options={allTeamOptions}
+                  recentOptions={recentTeamOptions}
                   loading={setupLoading}
                   placeholder="Select your team"
                   nextFocusRef={opponentInputRef}
                   openOnFocus={false}
                 />
 
-                <TeamCombobox<DefensiveTeam>
+                <TeamCombobox<TeamOption>
                   label="Opponent"
                   inputId="edit-film-opponent"
                   inputRef={opponentInputRef}
-                  selected={defensePick}
-                  onSelect={setDefensePick}
-                  options={defensiveTeams}
+                  selected={opponentPick}
+                  onSelect={setOpponentPick}
+                  options={allTeamOptions}
+                  recentOptions={recentTeamOptions}
                   loading={setupLoading}
                   placeholder="Select opponent"
                   nextFocusRef={playbookInputRef}

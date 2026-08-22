@@ -70,7 +70,8 @@ export async function POST(req: NextRequest) {
     my_scheme: String(body.my_scheme ?? "").trim(),
     offensive_playbook: offensivePlaybook,
     opponent_team: String(body.opponent_team ?? "").trim(),
-    opponent_scheme: String(body.opponent_scheme ?? "").trim(),
+    opponent_scheme:
+      typeof body.opponent_scheme === "string" ? body.opponent_scheme.trim() : "",
     game_date: typeof body.game_date === "string" && body.game_date.trim() ? body.game_date.trim() : gameDate,
     my_score: Number.isFinite(Number(body.my_score)) ? Number(body.my_score) : 0,
     opponent_score: Number.isFinite(Number(body.opponent_score)) ? Number(body.opponent_score) : 0,

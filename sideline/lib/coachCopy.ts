@@ -104,6 +104,10 @@ export const ONBOARDING_GAME_READY = "Practice game ready.";
 export const FILM_ROOM_EMPTY_HEADLINE = "You've got a plan. Now call the game.";
 export const FILM_ROOM_EMPTY_BODY = "Log your first real game and see what actually works.";
 export const FILM_ROOM_EMPTY_CTA = "Start your first game";
+export const FILM_ROOM_HOME_TITLE = "Film Room";
+export const filmRoomHomeCountLabel = (count: number) =>
+  `${count} game${count === 1 ? "" : "s"}`;
+export const APP_SHELL_NEW_GAME_LABEL = "New Game";
 
 /** Film `/film/new` — first real game setup (required: your team, opponent, playbook). */
 export const FILM_NEW_GAME_TITLE = "Start a game";

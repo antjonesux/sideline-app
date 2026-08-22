@@ -4,6 +4,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-22 — Film Room Pass 1: session list + creation flow migration
+
+### What
+
+- Migrated Film Room session list and creation flow into the new app shell.
+- Creation flow: default side to Offense, auto-generate session name from team matchup, surface recently used teams in pickers, stripped opponent playbook selection.
+- Edit modal updated to match stripped creation flow.
+- Removed import flow entry points from session list.
+- Deleted legacy `film/new/preview` redirect stub.
+- API: opponent playbook now optional on create and update.
+- Enabled **Film Room** in app shell sidebar/drawer (`/film`) — removed Coming Soon badge and dead link.
+- Restyled Film Room landing to match Call Sheets / Schemes home (header CTA, workspace shell, card list).
+- Film game cards use the shared home card chrome without team initial avatars.
+
+### Why
+
+Pass 1 of 4-pass Film Room shell migration. Streamlines session creation for the most common use case (offensive play-calling review for a dynasty coach playing the same team repeatedly).
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-21 — Film Room pre-migration: dead code cleanup
 
 ### What

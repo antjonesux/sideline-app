@@ -22,15 +22,15 @@ function AppShellMenuHeaderSkeleton({
 
 function FilmGameCardSkeleton() {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-2">
-      <SkeletonBlock className="h-5 w-3/4 max-w-md" />
-      <SkeletonBlock className="h-3 w-48 max-w-full" />
-      <SkeletonBlock className="h-8 w-36 max-w-[50%]" />
-      <div className="flex gap-3 pt-1">
-        <SkeletonBlock className="h-3 w-16" />
-        <SkeletonBlock className="h-3 w-16" />
-        <SkeletonBlock className="h-3 w-16" />
-        <SkeletonBlock className="h-3 w-16" />
+    <div
+      className="rounded-xl border border-slate-800 bg-slate-900 p-4 md:rounded-2xl md:px-5 md:py-4"
+      aria-hidden
+    >
+      <div className="min-w-0 space-y-2">
+        <SkeletonBlock className="h-5 w-2/3 max-w-xs md:h-[15px]" />
+        <SkeletonBlock className="h-4 w-40 md:h-[13px]" />
+        <SkeletonBlock className="h-6 w-24" />
+        <SkeletonBlock className="h-3 w-56 max-w-full" />
       </div>
     </div>
   );
@@ -55,21 +55,15 @@ function TendenciesFiltersSkeleton() {
   );
 }
 
-/** Film room list — header, optional new-game card, game cards. */
+/** Film room list — header with create action and game cards. */
 export function FilmRoomSkeleton() {
   return (
-    <section className="space-y-6" aria-busy="true" aria-label="Loading film room">
-      <header className="space-y-4">
-        <AppShellMenuHeaderSkeleton />
-        <div className="grid grid-cols-1 gap-3">
-          <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 space-y-2">
-            <SkeletonBlock className="h-5 w-28" />
-            <SkeletonBlock className="h-3 w-full max-w-xs" />
-          </div>
-        </div>
-        <div className="border-b border-slate-700" aria-hidden />
-      </header>
-      <ul className="space-y-3">
+    <section className="flex min-h-[60vh] flex-col gap-6 md:gap-8" aria-busy="true" aria-label="Loading film room">
+      <div className={appShellWorkspaceInnerClass}>
+        <AppShellMenuHeaderSkeleton trailing trailingClassName="hidden md:block" />
+        <SkeletonBlock className="mt-2 hidden h-4 w-24 md:block" />
+      </div>
+      <ul className={`${appShellWorkspaceInnerClass} flex flex-col gap-3`}>
         {[0, 1, 2].map((i) => (
           <li key={i}>
             <FilmGameCardSkeleton />

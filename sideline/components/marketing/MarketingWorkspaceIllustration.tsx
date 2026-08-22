@@ -42,12 +42,7 @@ const WORKSPACE_NAV: {
 }[] = [
   { label: CALL_SHEET_MENU_LABEL, icon: ClipboardList, active: true },
   { label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Headset, active: false },
-  {
-    label: CALL_SHEET_VIEWER_MENU_REVIEW,
-    icon: Video,
-    active: false,
-    comingSoon: true,
-  },
+  { label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video, active: false },
   { label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings, active: false },
 ];
 

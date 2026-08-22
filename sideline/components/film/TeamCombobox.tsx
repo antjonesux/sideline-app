@@ -40,6 +40,11 @@ type TeamComboboxProps<T extends { team_name: string }> = {
   /** Group dropdown rows under section headers (e.g. team vs generic playbooks). */
   getOptionSection?: (item: T) => string;
   optionSections?: { id: string; label: string }[];
+  /**
+   * Recently used teams surfaced above the full list (recency only — never pre-selected).
+   * Ignored when empty. Other TeamCombobox callers can omit this.
+   */
+  recentOptions?: T[];
 };
 
 function visibleTeams<T extends { team_name: string }>(
@@ -71,6 +76,7 @@ export function TeamCombobox<T extends { team_name: string }>({
   disabled = false,
   getOptionSection,
   optionSections,
+  recentOptions,
 }: TeamComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -83,7 +89,21 @@ export function TeamCombobox<T extends { team_name: string }>({
   const innerInputRef = useRef<HTMLInputElement>(null);
   const setInputRef = mergeRefs(innerInputRef, inputRefProp);
 
-  const filtered = useMemo(() => visibleTeams(options, filterText, optionSearchText), [options, filterText, optionSearchText]);
+  const filteredRecent = useMemo(() => {
+    if (!recentOptions?.length) return [];
+    return visibleTeams(recentOptions, filterText, optionSearchText);
+  }, [recentOptions, filterText, optionSearchText]);
+
+  const recentKeys = useMemo(
+    () => new Set(filteredRecent.map((item) => optionKey(item))),
+    [filteredRecent, optionKey],
+  );
+
+  const filtered = useMemo(() => {
+    const base = visibleTeams(options, filterText, optionSearchText);
+    if (recentKeys.size === 0) return base;
+    return base.filter((item) => !recentKeys.has(optionKey(item)));
+  }, [options, filterText, optionSearchText, recentKeys, optionKey]);
 
   const groupedFiltered = useMemo(() => {
     if (!getOptionSection || !optionSections?.length) return null;
@@ -99,6 +119,31 @@ export function TeamCombobox<T extends { team_name: string }>({
       .map((section) => ({ ...section, items: buckets.get(section.id) ?? [] }))
       .filter((section) => section.items.length > 0);
   }, [filtered, getOptionSection, optionSections]);
+
+  const pickOption = useCallback(
+    (item: T) => {
+      onSelect(item);
+      setFilterText("");
+      setOpen(false);
+      requestAnimationFrame(() => nextFocusRef?.current?.focus());
+    },
+    [onSelect, nextFocusRef],
+  );
+
+  const renderOptionButton = useCallback(
+    (item: T) => (
+      <button
+        key={optionKey(item)}
+        type="button"
+        className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => pickOption(item)}
+      >
+        {optionLabel(item)}
+      </button>
+    ),
+    [optionKey, optionLabel, pickOption],
+  );
 
   const updateDropPosition = useCallback(() => {
     const el = innerInputRef.current;
@@ -215,49 +260,31 @@ export function TeamCombobox<T extends { team_name: string }>({
                 {emptyOptionsMessage ??
                   "No teams returned from Supabase. In ./sideline run npm run seed:teams (service role in .env.local), or check the browser Network tab for failed PostgREST requests."}
               </div>
-            ) : filtered.length === 0 ? (
+            ) : filtered.length === 0 && filteredRecent.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-400">No teams match that search.</div>
-            ) : groupedFiltered ? (
-              groupedFiltered.map((section) => (
-                <div key={section.id}>
-                  <div className="sticky top-0 border-b border-slate-800 bg-slate-900/95 px-3 py-1.5 font-sans text-[10px] font-normal uppercase tracking-widest text-slate-500">
-                    {section.label}
-                  </div>
-                  {section.items.map((item) => (
-                    <button
-                      key={optionKey(item)}
-                      type="button"
-                      className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        onSelect(item);
-                        setFilterText("");
-                        setOpen(false);
-                        requestAnimationFrame(() => nextFocusRef?.current?.focus());
-                      }}
-                    >
-                      {optionLabel(item)}
-                    </button>
-                  ))}
-                </div>
-              ))
             ) : (
-              filtered.map((item) => (
-                <button
-                  key={optionKey(item)}
-                  type="button"
-                  className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    onSelect(item);
-                    setFilterText("");
-                    setOpen(false);
-                    requestAnimationFrame(() => nextFocusRef?.current?.focus());
-                  }}
-                >
-                  {optionLabel(item)}
-                </button>
-              ))
+              <>
+                {filteredRecent.length > 0 ? (
+                  <div>
+                    <div className="sticky top-0 border-b border-slate-800 bg-slate-900/95 px-3 py-1.5 font-sans text-[10px] font-normal uppercase tracking-widest text-slate-500">
+                      Recent
+                    </div>
+                    {filteredRecent.map((item) => renderOptionButton(item))}
+                  </div>
+                ) : null}
+                {groupedFiltered ? (
+                  groupedFiltered.map((section) => (
+                    <div key={section.id}>
+                      <div className="sticky top-0 border-b border-slate-800 bg-slate-900/95 px-3 py-1.5 font-sans text-[10px] font-normal uppercase tracking-widest text-slate-500">
+                        {section.label}
+                      </div>
+                      {section.items.map((item) => renderOptionButton(item))}
+                    </div>
+                  ))
+                ) : (
+                  filtered.map((item) => renderOptionButton(item))
+                )}
+              </>
             )}
           </div>
         ) : null}
