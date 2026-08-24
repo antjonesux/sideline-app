@@ -1,7 +1,10 @@
+import type { CatalogSideOfBall } from "@/lib/constants";
+import { resolveDefensiveDisplayPlayType } from "@/lib/defensivePlayTypeResolution";
 import {
   deriveFormationGroup,
   resolveCfbBrowserPlayType,
   resolveFormationSection,
+  type CatalogPlayType,
   type PlaybookEntry,
 } from "@/lib/playbook";
 import type { SheetScenarioBlock } from "@/lib/types";
@@ -13,7 +16,21 @@ type Cfb26ApiRow = {
   formation_type?: string | null;
 };
 
-export async function fetchCfb26PlaybookEntries(playbook: string): Promise<PlaybookEntry[]> {
+function catalogPlayTypeForSide(
+  playName: string,
+  rawType: string | null | undefined,
+  sideOfBall: CatalogSideOfBall,
+): CatalogPlayType {
+  if (sideOfBall === "defense") {
+    return resolveDefensiveDisplayPlayType(playName, rawType) ?? "ZONE";
+  }
+  return resolveCfbBrowserPlayType(playName, rawType);
+}
+
+export async function fetchCfb26PlaybookEntries(
+  playbook: string,
+  catalogSideOfBall: CatalogSideOfBall = "offense",
+): Promise<PlaybookEntry[]> {
   if (!playbook.trim()) return [];
   const res = await fetch(`/api/cfb26-plays?playbook=${encodeURIComponent(playbook)}&list=all`);
   const json = (await res.json()) as { rows?: Cfb26ApiRow[]; error?: string };
@@ -23,7 +40,7 @@ export async function fetchCfb26PlaybookEntries(playbook: string): Promise<Playb
     formation: row.formation,
     group: resolveFormationSection(row.formation, row.formation_type),
     play_name: row.play_name,
-    play_type: resolveCfbBrowserPlayType(row.play_name, row.play_type),
+    play_type: catalogPlayTypeForSide(row.play_name, row.play_type, catalogSideOfBall),
   }));
 }
 
@@ -37,6 +54,7 @@ type SheetPlaysApiRow = {
 export async function fetchPlaySheetScenarioCalls(
   sheetId: string,
   scenarioLabel: string,
+  catalogSideOfBall: CatalogSideOfBall = "offense",
 ): Promise<{ sheetCalls: PlaybookEntry[]; sheetName: string | null }> {
   const res = await fetch(
     `/api/playbook/${sheetId}/plays?scenario=${encodeURIComponent(scenarioLabel)}&slim=1`,
@@ -53,7 +71,7 @@ export async function fetchPlaySheetScenarioCalls(
       formation,
       group: deriveFormationGroup(formation),
       play_name,
-      play_type: resolveCfbBrowserPlayType(play_name, rawType),
+      play_type: catalogPlayTypeForSide(play_name, rawType, catalogSideOfBall),
     };
   });
   return { sheetCalls, sheetName: json.sheetName?.trim() || null };

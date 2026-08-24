@@ -9,6 +9,7 @@ export type DrivePlayTableRow = {
   formation: string;
   play_name: string;
   result_tag: string;
+  result_tags?: string[] | null;
   yards_gained: number | null;
   down: number | null;
   distance: number | null;

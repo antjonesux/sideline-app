@@ -75,6 +75,7 @@ create table if not exists logged_plays (
 alter table logged_plays add column if not exists drive_number int;
 alter table logged_plays add column if not exists situation_override text;
 alter table logged_plays add column if not exists is_inches boolean default false;
+alter table logged_plays add column if not exists result_tags text[] default null;
 alter table drives add column if not exists starting_down int check (starting_down between 1 and 4);
 alter table drives add column if not exists starting_distance int check (starting_distance >= 1);
 alter table drives add column if not exists starting_absolute_yard int check (starting_absolute_yard between 1 and 99);

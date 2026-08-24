@@ -6,12 +6,24 @@
 -- Backfill strategy (Option A): play_sheets.playbook stores the catalog playbook name
 -- (e.g. "Ohio State"), matching playbooks.playbook — NOT an ID.
 
--- 1. Ensure canonical playbook value (prefer explicit cfb26_playbook when set)
-update play_sheets
-set playbook = coalesce(nullif(trim(cfb26_playbook), ''), playbook)
-where cfb26_playbook is not null;
+-- 1. Ensure canonical playbook value (prefer explicit cfb26_playbook when set).
+-- Some DBs never had the duplicate column (playbook was always canonical).
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'play_sheets'
+      and column_name = 'cfb26_playbook'
+  ) then
+    update play_sheets
+    set playbook = coalesce(nullif(trim(cfb26_playbook), ''), playbook)
+    where cfb26_playbook is not null;
+  end if;
+end $$;
 
--- 2. Drop duplicate column
+-- 2. Drop duplicate column (no-op when never added)
 alter table play_sheets drop column if exists cfb26_playbook;
 
 -- 3. Add game_version (nullable for backfill)

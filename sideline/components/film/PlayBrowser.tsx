@@ -62,6 +62,8 @@ interface PlayBrowserProps {
   catalogGameVersion?: CatalogGameVersion;
   /** Film logger browse: play-art rows via `AddPlayBrowseRow` + `onSelect` (tap to log). */
   showPlayArtRows?: boolean;
+  /** Inline browse with no tabs: search flows into formations without a divider under the field. */
+  hideSearchSeparator?: boolean;
 }
 
 export type PlaySheetAddNav = {
@@ -79,6 +81,10 @@ function stripGroupPrefix(formationName: string, groupName: string): string {
 }
 
 export { stripGroupPrefix as stripFormationGroupPrefix };
+
+function formationGroupHeaderClassName(index: number): string {
+  return `px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${index > 0 ? "mt-4" : ""}`;
+}
 
 export function PlayBrowser({
   playbook,
@@ -101,6 +107,7 @@ export function PlayBrowser({
   catalogSideOfBall,
   catalogGameVersion,
   showPlayArtRows = false,
+  hideSearchSeparator = false,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
@@ -113,7 +120,7 @@ export function PlayBrowser({
   const playsResultsScrollClass = usePageScrollResults
     ? "w-full py-4"
     : "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain";
-  const catalog = useFormationGroups(qaStaticEntries ? "" : playbook);
+  const catalog = useFormationGroups(qaStaticEntries ? "" : playbook, artSideOfBall);
   const groups = qaStaticEntries ? formationGroupsFromEntries(qaStaticEntries) : catalog.groups;
   const entries = qaStaticEntries ?? catalog.entries;
   const loading = qaStaticEntries ? false : catalog.loading;
@@ -230,7 +237,9 @@ export function PlayBrowser({
       className={`relative z-[2] w-full shrink-0 ${
         playSheetAddLayout
           ? "sticky top-0 z-10 bg-slate-950 px-4 py-3"
-          : "border-b border-slate-700 bg-slate-900"
+          : hideSearchSeparator
+            ? "bg-slate-900"
+            : "border-b border-slate-700 bg-slate-900"
       }`}
     >
       <div className={`flex w-full items-center gap-3 ${playSheetAddLayout ? "" : "px-4 py-3"}`}>
@@ -400,13 +409,7 @@ export function PlayBrowser({
             ) : (
               displayGroups.map((group, index) => (
                 <div key={group.group}>
-                  <div
-                    className={`px-4 py-2 ${
-                      playSheetAddLayout
-                        ? `font-sans text-xs font-normal uppercase tracking-widest text-slate-500 ${index > 0 ? "mt-4" : "mt-1"}`
-                        : `font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400 ${index > 0 ? "mt-4" : ""}`
-                    }`}
-                  >
+                  <div className={formationGroupHeaderClassName(index)}>
                     {group.group.toUpperCase()}
                   </div>
                   <div className={`grid w-full grid-cols-2 px-4 ${playSheetAddLayout ? "gap-3" : "gap-2"}`}>

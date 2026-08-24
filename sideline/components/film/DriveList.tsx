@@ -36,7 +36,6 @@ type DriveListProps = {
   onRequestDeletePlay: (playId: string) => void;
   onOpenLogger: (driveId: string) => void;
   onShowDriveSetup: () => void;
-  showPartialWarning: boolean;
 };
 
 export function DriveList({
@@ -51,22 +50,26 @@ export function DriveList({
   onRequestDeletePlay,
   onOpenLogger,
   onShowDriveSetup,
-  showPartialWarning,
 }: DriveListProps) {
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
+  const sortedDrives = useMemo(
+    () => [...drives].sort((a, b) => b.drive_number - a.drive_number),
+    [drives],
+  );
 
   return (
     <div className="space-y-4">
-      {drives.length === 0 ? (
+      {sortedDrives.length === 0 ? (
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center font-sans text-sm text-slate-400">
           No drives yet.
         </div>
       ) : null}
 
       <div className="flex flex-col gap-3">
-        {drives.map((drive) => {
+        {sortedDrives.map((drive) => {
           const playCount = drive.plays?.length ?? 0;
           const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
+          const showOutcomeBadge = outcomeLabel !== "ACTIVE";
           const isExpanded = expandedDriveIds.includes(drive.id);
           const mine = drive.score_mine ?? 0;
           const theirs = drive.score_opponent ?? 0;
@@ -100,9 +103,11 @@ export function DriveList({
                   <div className={filmDriveDetailCardTitleRowClass}>
                     <span className={filmDriveDetailCardDriveLabelClass}>DRIVE {drive.drive_number}</span>
                     <DriveSideBadge side={driveSideOfBall(drive)} />
-                    <span className="shrink-0">
-                      <DriveCardOutcomeBadge label={outcomeLabel} />
-                    </span>
+                    {showOutcomeBadge ? (
+                      <span className="shrink-0">
+                        <DriveCardOutcomeBadge label={outcomeLabel} />
+                      </span>
+                    ) : null}
                   </div>
                   <span className={filmDriveDetailCardMetaLineClass}>{metaLine}</span>
                 </button>
@@ -232,7 +237,7 @@ export function DriveList({
             </div>
           );
         })}
-        {drives.length > 0 && !isGameEnded ? (
+        {sortedDrives.length > 0 && !isGameEnded ? (
           <Button
             type="button"
             variant="secondary"
@@ -244,16 +249,6 @@ export function DriveList({
         ) : null}
       </div>
 
-      {showPartialWarning ? (
-        <div
-          className="rounded-xl border border-slate-700 bg-slate-900 p-4 !border-amber-800/50 bg-amber-500/10 text-sm text-amber-100"
-          role="status"
-          aria-live="polite"
-        >
-          <p className="font-medium text-amber-200">Partial film</p>
-          <p className="mt-1 text-amber-100/90">Partial film may skew tendencies.</p>
-        </div>
-      ) : null}
     </div>
   );
 }

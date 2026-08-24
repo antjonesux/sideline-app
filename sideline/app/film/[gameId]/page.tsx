@@ -18,6 +18,14 @@ import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { gameDetailTabTriggerClass, getDriveResult } from "@/lib/filmGameDetailHelpers";
 import { useScrollLock } from "@/lib/useScrollLock";
+import { useMdUp } from "@/lib/useMdUp";
+import {
+  appShellSituationWorkspaceClass,
+  appShellSituationWorkspaceWithBrowseClass,
+  appShellSituationWorkspaceInnerClass,
+  appShellSituationWorkspaceInnerWithBrowseClass,
+} from "@/lib/constants/designTokens";
+import { cn } from "@/lib/utils";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
@@ -59,7 +67,9 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const addToast = useToastStore((s) => s.addToast);
   const loggerOpenFlowIdRef = useRef<string | null>(null);
   const endGameScoresSeededRef = useRef(false);
-  useScrollLock(showLogger);
+  const mdUp = useMdUp();
+  const loggerSidebarOpen = showLogger && mdUp;
+  useScrollLock(showLogger && !mdUp);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string; pruneClosedPossessions?: boolean }) => {
     if (!gameId) return;
@@ -439,8 +449,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       }).length,
     0,
   );
-  const showPartialWarning = totalDrives > 0 && totalPlays < 10;
-
   const isGameEnded = Boolean(game?.ended_at);
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
@@ -464,55 +472,116 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   return (
-    <section className="space-y-0">
-      <GameDetailHeader
-        game={game}
-        stats={{ playCount: totalPlays, driveCount: totalDrives, totalYards, tds, turnovers }}
-        isGameEnded={isGameEnded}
-        endingGame={endingGame}
-        onAddDrive={() => setShowDriveSetup(true)}
-        onEndGame={() => setShowEndGameModal(true)}
-        onResumeGame={() => void setGameEnded(false)}
-      />
-
-      <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v as DetailTab)} className="w-full">
-        <TabsList
-          aria-label="Game detail views"
-          data-film-game-dropdown-clamp
-          className="grid h-auto w-full grid-cols-2 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground"
-        >
-          <TabsTrigger value="drives" className={gameDetailTabTriggerClass}>
-            Drive Summary
-          </TabsTrigger>
-          <TabsTrigger value="tendencies" className={gameDetailTabTriggerClass}>
-            Tendencies
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="pt-3">
-          <TabsContent value="drives" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-            {detailTab === "drives" && game ? (
-              <DriveList
-                drives={drives}
+    <>
+      <div
+        className={cn(
+          loggerSidebarOpen && appShellSituationWorkspaceClass,
+          loggerSidebarOpen && appShellSituationWorkspaceWithBrowseClass,
+          loggerSidebarOpen && "flex min-h-0 flex-col md:flex",
+        )}
+      >
+        <div className={cn(loggerSidebarOpen && "flex min-h-0 flex-1 items-start gap-0")}>
+          <div className="min-w-0 flex-1">
+            <div
+              className={cn(
+                loggerSidebarOpen
+                  ? appShellSituationWorkspaceInnerWithBrowseClass
+                  : appShellSituationWorkspaceInnerClass,
+                "min-w-0 py-0 md:py-1 lg:py-2",
+                !loggerSidebarOpen && "mx-auto",
+              )}
+            >
+              <section className="space-y-0">
+              <GameDetailHeader
+                game={game}
+                stats={{ playCount: totalPlays, driveCount: totalDrives, totalYards, tds, turnovers }}
                 isGameEnded={isGameEnded}
-                lastDriveId={lastDriveId}
-                expandedDriveIds={expandedDriveIds}
-                onExpandedDriveIdsChange={setExpandedDriveIds}
-                onActiveDriveChange={setActiveDrive}
-                onPatchDrive={patchDriveAndPersist}
-                onRequestDeleteDrive={setPendingDriveDelete}
-                onRequestDeletePlay={setPendingPlayDelete}
-                onOpenLogger={openForCreate}
-                onShowDriveSetup={() => setShowDriveSetup(true)}
-                showPartialWarning={showPartialWarning}
+                endingGame={endingGame}
+                onAddDrive={() => setShowDriveSetup(true)}
+                onEndGame={() => setShowEndGameModal(true)}
+                onResumeGame={() => void setGameEnded(false)}
               />
-            ) : null}
-          </TabsContent>
-          <TabsContent value="tendencies" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-            {detailTab === "tendencies" ? <FilmGameTendenciesBody gameId={gameId} /> : null}
-          </TabsContent>
+
+              <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v as DetailTab)} className="w-full">
+                <TabsList
+                  aria-label="Game detail views"
+                  data-film-game-dropdown-clamp
+                  className="grid h-auto w-full grid-cols-2 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground"
+                >
+                  <TabsTrigger value="drives" className={gameDetailTabTriggerClass}>
+                    Drive Summary
+                  </TabsTrigger>
+                  <TabsTrigger value="tendencies" className={gameDetailTabTriggerClass}>
+                    Tendencies
+                  </TabsTrigger>
+                </TabsList>
+
+                <div className="pt-3">
+                  <TabsContent value="drives" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                    {detailTab === "drives" && game ? (
+                      <DriveList
+                        drives={drives}
+                        isGameEnded={isGameEnded}
+                        lastDriveId={lastDriveId}
+                        expandedDriveIds={expandedDriveIds}
+                        onExpandedDriveIdsChange={setExpandedDriveIds}
+                        onActiveDriveChange={setActiveDrive}
+                        onPatchDrive={patchDriveAndPersist}
+                        onRequestDeleteDrive={setPendingDriveDelete}
+                        onRequestDeletePlay={setPendingPlayDelete}
+                        onOpenLogger={openForCreate}
+                        onShowDriveSetup={() => setShowDriveSetup(true)}
+                      />
+                    ) : null}
+                  </TabsContent>
+                  <TabsContent value="tendencies" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                    {detailTab === "tendencies" ? <FilmGameTendenciesBody gameId={gameId} /> : null}
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </section>
+            </div>
+          </div>
+
+          {game && activeDriveObj && loggerSidebarOpen ? (
+            <FilmPlayLoggerOverlay
+              layout="sidebar"
+              open={showLogger}
+              gameId={gameId}
+              game={game}
+              activeDrive={activeDriveObj}
+              loggerOpenFlowId={loggerOpenFlowIdRef.current}
+              totalPlayRowsInGame={totalPlayRowsInGame}
+              totalCoachCallsInGame={totalPlays}
+              allGameCoachCalls={allGameCoachCalls}
+              onClose={() => setShowLogger(false)}
+              onRefresh={refresh}
+              onPossessionEndedAfterLog={(payload) => {
+                void handlePossessionEndedAfterLog(payload);
+              }}
+            />
+          ) : null}
         </div>
-      </Tabs>
+      </div>
+
+      {game && activeDriveObj && showLogger && !mdUp ? (
+        <FilmPlayLoggerOverlay
+          layout="overlay"
+          open={showLogger}
+          gameId={gameId}
+          game={game}
+          activeDrive={activeDriveObj}
+          loggerOpenFlowId={loggerOpenFlowIdRef.current}
+          totalPlayRowsInGame={totalPlayRowsInGame}
+          totalCoachCallsInGame={totalPlays}
+          allGameCoachCalls={allGameCoachCalls}
+          onClose={() => setShowLogger(false)}
+          onRefresh={refresh}
+          onPossessionEndedAfterLog={(payload) => {
+            void handlePossessionEndedAfterLog(payload);
+          }}
+        />
+      ) : null}
 
       <FilmEndGameScoreDialog
         open={showEndGameModal}
@@ -536,24 +605,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           openForCreate(created.id);
         }}
       />
-
-      {game && activeDriveObj ? (
-        <FilmPlayLoggerOverlay
-          open={showLogger}
-          gameId={gameId}
-          game={game}
-          activeDrive={activeDriveObj}
-          loggerOpenFlowId={loggerOpenFlowIdRef.current}
-          totalPlayRowsInGame={totalPlayRowsInGame}
-          totalCoachCallsInGame={totalPlays}
-          allGameCoachCalls={allGameCoachCalls}
-          onClose={() => setShowLogger(false)}
-          onRefresh={refresh}
-          onPossessionEndedAfterLog={(payload) => {
-            void handlePossessionEndedAfterLog(payload);
-          }}
-        />
-      ) : null}
 
       <ConfirmDestructiveModal
         open={pendingDriveDelete !== null}
@@ -610,6 +661,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           }
         }}
       />
-    </section>
+    </>
   );
 }

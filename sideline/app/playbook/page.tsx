@@ -1,5 +1,7 @@
 import { PlaybookHome } from "@/components/playbook/PlaybookHome";
+import { PlaySheetHomeSkeleton } from "@/components/shared/PageSkeleton";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 function first(param: string | string[] | undefined): string | undefined {
   if (Array.isArray(param)) return param[0];
@@ -22,5 +24,9 @@ export default async function PlaybookPage({
     redirect(`/playbook/new${qs ? `?${qs}` : ""}`);
   }
 
-  return <PlaybookHome />;
+  return (
+    <Suspense fallback={<PlaySheetHomeSkeleton />}>
+      <PlaybookHome />
+    </Suspense>
+  );
 }

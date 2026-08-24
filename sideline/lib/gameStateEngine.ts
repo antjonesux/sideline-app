@@ -286,6 +286,9 @@ export function absoluteYardAfterLoggedPlay(
   const snap = snapStateFromPlay(play, fallbackDriveNumber);
   const tag = normalizeStoredResultTag(play.result_tag);
   const y = play.yards_gained ?? 0;
+  if (tag === "TURNOVER" && y !== 0) {
+    return Math.min(99, Math.max(1, snap.absoluteYard + y));
+  }
   const next = advanceGameState(snap, tag, y);
   if (tag === "TOUCHDOWN" || tag === "FIELD_GOAL") return 100;
   return next.absoluteYard;

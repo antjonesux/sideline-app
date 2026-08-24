@@ -5,7 +5,11 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PlayBrowser } from "@/components/film/PlayBrowser";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
+import { AddPlayBrowseRow } from "@/components/playbook/AddPlayBrowseRow";
+import { DefensiveLogSheet } from "@/components/film/DefensiveLogSheet";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
+import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
+import { deriveDefensiveStoredResultTag, type DefensiveResultTag } from "@/lib/defensiveResultTags";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
 import { fetchPlaySheetOverview, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
@@ -112,6 +116,7 @@ export function PlayLoggerV2({
   }, [hasMySheet, pickTab]);
 
   const resolvedCatalogGameVersion = parseCatalogGameVersion(catalogGameVersion ?? undefined);
+  const isDefensiveDrive = driveSideOfBall(drive) === "defense";
 
   useEffect(() => {
     return () => {
@@ -174,7 +179,7 @@ export function PlayLoggerV2({
 
   const mySheetPlaysQuery = useQuery({
     queryKey: filmLoggerQueryKeys.sheetScenario(sheetId ?? "", mySheetSelectedScenario),
-    queryFn: () => fetchPlaySheetScenarioCalls(sheetId as string, mySheetSelectedScenario),
+    queryFn: () => fetchPlaySheetScenarioCalls(sheetId as string, mySheetSelectedScenario, catalogSideOfBall),
     enabled: pickTab === "my_sheet" && Boolean(sheetId?.trim() && mySheetSelectedScenario),
     staleTime: FILM_SHEET_SCENARIO_STALE_MS,
     gcTime: FILM_SHEET_SCENARIO_GC_MS,
@@ -200,68 +205,38 @@ export function PlayLoggerV2({
     setView("yardage");
   }
 
-  async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number, submitFlowId?: string) {
-    if (!selectedPlay) return;
-    const loggedPlay = selectedPlay;
-    const logSelectionSource = playSelectionSource;
-    const logCameFromSheet = logSelectionSource === "sheet";
-    const logScenario = scenarioLabel;
-    const uiTag =
-      result === "PUNT"
-        ? "PUNT"
-        : result === "FIELD_GOAL"
-          ? "FIELD_GOAL"
-          : result === "TURNOVER"
-            ? "TURNOVER"
-          : result === "FG_MISS"
-            ? "TURNOVER"
-            : result === "TOUCHDOWN"
-              ? "TOUCHDOWN"
-              : result === "INCOMPLETE"
-                ? "INCOMPLETE"
-                : result === "SACK"
-                  ? "LOSS"
-                  : yards < 0
-                    ? "LOSS"
-                    : yards === 0
-                      ? "NO_GAIN"
-                      : "GAIN";
-
-    const storedTag = uiTag === "GAIN" ? deriveStoredResultTag("GAIN", Math.max(0, yards), currentGameState.distance) : uiTag;
-    const snap = {
-      down: currentGameState.down,
-      distance: currentGameState.distance,
-      is_inches: Boolean(currentGameState.isInches),
-      yard_line: currentGameState.absoluteYard <= 50 ? currentGameState.absoluteYard : 100 - currentGameState.absoluteYard,
-      side: (currentGameState.absoluteYard <= 50 ? "OWN" : "OPP") as "OWN" | "OPP",
-      hash: "MIDDLE" as const,
-      formation: loggedPlay.formation,
-      play_name: loggedPlay.play_name,
-      result_tag: storedTag,
-      yards_gained: yards,
-      note: null,
-      game_session_id: gameId,
-      opponent_scheme: "",
-      drive_number: drive.drive_number,
-      situation_override: null,
-    };
+  async function persistLoggedPlay(
+    snap: {
+      down: number;
+      distance: number;
+      is_inches: boolean;
+      yard_line: number;
+      side: "OWN" | "OPP";
+      hash: "MIDDLE";
+      formation: string;
+      play_name: string;
+      result_tag: string;
+      yards_gained: number;
+      note: null;
+      game_session_id: string;
+      opponent_scheme: string;
+      drive_number: number;
+      situation_override: null;
+      result_tags?: string[] | null;
+      play_type?: string;
+    },
+    optimisticPlay: LoggedPlay,
+    meta: {
+      loggedPlay: PlaybookEntry;
+      logSelectionSource: typeof playSelectionSource;
+      logCameFromSheet: boolean;
+      logScenario: string;
+      submitFlowId?: string;
+    },
+  ) {
+    const { loggedPlay, logSelectionSource, logCameFromSheet, logScenario, submitFlowId } = meta;
     const allPlaysAfterLog = totalPlayRowsInGame + 1;
     const coachCallsAfterLog = totalCoachCallsInGame + (isCoachCallPlay(snap) ? 1 : 0);
-    const optimisticPlay: LoggedPlay = {
-      id: `optimistic-${Date.now()}`,
-      play_number: mergedPlays.length + 1,
-      drive_number: drive.drive_number,
-      down: snap.down,
-      distance: snap.distance,
-      is_inches: snap.is_inches,
-      yard_line: snap.yard_line,
-      side: snap.side,
-      hash: snap.hash,
-      formation: snap.formation,
-      play_name: snap.play_name,
-      result_tag: snap.result_tag,
-      yards_gained: snap.yards_gained,
-    };
 
     setOptimistic((p) => [...p, optimisticPlay]);
     setSelectedPlay(null);
@@ -301,13 +276,6 @@ export function PlayLoggerV2({
           source: "film_logger",
         });
       }
-      /**
-       * First-pass `play_call_changed_based_on_app_data` (not full causal proof):
-       * The coach successfully logged a play that was selected from an app-curated surface
-       * (YOUR CALLS = scenario play sheet, Situational tab suggestions = situation-weighted picks, or
-       * Film-only Punt/Field Goal picks from Browse Playbook’s Special Teams section).
-       * Other unguided PlayBrowser catalog picks do not emit. Passive viewing without logging does not emit.
-       */
       const appCurated =
         logSelectionSource === "sheet" ||
         logSelectionSource === "situation_suggestions" ||
@@ -350,6 +318,133 @@ export function PlayLoggerV2({
         });
       }
     }
+  }
+
+  async function handleDefensiveLog(
+    resultTags: DefensiveResultTag[],
+    yards: number,
+    _endingFieldPos: number,
+    submitFlowId?: string,
+  ) {
+    if (!selectedPlay) return;
+    const loggedPlay = selectedPlay;
+    const logSelectionSource = playSelectionSource;
+    const logCameFromSheet = logSelectionSource === "sheet";
+    const logScenario = scenarioLabel;
+    const storedTag = deriveDefensiveStoredResultTag(resultTags, yards, currentGameState.distance);
+    const snap = {
+      down: currentGameState.down,
+      distance: currentGameState.distance,
+      is_inches: Boolean(currentGameState.isInches),
+      yard_line: currentGameState.absoluteYard <= 50 ? currentGameState.absoluteYard : 100 - currentGameState.absoluteYard,
+      side: (currentGameState.absoluteYard <= 50 ? "OWN" : "OPP") as "OWN" | "OPP",
+      hash: "MIDDLE" as const,
+      formation: loggedPlay.formation,
+      play_name: loggedPlay.play_name,
+      play_type: loggedPlay.play_type,
+      result_tag: storedTag,
+      yards_gained: yards,
+      result_tags: resultTags,
+      note: null,
+      game_session_id: gameId,
+      opponent_scheme: "",
+      drive_number: drive.drive_number,
+      situation_override: null,
+    };
+    const optimisticPlay: LoggedPlay = {
+      id: `optimistic-${Date.now()}`,
+      play_number: mergedPlays.length + 1,
+      drive_number: drive.drive_number,
+      down: snap.down,
+      distance: snap.distance,
+      is_inches: snap.is_inches,
+      yard_line: snap.yard_line,
+      side: snap.side,
+      hash: snap.hash,
+      formation: snap.formation,
+      play_name: snap.play_name,
+      result_tag: snap.result_tag,
+      yards_gained: snap.yards_gained,
+      result_tags: snap.result_tags,
+    };
+    await persistLoggedPlay(snap, optimisticPlay, {
+      loggedPlay,
+      logSelectionSource,
+      logCameFromSheet,
+      logScenario,
+      submitFlowId,
+    });
+  }
+
+  async function handleLog(yards: number, result: PlayResult | null, _endingFieldPos: number, submitFlowId?: string) {
+    if (!selectedPlay) return;
+    const loggedPlay = selectedPlay;
+    const logSelectionSource = playSelectionSource;
+    const logCameFromSheet = logSelectionSource === "sheet";
+    const logScenario = scenarioLabel;
+    const uiTag =
+      result === "PUNT"
+        ? "PUNT"
+        : result === "FIELD_GOAL"
+          ? "FIELD_GOAL"
+          : result === "TURNOVER"
+            ? "TURNOVER"
+          : result === "FG_MISS"
+            ? "TURNOVER"
+            : result === "TOUCHDOWN"
+              ? "TOUCHDOWN"
+              : result === "INCOMPLETE"
+                ? "INCOMPLETE"
+                : result === "SACK"
+                  ? "LOSS"
+                  : yards < 0
+                    ? "LOSS"
+                    : yards === 0
+                      ? "NO_GAIN"
+                      : "GAIN";
+
+    const storedTag = uiTag === "GAIN" ? deriveStoredResultTag("GAIN", Math.max(0, yards), currentGameState.distance) : uiTag;
+    const snap = {
+      down: currentGameState.down,
+      distance: currentGameState.distance,
+      is_inches: Boolean(currentGameState.isInches),
+      yard_line: currentGameState.absoluteYard <= 50 ? currentGameState.absoluteYard : 100 - currentGameState.absoluteYard,
+      side: (currentGameState.absoluteYard <= 50 ? "OWN" : "OPP") as "OWN" | "OPP",
+      hash: "MIDDLE" as const,
+      formation: loggedPlay.formation,
+      play_name: loggedPlay.play_name,
+      play_type: loggedPlay.play_type,
+      result_tag: storedTag,
+      yards_gained: yards,
+      note: null,
+      game_session_id: gameId,
+      opponent_scheme: "",
+      drive_number: drive.drive_number,
+      situation_override: null,
+    };
+    const optimisticPlay: LoggedPlay = {
+      id: `optimistic-${Date.now()}`,
+      play_number: mergedPlays.length + 1,
+      drive_number: drive.drive_number,
+      down: snap.down,
+      distance: snap.distance,
+      is_inches: snap.is_inches,
+      yard_line: snap.yard_line,
+      side: snap.side,
+      hash: snap.hash,
+      formation: snap.formation,
+      play_name: snap.play_name,
+      result_tag: snap.result_tag,
+      yards_gained: snap.yards_gained,
+    };
+
+    await persistLoggedPlay(snap, optimisticPlay, {
+      loggedPlay,
+      logSelectionSource,
+      logCameFromSheet,
+      logScenario,
+      submitFlowId,
+    });
   }
 
   async function handleConfirmDeletePlay(play: LoggedPlay) {
@@ -459,27 +554,25 @@ export function PlayLoggerV2({
         }`}
       >
         {view === "suggestions" ? (
-          <Tabs
-            value={pickTab}
-            onValueChange={(v) => setPickTab(v as LoggerPickTab)}
-            className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden"
-          >
-            <TabsList
-              aria-label="Play pick views"
-              className={`grid h-auto w-full shrink-0 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground ${hasMySheet ? "grid-cols-2" : "grid-cols-1"}`}
+          hasMySheet ? (
+            <Tabs
+              value={pickTab}
+              onValueChange={(v) => setPickTab(v as LoggerPickTab)}
+              className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden"
             >
-              {hasMySheet ? (
+              <TabsList
+                aria-label="Play pick views"
+                className="grid h-auto w-full shrink-0 grid-cols-2 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground"
+              >
                 <TabsTrigger value="my_sheet" className={filmLoggerPickTabTriggerClass}>
                   My Call Sheet
                 </TabsTrigger>
-              ) : null}
-              <TabsTrigger value="browse" className={filmLoggerPickTabTriggerClass}>
-                Browse
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger value="browse" className={filmLoggerPickTabTriggerClass}>
+                  Browse
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="relative z-[5] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
-              {hasMySheet ? (
+              <div className="relative z-[5] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
                 <TabsContent
                   value="my_sheet"
                   className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
@@ -513,12 +606,17 @@ export function PlayLoggerV2({
                       {mySheetPlaysQuery.isPending ? (
                         <p className="font-sans text-sm text-slate-500">Loading plays…</p>
                       ) : mySheetDisplayPlays.length > 0 ? (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col overflow-hidden rounded-lg border border-slate-700/50">
                           {mySheetDisplayPlays.map((play) => (
-                            <PlayRow
+                            <AddPlayBrowseRow
                               key={`sheet-${mySheetSelectedScenario}-${play.play_id}`}
                               play={play}
+                              formationLabel={play.formation}
+                              inGoTo={false}
                               onSelect={(p) => handlePlaySelect(p, "sheet")}
+                              catalogSideOfBall={catalogSideOfBall}
+                              catalogGameVersion={resolvedCatalogGameVersion}
+                              catalogPlaybook={playbook}
                             />
                           ))}
                         </div>
@@ -530,39 +628,64 @@ export function PlayLoggerV2({
                     </div>
                   </div>
                 </TabsContent>
-              ) : null}
 
-              <TabsContent
-                value="browse"
-                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
-              >
-                <PlayBrowser
-                  playbook={playbook}
-                  presentation="inline"
-                  onClose={() => {}}
-                  showTopLevelBack={false}
-                  onSelect={(play) => handlePlaySelect(play, "browser")}
-                  showPlayArtRows
-                  catalogSideOfBall={catalogSideOfBall}
-                  catalogGameVersion={resolvedCatalogGameVersion}
-                />
-              </TabsContent>
-            </div>
-          </Tabs>
+                <TabsContent
+                  value="browse"
+                  className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
+                >
+                  <PlayBrowser
+                    playbook={playbook}
+                    presentation="inline"
+                    onClose={() => {}}
+                    showTopLevelBack={false}
+                    onSelect={(play) => handlePlaySelect(play, "browser")}
+                    showPlayArtRows
+                    catalogSideOfBall={catalogSideOfBall}
+                    catalogGameVersion={resolvedCatalogGameVersion}
+                  />
+                </TabsContent>
+              </div>
+            </Tabs>
+          ) : (
+            <PlayBrowser
+              playbook={playbook}
+              presentation="inline"
+              onClose={() => {}}
+              showTopLevelBack={false}
+              onSelect={(play) => handlePlaySelect(play, "browser")}
+              showPlayArtRows
+              catalogSideOfBall={catalogSideOfBall}
+              catalogGameVersion={resolvedCatalogGameVersion}
+              hideSearchSeparator
+            />
+          )
         ) : null}
 
         {view === "yardage" && selectedPlay ? (
-          <YardageSheet
-            play={selectedPlay}
-            currentGameState={currentGameState}
-            onLog={handleLog}
-            onboardingSpotHelper={guidedOnboarding}
-            onCancel={() => {
-              setView("suggestions");
-              setSelectedPlay(null);
-              setPlaySelectionSource(null);
-            }}
-          />
+          isDefensiveDrive ? (
+            <DefensiveLogSheet
+              play={selectedPlay}
+              currentGameState={currentGameState}
+              onLog={handleDefensiveLog}
+              onCancel={() => {
+                setView("suggestions");
+                setSelectedPlay(null);
+                setPlaySelectionSource(null);
+              }}
+            />
+          ) : (
+            <YardageSheet
+              play={selectedPlay}
+              currentGameState={currentGameState}
+              onLog={handleLog}
+              onboardingSpotHelper={guidedOnboarding}
+              onCancel={() => {
+                setView("suggestions");
+                setSelectedPlay(null);
+                setPlaySelectionSource(null);
+              }}
+            />
+          )
         ) : null}
       </div>
 

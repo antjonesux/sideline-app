@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import type { CatalogSideOfBall } from "@/lib/constants";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { sortFormationTypes } from "@/lib/playbooks/formation-types";
 import { fetchCfb26PlaybookEntries } from "@/lib/filmLoggerCatalogFetch";
@@ -37,10 +38,10 @@ export function formationGroupsFromEntries(rows: PlaybookEntry[]): FormationGrou
 const CATALOG_STALE_MS = 5 * 60 * 1000;
 const CATALOG_GC_MS = 45 * 60 * 1000;
 
-export function useFormationGroups(playbook: string) {
+export function useFormationGroups(playbook: string, catalogSideOfBall: CatalogSideOfBall = "offense") {
   const catalogQuery = useQuery({
-    queryKey: filmLoggerQueryKeys.cfb26Catalog(playbook),
-    queryFn: () => fetchCfb26PlaybookEntries(playbook),
+    queryKey: filmLoggerQueryKeys.cfb26Catalog(playbook, catalogSideOfBall),
+    queryFn: () => fetchCfb26PlaybookEntries(playbook, catalogSideOfBall),
     enabled: Boolean(playbook.trim()),
     staleTime: CATALOG_STALE_MS,
     gcTime: CATALOG_GC_MS,

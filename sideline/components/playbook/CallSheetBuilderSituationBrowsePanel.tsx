@@ -1,11 +1,7 @@
 "use client";
 
 import { AddPlayDrawer } from "@/components/playbook/AddPlayDrawer";
-import {
-  appShellBrowsePanelSubtitleClass,
-  appShellBrowsePanelTitleClass,
-} from "@/lib/constants/designTokens";
-import { cn } from "@/lib/utils";
+import { SituationSideRail } from "@/components/shared/SituationSideRail";
 
 /** Tablet / desktop add-play & browse-playbook side rail (Session 11). */
 export function CallSheetBuilderSituationBrowsePanel({
@@ -45,54 +41,32 @@ export function CallSheetBuilderSituationBrowsePanel({
   catalogSideOfBall?: import("@/lib/constants").CatalogSideOfBall;
   catalogGameVersion?: import("@/lib/constants").CatalogGameVersion;
 }) {
-  if (!open) return null;
-
   return (
-    <aside
-      className={cn(
-        "app-shell-situation-browse-panel hidden min-h-0 min-w-0 flex-col border-l border-slate-800/80 bg-slate-950 md:flex",
-      )}
-      aria-label={panelTitle}
+    <SituationSideRail
+      open={open}
+      title={panelTitle}
+      subtitle={panelSubtitle}
+      onClose={onClose}
+      closeAriaLabel="Close play browser"
     >
-      <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-800/80 bg-slate-950 px-5 py-4">
-        <div className="min-w-0">
-          <h2 className={cn(appShellBrowsePanelTitleClass, "truncate")}>{panelTitle}</h2>
-          {panelSubtitle ? (
-            <p className={cn(appShellBrowsePanelSubtitleClass, "truncate")}>{panelSubtitle}</p>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          className="inline-flex size-7 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-800/60 hover:text-white"
-          onClick={onClose}
-          aria-label="Close play browser"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-            <path d="M6 6 18 18M18 6 6 18" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="flex min-w-0 flex-col">
-        <AddPlayDrawer
-          open
-          shell="panel"
-          onClose={onClose}
-          cfb26Playbook={cfb26Playbook}
-          scenarioName={scenarioName}
-          onPick={onPick}
-          showGoToStar={showGoToStar}
-          goToPlayKeys={goToPlayKeys}
-          goToBusyComboKey={goToBusyComboKey}
-          onToggleGoTo={onToggleGoTo}
-          addedPlayKeys={addedPlayKeys}
-          addDisabled={addDisabled}
-          qaStaticEntries={qaStaticEntries}
-          qaInitialUi={qaInitialUi}
-          catalogSideOfBall={catalogSideOfBall}
-          catalogGameVersion={catalogGameVersion}
-        />
-      </div>
-    </aside>
+      <AddPlayDrawer
+        open
+        shell="panel"
+        onClose={onClose}
+        cfb26Playbook={cfb26Playbook}
+        scenarioName={scenarioName}
+        onPick={onPick}
+        showGoToStar={showGoToStar}
+        goToPlayKeys={goToPlayKeys}
+        goToBusyComboKey={goToBusyComboKey}
+        onToggleGoTo={onToggleGoTo}
+        addedPlayKeys={addedPlayKeys}
+        addDisabled={addDisabled}
+        qaStaticEntries={qaStaticEntries}
+        qaInitialUi={qaInitialUi}
+        catalogSideOfBall={catalogSideOfBall}
+        catalogGameVersion={catalogGameVersion}
+      />
+    </SituationSideRail>
   );
 }

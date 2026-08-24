@@ -1,18 +1,20 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { buildTendenciesGamePayload, type DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
+import { cfbPlayTypeMapOptionsForDriveSide, type GameSessionForPlayType } from "@/lib/playTypeResolution";
 import { withNormalizedPlayName } from "@/lib/utils";
-import { fetchCfbPlayTypeMap, playbookForGame, type GameRow } from "@/lib/tendenciesServer";
+import { fetchCfbPlayTypeMap, parseSideOfBallFilter, playbookForTendenciesSide, type GameRow } from "@/lib/tendenciesServer";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_: NextRequest, ctx: Ctx) {
+export async function GET(req: NextRequest, ctx: Ctx) {
   const supabase = await createClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await ctx.params;
+  const sideOfBall = parseSideOfBallFilter(req.nextUrl.searchParams.get("side_of_ball"));
   const [gameRes, driveRes] = await Promise.all([
     supabase.from("game_sessions").select("*").eq("id", id).eq("user_id", user.id).single(),
     supabase
@@ -31,12 +33,16 @@ export async function GET(_: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500 });
   }
 
-  const g = game as GameRow;
-  const pb = playbookForGame(g);
-  const driveList = driveRows ?? [];
+  const g = game as GameRow & { opponent_scheme?: string | null };
+  const pb = playbookForTendenciesSide(g, sideOfBall);
+  const driveList = (driveRows ?? []).filter((d) => (d.side_of_ball ?? "offense") === sideOfBall);
 
   const [cfbTypes, playRows] = await Promise.all([
-    fetchCfbPlayTypeMap(supabase, [pb]),
+    fetchCfbPlayTypeMap(
+      supabase,
+      [pb],
+      sideOfBall === "defense" ? cfbPlayTypeMapOptionsForDriveSide(g as GameSessionForPlayType, "defense") : undefined,
+    ),
     Promise.all(
       driveList.map((d) =>
         supabase
@@ -70,7 +76,7 @@ export async function GET(_: NextRequest, ctx: Ctx) {
     };
   });
 
-  const breakdown = buildTendenciesGamePayload(g, drives, cfbTypes);
+  const breakdown = buildTendenciesGamePayload(g, drives, cfbTypes, pb);
 
   return NextResponse.json({
     game: g,

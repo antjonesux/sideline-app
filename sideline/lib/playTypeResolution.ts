@@ -20,21 +20,49 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { parseCatalogGameVersion } from "@/lib/constants";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
-import { resolveCfbDisplayPlayType, type PlaybookEntry } from "@/lib/playbook";
+import {
+  resolveDefensiveDisplayPlayType,
+  type DefensivePlayType,
+} from "@/lib/defensivePlayTypeResolution";
+import { resolveCfbDisplayPlayType, type OffensiveCatalogPlayType, type PlaybookEntry } from "@/lib/playbook";
 import { normalizePlayName } from "@/lib/utils";
-import { fetchCfbPlayTypeMap, playbookForGame, playTypeLookupKey, type GameRow } from "@/lib/tendenciesServer";
+import {
+  fetchCfbPlayTypeMap,
+  playbookForGame,
+  playTypeLookupKey,
+  type CfbPlayTypeMapOptions,
+  type GameRow,
+} from "@/lib/tendenciesServer";
 
 export type CanonicalPlayType = PlaybookEntry["play_type"];
 
-export { fetchCfbPlayTypeMap, playbookForGame, playTypeLookupKey, type GameRow } from "@/lib/tendenciesServer";
+export {
+  fetchCfbPlayTypeMap,
+  playbookForGame,
+  playTypeLookupKey,
+  type CfbPlayTypeMapOptions,
+  type GameRow,
+} from "@/lib/tendenciesServer";
+
+/** Playbook label for play-type lookup — offense uses coach playbook; defense uses opponent scheme catalog. */
+export function playbookForDriveSide(
+  game: GameRow & { opponent_scheme?: string | null },
+  sideOfBall: "offense" | "defense",
+): string {
+  if (sideOfBall === "defense") {
+    return String(game.opponent_scheme ?? "").trim();
+  }
+  return playbookForGame(game);
+}
 
 /** Prefer granular `playbooks.play_type` from the lookup map, then stored `logged_plays.play_type`, then name ladder (same as Tendencies `attachPlayTypes`). */
 export function coalesceCfbAndLoggedPlayType(
   playName: string,
   fromCfbLookup: string | undefined,
   loggedPlayType: string | null | undefined,
-): CanonicalPlayType {
+): OffensiveCatalogPlayType {
   if ((fromCfbLookup ?? "").trim()) {
     return resolveCfbDisplayPlayType(playName, fromCfbLookup);
   }
@@ -47,9 +75,42 @@ export function coalesceCfbAndLoggedPlayType(
 export async function loadCfbPlayTypeMapForPlaybooks(
   supabase: SupabaseClient,
   playbooks: string[],
+  options?: CfbPlayTypeMapOptions,
 ): Promise<Map<string, string>> {
   const books = [...new Set(playbooks.map((p) => p.trim()).filter(Boolean))];
-  return fetchCfbPlayTypeMap(supabase, books);
+  return fetchCfbPlayTypeMap(supabase, books, options);
+}
+
+export type GameSessionForPlayType = GameRow & {
+  opponent_scheme?: string | null;
+  game_version?: string | null;
+};
+
+/** Catalog lookup options for a logged drive — defense uses scheme catalog + session game version. */
+export function cfbPlayTypeMapOptionsForDriveSide(
+  game: GameSessionForPlayType,
+  sideOfBall: "offense" | "defense",
+): CfbPlayTypeMapOptions | undefined {
+  if (sideOfBall !== "defense") return undefined;
+  return {
+    sideOfBall: "defense",
+    gameVersion: parseCatalogGameVersion(game.game_version ?? undefined),
+  };
+}
+
+export async function loadCfbPlayTypeMapForDriveSide(
+  supabase: SupabaseClient,
+  game: GameSessionForPlayType,
+  sideOfBall: "offense" | "defense",
+): Promise<{ playbook: string; typeMap: Map<string, string> }> {
+  const playbook = playbookForDriveSide(game, sideOfBall);
+  if (!playbook) return { playbook: "", typeMap: new Map() };
+  const typeMap = await loadCfbPlayTypeMapForPlaybooks(
+    supabase,
+    [playbook],
+    cfbPlayTypeMapOptionsForDriveSide(game, sideOfBall),
+  );
+  return { playbook, typeMap };
 }
 
 export function storedPlayTypeFromMap(
@@ -58,10 +119,32 @@ export function storedPlayTypeFromMap(
   playName: string,
   map: Map<string, string>,
   existingLoggedType: string | null | undefined,
-): CanonicalPlayType {
+): OffensiveCatalogPlayType {
   const key = playTypeLookupKey(offensivePlaybookLabel, formation, playName);
   const fromCfb = map.get(key);
   return coalesceCfbAndLoggedPlayType(playName, fromCfb, existingLoggedType);
+}
+
+/** Defensive drives — MAN/ZONE/BLITZ/MATCH from name ladder; never offensive RUN/PASS/RPO. */
+export function storedDefensivePlayType(
+  playName: string,
+  existingLoggedType: string | null | undefined,
+): DefensivePlayType | null {
+  return resolveDefensiveDisplayPlayType(playName, existingLoggedType);
+}
+
+export function storedPlayTypeForDriveSide(
+  sideOfBall: "offense" | "defense",
+  playbookLabel: string,
+  formation: string,
+  playName: string,
+  map: Map<string, string>,
+  existingLoggedType: string | null | undefined,
+): CanonicalPlayType | null {
+  if (sideOfBall === "defense") {
+    return storedDefensivePlayType(playName, existingLoggedType);
+  }
+  return storedPlayTypeFromMap(playbookLabel, formation, playName, map, existingLoggedType);
 }
 
 const SPECIAL_TEAMS_FORMATION_LC = FILM_LOGGER_SPECIAL_TEAMS_PLAYS[0]?.formation.trim().toLowerCase() ?? "";

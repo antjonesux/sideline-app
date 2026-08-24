@@ -1,7 +1,17 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
+import {
+  cfbPlayTypeMapOptionsForDriveSide,
+  loadCfbPlayTypeMapForDriveSide,
+  loadCfbPlayTypeMapForPlaybooks,
+  playbookForDriveSide,
+  playbookForGame,
+  storedPlayTypeForDriveSide,
+  storedPlayTypeFromMap,
+  type GameSessionForPlayType,
+} from "@/lib/playTypeResolution";
 import { createClient } from "@/lib/supabase/server";
 import { withNormalizedPlayName } from "@/lib/utils";
+import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { NextRequest, NextResponse } from "next/server";
 import type { PostgrestError } from "@supabase/supabase-js";
 
@@ -27,7 +37,7 @@ export async function GET(_: NextRequest, ctx: Ctx) {
       .order("drive_number", { ascending: true }),
     supabase
       .from("game_sessions")
-      .select("id, my_playbook, offensive_playbook")
+      .select("id, my_playbook, offensive_playbook, opponent_scheme, game_version")
       .eq("id", id)
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -37,10 +47,21 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 
   const { data: gameSession } = gameRes;
   const drivesList = data ?? [];
-  const pb = gameSession ? playbookForGame(gameSession as GameRow) : "";
+  const gameForPlayType = gameSession as GameSessionForPlayType | null;
+  const offensivePb = gameForPlayType ? playbookForGame(gameForPlayType) : "";
+  const defensivePb = gameForPlayType ? playbookForDriveSide(gameForPlayType, "defense") : "";
 
-  const [typeMap, playRows] = await Promise.all([
-    loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []),
+  const [offTypeMap, defTypeMap, playRows] = await Promise.all([
+    offensivePb
+      ? loadCfbPlayTypeMapForPlaybooks(supabase, [offensivePb])
+      : Promise.resolve(new Map<string, string>()),
+    defensivePb && gameForPlayType
+      ? loadCfbPlayTypeMapForPlaybooks(
+          supabase,
+          [defensivePb],
+          cfbPlayTypeMapOptionsForDriveSide(gameForPlayType, "defense"),
+        )
+      : Promise.resolve(new Map<string, string>()),
     Promise.all(
       drivesList.map((drive) =>
         supabase
@@ -55,13 +76,18 @@ export async function GET(_: NextRequest, ctx: Ctx) {
 
   const withPlays = drivesList.map((drive, i) => {
     const { data: plays } = playRows[i] ?? { data: null };
+    const side = gameForPlayType != null ? driveSideOfBall(drive) : "offense";
+    const pb =
+      gameForPlayType != null ? playbookForDriveSide(gameForPlayType, side) : offensivePb;
+    const typeMap = side === "defense" ? defTypeMap : offTypeMap;
     return {
       ...drive,
       plays: (plays ?? []).map((p) => {
         const normalized = withNormalizedPlayName(p);
         return {
           ...normalized,
-          play_type: storedPlayTypeFromMap(
+          play_type: storedPlayTypeForDriveSide(
+            side,
             pb,
             normalized.formation,
             normalized.play_name,

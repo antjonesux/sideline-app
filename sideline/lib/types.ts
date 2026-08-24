@@ -36,11 +36,13 @@ export type LoggedPlay = {
   play_name: string;
   yards_gained: number;
   result_tag: string;
+  /** Defensive drives only — multi-select outcome tags; null on offensive plays. */
+  result_tags?: string[] | null;
   /** When persisted: absolute line 1–99 on field, or 100 for end zone (e.g. TD). */
   ending_field_position?: number | null;
   note?: string | null;
-  /** Canonical RUN | PASS | RPO from `playbooks`, kept in sync on write. */
-  play_type?: "RUN" | "PASS" | "RPO" | null;
+  /** Offense: RUN | PASS | RPO. Defense: MAN | ZONE | BLITZ | MATCH (resolved at read time). */
+  play_type?: "RUN" | "PASS" | "RPO" | "MAN" | "ZONE" | "BLITZ" | "MATCH" | null;
   /** UX flag when distance is 1 — stored as distance 1; same scenario buckets as 1 yard. */
   is_inches?: boolean | null;
 };

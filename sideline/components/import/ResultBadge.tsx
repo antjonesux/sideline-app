@@ -3,18 +3,18 @@ function classesForResult(raw: string): string {
   const u = raw.trim().toUpperCase().replace(/_/g, " ");
   if (u === "FIRST DOWN" || u === "TOUCHDOWN" || u === "FIELD GOAL") return "border-emerald-600/80 bg-emerald-900/45 text-emerald-200";
   if (u === "GAIN") return "border-sky-600/80 bg-sky-900/40 text-sky-200";
-  if (u === "SACK" || u === "LOSS" || u === "TURNOVER") return "border-red-700/80 bg-red-900/40 text-red-200";
+  if (u === "SACK" || u === "LOSS" || u === "TURNOVER" || u === "INTERCEPTION" || u === "FUMBLE" || u === "TFL") return "border-red-700/80 bg-red-900/40 text-red-200";
   if (u === "TURNOVER ON DOWNS" || u === "TOD") return "border-amber-600/80 bg-amber-900/45 text-amber-200";
   if (u === "INCOMPLETE" || u === "NO GAIN" || u === "PUNT") return "border-slate-700 bg-slate-900 text-slate-400";
   if (u === "PENALTY") return "border-amber-600/80 bg-amber-900/40 text-amber-200";
   return "border-slate-700 bg-slate-900 text-slate-400";
 }
 
-export function ResultBadge({ label }: { label: string }) {
+export function ResultBadge({ label, className }: { label: string; className?: string }) {
   const display = label.replace(/_/g, " ");
   return (
     <span
-      className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wide ${classesForResult(label)}`}
+      className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wide ${className ?? classesForResult(label)}`}
     >
       {display}
     </span>

@@ -1,8 +1,15 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
-import { loadCfbPlayTypeMapForPlaybooks, playbookForGame, storedPlayTypeFromMap, type GameRow } from "@/lib/playTypeResolution";
+import {
+  loadCfbPlayTypeMapForDriveSide,
+  storedPlayTypeForDriveSide,
+  storedPlayTypeFromMap,
+  type GameSessionForPlayType,
+} from "@/lib/playTypeResolution";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlayName, withNormalizedPlayName } from "@/lib/utils";
 import { deriveFieldZone, deriveScenario } from "@/lib/derivePlayContext";
+import { normalizeDefensiveResultTags } from "@/lib/defensiveResultTags";
+import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -27,23 +34,53 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
   const formation = String(payload.formation ?? "");
   const play_name = normalizePlayName(String(payload.play_name ?? ""));
 
-  const { data: existing } = await supabase.from("logged_plays").select("game_session_id, play_type").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const { data: existing } = await supabase
+    .from("logged_plays")
+    .select("game_session_id, play_type, drive_id")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
   const sessionId = String(existing?.game_session_id ?? "");
   let pb = "";
   let typeMap = new Map<string, string>();
+  let driveSide: "offense" | "defense" = "offense";
   if (sessionId) {
-    const { data: gs } = await supabase
-      .from("game_sessions")
-      .select("my_playbook, offensive_playbook")
-      .eq("id", sessionId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const [{ data: gs }, { data: driveRow }] = await Promise.all([
+      supabase
+        .from("game_sessions")
+        .select("my_playbook, offensive_playbook, opponent_scheme, game_version")
+        .eq("id", sessionId)
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      existing?.drive_id
+        ? supabase.from("drives").select("side_of_ball").eq("id", existing.drive_id).eq("user_id", user.id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
     if (gs) {
-      pb = playbookForGame(gs as GameRow);
-      typeMap = await loadCfbPlayTypeMapForPlaybooks(supabase, pb ? [pb] : []);
+      driveSide = driveSideOfBall(driveRow ?? {});
+      const resolved = await loadCfbPlayTypeMapForDriveSide(
+        supabase,
+        gs as GameSessionForPlayType,
+        driveSide,
+      );
+      pb = resolved.playbook;
+      typeMap = resolved.typeMap;
     }
   }
-  const play_type = storedPlayTypeFromMap(pb, formation, play_name, typeMap, existing?.play_type ?? null);
+  const resolvedDisplayType = storedPlayTypeForDriveSide(
+    driveSide,
+    pb,
+    formation,
+    play_name,
+    typeMap,
+    existing?.play_type ?? null,
+  );
+  const play_type =
+    driveSide === "defense"
+      ? "RUN"
+      : storedPlayTypeFromMap(pb, formation, play_name, typeMap, existing?.play_type ?? null);
+  const resultTags =
+    payload.result_tags !== undefined ? normalizeDefensiveResultTags(payload.result_tags) : undefined;
 
   const updateRow = {
     down,
@@ -58,6 +95,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     play_name,
     yards_gained: Number(payload.yards_gained),
     result_tag: String(payload.result_tag ?? ""),
+    ...(resultTags !== undefined ? { result_tags: resultTags } : {}),
     note: typeof payload.note === "string" ? payload.note : null,
     opponent_scheme: String(payload.opponent_scheme ?? ""),
     situation_override: scenarioOverride || null,
@@ -70,9 +108,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     .update(updateRow)
     .eq("id", id)
     .eq("user_id", user.id)
-    .select(
-      "id, drive_id, game_session_id, play_number, drive_number, down, distance, is_inches, yard_line, side, hash, field_zone, scenario, formation, play_name, yards_gained, result_tag, note, opponent_scheme, situation_override, created_at, play_type",
-    )
+    .select("*")
     .single();
 
   if (error) {
@@ -84,13 +120,16 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     data: normalized
       ? {
           ...normalized,
-          play_type: storedPlayTypeFromMap(
-            pb,
-            normalized.formation,
-            normalized.play_name,
-            typeMap,
-            (normalized as { play_type?: string | null }).play_type,
-          ),
+          play_type:
+            resolvedDisplayType ??
+            storedPlayTypeForDriveSide(
+              driveSide,
+              pb,
+              normalized.formation,
+              normalized.play_name,
+              typeMap,
+              (normalized as { play_type?: string | null }).play_type,
+            ),
         }
       : normalized,
   });

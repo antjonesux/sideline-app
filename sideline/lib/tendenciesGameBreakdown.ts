@@ -96,10 +96,15 @@ function formatPlayLine(f: string, n: string) {
   return `${f} → ${n}`;
 }
 
-export function buildTendenciesGamePayload(game: GameRow, drives: DriveWithPlays[], cfbTypes: Map<string, string>) {
+export function buildTendenciesGamePayload(
+  game: GameRow,
+  drives: DriveWithPlays[],
+  cfbTypes: Map<string, string>,
+  catalogPlaybookLabel?: string,
+) {
   const plays = drives.flatMap((d) => d.plays);
   const gamesById = new Map<string, GameRow>([[game.id, game]]);
-  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes);
+  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes, catalogPlaybookLabel);
   const buckets = typedPlays.map((b) => b.bucket);
 
   const classifiedBuckets = typedPlays.filter((row) => row.matched).map((row) => row.bucket);

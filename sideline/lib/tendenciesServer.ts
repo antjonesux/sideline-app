@@ -4,7 +4,7 @@ import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
-import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, SCOUTING_REPORT_SCENARIOS } from "@/lib/constants";
+import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, SCOUTING_REPORT_SCENARIOS, parseCatalogGameVersion, type CatalogGameVersion, type CatalogSideOfBall } from "@/lib/constants";
 import {
   categorizeCfbPlayType,
   deriveCfbPlayTypeFromName,
@@ -49,6 +49,20 @@ function isPunt(play: Pick<LoggedPlayRow, "play_name" | "result_tag">): boolean 
 export function parseScope(raw: string | null): TendencyScope {
   if (raw === "last5" || raw === "last10" || raw === "opponent") return raw;
   return "all";
+}
+
+/** Game-detail tendencies tab: filter logged plays by drive side (defaults to offense). */
+export function parseSideOfBallFilter(raw: string | null | undefined): "offense" | "defense" {
+  return raw === "defense" ? "defense" : "offense";
+}
+
+/** Resolved playbook for tendencies aggregation on a given side of ball. */
+export function playbookForTendenciesSide(
+  g: Pick<GameRow, "offensive_playbook" | "my_playbook"> & { opponent_scheme?: string | null },
+  side: "offense" | "defense",
+): string {
+  if (side === "defense") return (g.opponent_scheme ?? "").trim();
+  return playbookForGame(g);
 }
 
 /** Resolved playbook label for a session (matches film UI / `COALESCE(offensive_playbook, my_playbook)`). */
@@ -176,13 +190,23 @@ export function playTypeLookupKey(playbook: string, formation: string, playName:
   return `${normalizeLookupPart(playbook)}|${normalizeLookupPart(formation)}|${normalizePlayName(playName).toLowerCase()}`;
 }
 
+export type CfbPlayTypeMapOptions = {
+  sideOfBall?: CatalogSideOfBall;
+  gameVersion?: CatalogGameVersion | string;
+};
+
 export async function fetchCfbPlayTypeMap(
   supabase: SupabaseClient,
   playbooks: string[],
+  options?: CfbPlayTypeMapOptions,
 ): Promise<Map<PlayLookupKey, string>> {
   const books = [...new Set(playbooks.map((p) => p.trim()).filter(Boolean))];
   const map = new Map<PlayLookupKey, string>();
   if (books.length === 0) return map;
+
+  const gameVersion = options?.gameVersion?.trim()
+    ? parseCatalogGameVersion(options.gameVersion)
+    : CFB_CATALOG_GAME_VERSION;
 
   const chunkSize = 8;
   for (let i = 0; i < books.length; i += chunkSize) {
@@ -192,10 +216,13 @@ export async function fetchCfbPlayTypeMap(
       .filter(Boolean)
       .map((book) => `playbook.ilike."${book}"`)
       .join(",");
-    const withPlayTypeQuery = supabase
+    let withPlayTypeQuery = supabase
       .from("playbooks")
       .select("playbook, formation, play_name, play_type")
-      .eq("game_version", CFB_CATALOG_GAME_VERSION);
+      .eq("game_version", gameVersion);
+    if (options?.sideOfBall) {
+      withPlayTypeQuery = withPlayTypeQuery.eq("side_of_ball", options.sideOfBall);
+    }
     let data: { playbook: unknown; formation: unknown; play_name: unknown; play_type?: unknown }[] | null = null;
     let error: { message?: string } | null = null;
     const withPlayTypeResult = ilikeFilters ? await withPlayTypeQuery.or(ilikeFilters) : await withPlayTypeQuery.in("playbook", slice);
@@ -205,10 +232,13 @@ export async function fetchCfbPlayTypeMap(
       error && typeof error === "object" && "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
     if (errorMessage && /play_type/i.test(errorMessage) && /column/i.test(errorMessage)) {
       console.warn("[Tendencies] playbooks.play_type missing; falling back to play_name-derived type.");
-      const fallbackQuery = supabase
+      let fallbackQuery = supabase
         .from("playbooks")
         .select("playbook, formation, play_name")
-        .eq("game_version", CFB_CATALOG_GAME_VERSION);
+        .eq("game_version", gameVersion);
+      if (options?.sideOfBall) {
+        fallbackQuery = fallbackQuery.eq("side_of_ball", options.sideOfBall);
+      }
       const fallbackResult = ilikeFilters ? await fallbackQuery.or(ilikeFilters) : await fallbackQuery.in("playbook", slice);
       data = ((fallbackResult.data ?? []) as { playbook: unknown; formation: unknown; play_name: unknown }[]).map((row) => ({
         ...row,
@@ -236,10 +266,13 @@ export function attachPlayTypes(
   plays: LoggedPlayRow[],
   gamesById: Map<string, GameRow>,
   cfbTypes: Map<PlayLookupKey, string>,
+  catalogPlaybookLabel?: string,
 ): { bucket: PlayTypeBucket; matched: boolean; rawType: string }[] {
   return plays.map((p) => {
     const g = gamesById.get(p.game_session_id);
-    const pb = g ? playbookForGame(g) : "";
+    const pb =
+      (catalogPlaybookLabel ?? "").trim() ||
+      (g ? playbookForGame(g) : "");
     const key = pb ? playTypeLookupKey(pb, p.formation, p.play_name) : "";
     const matched = key ? cfbTypes.has(key) : false;
     // QA24: Tendencies prefer `playbooks.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Play Sheet UI reads the same column through `/api/cfb26-plays` + scenario enrichment.

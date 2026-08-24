@@ -1,4 +1,8 @@
 import { categorizeCfbPlayType, deriveCfbPlayTypeFromName } from "@/lib/tendenciesPlayType";
+import type { DefensivePlayType } from "@/lib/defensivePlayTypeResolution";
+
+export type OffensiveCatalogPlayType = "RUN" | "PASS" | "RPO";
+export type CatalogPlayType = OffensiveCatalogPlayType | DefensivePlayType;
 
 /** Personnel / numbered calls like "94 WILL" — often runs even when `playbooks.play_type` says pass. */
 export function playNameLooksLikeNumberedPersonnelCall(name: string): boolean {
@@ -46,10 +50,10 @@ export type PlaybookEntry = {
   formation: string;
   group: string;
   play_name: string;
-  play_type: "RUN" | "PASS" | "RPO";
+  play_type: CatalogPlayType;
 };
 
-export function inferPlayType(name: string): PlaybookEntry["play_type"] {
+export function inferPlayType(name: string): OffensiveCatalogPlayType {
   const n = name.toLowerCase();
   if (n.includes("rpo")) return "RPO";
   if (
@@ -89,14 +93,14 @@ export function inferPlayType(name: string): PlaybookEntry["play_type"] {
 export function resolveCfbDisplayPlayType(
   playName: string,
   dbPlayType: string | null | undefined,
-): PlaybookEntry["play_type"] {
+): OffensiveCatalogPlayType {
   const trimmed = (dbPlayType ?? "").trim();
   const upper = trimmed.toUpperCase();
   if (upper === "RUN" || upper === "PASS" || upper === "RPO") {
     if (upper === "PASS" && shouldOverrideCfbPassLabelToRun(playName, trimmed)) {
       return "RUN";
     }
-    return upper as PlaybookEntry["play_type"];
+    return upper as OffensiveCatalogPlayType;
   }
 
   if (shouldOverrideCfbPassLabelToRun(playName, trimmed)) {
@@ -118,11 +122,11 @@ export function resolveCfbDisplayPlayType(
 export function resolveCfbBrowserPlayType(
   playName: string,
   dbPlayType: string | null | undefined,
-): PlaybookEntry["play_type"] {
+): OffensiveCatalogPlayType {
   const trimmed = (dbPlayType ?? "").trim();
   const upper = trimmed.toUpperCase();
   if (upper === "RUN" || upper === "PASS" || upper === "RPO") {
-    return upper as PlaybookEntry["play_type"];
+    return upper as OffensiveCatalogPlayType;
   }
   const bucket = categorizeCfbPlayType(trimmed);
   if (bucket === "RPO") return "RPO";

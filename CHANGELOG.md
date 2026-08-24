@@ -4,6 +4,127 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-24 — Film Room QA49: formation headers + logger tab cleanup
+
+### What
+
+- Unified formation header styling between add-play rail and play logger (logger styling is the reference).
+- Play logger with no call sheet: removed tab bar and separator — search bar and formations render directly without unnecessary tab UI wrapping a single view.
+
+### Why
+
+QA49: formation headers were visually inconsistent between the two rails. A single "Browse" tab with no alternative to switch to adds visual noise without value.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room QA48: shared rail + defensive play types
+
+### What
+
+- Extracted shared rail/sidebar shell component used by both the Call Sheet add-play rail and the Film Room play logger rail. Both now render identically — only inner content differs.
+- Fixed rail scroll behavior: content scrolls within the rail container, header stays fixed, page behind does not scroll.
+- Fixed defensive play type resolution: defensive plays now show MAN/ZONE/BLITZ/MATCH tags instead of offensive RUN/PASS/RPO.
+
+### Why
+
+QA48: two separate rail implementations created visual inconsistency. Rail scroll was broken — scrolling moved the page instead of the rail content. Defensive play types were showing offensive categories instead of the correct defensive classification (MAN/ZONE/BLITZ/MATCH).
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room QA47: defensive logging polish
+
+### What
+
+- Removed partial film messaging from game details.
+- Play logger sidebar now matches the Call Sheet add-play sidebar shell (width, background, header, close behavior).
+- Unified badge sizing between result badges (RUN/PASS/RPO) and drive side-of-ball badges (OFF/DEF).
+- Added field position input to defensive play logging (reuses offensive field position component).
+- Defensive result tag validation rules: INCOMPLETE, PENALTY, PUNT, and INTERCEPTION are standalone (clear other tags when selected). SACK + FUMBLE can coexist. TFL removed — defensive plays use the same loss/gain/turnover result display as offensive plays.
+- Defensive play types now resolved from playbook data via shared `playTypeResolution` ladder instead of hardcoded offensive tags (Film play routes use `opponent_scheme` on defensive drives).
+- Game details page horizontal spacing now matches Call Sheets detail page layout.
+
+### Why
+
+QA47: defensive logging needed field position parity with offense, result tag combinations needed real-game validation rules, and TFL is a derived stat (not a coach decision). Sidebar and badge inconsistencies broke visual cohesion with the call sheet flow.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room QA46: bug fixes + UX improvements
+
+### What
+
+- Fixed play logging failure ("couldn't save") caused by the create-play API always sending `result_tags: null` on offensive snaps, which PostgREST rejects when the `result_tags` column is not yet deployed; offensive inserts now omit the field unless defensive tags are present, and play selects use `*`.
+- Fixed drive creation investigation: remote DB already has `side_of_ball`; insert path verified — local failures require applying pending Supabase migrations (`20260824120000`, `20260824130000`).
+- Added game version filter dropdown to Call Sheets landing page, defaulting to CFB27. Styling matches Film Room landing page.
+- Drive cards now show most recent drive at the top.
+- Removed "Active" badge from drive cards.
+- Play logger renders as a sidebar on desktop/tablet instead of an overlay. Mobile remains full-page modal.
+- My Call Sheet tab in play logger now shows play art for each play.
+
+### Why
+
+QA46: drive and play creation were broken after defense passes. Call sheets lacked version filtering. Drive list ordering and active badge did not match coach expectations. Logger overlay was disruptive on larger screens. Call sheet tab lacked play art parity with browse tab.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room: tendencies offense/defense toggle
+
+### What
+
+- Added offense/defense toggle to the game detail tendencies tab.
+- Game tendencies API (`GET /api/tendencies/game/[id]`) accepts a `side_of_ball` filter parameter.
+- All tendencies aggregations (play type distribution, top plays, top formations, reconsider, situation breakdowns) filter by the selected side.
+- Defaults to offense. Defense view shows empty state when no defensive drives exist.
+- Query keys include side-of-ball for correct cache separation.
+- Pass 3 of 3-pass defense logging implementation.
+
+### Why
+
+With offensive and defensive plays logged in the same game (Pass 1 + Pass 2), coaches need to see tendencies for each side separately. Mixed aggregation produces meaningless stats.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room: defensive result tags
+
+### What
+
+- Added `result_tags` column to `logged_plays` table (text array, nullable).
+- When logging plays on a defensive drive, the result section shows a multi-select tag picker (Incomplete, Sack, Interception, Fumble, Penalty, Punt, TFL) instead of the offensive yards + outcome UI.
+- Multiple tags can be selected per play (e.g., Sack + Fumble).
+- Defensive result tags display as badges in the game detail play table.
+- Offensive logging remains unchanged.
+- Pass 2 of 3-pass defense logging implementation.
+
+### Why
+
+Defensive outcomes are fundamentally different from offensive ones — no yards-gained model, and a single play can produce multiple outcomes. Multi-tag results capture what actually happened.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-24 — Film Room: drive-level side-of-ball + logger routing
 
 ### What

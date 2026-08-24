@@ -7,16 +7,22 @@ import { ReconsiderPlays } from "@/components/tendencies/ReconsiderPlays";
 import { TopFormationsList } from "@/components/tendencies/TopFormationsList";
 import { TopPlaysList } from "@/components/tendencies/TopPlaysList";
 import { WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
+import { CATALOG_SIDES_OF_BALL, CATALOG_SIDE_OF_BALL_LABELS } from "@/lib/constants";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import { summarizeGameWhatsWorking } from "@/lib/gameTendenciesWhatsWorking";
 import type { GameTendenciesPayload } from "@/lib/tendenciesGameBreakdown";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { successRateTextClass } from "@/lib/successRateTextClass";
+import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
-async function fetchGameTendencies(id: string): Promise<GameTendenciesPayload> {
-  const res = await fetch(`/api/tendencies/game/${id}`);
+const sideToggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
+const sideToggleOff = "border-slate-700 bg-slate-900 text-slate-400";
+
+async function fetchGameTendencies(id: string, sideOfBall: DriveSideOfBall): Promise<GameTendenciesPayload> {
+  const qs = new URLSearchParams({ side_of_ball: sideOfBall });
+  const res = await fetch(`/api/tendencies/game/${id}?${qs.toString()}`);
   if (!res.ok) throw new Error("game tendencies");
   return res.json() as Promise<GameTendenciesPayload>;
 }
@@ -60,6 +66,7 @@ type Props = { gameId: string };
 type ScenarioRow = GameTendenciesPayload["scenario_breakdown"][number];
 
 export function FilmGameTendenciesBody({ gameId }: Props) {
+  const [sideOfBall, setSideOfBall] = useState<DriveSideOfBall>("offense");
   const [playsExpanded, setPlaysExpanded] = useState(false);
   const [playsPage, setPlaysPage] = useState(1);
   const [formationsExpanded, setFormationsExpanded] = useState(false);
@@ -97,8 +104,8 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
   );
 
   const q = useQuery({
-    queryKey: tendenciesQueryKeys.game(gameId),
-    queryFn: () => fetchGameTendencies(gameId),
+    queryKey: tendenciesQueryKeys.game(gameId, sideOfBall),
+    queryFn: () => fetchGameTendencies(gameId, sideOfBall),
     enabled: Boolean(gameId),
     staleTime: 30 * 1000,
   });
@@ -113,7 +120,7 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
     setFormationsPage(1);
     setReconsiderExpanded(false);
     setReconsiderPage(1);
-  }, [gameId]);
+  }, [gameId, sideOfBall]);
 
   const rankedPlaysFull = working.rankedPlays;
   const playsRows = useMemo(() => {
@@ -152,6 +159,28 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
 
   return (
     <div className="space-y-8">
+      <fieldset className="space-y-2">
+        <legend className="mb-1 block font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+          Side of Ball
+        </legend>
+        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Tendencies side of ball">
+          {CATALOG_SIDES_OF_BALL.map((side) => (
+            <button
+              key={side}
+              type="button"
+              role="radio"
+              aria-checked={sideOfBall === side}
+              onClick={() => setSideOfBall(side)}
+              className={`min-h-11 rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
+                sideOfBall === side ? sideToggleOn : sideToggleOff
+              }`}
+            >
+              {CATALOG_SIDE_OF_BALL_LABELS[side]}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       <section>
         <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">GAME STATS</h2>
         <CoreStatsGrid stats={data.stats} />

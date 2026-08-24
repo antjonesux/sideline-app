@@ -1,9 +1,14 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import type { PlaybookEntry } from "@/lib/playbook";
+import type { PlaybookEntry, OffensiveCatalogPlayType } from "@/lib/playbook";
 import type { LoggedPlay } from "@/lib/types";
 import { ResultBadge } from "@/components/import/ResultBadge";
+import {
+  defensivePlayTypeAccentClass,
+  defensivePlayTypeBadgeClass,
+  isDefensivePlayType,
+} from "@/lib/defensivePlayTypeResolution";
 import {
   FILM_LOGGER_SPECIAL_TEAMS_ACCENT_CLASS,
   FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS,
@@ -29,19 +34,19 @@ export type PlayStreamRowProps = {
 
 export type PlayRowProps = PlaybookRowProps | PlayStreamRowProps;
 
-const VALID_PLAY_TYPES = ["RUN", "PASS", "RPO"] as const;
-type PlayTypeBadge = (typeof VALID_PLAY_TYPES)[number];
+const VALID_OFFENSIVE_PLAY_TYPES = ["RUN", "PASS", "RPO"] as const;
+type OffensivePlayTypeBadge = OffensiveCatalogPlayType;
 
-function getPlayType(raw: string | null | undefined): PlayTypeBadge {
+function getOffensivePlayType(raw: string | null | undefined): OffensivePlayTypeBadge {
   const u = (raw ?? "").trim().toUpperCase();
-  if (VALID_PLAY_TYPES.includes(u as PlayTypeBadge)) return u as PlayTypeBadge;
+  if (VALID_OFFENSIVE_PLAY_TYPES.includes(u as OffensivePlayTypeBadge)) return u as OffensivePlayTypeBadge;
   if (process.env.NODE_ENV === "development") {
-    console.warn(`[PlayRow] Unexpected play_type: "${raw}" — check migration QA18`);
+    console.warn(`[PlayRow] Unexpected offensive play_type: "${raw}" — check migration QA18`);
   }
   return "RUN";
 }
 
-function badgeClass(type: PlayTypeBadge): string {
+function offensiveBadgeClass(type: OffensivePlayTypeBadge): string {
   if (type === "RUN") return "border-emerald-700/70 bg-emerald-900/30 text-emerald-300";
   if (type === "PASS") return "border-blue-700/70 bg-blue-900/30 text-blue-300";
   return "border-amber-700/70 bg-amber-900/30 text-amber-300";
@@ -120,8 +125,8 @@ export function PlayRow(props: PlayRowProps) {
 
   const { play, onSelect } = props;
   const filmSt = isFilmLoggerSpecialTeamsEntry(play);
-  // QA24: Badge uses `play.play_type` on PlaybookEntry — populated from `playbooks` + `resolveCfbDisplayPlayType` (same ladder as Tendencies `attachPlayTypes`), not name-only inference.
-  const playType = getPlayType(play.play_type);
+  const defensiveType = isDefensivePlayType(play.play_type) ? play.play_type : null;
+  const offensiveType = defensiveType ? null : getOffensivePlayType(play.play_type);
   return (
     <button
       type="button"
@@ -132,11 +137,13 @@ export function PlayRow(props: PlayRowProps) {
         className={`h-8 w-[3px] shrink-0 rounded ${
           filmSt
             ? FILM_LOGGER_SPECIAL_TEAMS_ACCENT_CLASS
-            : playType === "RUN"
-              ? "bg-emerald-500"
-              : playType === "PASS"
-                ? "bg-blue-500"
-                : "bg-amber-500"
+            : defensiveType
+              ? defensivePlayTypeAccentClass(defensiveType)
+              : offensiveType === "RUN"
+                ? "bg-emerald-500"
+                : offensiveType === "PASS"
+                  ? "bg-blue-500"
+                  : "bg-amber-500"
         }`}
         aria-hidden
       />
@@ -144,13 +151,21 @@ export function PlayRow(props: PlayRowProps) {
         <span className="block truncate font-sans text-[13px] font-semibold text-slate-100">{play.play_name}</span>
         <span className="block truncate font-mono text-[10px] uppercase tracking-wide text-slate-500">{play.formation}</span>
       </span>
-      <span
-        className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${
-          filmSt ? FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS : badgeClass(playType)
-        }`}
-      >
-        {filmSt ? "Special Teams" : playType}
-      </span>
+      {defensiveType ? (
+        <span
+          className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${defensivePlayTypeBadgeClass(defensiveType)}`}
+        >
+          {defensiveType}
+        </span>
+      ) : (
+        <span
+          className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase ${
+            filmSt ? FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS : offensiveBadgeClass(offensiveType!)
+          }`}
+        >
+          {filmSt ? "Special Teams" : offensiveType}
+        </span>
+      )}
     </button>
   );
 }
