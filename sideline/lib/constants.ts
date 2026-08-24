@@ -221,8 +221,9 @@ export const CATALOG_GAME_VERSION_LABELS: Record<CatalogGameVersion, string> = {
 };
 
 export function parseCatalogGameVersion(raw: string | null | undefined): CatalogGameVersion {
-  const v = (raw ?? "").trim().toLowerCase();
-  if (v === "cfb26" || v === "cfb27") return v;
+  const v = (raw ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  if (v === "cfb26" || v === "26") return "cfb26";
+  if (v === "cfb27" || v === "27") return "cfb27";
   return DEFAULT_CATALOG_GAME_VERSION;
 }
 

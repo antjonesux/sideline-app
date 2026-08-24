@@ -60,6 +60,8 @@ interface PlayBrowserProps {
   catalogSideOfBall?: CatalogSideOfBall;
   /** Play Sheet add-play: catalog game version for cfb.fan play-art URLs. */
   catalogGameVersion?: CatalogGameVersion;
+  /** Film logger browse: play-art rows via `AddPlayBrowseRow` + `onSelect` (tap to log). */
+  showPlayArtRows?: boolean;
 }
 
 export type PlaySheetAddNav = {
@@ -98,10 +100,13 @@ export function PlayBrowser({
   pageScrollResults = false,
   catalogSideOfBall,
   catalogGameVersion,
+  showPlayArtRows = false,
 }: PlayBrowserProps) {
   const isInline = presentation === "inline";
   const effectiveShowTopLevelBack = showTopLevelBack && !isInline;
   const usePageScrollResults = pageScrollResults && playSheetAddLayout;
+  const useArtBrowseRows = showPlayArtRows || playSheetAddLayout;
+  const artSideOfBall = catalogSideOfBall ?? "offense";
   const resultsScrollClass = usePageScrollResults
     ? "w-full pb-4"
     : "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4";
@@ -324,7 +329,7 @@ export function PlayBrowser({
                 </div>
               ) : filtered.length === 0 ? (
                 <p className="font-body text-sm text-slate-500">No plays match this search.</p>
-              ) : playSheetAddLayout ? (
+              ) : useArtBrowseRows ? (
                 <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
                   {filtered.map((play) => {
                     const comboKey = sheetPlayComboKey(play.formation, play.play_name);
@@ -333,15 +338,16 @@ export function PlayBrowser({
                         key={play.play_id}
                         play={play}
                         formationLabel={stripGroupPrefix(play.formation, play.group)}
-                        showFormationLabel
+                        showFormationLabel={playSheetAddLayout || showPlayArtRows}
                         inGoTo={goToPlayKeys?.has(comboKey) ?? false}
                         goToBusy={goToBusyComboKey === comboKey}
                         showGoToStar={showGoToStar}
                         added={addedPlayKeys?.has(comboKey) ?? false}
                         addDisabled={addDisabled}
-                        onAdd={onSelect}
+                        onAdd={playSheetAddLayout ? onSelect : undefined}
+                        onSelect={showPlayArtRows ? onSelect : undefined}
                         onToggleGoTo={onToggleGoTo}
-                        catalogSideOfBall={catalogSideOfBall}
+                        catalogSideOfBall={artSideOfBall}
                         catalogGameVersion={catalogGameVersion}
                         catalogPlaybook={playbook}
                       />
@@ -434,7 +440,7 @@ export function PlayBrowser({
             ref={playsScrollRef}
             className={`${playsResultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}
           >
-            {playSheetAddLayout ? (
+            {useArtBrowseRows ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
                 {selectedPlays.map((play) => {
                   const comboKey = sheetPlayComboKey(play.formation, play.play_name);
@@ -448,9 +454,10 @@ export function PlayBrowser({
                       showGoToStar={showGoToStar}
                       added={addedPlayKeys?.has(comboKey) ?? false}
                       addDisabled={addDisabled}
-                      onAdd={onSelect}
+                      onAdd={playSheetAddLayout ? onSelect : undefined}
+                      onSelect={showPlayArtRows ? onSelect : undefined}
                       onToggleGoTo={onToggleGoTo}
-                      catalogSideOfBall={catalogSideOfBall}
+                      catalogSideOfBall={artSideOfBall}
                       catalogGameVersion={catalogGameVersion}
                       catalogPlaybook={playbook}
                     />

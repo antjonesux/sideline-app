@@ -2,8 +2,8 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import type { SuggestionRow } from "@/lib/loggedPlayStats";
-import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetPlaybookName } from "@/lib/playbookUtils";
-import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO } from "@/lib/constants";
+import { scenarioDisplayLabel, maxSlotsForSheetScenario, sortSheetScenariosByCanonicalOrder, isCallSheetPlaySheet, sheetPlayComboKey, callSheetScenarioDisplayName, callSheetScenarioHelperText, callSheetScenarioPlayCountHeaderLabel, reorderSituationBlocks, pinGoToPlaysFirst, sheetPlaybookName, callSheetDetailsMetadataLabels, catalogMetaForSheet } from "@/lib/playbookUtils";
+import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO, parseCatalogGameVersion } from "@/lib/constants";
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
@@ -66,8 +66,8 @@ import { SituationFormModal, type SituationFormValues } from "./SituationFormMod
 import { SituationList } from "./SituationList";
 import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow";
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
-import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
 import { playbookEditorHref, playbookEditorListBackHref } from "@/lib/navigation/playSheetNav";
+import { playbookListQueryKey } from "@/lib/playbookListQuery";
 
 const STALE_SCENARIO_MS = 5 * 60 * 1000;
 
@@ -75,6 +75,7 @@ type SheetPayload = {
   id: string;
   name: string;
   playbook: string;
+  game_version?: string | null;
   scheme: string;
   playbook_display?: string;
   scenarios: SheetScenarioBlock[];
@@ -339,9 +340,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
 
   const { data: catalogMeta } = useCatalogPlaybookMeta(cfb26);
 
+  const sheetCatalogMeta = useMemo(
+    () => catalogMetaForSheet(catalogMeta ?? null, sheet?.game_version),
+    [catalogMeta, sheet?.game_version],
+  );
+
   const invalidateSheet = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
-    void queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+    void queryClient.invalidateQueries({ queryKey: playbookListQueryKey });
   }, [queryClient, sheetId]);
 
   const invalidateScenario = useCallback(() => {
@@ -676,7 +682,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   });
 
   const updateSheet = useMutation({
-    mutationFn: async (body: { name: string; playbook: string }) => {
+    mutationFn: async (body: { name: string; playbook: string; game_version?: string }) => {
       const res = await fetch(`/api/playbook/${sheetId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -689,7 +695,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
       await queryClient.invalidateQueries({ queryKey: ["playbook-scenario", sheetId] });
-      await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+      await queryClient.invalidateQueries({ queryKey: playbookListQueryKey });
     },
   });
 
@@ -1004,7 +1010,11 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       return;
     }
     try {
-      await updateSheet.mutateAsync({ name: trimmedName, playbook: trimmedPlaybook });
+      await updateSheet.mutateAsync({
+        name: trimmedName,
+        playbook: trimmedPlaybook,
+        game_version: parseCatalogGameVersion(sheet.game_version),
+      });
       addToast("Play sheet saved.", "success");
       setEditorOpen(false);
     } catch (error) {
@@ -1020,8 +1030,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         onClose: closePlayBrowser,
         cfb26Playbook: cfb26,
         scenarioName: browsePlaybookMode ? "" : activeScenario,
-        catalogSideOfBall: catalogMeta?.side_of_ball,
-        catalogGameVersion: catalogMeta?.game_version,
+        catalogSideOfBall: sheetCatalogMeta.side_of_ball,
+        catalogGameVersion: sheetCatalogMeta.game_version,
         panelTitle: browsePlaybookMode ? BUILDER_BROWSE_PLAYBOOK : BUILDER_ADD_PLAY,
         panelSubtitle: browsePlaybookMode
           ? "Tap + to add to a situation"
@@ -1216,7 +1226,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               sheetName={sheetTitle}
               cfb26Playbook={cfb26}
               scheme={sheet.scheme}
-              catalogMeta={catalogMeta}
+              catalogMeta={sheetCatalogMeta}
               situationCount={scenarios.length}
               playCount={totalSheetPlays}
               activeTab={editorTab}
@@ -1252,7 +1262,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 sheetName={sheetTitle}
                 cfb26Playbook={cfb26}
                 scheme={sheet.scheme}
-                catalogMeta={catalogMeta}
+                catalogMeta={sheetCatalogMeta}
               />
               <CallSheetEditorTabBar activeTab={editorTab} onTabChange={setEditorTab} className="w-full" />
               {editorTab === "situations" ? (
@@ -1286,14 +1296,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h1 className={`${appShellPageTitleClass} mt-0 min-w-0`}>{sheetTitle}</h1>
-                  {catalogMeta ? (
-                    <CallSheetMetadataRow
-                      labels={callSheetDetailsMetadataLabels(catalogMeta, sheet.scheme, cfb26)}
-                      className="mt-1 font-body text-sm text-slate-400"
-                    />
-                  ) : (
-                    <p className="mt-1 truncate font-body text-sm text-slate-400">Built from {cfb26} playbook</p>
-                  )}
+                  <CallSheetMetadataRow
+                    labels={callSheetDetailsMetadataLabels(sheetCatalogMeta, sheet.scheme, cfb26)}
+                    className="mt-1 font-body text-sm text-slate-400"
+                  />
                 </div>
                 {!onboardingEditor ? (
                   <button
@@ -1343,8 +1349,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         open={drawerOpen && !usePlayBrowserPanel}
         onClose={closePlayBrowser}
         cfb26Playbook={cfb26}
-        catalogSideOfBall={catalogMeta?.side_of_ball}
-        catalogGameVersion={catalogMeta?.game_version}
+        catalogSideOfBall={sheetCatalogMeta.side_of_ball}
+        catalogGameVersion={sheetCatalogMeta.game_version}
         scenarioName={browsePlaybookMode ? "" : activeScenario}
         onPick={onDrawerPick}
         addedPlayKeys={drawerDisplayedPlayKeys}

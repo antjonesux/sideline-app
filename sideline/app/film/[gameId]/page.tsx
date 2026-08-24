@@ -47,7 +47,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   drivesRef.current = drives;
   const [showLogger, setShowLogger] = useState(false);
   const [showDriveSetup, setShowDriveSetup] = useState(false);
-  const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [endGameScoreMine, setEndGameScoreMine] = useState("0");
   const [endGameScoreOpp, setEndGameScoreOpp] = useState("0");
@@ -205,11 +204,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     setEndGameScoreOpp(String(Math.max(0, Number(opp) || 0)));
   }, [showEndGameModal, game, drives]);
 
-  useEffect(() => {
-    setActiveSheetId(game?.play_sheet_id ?? null);
-  }, [game?.play_sheet_id]);
-
-  async function createDrive(payload?: Partial<Drive>) {
+  async function createDrive(payload?: Partial<Drive> & { side_of_ball?: "offense" | "defense" }) {
     if (!gameId) return;
 
     const prevDrive = drives[drives.length - 1];
@@ -221,6 +216,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        side_of_ball: payload?.side_of_ball === "defense" ? "defense" : "offense",
         quarter: payload?.quarter ?? prevQuarter,
         score_mine: payload?.score_mine ?? prevMine,
         score_opponent: payload?.score_opponent ?? prevOpp,
@@ -369,10 +365,14 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (prevLoggerOpen) {
       endCriticalFlow(prevLoggerOpen, "cancelled", { reason: "superseded_by_new_open" });
     }
+    const drive = drivesRef.current.find((d) => d.id === driveId);
+    const hasSheetId = Boolean(
+      drive && (drive.side_of_ball === "defense" ? game?.defensive_play_sheet_id : game?.play_sheet_id),
+    );
     loggerOpenFlowIdRef.current = startCriticalFlow("film_logger_open_with_sheet", {
       gameId,
       driveId,
-      hasSheetId: Boolean(activeSheetId),
+      hasSheetId,
     });
     setActiveDrive(driveId);
     setShowLogger(true);
@@ -543,7 +543,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           gameId={gameId}
           game={game}
           activeDrive={activeDriveObj}
-          activeSheetId={activeSheetId}
           loggerOpenFlowId={loggerOpenFlowIdRef.current}
           totalPlayRowsInGame={totalPlayRowsInGame}
           totalCoachCallsInGame={totalPlays}

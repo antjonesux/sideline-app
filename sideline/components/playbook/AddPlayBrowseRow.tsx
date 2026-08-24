@@ -18,6 +18,7 @@ export function AddPlayBrowseRow({
   addDisabled = false,
   onAdd,
   onToggleGoTo,
+  onSelect,
   catalogSideOfBall,
   catalogGameVersion,
   catalogPlaybook,
@@ -31,8 +32,10 @@ export function AddPlayBrowseRow({
   showGoToStar?: boolean;
   added?: boolean;
   addDisabled?: boolean;
-  onAdd: (play: PlaybookEntry) => void;
+  onAdd?: (play: PlaybookEntry) => void;
   onToggleGoTo?: (play: PlaybookEntry) => void;
+  /** Film logger browse — tap row to select; hides add / Go-To controls. */
+  onSelect?: (play: PlaybookEntry) => void;
   catalogSideOfBall?: CatalogSideOfBall;
   catalogGameVersion?: CatalogGameVersion;
   /** Catalog playbook name for owned play-art resolution. */
@@ -51,34 +54,34 @@ export function AddPlayBrowseRow({
         })
       : null;
 
-  return (
-    <div className="border-b border-slate-700/50 last:border-b-0">
-      <div className="flex min-h-11 items-center gap-3 px-4 pt-3 pb-2">
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-sans text-sm font-semibold text-slate-100">{displayName}</p>
-          {showFormationLabel ? (
-            <p className="mt-0.5 truncate font-body text-xs text-slate-500">{formationLabel}</p>
-          ) : null}
-        </div>
-        {showGoToStar ? (
-          <div className="flex w-8 shrink-0 justify-center">
-            <button
-              type="button"
-              disabled={goToBusy}
-              className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors disabled:opacity-50 ${
-                inGoTo ? "text-amber-400 hover:text-amber-300" : "text-slate-500 hover:text-amber-300"
-              }`}
-              onClick={() => onToggleGoTo?.(play)}
-              aria-label={inGoTo ? "Remove from Go-To" : "Add to Go-To"}
-              aria-pressed={inGoTo}
-              title={inGoTo ? "Remove from Go-To" : "Add to Go-To"}
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill={inGoTo ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
-              </svg>
-            </button>
-          </div>
+  const titleRow = (
+    <>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-sans text-sm font-semibold text-slate-100">{displayName}</p>
+        {showFormationLabel ? (
+          <p className="mt-0.5 truncate font-body text-xs text-slate-500">{formationLabel}</p>
         ) : null}
+      </div>
+      {!onSelect && showGoToStar ? (
+        <div className="flex w-8 shrink-0 justify-center">
+          <button
+            type="button"
+            disabled={goToBusy}
+            className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors disabled:opacity-50 ${
+              inGoTo ? "text-amber-400 hover:text-amber-300" : "text-slate-500 hover:text-amber-300"
+            }`}
+            onClick={() => onToggleGoTo?.(play)}
+            aria-label={inGoTo ? "Remove from Go-To" : "Add to Go-To"}
+            aria-pressed={inGoTo}
+            title={inGoTo ? "Remove from Go-To" : "Add to Go-To"}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill={inGoTo ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
+            </svg>
+          </button>
+        </div>
+      ) : null}
+      {!onSelect ? (
         <div className="flex w-8 shrink-0 justify-center">
           {added ? (
             <span className="inline-flex min-h-11 min-w-11 items-center justify-center text-emerald-400" aria-hidden>
@@ -89,7 +92,7 @@ export function AddPlayBrowseRow({
               type="button"
               disabled={addDisabled}
               className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-slate-500 transition-colors hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-500"
-              onClick={() => onAdd(play)}
+              onClick={() => onAdd?.(play)}
               aria-label={`Add ${displayName}`}
               title={`Add ${displayName}`}
             >
@@ -99,12 +102,36 @@ export function AddPlayBrowseRow({
             </button>
           )}
         </div>
-      </div>
-      {resolvedArt ? (
-        <div className="px-3 pb-3">
-          <PlayArtImage src={resolvedArt.src} source={resolvedArt.source} alt="" />
-        </div>
       ) : null}
+    </>
+  );
+
+  const artBlock =
+    resolvedArt ? (
+      <div className="px-3 pb-3">
+        <PlayArtImage src={resolvedArt.src} source={resolvedArt.source} alt="" />
+      </div>
+    ) : null;
+
+  if (onSelect) {
+    return (
+      <div className="border-b border-slate-700/50 last:border-b-0">
+        <button
+          type="button"
+          className="flex w-full min-h-11 flex-col text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+          onClick={() => onSelect(play)}
+        >
+          <div className="flex min-h-11 w-full items-center gap-3 px-4 pt-3 pb-2">{titleRow}</div>
+          {artBlock}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-b border-slate-700/50 last:border-b-0">
+      <div className="flex min-h-11 items-center gap-3 px-4 pt-3 pb-2">{titleRow}</div>
+      {artBlock}
     </div>
   );
 }

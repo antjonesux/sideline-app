@@ -1,6 +1,39 @@
 import type { Quarter } from "@/components/film/DriveSetupForm";
+import type { CatalogSideOfBall } from "@/lib/constants";
 import { getDrivePossessionOutcome, type DrivePossessionOutcome } from "@/lib/driveOutcome";
-import type { Drive, LoggedPlay } from "@/lib/types";
+import type { Drive, DriveSideOfBall, GameSession, LoggedPlay } from "@/lib/types";
+
+export function driveSideOfBall(drive: Pick<Drive, "side_of_ball">): DriveSideOfBall {
+  return drive.side_of_ball === "defense" ? "defense" : "offense";
+}
+
+export function driveSideBadgeLabel(side: DriveSideOfBall): string {
+  return side === "defense" ? "DEF" : "OFF";
+}
+
+/** Playbook + call sheet context for the play logger based on drive side. */
+export function resolveDriveLoggerContext(
+  game: GameSession,
+  drive: Pick<Drive, "side_of_ball">,
+): {
+  sheetId: string | null;
+  playbook: string;
+  catalogSideOfBall: CatalogSideOfBall;
+} {
+  const side = driveSideOfBall(drive);
+  if (side === "defense") {
+    return {
+      sheetId: game.defensive_play_sheet_id?.trim() || null,
+      playbook: (game.opponent_scheme ?? "").trim(),
+      catalogSideOfBall: "defense",
+    };
+  }
+  return {
+    sheetId: game.play_sheet_id?.trim() || null,
+    playbook: (game.offensive_playbook ?? game.my_playbook ?? "").trim(),
+    catalogSideOfBall: "offense",
+  };
+}
 
 export function quarterFromDriveForSetup(q: number | null | undefined): Quarter {
   if (q == null || q < 1) return "1";

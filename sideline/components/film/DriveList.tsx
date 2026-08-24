@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { DriveCardOutcomeBadge } from "@/components/film/DriveCardOutcomeBadge";
 import { DriveInlineScores } from "@/components/film/DriveInlineScores";
+import { DriveSideBadge } from "@/components/film/DriveSideBadge";
 import { DriveStartingFieldPanel } from "@/components/film/DriveStartingFieldPanel";
 import {
   filmDriveDetailCardAccordionTriggerClass,
@@ -19,7 +20,7 @@ import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
 import { Button } from "@/components/ui/button";
-import { getDriveResult, getDriveSummaryOutcomeLabel } from "@/lib/filmGameDetailHelpers";
+import { getDriveResult, getDriveSummaryOutcomeLabel, driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { absoluteYardAfterLoggedPlay } from "@/lib/gameStateEngine";
 import type { Drive } from "@/lib/types";
 
@@ -98,6 +99,7 @@ export function DriveList({
                 >
                   <div className={filmDriveDetailCardTitleRowClass}>
                     <span className={filmDriveDetailCardDriveLabelClass}>DRIVE {drive.drive_number}</span>
+                    <DriveSideBadge side={driveSideOfBall(drive)} />
                     <span className="shrink-0">
                       <DriveCardOutcomeBadge label={outcomeLabel} />
                     </span>

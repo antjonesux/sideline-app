@@ -18,7 +18,8 @@ import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
 import type { Drive, LoggedPlay } from "@/lib/types";
 import type { PlaybookEntry } from "@/lib/playbook";
 import { useToastStore } from "@/store/toastStore";
-import { COULDNT_SAVE, filmLoggerMySheetEmptyHint, filmLoggerYouveBeenCallingHint } from "@/lib/coachCopy";
+import { COULDNT_SAVE, filmLoggerMySheetEmptyHint } from "@/lib/coachCopy";
+import { parseCatalogGameVersion, type CatalogGameVersion, type CatalogSideOfBall } from "@/lib/constants";
 import { isCoachCallPlay } from "@/lib/filmPlayCounting";
 import { isFilmLoggerSpecialTeamsEntry } from "@/lib/filmLoggerSpecialTeams";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
@@ -26,7 +27,7 @@ import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/p
 
 type LoggerView = "suggestions" | "yardage";
 
-type LoggerPickTab = "browse" | "situational" | "my_sheet";
+type LoggerPickTab = "browse" | "my_sheet";
 
 /** Matches `gameDetailTabTriggerClass` in `app/film/[gameId]/page.tsx` (Drive Summary / Tendencies). */
 const filmLoggerPickTabTriggerClass =
@@ -59,6 +60,10 @@ interface PlayLoggerV2Props {
   onPossessionEndedAfterLog?: (args: { driveId: string; storedResultTag: string }) => void;
   /** All coach calls logged in this game (all drives) — powers situation-weighted suggestions without refetching drives. */
   allGameCoachCalls: LoggedPlay[];
+  /** Catalog game version for play-art resolution in Browse. */
+  catalogGameVersion?: CatalogGameVersion | string | null;
+  /** Catalog side for Browse playbook filter and play-art URLs. */
+  catalogSideOfBall?: CatalogSideOfBall;
 }
 
 export function PlayLoggerV2({
@@ -75,12 +80,12 @@ export function PlayLoggerV2({
   totalCoachCallsInGame,
   onPossessionEndedAfterLog,
   allGameCoachCalls,
+  catalogGameVersion,
+  catalogSideOfBall = "offense",
 }: PlayLoggerV2Props) {
   const addToast = useToastStore((s) => s.addToast);
   const [view, setView] = useState<LoggerView>("suggestions");
-  const [pickTab, setPickTab] = useState<LoggerPickTab>(() =>
-    sheetId?.trim() ? "my_sheet" : "situational",
-  );
+  const [pickTab, setPickTab] = useState<LoggerPickTab>(() => (sheetId?.trim() ? "my_sheet" : "browse"));
   const [selectedPlay, setSelectedPlay] = useState<PlaybookEntry | null>(null);
   /**
    * Where the pending selection came from. Distinguishes app-curated surfaces from unguided PlayBrowser
@@ -102,9 +107,11 @@ export function PlayLoggerV2({
 
   useEffect(() => {
     if (!hasMySheet && pickTab === "my_sheet") {
-      setPickTab("situational");
+      setPickTab("browse");
     }
   }, [hasMySheet, pickTab]);
+
+  const resolvedCatalogGameVersion = parseCatalogGameVersion(catalogGameVersion ?? undefined);
 
   useEffect(() => {
     return () => {
@@ -129,7 +136,7 @@ export function PlayLoggerV2({
     [mergedPlays, drive],
   );
 
-  const { suggestions, sheetCalls, sheetName, scenarioLabel } = usePlaySuggestions({
+  const { sheetName, scenarioLabel } = usePlaySuggestions({
     down: currentGameState.down,
     distance: currentGameState.distance,
     fieldPos: currentGameState.absoluteYard,
@@ -320,7 +327,7 @@ export function PlayLoggerV2({
         if (logCameFromSheet) {
           setPickTab("my_sheet");
         } else {
-          setPickTab("situational");
+          setPickTab("browse");
         }
       }
       if (submitFlowId) {
@@ -459,16 +466,13 @@ export function PlayLoggerV2({
           >
             <TabsList
               aria-label="Play pick views"
-              className={`grid h-auto w-full shrink-0 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground ${hasMySheet ? "grid-cols-3" : "grid-cols-2"}`}
+              className={`grid h-auto w-full shrink-0 gap-0 rounded-none border-b border-slate-800 bg-transparent p-0 text-muted-foreground ${hasMySheet ? "grid-cols-2" : "grid-cols-1"}`}
             >
               {hasMySheet ? (
                 <TabsTrigger value="my_sheet" className={filmLoggerPickTabTriggerClass}>
                   My Call Sheet
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="situational" className={filmLoggerPickTabTriggerClass}>
-                Recommended
-              </TabsTrigger>
               <TabsTrigger value="browse" className={filmLoggerPickTabTriggerClass}>
                 Browse
               </TabsTrigger>
@@ -529,26 +533,6 @@ export function PlayLoggerV2({
               ) : null}
 
               <TabsContent
-                value="situational"
-                className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
-              >
-                <div className="px-4 pb-2">
-                  <p className="font-sans text-xs text-slate-400">
-                    {filmLoggerYouveBeenCallingHint(situationLine, fieldLine)}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 px-4 pb-4">
-                  {suggestions.map((play) => (
-                    <PlayRow
-                      key={play.play_id}
-                      play={play}
-                      onSelect={(p) => handlePlaySelect(p, "situation_suggestions")}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent
                 value="browse"
                 className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
               >
@@ -558,6 +542,9 @@ export function PlayLoggerV2({
                   onClose={() => {}}
                   showTopLevelBack={false}
                   onSelect={(play) => handlePlaySelect(play, "browser")}
+                  showPlayArtRows
+                  catalogSideOfBall={catalogSideOfBall}
+                  catalogGameVersion={resolvedCatalogGameVersion}
                 />
               </TabsContent>
             </div>

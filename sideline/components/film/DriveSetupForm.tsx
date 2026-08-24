@@ -3,11 +3,14 @@
 
 import { Button } from "@/components/ui/button";
 import { modalCtaFooterClass } from "@/lib/constants/designTokens";
+import { CATALOG_SIDES_OF_BALL, CATALOG_SIDE_OF_BALL_LABELS, type CatalogSideOfBall } from "@/lib/constants";
+import type { DriveSideOfBall } from "@/lib/types";
 import { useState } from "react";
 
 export type Quarter = "1" | "2" | "3" | "4" | "OT";
 
 export type DriveSetupValues = {
+  side_of_ball: DriveSideOfBall;
   quarter: Quarter;
   score_mine: number;
   score_opponent: number;
@@ -18,6 +21,9 @@ export type DriveSetupValues = {
 };
 
 const QUARTER_PRESETS = ["1", "2", "3", "4", "OT"] as const satisfies readonly Quarter[];
+
+const sideToggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
+const sideToggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 
 export function DriveSetupForm({
   defaultValues,
@@ -65,6 +71,28 @@ export function DriveSetupForm({
     <>
     <div className="space-y-3 px-4 pb-4 pt-4 sm:px-6">
       <p className="font-sans text-sm text-slate-300">Set the drive start situation.</p>
+
+      <fieldset className="space-y-2">
+        <legend className="mb-1 block font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
+          Side of Ball
+        </legend>
+        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Side of ball">
+          {CATALOG_SIDES_OF_BALL.map((side) => (
+            <button
+              key={side}
+              type="button"
+              role="radio"
+              aria-checked={values.side_of_ball === side}
+              onClick={() => setValues((v) => ({ ...v, side_of_ball: side as CatalogSideOfBall }))}
+              className={`min-h-11 rounded-lg border px-4 py-3 font-body text-sm font-semibold transition-colors ${
+                values.side_of_ball === side ? sideToggleOn : sideToggleOff
+              }`}
+            >
+              {CATALOG_SIDE_OF_BALL_LABELS[side]}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <div>
         <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">

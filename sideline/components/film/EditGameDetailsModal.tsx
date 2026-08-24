@@ -2,6 +2,7 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { TeamCombobox } from "@/components/film/TeamCombobox";
+import { GameSideSetupSection } from "@/components/film/GameSideSetupSection";
 import {
   Dialog,
   DialogContent,
@@ -12,22 +13,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { COULDNT_LOAD_TEAM_LIST, COULDNT_SAVE } from "@/lib/coachCopy";
-import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { DEFAULT_CATALOG_GAME_VERSION, parseCatalogGameVersion } from "@/lib/constants";
+import { useCallSheetsForSide } from "@/hooks/useCallSheetsForSide";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
-import {
-  getCatalogPlaybookSection,
-  PLAYBOOK_CATALOG_SECTIONS,
-  sortByCatalogPlaybookSection,
-} from "@/lib/playbooks/generic-playbooks";
 import type { GameSession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToastStore } from "@/store/toastStore";
 
-type OffensiveTeam = { team_name: string; playbook_name: string; scheme_style: string };
 type DefensiveTeam = { team_name: string; defensive_scheme: string };
 type TeamOption = { team_name: string };
-type CfbPlaybookRow = { playbook: string | null };
 
 const RECENT_TEAM_LIMIT = 5;
 
@@ -51,35 +46,7 @@ function collectRecentTeamNames(
   return ordered;
 }
 
-function playbookOptionLabel(row: OffensiveTeam): string {
-  if (row.playbook_name.trim() === row.team_name.trim()) {
-    return row.playbook_name;
-  }
-  return `${row.playbook_name} (${row.team_name})`;
-}
-
-function uniquePlaybookOptions(rows: OffensiveTeam[], fallbackPlaybooks: string[], fallbackScheme: string): OffensiveTeam[] {
-  const byPlaybook = new Map<string, OffensiveTeam>();
-  for (const row of rows) {
-    const key = row.playbook_name.trim();
-    if (!key) continue;
-    if (!byPlaybook.has(key)) byPlaybook.set(key, row);
-  }
-  for (const playbook of fallbackPlaybooks) {
-    const key = playbook.trim();
-    if (!key || byPlaybook.has(key)) continue;
-    byPlaybook.set(key, {
-      team_name: playbook,
-      playbook_name: playbook,
-      scheme_style: fallbackScheme,
-    });
-  }
-  return sortByCatalogPlaybookSection([...byPlaybook.values()]);
-}
-
-let cachedOffensive: OffensiveTeam[] | null = null;
 let cachedDefensive: DefensiveTeam[] | null = null;
-let cachedFallbackPlaybooks: string[] | null = null;
 
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
@@ -120,88 +87,57 @@ export function EditGameDetailsModal({
     },
     [isControlled, onOpenChange],
   );
-  const [offensiveTeams, setOffensiveTeams] = useState<OffensiveTeam[]>(() => cachedOffensive ?? []);
   const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
-  const [fallbackPlaybooks, setFallbackPlaybooks] = useState<string[]>(() => cachedFallbackPlaybooks ?? []);
-  const [setupLoading, setSetupLoading] = useState(
-    () => cachedOffensive === null || cachedDefensive === null || cachedFallbackPlaybooks === null,
-  );
+  const [setupLoading, setSetupLoading] = useState(() => cachedDefensive === null);
   const [setupError, setSetupError] = useState<string | null>(null);
 
   const [myTeamPick, setMyTeamPick] = useState<TeamOption | null>(null);
   const [opponentPick, setOpponentPick] = useState<TeamOption | null>(null);
-  const [selectedPlaybookName, setSelectedPlaybookName] = useState<string | null>(null);
+  const [offenseSheetId, setOffenseSheetId] = useState<string | null>(game.play_sheet_id ?? null);
+  const [defenseSheetId, setDefenseSheetId] = useState<string | null>(game.defensive_play_sheet_id ?? null);
+  const [offensePlaybook, setOffensePlaybook] = useState<string | null>(null);
+  const [defensePlaybook, setDefensePlaybook] = useState<string | null>(null);
   const [form, setForm] = useState({ my_score: "0", opponent_score: "0", result: "W" as "W" | "L" });
   const [saveBusy, setSaveBusy] = useState(false);
   const [recentTeamNames, setRecentTeamNames] = useState<string[]>([]);
-  type SheetOption = { id: string; name: string };
-  const [availableSheets, setAvailableSheets] = useState<SheetOption[]>([]);
-  const [sheetsLoading, setSheetsLoading] = useState(false);
-  const [selectedSheetId, setSelectedSheetId] = useState<string | null>(game.play_sheet_id ?? null);
   const addToast = useToastStore((s) => s.addToast);
 
   const opponentInputRef = useRef<HTMLInputElement>(null);
-  const playbookInputRef = useRef<HTMLInputElement>(null);
   const dialogTitleRef = useRef<HTMLHeadingElement>(null);
+
+  const gameVersion = parseCatalogGameVersion(game.game_version ?? DEFAULT_CATALOG_GAME_VERSION);
+
+  const { sheets: offenseSheets, isLoading: offenseSheetsLoading } = useCallSheetsForSide("offense", gameVersion);
+  const { sheets: defenseSheets, isLoading: defenseSheetsLoading } = useCallSheetsForSide("defense", gameVersion);
 
   useEffect(() => {
     let cancelled = false;
 
-    if (cachedOffensive !== null && cachedDefensive !== null && cachedFallbackPlaybooks !== null) {
+    if (cachedDefensive !== null) {
       return;
     }
 
     async function loadTeams() {
       setSetupLoading(true);
       setSetupError(null);
-      const [offRes, defRes, playbookRes] = await Promise.all([
-        supabase
-          .from("team_offensive_playbooks")
-          .select("team_name, playbook_name, scheme_style")
-          .order("team_name", { ascending: true })
-          .limit(20000),
-        supabase
-          .from("team_defensive_schemes")
-          .select("team_name, defensive_scheme")
-          .order("team_name", { ascending: true })
-          .limit(20000),
-        supabase
-          .from("playbooks")
-          .select("playbook")
-          .eq("game_version", CFB_CATALOG_GAME_VERSION)
-          .not("playbook", "is", null)
-          .order("playbook"),
-      ]);
+      const defRes = await supabase
+        .from("team_defensive_schemes")
+        .select("team_name, defensive_scheme")
+        .order("team_name", { ascending: true })
+        .limit(20000);
       if (cancelled) return;
 
-      const err = offRes.error ?? defRes.error;
-      if (err) {
-        console.error("Edit game details team catalog error:", err);
+      if (defRes.error) {
+        console.error("Edit game details team catalog error:", defRes.error);
         setSetupError(COULDNT_LOAD_TEAM_LIST);
-        setOffensiveTeams([]);
         setDefensiveTeams([]);
         setSetupLoading(false);
         return;
       }
-      if (playbookRes.error) {
-        console.warn("Fallback playbook lookup failed:", playbookRes.error.message);
-      }
 
-      const offensive = (offRes.data ?? []) as OffensiveTeam[];
       const defensive = (defRes.data ?? []) as DefensiveTeam[];
-      const fallback = Array.from(
-        new Set(
-          ((playbookRes.data ?? []) as CfbPlaybookRow[])
-            .map((r) => (r.playbook ?? "").trim())
-            .filter((v) => v.length > 0),
-        ),
-      );
-      cachedOffensive = offensive;
       cachedDefensive = defensive;
-      cachedFallbackPlaybooks = fallback;
-      setOffensiveTeams(offensive);
       setDefensiveTeams(defensive);
-      setFallbackPlaybooks(fallback);
       setSetupLoading(false);
     }
 
@@ -209,7 +145,7 @@ export function EditGameDetailsModal({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     let cancelled = false;
@@ -258,61 +194,32 @@ export function EditGameDetailsModal({
     return out;
   }, [recentTeamNames, allTeamOptions]);
 
-  const playbookOptions = useMemo<OffensiveTeam[]>(() => {
-    const base = uniquePlaybookOptions(offensiveTeams, fallbackPlaybooks, "Multiple");
-    const cur = (game.offensive_playbook ?? "").trim();
-    if (!cur || base.some((r) => r.playbook_name === cur)) return base;
-    return [...base, { team_name: cur, playbook_name: cur, scheme_style: game.my_scheme || "Multiple" }].sort((a, b) =>
-      a.playbook_name.localeCompare(b.playbook_name),
-    );
-  }, [offensiveTeams, fallbackPlaybooks, game.offensive_playbook, game.my_scheme]);
-
-  const playbookRow = useMemo(() => {
-    if (!selectedPlaybookName) return null;
-    return playbookOptions.find((row) => row.playbook_name === selectedPlaybookName) ?? null;
-  }, [playbookOptions, selectedPlaybookName]);
-
-  useEffect(() => {
-    if (!selectedPlaybookName || playbookOptions.length === 0) return;
-    if (!playbookOptions.some((row) => row.playbook_name === selectedPlaybookName)) {
-      setSelectedPlaybookName(null);
+  const resolvedOffensePlaybook = useMemo(() => {
+    if (offenseSheetId) {
+      return offenseSheets.find((sheet) => sheet.id === offenseSheetId)?.playbook?.trim() ?? "";
     }
-  }, [playbookOptions, selectedPlaybookName]);
+    return offensePlaybook?.trim() ?? "";
+  }, [offensePlaybook, offenseSheetId, offenseSheets]);
 
-  useEffect(() => {
-    if (!selectedPlaybookName) {
-      setAvailableSheets([]);
-      setSelectedSheetId(null);
-      return;
+  const resolvedDefensePlaybook = useMemo(() => {
+    if (defenseSheetId) {
+      return defenseSheets.find((sheet) => sheet.id === defenseSheetId)?.playbook?.trim() ?? "";
     }
-    let cancelled = false;
-    setSheetsLoading(true);
-    void (async () => {
-      const res = await fetch("/api/playbook", { cache: "no-store" });
-      const json = (await res.json()) as {
-        playbooks?: Array<{ id: string; name: string; playbook?: string | null }>;
-      };
-      if (cancelled) return;
-      const norm = selectedPlaybookName.trim().toLowerCase();
-      const matching = (json.playbooks ?? []).filter(
-        (row) => (row.playbook ?? "").trim().toLowerCase() === norm,
-      );
-      setAvailableSheets(matching.map((row) => ({ id: row.id, name: row.name })));
-      const matchingIds = new Set(matching.map((r) => r.id));
-      setSelectedSheetId((prev) => (prev && matchingIds.has(prev) ? prev : null));
-      setSheetsLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedPlaybookName]);
+    return defensePlaybook?.trim() ?? "";
+  }, [defensePlaybook, defenseSheetId, defenseSheets]);
+
+  const hasOffenseSide = Boolean(resolvedOffensePlaybook || offenseSheetId);
+  const hasDefenseSide = Boolean(resolvedDefensePlaybook || defenseSheetId);
 
   const hydrateFromGame = useCallback(() => {
     setMyTeamPick({ team_name: game.my_playbook });
     setOpponentPick({ team_name: game.opponent_team });
+    setOffenseSheetId(game.play_sheet_id ?? null);
+    setDefenseSheetId(game.defensive_play_sheet_id ?? null);
     const ob = (game.offensive_playbook ?? "").trim();
-    setSelectedPlaybookName(ob.length ? ob : null);
-    setSelectedSheetId(game.play_sheet_id ?? null);
+    const db = (game.opponent_scheme ?? "").trim();
+    setOffensePlaybook(game.play_sheet_id ? null : ob.length ? ob : null);
+    setDefensePlaybook(game.defensive_play_sheet_id ? null : db.length ? db : null);
     setForm({
       my_score: String(game.my_score ?? 0),
       opponent_score: String(game.opponent_score ?? 0),
@@ -329,15 +236,25 @@ export function EditGameDetailsModal({
     hydrateFromGame();
   }, [isOpen, hydrateFromGame]);
 
-  const canSave = Boolean(myTeamPick && opponentPick && playbookRow && !setupLoading);
+  const canSave = Boolean(
+    myTeamPick && opponentPick && (hasOffenseSide || hasDefenseSide) && !setupLoading,
+  );
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!myTeamPick || !opponentPick || !playbookRow) return;
+    if (!myTeamPick || !opponentPick) return;
+    if (!hasOffenseSide && !hasDefenseSide) return;
 
-    // Prefer the selected playbook's scheme — do not re-derive from the team name
-    // (that would overwrite defense-created sessions that store D metadata in my_scheme).
-    const myScheme = playbookRow.scheme_style.trim() || game.my_scheme;
+    let myScheme = game.my_scheme;
+    if (resolvedOffensePlaybook) {
+      const { data: schemeRow } = await supabase
+        .from("team_offensive_playbooks")
+        .select("scheme_style")
+        .eq("playbook_name", resolvedOffensePlaybook)
+        .limit(1)
+        .maybeSingle();
+      myScheme = (schemeRow?.scheme_style as string | undefined)?.trim() || game.my_scheme || "Multiple";
+    }
 
     setSaveBusy(true);
     try {
@@ -347,12 +264,14 @@ export function EditGameDetailsModal({
         body: JSON.stringify({
           my_playbook: myTeamPick.team_name.trim(),
           my_scheme: myScheme,
-          offensive_playbook: playbookRow.playbook_name.trim(),
+          offensive_playbook: resolvedOffensePlaybook || myTeamPick.team_name.trim(),
           opponent_team: opponentPick.team_name.trim(),
+          opponent_scheme: resolvedDefensePlaybook,
           my_score: Math.max(0, Number.parseInt(form.my_score.replace(/\D/g, ""), 10) || 0),
           opponent_score: Math.max(0, Number.parseInt(form.opponent_score.replace(/\D/g, ""), 10) || 0),
           result: form.result,
-          play_sheet_id: selectedSheetId ?? null,
+          play_sheet_id: offenseSheetId ?? null,
+          defensive_play_sheet_id: defenseSheetId ?? null,
         }),
       });
       const data = (await res.json()) as GameSession & { error?: string };
@@ -440,65 +359,34 @@ export function EditGameDetailsModal({
                   recentOptions={recentTeamOptions}
                   loading={setupLoading}
                   placeholder="Select opponent"
-                  nextFocusRef={playbookInputRef}
                 />
               </div>
 
-              <div className="space-y-1">
-                <TeamCombobox<OffensiveTeam>
-                  label="Offensive Playbook"
-                  inputId="edit-film-offensive-playbook"
-                  inputRef={playbookInputRef}
-                  selected={playbookRow}
-                  onSelect={(row) => setSelectedPlaybookName(row?.playbook_name ?? null)}
-                  options={playbookOptions}
-                  loading={setupLoading}
-                  placeholder="Select playbook"
-                  getOptionLabel={playbookOptionLabel}
-                  getOptionKey={(row) => row.playbook_name}
-                  getSearchText={(row) => `${row.playbook_name} ${row.team_name}`}
-                  getOptionSection={(row) => getCatalogPlaybookSection(row.playbook_name)}
-                  optionSections={[...PLAYBOOK_CATALOG_SECTIONS]}
-                />
-              </div>
+              <GameSideSetupSection
+                sideLabel="Offense"
+                sideOfBall="offense"
+                gameVersion={gameVersion}
+                sheets={offenseSheets}
+                sheetsLoading={offenseSheetsLoading}
+                selectedSheetId={offenseSheetId}
+                onSheetChange={setOffenseSheetId}
+                selectedPlaybook={offensePlaybook}
+                onPlaybookChange={setOffensePlaybook}
+                playbookLabel="Offensive Playbook"
+              />
 
-              {selectedPlaybookName ? (
-                <div className="space-y-2">
-                  <p className="mb-1 font-sans text-xs font-normal uppercase tracking-widest text-slate-500">Play Sheet</p>
-                  {sheetsLoading ? (
-                    <p className="font-body text-xs text-slate-500">Loading play sheets…</p>
-                  ) : availableSheets.length === 0 ? (
-                    <p className="font-body text-xs text-slate-500">
-                      No play sheets for this playbook yet.{" "}
-                      <a href="/playbook" className="text-emerald-400 hover:text-emerald-300">Create one in Play Sheet</a>.
-                    </p>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSheetId(null)}
-                        className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
-                          selectedSheetId === null ? toggleOn : toggleOff
-                        }`}
-                      >
-                        None
-                      </button>
-                      {availableSheets.map((sheet) => (
-                        <button
-                          key={sheet.id}
-                          type="button"
-                          onClick={() => setSelectedSheetId(sheet.id)}
-                          className={`min-h-11 rounded-lg border px-3 py-2 font-body text-sm transition-colors ${
-                            selectedSheetId === sheet.id ? toggleOn : toggleOff
-                          }`}
-                        >
-                          {sheet.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : null}
+              <GameSideSetupSection
+                sideLabel="Defense"
+                sideOfBall="defense"
+                gameVersion={gameVersion}
+                sheets={defenseSheets}
+                sheetsLoading={defenseSheetsLoading}
+                selectedSheetId={defenseSheetId}
+                onSheetChange={setDefenseSheetId}
+                selectedPlaybook={defensePlaybook}
+                onPlaybookChange={setDefensePlaybook}
+                playbookLabel="Defensive Playbook"
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="space-y-1">

@@ -10,6 +10,7 @@ import {
   SCENARIO_SHORT,
   SCENARIOS,
   catalogGameVersionCompactLabel,
+  parseCatalogGameVersion,
 } from "@/lib/constants";
 import type { CallSheetScenario, PlaySheetScenario } from "@/lib/constants";
 import type { CatalogPlaybookLookup } from "@/lib/playbooks/catalog-playbooks";
@@ -106,6 +107,18 @@ export function sheetPlaybookName(row: { playbook: string | null | undefined }):
 
 function catalogLabelsMatch(a: string, b: string): boolean {
   return a.localeCompare(b, undefined, { sensitivity: "accent" }) === 0;
+}
+
+/** Merge stored call-sheet `game_version` over catalog lookup (lookup prefers newest catalog row). */
+export function catalogMetaForSheet(
+  catalogMeta: CatalogPlaybookLookup | null | undefined,
+  sheetGameVersion: string | null | undefined,
+): CatalogPlaybookLookup {
+  const game_version = parseCatalogGameVersion(sheetGameVersion);
+  if (!catalogMeta) {
+    return { game_version, side_of_ball: "offense" };
+  }
+  return { ...catalogMeta, game_version };
 }
 
 /** Call sheet list card metadata: game version, side of ball, scheme. */

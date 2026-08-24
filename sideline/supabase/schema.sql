@@ -79,6 +79,8 @@ alter table drives add column if not exists starting_down int check (starting_do
 alter table drives add column if not exists starting_distance int check (starting_distance >= 1);
 alter table drives add column if not exists starting_absolute_yard int check (starting_absolute_yard between 1 and 99);
 alter table drives add column if not exists is_inches boolean default false;
+alter table drives add column if not exists side_of_ball text not null default 'offense'
+  check (side_of_ball in ('offense', 'defense'));
 
 create table if not exists play_sheets (
   id uuid primary key default gen_random_uuid(),

@@ -5,6 +5,8 @@ import { sheetPlaybookName } from "@/lib/playbookUtils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 type Ctx = { params: Promise<{ id: string }> };
 
 type PlayRow = {
@@ -96,12 +98,13 @@ async function patchPlaySheet(req: NextRequest, id: string) {
 
   const patch: Record<string, string> = {};
   if (typeof body.name === "string" && body.name.trim()) patch.name = body.name.trim();
+  if (typeof body.game_version === "string" && body.game_version.trim()) {
+    patch.game_version = parseCatalogGameVersion(body.game_version);
+  }
   if (typeof body.playbook === "string" && body.playbook.trim()) {
     const pb = body.playbook.trim();
     patch.playbook = pb;
-    if (typeof body.game_version === "string" && body.game_version.trim()) {
-      patch.game_version = parseCatalogGameVersion(body.game_version);
-    } else {
+    if (!patch.game_version) {
       const { data: catalogRow } = await supabase
         .from("playbooks")
         .select("game_version")

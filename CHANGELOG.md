@@ -4,6 +4,66 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-24 — Film Room: drive-level side-of-ball + logger routing
+
+### What
+
+- Added `side_of_ball` column to `drives` table (default `'offense'`).
+- Drive setup form includes offense/defense toggle.
+- Drive cards show side-of-ball indicator.
+- Play logger routes to the correct playbook and call sheet based on the drive's side: offensive drives use the game's offensive playbook/call sheet, defensive drives use the defensive ones.
+- Pass 1 of 3-pass defense logging implementation.
+
+### Why
+
+Coaches need to log both offensive and defensive plays within the same game. Drive-level side-of-ball is the foundation that defensive results (Pass 2) and tendencies split (Pass 3) build on.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Fix: call sheet game version display
+
+### What
+
+- Call sheet cards now display the actual stored `game_version` instead of defaulting to CFB27.
+- Edit call sheet form hydrates `game_version` from the existing row (fresh `GET /api/playbook/[id]`) instead of catalog lookup.
+- Builder/editor metadata and add-play catalog use the sheet’s stored `game_version` via `catalogMetaForSheet()` — not playbook lookup, which prefers CFB27 when both catalog versions exist.
+- `usePlaySheetDisplayMeta` fetches authoritative row metadata per card when the list cache omits or stale-versions `game_version`.
+- Play sheet list fetch uses `cache: no-store` and a bumped TanStack query key to avoid stale list payloads defaulting to CFB27.
+- PATCH `/api/playbook/[id]` applies explicit `game_version` before catalog inference, so saves preserve `cfb26`.
+
+### Why
+
+CFB26 call sheets were incorrectly displaying as CFB27. Editing them without changing the version field silently overwrote `cfb26` to `cfb27`. Both erode trust in data accuracy.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Film Room QA45: logger UX + edit form fixes
+
+### What
+
+- Play logger browse tab now shows play art for each play, reusing the add-play browse row pattern (`PlayArtImage` + `resolvePlayArtUrl()`).
+- Removed Recommended tab from play logger — only My Call Sheet and Browse remain.
+- My Call Sheet tab is conditionally hidden when no call sheet is associated with the game; Browse becomes the only/default tab.
+- Edit game modal now supports both offensive and defensive playbook/scheme fields, matching create form parity.
+
+### Why
+
+QA45: logger browse should match the visual richness of the call sheet add-play experience. Recommended tab added friction without validated value. Call Sheet tab showing empty when no sheet exists is confusing. Edit form lacked defensive field parity with the create form.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-24 — Film Room beta gate
 
 ### What

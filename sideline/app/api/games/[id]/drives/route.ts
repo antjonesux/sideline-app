@@ -100,12 +100,16 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
   const drive_number = (count ?? 0) + 1;
 
+  const sideRaw = typeof body.side_of_ball === "string" ? body.side_of_ball.trim() : "";
+  const side_of_ball = sideRaw === "defense" ? "defense" : "offense";
+
   const { data, error } = await supabase
     .from("drives")
     .insert({
       user_id: user.id,
       game_session_id: id,
       drive_number,
+      side_of_ball,
       quarter: typeof body.quarter === "number" ? body.quarter : 1,
       starting_down: typeof body.starting_down === "number" ? body.starting_down : 1,
       starting_distance: typeof body.starting_distance === "number" ? body.starting_distance : 10,

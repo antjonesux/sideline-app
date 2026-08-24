@@ -16,7 +16,7 @@ import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import {
   CATALOG_GAME_VERSION_LABELS,
   CATALOG_GAME_VERSIONS,
-  DEFAULT_CATALOG_GAME_VERSION,
+  parseCatalogGameVersion,
   type CatalogGameVersion,
   type CatalogSideOfBall,
 } from "@/lib/constants";
@@ -51,7 +51,9 @@ type Props = {
 
 export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
   const [name, setName] = useState(playbook.name);
-  const [selectedGameVersion, setSelectedGameVersion] = useState<CatalogGameVersion>(DEFAULT_CATALOG_GAME_VERSION);
+  const [selectedGameVersion, setSelectedGameVersion] = useState<CatalogGameVersion>(() =>
+    parseCatalogGameVersion(playbook.game_version),
+  );
   const [selectedSide, setSelectedSide] = useState<CatalogSideOfBall | null>(null);
   const [hydrating, setHydrating] = useState(false);
   const [selectedPlaybook, setSelectedPlaybook] = useState<PlaybookOption | null>({
@@ -87,13 +89,24 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
 
     let cancelled = false;
     void (async () => {
-      const meta = await lookupCatalogPlaybookMeta(playbook.playbook);
+      const [meta, sheetRes] = await Promise.all([
+        lookupCatalogPlaybookMeta(playbook.playbook),
+        fetch(`/api/playbook/${playbook.id}`, { cache: "no-store" }),
+      ]);
       if (cancelled) return;
+
+      let sheetVersion = playbook.game_version;
+      if (sheetRes.ok) {
+        const sheet = (await sheetRes.json()) as { game_version?: string | null };
+        if (sheet.game_version?.trim()) {
+          sheetVersion = sheet.game_version;
+        }
+      }
+
+      setSelectedGameVersion(parseCatalogGameVersion(sheetVersion));
       if (meta) {
-        setSelectedGameVersion(meta.game_version);
         setSelectedSide(meta.side_of_ball);
       } else {
-        setSelectedGameVersion(DEFAULT_CATALOG_GAME_VERSION);
         setSelectedSide("offense");
       }
       setHydrating(false);
@@ -102,7 +115,7 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, playbook.id, playbook.name, playbook.playbook]);
+  }, [open, playbook.id, playbook.name, playbook.playbook, playbook.game_version]);
 
   useEffect(() => {
     if (!open || hydrating || !selectedSide) return;
@@ -115,8 +128,6 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
 
   function handleGameChange(value: CatalogGameVersion) {
     setSelectedGameVersion(value);
-    setSelectedSide(null);
-    setSelectedPlaybook(null);
   }
 
   function handleSideChange(side: CatalogSideOfBall) {
@@ -134,7 +145,11 @@ export function EditPlaybookModal({ playbook, open, onClose, onSaved }: Props) {
       const res = await fetch(`/api/playbook/${playbook.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), playbook: selectedPlaybook.team_name }),
+        body: JSON.stringify({
+          name: name.trim(),
+          playbook: selectedPlaybook.team_name,
+          game_version: selectedGameVersion,
+        }),
       });
       const j = (await res.json()) as { error?: string };
       if (!res.ok || j.error) {

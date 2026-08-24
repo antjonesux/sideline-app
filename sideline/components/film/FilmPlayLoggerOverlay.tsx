@@ -7,6 +7,7 @@ import {
   appShellBrowsePanelTitleClass,
   overlayZ,
 } from "@/lib/constants/designTokens";
+import { resolveDriveLoggerContext } from "@/lib/filmGameDetailHelpers";
 import { useMdUp } from "@/lib/useMdUp";
 import { cn } from "@/lib/utils";
 import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
@@ -16,7 +17,6 @@ type FilmPlayLoggerOverlayProps = {
   gameId: string;
   game: GameSession;
   activeDrive: Drive;
-  activeSheetId: string | null;
   loggerOpenFlowId: string | null;
   totalPlayRowsInGame: number;
   totalCoachCallsInGame: number;
@@ -51,7 +51,6 @@ function LoggerBody({
   gameId,
   game,
   activeDrive,
-  activeSheetId,
   loggerOpenFlowId,
   totalPlayRowsInGame,
   totalCoachCallsInGame,
@@ -59,19 +58,23 @@ function LoggerBody({
   onRefresh,
   onPossessionEndedAfterLog,
 }: Omit<FilmPlayLoggerOverlayProps, "open" | "onClose">) {
+  const { sheetId, playbook, catalogSideOfBall } = resolveDriveLoggerContext(game, activeDrive);
+
   return (
     <PlayLoggerV2
-      key={activeDrive.id}
+      key={`${activeDrive.id}-${catalogSideOfBall}`}
       gameId={gameId}
       driveId={activeDrive.id}
-      playbook={game.offensive_playbook ?? ""}
+      playbook={playbook}
       drive={activeDrive}
       onRefresh={onRefresh}
-      sheetId={activeSheetId}
+      sheetId={sheetId}
       loggerOpenFlowId={loggerOpenFlowId}
       totalPlayRowsInGame={totalPlayRowsInGame}
       totalCoachCallsInGame={totalCoachCallsInGame}
       allGameCoachCalls={allGameCoachCalls}
+      catalogGameVersion={game.game_version}
+      catalogSideOfBall={catalogSideOfBall}
       onPossessionEndedAfterLog={(payload) => onPossessionEndedAfterLog(payload)}
     />
   );
@@ -82,7 +85,6 @@ export function FilmPlayLoggerOverlay({
   gameId,
   game,
   activeDrive,
-  activeSheetId,
   loggerOpenFlowId,
   totalPlayRowsInGame,
   totalCoachCallsInGame,
@@ -99,7 +101,6 @@ export function FilmPlayLoggerOverlay({
     gameId,
     game,
     activeDrive,
-    activeSheetId,
     loggerOpenFlowId,
     totalPlayRowsInGame,
     totalCoachCallsInGame,

@@ -45,9 +45,13 @@ export type LoggedPlay = {
   is_inches?: boolean | null;
 };
 
+export type DriveSideOfBall = "offense" | "defense";
+
 export type Drive = {
   id: string;
   drive_number: number;
+  /** Offense or defense possession — fixed at drive creation. */
+  side_of_ball?: DriveSideOfBall;
   quarter: number | null;
   time_remaining: string | null;
   starting_down?: number | null;

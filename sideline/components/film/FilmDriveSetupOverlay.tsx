@@ -11,6 +11,7 @@ type FilmDriveSetupOverlayProps = {
   drives: Drive[];
   onClose: () => void;
   onSubmit: (values: {
+    side_of_ball: "offense" | "defense";
     quarter: number;
     score_mine: number;
     score_opponent: number;
@@ -41,6 +42,7 @@ export function FilmDriveSetupOverlay({ open, drives, onClose, onSubmit }: FilmD
           </div>
           <DriveSetupForm
             defaultValues={{
+              side_of_ball: "offense",
               quarter: quarterFromDriveForSetup(lastDrive?.quarter),
               score_mine: Math.max(0, Number(lastDrive?.score_mine ?? 0)),
               score_opponent: Math.max(0, Number(lastDrive?.score_opponent ?? 0)),
@@ -52,6 +54,7 @@ export function FilmDriveSetupOverlay({ open, drives, onClose, onSubmit }: FilmD
             onCancel={onClose}
             onSubmit={async (values) => {
               await onSubmit({
+                side_of_ball: values.side_of_ball,
                 quarter: values.quarter === "OT" ? 5 : Number(values.quarter),
                 score_mine: values.score_mine,
                 score_opponent: values.score_opponent,

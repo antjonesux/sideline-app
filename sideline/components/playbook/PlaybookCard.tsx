@@ -7,7 +7,9 @@ import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
-import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
+import { usePlaySheetDisplayMeta } from "@/hooks/usePlaySheetDisplayMeta";
+import { callSheetDetailsMetadataLabels, catalogMetaForSheet } from "@/lib/playbookUtils";
+import { playbookListQueryKey } from "@/lib/playbookListQuery";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE, ADD_TO_SCHEME_MENU_LABEL } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -34,8 +36,13 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const { data: catalogMeta } = useCatalogPlaybookMeta(item.playbook);
+  const { data: sheetMeta } = usePlaySheetDisplayMeta(item);
 
-  const fallbackMeta = item.scheme || `Built from ${item.playbook} playbook`;
+  const metadataLabels = callSheetDetailsMetadataLabels(
+    catalogMetaForSheet(catalogMeta ?? null, sheetMeta?.game_version ?? item.game_version),
+    sheetMeta?.scheme ?? item.scheme,
+    sheetMeta?.playbook ?? item.playbook,
+  );
 
   async function confirmDeletePlaybook() {
     setDeleteBusy(true);
@@ -48,7 +55,7 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
       setDeleteOpen(false);
       setMenuOpen(false);
       addToast("Play sheet removed.", "success");
-      await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+      await queryClient.invalidateQueries({ queryKey: playbookListQueryKey });
       router.refresh();
     } finally {
       setDeleteBusy(false);
@@ -72,14 +79,10 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
           <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">
             {item.name}
           </h2>
-          {catalogMeta ? (
-            <CallSheetMetadataRow
-              labels={callSheetDetailsMetadataLabels(catalogMeta, item.scheme, item.playbook)}
-              className="mt-1 font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]"
-            />
-          ) : (
-            <p className="mt-1 truncate font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]">{fallbackMeta}</p>
-          )}
+          <CallSheetMetadataRow
+            labels={metadataLabels}
+            className="mt-1 font-body text-sm text-slate-500 md:mt-0.5 md:text-[13px]"
+          />
         </div>
       </Link>
 
@@ -107,11 +110,16 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
       </CardKebabMenu>
 
       <EditPlaybookModal
-        playbook={item}
+        playbook={{
+          ...item,
+          game_version: sheetMeta?.game_version ?? item.game_version,
+          scheme: sheetMeta?.scheme ?? item.scheme,
+          playbook: sheetMeta?.playbook ?? item.playbook,
+        }}
         open={editOpen}
         onClose={() => setEditOpen(false)}
         onSaved={async () => {
-          await queryClient.invalidateQueries({ queryKey: ["playbooks", "list"] });
+          await queryClient.invalidateQueries({ queryKey: playbookListQueryKey });
           router.refresh();
         }}
       />
