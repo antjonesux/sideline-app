@@ -18,6 +18,7 @@ import {
 import {
   APP_SHELL_SIDEBAR_NAV,
   APP_SHELL_SIGN_OUT_LABEL,
+  getAppShellSidebarNav,
   isAppShellSidebarNavActive,
   type AppShellSidebarNavItem,
 } from "@/lib/navigation/appShellNav";
@@ -362,10 +363,12 @@ function SidebarSignOutButton({ icon: Icon }: { icon: LucideIcon }) {
 /** Persistent left navigation for tablet (`md`) and desktop — approved Session 09 shell. */
 export function AppShellSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const secondaryNav = APP_SHELL_SIDEBAR_NAV.filter(
+  const { user } = useAuth();
+  const sidebarNav = getAppShellSidebarNav(user?.id);
+  const secondaryNav = sidebarNav.filter(
     (item) => item.id !== "call-sheets" && item.id !== "schemes" && item.id !== "settings",
   );
-  const settingsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "settings");
+  const settingsItem = sidebarNav.find((item) => item.id === "settings");
 
   return (
     <aside

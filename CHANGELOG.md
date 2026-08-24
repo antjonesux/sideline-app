@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-24 — Film Room beta gate
+
+### What
+
+- Added user-level feature flag for Film Room access (`NEXT_PUBLIC_FILM_BETA_USER_IDS`).
+- Film Room nav item hidden from sidebar and mobile drawer for non-beta users.
+- `/film` routes redirect non-beta users to `/` (proxy + `app/film/layout.tsx`).
+- Guided onboarding (`/film/[gameId]?guided=1`) remains allowed so Play Sheet → Film still works for non-beta users.
+- Feature flag utility at `sideline/lib/featureFlags.ts`.
+
+### Why
+
+Film Room shipped alongside play art changes but needs additional QA before public release. User-level gating allows production testing without exposing unfinished features to public users.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-22 — Owned play art: render-time SIDELINE.PRO watermark
 
 ### What

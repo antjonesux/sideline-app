@@ -1,4 +1,5 @@
 import { resolveSafeNextPath } from "@/lib/navigation/loginHref";
+import { FILM_GUIDED_ONBOARDING_HEADER, isFilmRoomBetaUser } from "@/lib/featureFlags";
 import { updateSession } from "@/lib/supabase/proxy";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -19,6 +20,16 @@ function isPublic(pathname: string) {
   if (pathname.startsWith("/qa/play-sheet")) return true;
   if (pathname.startsWith("/qa/call-sheet")) return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
+function withRequestHeader(request: NextRequest, response: NextResponse, name: string, value: string) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(name, value);
+  const next = NextResponse.next({ request: { headers: requestHeaders } });
+  response.cookies.getAll().forEach((cookie) => {
+    next.cookies.set(cookie);
+  });
+  return next;
 }
 
 export async function proxy(request: NextRequest) {
@@ -53,6 +64,21 @@ export async function proxy(request: NextRequest) {
     url.pathname = dest;
     url.searchParams.delete("next");
     return NextResponse.redirect(url);
+  }
+
+  // Film Room beta: hide /film from non-beta users. Allow guided onboarding (?guided=1)
+  // so Play Sheet → Film still works while Film Room stays out of nav.
+  if (pathname.startsWith("/film")) {
+    const guided = request.nextUrl.searchParams.get("guided") === "1";
+    if (guided) {
+      return withRequestHeader(request, supabaseResponse, FILM_GUIDED_ONBOARDING_HEADER, "1");
+    }
+    if (!isFilmRoomBetaUser(user?.id)) {
+      const home = request.nextUrl.clone();
+      home.pathname = "/";
+      home.search = "";
+      return NextResponse.redirect(home);
+    }
   }
 
   return supabaseResponse;

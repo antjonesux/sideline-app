@@ -4,6 +4,7 @@ import {
   CALL_SHEET_VIEWER_MENU_SETTINGS,
   APP_SHELL_SCHEMES_MENU_LABEL,
 } from "@/lib/coachCopy";
+import { isFilmRoomBetaUser } from "@/lib/featureFlags";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
 import { ClipboardList, Headset, Settings, Video } from "lucide-react";
@@ -24,6 +25,12 @@ export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "review", href: "/film", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
+
+/** Sidebar / drawer nav for the current user — Film Room omitted unless beta-listed. */
+export function getAppShellSidebarNav(userId: string | undefined | null): AppShellSidebarNavItem[] {
+  if (isFilmRoomBetaUser(userId)) return APP_SHELL_SIDEBAR_NAV;
+  return APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "review");
+}
 
 export function isAppShellSidebarNavActive(pathname: string, item: AppShellSidebarNavItem): boolean {
   if (item.comingSoon || !item.href) return false;

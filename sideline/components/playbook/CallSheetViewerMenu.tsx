@@ -5,8 +5,8 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { CALL_SHEET_VIEWER_MENU_REVIEW_SOON } from "@/lib/coachCopy";
 import { appShellIconBackButtonClass, overlayZ } from "@/lib/constants/designTokens";
 import {
-  APP_SHELL_SIDEBAR_NAV,
   APP_SHELL_SIGN_OUT_LABEL,
+  getAppShellSidebarNav,
   isAppShellSidebarNavActive,
 } from "@/lib/navigation/appShellNav";
 import { cn } from "@/lib/utils";
@@ -52,11 +52,12 @@ export function CallSheetMenuButton({
 export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [signOutBusy, setSignOutBusy] = useState(false);
 
-  const settingsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "settings");
-  const primaryNav = APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "settings");
+  const sidebarNav = getAppShellSidebarNav(user?.id);
+  const settingsItem = sidebarNav.find((item) => item.id === "settings");
+  const primaryNav = sidebarNav.filter((item) => item.id !== "settings");
   const settingsActive = settingsItem ? isAppShellSidebarNavActive(pathname, settingsItem) : false;
 
   async function handleSignOut() {
