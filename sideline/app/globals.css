@@ -46,8 +46,8 @@
     --app-shell-max-width: 56rem;
     --app-shell-workspace-inner-max-width: 53.75rem;
     --app-shell-workspace-inner-wide-max-width: 53.75rem;
-    /** Situation Add Play side rail — tablet stays conservative (QA40). */
-    --app-shell-situation-browse-panel-width: 21.25rem;
+    /** Situation side rail — fixed width on tablet / desktop (QA50). */
+    --app-shell-situation-browse-panel-width: 26.25rem;
   }
 }
 
@@ -56,15 +56,12 @@
     --app-shell-max-width: 64rem;
     --app-shell-px: 2rem;
     --app-shell-workspace-inner-wide-max-width: 56.25rem;
-    --app-shell-situation-browse-panel-width: 28rem;
   }
 }
 
 @media (min-width: 1280px) {
   :root {
     --app-shell-max-width: 72rem;
-    /** Wide desktop — room for featured play art; rail reaches workspace right edge. */
-    --app-shell-situation-browse-panel-width: 36rem;
   }
 }
 
@@ -273,32 +270,16 @@
   }
 
   /**
-   * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA40/QA41).
-   * Width tokens live on `:root` (`--app-shell-situation-browse-panel-width`).
-   * Flex-grow fills leftover workspace beside the situation column; percentage max
-   * keeps the main column usable. Prefer grow over bumping the rem token alone.
+   * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA50).
+   * Fixed width via `--app-shell-situation-browse-panel-width`; does not grow with content.
+   * Pair with `sticky top-0 self-start` on the shell so the rail stays in the viewport.
    */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
-    flex: 1 1 auto;
-    min-width: min(var(--app-shell-situation-browse-panel-width, 21.25rem), 42%);
-    width: min(var(--app-shell-situation-browse-panel-width, 21.25rem), 42%);
-    max-width: 42%;
-  }
-
-  @media (min-width: 1024px) {
-    .app-shell-situation-browse-panel {
-      min-width: min(var(--app-shell-situation-browse-panel-width), 40%);
-      width: auto;
-      max-width: 46%;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .app-shell-situation-browse-panel {
-      min-width: min(var(--app-shell-situation-browse-panel-width), 42%);
-      max-width: 50%;
-    }
+    flex: 0 0 auto;
+    width: var(--app-shell-situation-browse-panel-width, 26.25rem);
+    min-width: var(--app-shell-situation-browse-panel-width, 26.25rem);
+    max-width: var(--app-shell-situation-browse-panel-width, 26.25rem);
   }
 
   /**

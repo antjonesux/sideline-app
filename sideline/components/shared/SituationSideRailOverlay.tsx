@@ -51,7 +51,7 @@ export function SituationSideRailOverlay({
             ) : null}
           </div>
         </div>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
           {children}
         </div>
       </div>

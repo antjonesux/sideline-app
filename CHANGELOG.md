@@ -4,6 +4,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-24 — Film Room QA50: rail layout fixes
+
+### What
+
+- Set fixed rail width on desktop with properly scaled play art images.
+- Added bottom padding to rail scroll area so the last item has breathing room (all devices, safe-area aware).
+- Rail is now sticky/fixed in viewport — does not scroll with page content behind it.
+
+### Why
+
+QA50: play art was oversized in the rail, content hugged the bottom edge, and the rail scrolled away with the page instead of staying anchored.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+
+---
+
 ## 2026-08-24 — Film Room QA49: formation headers + logger tab cleanup
 
 ### What

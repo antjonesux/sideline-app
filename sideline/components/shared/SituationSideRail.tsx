@@ -32,7 +32,7 @@ export function SituationSideRail({
   return (
     <aside
       className={cn(
-        "app-shell-situation-browse-panel sticky top-0 hidden h-dvh max-h-dvh min-h-0 min-w-0 flex-col border-l border-slate-800/80 bg-slate-950 md:flex",
+        "app-shell-situation-browse-panel sticky top-0 z-10 hidden h-dvh max-h-dvh shrink-0 self-start flex-col overflow-hidden border-l border-slate-800/80 bg-slate-950 md:flex",
         className,
       )}
       aria-label={title}
@@ -56,7 +56,7 @@ export function SituationSideRail({
         </button>
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
         {children}
       </div>
     </aside>
