@@ -6,6 +6,116 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-25 — Play-art reference downloads degrade per-candidate; preserve hole-number spacing for cfb.fan
+
+**Decision:** When a cfb.fan reference image fails to download, continue scoring the formation against successfully fetched candidates (zero-score column for missing plays → that crop REVIEW). Only if every reference for a formation fails do all crops become REVIEW. Play-art reference JSON uses `normalizePlayNameBase` (no digit-pair collapse) so spaced hole numbers like `0 1 TRAP` slug to `0-1-trap.jpg`. App identity matching still uses full `normalizePlayName`. Do not change the global hyphen→`--` slug rule — cfb.fan uses `y--flex` for Y-Flex formations.
+
+**Why:** California’s 44 FAILs were cascade aborts from three wrong `01-trap.jpg` URLs. Digit collapse in `normalizePlayName` broke cfb.fan’s spaced-digit convention; one 403 then aborted the whole formation.
+
+**Impact:**
+- California FAIL 44 → 0; PASS 390 → 433
+- Air Force / USC unchanged
+- Batch ingestion safer against partial cfb.fan gaps
+
+---
+
+## 2026-08-25 — Section-to-seed matching by OCR, not position
+
+**Decision:** DOCX section-to-seed formation pairing now uses OCR of section header text (middle panel, with crop-header majority vote / left-panel personnel hint only when middle-only match fails), matched against the known formation list with play-count disambiguation. Positional pairing is removed entirely — including as a fallback. Hail Mary formations absent from Vault DOCX are omitted from owned extraction (cfb.fan fallback). Per-crop header OCR validates section assignments and does not reassign. USC trusted hashes are reconciled against the new extraction; invalidations are archived, never silently deleted.
+
+**Why:** Diagnostic proved positional pairing failed on California (seed order ≠ DOCX order) and risked silent mispairings in USC’s trusted hash store. Positional pairing worked on Air Force only by coincidence of order. Header OCR uses the ground truth printed on the section itself and is consistent with the prior OCR-based formation reconciliation decision (2026-08-25).
+
+**Impact:**
+- Extraction fails closed when section headers can't be OCR'd (no silent positional fallback)
+- California extracts with correct per-formation counts (e.g. Singleback Bunch X Nasty = 15); Hail Mary omitted when absent
+- USC trusted hash reconciliation: **465/465 confirmed**, 0 invalidated
+- Air Force re-extraction idempotent (identical crop→formation vs published manifest)
+- All future playbook ingestion uses OCR-based section matching
+
+---
+
+## 2026-08-25 — Play-art reference order must follow Vault DOCX (not seed module order)
+
+**Decision:** Treat California’s “12 vs 15” extract failure as **formation order mismatch** between seed-built play-art references and Vault DOCX header order — not as lost ZIP media or gutter mis-crops of the Nasty block. Next fix session should build/reorder references to DOCX order (or match sections by header OCR before positional consume). Keep under-count fail-closed. Do not assume Air Force-style count alignment means name order is correct (formation OCR rebucket remains the label safety net when counts match).
+
+**Why:** Diagnostics showed Nasty’s 15 cards intact at DOCX header #26; seed slot 1 was consuming Wing Slot Offset (12). Filename/relationship image order in `extract-docx.ts` is already correct.
+
+**Impact:** Diagnostic-only this session (`scripts/play-art/diagnostics/`). Production extract unchanged until the follow-up fix. California + USC re-ingest after order alignment; Air Force has no count drops.
+
+---
+
+## 2026-08-25 — Play-art seed/reference auto-derive from DOCX filename
+
+**Decision:** `play-art:reference` and `play-art:ingest` accept `--source=<docx>` and derive team slug → seed slug (`cfb27-{slug}`) → reference path (`scripts/play-art/references/cfb27-offense-{slug}.json`). Missing references auto-build from the seed module (importable `buildReferenceFromSeedSlug`); `--no-auto-reference` opts out. Keep `--seed` / `--reference` / `--team` / `--game` for backward compat and overrides. Ampersand filenames keep `&` in the slug (`Run & Shoot` → `run-&-shoot`) to match on-disk seed modules; cfb.fan URL exceptions stay in seed `source.url`. Basename exceptions reuse `source-aliases.json` via existing source-discovery.
+
+**Why:** Manual seed + reference path coordination does not scale to 100+ playbooks. Filename is the operator’s natural key.
+
+**Impact:** `scripts/play-art/lib/slug-utils.ts`; CLI entry changes only in `build-reference.ts` / `ingest-playbook.ts`. No matcher, manifest, or frontend changes. Batch directory walker deferred.
+
+---
+
+## 2026-08-25 — OCR for formation reconciliation (not play identity)
+
+**Decision:** Use system **tesseract** (via `formation-ocr.ts`) to read printed formation names on Vault cards. **Superseded for section→seed pairing by the same-day “Section-to-seed matching by OCR” entry** — positional pairing is removed; per-crop OCR is validation-only. Play identity remains the visual matcher.
+
+**Why:** Diagnostic data proved count-valid reference order can still assign the wrong formation name to a section. Vault headers are high-contrast printed labels.
+
+**Impact:**
+- Original Air Force gain from crop-header remapping retained historically; section OCR is now the primary assignment path
+- Requires `tesseract` on PATH for ingest
+
+---
+
+## 2026-08-24 — Air Force skips → fix DOCX formation detection first
+
+**Decision:** Treat Air Force REVIEW skip mass as primarily **upstream formation misassignment**, not unreachable top-3 candidates. Next investment is DOCX formation/header detection at ingestion. Defer cross-formation picker until formation assignment is trustworthy (picker remains useful as secondary UX).
+
+**Why:** Diagnostic sample of 30/202 skipped cases (`--mode=diagnostic --seed=42`) categorized **100% F** (formation mismatch). Zero C/A/O. Matches the first-case pattern (crop header ≠ matcher formation; correct play unreachable within assumed formation).
+
+**Impact:** No matcher/override/trusted-hash changes this session. Diagnostic mode stays in `review-tool/`. Next session scoped to ingestion formation detection. **Superseded for the fix path by 2026-08-25 OCR entry** (diagnostic conclusion unchanged).
+
+---
+
+## 2026-08-24 — Play-art REVIEW operator tool (matching-overrides write path)
+
+**Decision:** Ship a localhost-only REVIEW confirmation UI that writes formation-scoped `matching-overrides` (existing matcher `operator-override` path). Do **not** promote Air Force into `TRUSTED_PLAYBOOKS` / manifest trusted-hash from this tool. Do not change matcher gates.
+
+**Why:** Remaining REVIEWs are raster-ambiguous; operator confirmation in seconds is the unblock for Air Force publish. Overrides are the write path the matcher already honors without format changes.
+
+**Impact:** New `sideline/scripts/play-art/review-tool/` + `npm run play-art:review`. No app/frontend/ingest API changes.
+
+---
+
+## 2026-08-24 — Play-art SVG auto-trace (VTracer) — do not proceed
+
+**Decision:** Do **not** replace owned Vault PNG play art with whole-card VTracer (or similar auto-trace) SVGs. Keep raster ingest + SIDELINE.PRO watermark for owned art and cfb.fan hotlink for unmatched plays. Do not build SVG Storage/frontend pipelines on this approach. If SVG is revisited, evaluate a **hybrid** (clean field shell + icon sprites + route-ink-only trace), not whole-card tracing.
+
+**Why:** Prototype on 20 trusted USC crops: 0 clean, 70% major cleanup. Controller glyphs / PASS·RUN badges / yard numbers fail; SVG files average larger than JPGs; operator cleanup exceeds ~1 min/play ROI gate.
+
+**Impact:** Prototype only under `sideline/scripts/play-art/svg-prototype/` (`assessment.md`). No matcher, ingest, manifest, or app rendering changes.
+
+---
+
+## 2026-08-24 — Play-art Matcher V3.2 per-hue geometry scoring (REVIEW-only)
+
+**Decision:** Extend the V3.1 geometry resolver with per-hue (warm/cool/other) spatial + occupancy signals. Keep combined-ink terms. Use hybrid scoring: modest composite weights for per-hue means (Option A) plus a thinner confirm-margin floor when max per-hue margin is clear (Option B). Require V3 margin ≥ 0.005 for confirm-path. Do not override V3 mis-rankings with geometry. Do not promote provisional Air Force REVIEW; do not bulk `--approve-review`. Method name `geometry-v3.2`.
+
+**Why:** Color-ink was highly discriminative in V3 diagnostics; remaining hard families often differ by one hue-specific path. Pure per-hue ranking is unreliable on AF option near-duplicates (can prefer Read Opt over Power G), so per-hue is confirmatory/boosting only under fail-closed gates.
+
+**Impact:** `image-geometry-v3.ts`, `match-play-art.ts`, `debug-geometry.ts`, `geometry-calibration-set.ts`, matching reports (`matcherVersion: v3.2`). USC auto **89.7%** (0 wrong PASS); AF REVIEW **229** (down from 243). Playbook #3 still deferred.
+
+---
+
+## 2026-08-24 — Play-art Matcher V3.1 geometry resolver (REVIEW-only, fail-closed)
+
+**Decision:** Keep Matcher V3 PASS gates unchanged. Add a secondary geometry resolver that runs **only** on V3 REVIEW cases: play-ink mask → components / 4×3 grid / L-R occupancy / directional features → confirm or remain REVIEW. Method name `geometry-v3.1`. Confirm path requires V3 local-best + non-negative V3 margin; switch path uses stricter geometry margin. V3↔geometry strong conflict stays REVIEW. Do not promote provisional Air Force REVIEW into trusted-hash; do not bulk `--approve-review`.
+
+**Why:** Remaining hard families share near-identical residual energy after V3 registration; geometry recovers separable REVIEW cases without loosening V3 confidence.
+
+**Impact:** `image-geometry-v3.ts`, `match-play-art.ts`, `debug-geometry.ts`, matching reports (`matcherVersion: v3.1`). Ingest/matching accuracy only — no DOCX/manifest/app/API changes. Playbook #3 ingest still deferred while Air Force REVIEW is material.
+
+---
+
 ## 2026-08-21 — Situation detail: page scroll owner (supersedes independent column scroll)
 
 **Decision:** Situation detail on tablet/desktop uses **document/`html` vertical scroll** as the single scroll owner. The Add Play side rail no longer nests its own `overflow-y` results pane; **`PlayBrowser`** **`pageScrollResults`** (panel shell only) lets catalog results flow in the page with **sticky** search. Mobile Add Play modal keeps nested scroll. This **adjusts** the earlier independent-column-scroll approach that left two visible scrollbars.

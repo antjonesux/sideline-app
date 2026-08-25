@@ -4,6 +4,237 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-25 — Play-art reference download resilience + spaced hole-number URLs
+
+### What
+
+- Reference downloads degrade per-candidate: one cfb.fan 403 no longer cascade-FAILs an entire formation. Scoring continues against available candidates; all-refs-failed → REVIEW with reason.
+- Play-art references preserve spaced hole numbers (`0 1 TRAP`) via `normalizePlayNameBase` so cfb.fan slugs stay `0-1-trap.jpg` (not `01-trap.jpg` from digit-collapse).
+- End-of-ingest download summary logging (`Reference downloads: X succeeded, Y failed`).
+- Documented: cfb.fan uses `--` for all literal hyphens including `Y-Flex` → `y--flex` (no slug rule change).
+
+### Why
+
+California’s 44 FAILs were cascade aborts from three `01-trap.jpg` 403s. Root cause was `normalizePlayName` collapsing `0 1 TRAP` → `01 TRAP` before URL build; cfb.fan serves `0-1-trap.jpg`. Y-Flex `y--flex` was already correct on cfb.fan.
+
+### Status
+
+- California validate-only: **433 PASS / 34 REVIEW / 0 FAIL** (was 390 / 33 / 44); auto **92.7%**; reference downloads **467/0**.
+- Air Force: **468 / 0 / 0** (unchanged).
+- USC: **465 / 0 / 0** (unchanged).
+
+---
+
+## 2026-08-25 — Play-art section matching via header OCR (not position)
+
+### What
+
+- Replaced positional `seed_formation[i] ↔ docx_header[i]` pairing in `extract-docx.ts` with OCR of each section header matched to the seed formation list (play-count disambiguation; crop-vote / personnel-hint fallbacks when middle-only is ambiguous).
+- Fail-closed on unidentified sections (no positional fallback). Hail Mary omitted when absent from DOCX.
+- Per-crop OCR is validation-only (`validateCropHeadersAgainstSections`).
+- Diagnostics: `diff-formation-assignments.ts`, `reconcile-trusted-hashes.ts`; invalidated hashes archive dir `trusted-hashes-invalidated/`.
+
+### Why
+
+California “12 vs 15” was wrong section pairing (Nasty’s 15 cards intact). Positional order ≠ DOCX order; USC trusted store needed reconciliation after the fix.
+
+### Status
+
+- California: 32/32 sections OCR-matched; Bunch X Nasty = 15; 467 owned cards (Hail Mary omitted); matcher **390 PASS / 33 REVIEW / 44 FAIL** (validate-only; FAIL blocks publish).
+- Air Force: re-extract identical to published crop→formation (idempotent).
+- USC: 26/26 sections; trusted reconciliation **465 confirmed / 0 invalidated**.
+
+---
+
+## 2026-08-25 — Play-art extraction diagnostic (DOCX vs seed order)
+
+### What
+
+- Added `scripts/play-art/diagnostics/` (DOCX inspector, extraction audit, header-order OCR probes). Reports under `diagnostics/reports/`.
+- California / Air Force / USC audited without changing `extract-docx.ts`.
+
+### Why
+
+California ingest failed (`Singleback Bunch X Nasty` 12 vs 15). Needed evidence whether crops were dropped or sections mis-paired.
+
+### Status
+
+- California: all 15 Nasty cards present at DOCX header #26; failure is **seed/reference order ≠ Vault DOCX order** (slot 1 paired with Wing Slot Offset’s 12 cards).
+- Air Force: no count under/over (no silent trailing drops).
+- USC: same order-mismatch class under current seed-ordered reference.
+- Fix deferred (Category 2: DOCX-ordered reference or header OCR section match).
+
+---
+
+## 2026-08-25 — Play-art ingest: auto-derive seed from DOCX filename
+
+### What
+
+- Added `scripts/play-art/lib/slug-utils.ts` (filename → team slug → seed slug → reference path).
+- `play-art:reference` accepts `--source` / `--team` / `--game` as alternatives to `--seed`; exports `buildReferenceFromSeedSlug` for reuse.
+- `play-art:ingest` accepts `--source` alone: derives reference path, auto-builds missing reference from seed (unless `--no-auto-reference`).
+- README updated for single-command team + scheme playbook workflow. Existing `--seed` / `--reference` flags unchanged.
+
+### Why
+
+Operator had to hand-build `cfb27-{team}` and pass explicit reference paths per playbook — blocking batch ingestion.
+
+### Status
+
+- Ampersand: `Run & Shoot.docx` → seed `cfb27-run-&-shoot` (matches seed filename; cfb.fan uses `run-shoot-off` in seed URL).
+- Aliases: `Miami FL.docx` → `cfb27-miami` via `source-aliases.json`.
+- California single-command auto-derive + auto-build works; full extract blocked by **seed/DOCX formation order mismatch** (Nasty’s 15 cards intact; positional slot paired with a 12-card section) — not slug derivation.
+- Air Force single-command `--source` validate-only succeeds (backward-compat path also intact).
+
+---
+
+## 2026-08-25 — Formation assignment via crop-header OCR
+
+### What
+
+- Added `sideline/scripts/play-art/formation-ocr.ts`: tesseract OCR on each Vault card header; normalize/match to known formations; size-constrained section remap (Hungarian on OCR votes) with positional fallback.
+- Wired into `extractPlayArtDocx` (skip with `PLAY_ART_SKIP_FORMATION_OCR=1`). Validation via `npm run play-art:validate-formation-ocr`.
+- Matching overrides remapped by cropId after formation moves (`remapOverridesByCropLocation`).
+- Re-ingested Air Force: **PASS 437 / REVIEW 31 / FAIL 0** (93.4% auto-match) vs prior **248 / 220 / 0** (~53%).
+
+### Why
+
+Diagnostic proved AF REVIEW mass was wrong formation labels on count-valid DOCX sections. Printed headers are reliable OCR targets; play identity stays with the visual matcher.
+
+### Status
+
+- Validation sample: operator visual **30/30** headers match assigned formation; OCR fallback 7.5%.
+- Requires system `tesseract` (`brew install tesseract`).
+- `npm run build` from `sideline/` passed.
+
+---
+
+## 2026-08-24 — Air Force skip diagnostic (formation mismatch dominant)
+
+### What
+
+- Extended `sideline/scripts/play-art/review-tool/` with `--mode=diagnostic`: samples 30 skipped REVIEWs, categorization keys F/C/A/O, report under `review-tool/reports/diagnostic-*.json`. Does not modify review state, overrides, matcher, or ingest.
+- Operator pass (`--playbook=air-force --seed=42`): **30/30 F** (formation mismatch), 0 C / 0 A / 0 O. Extrapolated ~202/202 skips are formation misassignment.
+- **Recommendation:** next session fixes upstream DOCX formation detection. Cross-formation picker is secondary.
+
+### Why
+
+Full Air Force REVIEW pass skipped 92% (18 confirmed / 202 skipped). Needed evidence before investing in tooling vs ingestion.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Report: `scripts/play-art/review-tool/reports/diagnostic-air-force-2026-08-25T03-06-29-693Z.json`.
+
+---
+
+## 2026-08-24 — Play-art REVIEW operator tool
+
+### What
+
+- Local keyboard-driven REVIEW confirmation UI under `sideline/scripts/play-art/review-tool/`.
+- Bare `node:http` server (`npm run play-art:review -- --playbook=air-force|usc`) serves owned Vault crop + top matcher candidates; confirmations write `matching-overrides/{slug}.json` (matcher `operator-override` → PASS).
+- Session progress persists under `review-tool/state/`; one-level undo; formation play picker for “none of these”.
+- Air Force e2e: 10 confirmations → overrides=10; rematch **239/229 → 248/220** PASS/REVIEW (net −9 REVIEW after Hungarian reassignment); auto **53.0%**.
+
+### Why
+
+Matcher V3.2 plateaued on ambiguous REVIEWs. Operator tooling is the ROI path to ship Air Force without loosening gates or bulk `--approve-review`.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Tool ready for full Air Force REVIEW pass; not run at full scale this session.
+
+---
+
+## 2026-08-24 — SVG auto-trace prototype (VTracer) — do not proceed
+
+### What
+
+- Isolated prototype under `sideline/scripts/play-art/svg-prototype/`: preprocess (diagram crop + palette + 2× Lanczos), VTracer WASM (`@visioncortex/vtracer`), 20 trusted USC Vault crops, HTML comparison + fidelity assessment.
+- Sample coverage: 5 pass / 5 run / 4 option / 3 motion / 3 blocking (TRAP → COUNTER Y LEAD; Curl Flats → CURL COMBO).
+- Result: **0 clean / 6 minor / 14 major / 0 unusable**. Mean SVG ~1.8× larger than source JPG. Controller glyphs, yard text, and arrowheads systematically degrade.
+- **Recommendation: do not proceed** with whole-card auto-trace as a PNG replacement. Keep owned rasters + watermark; cfb.fan fallback unchanged. No Storage/frontend/matcher changes.
+
+### Why
+
+Prove or disprove SVG ownership via auto-trace before building pipeline infrastructure. Evidence shows cleanup ROI and glyph fidelity fail the product bar.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Operator artifacts under `svg-prototype/output/` (gitignored).
+
+---
+
+## 2026-08-24 — Play-art Matcher V3.2 per-hue geometry scoring
+
+### What
+
+- Geometry resolver now scores **per-hue** (warm/cool/other) spatial grids + occupancy as independent signals alongside combined-ink geometry (hybrid Option A weights + Option B confirm-margin boost when max per-hue margin ≥ 0.04).
+- Hue buckets retained after source-image histogram evidence (peaks ~65°/225°/345°; warm≈72% / cool≈23% / other≈5%). Per-hue directional histograms stored for diagnostics only (no composite weight — weak incremental separation).
+- Confirm path requires V3 margin ≥ **0.005** (blocks weak V3 ties that mis-confirmed AF option collisions). V3 non-negative / local-best gate kept; no geometry-correction override of V3 mis-rankings.
+- Calibration set expanded to **61** entries (51 USC V3.1 REVIEW residuals + 10 verified AF), split `verified-correct` vs `verified-ambiguous`.
+- Diagnostics: per-hue masks + margins under `scripts/play-art/reports/matcher-v3-debug/geometry/per-hue/`; `matcherVersion: v3.2` / method `geometry-v3.2`.
+- USC pure-visual regression: **417 PASS / 48 REVIEW / 0 FAIL**, wrong automatic PASS **0**, geometry-promoted **30** (per-hue-boosted **1**), auto **89.7%** (V3.1 was 414 / 51 / 89.0%).
+- Air Force validate-only: **239 PASS / 229 REVIEW / 0 FAIL**, geometry-promoted **48**, auto **51.1%** (V3.1 was 225 / 243 / 48.1%); neg-margin PASS **0**. No provisional REVIEW → trusted-hash; no bulk `--approve-review`.
+
+### Why
+
+Hardest remaining REVIEW families often differ by one colored path element. Combined-ink geometry ties; per-hue channels expose that difference when present (e.g. Load Option warm). Option-arrow near-duplicates (Power G vs Read Opt) remain ambiguous at this resolution.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Playbook #3 ingest still deferred — Air Force REVIEW remains material (229).
+
+---
+
+## 2026-08-24 — Play-art Matcher V3.1 geometry resolver (REVIEW only)
+
+### What
+
+- Added fail-closed geometry resolver that runs **only** on Matcher V3 REVIEW cases (does not replace V3; does not loosen V3 PASS gates).
+- Play-ink masks from variance-weighted residual ∪ color ink; connected components; 4×3 spatial grid; L/R occupancy; directional histograms; endpoint/topology signatures.
+- Color class masks (warm/cool/other) retained for diagnostics; scoring keeps combined color-ink.
+- Confirm path (geometry agrees with V3 local-best) and stricter switch path; V3↔geometry conflict → remain REVIEW; negative V3 margin never auto-PASS.
+- Operator diagnostics: `npm run play-art:debug-geometry` → `scripts/play-art/reports/matcher-v3-debug/geometry/` (never `public/`).
+- USC pure-visual regression: **414 PASS / 51 REVIEW / 0 FAIL**, wrong automatic PASS **0**, geometry-promoted **27**, auto **89.0%** (V3 was 387 / 78 / 83.2%).
+- Air Force validate-only: **225 PASS / 243 REVIEW / 0 FAIL**, geometry-promoted **34**, auto **48.1%** (V3 was 191 / 277 / 40.8%); neg-margin PASS **0**. No provisional REVIEW → trusted-hash; no bulk `--approve-review`.
+
+### Why
+
+Hard remaining cases (option / zone / mirrored LT·RT) share near-identical residual energy after V3 registration. Geometry separation recovers confident REVIEW cases without guessing.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Do not ingest playbook #3 yet; batch ingestion still not recommended while Air Force REVIEW remains material.
+
+---
+
+## 2026-08-24 — Play-art Matcher V3 (diagnostics + accuracy)
+
+### What
+
+- Added operator diagnostics (`npm run play-art:debug-match`) with visual artifacts under `scripts/play-art/reports/matcher-v3-debug/` (never `public/`).
+- Documented V2 failure modes: systematic ~2% scale mismatch, shared formation shell, similar-concept collisions, unused color ink, weak LT/RT spatial cues; `normalized-exact` impractical (avg registered RMSE ≈ 16).
+- Matcher V3 (ingest-only): bounded scale+translation registration, formation variance weighting, color-ink + spatial L/R signals, thresholded residual edges. **Same PASS/REVIEW/FAIL gates as V2** (not loosened).
+- USC pure-visual regression: **387 PASS / 78 REVIEW / 0 FAIL**, wrong automatic PASS **0**, auto **83.2%** (V2 ≈ 273 / ~190).
+- Air Force V3 validate-only: **191 PASS / 277 REVIEW / 0 FAIL**, auto **40.8%** (V2 127 / 341 / 27.1%); negative-margin PASS remains **0**. Provisional Air Force mappings not promoted to trusted-hash.
+
+### Why
+
+V2 was safe but not discriminative enough — correct matches still looked too similar to runner-ups. Goal was better visual separation without relaxing confidence.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Do not ingest playbook #3 yet; batch ingestion not recommended until Air Force REVIEW rate drops further via evidence-based matcher work or targeted overrides.
+
+---
+
 ## 2026-08-24 — Film Room QA50: rail layout fixes
 
 ### What

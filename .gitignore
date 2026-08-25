@@ -6,3 +6,13 @@ node_modules/
 .env
 .env.local
 .env.*.local
+
+# Working notes (not code)
+SESSION_BRIEF_*.md
+CURSOR_PROMPT_*.md
+
+# Temp directories
+tmp/
+scripts/tmp/
+supabase/.temp/
+sideline/supabase/.temp/
