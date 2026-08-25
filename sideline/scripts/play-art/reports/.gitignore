@@ -1,2 +1,5 @@
 # Generated validation reports from play-art ingest runs
 *.json
+
+# Matcher V3 diagnostic image artifacts (operator-only)
+matcher-v3-debug/

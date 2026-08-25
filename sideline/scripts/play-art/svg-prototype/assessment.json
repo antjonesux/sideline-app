@@ -1,0 +1,82 @@
+{
+  "gun-split-slot-slants": {
+    "assessment": "major",
+    "notes": "Route geometry intact; controller glyphs / R1 / PASS badge illegible; route wobble; yard numbers blobby."
+  },
+  "gun-split-slot-mesh": {
+    "assessment": "major",
+    "notes": "Crossing routes readable at macro level; faint yard lines shift reddish; icon labels destroyed; arrowheads rounded."
+  },
+  "gun-split-slot-offset-flood": {
+    "assessment": "major",
+    "notes": "Flood depths preserved; skill-position glyphs and small labels fail; field numbers noisy."
+  },
+  "gun-spread-flex-smash-corners": {
+    "assessment": "major",
+    "notes": "Color desaturation (red→muddy); PlayStation-style button icons become blobs; field numbers nearly lost."
+  },
+  "gun-doubles-y-off-curl-combo": {
+    "assessment": "major",
+    "notes": "Worst color shift among passes; wiggly routes; R1/PASS illegible; OL icons lumpy."
+  },
+  "gun-split-y-offset-inside-zone-split": {
+    "assessment": "minor",
+    "notes": "Sparse run art — core arrows readable; yard text / RUN badge soft; few unlabeled icons so usable with light polish."
+  },
+  "gun-doubles-y-off-wk-outside-zone": {
+    "assessment": "minor",
+    "notes": "Simple stretch path survives; thin blocking ticks thicken; yard numbers soft but play identity clear."
+  },
+  "gun-doubles-y-off-wk-hb-power-o": {
+    "assessment": "minor",
+    "notes": "Power arrow + pull geometry readable; player dots blobby; RUN/yard text degraded."
+  },
+  "gun-split-slot-offset-hb-counter": {
+    "assessment": "minor",
+    "notes": "Counter path clear; sparse markings help; small text still fails."
+  },
+  "goal-line-normal-strong-toss": {
+    "assessment": "minor",
+    "notes": "Toss arrow crisp as vector; RUN label destroyed; formation shell slightly rounded."
+  },
+  "gun-split-slot-offset-speed-option": {
+    "assessment": "major",
+    "notes": "Option pitch/keep paths wobble badly; thin white lines uneven; RUN badge smudged."
+  },
+  "gun-doubles-y-off-read-option": {
+    "assessment": "major",
+    "notes": "Read structure intact at glance; thin QB/mesh lines and labels degrade."
+  },
+  "gun-split-y-offset-mtn-triple-option-rt": {
+    "assessment": "major",
+    "notes": "Dense option + motion ink; many thin strokes and labels → high path noise / illegible glyphs."
+  },
+  "gun-doubles-y-off-jet-cntr-y-read-option": {
+    "assessment": "major",
+    "notes": "Multi-concept overlay; jet/counter/read strokes compete; icons unreadable."
+  },
+  "gun-doubles-y-off-orbit-alert-counter": {
+    "assessment": "major",
+    "notes": "Severe color misassignment (pink/red→gray); motion arrowheads blunted; glyphs destroyed."
+  },
+  "gun-split-slot-pa-wheel": {
+    "assessment": "major",
+    "notes": "Wheel curve roughly preserved; PA detail and icon glyphs fail."
+  },
+  "gun-doubles-y-off-fake-jet-hb-wheel": {
+    "assessment": "major",
+    "notes": "Macro routes/motion look stronger than average; still fails controller glyphs and dotted motion fidelity for drop-in use."
+  },
+  "gun-split-slot-hb-slip-screen": {
+    "assessment": "major",
+    "notes": "Screen blocking rectangles merge/blob; route lines wobble; icon symbols lost."
+  },
+  "gun-split-y-offset-counter-y-lead": {
+    "assessment": "minor",
+    "notes": "Sparse pull/lead diagram; red lead path OK; RUN + yard numbers major text fail but concept clear."
+  },
+  "gun-doubles-y-off-wk-pa-jailbreak-screen": {
+    "assessment": "major",
+    "notes": "Dense jailbreak blockers + routes; overlapping ink → color bleed and illegible labels."
+  }
+}

@@ -1,6 +1,16 @@
 import JSZip from "jszip";
 import { readFileSync } from "node:fs";
 import sharp from "sharp";
+import {
+  extractPersonnelHint,
+  formatSectionOcrFailure,
+  matchSectionHeaderToFormation,
+  ocrPlayCardHeader,
+  validateCropHeadersAgainstSections,
+  type CropFormationOcrResult,
+  type FormationOcrRebucketStats,
+  type SectionOcrAssignment,
+} from "./formation-ocr";
 import type { ClassifiedDocxBlock, ExtractedPlayArtDoc, PlayArtReference } from "./types";
 
 /** All USC pilot strips are 2048×355 with three equal cards and two ~85px gutters. */
@@ -15,6 +25,29 @@ export const PLAY_CARD_REGIONS = [
 const DOCUMENT_EMBED_ATTR_RE = /\br:embed="([^"]+)"/g;
 const MIN_WIDE_GUTTER_PX = 70;
 const GUTTER_LUMINANCE_MAX = 25;
+/** Fail if more than 5% of sections cannot be OCR-identified (structural problem). */
+const MAX_SECTION_UNIDENTIFIED_RATE = 0.05;
+
+/** Formations that may be absent from Vault DOCX exports (cfb.fan fallback). */
+export function isDocxOptionalFormation(name: string): boolean {
+  const n = name.trim().toLowerCase().replace(/\s+/g, " ");
+  return n === "hail mary" || n === "hail mary hail mary" || n.startsWith("hail mary ");
+}
+
+/**
+ * Reference with DOCX-optional formations removed (for map / match / validate).
+ */
+export function referenceWithoutOmittedFormations(
+  reference: PlayArtReference,
+  omittedNames: Iterable<string>,
+): PlayArtReference {
+  const omit = new Set([...omittedNames].map((n) => n.trim().toLowerCase()));
+  if (omit.size === 0) return reference;
+  return {
+    ...reference,
+    formations: reference.formations.filter((f) => !omit.has(f.name.trim().toLowerCase())),
+  };
+}
 
 type SourceStripKind = "formation-header" | "play-strip";
 
@@ -34,6 +67,14 @@ type CardCrop = {
   cardIndex: 0 | 1 | 2;
 };
 
+type AnonymousDocxSection = {
+  /** 1-based DOCX section position for operator messages. */
+  docPosition: number;
+  headerSourceIndex: number;
+  headerBuffer: Buffer;
+  cards: CardCrop[];
+};
+
 export type PlayArtStructureReport = {
   embeddedImages: number;
   formationHeaders: number;
@@ -51,6 +92,10 @@ export type PlayArtStructureReport = {
     expectedPlays: number;
     extractedPlays: number;
   }>;
+  /** Present when section-header OCR assigned formations. */
+  formationOcr?: FormationOcrRebucketStats;
+  /** Seed formations omitted because they have no DOCX section (e.g. Hail Mary). */
+  omittedFormations?: Array<{ formation: string; reason: string; expectedPlays: number }>;
 };
 
 function extensionFromMediaPath(mediaPath: string): string {
@@ -303,14 +348,24 @@ async function loadOrderedSourceStrips(docxPath: string): Promise<SourceStrip[]>
 
 /**
  * Segment DOCX strips into formation headers + ordered play-card crops.
- * Reference play counts decide how many crops belong to each formation.
+ * Section → seed formation pairing uses OCR of each section header (not position).
+ * Reference play counts decide how many crops belong to each matched formation.
  * Extra card regions between headers are dropped by: flip-mirror duplicates first,
  * then trailing unused slots (never published).
  */
 export async function extractPlayArtDocx(
   docxPath: string,
   reference: PlayArtReference,
-): Promise<ExtractedPlayArtDoc & { structure: PlayArtStructureReport }> {
+  options?: { skipFormationOcr?: boolean },
+): Promise<
+  ExtractedPlayArtDoc & {
+    structure: PlayArtStructureReport;
+    formationOcrAssignments?: CropFormationOcrResult[];
+    sectionOcrAssignments?: SectionOcrAssignment[];
+    /** Reference with DOCX-optional omissions applied (use for map/match/validate). */
+    effectiveReference: PlayArtReference;
+  }
+> {
   const strips = await loadOrderedSourceStrips(docxPath);
   const headerCount = strips.filter((s) => s.kind === "formation-header").length;
   const playStripCount = strips.filter((s) => s.kind === "play-strip").length;
@@ -324,53 +379,125 @@ export async function extractPlayArtDocx(
     throw new Error("DOCX classification failed: no play-strip images detected.");
   }
 
-  type QueueItem =
-    | { kind: "formation-header"; sourceIndex: number }
-    | { kind: "play-strip"; sourceIndex: number; cards: CardCrop[] };
+  const sections = await segmentAnonymousSections(strips);
+  const requiredFormations = reference.formations.filter((f) => !isDocxOptionalFormation(f.name));
+  const optionalFormations = reference.formations.filter((f) => isDocxOptionalFormation(f.name));
 
-  const queue: QueueItem[] = [];
-  for (const strip of strips) {
-    if (strip.kind === "formation-header") {
-      queue.push({ kind: "formation-header", sourceIndex: strip.sourceIndex });
+  if (sections.length !== requiredFormations.length) {
+    throw new Error(
+      `DOCX segmentation failed: found ${sections.length} formation section(s) but reference ` +
+        `expects ${requiredFormations.length} required formation(s)` +
+        (optionalFormations.length > 0
+          ? ` (+ ${optionalFormations.length} optional: ${optionalFormations.map((f) => f.name).join(", ")})`
+          : "") +
+        `. Do not fall back to positional pairing.`,
+    );
+  }
+
+  const knownFormations = reference.formations.map((f) => f.name);
+  const playCountByFormation = new Map(
+    reference.formations.map((f) => [f.name, f.plays.length] as const),
+  );
+
+  // Section OCR is mandatory — positional pairing is not a fallback.
+  if (options?.skipFormationOcr || process.env.PLAY_ART_SKIP_FORMATION_OCR === "1") {
+    console.warn(
+      "  PLAY_ART_SKIP_FORMATION_OCR / skipFormationOcr: skipping per-crop validation only; " +
+        "section-header OCR still required (positional pairing removed).",
+    );
+  }
+
+  const sectionMatched = await matchSectionsByHeaderOcr(
+    sections,
+    knownFormations,
+    playCountByFormation,
+  );
+  const unidentified = sectionMatched.filter((s) => !s.matchedFormation);
+  const unidentifiedRate =
+    sectionMatched.length === 0 ? 0 : unidentified.length / sectionMatched.length;
+  if (unidentifiedRate > MAX_SECTION_UNIDENTIFIED_RATE) {
+    throw new Error(
+      `Section OCR unidentified rate ${(unidentifiedRate * 100).toFixed(1)}% exceeds ` +
+        `${(MAX_SECTION_UNIDENTIFIED_RATE * 100).toFixed(0)}% — investigate OCR config or seed list drift before continuing.`,
+    );
+  }
+  for (const failed of unidentified) {
+    throw new Error(
+      formatSectionOcrFailure({
+        docPosition: failed.docPosition,
+        ocrRawText: failed.ocrRawText,
+        ocrFormationText: failed.ocrFormationText,
+        knownFormations,
+      }),
+    );
+  }
+
+  const usedFormations = new Set<string>();
+  const cardsByFormation = new Map<string, CardCrop[]>();
+  const sectionAssignments: SectionOcrAssignment[] = [];
+
+  for (const row of sectionMatched) {
+    const formation = row.matchedFormation!;
+    if (usedFormations.has(formation)) {
+      throw new Error(
+        `Section OCR assigned formation "${formation}" twice ` +
+          `(DOCX positions include #${row.docPosition}). Headers must map 1:1 to seed formations.`,
+      );
+    }
+    usedFormations.add(formation);
+    cardsByFormation.set(formation, row.cards);
+    sectionAssignments.push({
+      docPosition: row.docPosition,
+      headerSourceIndex: row.headerSourceIndex,
+      ocrRawText: row.ocrRawText,
+      ocrFormationText: row.ocrFormationText,
+      matchedFormation: formation,
+      matchConfidence: row.matchConfidence,
+      matchDistance: row.matchDistance,
+    });
+    if (row.matchConfidence === "fuzzy") {
+      console.log(
+        `  Section #${row.docPosition}: fuzzy OCR "${row.ocrFormationText}" → ${formation} ` +
+          `(distance ${row.matchDistance})`,
+      );
+    }
+  }
+
+  const omittedFormations: NonNullable<PlayArtStructureReport["omittedFormations"]> = [];
+  for (const formation of reference.formations) {
+    if (usedFormations.has(formation.name)) continue;
+    if (isDocxOptionalFormation(formation.name)) {
+      omittedFormations.push({
+        formation: formation.name,
+        reason: "absent_from_docx",
+        expectedPlays: formation.plays.length,
+      });
+      console.log(
+        `  Omitting optional formation "${formation.name}" (${formation.plays.length} plays) — ` +
+          "no DOCX section (cfb.fan fallback for catalog plays)",
+      );
       continue;
     }
-    const cards = await cropPlayCards(strip.buffer, strip.sourceIndex);
-    queue.push({ kind: "play-strip", sourceIndex: strip.sourceIndex, cards });
+    throw new Error(
+      `Section OCR incomplete; required seed formation with no DOCX section: ${formation.name}`,
+    );
   }
+
+  const effectiveFormations = reference.formations.filter((f) => usedFormations.has(f.name));
 
   const blocks: ClassifiedDocxBlock[] = [];
   const mediaFiles = new Map<string, Buffer>();
   const perFormation: PlayArtStructureReport["perFormation"] = [];
-  let queueIndex = 0;
   let blockIndex = 0;
   let generatedPlayCards = 0;
 
-  for (let formationIndex = 0; formationIndex < reference.formations.length; formationIndex += 1) {
-    const formation = reference.formations[formationIndex];
+  // Emit in reference formation order (skipping omitted optionals) so map-positional stays aligned.
+  for (const formation of effectiveFormations) {
     const expectedPlays = formation.plays.length;
-    const item = queue[queueIndex];
-    if (!item || item.kind !== "formation-header") {
-      throw new Error(
-        `DOCX segmentation failed: expected formation header for "${formation.name}" ` +
-          `(formation ${formationIndex + 1}/${reference.formations.length}) but found ` +
-          `${item?.kind ?? "end of document"} at queue index ${queueIndex}`,
-      );
-    }
-    blocks.push({ kind: "formation_header", index: blockIndex });
-    blockIndex += 1;
-    queueIndex += 1;
-
-    const formationCards: CardCrop[] = [];
-    while (queueIndex < queue.length && queue[queueIndex].kind === "play-strip") {
-      const stripItem = queue[queueIndex];
-      if (stripItem.kind !== "play-strip") break;
-      formationCards.push(...stripItem.cards);
-      queueIndex += 1;
-    }
-
+    const formationCards = cardsByFormation.get(formation.name) ?? [];
     if (formationCards.length === 0) {
       throw new Error(
-        `DOCX segmentation failed: no play strips found after header for "${formation.name}"`,
+        `DOCX segmentation failed: no play cards for OCR-matched formation "${formation.name}"`,
       );
     }
 
@@ -379,6 +506,9 @@ export async function extractPlayArtDocx(
       expectedPlays,
       formation.name,
     );
+
+    blocks.push({ kind: "formation_header", index: blockIndex });
+    blockIndex += 1;
 
     for (const card of selected) {
       const mediaPath = `crop://${card.sourceIndex}/${card.cardIndex}.jpg`;
@@ -400,32 +530,285 @@ export async function extractPlayArtDocx(
     });
   }
 
-  if (queueIndex < queue.length) {
-    const leftover = queue.length - queueIndex;
-    throw new Error(
-      `DOCX segmentation failed: ${leftover} source strip(s) remain after consuming all ` +
-        `${reference.formations.length} reference formations. ` +
-        "Reference/source alignment is incomplete — do not shift mapping.",
-    );
-  }
-
   const structure: PlayArtStructureReport = {
     embeddedImages: strips.length,
     formationHeaders: headerCount,
     playStrips: playStripCount,
     generatedPlayCards,
-    expectedFormations: reference.formations.length,
-    expectedPlays: reference.formations.reduce((sum, f) => sum + f.plays.length, 0),
-    mappedFormations: reference.formations.length,
+    expectedFormations: effectiveFormations.length,
+    expectedPlays: effectiveFormations.reduce((sum, f) => sum + f.plays.length, 0),
+    mappedFormations: effectiveFormations.length,
     mappedPlays: generatedPlayCards,
     stripDimensions: { width: PLAY_STRIP_WIDTH, height: PLAY_STRIP_HEIGHT },
     classificationMethod:
-      "wide black gutter geometry: exactly 2 gutters ≥70px → play-strip; otherwise formation-header",
+      "wide black gutter geometry: exactly 2 gutters ≥70px → play-strip; otherwise formation-header; " +
+      "section→seed via header OCR (no positional pairing)",
     cropGeometry: PLAY_CARD_REGIONS,
     perFormation,
+    omittedFormations: omittedFormations.length > 0 ? omittedFormations : undefined,
   };
 
-  return { docxPath, blocks, mediaFiles, structure };
+  const extracted: ExtractedPlayArtDoc = { docxPath, blocks, mediaFiles };
+  const skipCropValidation =
+    options?.skipFormationOcr === true || process.env.PLAY_ART_SKIP_FORMATION_OCR === "1";
+
+  const effectiveReference: PlayArtReference = {
+    ...reference,
+    formations: effectiveFormations,
+  };
+
+  const ocr = await validateCropHeadersAgainstSections(
+    effectiveReference,
+    extracted,
+    sectionAssignments,
+    { skipOcr: skipCropValidation },
+  );
+
+  console.log(
+    `  Section OCR: ${sectionAssignments.length}/${sectionAssignments.length} sections identified ` +
+      `(exact ${ocr.stats.sectionExactMatches}, fuzzy ${ocr.stats.sectionFuzzyMatches})` +
+      (omittedFormations.length > 0 ? `; omitted ${omittedFormations.length} optional` : ""),
+  );
+  if (!skipCropValidation) {
+    console.log(
+      `  Crop OCR validation: ${ocr.stats.cropValidationAgreements}/${ocr.stats.cropCount} agree with section`,
+    );
+  }
+
+  return {
+    ...extracted,
+    structure: {
+      ...structure,
+      formationOcr: ocr.stats,
+    },
+    formationOcrAssignments: ocr.assignments,
+    sectionOcrAssignments: sectionAssignments,
+    effectiveReference,
+  };
+}
+
+async function segmentAnonymousSections(strips: SourceStrip[]): Promise<AnonymousDocxSection[]> {
+  const sections: AnonymousDocxSection[] = [];
+  let i = 0;
+  let docPosition = 0;
+
+  while (i < strips.length) {
+    const header = strips[i];
+    if (header.kind !== "formation-header") {
+      throw new Error(
+        `DOCX segmentation failed: expected formation header at sourceIndex=${header.sourceIndex} ` +
+          `but found play-strip (trailing/leading strips without a header are not supported)`,
+      );
+    }
+    docPosition += 1;
+    i += 1;
+
+    const cards: CardCrop[] = [];
+    while (i < strips.length && strips[i].kind === "play-strip") {
+      const strip = strips[i];
+      cards.push(...(await cropPlayCards(strip.buffer, strip.sourceIndex)));
+      i += 1;
+    }
+
+    if (cards.length === 0) {
+      throw new Error(
+        `DOCX segmentation failed: no play strips found after header at DOCX position #${docPosition} ` +
+          `(sourceIndex=${header.sourceIndex})`,
+      );
+    }
+
+    sections.push({
+      docPosition,
+      headerSourceIndex: header.sourceIndex,
+      headerBuffer: header.buffer,
+      cards,
+    });
+  }
+
+  return sections;
+}
+
+type SectionMatchRow = {
+  docPosition: number;
+  headerSourceIndex: number;
+  cards: CardCrop[];
+  ocrRawText: string;
+  ocrFormationText: string;
+  matchedFormation: string | null;
+  matchConfidence: "exact" | "fuzzy" | "none";
+  matchDistance: number | null;
+};
+
+/**
+ * OCR the middle panel of each formation-header strip and match against the seed list.
+ * Fail-closed: unmatched sections leave matchedFormation null (caller errors).
+ */
+async function matchSectionsByHeaderOcr(
+  sections: AnonymousDocxSection[],
+  knownFormations: string[],
+  playCountByFormation: Map<string, number>,
+): Promise<SectionMatchRow[]> {
+  const out: SectionMatchRow[] = [];
+
+  for (const section of sections) {
+    const midRegion = PLAY_CARD_REGIONS[1];
+    const leftRegion = PLAY_CARD_REGIONS[0];
+    const [midPanel, leftPanel] = await Promise.all([
+      sharp(section.headerBuffer)
+        .extract({
+          left: midRegion.x,
+          top: midRegion.y,
+          width: midRegion.width,
+          height: midRegion.height,
+        })
+        .jpeg({ quality: 92, mozjpeg: true })
+        .toBuffer(),
+      sharp(section.headerBuffer)
+        .extract({
+          left: leftRegion.x,
+          top: leftRegion.y,
+          width: leftRegion.width,
+          height: leftRegion.height,
+        })
+        .jpeg({ quality: 92, mozjpeg: true })
+        .toBuffer(),
+    ]);
+
+    let ocrRawText = "";
+    let ocrFormationText = "";
+    let leftRaw = "";
+    try {
+      const [midOcr, leftOcr] = await Promise.all([
+        ocrPlayCardHeader(midPanel),
+        ocrPlayCardHeader(leftPanel),
+      ]);
+      ocrRawText = midOcr.rawText;
+      leftRaw = leftOcr.rawText;
+      ocrFormationText =
+        midOcr.formationText ||
+        (midOcr.playNameText ?? "") ||
+        (midOcr.rawText.split(/\r?\n/).map((l) => l.trim()).find((l) => l.length >= 2) ?? "");
+    } catch (err) {
+      ocrRawText = `ocr_error:${err instanceof Error ? err.message : String(err)}`;
+      ocrFormationText = "";
+    }
+
+    let match = matchSectionHeaderToFormation(
+      ocrFormationText,
+      knownFormations,
+      playCountByFormation,
+      section.cards.length,
+    );
+
+    // Ambiguous/short section titles — crop-header majority vote before left-panel hint
+    // (left panel OCR can misread Flexbone/Wingbone).
+    if (!match.matchedFormation && section.cards.length > 0) {
+      const cropVote = await majorityVoteFormationFromCrops(
+        section.cards,
+        knownFormations,
+        playCountByFormation,
+        section.cards.length,
+      );
+      if (cropVote.matchedFormation) {
+        match = cropVote;
+        ocrRawText = `crop-vote: ${cropVote.cleanedText} | ${ocrRawText}`;
+      }
+    }
+
+    // Still ambiguous — prepend left-panel personnel hint (Flexbone/Gun/…).
+    if (!match.matchedFormation) {
+      const hint = extractPersonnelHint(leftRaw);
+      if (hint) {
+        const combined = `${hint} ${match.cleanedText || ocrFormationText}`.trim();
+        match = matchSectionHeaderToFormation(
+          combined,
+          knownFormations,
+          playCountByFormation,
+          section.cards.length,
+        );
+        if (match.matchedFormation) {
+          ocrRawText = `${leftRaw} | ${ocrRawText}`;
+        }
+      }
+    }
+
+    out.push({
+      docPosition: section.docPosition,
+      headerSourceIndex: section.headerSourceIndex,
+      cards: section.cards,
+      ocrRawText,
+      ocrFormationText: match.cleanedText || ocrFormationText,
+      matchedFormation: match.matchedFormation,
+      matchConfidence: match.matchConfidence,
+      matchDistance: match.matchDistance,
+    });
+  }
+
+  return out;
+}
+
+/** OCR up to 6 crops and take the majority size-compatible formation vote. */
+async function majorityVoteFormationFromCrops(
+  cards: CardCrop[],
+  knownFormations: string[],
+  playCountByFormation: Map<string, number>,
+  sectionCardCount: number,
+): Promise<{
+  matchedFormation: string | null;
+  matchConfidence: "exact" | "fuzzy" | "none";
+  matchDistance: number | null;
+  cleanedText: string;
+}> {
+  const sample = cards.slice(0, Math.min(6, cards.length));
+  const votes = new Map<string, number>();
+  const labels: string[] = [];
+
+  for (const card of sample) {
+    try {
+      const ocr = await ocrPlayCardHeader(card.buffer);
+      const label = ocr.formationText || ocr.playNameText || "";
+      labels.push(label);
+      const match = matchSectionHeaderToFormation(
+        label,
+        knownFormations,
+        playCountByFormation,
+        sectionCardCount,
+      );
+      if (!match.matchedFormation) continue;
+      votes.set(match.matchedFormation, (votes.get(match.matchedFormation) ?? 0) + 1);
+    } catch {
+      // ignore single-crop OCR failures
+    }
+  }
+
+  let best: { name: string; count: number } | null = null;
+  for (const [name, count] of votes) {
+    if (!best || count > best.count) best = { name, count };
+  }
+  if (!best || best.count < 2) {
+    return {
+      matchedFormation: null,
+      matchConfidence: "none",
+      matchDistance: null,
+      cleanedText: labels[0] ?? "",
+    };
+  }
+  const ties = [...votes.entries()].filter(([, c]) => c === best!.count);
+  if (ties.length > 1) {
+    return {
+      matchedFormation: null,
+      matchConfidence: "none",
+      matchDistance: null,
+      cleanedText: labels[0] ?? "",
+    };
+  }
+
+  return {
+    matchedFormation: best.name,
+    matchConfidence: "fuzzy",
+    matchDistance: null,
+    cleanedText: labels[0] ?? best.name,
+  };
 }
 
 export async function summarizeDocxStructure(

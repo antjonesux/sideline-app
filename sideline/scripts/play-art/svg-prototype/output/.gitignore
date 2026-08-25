@@ -1,0 +1,12 @@
+*
+__input.png
+*.svg
+*.html
+*.json
+*.txt
+*.md
+calibration/
+originals/
+
+# Keep directory
+!.gitignore

@@ -41,14 +41,15 @@ export function validatePlayArtMapping(
 
   const assetKeyCounts = new Map<string, number>();
   for (const item of mapped) {
-    const key = item.assetPath.toLowerCase();
+    if (!item.assetId || !item.assetPath) {
+      errors.push(
+        `Mapped play "${item.formation}" / "${item.playName}" missing content-hash asset identity`,
+      );
+    }
+    const key = item.assetId.toLowerCase();
     assetKeyCounts.set(key, (assetKeyCounts.get(key) ?? 0) + 1);
   }
-  for (const [key, count] of assetKeyCounts) {
-    if (count > 1) {
-      errors.push(`Duplicate output asset key: ${key} (${count} mappings)`);
-    }
-  }
+  // Content-addressed assets intentionally reuse the same asset_id/path for identical bytes.
 
   if (mapped.length !== playCardCount) {
     errors.push(`Unmapped play cards: extracted ${playCardCount}, mapped ${mapped.length}`);

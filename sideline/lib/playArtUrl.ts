@@ -20,7 +20,12 @@ export type ResolvedPlayArt = {
   source: PlayArtSource;
 };
 
-/** Lowercase → literal `-` to `--` → spaces to `-`. */
+/**
+ * Lowercase → literal `-` to `--` → spaces to `-`.
+ * cfb.fan uses `--` for every literal hyphen (numeric ranges like `3-4` → `3--4`
+ * and letter modifiers like `Y-Flex` → `y--flex`). Spaced tokens stay single-hyphen
+ * (`0 1 TRAP` → `0-1-trap`). Do not collapse digit pairs before calling this.
+ */
 export function slugifyPlayArtSegment(raw: string): string {
   return raw
     .trim()

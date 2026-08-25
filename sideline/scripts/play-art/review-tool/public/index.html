@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Play-Art REVIEW</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="top" id="top-bar">
+      <div class="brand">
+        <span id="mode-badge" class="mode-badge" hidden>[DIAGNOSTIC]</span>
+        <span id="playbook-label">Playbook</span>
+      </div>
+      <div class="stats" id="stats">
+        <span id="stat-reviewed">0 / 0 reviewed</span>
+        <span id="stat-avg">—</span>
+        <span id="stat-eta">—</span>
+      </div>
+    </header>
+
+    <div id="diag-explainer" class="diag-explainer" hidden>
+      <p>
+        Compare the crop's printed header (formation + play name) to the matcher's assigned
+        formation and the 3 candidate play names.
+      </p>
+      <p>
+        Press <kbd>F</kbd> if the formations don't match. Press <kbd>C</kbd> if formation
+        matches but the correct play isn't in the 3 candidates.
+      </p>
+      <button type="button" id="diag-explainer-dismiss" class="diag-dismiss">Got it</button>
+    </div>
+
+    <main id="main">
+      <section class="owned">
+        <div class="label">Owned Vault crop</div>
+        <img id="owned-img" alt="Owned crop" />
+        <div class="meta">
+          <div id="formation-label"></div>
+          <div id="matcher-hint" class="matcher-hint" hidden>
+            Compare crop header ↑ vs matcher assignment ↓
+          </div>
+          <div id="reason-label" class="muted"></div>
+        </div>
+      </section>
+
+      <section class="candidates" id="candidates"></section>
+
+      <section class="hints" id="hints">
+        <span><kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> confirm</span>
+        <span><kbd>Enter</kbd>/<kbd>Space</kbd>/<kbd>→</kbd> confirm ★</span>
+        <span><kbd>S</kbd> skip</span>
+        <span><kbd>N</kbd> none of these</span>
+        <span><kbd>←</kbd> undo</span>
+        <span><kbd>Q</kbd> quit</span>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+    <div id="flash" class="flash" hidden></div>
+
+    <div id="picker" class="picker" hidden>
+      <div class="picker-panel">
+        <div class="picker-title">Formation plays — type to filter, Enter to confirm, Esc to cancel</div>
+        <input id="picker-input" type="text" autocomplete="off" spellcheck="false" />
+        <ul id="picker-list"></ul>
+      </div>
+    </div>
+
+    <div id="note-prompt" class="picker" hidden>
+      <div class="picker-panel">
+        <div class="picker-title">Optional note for <kbd>O</kbd> other — Enter to save, Esc to cancel</div>
+        <input id="note-input" type="text" autocomplete="off" spellcheck="false" placeholder="What went wrong?" />
+      </div>
+    </div>
+
+    <div id="done" class="done" hidden>
+      <h1>Queue clear</h1>
+      <p id="done-copy"></p>
+      <p class="muted">Press <kbd>Q</kbd> to quit.</p>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

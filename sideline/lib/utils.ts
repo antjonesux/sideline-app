@@ -28,8 +28,13 @@ const SEPARATOR_DOTS = /[\u00B7\u2022\u2219\u22C5]/g;
  * Use at every DB write for `play_name` and when returning rows from APIs so legacy DB text
  * still renders consistently in the UI.
  */
-export function normalizePlayName(name: string): string {
-  let s = String(name ?? "")
+/**
+ * Shared Unicode / whitespace cleanup for play names (no digit-pair merge).
+ * cfb.fan art URLs keep spaced hole numbers (`0 1 TRAP` → `0-1-trap.jpg`);
+ * collapsing here would break reference downloads.
+ */
+export function normalizePlayNameBase(name: string): string {
+  return String(name ?? "")
     .normalize("NFKC")
     .replace(STRIP_INVISIBLE, "")
     .replace(/\p{Cf}/gu, "")
@@ -38,6 +43,10 @@ export function normalizePlayName(name: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
+}
+
+export function normalizePlayName(name: string): string {
+  let s = normalizePlayNameBase(name);
   let next: string;
   do {
     next = s.replace(/\b(\d)\s+(\d)\b/g, "$1$2");
