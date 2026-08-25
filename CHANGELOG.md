@@ -4,6 +4,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-25 — Play-art review tool playbook auto-discovery
+
+### What
+
+- Review tool discovers valid `--playbook` slugs from matcher reports on disk (`scripts/play-art/reports/cfb27-offense-{slug}-matching.json`) instead of a hardcoded air-force/usc allow-list.
+- Unknown playbook errors list actually available playbooks (and ingest hint); empty discovery gets a clear “ingest first” message.
+- Optional `--list` prints discovered playbooks with mapping counts.
+- Source DOCX resolved via existing `source-discovery` (same as ingest), so new playbooks work without editing the review tool.
+
+### Why
+
+California (and every future batch playbook) was blocked by a static CLI allow-list even when fully ingested. Discovery should follow ingestion artifacts, not require sync patches.
+
+### Status
+
+- Verified: `--list` shows air-force / california / usc; `--playbook=nonexistent` lists available; air-force + usc load (0 REVIEW); california loads 34 REVIEW.
+
+---
+
 ## 2026-08-25 — Play-art reference download resilience + spaced hole-number URLs
 
 ### What

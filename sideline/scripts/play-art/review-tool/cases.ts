@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizePlayName } from "../../../lib/utils";
@@ -9,13 +9,16 @@ import {
   formationTypesFromSeed,
   loadSeedForReference,
 } from "../match-play-art";
-import { PLAYBOOK_PATHS } from "../matcher-v3-sample-set";
 import {
   defaultOverridesPath,
   loadMatchingOverrides,
 } from "../matching-overrides";
 import { loadPlayArtReference, referenceSlug } from "../reference";
 import { buildReferencePlayArtUrl } from "../reference-image";
+import {
+  SOURCE_ROOT,
+  discoverAndResolveSources,
+} from "../source-discovery";
 import type {
   PlayArtMatchAssignment,
   PlayArtMatchingReport,
@@ -25,9 +28,25 @@ import { caseKey } from "./state";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PLAY_ART_ROOT = join(__dirname, "..");
+const REPORTS_DIR = join(PLAY_ART_ROOT, "reports");
+const REFERENCES_DIR = join(PLAY_ART_ROOT, "references");
 const CROP_CACHE_DIR = join(__dirname, ".crop-cache");
 
-export type PlaybookSlug = keyof typeof PLAYBOOK_PATHS;
+/** Operator CLI slug, e.g. `air-force`, `california`, `usc`. */
+export type PlaybookSlug = string;
+
+/**
+ * Matcher reports for the current offense-first pipeline.
+ * Narrowed to cfb27 offense so team slugs stay unique (no cfb26/defense collisions).
+ */
+const MATCHING_REPORT_RE = /^(cfb27-offense-(.+))-matching\.json$/i;
+
+export type DiscoveredPlaybook = {
+  slug: string;
+  reportSlug: string;
+  matchingReportPath: string;
+  playCount: number | null;
+};
 
 export type ReviewCandidate = {
   playName: string;
@@ -65,12 +84,116 @@ export type LoadedReviewData = {
   formationTypes: Map<string, string>;
 };
 
-function resolvePath(relativeFromSideline: string): string {
-  return join(PLAY_ART_ROOT, "..", "..", relativeFromSideline);
+function matchingReportPath(reference: PlayArtReference): string {
+  return join(REPORTS_DIR, `${referenceSlug(reference)}-matching.json`);
 }
 
-function matchingReportPath(reference: PlayArtReference): string {
-  return join(PLAY_ART_ROOT, "reports", `${referenceSlug(reference)}-matching.json`);
+function readPlayCount(reportPath: string): number | null {
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
+      playCount?: unknown;
+    };
+    return typeof report.playCount === "number" ? report.playCount : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Discover ingested playbooks from matcher reports on disk.
+ * Signal: `cfb27-offense-{slug}-matching.json` (offense-first pipeline only).
+ */
+export function discoverIngestedPlaybooks(): DiscoveredPlaybook[] {
+  if (!existsSync(REPORTS_DIR)) return [];
+
+  const bySlug = new Map<string, DiscoveredPlaybook>();
+  for (const name of readdirSync(REPORTS_DIR)) {
+    const match = name.match(MATCHING_REPORT_RE);
+    if (!match) continue;
+    const reportSlug = match[1].toLowerCase();
+    const slug = match[2].toLowerCase();
+    if (!slug || slug.includes("/")) {
+      console.warn(`Skipping malformed matching report filename: ${name}`);
+      continue;
+    }
+    const reportPath = join(REPORTS_DIR, name);
+    bySlug.set(slug, {
+      slug,
+      reportSlug,
+      matchingReportPath: reportPath,
+      playCount: readPlayCount(reportPath),
+    });
+  }
+
+  return [...bySlug.values()].sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+function formatAvailablePlaybooks(playbooks: DiscoveredPlaybook[]): string {
+  return playbooks.map((p) => p.slug).join(", ");
+}
+
+function unknownPlaybookError(raw: string, available: DiscoveredPlaybook[]): Error {
+  if (available.length === 0) {
+    return new Error(
+      [
+        "No playbooks have been ingested yet.",
+        "",
+        "Ingest a playbook first with:",
+        '  npm run play-art:ingest -- --source="path/to/{Name}.docx"',
+      ].join("\n"),
+    );
+  }
+  return new Error(
+    [
+      `Unknown playbook "${raw}".`,
+      `Available playbooks: ${formatAvailablePlaybooks(available)}`,
+      "",
+      "Ingest a new playbook with:",
+      '  npm run play-art:ingest -- --source="path/to/{Name}.docx"',
+    ].join("\n"),
+  );
+}
+
+function normalizePlaybookSlug(raw: string): string {
+  let v = raw.trim().toLowerCase().replace(/\s+/g, "-");
+  // Backward-compat alias used by existing operators / docs.
+  if (v === "airforce") v = "air-force";
+  return v;
+}
+
+/** Resolve owned Vault DOCX for a playbook slug via source-discovery (same as ingest). */
+function resolveSourceDocxForSlug(slug: string): string | null {
+  const results = discoverAndResolveSources();
+  const hit = results.find((r) => {
+    if (r.status !== "MATCH" && r.status !== "ALIAS") return false;
+    // Offense-first: seed modules are `cfb27-{team-slug}`.
+    const seed = (r.resolvedSeed ?? "").toLowerCase();
+    return seed === `cfb27-${slug}`;
+  });
+  if (!hit) return null;
+  return join(SOURCE_ROOT, hit.sourcePath);
+}
+
+function resolveReferencePath(discovered: DiscoveredPlaybook): string {
+  return join(REFERENCES_DIR, `${discovered.reportSlug}.json`);
+}
+
+export function printPlaybookList(): void {
+  const playbooks = discoverIngestedPlaybooks();
+  if (playbooks.length === 0) {
+    console.log("No playbooks have been ingested yet.");
+    console.log("");
+    console.log("Ingest a playbook first with:");
+    console.log('  npm run play-art:ingest -- --source="path/to/{Name}.docx"');
+    return;
+  }
+  const width = Math.max(...playbooks.map((p) => p.slug.length));
+  console.log("Available playbooks:");
+  for (const p of playbooks) {
+    const count =
+      p.playCount != null ? ` (${p.playCount} mappings)` : "";
+    console.log(`  ${p.slug.padEnd(width)}${count}`);
+  }
 }
 
 function reviewReasonFromAssignment(a: PlayArtMatchAssignment): string {
@@ -177,16 +300,41 @@ function buildCandidates(
 }
 
 export function parsePlaybookArg(raw: string | undefined): PlaybookSlug {
-  const v = (raw ?? "").trim().toLowerCase();
-  if (v === "air-force" || v === "airforce") return "air-force";
-  if (v === "usc") return "usc";
-  throw new Error(`Unknown playbook "${raw}". Use --playbook=air-force or --playbook=usc`);
+  const available = discoverIngestedPlaybooks();
+  const v = normalizePlaybookSlug(raw ?? "");
+  if (!v) {
+    throw unknownPlaybookError(raw ?? "", available);
+  }
+  if (!available.some((p) => p.slug === v)) {
+    throw unknownPlaybookError(raw ?? v, available);
+  }
+  return v;
 }
 
 export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedReviewData> {
-  const paths = PLAYBOOK_PATHS[playbook];
-  const referencePath = resolvePath(paths.reference);
-  const sourcePath = resolvePath(paths.source);
+  const available = discoverIngestedPlaybooks();
+  const discovered = available.find((p) => p.slug === playbook);
+  if (!discovered) {
+    throw unknownPlaybookError(playbook, available);
+  }
+
+  const referencePath = resolveReferencePath(discovered);
+  if (!existsSync(referencePath)) {
+    throw new Error(
+      `Reference file missing for "${playbook}": ${referencePath}\n` +
+        `Matching report exists at ${discovered.matchingReportPath}, but the reference JSON was not found.`,
+    );
+  }
+
+  const sourcePath = resolveSourceDocxForSlug(playbook);
+  if (!sourcePath || !existsSync(sourcePath)) {
+    throw new Error(
+      `Owned Vault DOCX missing for "${playbook}".` +
+        (sourcePath ? `\nLooked for: ${sourcePath}` : "") +
+        `\nPlace the purchased DOCX under scripts/play-art/source/ (or run ingest with --source).`,
+    );
+  }
+
   const reference = loadPlayArtReference(referencePath);
   const reportPath = matchingReportPath(reference);
 
@@ -194,9 +342,6 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
     throw new Error(
       `Matcher REVIEW output missing: ${reportPath}\nRun play-art ingest/match for this playbook first.`,
     );
-  }
-  if (!existsSync(sourcePath)) {
-    throw new Error(`Owned Vault DOCX missing: ${sourcePath}`);
   }
 
   const report = JSON.parse(readFileSync(reportPath, "utf8")) as PlayArtMatchingReport;

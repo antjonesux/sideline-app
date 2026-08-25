@@ -1,61 +1,50 @@
-# Session Brief — Reference Download Resilience + Slug Fixes
+# Session Brief — Review Tool Playbook Auto-Discovery
 
 **Objective:**  
-Fix the cascade FAIL behavior where a single reference-image download failure marks an entire formation as FAIL, correct the Y-Flex slug double-hyphen bug, and investigate the `01-trap.jpg` 403 pattern to determine whether it's a slug issue or genuinely missing cfb.fan art.
+Replace the review tool's hardcoded playbook list with dynamic discovery based on which playbooks have actually been ingested, so any new playbook works automatically without touching the tool.
 
 **Why this matters:**  
-California's 44 FAIL cases weren't matcher failures — they were network-error cascades. One 403 on a reference download aborts scoring for the entire formation, marking every crop as FAIL. This affects every future playbook: any transient network error, missing cfb.fan asset, or slug bug turns into cascading FAILs. Batching is unsafe until this is fixed. The Y-Flex slug bug likely accounts for one of the three cascades directly. The two other cascades both hit `01-trap.jpg`, which suggests either a systematic slug issue with numbered plays or a specific cfb.fan asset gap worth understanding.
+The review tool errors on `--playbook=california` even though California is fully ingested and has a valid matcher report. It only recognizes `air-force` and `usc` from a hardcoded list. Every new playbook (playbook #4, #5, and the ~20 in the batch queue) will hit the same wall. Twenty manual patches to the same file is a smell — the review tool should reflect what's ingested, not require sync updates.
 
 **In scope:**  
-- Reference download logic: degrade per-candidate on failure, not per-formation
-- Scoring: run against whatever candidates succeeded, not blocked by missing candidates
-- Y-Flex slug construction: verify against cfb.fan's convention, patch if needed
-- Diagnostic on 01-trap pattern: is this systematic (numbered plays) or specific asset gaps?
-- California re-run to verify FAIL count drops
-- Air Force and USC re-run to confirm no regression
+- `sideline/scripts/play-art/review-tool/server.ts` — replace hardcoded playbook list with discovery
+- Better error message when playbook not found (list available playbooks)
+- Optional `--list` flag to show available playbooks
+- Optional: same treatment for any similar hardcoded lists elsewhere in the review tool
 
 **Out of scope:**  
-- Matcher scoring changes
-- Review tool changes
-- Extraction pipeline changes (formation OCR from prior session stays as-is)
-- New playbook ingestion beyond validation runs
-- Batch script (still deferred until this fix ships)
-- Ampersand slug normalization (separate session)
-- Retry logic for network errors (fail-once-then-continue is fine; retry is over-engineering for this fix)
+- Ingestion pipeline changes
+- Matcher changes  
+- Review tool UI changes
+- State file format changes
+- Any changes outside the review-tool directory
 
 **Existing patterns to reuse:**  
-- Existing cfb.fan URL construction with known slug exceptions (`cal-off`, `usf-off`, `southern-miss-off`, and the `3--4` double-hyphen for numeric ranges)
-- Existing matcher scoring against candidate pool
-- Existing per-crop REVIEW status handling
+- Matcher report file naming convention (`cfb27-offense-{playbook}-matching.json` or similar — verify actual pattern)
+- Existing filesystem access patterns in the review tool
 
 **Constraints:**  
 - `npm run build` must pass
-- California FAIL count must drop from 44 to near-zero (small residual acceptable if some crops legitimately have no available candidates)
-- Air Force and USC results must not regress (PASS counts stay same or improve)
-- No silent fallback if all candidates fail for a formation — error out clearly for that formation
-- Fail once per URL and move on — no aggressive retry logic
+- Air Force and USC must continue to work (backward compat)
+- California must work after the fix (validation)
+- No breaking changes to the review tool's CLI or state files
 
 **Relevant decisions:**  
-- 2026-08-25 OCR-based section matching (previous session, unchanged)
-- Fail-closed on unrecoverable errors, degrade gracefully on partial failures
-- cfb.fan URL slug conventions per known exceptions dictionary
+- Playbook identity is established at ingestion time by the auto-derive slug session — the review tool should discover, not define
 
 **Done means:**  
-- [x] Reference download failures degrade individual candidates, not entire formations
-- [x] Crops score against whatever candidates successfully downloaded
-- [x] Crop with zero available candidates becomes REVIEW (with note), not FAIL
-- [x] Y-Flex slug convention verified against cfb.fan browser test
-- [x] Y-Flex slug fixed if wrong — **N/A: `y--flex` is correct on cfb.fan**
-- [x] 01-trap pattern investigated (systematic vs specific)
-- [x] California re-run: FAIL count reported (target: 0-3, was 44) — **0 FAIL**
-- [x] Air Force re-run: PASS/REVIEW unchanged — **468/0/0**
-- [x] USC re-run: PASS/REVIEW unchanged — **465/0/0**
-- [x] `CHANGELOG.md` entry added
+- [x] Hardcoded playbook list replaced with filesystem discovery
+- [x] Unknown playbook error lists actually available playbooks
+- [x] `--playbook=california` works
+- [x] `--playbook=air-force` still works  
+- [x] `--playbook=usc` still works
+- [x] `--playbook=nonexistent` produces clear error listing valid options
 - [x] `npm run build` passes
 
 **Handoff notes:**  
-- California: **433 PASS / 34 REVIEW / 0 FAIL** (was 390 / 33 / 44); auto **92.7%**; downloads **467 succeeded / 0 failed**. Cascade formations (Tight Y Off Flex, Deuce Close, Trey Y-Flex Str) now score; Trey has 16 PASS + 1 REVIEW.
-- **01-trap root cause:** Hypothesis A (URL convention) — seed/`normalizePlayName` collapsed `0 1 TRAP` → `01 TRAP` → `01-trap.jpg`, but cfb.fan serves `0-1-trap.jpg`. Not a missing asset. Fix: `normalizePlayNameBase` in reference build + URL path.
-- **Y-Flex:** `gun-trey-y--flex-str/` returns 200; single-hyphen 404. Keep global hyphen→`--` slug rule.
-- Numbered plays: only spaced single-digit hole pairs (`0 1`, `5 6`) need spaces preserved; intact tokens like `45 QUICK BASE` / `22 Z IN` stay unsplit. Some seeds already write `56 TRAP` (cfb.fan `56-trap.jpg`) — preserving seed spacing is required.
-- Pipeline safer for batch on download-resilience axis; CA still has 34 REVIEW for operator/override path before publish.
+- **Discovery source:** matcher reports under `scripts/play-art/reports/` matching `cfb27-offense-{slug}-matching.json` (offense-first pipeline; intentionally not cfb26/defense to keep CLI slugs unique). Chosen because reports only exist after ingest+match.
+- **Path resolution:** reference = `references/{reportSlug}.json`; DOCX via existing `discoverAndResolveSources()` matching seed `cfb27-{slug}`. Removed dependency on `PLAYBOOK_PATHS` from `matcher-v3-sample-set` (that file stays for matcher V3 diagnostics only).
+- **Other hardcoded lists in review-tool:** none for allow-lists — `state.ts` / overrides / diagnostic paths already take a dynamic slug. Only `parsePlaybookArg` + CLI help were hardcoded.
+- **`--list`:** implemented with `playCount` from matching report.
+- California: **34 REVIEW**; Air Force / USC: **0 REVIEW** (queue clear).
+- Reviewer note addressed: discovery narrowed to cfb27 offense (not bare-slug across game/side).

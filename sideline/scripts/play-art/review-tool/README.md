@@ -9,8 +9,10 @@ Confirmations write to `scripts/play-art/matching-overrides/{slug}.json`. On the
 From `sideline/`:
 
 ```bash
+npm run play-art:review -- --list
 npm run play-art:review -- --playbook=air-force
 npm run play-art:review -- --playbook=usc
+npm run play-art:review -- --playbook=california
 
 # Skip diagnostic (sample 30 skipped cases; does not modify review state)
 npm run play-art:review -- --playbook=air-force --mode=diagnostic
@@ -19,10 +21,7 @@ npm run play-art:review -- --playbook=air-force --mode=diagnostic --seed=42
 
 Open the printed URL (default `http://127.0.0.1:4300`). If 4300 is busy the server tries 4301+.
 
-Requires an existing matching report:
-
-- `scripts/play-art/reports/cfb27-offense-air-force-matching.json`
-- `scripts/play-art/reports/cfb27-offense-usc-matching.json`
+Playbooks are discovered from matching reports under `scripts/play-art/reports/` (`cfb27-offense-{slug}-matching.json`, offense-first). Any CFB27 offense playbook with a matching report is valid — no hardcoded allow-list.
 
 ## Keyboard (review mode)
 

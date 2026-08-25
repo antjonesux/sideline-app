@@ -3,9 +3,10 @@
  * Play-art REVIEW operator tool — local keyboard-driven confirmation UI.
  *
  * Usage (from sideline/):
+ *   npm run play-art:review -- --list
  *   npm run play-art:review -- --playbook=air-force
+ *   npm run play-art:review -- --playbook=california
  *   npm run play-art:review -- --playbook=air-force --mode=diagnostic
- *   npm run play-art:review -- --playbook=usc
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -13,8 +14,10 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  discoverIngestedPlaybooks,
   loadReviewData,
   parsePlaybookArg,
+  printPlaybookList,
   referenceUrlForPlay,
   type LoadedReviewData,
   type ReviewCase,
@@ -99,6 +102,7 @@ type CliOptions = {
   port: number;
   mode: "review" | "diagnostic";
   seed: number | null;
+  list: boolean;
 };
 
 function parseCli(argv: string[]): CliOptions {
@@ -106,9 +110,12 @@ function parseCli(argv: string[]): CliOptions {
   let port = DEFAULT_PORT;
   let mode: "review" | "diagnostic" = "review";
   let seed: number | null = null;
+  let list = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg.startsWith("--playbook=")) {
+    if (arg === "--list") {
+      list = true;
+    } else if (arg.startsWith("--playbook=")) {
       playbook = arg.slice("--playbook=".length);
     } else if (arg === "--playbook" && argv[i + 1]) {
       playbook = argv[i + 1];
@@ -150,16 +157,34 @@ function parseCli(argv: string[]): CliOptions {
       i += 1;
     } else if (arg === "--help" || arg === "-h") {
       console.log(`Usage:
-  npm run play-art:review -- --playbook=air-force [--port=4300]
-  npm run play-art:review -- --playbook=air-force --mode=diagnostic [--seed=42]`);
+  npm run play-art:review -- --list
+  npm run play-art:review -- --playbook=<slug> [--port=4300]
+  npm run play-art:review -- --playbook=<slug> --mode=diagnostic [--seed=42]
+
+Playbook slugs are discovered from matching reports under scripts/play-art/reports/.`);
       process.exit(0);
     }
   }
+  if (list) {
+    return { playbook, port, mode, seed, list: true };
+  }
   if (!playbook) {
-    console.error("Required: --playbook=air-force|usc");
+    const available = discoverIngestedPlaybooks();
+    if (available.length === 0) {
+      console.error("Required: --playbook=<slug>");
+      console.error("No playbooks have been ingested yet.");
+      console.error("");
+      console.error("Ingest a playbook first with:");
+      console.error('  npm run play-art:ingest -- --source="path/to/{Name}.docx"');
+    } else {
+      console.error(
+        `Required: --playbook=<slug> (available: ${available.map((p) => p.slug).join(", ")})`,
+      );
+      console.error("Or run with --list to see mapping counts.");
+    }
     process.exit(1);
   }
-  return { playbook, port, mode, seed };
+  return { playbook, port, mode, seed, list: false };
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
@@ -854,6 +879,10 @@ async function mainDiagnostic(cli: CliOptions): Promise<void> {
 
 async function main(): Promise<void> {
   const cli = parseCli(process.argv.slice(2));
+  if (cli.list) {
+    printPlaybookList();
+    return;
+  }
   if (cli.mode === "diagnostic") {
     await mainDiagnostic(cli);
   } else {
