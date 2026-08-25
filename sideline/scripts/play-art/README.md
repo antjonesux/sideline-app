@@ -57,7 +57,7 @@ npm run play-art:ingest -- \
 | `--overrides=<path>` | Formation-scoped REVIEW override JSON |
 | `--approve-review` | Allow publish with REVIEWs remaining |
 
-Filename → slug rules live in `scripts/play-art/lib/slug-utils.ts`. Basename exceptions (e.g. `Miami FL` → Miami) live in `scripts/play-art/source-aliases.json`.
+Filename → slug rules live in `scripts/play-art/lib/slug-utils.ts` (spaced `&` → `-and-`, e.g. `Run & Shoot` → `run-and-shoot`; bare `&` dropped, e.g. `Texas A&M` → `texas-am`). cfb.fan URL exceptions (e.g. `run-and-shoot` → `run-shoot-off`) live in each seed’s `source.url`. Basename exceptions (e.g. `Miami FL` → Miami) live in `scripts/play-art/source-aliases.json`.
 
 ## Pilot playbook
 

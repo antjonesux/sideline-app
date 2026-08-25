@@ -9,6 +9,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { displayNameToTeamSlug } from "./lib/slug-utils";
 import type { PlayArtMatchingReport } from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -156,7 +157,7 @@ function main(): void {
     formationsSortedByReviewRate: formations,
   };
 
-  const slug = report.playbook.toLowerCase().replace(/\s+/g, "-");
+  const slug = displayNameToTeamSlug(report.playbook);
   const ver = report.matcherVersion;
   const formationPath = join(outDir, `${slug}-${ver}-formations.json`);
   const hardPath = join(outDir, `${slug}-${ver}-hard-cases.json`);

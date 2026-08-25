@@ -1,6 +1,6 @@
 import { TeamPlaybookSeed } from '../types';
 
-export const CFB27_RUN__SHOOT_SEED: TeamPlaybookSeed = {
+export const CFB27_RUN_AND_SHOOT_SEED: TeamPlaybookSeed = {
   team: "Run & Shoot",
   scheme: "Run & Shoot",
   sideOfBall: 'offense',

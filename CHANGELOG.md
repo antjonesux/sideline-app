@@ -4,6 +4,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-25 — Ampersand slug normalization (`&` → `-and-`)
+
+### What
+
+- Shared `displayNameToTeamSlug`: spaced `&` → `-and-` (`Run & Shoot` → `run-and-shoot`); bare `&` stripped (`Texas A&M` → `texas-am`).
+- Renamed seeds `cfb27-run-&-shoot.ts` → `cfb27-run-and-shoot.ts` and `cfb27-veer-&-shoot.ts` → `cfb27-veer-and-shoot.ts` (export consts updated; `source.url` still `run-shoot-off` / `veer-shoot-off`).
+- Reference path, matching-overrides path, validation report filename, and related helpers use the same normalizer; reference auto-build writes to the seed-slug path.
+
+### Why
+
+Literal `&` in seed filenames and CLI slugs is fragile across shells and URLs. Normalize before batch ingest.
+
+### Status
+
+- cfb.fan: `run-shoot-off` / `veer-shoot-off` → 200; `run-and-shoot-off` / `veer-and-shoot-off` → 404.
+- Run & Shoot validate-only: **246 PASS / 42 REVIEW / 0 FAIL** (288 plays; auto 85.4%).
+- Veer & Shoot validate-only: **221 PASS / 31 REVIEW / 0 FAIL** (252 plays; auto 87.7%).
+- Air Force: **468 / 0 / 0** (unchanged). USC: **465 / 0 / 0** (unchanged). California slug path unchanged.
+
+---
+
 ## 2026-08-25 — Play-art review tool playbook auto-discovery
 
 ### What

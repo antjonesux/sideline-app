@@ -18,7 +18,7 @@ import { normalizePlayName } from "../../lib/utils";
 import { buildReferenceFromSeedSlug, resolveSeedSlugFromArgs } from "./build-reference";
 import { assignContentHashedAssets } from "./content-hash";
 import { extractPlayArtDocx, summarizeDocxStructure } from "./extract-docx";
-import { seedSlugToReferencePath } from "./lib/slug-utils";
+import { seedSlugToReferencePath, displayNameToTeamSlug } from "./lib/slug-utils";
 import { mapPlayArtPositionally } from "./map-positional";
 import {
   loadSeedForReference,
@@ -485,7 +485,7 @@ async function main(): Promise<void> {
   );
 
   mkdirSync(args.reportDir, { recursive: true });
-  const reportFileName = `${reference.playbook.trim().toLowerCase().replace(/\s+/g, "-")}-validation.json`;
+  const reportFileName = `${displayNameToTeamSlug(reference.playbook)}-validation.json`;
   const reportPath = join(args.reportDir, reportFileName);
   const mergedReport = matchingReport
     ? mergeMatchingIntoValidationReport(report, matchingReport)

@@ -6,6 +6,19 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-25 — Ampersand slugs use `-and-` (not literal `&`)
+
+**Decision:** DOCX / display-name slug derivation converts spaced `&` to `-and-` (`Run & Shoot` → `run-and-shoot`) and strips bare `&` (`Texas A&M` → `texas-am`). Seed modules renamed accordingly (`cfb27-run-and-shoot.ts`). cfb.fan drops the ampersand entirely (`run-shoot-off`, `veer-shoot-off`); that mapping stays in seed `source.url`, not in slug derivation. Reference path / report slug helpers share the same normalizer so paths stay aligned with seed slugs.
+
+**Why:** Literal `&` in filenames and CLI slugs is fragile (shell escaping, URL encoding). Fixing before batch ingest avoids a rename cascade.
+
+**Impact:**
+- `scripts/play-art/lib/slug-utils.ts` (+ `reference.ts` / `match-play-art.ts` / `build-reference.ts` consumers)
+- Seeds: `cfb27-run-&-shoot.ts` → `cfb27-run-and-shoot.ts`; same for Veer & Shoot
+- Air Force / USC / California slugs unchanged
+
+---
+
 ## 2026-08-25 — Play-art reference downloads degrade per-candidate; preserve hole-number spacing for cfb.fan
 
 **Decision:** When a cfb.fan reference image fails to download, continue scoring the formation against successfully fetched candidates (zero-score column for missing plays → that crop REVIEW). Only if every reference for a formation fails do all crops become REVIEW. Play-art reference JSON uses `normalizePlayNameBase` (no digit-pair collapse) so spaced hole numbers like `0 1 TRAP` slug to `0-1-trap.jpg`. App identity matching still uses full `normalizePlayName`. Do not change the global hyphen→`--` slug rule — cfb.fan uses `y--flex` for Y-Flex formations.
@@ -46,7 +59,7 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ## 2026-08-25 — Play-art seed/reference auto-derive from DOCX filename
 
-**Decision:** `play-art:reference` and `play-art:ingest` accept `--source=<docx>` and derive team slug → seed slug (`cfb27-{slug}`) → reference path (`scripts/play-art/references/cfb27-offense-{slug}.json`). Missing references auto-build from the seed module (importable `buildReferenceFromSeedSlug`); `--no-auto-reference` opts out. Keep `--seed` / `--reference` / `--team` / `--game` for backward compat and overrides. Ampersand filenames keep `&` in the slug (`Run & Shoot` → `run-&-shoot`) to match on-disk seed modules; cfb.fan URL exceptions stay in seed `source.url`. Basename exceptions reuse `source-aliases.json` via existing source-discovery.
+**Decision:** `play-art:reference` and `play-art:ingest` accept `--source=<docx>` and derive team slug → seed slug (`cfb27-{slug}`) → reference path (`scripts/play-art/references/cfb27-offense-{slug}.json`). Missing references auto-build from the seed module (importable `buildReferenceFromSeedSlug`); `--no-auto-reference` opts out. Keep `--seed` / `--reference` / `--team` / `--game` for backward compat and overrides. Ampersand filenames normalize to `-and-` (`Run & Shoot` → `run-and-shoot`); cfb.fan URL exceptions stay in seed `source.url` (see same-day ampersand decision). Basename exceptions reuse `source-aliases.json` via existing source-discovery.
 
 **Why:** Manual seed + reference path coordination does not scale to 100+ playbooks. Filename is the operator’s natural key.
 

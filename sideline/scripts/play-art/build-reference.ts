@@ -6,8 +6,10 @@ import type { TeamPlaybookSeed } from "../../lib/seed/types";
 import type { PlayArtReference } from "./types";
 import { defaultReferencePath, referencesDir } from "./reference";
 import {
+  displayNameToTeamSlug,
   docxPathToSeedSlug,
   parseGameFlag,
+  seedSlugToReferencePath,
   teamSlugToSeedSlug,
 } from "./lib/slug-utils";
 import {
@@ -63,7 +65,7 @@ export async function importSeedModule(seedSlug: string): Promise<TeamPlaybookSe
 }
 
 export function writeReferenceFile(ref: PlayArtReference, outPath?: string): string {
-  const slug = `${ref.gameVersion}-${ref.sideOfBall}-${ref.playbook.trim().toLowerCase().replace(/\s+/g, "-")}`;
+  const slug = `${ref.gameVersion}-${ref.sideOfBall}-${displayNameToTeamSlug(ref.playbook)}`;
   const target = outPath ?? defaultReferencePath(slug);
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, `${JSON.stringify(ref, null, 2)}\n`, "utf8");
@@ -81,7 +83,11 @@ export async function buildReferenceFromSeedSlug(
 ): Promise<{ path: string; reference: PlayArtReference }> {
   const seed = await importSeedModule(seedSlug);
   const reference = referenceFromSeed(seed);
-  const path = writeReferenceFile(reference, outPath);
+  // Prefer seed-slug path so ampersand display names (`Run & Shoot`) land on
+  // `cfb27-offense-run-and-shoot.json`, matching seedSlugToReferencePath.
+  const target =
+    outPath ?? seedSlugToReferencePath(seedSlug, referencesDir());
+  const path = writeReferenceFile(reference, target);
   return { path, reference };
 }
 

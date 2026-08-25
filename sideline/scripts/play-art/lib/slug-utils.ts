@@ -4,27 +4,40 @@ const DEFAULT_GAME = "cfb27";
 const DEFAULT_SIDE: "offense" | "defense" = "offense";
 
 /**
- * DOCX basename → team/scheme slug for seed + reference paths.
+ * Normalize a team/scheme display name (or DOCX basename stem) to a safe slug.
  *
- * Ampersand: keep `&` and convert surrounding whitespace to hyphens so the
- * result matches on-disk seed modules (`cfb27-run-&-shoot.ts`). cfb.fan URLs
- * drop the ampersand (`run-shoot-off`); that mapping lives in seed `source.url`,
- * not here.
+ * Ampersand rules:
+ * - Spaced `&` (`Run & Shoot`) → `-and-` (`run-and-shoot`)
+ * - Bare `&` (`Texas A&M`) → drop (`texas-am`) so seed filenames stay shell/URL-safe
+ *
+ * cfb.fan often drops the ampersand entirely (`run-shoot-off`); that mapping lives
+ * in seed `source.url`, not here.
  *
  * Examples:
- *   California.docx → california
- *   Ohio State.docx → ohio-state
- *   Run & Shoot.docx → run-&-shoot
- *   Pro Style.docx → pro-style
+ *   California → california
+ *   Ohio State → ohio-state
+ *   Run & Shoot → run-and-shoot
+ *   Veer & Shoot → veer-and-shoot
+ *   Texas A&M → texas-am
+ *   Pro Style → pro-style
  */
-export function docxPathToTeamSlug(docxPath: string): string {
-  const base = basename(docxPath).replace(/\.docx$/i, "");
-  return base
+export function displayNameToTeamSlug(raw: string): string {
+  return raw
     .trim()
     .toLowerCase()
+    .replace(/\s+&\s+/g, " and ")
+    .replace(/&/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * DOCX basename → team/scheme slug for seed + reference paths.
+ */
+export function docxPathToTeamSlug(docxPath: string): string {
+  const base = basename(docxPath).replace(/\.docx$/i, "");
+  return displayNameToTeamSlug(base);
 }
 
 /** team/scheme slug → seed module slug (`california` → `cfb27-california`). */
@@ -50,6 +63,7 @@ export function docxPathToSeedSlug(docxPath: string, game: string = DEFAULT_GAME
  * Convention (from build-reference writeReferenceFile / referenceSlug):
  *   cfb27-california → {referencesDir}/cfb27-offense-california.json
  *   cfb27-air-force  → {referencesDir}/cfb27-offense-air-force.json
+ *   cfb27-run-and-shoot → {referencesDir}/cfb27-offense-run-and-shoot.json
  *
  * Play-art ingestion is offense-first; the side segment is always `offense`
  * unless the caller passes an explicit --reference path.

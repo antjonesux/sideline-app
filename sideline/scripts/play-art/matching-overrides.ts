@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizePlayName } from "../../lib/utils";
+import { referenceSlug } from "./reference";
 import type { PlayArtReference } from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -10,8 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export type PlayArtMatchingOverrides = Record<string, Record<string, string>>;
 
 export function defaultOverridesPath(reference: PlayArtReference): string {
-  const slug = `${reference.gameVersion}-${reference.sideOfBall}-${reference.playbook.trim().toLowerCase().replace(/\s+/g, "-")}`;
-  return join(__dirname, "matching-overrides", `${slug}.json`);
+  return join(__dirname, "matching-overrides", `${referenceSlug(reference)}.json`);
 }
 
 export function loadMatchingOverrides(path: string): PlayArtMatchingOverrides {

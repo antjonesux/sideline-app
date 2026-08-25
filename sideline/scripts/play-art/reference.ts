@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { displayNameToTeamSlug } from "./lib/slug-utils";
 import type { PlayArtReference } from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,7 +55,7 @@ function validateReferenceShape(ref: PlayArtReference, path: string): void {
 }
 
 export function referenceSlug(ref: PlayArtReference): string {
-  return `${ref.gameVersion}-${ref.sideOfBall}-${ref.playbook.trim().toLowerCase().replace(/\s+/g, "-")}`;
+  return `${ref.gameVersion}-${ref.sideOfBall}-${displayNameToTeamSlug(ref.playbook)}`;
 }
 
 export function totalExpectedPlays(ref: PlayArtReference): number {

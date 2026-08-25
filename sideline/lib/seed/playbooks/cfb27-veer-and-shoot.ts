@@ -1,6 +1,6 @@
 import { TeamPlaybookSeed } from '../types';
 
-export const CFB27_VEER__SHOOT_SEED: TeamPlaybookSeed = {
+export const CFB27_VEER_AND_SHOOT_SEED: TeamPlaybookSeed = {
   team: "Veer & Shoot",
   scheme: "Veer & Shoot",
   sideOfBall: 'offense',
