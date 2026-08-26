@@ -28,10 +28,10 @@ export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
 
-/** Sidebar / drawer nav for the current user — Film Room omitted unless beta-listed. */
+/** Sidebar / drawer nav for the current user — Film Room + My Tendencies omitted unless beta-listed. */
 export function getAppShellSidebarNav(userId: string | undefined | null): AppShellSidebarNavItem[] {
   if (isFilmRoomBetaUser(userId)) return APP_SHELL_SIDEBAR_NAV;
-  return APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "review");
+  return APP_SHELL_SIDEBAR_NAV.filter((item) => item.id !== "review" && item.id !== "my-tendencies");
 }
 
 export function isAppShellSidebarNavActive(pathname: string, item: AppShellSidebarNavItem): boolean {

@@ -31,6 +31,7 @@ Batch failures were dominated by “assigned twice” from short OCR fragments (
 ### What
 
 - Added My Tendencies as a top-level nav destination in `appShellNav.ts` (Activity icon, route `/tendencies`, label "My Tendencies").
+- My Tendencies nav item is gated behind the Film Room beta flag (`isFilmRoomBetaUser`). Route remains accessible via direct URL; only the sidebar entry is hidden for non-beta users.
 - New `MyTendenciesHeroStats` component: 4-card row (Games Logged, Win Rate, Avg YPP, Run/Pass) backed by new `GET /api/tendencies/overview` endpoint.
 - New page-level Offense/Defense toggle (`TendenciesSideOfBallToggle`) that filters hero stats and all tab content by side of ball.
 - Cross-game tendencies endpoints (`top-plays`, `top-formations`, `predictability`) now accept `side_of_ball` param; aggregation reuses helpers from `tendenciesServer.ts` (`resolveTendenciesGamePool`, drive-side play fetch).
