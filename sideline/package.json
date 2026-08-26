@@ -16,6 +16,8 @@
     "verify:playbook": "NODE_PATH=./node_modules tsx ./scripts/verify-playbook-seed.ts",
     "play-art:reference": "NODE_PATH=./node_modules tsx ./scripts/play-art/build-reference.ts",
     "play-art:ingest": "NODE_PATH=./node_modules tsx ./scripts/play-art/ingest-playbook.ts",
+    "play-art:batch": "NODE_PATH=./node_modules tsx ./scripts/play-art/batch-ingest.ts",
+    "play-art:verify-threshold": "NODE_PATH=./node_modules tsx ./scripts/play-art/verify-threshold.ts",
     "play-art:discover": "NODE_PATH=./node_modules tsx ./scripts/play-art/discover-sources.ts",
     "play-art:debug-match": "NODE_PATH=./node_modules tsx ./scripts/play-art/debug-match.ts",
     "play-art:debug-geometry": "NODE_PATH=./node_modules tsx ./scripts/play-art/debug-geometry.ts",

@@ -88,8 +88,69 @@ export const FORMATION_HEADER_REGION = {
 } as const;
 
 const OCR_UPSCALE = 3;
-const MAX_FUZZY_DISTANCE = 2;
+/** Absolute Levenshtein ceiling before length-aware rules (typo-scale edits only). */
+const MAX_LEVENSHTEIN_DISTANCE = 2;
+/**
+ * Length-aware fuzzy / containment accept rules (see DECISIONS / CHANGELOG 2026-08-25):
+ * 1. distance ≤ max(4, floor(seedLen * 0.25))
+ * 2. ocrLen ≥ max(4, floor(seedLen * 0.5))
+ * 3. unique among candidates that pass (1)+(2)
+ *
+ * Min distance 4 (not 3) so legitimate personnel-prefix drops like
+ * OCR "GREEN" → "Gun Green" (delta 4 for "GUN ") still pass when proportional.
+ * Short fragments like "ACE" → "Gun Ace Rip 4WR" (delta 12) are rejected.
+ */
+const FUZZY_DISTANCE_SEED_FRACTION = 0.25;
+const FUZZY_MIN_DISTANCE_CAP = 4;
+const OCR_MIN_SEED_FRACTION = 0.5;
+const OCR_MIN_LENGTH_FLOOR = 4;
 const DEFAULT_OCR_CONCURRENCY = 6;
+
+export type FuzzyRejectReason =
+  | "distance_vs_seed"
+  | "ocr_too_short"
+  | "ambiguous"
+  | "no_candidates";
+
+export function maxAllowedFuzzyDistance(seedNormLength: number): number {
+  return Math.max(FUZZY_MIN_DISTANCE_CAP, Math.floor(seedNormLength * FUZZY_DISTANCE_SEED_FRACTION));
+}
+
+export function minOcrLengthForSeed(seedNormLength: number): number {
+  return Math.max(OCR_MIN_LENGTH_FLOOR, Math.floor(seedNormLength * OCR_MIN_SEED_FRACTION));
+}
+
+/** Whether a candidate distance/OCR length pair passes length-aware gates (rules 1–2). */
+export function passesLengthAwareFuzzyThreshold(
+  ocrNorm: string,
+  seedNorm: string,
+  distance: number,
+): { ok: true } | { ok: false; reason: FuzzyRejectReason; detail: string } {
+  const maxDist = maxAllowedFuzzyDistance(seedNorm.length);
+  if (distance > maxDist) {
+    return {
+      ok: false,
+      reason: "distance_vs_seed",
+      detail: `distance > 25% of seed name length (max ${maxDist})`,
+    };
+  }
+  const minLen = minOcrLengthForSeed(seedNorm.length);
+  if (ocrNorm.length < minLen) {
+    return {
+      ok: false,
+      reason: "ocr_too_short",
+      detail: `OCR too short relative to seed name (min ${minLen} chars)`,
+    };
+  }
+  return { ok: true };
+}
+
+function rejectDetailLabel(reason: FuzzyRejectReason, detail: string): string {
+  if (reason === "ocr_too_short") return `rejected: OCR too short relative to seed name`;
+  if (reason === "distance_vs_seed") return `rejected: ${detail}`;
+  if (reason === "ambiguous") return `rejected: ambiguous (multiple seeds within threshold)`;
+  return `rejected: ${detail}`;
+}
 
 export type FormationOcrMatchConfidence = "exact" | "fuzzy" | "none";
 
@@ -280,6 +341,22 @@ const PERSONNEL_HINTS = [
   "GUN",
 ] as const;
 
+/** Longest-first personnel prefixes for suffix / disambiguation checks. */
+const PERSONNEL_PREFIXES_DESC = [...PERSONNEL_HINTS]
+  .map((h) => normalizeFormationOcrText(h))
+  .sort((a, b) => b.length - a.length);
+
+/** Strip a leading known personnel/scheme token from a normalized formation name. */
+export function stripPersonnelPrefix(seedNorm: string): string {
+  for (const prefix of PERSONNEL_PREFIXES_DESC) {
+    if (seedNorm === prefix) return "";
+    if (seedNorm.startsWith(`${prefix} `)) {
+      return seedNorm.slice(prefix.length + 1).trim();
+    }
+  }
+  return seedNorm;
+}
+
 /** Pull scheme/personnel hint from the left header panel when middle-only match is ambiguous. */
 export function extractPersonnelHint(leftOcrText: string): string {
   const n = normalizeFormationOcrText(leftOcrText);
@@ -328,53 +405,77 @@ export function matchKnownFormationConstrained(
 
   // Prefer closest-length known name contained in OCR (or vice versa), including
   // compact (space-stripped) form so YFLEX↔Y FLEX style glues still match.
-  const containment = normalizedKnown
-    .filter((k) => {
-      if (k.norm.length < 6 && needle.length < 6) return false;
-      if (needle.includes(k.norm) || k.norm.includes(needle)) return true;
-      const nc = needle.replace(/\s+/g, "");
-      const kc = k.norm.replace(/\s+/g, "");
-      return nc.length >= 6 && kc.length >= 6 && (nc.includes(kc) || kc.includes(nc));
+  // Length-aware gates reject short fragments (e.g. "ACE" ⊂ "GUN ACE RIP 4WR").
+  const containmentRaw = normalizedKnown.filter((k) => {
+    if (k.norm.length < 6 && needle.length < 6) return false;
+    // Reject proper-prefix extensions: OCR "SINGLEBACK WING" must not claim
+    // "Singleback Wing Slot" (missing trailing modifier). Suffix / personnel-drop
+    // matches (OCR "GREEN" ⊂ "GUN GREEN") remain allowed.
+    if (k.norm.startsWith(`${needle} `)) return false;
+    if (needle.includes(k.norm) || k.norm.includes(needle)) return true;
+    const nc = needle.replace(/\s+/g, "");
+    const kc = k.norm.replace(/\s+/g, "");
+    if (kc.startsWith(nc) && kc.length > nc.length) return false;
+    return nc.length >= 6 && kc.length >= 6 && (nc.includes(kc) || kc.includes(nc));
+  });
+  const containmentPassing = containmentRaw
+    .map((k) => {
+      const distance = Math.abs(k.norm.length - needle.length);
+      const gate = passesLengthAwareFuzzyThreshold(needle, k.norm, distance);
+      return { ...k, distance, gate };
     })
+    .filter((k) => k.gate.ok)
     .sort(
       (a, b) =>
+        a.distance - b.distance ||
         Math.abs(a.norm.length - needle.length) - Math.abs(b.norm.length - needle.length) ||
         b.norm.length - a.norm.length,
     );
-  if (containment.length === 1) {
+
+  // Personnel-suffix ambiguity: OCR "DEUCE CLOSE" matches the stripped suffix of both
+  // "Gun Deuce Close" and "Singleback Deuce Close". Only one may pass the length-aware
+  // distance gate (Gun is closer), but guessing personnel is unsafe — fail closed so
+  // left-panel hint / crop-vote can disambiguate.
+  const suffixHits = normalizedKnown.filter((k) => {
+    const rest = stripPersonnelPrefix(k.norm);
+    return rest.length >= 4 && rest === needle;
+  });
+  if (suffixHits.length > 1) {
     return {
-      matchedFormation: containment[0].name,
-      matchConfidence: "fuzzy",
-      matchDistance: Math.abs(containment[0].norm.length - needle.length),
+      matchedFormation: null,
+      matchConfidence: "none",
+      matchDistance: Math.abs(suffixHits[0].norm.length - needle.length),
     };
   }
-  if (containment.length > 1) {
-    const top = containment[0];
-    const second = containment[1];
-    const topDelta = Math.abs(top.norm.length - needle.length);
-    const secondDelta = Math.abs(second.norm.length - needle.length);
-    // Prefer the closest-length containment; only accept when clearly closer.
-    if (topDelta < secondDelta) {
-      return {
-        matchedFormation: top.name,
-        matchConfidence: "fuzzy",
-        matchDistance: topDelta,
-      };
-    }
-    return { matchedFormation: null, matchConfidence: "none", matchDistance: topDelta };
+
+  if (containmentPassing.length === 1) {
+    return {
+      matchedFormation: containmentPassing[0].name,
+      matchConfidence: "fuzzy",
+      matchDistance: containmentPassing[0].distance,
+    };
+  }
+  if (containmentPassing.length > 1) {
+    // Rule 3: multiple seeds within threshold → fail closed (do not guess personnel).
+    return {
+      matchedFormation: null,
+      matchConfidence: "none",
+      matchDistance: containmentPassing[0].distance,
+    };
   }
 
-  let best: { name: string; distance: number } | null = null;
+  let best: { name: string; distance: number; norm: string } | null = null;
   for (const k of normalizedKnown) {
     const distance = levenshtein(needle, k.norm);
-    if (distance > MAX_FUZZY_DISTANCE) continue;
+    if (distance > MAX_LEVENSHTEIN_DISTANCE) continue;
+    const gate = passesLengthAwareFuzzyThreshold(needle, k.norm, distance);
+    if (!gate.ok) continue;
     if (
       !best ||
       distance < best.distance ||
-      (distance === best.distance &&
-        k.norm.length > normalizeFormationOcrText(best.name).length)
+      (distance === best.distance && k.norm.length > best.norm.length)
     ) {
-      best = { name: k.name, distance };
+      best = { name: k.name, distance, norm: k.norm };
     }
   }
 
@@ -382,7 +483,11 @@ export function matchKnownFormationConstrained(
     return { matchedFormation: null, matchConfidence: "none", matchDistance: null };
   }
 
-  const ties = normalizedKnown.filter((k) => levenshtein(needle, k.norm) === best!.distance);
+  const ties = normalizedKnown.filter((k) => {
+    const distance = levenshtein(needle, k.norm);
+    if (distance !== best!.distance) return false;
+    return passesLengthAwareFuzzyThreshold(needle, k.norm, distance).ok;
+  });
   if (ties.length > 1) {
     return { matchedFormation: null, matchConfidence: "none", matchDistance: best.distance };
   }
@@ -426,24 +531,31 @@ export function matchSectionHeaderToFormation(
   return { ...match, cleanedText };
 }
 
-/** Top fuzzy candidates for fail-closed error messages (not limited to MAX_FUZZY_DISTANCE). */
+/** Top fuzzy candidates for fail-closed error messages (not limited to accept threshold). */
 export function topFuzzyFormationCandidates(
   ocrFormationText: string,
   knownFormations: string[],
   limit = 3,
-): Array<{ name: string; distance: number }> {
+): Array<{ name: string; distance: number; rejectDetail: string | null }> {
   const needle = normalizeFormationOcrText(ocrFormationText);
   if (!needle) {
     return knownFormations.slice(0, limit).map((name) => ({
       name,
       distance: normalizeFormationOcrText(name).length,
+      rejectDetail: "rejected: empty OCR text",
     }));
   }
   return knownFormations
-    .map((name) => ({
-      name,
-      distance: levenshtein(needle, normalizeFormationOcrText(name)),
-    }))
+    .map((name) => {
+      const seedNorm = normalizeFormationOcrText(name);
+      const distance = levenshtein(needle, seedNorm);
+      const gate = passesLengthAwareFuzzyThreshold(needle, seedNorm, distance);
+      return {
+        name,
+        distance,
+        rejectDetail: gate.ok ? null : rejectDetailLabel(gate.reason, gate.detail),
+      };
+    })
     .sort((a, b) => a.distance - b.distance || a.name.localeCompare(b.name))
     .slice(0, limit);
 }
@@ -455,17 +567,23 @@ export function formatSectionOcrFailure(input: {
   knownFormations: string[];
 }): string {
   const cleaned = cleanSectionHeaderOcrText(input.ocrFormationText || input.ocrRawText);
+  const needle = normalizeFormationOcrText(cleaned || input.ocrRawText);
   const candidates = topFuzzyFormationCandidates(cleaned || input.ocrRawText, input.knownFormations, 3);
   const candidateLines =
     candidates.length === 0
       ? "    (none)"
-      : candidates.map((c) => `    - ${c.name} (distance ${c.distance})`).join("\n");
+      : candidates
+          .map((c) => {
+            const reason = c.rejectDetail ?? "within threshold (ambiguous or exhausted fallbacks)";
+            return `    ${c.name.padEnd(28)} distance=${c.distance}  (${reason})`;
+          })
+          .join("\n");
   return (
-    `Error: Section at DOCX position #${input.docPosition} — could not identify formation.\n` +
-    `  OCR output: "${input.ocrRawText.replace(/\s+/g, " ").trim()}"\n` +
-    `  Cleaned: "${cleaned}"\n` +
-    `  Fuzzy match candidates:\n${candidateLines}\n` +
-    `  Action: This section must be manually identified before ingestion can proceed.`
+    `Error: Section at DOCX position #${input.docPosition} — could not confidently identify formation.\n` +
+    `  OCR text: "${needle}" (${needle.length} chars)\n` +
+    `  Raw: "${input.ocrRawText.replace(/\s+/g, " ").trim()}"\n` +
+    `  Top 3 candidates:\n${candidateLines}\n` +
+    `  Action: Investigate DOCX position #${input.docPosition} — OCR may need enhancement or seed may be missing this formation.`
   );
 }
 

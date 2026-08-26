@@ -4,6 +4,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-26 — Formation OCR fuzzy match length-aware threshold
+
+### What
+
+- `formation-ocr.ts`: length-aware fuzzy/containment gates — distance ≤ max(4, ⌊seedLen×0.25⌋), OCR length ≥ max(4, ⌊seedLen×0.5⌋), unique within threshold; reject personnel-suffix ambiguity (`DEUCE CLOSE` vs Gun/Singleback); reject proper-prefix extensions (`SINGLEBACK WING` ↛ Wing Slot).
+- Richer section-OCR failure messages (OCR text + top-3 candidates with reject reasons).
+- `npm run play-art:verify-threshold` re-checks ingested playbooks (section OCR only; no trusted-hash overwrite).
+- `npm run play-art:batch` + `batch-ingest.ts` (also lands here — see prior changelog note) for sequential source-directory ingestion.
+
+### Why
+
+Batch failures were dominated by “assigned twice” from short OCR fragments (e.g. `ACE` → Gun Ace Rip 4WR, distance 12). Fail closed when uncertain.
+
+### Status
+
+- Verification: **28/28 safe** (incl. Air Force, USC, California, Run & Shoot, Veer & Shoot).
+- Re-ran 14 duplicate-section failures: **13 recovered**, **1 still failed** (Air Raid — crop-header disagreement 26.1%, not duplicate-section).
+- Recovery rate: **92.9%** (13/14).
+- `npm run build` passed.
+
+---
+
 ## 2026-08-25 — My Tendencies dashboard
 
 ### What

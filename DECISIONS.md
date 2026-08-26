@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-25 — Formation OCR fuzzy match is length-aware (fail closed)
+
+**Decision:** Accept fuzzy/containment formation OCR matches only when distance ≤ max(4, ⌊seedLen×0.25⌋), OCR length ≥ max(4, ⌊seedLen×0.5⌋), and the match is unique within that gate. Reject personnel-suffix ambiguity and proper-prefix extensions. Do not auto-re-ingest at-risk playbooks or overwrite trusted hashes from verification.
+
+**Why:** Absolute/containment matching accepted `ACE` → Gun Ace Rip 4WR (distance 12), causing duplicate-section batch failures and risking silent misassignment.
+
+**Impact:** `scripts/play-art/formation-ocr.ts`; `play-art:verify-threshold`; batch recovery of duplicate-section failures. Crop-disagreement and segmentation failures remain separate.
+
+---
+
 ## 2026-08-25 — Ampersand slugs use `-and-` (not literal `&`)
 
 **Decision:** DOCX / display-name slug derivation converts spaced `&` to `-and-` (`Run & Shoot` → `run-and-shoot`) and strips bare `&` (`Texas A&M` → `texas-am`). Seed modules renamed accordingly (`cfb27-run-and-shoot.ts`). cfb.fan drops the ampersand entirely (`run-shoot-off`, `veer-shoot-off`); that mapping stays in seed `source.url`, not in slug derivation. Reference path / report slug helpers share the same normalizer so paths stay aligned with seed slugs.
