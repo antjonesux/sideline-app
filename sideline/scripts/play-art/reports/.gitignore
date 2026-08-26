@@ -1,5 +1,8 @@
 # Generated validation reports from play-art ingest runs
 *.json
 
+# Timestamped outputs from play-art:verify-threshold (regenerable; printed to stdout too)
+threshold-verification-*.md
+
 # Matcher V3 diagnostic image artifacts (operator-only)
 matcher-v3-debug/
