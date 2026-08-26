@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-26 — Play-art assets already tracked; ship batch reference JSONs
+
+### What
+
+- Diagnosed why `git add sideline/public/play-art/` appeared to stage nothing: **all 933 JPGs under `public/play-art/cfb27/assets/` are already in HEAD and `origin/main`** (Air Force + USC publishes). `git add` is a silent no-op for tracked, unchanged files — not a gitignore/sparse-checkout block.
+- Committed **40** auto-built play-art reference JSON files from recent ingest/batch runs (`scripts/play-art/references/cfb27-offense-*.json`).
+- Manifest (`lib/generated/play-art-manifest.json`) was reorder-only vs HEAD (canonical content identical); left unchanged.
+
+### Why
+
+Operators mistook “add does nothing” for an untracked-asset blocker. Production owned-art for AF/USC depends on assets already on origin; newer batch playbooks still need REVIEW → publish before additional crops land in `public/` + the manifest.
+
+### Status
+
+- Disk / HEAD / origin asset counts: **933 / 933 / 933**.
+- No `.gitignore`, sparse-checkout, skip-worktree, or assume-unchanged rule was excluding assets.
+- `offense/` under `public/play-art/cfb27/` only contains `.DS_Store` (ignored); not the asset store.
+
+---
+
 ## 2026-08-26 — Formation OCR fuzzy match length-aware threshold
 
 ### What
