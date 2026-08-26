@@ -11,6 +11,7 @@ import {
 import { TendenciesEmptyState } from "@/components/tendencies/TendenciesEmptyState";
 import { TendenciesPredictabilityBodySkeleton } from "@/components/shared/AppSkeleton";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -58,11 +59,22 @@ type Props = {
   onPlaybookChange: (next: string | null) => void;
   playbookOptions: string[];
   playbookLoading?: boolean;
+  sideOfBall: DriveSideOfBall;
 };
 
-export function AmIPredictable({ opponents, playbook, onPlaybookChange, playbookOptions, playbookLoading = false }: Props) {
+export function AmIPredictable({
+  opponents,
+  playbook,
+  onPlaybookChange,
+  playbookOptions,
+  playbookLoading = false,
+  sideOfBall,
+}: Props) {
   const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
-  const qs = useMemo(() => buildTendenciesQueryString({ ...filters, playbook }), [filters, playbook]);
+  const qs = useMemo(
+    () => buildTendenciesQueryString({ ...filters, playbook, sideOfBall }),
+    [filters, playbook, sideOfBall],
+  );
 
   const q = useQuery({
     queryKey: tendenciesQueryKeys.predictability(qs),

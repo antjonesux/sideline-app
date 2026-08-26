@@ -11,7 +11,9 @@ import { TopFormationsList, type TopFormationRow } from "@/components/tendencies
 import { TopPlaysList, type TopPlayRow } from "@/components/tendencies/TopPlaysList";
 import { WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 import { TendenciesWhatsWorkingBodySkeleton } from "@/components/shared/AppSkeleton";
+import { TENDENCIES_CALLS_TO_RECONSIDER } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
@@ -22,7 +24,11 @@ type TopPlaysApi = {
   meta: { play_count: number; game_count: number };
 };
 
-type TopFormationsApi = { top_formations: TopFormationRow[]; total_matching: number; meta: { play_count: number; game_count: number } };
+type TopFormationsApi = {
+  top_formations: TopFormationRow[];
+  total_matching: number;
+  meta: { play_count: number; game_count: number };
+};
 
 type Props = {
   opponents: string[];
@@ -30,9 +36,17 @@ type Props = {
   onPlaybookChange: (next: string | null) => void;
   playbookOptions: string[];
   playbookLoading?: boolean;
+  sideOfBall: DriveSideOfBall;
 };
 
-export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOptions, playbookLoading = false }: Props) {
+export function WhatsWorking({
+  opponents,
+  playbook,
+  onPlaybookChange,
+  playbookOptions,
+  playbookLoading = false,
+  sideOfBall,
+}: Props) {
   const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
   const [playsExpanded, setPlaysExpanded] = useState(false);
   const [playsPage, setPlaysPage] = useState(1);
@@ -42,11 +56,11 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
   const [reconsiderPage, setReconsiderPage] = useState(1);
 
   const qs = useMemo(() => {
-    const raw = buildTendenciesQueryString({ ...filters, playbook });
+    const raw = buildTendenciesQueryString({ ...filters, playbook, sideOfBall });
     const sp = new URLSearchParams(raw);
     sp.delete("min_uses");
     return sp.toString();
-  }, [filters, playbook]);
+  }, [filters, playbook, sideOfBall]);
   const qsPlays = useMemo(() => {
     const sp = new URLSearchParams(qs);
     if (playsExpanded) sp.set("expand", "1");
@@ -150,7 +164,9 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
             {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
               <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
                 <p className="font-body text-sm text-slate-300">No calls logged for this filter yet.</p>
-                <p className="mt-1 font-body text-sm text-slate-500">Log calls in Film Room to see top calls and formations here.</p>
+                <p className="mt-1 font-body text-sm text-slate-500">
+                  Log calls in Film Room to see top calls and formations here.
+                </p>
               </div>
             ) : null}
             {playsQuery.data && playsQuery.data.meta.play_count > 0 ? (
@@ -193,7 +209,9 @@ export function WhatsWorking({ opponents, playbook, onPlaybookChange, playbookOp
 
           {playsQuery.data?.reconsider_plays?.length ? (
             <section className="space-y-3">
-              <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Plays to reconsider</h2>
+              <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">
+                {TENDENCIES_CALLS_TO_RECONSIDER}
+              </h2>
               <ReconsiderPlays
                 rows={reconsiderRows}
                 totalCount={playsQuery.data.reconsider_plays.length}

@@ -4,13 +4,13 @@ import {
   aggregateByFormationPlay,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
-  filterGameRowsByOffensivePlaybook,
-  gamesWithOffensivePlaybookOnly,
   mostCommonScenarioByFormationPlay,
   parsePlaybookFilter,
   parseScope,
+  parseSideOfBallFilter,
   qualifiesForReconsiderPlay,
   resolveFilteredGameIds,
+  resolveTendenciesGamePool,
 } from "@/lib/tendenciesServer";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -23,13 +23,14 @@ export async function GET(req: NextRequest) {
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
+  const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
   const showAll = sp.get("expand") === "1" || sp.get("all") === "1";
   const limit = showAll ? 200 : 5;
 
   const games = await fetchGamesOrdered(supabase, user.id);
-  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
-  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id);
+  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });
 
   const ranked = aggregateByFormationPlay(plays, 1, "composite");
   const top = ranked.slice(0, limit);
@@ -48,6 +49,6 @@ export async function GET(req: NextRequest) {
     top_plays: top,
     total_matching: ranked.length,
     reconsider_plays: reconsider,
-    meta: { scope, opponent, playbook, game_count: gameIds.length, play_count: plays.length },
+    meta: { scope, opponent, playbook, side_of_ball: sideOfBall, game_count: gameIds.length, play_count: plays.length },
   });
 }

@@ -4,11 +4,11 @@ import {
   bestPlayForFormation,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
-  filterGameRowsByOffensivePlaybook,
-  gamesWithOffensivePlaybookOnly,
   parsePlaybookFilter,
   parseScope,
+  parseSideOfBallFilter,
   resolveFilteredGameIds,
+  resolveTendenciesGamePool,
 } from "@/lib/tendenciesServer";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,13 +21,14 @@ export async function GET(req: NextRequest) {
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
+  const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
   const showAll = sp.get("expand") === "1" || sp.get("all") === "1";
   const limit = showAll ? 200 : 3;
 
   const games = await fetchGamesOrdered(supabase, user.id);
-  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
-  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id);
+  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });
 
   const allFormations = aggregateByFormation(plays, 1);
   const formations = allFormations.slice(0, limit);
@@ -50,6 +51,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     top_formations: withBest,
     total_matching: allFormations.length,
-    meta: { scope, opponent, playbook, game_count: gameIds.length, play_count: plays.length },
+    meta: { scope, opponent, playbook, side_of_ball: sideOfBall, game_count: gameIds.length, play_count: plays.length },
   });
 }

@@ -259,6 +259,11 @@ export const CALL_SHEET_VIEWER_MENU_INSIGHTS = "Film & Tendencies";
 export const CALL_SHEET_VIEWER_MENU_REVIEW = "Film Room";
 export const CALL_SHEET_VIEWER_MENU_REVIEW_SOON = "Coming Soon";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
+/** Sidebar / drawer — cross-game tendencies dashboard (`/tendencies`). */
+export const APP_SHELL_MY_TENDENCIES_MENU_LABEL = "My Tendencies";
+/** What's Working — low-yield calls section heading. */
+export const TENDENCIES_CALLS_TO_RECONSIDER = "Calls to Reconsider";
+export const TENDENCIES_NO_DEFENSIVE_PLAYS = "No defensive plays logged yet.";
 export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";
 
 /** Film game detail — end game with final score before marking ended. */

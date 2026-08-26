@@ -5,17 +5,17 @@ import {
   fetchCfbPlayTypeMap,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
-  filterGameRowsByOffensivePlaybook,
-  gamesWithOffensivePlaybookOnly,
   motionStatsForPlaybook,
   motionUsageStats,
   isSuccessPlay,
   parsePlaybookFilter,
   parseScope,
-  playbookForGame,
+  parseSideOfBallFilter,
+  playbookForTendenciesSide,
   playTypeCounts,
   redZoneTdStats,
   resolveFilteredGameIds,
+  resolveTendenciesGamePool,
   scoutingFormationReportRows,
   scoutingReportRows,
   thirdDownConvStats,
@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
   const scope = parseScope(sp.get("scope"));
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
+  const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
   const escapedOpponent = opponent ? opponent.replace(/'/g, "''") : null;
 
   const debugSql = `
@@ -86,7 +87,7 @@ GROUP BY game_playbook
 ORDER BY total_plays DESC;
 `.trim();
 
-  console.info("[predictability] scope:", scope, "opponent:", opponent ?? "(none)");
+  console.info("[predictability] scope:", scope, "opponent:", opponent ?? "(none)", "side_of_ball:", sideOfBall);
   console.info(
     "[predictability] playbook source:",
     "Uses per-game COALESCE(offensive_playbook, my_playbook), not a hardcoded team value.",
@@ -94,16 +95,16 @@ ORDER BY total_plays DESC;
   console.info("[predictability] debug SQL (reference for LOWER join path):\n" + debugSql);
 
   const games = await fetchGamesOrdered(supabase, user.id);
-  const pool = filterGameRowsByOffensivePlaybook(gamesWithOffensivePlaybookOnly(games), playbook);
+  const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
-  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id);
+  const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });
   const gamesById = new Map(games.map((g) => [g.id, g]));
 
   const playbookCounts = new Map<string, number>();
   for (const p of plays) {
     const g = gamesById.get(p.game_session_id);
     if (!g) continue;
-    const pb = playbookForGame(g);
+    const pb = playbookForTendenciesSide(g, sideOfBall);
     if (!pb) continue;
     playbookCounts.set(pb, (playbookCounts.get(pb) ?? 0) + 1);
   }
@@ -116,8 +117,10 @@ ORDER BY total_plays DESC;
     }
   }
 
-  const cfbTypes = await fetchCfbPlayTypeMap(supabase, [...playbookCounts.keys()]);
-  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes);
+  const cfbTypes = await fetchCfbPlayTypeMap(supabase, [...playbookCounts.keys()], {
+    sideOfBall,
+  });
+  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes, undefined, sideOfBall);
   const rawPlayTypeCounts = typedPlays.reduce<Record<string, number>>((acc, row) => {
     const key = row.rawType || "<empty>";
     acc[key] = (acc[key] ?? 0) + 1;
@@ -218,6 +221,7 @@ ORDER BY total_plays DESC;
       scope,
       opponent,
       playbook,
+      side_of_ball: sideOfBall,
       game_count: gameIds.length,
       play_count: plays.length,
       classified_play_count: typedPlays.length,

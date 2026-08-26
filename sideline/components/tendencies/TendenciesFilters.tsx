@@ -16,6 +16,7 @@ export type TendenciesScopeParams = {
 
 export type TendenciesFilterParams = TendenciesScopeParams & {
   playbook: string | null;
+  sideOfBall: "offense" | "defense";
 };
 
 function pillClass(active: boolean) {
@@ -46,6 +47,7 @@ export function buildTendenciesQueryString(f: TendenciesFilterParams): string {
   } else sp.set("scope", "all");
   sp.set("min_uses", String(f.minUses));
   if (f.playbook?.trim()) sp.set("playbook", f.playbook.trim());
+  sp.set("side_of_ball", f.sideOfBall);
   return sp.toString();
 }
 

@@ -4,6 +4,54 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-25 — My Tendencies dashboard
+
+### What
+
+- Added My Tendencies as a top-level nav destination in `appShellNav.ts` (Activity icon, route `/tendencies`, label "My Tendencies").
+- New `MyTendenciesHeroStats` component: 4-card row (Games Logged, Win Rate, Avg YPP, Run/Pass) backed by new `GET /api/tendencies/overview` endpoint.
+- New page-level Offense/Defense toggle (`TendenciesSideOfBallToggle`) that filters hero stats and all tab content by side of ball.
+- Cross-game tendencies endpoints (`top-plays`, `top-formations`, `predictability`) now accept `side_of_ball` param; aggregation reuses helpers from `tendenciesServer.ts` (`resolveTendenciesGamePool`, drive-side play fetch).
+- Renamed "Plays to Reconsider" → "Calls to Reconsider" via `coachCopy.ts`.
+- Header updated to "MY TENDENCIES" with subtitle showing live games count.
+
+### Why
+
+Cross-game tendencies were parked off the nav during the Call Sheet reframe. With Film Room back, coaches have per-game tendencies inside each game but no cross-game view. My Tendencies closes the coaching loop by surfacing seasonal patterns without a URL bar detour, and the Offense/Defense toggle mirrors game-detail behavior now that defensive logging is live.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Local `npm run dev` already running on `:3000`; `/tendencies` returns 200.
+- No regressions to game-detail tendencies (`FilmGameTendenciesBody`) or call sheet suggestion engine.
+
+---
+
+## 2026-08-25 — Play-art batch ingestion script
+
+### What
+
+- New `scripts/play-art/batch-ingest.ts` + `npm run play-art:batch`: recursively walk `source/`, invoke `play-art:ingest -- --source=<docx>` per file, skip already-ingested by matcher report, isolate per-file failures.
+- Flags: `--scheme`, `--limit`, `--exclude`, `--force`, `--dry-run`. Progress lines + actionable summary; full subprocess stdout/stderr in `reports/batch-{timestamp}.log`.
+- Does not auto-clear REVIEWs (operator uses `play-art:review`). Sequential only.
+
+### Why
+
+Manual single-command ingest does not scale to 100+ DOCXs. Batch converts evening operator work into one monitored command with fail-per-file isolation.
+
+### Status
+
+- Source inventory: **126** DOCXs; matcher reports on disk after test: Air Force, USC, California, Run & Shoot, Veer & Shoot, **Alabama**, **Arizona State**, **Boise State**.
+- Test: `npm run play-art:batch -- --scheme="Multiple & Pro Style" --limit=3`
+  - Alabama: **404 PASS / 61 REVIEW / 0 FAIL** (86.9%, 2m 2s)
+  - Arizona State: **426 / 41 / 0** (91.2%, 2m 12s)
+  - Arizona: **FAILED** (OCR duplicate section header “Singleback Wing Slot”) — batch continued
+  - Boise State: **414 / 52 / 0** (88.8%, 2m 12s) — filled the limit after Arizona failure
+- Idempotency: re-run `--dry-run` marks the three successes as already ingested / would skip.
+- Recommended operator batch: **~15–20** playbooks (~30–45 min at ~2.1 min median).
+
+---
+
 ## 2026-08-25 — Ampersand slug normalization (`&` → `-and-`)
 
 ### What

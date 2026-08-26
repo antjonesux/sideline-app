@@ -17,6 +17,7 @@ export type GameRow = {
   id: string;
   my_playbook: string;
   offensive_playbook: string | null;
+  opponent_scheme?: string | null;
   opponent_team: string;
   game_date: string;
   result: "W" | "L" | null;
@@ -89,6 +90,21 @@ export function filterGameRowsByOffensivePlaybook(games: GameRow[], playbook: st
   return games.filter((g) => playbookForGame(g) === p);
 }
 
+/**
+ * Cross-game tendencies game pool.
+ * Offense still requires a usable offensive playbook label.
+ * Defense includes all sessions (plays are filtered by drive side later); an active
+ * playbook filter still matches the game's offensive playbook (filter dropdown source).
+ */
+export function resolveTendenciesGamePool(
+  games: GameRow[],
+  playbook: string | null,
+  sideOfBall: "offense" | "defense",
+): GameRow[] {
+  const base = sideOfBall === "defense" ? games : gamesWithOffensivePlaybookOnly(games);
+  return filterGameRowsByOffensivePlaybook(base, playbook);
+}
+
 export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
   let query = supabase
     .from("game_sessions")
@@ -116,7 +132,9 @@ export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient,
 export async function fetchGamesOrdered(supabase: SupabaseClient, userId?: string): Promise<GameRow[]> {
   let query = supabase
     .from("game_sessions")
-    .select("id, my_playbook, offensive_playbook, opponent_team, game_date, result, my_score, opponent_score")
+    .select(
+      "id, my_playbook, offensive_playbook, opponent_scheme, opponent_team, game_date, result, my_score, opponent_score",
+    )
     .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
   const { data, error } = await query.order("game_date", { ascending: false });
@@ -143,12 +161,49 @@ export function resolveFilteredGameIds(
   return games.map((g) => g.id);
 }
 
+/** Drive ids for games on a given side of ball (defaults to offense when omitted at the call site). */
+export async function fetchDriveIdsForGamesBySide(
+  supabase: SupabaseClient,
+  gameIds: string[],
+  sideOfBall: "offense" | "defense",
+  userId?: string,
+): Promise<Set<string>> {
+  const ids = new Set<string>();
+  if (gameIds.length === 0) return ids;
+  const chunkSize = 120;
+  for (let i = 0; i < gameIds.length; i += chunkSize) {
+    const slice = gameIds.slice(i, i + chunkSize);
+    let query = supabase
+      .from("drives")
+      .select("id")
+      .in("game_session_id", slice)
+      .eq("side_of_ball", sideOfBall);
+    if (userId) query = query.eq("user_id", userId);
+    const { data, error } = await query;
+    if (error) {
+      console.error("tendencies fetch drives by side:", error);
+      continue;
+    }
+    for (const row of data ?? []) {
+      const id = String((row as { id?: unknown }).id ?? "").trim();
+      if (id) ids.add(id);
+    }
+  }
+  return ids;
+}
+
 export async function fetchLoggedPlaysForGames(
   supabase: SupabaseClient,
   gameIds: string[],
   userId?: string,
+  options?: { sideOfBall?: "offense" | "defense" },
 ): Promise<LoggedPlayRow[]> {
   if (gameIds.length === 0) return [];
+  const sideOfBall = options?.sideOfBall;
+  const driveIds =
+    sideOfBall != null ? await fetchDriveIdsForGamesBySide(supabase, gameIds, sideOfBall, userId) : null;
+  if (driveIds && driveIds.size === 0) return [];
+
   const chunkSize = 120;
   const out: LoggedPlayRow[] = [];
   for (let i = 0; i < gameIds.length; i += chunkSize) {
@@ -172,7 +227,9 @@ export async function fetchLoggedPlaysForGames(
       })),
     );
   }
-  return out.filter((play) => !isPunt(play));
+  const withoutPunts = out.filter((play) => !isPunt(play));
+  if (!driveIds) return withoutPunts;
+  return withoutPunts.filter((play) => driveIds.has(play.drive_id));
 }
 
 type PlayLookupKey = string;
@@ -267,12 +324,13 @@ export function attachPlayTypes(
   gamesById: Map<string, GameRow>,
   cfbTypes: Map<PlayLookupKey, string>,
   catalogPlaybookLabel?: string,
+  sideOfBall: "offense" | "defense" = "offense",
 ): { bucket: PlayTypeBucket; matched: boolean; rawType: string }[] {
   return plays.map((p) => {
     const g = gamesById.get(p.game_session_id);
     const pb =
       (catalogPlaybookLabel ?? "").trim() ||
-      (g ? playbookForGame(g) : "");
+      (g ? playbookForTendenciesSide(g, sideOfBall) : "");
     const key = pb ? playTypeLookupKey(pb, p.formation, p.play_name) : "";
     const matched = key ? cfbTypes.has(key) : false;
     // QA24: Tendencies prefer `playbooks.play_type` via this map (`fetchCfbPlayTypeMap`); Film/Play Sheet UI reads the same column through `/api/cfb26-plays` + scenario enrichment.
@@ -288,6 +346,56 @@ export function attachPlayTypes(
     }
     return { bucket: categorizeCfbPlayType(raw), matched, rawType: raw };
   });
+}
+
+export type TendenciesOverviewData = {
+  games_logged: number;
+  wins: number;
+  losses: number;
+  win_rate_pct: number;
+  avg_yards_per_play: number;
+  run_pct: number;
+  pass_pct: number;
+};
+
+/** Cross-game hero stats for My Tendencies — games with plays on the filtered side. */
+export function summarizeTendenciesOverview(
+  plays: LoggedPlayRow[],
+  gamesById: Map<string, GameRow>,
+  buckets: PlayTypeBucket[],
+): TendenciesOverviewData {
+  const gameIdsWithPlays = new Set(plays.map((p) => p.game_session_id));
+  let wins = 0;
+  let losses = 0;
+  for (const id of gameIdsWithPlays) {
+    const g = gamesById.get(id);
+    if (!g) continue;
+    if (g.result === "W") wins += 1;
+    else if (g.result === "L") losses += 1;
+  }
+  const decided = wins + losses;
+  const win_rate_pct = decided > 0 ? Math.round((wins * 100) / decided) : 0;
+
+  let yards = 0;
+  for (const p of plays) yards += p.yards_gained ?? 0;
+  const avg_yards_per_play = plays.length > 0 ? Math.round((yards / plays.length) * 10) / 10 : 0;
+
+  let runCount = 0;
+  for (const b of buckets) {
+    if (isRunLeanBucket(b)) runCount += 1;
+  }
+  const run_pct = plays.length > 0 ? Math.round((runCount * 100) / plays.length) : 0;
+  const pass_pct = plays.length > 0 ? Math.max(0, 100 - run_pct) : 0;
+
+  return {
+    games_logged: gameIdsWithPlays.size,
+    wins,
+    losses,
+    win_rate_pct,
+    avg_yards_per_play,
+    run_pct,
+    pass_pct,
+  };
 }
 
 /** Success = standard analytics rule (down-aware); see `isStandardSuccessfulPlay` in `loggedPlaySuccess.ts`. */
