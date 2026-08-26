@@ -6,6 +6,7 @@
  *   npm run play-art:review -- --list
  *   npm run play-art:review -- --playbook=air-force
  *   npm run play-art:review -- --playbook=california
+ *   npm run play-art:review -- --playbook=california --reopen-skipped
  *   npm run play-art:review -- --playbook=air-force --mode=diagnostic
  */
 import { createHash } from "node:crypto";
@@ -103,6 +104,8 @@ type CliOptions = {
   mode: "review" | "diagnostic";
   seed: number | null;
   list: boolean;
+  /** Clear session skipped entries so those REVIEW cases re-enter the queue. */
+  reopenSkipped: boolean;
 };
 
 function parseCli(argv: string[]): CliOptions {
@@ -111,6 +114,7 @@ function parseCli(argv: string[]): CliOptions {
   let mode: "review" | "diagnostic" = "review";
   let seed: number | null = null;
   let list = false;
+  let reopenSkipped = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--list") {
@@ -155,18 +159,25 @@ function parseCli(argv: string[]): CliOptions {
         process.exit(1);
       }
       i += 1;
+    } else if (arg === "--reopen-skipped") {
+      reopenSkipped = true;
     } else if (arg === "--help" || arg === "-h") {
       console.log(`Usage:
   npm run play-art:review -- --list
   npm run play-art:review -- --playbook=<slug> [--port=4300]
+  npm run play-art:review -- --playbook=<slug> --reopen-skipped
   npm run play-art:review -- --playbook=<slug> --mode=diagnostic [--seed=42]
+
+  --reopen-skipped  Clear this playbook's skipped session entries so those
+                    REVIEW cases reappear in the queue. Does not touch
+                    matching-overrides or confirmed (reviewed) session keys.
 
 Playbook slugs are discovered from matching reports under scripts/play-art/reports/.`);
       process.exit(0);
     }
   }
   if (list) {
-    return { playbook, port, mode, seed, list: true };
+    return { playbook, port, mode, seed, list: true, reopenSkipped };
   }
   if (!playbook) {
     const available = discoverIngestedPlaybooks();
@@ -184,7 +195,11 @@ Playbook slugs are discovered from matching reports under scripts/play-art/repor
     }
     process.exit(1);
   }
-  return { playbook, port, mode, seed, list: false };
+  if (reopenSkipped && mode === "diagnostic") {
+    console.error("--reopen-skipped applies to review mode only (not --mode=diagnostic).");
+    process.exit(1);
+  }
+  return { playbook, port, mode, seed, list: false, reopenSkipped };
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
@@ -807,6 +822,23 @@ async function mainReview(cli: CliOptions): Promise<void> {
   // Drop stale resume keys after rematch (confirmed crops leave the REVIEW report).
   state.reviewed = state.reviewed.filter((k) => caseKeySet.has(k));
   state.skipped = state.skipped.filter((s) => caseKeySet.has(caseKey(s.formation, s.cropId)));
+
+  if (cli.reopenSkipped) {
+    const n = state.skipped.length;
+    if (n === 0) {
+      console.log("Reopen skipped: no skipped session entries to clear.");
+    } else {
+      console.log(
+        `Reopen skipped: clearing ${n} skipped session entr${n === 1 ? "y" : "ies"} ` +
+          `(matching-overrides untouched).`,
+      );
+      for (const s of state.skipped) {
+        console.log(`  - ${s.formation} / ${s.cropId} (${s.reason})`);
+      }
+      state.skipped = [];
+    }
+  }
+
   saveSessionState(state);
 
   const rt: SessionRuntime = {

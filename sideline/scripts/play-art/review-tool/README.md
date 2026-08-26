@@ -14,6 +14,9 @@ npm run play-art:review -- --playbook=air-force
 npm run play-art:review -- --playbook=usc
 npm run play-art:review -- --playbook=california
 
+# Re-queue previously skipped REVIEW cases (session state only; overrides untouched)
+npm run play-art:review -- --playbook=california --reopen-skipped
+
 # Skip diagnostic (sample 30 skipped cases; does not modify review state)
 npm run play-art:review -- --playbook=air-force --mode=diagnostic
 npm run play-art:review -- --playbook=air-force --mode=diagnostic --seed=42
@@ -79,6 +82,14 @@ scripts/play-art/review-tool/state/{playbook}.json
 ```
 
 Gitignored. Restarting the server resumes at the next unreviewed / unskipped case. Diagnostic mode reads this file and does **not** modify it.
+
+Skipped cases are treated as done for resume purposes (queue clear when only skips remain). To revisit them without touching `matching-overrides/`:
+
+```bash
+npm run play-art:review -- --playbook=<slug> --reopen-skipped
+```
+
+That clears only this playbook’s `skipped` session entries, then starts the normal review UI so you can confirm or skip again. Confirmed overrides and `reviewed` keys are preserved. Normal resume (without the flag) is unchanged.
 
 ## Verify after a batch
 
