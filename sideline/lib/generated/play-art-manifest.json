@@ -12600,6 +12600,2274 @@
       "play_name": "STRONG TOSS",
       "asset_id": "0c7cca3695691a8d446847990ff31d088ff6302f7d08cf3c98286e52e7672ebc",
       "asset_path": "/play-art/cfb27/assets/0c7cca3695691a8d446847990ff31d088ff6302f7d08cf3c98286e52e7672ebc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "Z SLANT",
+      "asset_id": "0449f9acb5436c1f06dbd7eb2d8cc7c6df428b13fbe8385f9025df237e3f8f30",
+      "asset_path": "/play-art/cfb27/assets/0449f9acb5436c1f06dbd7eb2d8cc7c6df428b13fbe8385f9025df237e3f8f30.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "HB LEAD",
+      "asset_id": "9850b1c7439595a295dbd31f86cac13254711dea9713422b0a08ee61d1c1f821",
+      "asset_path": "/play-art/cfb27/assets/9850b1c7439595a295dbd31f86cac13254711dea9713422b0a08ee61d1c1f821.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "PA HB WHEEL",
+      "asset_id": "8e79a828fe557254a4472a2e947ea26faae565da81def25750e8248a66a0ed7b",
+      "asset_path": "/play-art/cfb27/assets/8e79a828fe557254a4472a2e947ea26faae565da81def25750e8248a66a0ed7b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "HB COUNTER",
+      "asset_id": "98389aef97d5fa6eb8e258d5a7e48d93b1cd29241bb471d3a371026d63b25da1",
+      "asset_path": "/play-art/cfb27/assets/98389aef97d5fa6eb8e258d5a7e48d93b1cd29241bb471d3a371026d63b25da1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "PA CTR SHOT",
+      "asset_id": "1e8afce19f63382dc3fc6a884967b2d1ade344d8064aeb78fa56bdc573782c7c",
+      "asset_path": "/play-art/cfb27/assets/1e8afce19f63382dc3fc6a884967b2d1ade344d8064aeb78fa56bdc573782c7c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "HB STRETCH ALERT U POP",
+      "asset_id": "ac0144174e68fd470b478d7009958cbae5edfcd77bdb02ed19e7889c2b0accea",
+      "asset_path": "/play-art/cfb27/assets/ac0144174e68fd470b478d7009958cbae5edfcd77bdb02ed19e7889c2b0accea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "FB DIVE",
+      "asset_id": "a330f57ce5e08bae369922a001ca209b65c96d6df65557f02cab60584607069c",
+      "asset_path": "/play-art/cfb27/assets/a330f57ce5e08bae369922a001ca209b65c96d6df65557f02cab60584607069c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "Y-DIG",
+      "asset_id": "aa68841baa61aa687103636af4742c3e027d69028b97c50fe2a5a9c597fd0e35",
+      "asset_path": "/play-art/cfb27/assets/aa68841baa61aa687103636af4742c3e027d69028b97c50fe2a5a9c597fd0e35.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "FB FAKE HB TOSS",
+      "asset_id": "f8b79cb1dd54099171c64acbd802b127ab8a57d1cfa600d6842670b74cfece6c",
+      "asset_path": "/play-art/cfb27/assets/f8b79cb1dd54099171c64acbd802b127ab8a57d1cfa600d6842670b74cfece6c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "GOAL LINE FADE",
+      "asset_id": "e5823671270cdb839e22e18af85b8e72b1209ae00bd33086439f9f6bb6b163ea",
+      "asset_path": "/play-art/cfb27/assets/e5823671270cdb839e22e18af85b8e72b1209ae00bd33086439f9f6bb6b163ea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "HB POWER O",
+      "asset_id": "f9c3b19210bc3c865ee4a9485ad8e5d4b68f65c7ac0802fa5d3d6523bc6aa202",
+      "asset_path": "/play-art/cfb27/assets/f9c3b19210bc3c865ee4a9485ad8e5d4b68f65c7ac0802fa5d3d6523bc6aa202.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "I Form Tight",
+      "play_name": "PA POWER O",
+      "asset_id": "1a7c92b6359cfb8a50e5f566b041dacf31e1086daa7a164ee97c96cf34a45df6",
+      "asset_path": "/play-art/cfb27/assets/1a7c92b6359cfb8a50e5f566b041dacf31e1086daa7a164ee97c96cf34a45df6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "HB BLAST",
+      "asset_id": "876222aeff217f87672072757a23dae410dd66ca823c9a6936dd9be5970c6e6b",
+      "asset_path": "/play-art/cfb27/assets/876222aeff217f87672072757a23dae410dd66ca823c9a6936dd9be5970c6e6b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "PA FB FLAT",
+      "asset_id": "4824bc3307b44ad76a0f4bedb0349fdc4e75598708a0d5ca0a7505727e84e0d9",
+      "asset_path": "/play-art/cfb27/assets/4824bc3307b44ad76a0f4bedb0349fdc4e75598708a0d5ca0a7505727e84e0d9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "HB LEAD DIVE",
+      "asset_id": "8351f03ba8a360ed4644e660c4d5e0d9b88f816a576cc5f3533a0a88fed6e1ef",
+      "asset_path": "/play-art/cfb27/assets/8351f03ba8a360ed4644e660c4d5e0d9b88f816a576cc5f3533a0a88fed6e1ef.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "HB TOSS",
+      "asset_id": "3e0faf886136b98a2637545b7088cdbba22a1d396d25e5719048b66f41fa58b6",
+      "asset_path": "/play-art/cfb27/assets/3e0faf886136b98a2637545b7088cdbba22a1d396d25e5719048b66f41fa58b6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "PA POWER O",
+      "asset_id": "e13d4612b53daa8f88658f40317f6210fe5c3555d1ba503030d5c14c9751f660",
+      "asset_path": "/play-art/cfb27/assets/e13d4612b53daa8f88658f40317f6210fe5c3555d1ba503030d5c14c9751f660.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Power I Tight",
+      "play_name": "POWER O",
+      "asset_id": "77424cb079f859e08d5d1c6ba76228ead7d4cf3e5515b9117509d52f259923af",
+      "asset_path": "/play-art/cfb27/assets/77424cb079f859e08d5d1c6ba76228ead7d4cf3e5515b9117509d52f259923af.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "SLOT FADES",
+      "asset_id": "55686e14b7e6783c3771c60d301efe99fc0efc7d972b7f44975d30b314fb33aa",
+      "asset_path": "/play-art/cfb27/assets/55686e14b7e6783c3771c60d301efe99fc0efc7d972b7f44975d30b314fb33aa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "RPO BASE ALERT WR SCREENS",
+      "asset_id": "53afb852e1669be457e4bdd57974ae384e96e62269360e58fda5a9610e44a9de",
+      "asset_path": "/play-art/cfb27/assets/53afb852e1669be457e4bdd57974ae384e96e62269360e58fda5a9610e44a9de.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "PA SLOT CHOICE",
+      "asset_id": "7a95be0f7c2f0f2f840dfe036c28bf64c32d605e33751c15e5dc070bc5cf87b8",
+      "asset_path": "/play-art/cfb27/assets/7a95be0f7c2f0f2f840dfe036c28bf64c32d605e33751c15e5dc070bc5cf87b8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "ALL CURLS",
+      "asset_id": "23daa642fca0da6bfbfce83a4bacc796532c847d81a027843d0b0981b0a1e116",
+      "asset_path": "/play-art/cfb27/assets/23daa642fca0da6bfbfce83a4bacc796532c847d81a027843d0b0981b0a1e116.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "RPO ALERT WR SCREENS",
+      "asset_id": "b1313ae66c36b675edbd53bb287804ea82663d88a0f09dc8ef737018b9e62a9d",
+      "asset_path": "/play-art/cfb27/assets/b1313ae66c36b675edbd53bb287804ea82663d88a0f09dc8ef737018b9e62a9d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "ALL HITCH",
+      "asset_id": "93b3ebe2c574255e566c232476a204ea84aacc07c31c95155451dbee9fd2c1cf",
+      "asset_path": "/play-art/cfb27/assets/93b3ebe2c574255e566c232476a204ea84aacc07c31c95155451dbee9fd2c1cf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "CURL SEAMS",
+      "asset_id": "44151eb7ce58145cba88d4168c12eec17420987ad1ae11dbda045daed620fae9",
+      "asset_path": "/play-art/cfb27/assets/44151eb7ce58145cba88d4168c12eec17420987ad1ae11dbda045daed620fae9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "HB QUICK BASE",
+      "asset_id": "a6894dc0efd1cdea58b1e9f9011da28a9188114265c2eea77958bf0c81ab5183",
+      "asset_path": "/play-art/cfb27/assets/a6894dc0efd1cdea58b1e9f9011da28a9188114265c2eea77958bf0c81ab5183.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "490f5258fbb4282227fb599a0fe5f34b6978d0c0bc1575ff66a81e33de880ab0",
+      "asset_path": "/play-art/cfb27/assets/490f5258fbb4282227fb599a0fe5f34b6978d0c0bc1575ff66a81e33de880ab0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "1623b4fbf83d5f82eb751d9cc97d9b10064d328fc2f340608af2ae1cb7b1495b",
+      "asset_path": "/play-art/cfb27/assets/1623b4fbf83d5f82eb751d9cc97d9b10064d328fc2f340608af2ae1cb7b1495b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "209be460daad3ecf42ae2479d48c59f9e5653b0e7f05ea66ad5f7e1d5a7523b8",
+      "asset_path": "/play-art/cfb27/assets/209be460daad3ecf42ae2479d48c59f9e5653b0e7f05ea66ad5f7e1d5a7523b8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "PA DOUBLE POST",
+      "asset_id": "6c3f9ea2145ecc4c33d03517fb09a5cff95dc3f3c5440c4f5105b4174d651a81",
+      "asset_path": "/play-art/cfb27/assets/6c3f9ea2145ecc4c33d03517fb09a5cff95dc3f3c5440c4f5105b4174d651a81.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "CURLS SLOT POST",
+      "asset_id": "8e18767967af57cb4006a7858912e2ad4210c6d4674fe4bbc1ef9e0c17a80d04",
+      "asset_path": "/play-art/cfb27/assets/8e18767967af57cb4006a7858912e2ad4210c6d4674fe4bbc1ef9e0c17a80d04.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "DART READ OPTION",
+      "asset_id": "7ea3d0eebed750a4ac6e4eacafe9b216d046a5e13509208d13e3f9e91c98ee26",
+      "asset_path": "/play-art/cfb27/assets/7ea3d0eebed750a4ac6e4eacafe9b216d046a5e13509208d13e3f9e91c98ee26.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "PA SEAMS",
+      "asset_id": "090e676be05731fb2257e29b054ca4375662ef3e2a583f2087cd841f0c3bb82b",
+      "asset_path": "/play-art/cfb27/assets/090e676be05731fb2257e29b054ca4375662ef3e2a583f2087cd841f0c3bb82b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "READ OPTION",
+      "asset_id": "3de8ad8aedb9e11ba28680cc29cfc8f8bad18fe6cd69f19a8e61db976740e89e",
+      "asset_path": "/play-art/cfb27/assets/3de8ad8aedb9e11ba28680cc29cfc8f8bad18fe6cd69f19a8e61db976740e89e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "PA SLOT CROSS",
+      "asset_id": "08e46ba81f2e5d4cdde0ba85d1edd221bb6958a71f2e8e6b76f37d68d48800de",
+      "asset_path": "/play-art/cfb27/assets/08e46ba81f2e5d4cdde0ba85d1edd221bb6958a71f2e8e6b76f37d68d48800de.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "RPO READ BUBBLE",
+      "asset_id": "0f276bfac90c4d6b903c5076454250a890c632ab8f4de434c775eac0d702e9d8",
+      "asset_path": "/play-art/cfb27/assets/0f276bfac90c4d6b903c5076454250a890c632ab8f4de434c775eac0d702e9d8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "SLOT CHOICE",
+      "asset_id": "2b71c583b661d6ee6b4d990194c63235bdf8420e6b9867c02e65af36470c0bf7",
+      "asset_path": "/play-art/cfb27/assets/2b71c583b661d6ee6b4d990194c63235bdf8420e6b9867c02e65af36470c0bf7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "SPEED OPTION",
+      "asset_id": "4a9565e6ad3ba02f1fe303cbe4e2d937a67965aeae31be636ae8be576331e994",
+      "asset_path": "/play-art/cfb27/assets/4a9565e6ad3ba02f1fe303cbe4e2d937a67965aeae31be636ae8be576331e994.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide",
+      "play_name": "X RUB UNDER",
+      "asset_id": "9cca1cef773c73e1259ea0f86b1543db45262f584deef2704f4bda8a69559ff6",
+      "asset_path": "/play-art/cfb27/assets/9cca1cef773c73e1259ea0f86b1543db45262f584deef2704f4bda8a69559ff6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "CHOICE DEEP DRAG",
+      "asset_id": "a0ef9090b9d3609fe63e660e520f917d4e2547c25d3fb094e6875ea932b9e2ba",
+      "asset_path": "/play-art/cfb27/assets/a0ef9090b9d3609fe63e660e520f917d4e2547c25d3fb094e6875ea932b9e2ba.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "QB DRAW",
+      "asset_id": "0dd09cc07282c772989230eb9d3237f80a501c0dbb2af1d63d4facfa24e0ae98",
+      "asset_path": "/play-art/cfb27/assets/0dd09cc07282c772989230eb9d3237f80a501c0dbb2af1d63d4facfa24e0ae98.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "SLOT CHOICE",
+      "asset_id": "8019c150b78781e7d737d1e6f6eb0f718e4b5e7387f40e25399c76dceac1c274",
+      "asset_path": "/play-art/cfb27/assets/8019c150b78781e7d737d1e6f6eb0f718e4b5e7387f40e25399c76dceac1c274.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "ALL CURL",
+      "asset_id": "65ff112fcbb784100aad8f182e425951bcfc85bfd6be7ad4af8e68f700a429a7",
+      "asset_path": "/play-art/cfb27/assets/65ff112fcbb784100aad8f182e425951bcfc85bfd6be7ad4af8e68f700a429a7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "QB BLAST",
+      "asset_id": "d78b1a54b3a67085dbe19315a4979254bc61b4e323edadeb9597ecca2e3235ec",
+      "asset_path": "/play-art/cfb27/assets/d78b1a54b3a67085dbe19315a4979254bc61b4e323edadeb9597ecca2e3235ec.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "ALL HITCH",
+      "asset_id": "056047fff16c3e407799233a229d3ff156f806e6d08f007ccba8b65fba170312",
+      "asset_path": "/play-art/cfb27/assets/056047fff16c3e407799233a229d3ff156f806e6d08f007ccba8b65fba170312.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "DEEP CHOICE DRAG",
+      "asset_id": "73d185a76194406ab2648b73d236e8ce717ac85b7e420692e947a6b28f7aa5c8",
+      "asset_path": "/play-art/cfb27/assets/73d185a76194406ab2648b73d236e8ce717ac85b7e420692e947a6b28f7aa5c8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "RPO BUBBLE QB DRAW",
+      "asset_id": "d8452fe03b27ee9c17911b078f62b9314d0f1881bcc9bf15a14402a1019d79d8",
+      "asset_path": "/play-art/cfb27/assets/d8452fe03b27ee9c17911b078f62b9314d0f1881bcc9bf15a14402a1019d79d8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "e89eec1d7642bb7479a2eed551cc36662bddb2da65e2c4e04014e123c5da230a",
+      "asset_path": "/play-art/cfb27/assets/e89eec1d7642bb7479a2eed551cc36662bddb2da65e2c4e04014e123c5da230a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "DEEP DIVIDE",
+      "asset_id": "76e23da63bb2e1cef9c26ca6314007cecb0f1aaa08bdf281ab068dc5e9c576e2",
+      "asset_path": "/play-art/cfb27/assets/76e23da63bb2e1cef9c26ca6314007cecb0f1aaa08bdf281ab068dc5e9c576e2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "SLOT SCREEN",
+      "asset_id": "cec4eb98965b601d169dd5132305048ddffd228909bdeabe961d477f47bb08cb",
+      "asset_path": "/play-art/cfb27/assets/cec4eb98965b601d169dd5132305048ddffd228909bdeabe961d477f47bb08cb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "SLOT CHOICE SMASH",
+      "asset_id": "f9106483df288a6984795cf1ee56cb4a322629a7c3fe120782f0660f995e0691",
+      "asset_path": "/play-art/cfb27/assets/f9106483df288a6984795cf1ee56cb4a322629a7c3fe120782f0660f995e0691.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "SCISSORS",
+      "asset_id": "90638661016b8adc10ee1d8591e57e2d33a7c03be14011d4379afcce0fc4fd1e",
+      "asset_path": "/play-art/cfb27/assets/90638661016b8adc10ee1d8591e57e2d33a7c03be14011d4379afcce0fc4fd1e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "SHOCK",
+      "asset_id": "b01bdd459871693096f85bb0e877701344253f7de6ad1a21fd686aca877d4bdb",
+      "asset_path": "/play-art/cfb27/assets/b01bdd459871693096f85bb0e877701344253f7de6ad1a21fd686aca877d4bdb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "CROSS Z DIG",
+      "asset_id": "5071adbda3f4b405cf8eb1b79e73cd880fa7eccd09be3084874ef583114524be",
+      "asset_path": "/play-art/cfb27/assets/5071adbda3f4b405cf8eb1b79e73cd880fa7eccd09be3084874ef583114524be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "STICK",
+      "asset_id": "0168e6e52e682879bc2dc9f4487fe14463a6e14dacb01f92cca189de2c5f9b4e",
+      "asset_path": "/play-art/cfb27/assets/0168e6e52e682879bc2dc9f4487fe14463a6e14dacb01f92cca189de2c5f9b4e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "Z SCREEN",
+      "asset_id": "ffa2d068b12f80fa513f6fab6529440fbdad6d4139cd6395b7a42717a8493b08",
+      "asset_path": "/play-art/cfb27/assets/ffa2d068b12f80fa513f6fab6529440fbdad6d4139cd6395b7a42717a8493b08.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "RZ STICK N NOD",
+      "asset_id": "5095fae0e56e3f3b7ab74b1780eb18e2a2f8e846838e5526cdf5040ffcca33a0",
+      "asset_path": "/play-art/cfb27/assets/5095fae0e56e3f3b7ab74b1780eb18e2a2f8e846838e5526cdf5040ffcca33a0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "ALL GO",
+      "asset_id": "1837cab2b01417d3c23d6a1ec29efd4f25d4b4e50cf795dc20f0675f9ff083c2",
+      "asset_path": "/play-art/cfb27/assets/1837cab2b01417d3c23d6a1ec29efd4f25d4b4e50cf795dc20f0675f9ff083c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "WR SCREENS",
+      "asset_id": "97acf32d57622b6bcd00868fa9c4c906dec0c094869cbfaea4d784b9314e6d89",
+      "asset_path": "/play-art/cfb27/assets/97acf32d57622b6bcd00868fa9c4c906dec0c094869cbfaea4d784b9314e6d89.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide 5WR",
+      "play_name": "QUICK SLANTS",
+      "asset_id": "c8746b6fa6f7ff8c9819df3bf145366b05a22c90ca4ad63419feb4cefee08373",
+      "asset_path": "/play-art/cfb27/assets/c8746b6fa6f7ff8c9819df3bf145366b05a22c90ca4ad63419feb4cefee08373.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "ALL CURL",
+      "asset_id": "54cba50e6e7e4373c2f536447c2caf6b5a1f3d20f9b4d3d84133f64b2efdb284",
+      "asset_path": "/play-art/cfb27/assets/54cba50e6e7e4373c2f536447c2caf6b5a1f3d20f9b4d3d84133f64b2efdb284.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "RPO ZONE ALERT SCREEN",
+      "asset_id": "6e642eb972480186f5129e6b7f4c42a326a79a00f5c574372e48e00254362550",
+      "asset_path": "/play-art/cfb27/assets/6e642eb972480186f5129e6b7f4c42a326a79a00f5c574372e48e00254362550.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "PA SLOT CROSS",
+      "asset_id": "0ebd098d15a3ca5cef1926f09e60713abbee841624feb68f5b0363d4e8d52764",
+      "asset_path": "/play-art/cfb27/assets/0ebd098d15a3ca5cef1926f09e60713abbee841624feb68f5b0363d4e8d52764.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "RPO TRAP ALERT SCREEN",
+      "asset_id": "3b7c0232c758dc44c8100d1b289622f58182f3d82b701165260f9e183bb66988",
+      "asset_path": "/play-art/cfb27/assets/3b7c0232c758dc44c8100d1b289622f58182f3d82b701165260f9e183bb66988.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "FAKE SCREEN VERTICALS",
+      "asset_id": "ee44b311337ba8eed4d03e904ef3e7acb4a5d57638d4113e0ad7a5c09ca280d2",
+      "asset_path": "/play-art/cfb27/assets/ee44b311337ba8eed4d03e904ef3e7acb4a5d57638d4113e0ad7a5c09ca280d2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "515079b1c655e26ac1ccd8bfbf23d69d13854ee1d079b4b74fc7e633eb5209b0",
+      "asset_path": "/play-art/cfb27/assets/515079b1c655e26ac1ccd8bfbf23d69d13854ee1d079b4b74fc7e633eb5209b0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "DRIVE",
+      "asset_id": "84eb1119dc79c79d03db82cb919d187fef4228c9dd126e678b86df3e3826fa3a",
+      "asset_path": "/play-art/cfb27/assets/84eb1119dc79c79d03db82cb919d187fef4228c9dd126e678b86df3e3826fa3a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "RPO READ SCREEN",
+      "asset_id": "05fe8817d2fe8f41c708d59d3952f59a20e81ab2c151347f900521067622ef01",
+      "asset_path": "/play-art/cfb27/assets/05fe8817d2fe8f41c708d59d3952f59a20e81ab2c151347f900521067622ef01.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "SLOT SLANT",
+      "asset_id": "b25b21ff8a6b783395fa4346cf950e4c0440376698ac53cf22e69b6949c193b3",
+      "asset_path": "/play-art/cfb27/assets/b25b21ff8a6b783395fa4346cf950e4c0440376698ac53cf22e69b6949c193b3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "ALL GO",
+      "asset_id": "12037e19fad73aaa3f8bba9fa70a9c964f6858459c71ea75e84186cea8fb17e9",
+      "asset_path": "/play-art/cfb27/assets/12037e19fad73aaa3f8bba9fa70a9c964f6858459c71ea75e84186cea8fb17e9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "READ OPTION",
+      "asset_id": "7cc75752819cf11a39c0d13dc7091cf0730a2ed15676b11dfecfdfa078e153be",
+      "asset_path": "/play-art/cfb27/assets/7cc75752819cf11a39c0d13dc7091cf0730a2ed15676b11dfecfdfa078e153be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Bunch",
+      "play_name": "HB CROSS SCREEN",
+      "asset_id": "14ee9c89738b55ebf86f15ccd5fed05792d8a307e2187287f227fce6936d27ef",
+      "asset_path": "/play-art/cfb27/assets/14ee9c89738b55ebf86f15ccd5fed05792d8a307e2187287f227fce6936d27ef.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "RPO POWER ALERT HITCHES",
+      "asset_id": "0ffdec396ef9b46f482e7e9e3a1df347a0a64f49c485a05b22df064ecf9166c2",
+      "asset_path": "/play-art/cfb27/assets/0ffdec396ef9b46f482e7e9e3a1df347a0a64f49c485a05b22df064ecf9166c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "PA CHOICE DEEP",
+      "asset_id": "300f58fd5a1e89d95a3677d783ad5db9c179c81df5707890b807654dc8a8be1f",
+      "asset_path": "/play-art/cfb27/assets/300f58fd5a1e89d95a3677d783ad5db9c179c81df5707890b807654dc8a8be1f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "77821578c43407971f0e63086b9330c3ad433d69af0b74bae2dabd470f8f22bd",
+      "asset_path": "/play-art/cfb27/assets/77821578c43407971f0e63086b9330c3ad433d69af0b74bae2dabd470f8f22bd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "9d75dc6f98fa3b0cafabc35a25dceacc545ed1f373b3b2471c5bc6aad79ccb39",
+      "asset_path": "/play-art/cfb27/assets/9d75dc6f98fa3b0cafabc35a25dceacc545ed1f373b3b2471c5bc6aad79ccb39.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "RPO ALERT HITCH",
+      "asset_id": "ad36fe5a428aa1c4dd4be690edb9fbc7183c81216ede3e23d4609f83ea8865ad",
+      "asset_path": "/play-art/cfb27/assets/ad36fe5a428aa1c4dd4be690edb9fbc7183c81216ede3e23d4609f83ea8865ad.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "PA Y CROSS",
+      "asset_id": "1a5b3679270c52947d1d09712f9b8dbcfa319dfc892f5787f832aeea43815ed0",
+      "asset_path": "/play-art/cfb27/assets/1a5b3679270c52947d1d09712f9b8dbcfa319dfc892f5787f832aeea43815ed0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "RPO POWER ALERT BUBBLE",
+      "asset_id": "8ea7bae34dd1249ea306b7eb634291df33b0410fb5df931af90fe099133635c6",
+      "asset_path": "/play-art/cfb27/assets/8ea7bae34dd1249ea306b7eb634291df33b0410fb5df931af90fe099133635c6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "PA POST CURLS",
+      "asset_id": "6d8ebd61ab68ffd5282d6918f9b32a3b577ebddc316b7516bc69e737f14e67f5",
+      "asset_path": "/play-art/cfb27/assets/6d8ebd61ab68ffd5282d6918f9b32a3b577ebddc316b7516bc69e737f14e67f5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "DART READ OPTION",
+      "asset_id": "6d8fea2888fa87cb14fe26ab4bfbd557171cb03c36db07ee580e8c711f211683",
+      "asset_path": "/play-art/cfb27/assets/6d8fea2888fa87cb14fe26ab4bfbd557171cb03c36db07ee580e8c711f211683.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "X UNDER",
+      "asset_id": "eeb9232802aee74e7b26124efc5c3fb5932afb574dc20897bace021502b539e8",
+      "asset_path": "/play-art/cfb27/assets/eeb9232802aee74e7b26124efc5c3fb5932afb574dc20897bace021502b539e8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "POWER READ",
+      "asset_id": "36f0d7de6132ff8cb17fee52d860a471e485f7633093ee56512772e4afe8c203",
+      "asset_path": "/play-art/cfb27/assets/36f0d7de6132ff8cb17fee52d860a471e485f7633093ee56512772e4afe8c203.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "PA INVERTED VEER",
+      "asset_id": "3d997573cb32bf74de3af0cddca1cdc8384d40706ef086b4402c7d03f315b4cb",
+      "asset_path": "/play-art/cfb27/assets/3d997573cb32bf74de3af0cddca1cdc8384d40706ef086b4402c7d03f315b4cb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "Z REPLACE",
+      "asset_id": "62898eefda09538485ab1c61eb53f51feed4cf3fef6a98dd7ec1383bcee16e04",
+      "asset_path": "/play-art/cfb27/assets/62898eefda09538485ab1c61eb53f51feed4cf3fef6a98dd7ec1383bcee16e04.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "HB BASE",
+      "asset_id": "2b561c8c15b0c9b3e1363c37d4f3d98958a8ec0d7762d1cf85663a0d9f2c1c3c",
+      "asset_path": "/play-art/cfb27/assets/2b561c8c15b0c9b3e1363c37d4f3d98958a8ec0d7762d1cf85663a0d9f2c1c3c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "PA SLOT SCREEN",
+      "asset_id": "415663d7f71cae0d7b1e0a1a7354278cbf368490a4bbd2a99141fc80f7f6a5d9",
+      "asset_path": "/play-art/cfb27/assets/415663d7f71cae0d7b1e0a1a7354278cbf368490a4bbd2a99141fc80f7f6a5d9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "DOUBLE INS",
+      "asset_id": "3f8d6da98b43b94fcbbba5e7611301f3251b546128fc69b5e684bb27833b4a70",
+      "asset_path": "/play-art/cfb27/assets/3f8d6da98b43b94fcbbba5e7611301f3251b546128fc69b5e684bb27833b4a70.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "BUCK SWEEP",
+      "asset_id": "740a25cb90e769b6ad61c5a0bc38e4f31d934f50cefb18af2dc42adadc1773e7",
+      "asset_path": "/play-art/cfb27/assets/740a25cb90e769b6ad61c5a0bc38e4f31d934f50cefb18af2dc42adadc1773e7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "QUICK SLANT",
+      "asset_id": "29f3c02b9f566ffcd54a8a7d34960f96037b96c549ea11fdb536596a1568a0b2",
+      "asset_path": "/play-art/cfb27/assets/29f3c02b9f566ffcd54a8a7d34960f96037b96c549ea11fdb536596a1568a0b2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "READ OPTION",
+      "asset_id": "b3d3b7659225da2ea4af436052e9bdd038fa862492898e9a77d9fa1ff4342c87",
+      "asset_path": "/play-art/cfb27/assets/b3d3b7659225da2ea4af436052e9bdd038fa862492898e9a77d9fa1ff4342c87.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "POST CURLS",
+      "asset_id": "b1a78beb68185067f00cdf6c9e2b34a79cdfee7180a5b8fc69a73873fd96625a",
+      "asset_path": "/play-art/cfb27/assets/b1a78beb68185067f00cdf6c9e2b34a79cdfee7180a5b8fc69a73873fd96625a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Doubles Wk",
+      "play_name": "BASH",
+      "asset_id": "e4ba8d0a7c62b96966d0c5e997c3d1ec48e5520be22f019b95a9dc60ee80a07c",
+      "asset_path": "/play-art/cfb27/assets/e4ba8d0a7c62b96966d0c5e997c3d1ec48e5520be22f019b95a9dc60ee80a07c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "42453429d6f15b9aa79fecc355e55b39f7b976441c9247674125876d14118dc2",
+      "asset_path": "/play-art/cfb27/assets/42453429d6f15b9aa79fecc355e55b39f7b976441c9247674125876d14118dc2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "RPO ZONE ALERT HITCHES",
+      "asset_id": "d4355bdff8bbe9126778f9e0658c476ac26d04d8b9f968d4e863c38b202a6f90",
+      "asset_path": "/play-art/cfb27/assets/d4355bdff8bbe9126778f9e0658c476ac26d04d8b9f968d4e863c38b202a6f90.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "PA SLOT CHOICE",
+      "asset_id": "6f2c225c3843fb3d36e8c7b67f4783f86a4161a8403f2e5d522cdaa84cbf22f9",
+      "asset_path": "/play-art/cfb27/assets/6f2c225c3843fb3d36e8c7b67f4783f86a4161a8403f2e5d522cdaa84cbf22f9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "ALL HITCH",
+      "asset_id": "7a7a9456c6e81c629359f3afe422462d6f25b28f9e059da2427b39db9dc22c0c",
+      "asset_path": "/play-art/cfb27/assets/7a7a9456c6e81c629359f3afe422462d6f25b28f9e059da2427b39db9dc22c0c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "ec20a809797508c4fb29e5a69df75c109def2d3b7a55e54fe1ea3aaf63edb3c5",
+      "asset_path": "/play-art/cfb27/assets/ec20a809797508c4fb29e5a69df75c109def2d3b7a55e54fe1ea3aaf63edb3c5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "f21b4b1c739fc69eacaf652429f82941d372ef44bad269bedf72b78224521c9a",
+      "asset_path": "/play-art/cfb27/assets/f21b4b1c739fc69eacaf652429f82941d372ef44bad269bedf72b78224521c9a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "READ OPTION",
+      "asset_id": "d96059eec219ccf4bc16144ae7b1c421517de2948ae303fb721b0d0094ba7569",
+      "asset_path": "/play-art/cfb27/assets/d96059eec219ccf4bc16144ae7b1c421517de2948ae303fb721b0d0094ba7569.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "X RUB UNDER",
+      "asset_id": "ce05b99601e8196acc510cbfaf22583310c39ab504eb1ed642e32cc687c5989a",
+      "asset_path": "/play-art/cfb27/assets/ce05b99601e8196acc510cbfaf22583310c39ab504eb1ed642e32cc687c5989a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "45 QUICK BASE",
+      "asset_id": "273dc11cf60ff85823e82bb815f0e705df56d33e95f1bc1ba4fd4806fae0a174",
+      "asset_path": "/play-art/cfb27/assets/273dc11cf60ff85823e82bb815f0e705df56d33e95f1bc1ba4fd4806fae0a174.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "RPO TRAP ALERT SCREENS",
+      "asset_id": "9f5fc70c53588edabb5530a4c0baa15c528a70fc31cf58875ac5bb8e80188ae0",
+      "asset_path": "/play-art/cfb27/assets/9f5fc70c53588edabb5530a4c0baa15c528a70fc31cf58875ac5bb8e80188ae0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "WHEELIES",
+      "asset_id": "31dc60b14aacd269770e6290a70805fff1bff717612a56a83eaad3bb5d1b75aa",
+      "asset_path": "/play-art/cfb27/assets/31dc60b14aacd269770e6290a70805fff1bff717612a56a83eaad3bb5d1b75aa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "01 TRAP",
+      "asset_id": "c13e4576cf5efd60f9e85f68b012975d5fd122b5d489d6b6d0f37571f25dd2ad",
+      "asset_path": "/play-art/cfb27/assets/c13e4576cf5efd60f9e85f68b012975d5fd122b5d489d6b6d0f37571f25dd2ad.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "SLOT FADES",
+      "asset_id": "227c9f9d52a6b49f4eb34fd13fe0821e6ffa7fad07ed9e519207bfa057f47641",
+      "asset_path": "/play-art/cfb27/assets/227c9f9d52a6b49f4eb34fd13fe0821e6ffa7fad07ed9e519207bfa057f47641.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "SPEED OPTION",
+      "asset_id": "80792b75aed46bdb4ec9558ec1cff88a602df9d2724335997be415d67f0df431",
+      "asset_path": "/play-art/cfb27/assets/80792b75aed46bdb4ec9558ec1cff88a602df9d2724335997be415d67f0df431.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "X REPLACE",
+      "asset_id": "44c01b921c15bb56c10da5cc4c129d1369fdd3040140f05b170fc387db087472",
+      "asset_path": "/play-art/cfb27/assets/44c01b921c15bb56c10da5cc4c129d1369fdd3040140f05b170fc387db087472.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "SLANTS MIDDLE",
+      "asset_id": "2c408990aded5ed30f25ee502a2a096bab2680b56246eb61927403f2b466dbb7",
+      "asset_path": "/play-art/cfb27/assets/2c408990aded5ed30f25ee502a2a096bab2680b56246eb61927403f2b466dbb7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "ALL GO",
+      "asset_id": "05f1be3da8934abca2cbb455c1bda5f79a7805bd8d98c8e08131034ea902dbef",
+      "asset_path": "/play-art/cfb27/assets/05f1be3da8934abca2cbb455c1bda5f79a7805bd8d98c8e08131034ea902dbef.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Offset",
+      "play_name": "X DEEP CHOICE",
+      "asset_id": "ea9f7b84dc907065e20995e5356e05e4b982e13345e3583127702ede7cf394ea",
+      "asset_path": "/play-art/cfb27/assets/ea9f7b84dc907065e20995e5356e05e4b982e13345e3583127702ede7cf394ea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "LEVELS",
+      "asset_id": "987f04c3c8badb52ce3e5843ca0e137e34e2a754edb7877edd9f6f36d55b162b",
+      "asset_path": "/play-art/cfb27/assets/987f04c3c8badb52ce3e5843ca0e137e34e2a754edb7877edd9f6f36d55b162b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "HB DIVE",
+      "asset_id": "16ce525e87b56d35d187ecf9675865195d1273b71436addf3a2befa0bc49d295",
+      "asset_path": "/play-art/cfb27/assets/16ce525e87b56d35d187ecf9675865195d1273b71436addf3a2befa0bc49d295.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "f05eae7b578bad9986048f59fff855cddea88357e7f5a2cb4af0ac72d3b9f9f5",
+      "asset_path": "/play-art/cfb27/assets/f05eae7b578bad9986048f59fff855cddea88357e7f5a2cb4af0ac72d3b9f9f5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "cdcb4c74d842c58b8e9e16cb9def2ef0998b222e78d282d7ea5570b68ade5182",
+      "asset_path": "/play-art/cfb27/assets/cdcb4c74d842c58b8e9e16cb9def2ef0998b222e78d282d7ea5570b68ade5182.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "PA CHOICE DEEP",
+      "asset_id": "d752d4ea30cccac240ee6f22359d49ed2408e538d73d1317474b4af34d68ab0e",
+      "asset_path": "/play-art/cfb27/assets/d752d4ea30cccac240ee6f22359d49ed2408e538d73d1317474b4af34d68ab0e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "Y LEAD READ OPT RT",
+      "asset_id": "c007f96212e53bc9dc088fd603dd7a07e433f49ce4305802d1ff11fc32b9b651",
+      "asset_path": "/play-art/cfb27/assets/c007f96212e53bc9dc088fd603dd7a07e433f49ce4305802d1ff11fc32b9b651.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "CURL FLATS",
+      "asset_id": "c56bacb9b75314a3a4e440fa7a68ad3f7e053dbad4d5348fb5b6bb45700fc84f",
+      "asset_path": "/play-art/cfb27/assets/c56bacb9b75314a3a4e440fa7a68ad3f7e053dbad4d5348fb5b6bb45700fc84f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "HB POWER",
+      "asset_id": "4337e2802241505830e21e8ce27301a7b252f13a537843805d2e7d1b704b454d",
+      "asset_path": "/play-art/cfb27/assets/4337e2802241505830e21e8ce27301a7b252f13a537843805d2e7d1b704b454d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "PA POWER Y POP",
+      "asset_id": "9831a007362c7ecade38e7765cc2bcd546f14ac309502ce3a56c72a75d2d9c42",
+      "asset_path": "/play-art/cfb27/assets/9831a007362c7ecade38e7765cc2bcd546f14ac309502ce3a56c72a75d2d9c42.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "LEAD ZONE WK",
+      "asset_id": "06571879f6aff876d9f592fe27c1a1f3be0efdf340fcba9c651249fac034d9bd",
+      "asset_path": "/play-art/cfb27/assets/06571879f6aff876d9f592fe27c1a1f3be0efdf340fcba9c651249fac034d9bd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "Z SLUGGO",
+      "asset_id": "328719ae68b2ada3e64286423abb5cc31772be22f3385a8135f443831dda212a",
+      "asset_path": "/play-art/cfb27/assets/328719ae68b2ada3e64286423abb5cc31772be22f3385a8135f443831dda212a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "LEAD ZONE WK READ",
+      "asset_id": "75ff37dafbe6d59c9e4ada94743bcc67e68ca1fe2a9ed26a5da1d01ef8dc1a7d",
+      "asset_path": "/play-art/cfb27/assets/75ff37dafbe6d59c9e4ada94743bcc67e68ca1fe2a9ed26a5da1d01ef8dc1a7d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "READ OPTION",
+      "asset_id": "2d7600fa9ad7526dea66c2263ac678f56fb6447a128ba2e8c1b48241bc907d03",
+      "asset_path": "/play-art/cfb27/assets/2d7600fa9ad7526dea66c2263ac678f56fb6447a128ba2e8c1b48241bc907d03.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "PA POST CURLS",
+      "asset_id": "f8da2c0ff2e90f45e99322b5e3bace5c8c4ad94e20b9853c40ab7d7afa93ea95",
+      "asset_path": "/play-art/cfb27/assets/f8da2c0ff2e90f45e99322b5e3bace5c8c4ad94e20b9853c40ab7d7afa93ea95.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "RPO ALERT Z BANG",
+      "asset_id": "fde612290a0f59fae69cf90d2bcac3d94e3c4dadd7448e1f584ec60f4016d095",
+      "asset_path": "/play-art/cfb27/assets/fde612290a0f59fae69cf90d2bcac3d94e3c4dadd7448e1f584ec60f4016d095.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "RPO ALERT HITCH",
+      "asset_id": "9c6d93792bc6a04c6f53368a6aa9e77b984de9b10d1519e64904e1b045439813",
+      "asset_path": "/play-art/cfb27/assets/9c6d93792bc6a04c6f53368a6aa9e77b984de9b10d1519e64904e1b045439813.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "bfce1cc681e58f0b5f8ca21533a4357836c28b0e308eabe16fe1abb977ba0729",
+      "asset_path": "/play-art/cfb27/assets/bfce1cc681e58f0b5f8ca21533a4357836c28b0e308eabe16fe1abb977ba0729.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left",
+      "play_name": "SPEED OPTION",
+      "asset_id": "5dcd7e36ca663078ee6e48143307039ddac8748d8533eed0bec532ac596c6e72",
+      "asset_path": "/play-art/cfb27/assets/5dcd7e36ca663078ee6e48143307039ddac8748d8533eed0bec532ac596c6e72.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "EXIT PA FK SCREEN",
+      "asset_id": "22f223c84e4e61dd017b828932ee0900bcd9dd1bc9bd8dac556668d3885f6ccf",
+      "asset_path": "/play-art/cfb27/assets/22f223c84e4e61dd017b828932ee0900bcd9dd1bc9bd8dac556668d3885f6ccf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "EXIT RPO ALERT SCREEN",
+      "asset_id": "04cd09d3a933e8e5d76b6346d6b11c923a90762aacb47e19b8e73f90e8f5b2c6",
+      "asset_path": "/play-art/cfb27/assets/04cd09d3a933e8e5d76b6346d6b11c923a90762aacb47e19b8e73f90e8f5b2c6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "EXIT SHOT POST",
+      "asset_id": "3486b3d9c22cdf5668fca67b52054bb767845442beb7f533e5a995fce19bf38d",
+      "asset_path": "/play-art/cfb27/assets/3486b3d9c22cdf5668fca67b52054bb767845442beb7f533e5a995fce19bf38d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "23c1445ff080a33923095ebe63b39aa39af36bc60e9004c63da53474d4aa6df7",
+      "asset_path": "/play-art/cfb27/assets/23c1445ff080a33923095ebe63b39aa39af36bc60e9004c63da53474d4aa6df7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "PA CHOICE DEEP",
+      "asset_id": "e21046c0e1a5b6ec8b51d23c91e84fbffad407c723e6b5b6acc0b4b827dddf62",
+      "asset_path": "/play-art/cfb27/assets/e21046c0e1a5b6ec8b51d23c91e84fbffad407c723e6b5b6acc0b4b827dddf62.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "COUNTER Y",
+      "asset_id": "4a0ab44886e02347091aa10b31534effa94530d57480d33ceef86fd34651b304",
+      "asset_path": "/play-art/cfb27/assets/4a0ab44886e02347091aa10b31534effa94530d57480d33ceef86fd34651b304.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "DART READ OPTION",
+      "asset_id": "3257511901f163252795e5585aa262ffd93879d242fd57c01fde4f01414de5fc",
+      "asset_path": "/play-art/cfb27/assets/3257511901f163252795e5585aa262ffd93879d242fd57c01fde4f01414de5fc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "PA POST CURLS",
+      "asset_id": "e09044bf35daa217f7350382f6d4a36827972d71a093fb760a4980b5b275c08e",
+      "asset_path": "/play-art/cfb27/assets/e09044bf35daa217f7350382f6d4a36827972d71a093fb760a4980b5b275c08e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "RPO ZONE ALERT SCREEN",
+      "asset_id": "da253d6a8afd09caff64f38c6f7d35fce4436f2b970e01ac147c39d760bd79ca",
+      "asset_path": "/play-art/cfb27/assets/da253d6a8afd09caff64f38c6f7d35fce4436f2b970e01ac147c39d760bd79ca.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "RPO ZONE READ BUBBLE",
+      "asset_id": "c009079771ea2086e9b4aae4577b7c6178397cffba477885cf8a2eb7dd288aba",
+      "asset_path": "/play-art/cfb27/assets/c009079771ea2086e9b4aae4577b7c6178397cffba477885cf8a2eb7dd288aba.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "CURLS",
+      "asset_id": "ac94bc0e29d2946b49e148af19db9350d8c4637a381ebdbcf265b4ed932041a1",
+      "asset_path": "/play-art/cfb27/assets/ac94bc0e29d2946b49e148af19db9350d8c4637a381ebdbcf265b4ed932041a1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "QB SLOT OPTION",
+      "asset_id": "11506f4775741541a2c5e7dd67290359bcfb89440b26306b2d2860d77249f6bf",
+      "asset_path": "/play-art/cfb27/assets/11506f4775741541a2c5e7dd67290359bcfb89440b26306b2d2860d77249f6bf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "RPO READ Y FLAT",
+      "asset_id": "010c125677d839f4c819ac918a2c945d3f10e459dd5af68d3e49c6c7e2000dfc",
+      "asset_path": "/play-art/cfb27/assets/010c125677d839f4c819ac918a2c945d3f10e459dd5af68d3e49c6c7e2000dfc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "PA SLIDE",
+      "asset_id": "ecf8eafb87aa05272bee4a045f0a7a29067e9932280657186e3fdaa82d2f799e",
+      "asset_path": "/play-art/cfb27/assets/ecf8eafb87aa05272bee4a045f0a7a29067e9932280657186e3fdaa82d2f799e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_id": "dd08340fd8f5f72063313246c56b56f5519f689f08ff0362cf95f735d5810548",
+      "asset_path": "/play-art/cfb27/assets/dd08340fd8f5f72063313246c56b56f5519f689f08ff0362cf95f735d5810548.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "READ OPTION",
+      "asset_id": "4dc7d8ad56fa288f30aa771f22b072672f4913c39a2b8ab49673befd33662480",
+      "asset_path": "/play-art/cfb27/assets/4dc7d8ad56fa288f30aa771f22b072672f4913c39a2b8ab49673befd33662480.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "PA SE SCREEN",
+      "asset_id": "64fc3a8568600e20a215bd7f26b206b2a34beb6f81fb1d6f579f11d0eb5060e5",
+      "asset_path": "/play-art/cfb27/assets/64fc3a8568600e20a215bd7f26b206b2a34beb6f81fb1d6f579f11d0eb5060e5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "SHOVEL OPTION",
+      "asset_id": "b4b861cc5e65dc3dd52ac381c0ae81b2f1c2e7a5ffc4af334c4a6e429680f146",
+      "asset_path": "/play-art/cfb27/assets/b4b861cc5e65dc3dd52ac381c0ae81b2f1c2e7a5ffc4af334c4a6e429680f146.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "SLANTS",
+      "asset_id": "69b15b81140a11bd3817caa4362ab95b75f64d0779a5cfa8d14321640e854536",
+      "asset_path": "/play-art/cfb27/assets/69b15b81140a11bd3817caa4362ab95b75f64d0779a5cfa8d14321640e854536.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "SPEED OPTION",
+      "asset_id": "89fc4eb2fb7b58b457c10984012a7dac4d2939b633d1130a7184fd6528cbb4f8",
+      "asset_path": "/play-art/cfb27/assets/89fc4eb2fb7b58b457c10984012a7dac4d2939b633d1130a7184fd6528cbb4f8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Left Wk",
+      "play_name": "VERTICAL TE CROSS",
+      "asset_id": "4f34edcf03e7c09b203b5bb16949a769547dc4204ab209ace21111acf5e60893",
+      "asset_path": "/play-art/cfb27/assets/4f34edcf03e7c09b203b5bb16949a769547dc4204ab209ace21111acf5e60893.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "COUNTER Y",
+      "asset_id": "c7fdd422c0e440ac087d19c5a6ea4c7fcab7439e14d90837b015a489f286dcc4",
+      "asset_path": "/play-art/cfb27/assets/c7fdd422c0e440ac087d19c5a6ea4c7fcab7439e14d90837b015a489f286dcc4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA SLOT CHOICE",
+      "asset_id": "3ca5f018220af626a4160dd342c9669d5f2f8dd5c4037b41684fdd3de898b1a6",
+      "asset_path": "/play-art/cfb27/assets/3ca5f018220af626a4160dd342c9669d5f2f8dd5c4037b41684fdd3de898b1a6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "COUNTER Y READ OPTION",
+      "asset_id": "0ba1b8f0878211006f1900c5e7dff9956f6d2c85439bd28f8f30e3bf3b02989b",
+      "asset_path": "/play-art/cfb27/assets/0ba1b8f0878211006f1900c5e7dff9956f6d2c85439bd28f8f30e3bf3b02989b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "HB ISO",
+      "asset_id": "67ec1136cb6863cb1ea9d542bfb86a04751a45c50dca4f54f3f1295ddc095554",
+      "asset_path": "/play-art/cfb27/assets/67ec1136cb6863cb1ea9d542bfb86a04751a45c50dca4f54f3f1295ddc095554.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "483ab904f6b77c680e2a1af6310c8bdbf611a06c874439968940e06d9ca74c35",
+      "asset_path": "/play-art/cfb27/assets/483ab904f6b77c680e2a1af6310c8bdbf611a06c874439968940e06d9ca74c35.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO ALERT POST ISO",
+      "asset_id": "a61f7ecb6fbdd5d2e6a09924308d6489af8803e7b2c882d22a806374aafb953d",
+      "asset_path": "/play-art/cfb27/assets/a61f7ecb6fbdd5d2e6a09924308d6489af8803e7b2c882d22a806374aafb953d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "READ OPTION",
+      "asset_id": "e2ff02c48dcab016f791bd355ffbc9cd8a7186dcb336be80242d9dd76bac2e6f",
+      "asset_path": "/play-art/cfb27/assets/e2ff02c48dcab016f791bd355ffbc9cd8a7186dcb336be80242d9dd76bac2e6f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA SLOT CROSS",
+      "asset_id": "d9a0f4c09482ce6afef232c6d4ac9642a51b36b85158a2749701137ffdeeca21",
+      "asset_path": "/play-art/cfb27/assets/d9a0f4c09482ce6afef232c6d4ac9642a51b36b85158a2749701137ffdeeca21.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_id": "476ae2ac86bd0b847dc6c375fb2d2acbdd0ed4bf7e783310aa53df7a106da1d4",
+      "asset_path": "/play-art/cfb27/assets/476ae2ac86bd0b847dc6c375fb2d2acbdd0ed4bf7e783310aa53df7a106da1d4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO ALERT COUNTER",
+      "asset_id": "3e486bfa0224ef030c612e65e03704875529efb5a2918cdfe71e36c97f27ba06",
+      "asset_path": "/play-art/cfb27/assets/3e486bfa0224ef030c612e65e03704875529efb5a2918cdfe71e36c97f27ba06.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA WHEEL",
+      "asset_id": "3fa8b514a65381dde8ad6d98cc83d0b76ddc500f373ffd84e195255df2d5b9a0",
+      "asset_path": "/play-art/cfb27/assets/3fa8b514a65381dde8ad6d98cc83d0b76ddc500f373ffd84e195255df2d5b9a0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO GLANCE POST",
+      "asset_id": "3ec2926090c05cf9252029dac0ef2b3179f1b4360d360e8061a3c71deb5adda3",
+      "asset_path": "/play-art/cfb27/assets/3ec2926090c05cf9252029dac0ef2b3179f1b4360d360e8061a3c71deb5adda3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO ALERT SHOCK",
+      "asset_id": "61628d37a68a4abab6f08f762e6dd503e2d683c463cb16eba676e64cce8c7f2d",
+      "asset_path": "/play-art/cfb27/assets/61628d37a68a4abab6f08f762e6dd503e2d683c463cb16eba676e64cce8c7f2d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "VERTICALS",
+      "asset_id": "d4ba00a69858d29b064f5abe38602b9af1c0c3ff8e9452640dd7e7bf4fe474cf",
+      "asset_path": "/play-art/cfb27/assets/d4ba00a69858d29b064f5abe38602b9af1c0c3ff8e9452640dd7e7bf4fe474cf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO READ Y FLAT",
+      "asset_id": "5fb2d620b34c4450c11614554068a3cc462457b76506f32e36ed2d34786c497c",
+      "asset_path": "/play-art/cfb27/assets/5fb2d620b34c4450c11614554068a3cc462457b76506f32e36ed2d34786c497c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "SPEED OPTION",
+      "asset_id": "c7661266e21291112e641b9c4c0f5ef9198b8ee4ef80360a75f6192b964cb539",
+      "asset_path": "/play-art/cfb27/assets/c7661266e21291112e641b9c4c0f5ef9198b8ee4ef80360a75f6192b964cb539.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "SLANTS",
+      "asset_id": "41a019d522c596293531abb447f3af35875eb9d0028b4a6e56116dc4298f0831",
+      "asset_path": "/play-art/cfb27/assets/41a019d522c596293531abb447f3af35875eb9d0028b4a6e56116dc4298f0831.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "eef64462b792ee19bfc421c434d7d0dabda80543f8a65b54c0c8ea5ba2e0b297",
+      "asset_path": "/play-art/cfb27/assets/eef64462b792ee19bfc421c434d7d0dabda80543f8a65b54c0c8ea5ba2e0b297.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA SE SCREEN",
+      "asset_id": "ee9c502277bd064f77e788f9c60eb8fd6c973d571b712f5b9c788f4f94cec09b",
+      "asset_path": "/play-art/cfb27/assets/ee9c502277bd064f77e788f9c60eb8fd6c973d571b712f5b9c788f4f94cec09b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "RPO READ WR SCREEN",
+      "asset_id": "23d47f6dbcbe72cb472092f4ec77dd3132b5c3dfb41f24a40742329f59e6219f",
+      "asset_path": "/play-art/cfb27/assets/23d47f6dbcbe72cb472092f4ec77dd3132b5c3dfb41f24a40742329f59e6219f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "FAKE SCREEN WHEEL",
+      "asset_id": "678fee5ae9febf9010c32b07dfaca7150f4feede7b1c3c4189283b3a821c88d7",
+      "asset_path": "/play-art/cfb27/assets/678fee5ae9febf9010c32b07dfaca7150f4feede7b1c3c4189283b3a821c88d7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "794000e350ad4d4594f3ba8e9bbc0d6579120e95c759343f0b473c9397147150",
+      "asset_path": "/play-art/cfb27/assets/794000e350ad4d4594f3ba8e9bbc0d6579120e95c759343f0b473c9397147150.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "QB SLOT OPTION",
+      "asset_id": "8db88a800e411e421e4dc063e143fefc4f2342afbd8ce96aa32ada8136f65b5b",
+      "asset_path": "/play-art/cfb27/assets/8db88a800e411e421e4dc063e143fefc4f2342afbd8ce96aa32ada8136f65b5b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right",
+      "play_name": "PA BUBBLE",
+      "asset_id": "fd8bec6a5f1ee502dfe1378e1d2069788c1f0ec013ea8f2e6a44751b7b631a26",
+      "asset_path": "/play-art/cfb27/assets/fd8bec6a5f1ee502dfe1378e1d2069788c1f0ec013ea8f2e6a44751b7b631a26.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTN DEEP CHOICE",
+      "asset_id": "a153d08f026e2d5fd4eeaecfb76b41f1b48fb5534efaae138a693b78a23001a7",
+      "asset_path": "/play-art/cfb27/assets/a153d08f026e2d5fd4eeaecfb76b41f1b48fb5534efaae138a693b78a23001a7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTN RPO QB DRAW",
+      "asset_id": "db2642de4d38fdbd2270f1b8ef8ba460c06b79f0a7bbc200842c1bf6a9e38e7a",
+      "asset_path": "/play-art/cfb27/assets/db2642de4d38fdbd2270f1b8ef8ba460c06b79f0a7bbc200842c1bf6a9e38e7a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTN SLOT CROSS",
+      "asset_id": "3290e9ce703767821d12af2acd375413768780683d7e389b560e66dbb45c73a5",
+      "asset_path": "/play-art/cfb27/assets/3290e9ce703767821d12af2acd375413768780683d7e389b560e66dbb45c73a5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTNZ IN",
+      "asset_id": "f585cc620c2d7d48af5c6b0e20a56fd6e63b48c0e16b568386977f371ecafbc4",
+      "asset_path": "/play-art/cfb27/assets/f585cc620c2d7d48af5c6b0e20a56fd6e63b48c0e16b568386977f371ecafbc4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTN RPO QB POWER",
+      "asset_id": "a9cbf38ea46898055b64898eb2e58a1b8506c64a5253292530b133cb1cf4374c",
+      "asset_path": "/play-art/cfb27/assets/a9cbf38ea46898055b64898eb2e58a1b8506c64a5253292530b133cb1cf4374c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "MTN DOUBLE PASS",
+      "asset_id": "5d550b9dbf25759e76904f15427a4999e441d38bf394f696ae41865b6b42a038",
+      "asset_path": "/play-art/cfb27/assets/5d550b9dbf25759e76904f15427a4999e441d38bf394f696ae41865b6b42a038.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "SLOT CHOICE",
+      "asset_id": "947243f9a246cc02a23a719ac016fc392618ebc94866ad9fe6690365ab506b43",
+      "asset_path": "/play-art/cfb27/assets/947243f9a246cc02a23a719ac016fc392618ebc94866ad9fe6690365ab506b43.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "86099e68498558018682643245f4cdd6d3030370eb150622a57d893945bef03d",
+      "asset_path": "/play-art/cfb27/assets/86099e68498558018682643245f4cdd6d3030370eb150622a57d893945bef03d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "6604495d5b1c3b37ec85135748672d3fdec9ffd7115fec56bc251707053a730f",
+      "asset_path": "/play-art/cfb27/assets/6604495d5b1c3b37ec85135748672d3fdec9ffd7115fec56bc251707053a730f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "COUNTER Y",
+      "asset_id": "624bbf3a2d224c638493ccd1b35ec5fbc04ec2fdbbef4495ffa8c160b2ed0cca",
+      "asset_path": "/play-art/cfb27/assets/624bbf3a2d224c638493ccd1b35ec5fbc04ec2fdbbef4495ffa8c160b2ed0cca.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "CURLS",
+      "asset_id": "a0f146cf11171e875aa445ec917c15ea8978c295f00206ae1f40c34094fe3773",
+      "asset_path": "/play-art/cfb27/assets/a0f146cf11171e875aa445ec917c15ea8978c295f00206ae1f40c34094fe3773.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "RPO GLANCE BUBBLE",
+      "asset_id": "950242ebbed84720bf4a04e5ef50cdb77aa73625b3c3313999f6e1e6291491d5",
+      "asset_path": "/play-art/cfb27/assets/950242ebbed84720bf4a04e5ef50cdb77aa73625b3c3313999f6e1e6291491d5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "RPO READ Y FLAT",
+      "asset_id": "fd2cf010ef824997c65136c68fddf47565ad645c8d86af4c7c95beae293715a7",
+      "asset_path": "/play-art/cfb27/assets/fd2cf010ef824997c65136c68fddf47565ad645c8d86af4c7c95beae293715a7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "SLANT SWING",
+      "asset_id": "826f71992e2313e311a70151efe004528669778ac55ac500179b849159ed9f9b",
+      "asset_path": "/play-art/cfb27/assets/826f71992e2313e311a70151efe004528669778ac55ac500179b849159ed9f9b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "SPEED OPTION",
+      "asset_id": "8fc7f76b3f324d852e9a36943bb4f68b695921f30da46ee68b6da5a30b19a06f",
+      "asset_path": "/play-art/cfb27/assets/8fc7f76b3f324d852e9a36943bb4f68b695921f30da46ee68b6da5a30b19a06f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_id": "74c3a48f4d0d26cf6bc6806188f6f7aabef014839d9eb82188d21bbef371489c",
+      "asset_path": "/play-art/cfb27/assets/74c3a48f4d0d26cf6bc6806188f6f7aabef014839d9eb82188d21bbef371489c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "VERTICAL TE CROSS",
+      "asset_id": "42972513201150bf5b9d444e7f7262244ed033b4d3a5304b7a63dc58e5cc20f6",
+      "asset_path": "/play-art/cfb27/assets/42972513201150bf5b9d444e7f7262244ed033b4d3a5304b7a63dc58e5cc20f6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Slot Right Wk",
+      "play_name": "SHOVEL OPTION",
+      "asset_id": "9f0c32ef628b7cd81d5d6f985b3db727ed02a1e242fac9dcc78766d3f0e6ed9b",
+      "asset_path": "/play-art/cfb27/assets/9f0c32ef628b7cd81d5d6f985b3db727ed02a1e242fac9dcc78766d3f0e6ed9b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "SMOKE N GO",
+      "asset_id": "2c5738d1a71012092c53f0038bd1e226d1b4d56cf18caf012b804fba1bbb1160",
+      "asset_path": "/play-art/cfb27/assets/2c5738d1a71012092c53f0038bd1e226d1b4d56cf18caf012b804fba1bbb1160.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "RPO ALERT SCREEN",
+      "asset_id": "162e76095155ed94f471e97730a3f1094ab4ff8cd96764f7b6c12437a915b770",
+      "asset_path": "/play-art/cfb27/assets/162e76095155ed94f471e97730a3f1094ab4ff8cd96764f7b6c12437a915b770.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "FK SCREEN GO",
+      "asset_id": "0928b3b728f2b25e32550801e64825f24d41d8d6e3a4895ad1dbd0a6b0fe1d1f",
+      "asset_path": "/play-art/cfb27/assets/0928b3b728f2b25e32550801e64825f24d41d8d6e3a4895ad1dbd0a6b0fe1d1f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "4c1d0642e9d9f87b755c7d62a6231aaf497009fe5c1bcbaaf8f01f86b761d851",
+      "asset_path": "/play-art/cfb27/assets/4c1d0642e9d9f87b755c7d62a6231aaf497009fe5c1bcbaaf8f01f86b761d851.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "165cf842b0333a9c6a2d949868581bec1c0c6c4d5f2b7f9eb2a9a7d6c0fa207e",
+      "asset_path": "/play-art/cfb27/assets/165cf842b0333a9c6a2d949868581bec1c0c6c4d5f2b7f9eb2a9a7d6c0fa207e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "LEVELS",
+      "asset_id": "76567a151deb4c3ab01a0bfea240e965ce085bbae1116123e4802a8f158dc341",
+      "asset_path": "/play-art/cfb27/assets/76567a151deb4c3ab01a0bfea240e965ce085bbae1116123e4802a8f158dc341.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "FK SCREEN CROSS SLIP",
+      "asset_id": "e57e59a8e4600ee299f56f59792fc4376f7d082832b2f95fa82eac4314c3946c",
+      "asset_path": "/play-art/cfb27/assets/e57e59a8e4600ee299f56f59792fc4376f7d082832b2f95fa82eac4314c3946c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "RPO READ WR SCREEN",
+      "asset_id": "2fe13170e4864abf2adeb15a8ba02bc635d7290e8a89eb8a39173df50f3b0326",
+      "asset_path": "/play-art/cfb27/assets/2fe13170e4864abf2adeb15a8ba02bc635d7290e8a89eb8a39173df50f3b0326.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "PA CROSS",
+      "asset_id": "65ce8b8d25e1005b25c4b2cd4230aa312b75255bf5ae7e714f4bf03eb85b0586",
+      "asset_path": "/play-art/cfb27/assets/65ce8b8d25e1005b25c4b2cd4230aa312b75255bf5ae7e714f4bf03eb85b0586.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "ALL GO",
+      "asset_id": "9d4bcab2c077d744b81515876206aa08cbfd8dda2f48909383b8b167d9bee889",
+      "asset_path": "/play-art/cfb27/assets/9d4bcab2c077d744b81515876206aa08cbfd8dda2f48909383b8b167d9bee889.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "HB DRAW",
+      "asset_id": "8d5079ce6057aa1463b22db8a9c5d29726f3e9147f944f5e1294f21ebc13fd23",
+      "asset_path": "/play-art/cfb27/assets/8d5079ce6057aa1463b22db8a9c5d29726f3e9147f944f5e1294f21ebc13fd23.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Stack",
+      "play_name": "DOUBLE IN",
+      "asset_id": "fac16b32ccf28665dd64953f5ea1b13623976ad4fb60f8adc4e35b7408de6ee9",
+      "asset_path": "/play-art/cfb27/assets/fac16b32ccf28665dd64953f5ea1b13623976ad4fb60f8adc4e35b7408de6ee9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "ALL CURL",
+      "asset_id": "3e539d1dc4f532daa103dd6bc27180956a47bfb16eb3854bfec2e524ffc57678",
+      "asset_path": "/play-art/cfb27/assets/3e539d1dc4f532daa103dd6bc27180956a47bfb16eb3854bfec2e524ffc57678.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "RPO ALERT BUBBLE STICK",
+      "asset_id": "005c38a21c51bcda6125a7d8022dd6fb81218ca70a4cddff189f7490c0586469",
+      "asset_path": "/play-art/cfb27/assets/005c38a21c51bcda6125a7d8022dd6fb81218ca70a4cddff189f7490c0586469.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "PA SLOT CHOICE",
+      "asset_id": "783a62f798ee8b6f91ae0f5ce82b29107991581fe5e0d1689a5452a9599bfbf7",
+      "asset_path": "/play-art/cfb27/assets/783a62f798ee8b6f91ae0f5ce82b29107991581fe5e0d1689a5452a9599bfbf7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "RPO BASE HITCHES",
+      "asset_id": "8ce73d44a5f8b89a7ac09547d6ef2da4c1b0f20d0da4084e333faded8e3d9503",
+      "asset_path": "/play-art/cfb27/assets/8ce73d44a5f8b89a7ac09547d6ef2da4c1b0f20d0da4084e333faded8e3d9503.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "DEEP CHOICE",
+      "asset_id": "e69748ad8868dcb9e160315f93012c18e0884ea08297252fd21b9ec3cd977366",
+      "asset_path": "/play-art/cfb27/assets/e69748ad8868dcb9e160315f93012c18e0884ea08297252fd21b9ec3cd977366.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "SPEED OPTION",
+      "asset_id": "d3a95af11604aca766495d7d1d215e80486142c6a074a0ea0025b06afce0ecdc",
+      "asset_path": "/play-art/cfb27/assets/d3a95af11604aca766495d7d1d215e80486142c6a074a0ea0025b06afce0ecdc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "ALL HITCH",
+      "asset_id": "822b9181ced543812ff1d540a06728db0eddfdce59b7696a6296bf15fe669b45",
+      "asset_path": "/play-art/cfb27/assets/822b9181ced543812ff1d540a06728db0eddfdce59b7696a6296bf15fe669b45.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "HB SWEEP",
+      "asset_id": "3bdee2f8bf0fbaf3946947148bcb8067bc19de0afd288a1dd0bb31b4196084a2",
+      "asset_path": "/play-art/cfb27/assets/3bdee2f8bf0fbaf3946947148bcb8067bc19de0afd288a1dd0bb31b4196084a2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "3f622f175ae7d8757cb2d10c7337311005cc9d84b0b31c9a7d76322c2d06f0bf",
+      "asset_path": "/play-art/cfb27/assets/3f622f175ae7d8757cb2d10c7337311005cc9d84b0b31c9a7d76322c2d06f0bf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "HITCH MILLS",
+      "asset_id": "dd25540d88918e2963047f2f25ada7ebec06d8ab08c66c8b328d694663912fc5",
+      "asset_path": "/play-art/cfb27/assets/dd25540d88918e2963047f2f25ada7ebec06d8ab08c66c8b328d694663912fc5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "READ OPTION",
+      "asset_id": "26daf71204395b00ee9d15c6f80c82566cb1ab7edf919a8b3fe0a55fcf10b5b0",
+      "asset_path": "/play-art/cfb27/assets/26daf71204395b00ee9d15c6f80c82566cb1ab7edf919a8b3fe0a55fcf10b5b0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "PA READ FLOOD",
+      "asset_id": "54c40d7f943f172836c7b95ae6826a7a7efbc2df6cb99c6461cb5daa90c1d6d6",
+      "asset_path": "/play-art/cfb27/assets/54c40d7f943f172836c7b95ae6826a7a7efbc2df6cb99c6461cb5daa90c1d6d6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "HB SWING",
+      "asset_id": "629e72080e3df55c16a364b823009335e7e19bbb0bc0bd692d26413e92a43c70",
+      "asset_path": "/play-art/cfb27/assets/629e72080e3df55c16a364b823009335e7e19bbb0bc0bd692d26413e92a43c70.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "HB MID DRAW",
+      "asset_id": "a20537131767d1b6f29e8c0bf4984aa1346992b0a8a2dc060c2f37a086ea4550",
+      "asset_path": "/play-art/cfb27/assets/a20537131767d1b6f29e8c0bf4984aa1346992b0a8a2dc060c2f37a086ea4550.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "ALL GO",
+      "asset_id": "00409a8f055ee1c03b126258a7154ff5077d6327f635e0818b858316686ca8a3",
+      "asset_path": "/play-art/cfb27/assets/00409a8f055ee1c03b126258a7154ff5077d6327f635e0818b858316686ca8a3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "SLOT WHEEL",
+      "asset_id": "adaad66b176c69e1e7cfa87aa6447aef3c0b5450e09ecde1a6c5e89184b67b1a",
+      "asset_path": "/play-art/cfb27/assets/adaad66b176c69e1e7cfa87aa6447aef3c0b5450e09ecde1a6c5e89184b67b1a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "POWER READ",
+      "asset_id": "49bb5c98069a5902f3357d16fc9857a29b74b52d597d1091dd5b6ea030e195cc",
+      "asset_path": "/play-art/cfb27/assets/49bb5c98069a5902f3357d16fc9857a29b74b52d597d1091dd5b6ea030e195cc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Trips",
+      "play_name": "WHEEL CURLS",
+      "asset_id": "962a30cf7efb7e6b9c3cef83b46ebfbf7e942e34c9ecb6c400548f07d81d4f6d",
+      "asset_path": "/play-art/cfb27/assets/962a30cf7efb7e6b9c3cef83b46ebfbf7e942e34c9ecb6c400548f07d81d4f6d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "HB BASE",
+      "asset_id": "889bad625e2c815e242a7299937137c2b2d770bb6d68e21049eae11850b116db",
+      "asset_path": "/play-art/cfb27/assets/889bad625e2c815e242a7299937137c2b2d770bb6d68e21049eae11850b116db.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "PA SLOT CHOICE",
+      "asset_id": "049f418f7c61bb43117929b3b2b6081e7fe2647f4f5b3ad8c076db46f34e55f0",
+      "asset_path": "/play-art/cfb27/assets/049f418f7c61bb43117929b3b2b6081e7fe2647f4f5b3ad8c076db46f34e55f0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "BUCK SWEEP",
+      "asset_id": "1db69fb84047762f961887e4b92f665d14762a07c4ae0c63cd8325f28c83916c",
+      "asset_path": "/play-art/cfb27/assets/1db69fb84047762f961887e4b92f665d14762a07c4ae0c63cd8325f28c83916c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "CURLS",
+      "asset_id": "7145157ef60d77cbe464f1551e661fa1c155d4bc3de0c9efb9b468871982764f",
+      "asset_path": "/play-art/cfb27/assets/7145157ef60d77cbe464f1551e661fa1c155d4bc3de0c9efb9b468871982764f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "0e62bed3223e0c8848692ada4d0d2b80301d75dadddc0ec208251454203056b9",
+      "asset_path": "/play-art/cfb27/assets/0e62bed3223e0c8848692ada4d0d2b80301d75dadddc0ec208251454203056b9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "PA DEEP CHOICE",
+      "asset_id": "6f874142849033323711d108274555800403f12b33661db1ca8983f525a284ee",
+      "asset_path": "/play-art/cfb27/assets/6f874142849033323711d108274555800403f12b33661db1ca8983f525a284ee.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "HB SWEEP",
+      "asset_id": "f720cb7e3ada3ee4520b77abbc5e6bb640af3d429ff10f6d12b0310c90997132",
+      "asset_path": "/play-art/cfb27/assets/f720cb7e3ada3ee4520b77abbc5e6bb640af3d429ff10f6d12b0310c90997132.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "PA POST CROSS SHOT",
+      "asset_id": "fdcbf5c4aafb3b1c73ef0c0b9bad0be9027a2209c809bbeb2f0eb3a2fcaa6de4",
+      "asset_path": "/play-art/cfb27/assets/fdcbf5c4aafb3b1c73ef0c0b9bad0be9027a2209c809bbeb2f0eb3a2fcaa6de4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "RPO BASE ALERT LOOKIE",
+      "asset_id": "d1400eccc37ccb38584e0cc44561cc39192f923f0e32b297b8743931b62ea89f",
+      "asset_path": "/play-art/cfb27/assets/d1400eccc37ccb38584e0cc44561cc39192f923f0e32b297b8743931b62ea89f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "ALL GO",
+      "asset_id": "2d4dad4b9269a30809ced642fc48407d7b85fa47f8e447b4d12a5bc87d332a68",
+      "asset_path": "/play-art/cfb27/assets/2d4dad4b9269a30809ced642fc48407d7b85fa47f8e447b4d12a5bc87d332a68.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "POWER READ",
+      "asset_id": "a1eeba4d8c9464172ebe24da3b81d981d403bc2d192ea4c9ec5c998b27831f8f",
+      "asset_path": "/play-art/cfb27/assets/a1eeba4d8c9464172ebe24da3b81d981d403bc2d192ea4c9ec5c998b27831f8f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "PA INVERTED VEER",
+      "asset_id": "f43e57c97fbc12cc7ab088ae61f6295b0d98ab4793613d0282a416f9c79d0ec3",
+      "asset_path": "/play-art/cfb27/assets/f43e57c97fbc12cc7ab088ae61f6295b0d98ab4793613d0282a416f9c79d0ec3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "READ OPTION",
+      "asset_id": "22d38b6a322bf54b0dff877214b69e66db326bacc4d8da21163a7ecdf8b3b7df",
+      "asset_path": "/play-art/cfb27/assets/22d38b6a322bf54b0dff877214b69e66db326bacc4d8da21163a7ecdf8b3b7df.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "PA READ",
+      "asset_id": "b68da969427d1c63152328d379239c79b8c2a277f145bbd5eb1cf9221cc83f52",
+      "asset_path": "/play-art/cfb27/assets/b68da969427d1c63152328d379239c79b8c2a277f145bbd5eb1cf9221cc83f52.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "SPEED OPTION",
+      "asset_id": "ac7808ba69fbcf9ff61774d330a0c7f3569c1b75ea89fa6fbedc47d6632e6c92",
+      "asset_path": "/play-art/cfb27/assets/ac7808ba69fbcf9ff61774d330a0c7f3569c1b75ea89fa6fbedc47d6632e6c92.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "STICK",
+      "asset_id": "5c63b62b6e219ccc6ac128ef920540b106855a2bf245980edfe1000cea40621e",
+      "asset_path": "/play-art/cfb27/assets/5c63b62b6e219ccc6ac128ef920540b106855a2bf245980edfe1000cea40621e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "Y CORNER",
+      "asset_id": "60dda8a5d411b7782596e3a101113bc37201f213bdd929a273300789c9f97366",
+      "asset_path": "/play-art/cfb27/assets/60dda8a5d411b7782596e3a101113bc37201f213bdd929a273300789c9f97366.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Gun Wide Y Trips Wk",
+      "play_name": "SHOCK H OPTION",
+      "asset_id": "c09f26925a5e08e6778178cf9df613870110ea07d60d0af0fcffbe695fb19331",
+      "asset_path": "/play-art/cfb27/assets/c09f26925a5e08e6778178cf9df613870110ea07d60d0af0fcffbe695fb19331.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "HB DIVE",
+      "asset_id": "258bdf8e2640f869e6ad7eac9ea62a0e7bbcb55b73e422675f728b83062690a9",
+      "asset_path": "/play-art/cfb27/assets/258bdf8e2640f869e6ad7eac9ea62a0e7bbcb55b73e422675f728b83062690a9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPOT",
+      "asset_id": "4d5c7a7ffb6486637093633f2d67f736a83f728093086029a475cfab2258fbf2",
+      "asset_path": "/play-art/cfb27/assets/4d5c7a7ffb6486637093633f2d67f736a83f728093086029a475cfab2258fbf2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "QB SNEAK",
+      "asset_id": "521678038a0059387f8dd50377e9a94579a335c9eb5ff663b4af94abd516c87f",
+      "asset_path": "/play-art/cfb27/assets/521678038a0059387f8dd50377e9a94579a335c9eb5ff663b4af94abd516c87f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "POWER O",
+      "asset_id": "461010d4c473efdba4f6df3883c0304b63b47414ffd6681725204006b3886485",
+      "asset_path": "/play-art/cfb27/assets/461010d4c473efdba4f6df3883c0304b63b47414ffd6681725204006b3886485.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "PA POWER O",
+      "asset_id": "14fff85900cf7424b9ac6c58a7ff3933b9bcf7b276e04b60fce672bf69579254",
+      "asset_path": "/play-art/cfb27/assets/14fff85900cf7424b9ac6c58a7ff3933b9bcf7b276e04b60fce672bf69579254.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "FB DIVE WEAK",
+      "asset_id": "de1d9189275f0ba7476cb713b52d4f88a659fd30636cfb4f592f0db5a05dc128",
+      "asset_path": "/play-art/cfb27/assets/de1d9189275f0ba7476cb713b52d4f88a659fd30636cfb4f592f0db5a05dc128.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "HB SPLIT 0",
+      "asset_id": "1b8dc6b9f302efed73fe0fe21304ce0dc1bd0f740b68b6cf26eb153032504956",
+      "asset_path": "/play-art/cfb27/assets/1b8dc6b9f302efed73fe0fe21304ce0dc1bd0f740b68b6cf26eb153032504956.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPRINT HB FLAT",
+      "asset_id": "0e453fad197f36dcbb1b0a9db00283814472eda3906e5b3c725ee6106eb0b61c",
+      "asset_path": "/play-art/cfb27/assets/0e453fad197f36dcbb1b0a9db00283814472eda3906e5b3c725ee6106eb0b61c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "HB COUNTER WK",
+      "asset_id": "22573364c2248f99257caf1b6307240a8459047fc4ac82a2b82183645df63fa6",
+      "asset_path": "/play-art/cfb27/assets/22573364c2248f99257caf1b6307240a8459047fc4ac82a2b82183645df63fa6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "HB STING",
+      "asset_id": "22a5a863609f2e41c17167662c5a3a02f442b9f6197c2a0b72d0b98794ed95fa",
+      "asset_path": "/play-art/cfb27/assets/22a5a863609f2e41c17167662c5a3a02f442b9f6197c2a0b72d0b98794ed95fa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "PA WAGGLE",
+      "asset_id": "4bcdc63ce045c46f2c6dd6e4c6bfce3c5b855b4a5604d2ecc7ee6db5753f3b89",
+      "asset_path": "/play-art/cfb27/assets/4bcdc63ce045c46f2c6dd6e4c6bfce3c5b855b4a5604d2ecc7ee6db5753f3b89.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "Veer & Shoot",
+      "formation": "Goal Line Normal",
+      "play_name": "STRONG TOSS",
+      "asset_id": "995ceace3452f8c9b7ca385c6c7fb9cb82c682d89551cd2e3948025da949d5bc",
+      "asset_path": "/play-art/cfb27/assets/995ceace3452f8c9b7ca385c6c7fb9cb82c682d89551cd2e3948025da949d5bc.jpg"
     }
   ]
 }
