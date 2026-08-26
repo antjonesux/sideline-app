@@ -8397,6 +8397,4209 @@
       "play_name": "PA FLOOD",
       "asset_id": "b6ded233285b2e17a5d480dfed2a460019ae385a401845420d83d1ab323e8b34",
       "asset_path": "/play-art/cfb27/assets/b6ded233285b2e17a5d480dfed2a460019ae385a401845420d83d1ab323e8b34.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "MTN FK SWING",
+      "asset_id": "6b9f1fbda222d96311469b95c0af46984967ae2ae74dd104eec1f5279015c891",
+      "asset_path": "/play-art/cfb27/assets/6b9f1fbda222d96311469b95c0af46984967ae2ae74dd104eec1f5279015c891.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "MTN HB SCREEN",
+      "asset_id": "97bc20909bc703efcfe857fdf8eeb06cff464b8dd052dd0d1189b49afc97e822",
+      "asset_path": "/play-art/cfb27/assets/97bc20909bc703efcfe857fdf8eeb06cff464b8dd052dd0d1189b49afc97e822.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "MTN DBL SWING",
+      "asset_id": "4df35989998bf0b82b19ba87fb30c028d4771f42497192fbba63ef659a473412",
+      "asset_path": "/play-art/cfb27/assets/4df35989998bf0b82b19ba87fb30c028d4771f42497192fbba63ef659a473412.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "JET SWEEP",
+      "asset_id": "d32c702e40be450871300983d9c746506d55a34cd155578bd3ca4b174585ef97",
+      "asset_path": "/play-art/cfb27/assets/d32c702e40be450871300983d9c746506d55a34cd155578bd3ca4b174585ef97.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "PA JET SWEEP",
+      "asset_id": "8659fb1e8d3d16015ba30ab9cd68c1fff34f680622da153ee84544b846fa0400",
+      "asset_path": "/play-art/cfb27/assets/8659fb1e8d3d16015ba30ab9cd68c1fff34f680622da153ee84544b846fa0400.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "ZONE FAKE JET",
+      "asset_id": "da06a5dddb042ac5d41405e5a7464176aef55cc7eeb00b14a3950c5e7b6e1774",
+      "asset_path": "/play-art/cfb27/assets/da06a5dddb042ac5d41405e5a7464176aef55cc7eeb00b14a3950c5e7b6e1774.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "CROSS DRAG",
+      "asset_id": "9c48b31cc0c806492587c2f3e874862529cb6368feac1876a5594844057ca7dd",
+      "asset_path": "/play-art/cfb27/assets/9c48b31cc0c806492587c2f3e874862529cb6368feac1876a5594844057ca7dd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "5746314eaa1930ed39df40b976fc624cb0a5413a052e5f0cca4cb96de2009054",
+      "asset_path": "/play-art/cfb27/assets/5746314eaa1930ed39df40b976fc624cb0a5413a052e5f0cca4cb96de2009054.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "SPACING",
+      "asset_id": "850aab4296affa65e255c0a46dc6ad3c337e300dbe8766c901658de128266f34",
+      "asset_path": "/play-art/cfb27/assets/850aab4296affa65e255c0a46dc6ad3c337e300dbe8766c901658de128266f34.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "STRETCH ALERT BUBBLE",
+      "asset_id": "6228395a5871ad808e5b8714eff1f42e8421401a8aa30a76069b92e2cc2f2f4b",
+      "asset_path": "/play-art/cfb27/assets/6228395a5871ad808e5b8714eff1f42e8421401a8aa30a76069b92e2cc2f2f4b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "PA DRAW SHOT",
+      "asset_id": "80a008e8402fa8b37f706dcee34c02d1cd1683b9fe1e245f9e6f3f15ae201c41",
+      "asset_path": "/play-art/cfb27/assets/80a008e8402fa8b37f706dcee34c02d1cd1683b9fe1e245f9e6f3f15ae201c41.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch TE",
+      "play_name": "HB PUMP DRAW",
+      "asset_id": "9095f537b73be56df0b39691004d724220ca17aef4a11f87a1fafe8f783fbeeb",
+      "asset_path": "/play-art/cfb27/assets/9095f537b73be56df0b39691004d724220ca17aef4a11f87a1fafe8f783fbeeb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "MTN X WHIP",
+      "asset_id": "0c9e5d466894266dbc8466c73ad7cafd04244cfbebbffd0c904695f65d1774b3",
+      "asset_path": "/play-art/cfb27/assets/0c9e5d466894266dbc8466c73ad7cafd04244cfbebbffd0c904695f65d1774b3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "MTN HB DIVE",
+      "asset_id": "ef25c1987e206f0bd7decf4d30639f90837e1c72e5b1f2695d4439e8d4c10e65",
+      "asset_path": "/play-art/cfb27/assets/ef25c1987e206f0bd7decf4d30639f90837e1c72e5b1f2695d4439e8d4c10e65.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "MTN PA DEEP X OVER",
+      "asset_id": "b571501bd608eb56f89a0abefa47fcab7923454856d732be706fb09c2c30dd97",
+      "asset_path": "/play-art/cfb27/assets/b571501bd608eb56f89a0abefa47fcab7923454856d732be706fb09c2c30dd97.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "PA DRAG WHEEL",
+      "asset_id": "955c9ca7c9daf9a5b23094b25e55a371f1b3318546d96b0417505eea6368b0a8",
+      "asset_path": "/play-art/cfb27/assets/955c9ca7c9daf9a5b23094b25e55a371f1b3318546d96b0417505eea6368b0a8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "HB SLAM",
+      "asset_id": "90b2ce9c87101f5bc52241d0e9d9ca1357c239030a1026bdd92348f672a9ebed",
+      "asset_path": "/play-art/cfb27/assets/90b2ce9c87101f5bc52241d0e9d9ca1357c239030a1026bdd92348f672a9ebed.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "PA BOOT",
+      "asset_id": "541afed5a92a7aa9c5af006e707e304b7bb8e8d1f9ac4e518b67834286fdd2be",
+      "asset_path": "/play-art/cfb27/assets/541afed5a92a7aa9c5af006e707e304b7bb8e8d1f9ac4e518b67834286fdd2be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "ff4a89e122e4688af9cf27f2583ea020ed83343fb06b5758f8653b86db270a82",
+      "asset_path": "/play-art/cfb27/assets/ff4a89e122e4688af9cf27f2583ea020ed83343fb06b5758f8653b86db270a82.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "PA BOOT SLIDE",
+      "asset_id": "cb19377a341be05d45be203bb2e055d0a6251f867b73f99714a82215294b417a",
+      "asset_path": "/play-art/cfb27/assets/cb19377a341be05d45be203bb2e055d0a6251f867b73f99714a82215294b417a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "CRACK TOSS",
+      "asset_id": "b6bd5a3c617b01ee000221dee4d320655cecfd32da268f1ca7850ac2776107f7",
+      "asset_path": "/play-art/cfb27/assets/b6bd5a3c617b01ee000221dee4d320655cecfd32da268f1ca7850ac2776107f7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "SPACING",
+      "asset_id": "191085181a54223738ec5398589d715213268e4bbc52903400f29563a6b987a0",
+      "asset_path": "/play-art/cfb27/assets/191085181a54223738ec5398589d715213268e4bbc52903400f29563a6b987a0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "COUNTER Y",
+      "asset_id": "24ec54c6813468262d7b8988608832f2064e8c9e487786a468d8bec7faefcd0c",
+      "asset_path": "/play-art/cfb27/assets/24ec54c6813468262d7b8988608832f2064e8c9e487786a468d8bec7faefcd0c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "PA COUNTER",
+      "asset_id": "9f07c27f00e15b6d0f559f5241499f895ddada7c3eb30ae1c1780ae70b351165",
+      "asset_path": "/play-art/cfb27/assets/9f07c27f00e15b6d0f559f5241499f895ddada7c3eb30ae1c1780ae70b351165.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "VERTICALS",
+      "asset_id": "1086479af80acfbf6799792474b814dd93c08455035bba0155286db126fbdeaa",
+      "asset_path": "/play-art/cfb27/assets/1086479af80acfbf6799792474b814dd93c08455035bba0155286db126fbdeaa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "HB DIVE",
+      "asset_id": "ae61be0370232c3ae1956d42dc3ea71fa401b569a5ea6f7d95e9251a53e0eb4c",
+      "asset_path": "/play-art/cfb27/assets/ae61be0370232c3ae1956d42dc3ea71fa401b569a5ea6f7d95e9251a53e0eb4c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Bunch X Nasty",
+      "play_name": "PA CROSS",
+      "asset_id": "f9fb189be86641df8b90a4026f70e2a0d02a26cb50a1b5a5fbdc61061a930e0c",
+      "asset_path": "/play-art/cfb27/assets/f9fb189be86641df8b90a4026f70e2a0d02a26cb50a1b5a5fbdc61061a930e0c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "FLOOD",
+      "asset_id": "c62631eb17b52eaa9eda2a2b64642b76d3963e7f6cac9018a31ae1c9be810a83",
+      "asset_path": "/play-art/cfb27/assets/c62631eb17b52eaa9eda2a2b64642b76d3963e7f6cac9018a31ae1c9be810a83.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "ZONE SPLIT WK",
+      "asset_id": "7a8fe0a422e3ac3486f8684dfd3fb1dbe04a560cfa5bb75d02636ccec298f2ca",
+      "asset_path": "/play-art/cfb27/assets/7a8fe0a422e3ac3486f8684dfd3fb1dbe04a560cfa5bb75d02636ccec298f2ca.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA BOOT SLIDE",
+      "asset_id": "08aa241af6094a35f438ce0531a58789818faadb1dc82ff78e564b4954fb98ab",
+      "asset_path": "/play-art/cfb27/assets/08aa241af6094a35f438ce0531a58789818faadb1dc82ff78e564b4954fb98ab.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "STICK",
+      "asset_id": "e93d775da25df8ffab62e499c08fa7a498a821afbffd9676f22eff12160afeb2",
+      "asset_path": "/play-art/cfb27/assets/e93d775da25df8ffab62e499c08fa7a498a821afbffd9676f22eff12160afeb2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "HB ZONE WK",
+      "asset_id": "2725b602d8c1adcea171fd491f69ab9a2bbf25b8b089d6e8a26ecd29ac9b5e87",
+      "asset_path": "/play-art/cfb27/assets/2725b602d8c1adcea171fd491f69ab9a2bbf25b8b089d6e8a26ecd29ac9b5e87.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA X POST CROSS",
+      "asset_id": "698e1cf1b06c8364ae9a396c8275e24fd3d1885ceeea8004b8ba77c342baff00",
+      "asset_path": "/play-art/cfb27/assets/698e1cf1b06c8364ae9a396c8275e24fd3d1885ceeea8004b8ba77c342baff00.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "BENCH",
+      "asset_id": "12dc4fc050375f0b740c03c03c15276e3ad50ab01c76541176db8118d893a00c",
+      "asset_path": "/play-art/cfb27/assets/12dc4fc050375f0b740c03c03c15276e3ad50ab01c76541176db8118d893a00c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "HB WHAM",
+      "asset_id": "6e01e687bb9628dcb949e9fe45dd87215af79d7deb5ba4b508a7c8f9cedf5e02",
+      "asset_path": "/play-art/cfb27/assets/6e01e687bb9628dcb949e9fe45dd87215af79d7deb5ba4b508a7c8f9cedf5e02.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "CORNER STOPS",
+      "asset_id": "eeb7a1da0d161605ea28abeae40fac7271315e93387d184a60daecb26ef9cf95",
+      "asset_path": "/play-art/cfb27/assets/eeb7a1da0d161605ea28abeae40fac7271315e93387d184a60daecb26ef9cf95.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "SPACING SWITCH",
+      "asset_id": "6a05b8df39f5ccd9b6c32a5d73cd03357e02437b271e9c1dd619587b94333229",
+      "asset_path": "/play-art/cfb27/assets/6a05b8df39f5ccd9b6c32a5d73cd03357e02437b271e9c1dd619587b94333229.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "HB STRETCH",
+      "asset_id": "97de660ea457b5cffb858bb366bdcd09cf4b9de6e2a41923ef2b2251d49131a0",
+      "asset_path": "/play-art/cfb27/assets/97de660ea457b5cffb858bb366bdcd09cf4b9de6e2a41923ef2b2251d49131a0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA SLIDE Y SCREEN",
+      "asset_id": "35f831677e8766840772d05103c98476fb91e55142fdc8dd60af3a622b79d1a3",
+      "asset_path": "/play-art/cfb27/assets/35f831677e8766840772d05103c98476fb91e55142fdc8dd60af3a622b79d1a3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "JET SWEEP",
+      "asset_id": "ea748c85fc31724b98e12f44d85d5d36441b78bca75edfd55854bb1c92aaad98",
+      "asset_path": "/play-art/cfb27/assets/ea748c85fc31724b98e12f44d85d5d36441b78bca75edfd55854bb1c92aaad98.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA JET SWEEP",
+      "asset_id": "36ca389bccff388d50d39f17d33be0874e580fb0af9f6f7062ff712ede6fded1",
+      "asset_path": "/play-art/cfb27/assets/36ca389bccff388d50d39f17d33be0874e580fb0af9f6f7062ff712ede6fded1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "ZONE FAKE JET",
+      "asset_id": "6188fd5413a3d4073ecc23472b92fa5c919efb7bf005d8c78723ed1110135d93",
+      "asset_path": "/play-art/cfb27/assets/6188fd5413a3d4073ecc23472b92fa5c919efb7bf005d8c78723ed1110135d93.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA SPRINT HB FLAT",
+      "asset_id": "20799e4308b8d97f0e5a98f1d44ba80b0f4e87b7eae67a89dbf05a521e233ad6",
+      "asset_path": "/play-art/cfb27/assets/20799e4308b8d97f0e5a98f1d44ba80b0f4e87b7eae67a89dbf05a521e233ad6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "HB DIVE",
+      "asset_id": "6ec21335954ce03923e4d43371409c83f6d27a07b7f97e004c8d2176b149160f",
+      "asset_path": "/play-art/cfb27/assets/6ec21335954ce03923e4d43371409c83f6d27a07b7f97e004c8d2176b149160f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Deuce Close",
+      "play_name": "PA DEEP READ",
+      "asset_id": "9fcd527dcd55ef2b83a8c87ee860e9f09ebde943de628277814e202905be3e7e",
+      "asset_path": "/play-art/cfb27/assets/9fcd527dcd55ef2b83a8c87ee860e9f09ebde943de628277814e202905be3e7e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "ZONE FAKE JET",
+      "asset_id": "f82470114bd0ba97e8796ad276099d314bdd63b1996796ee3e95ca6f549b34f3",
+      "asset_path": "/play-art/cfb27/assets/f82470114bd0ba97e8796ad276099d314bdd63b1996796ee3e95ca6f549b34f3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "PA JET Y LEAK",
+      "asset_id": "8742bebe8f88e00a6b854a3c16d044df5faf888153611de9bae6610c571237c5",
+      "asset_path": "/play-art/cfb27/assets/8742bebe8f88e00a6b854a3c16d044df5faf888153611de9bae6610c571237c5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "JET SWEEP",
+      "asset_id": "ec3c8c1ded1781a11d0c628b48af24cfe18705efa26c780469af55035414bad8",
+      "asset_path": "/play-art/cfb27/assets/ec3c8c1ded1781a11d0c628b48af24cfe18705efa26c780469af55035414bad8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "STICK SWITCH",
+      "asset_id": "d8f9db031ea5d6face88e20cd59897e54cc9df37a8af56b6814b86b1167238cc",
+      "asset_path": "/play-art/cfb27/assets/d8f9db031ea5d6face88e20cd59897e54cc9df37a8af56b6814b86b1167238cc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "d777a2ec244fddb9fbd5a3ea27c2db86393c43f4608c52ed8928b797b9106ec6",
+      "asset_path": "/play-art/cfb27/assets/d777a2ec244fddb9fbd5a3ea27c2db86393c43f4608c52ed8928b797b9106ec6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "PA DEEP CROSS",
+      "asset_id": "c3e6772344a0fc5ddbb0f9e56a79bfd62966ff9680dc2558d4bef84bb15bed6a",
+      "asset_path": "/play-art/cfb27/assets/c3e6772344a0fc5ddbb0f9e56a79bfd62966ff9680dc2558d4bef84bb15bed6a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "BENCH SWITCH",
+      "asset_id": "4ae4b45da60fe017f4863bd6c97dac799be3a627ecce5c884ae8aea2b0891a82",
+      "asset_path": "/play-art/cfb27/assets/4ae4b45da60fe017f4863bd6c97dac799be3a627ecce5c884ae8aea2b0891a82.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "HB DIVE",
+      "asset_id": "dd8522c546076dea89313fb17428202f5124d29901f6e0c09a037defb0f011fa",
+      "asset_path": "/play-art/cfb27/assets/dd8522c546076dea89313fb17428202f5124d29901f6e0c09a037defb0f011fa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off",
+      "play_name": "PA PUMP GO",
+      "asset_id": "a9dcd6ebaae2e0307e8f59f46196ef049dbcdcfa19c38ee8b6c0e60afc4f50f4",
+      "asset_path": "/play-art/cfb27/assets/a9dcd6ebaae2e0307e8f59f46196ef049dbcdcfa19c38ee8b6c0e60afc4f50f4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "JET SWEEP",
+      "asset_id": "b21897def9c58a7478adc81a4b6ca8f9bd6795a52698920ba4c8dc5106efd7e6",
+      "asset_path": "/play-art/cfb27/assets/b21897def9c58a7478adc81a4b6ca8f9bd6795a52698920ba4c8dc5106efd7e6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "PA JET SWEEP",
+      "asset_id": "d6649b6f675de3884af8e8a134cea1e20ffd6930d2f2036e9cb8f92bcfa6efde",
+      "asset_path": "/play-art/cfb27/assets/d6649b6f675de3884af8e8a134cea1e20ffd6930d2f2036e9cb8f92bcfa6efde.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "ZONE FAKE JET",
+      "asset_id": "870e6aaa8f96c7fb19944700104e87c68ffa81610330139f295c6a9c4cdca8be",
+      "asset_path": "/play-art/cfb27/assets/870e6aaa8f96c7fb19944700104e87c68ffa81610330139f295c6a9c4cdca8be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "STICK SPACING",
+      "asset_id": "e0197b40b4f08b653ca02fd2af02e80d8cb39b10bf714e7e198ec4467404f4b2",
+      "asset_path": "/play-art/cfb27/assets/e0197b40b4f08b653ca02fd2af02e80d8cb39b10bf714e7e198ec4467404f4b2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "208072b247c40c3d326904430257bd44216dda61eb7d85bf4c60c88e16f10eea",
+      "asset_path": "/play-art/cfb27/assets/208072b247c40c3d326904430257bd44216dda61eb7d85bf4c60c88e16f10eea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "PA DEEP OUT",
+      "asset_id": "afd1a783a369ec7b2fdae6e343597c5ea7d602823eaf0002d3276b2fe226f86a",
+      "asset_path": "/play-art/cfb27/assets/afd1a783a369ec7b2fdae6e343597c5ea7d602823eaf0002d3276b2fe226f86a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "HB ZONE WK",
+      "asset_id": "b34ff03cdeed32935ceb4bd94b7068c713dfdc824b2341339a4cecb1f234d0fd",
+      "asset_path": "/play-art/cfb27/assets/b34ff03cdeed32935ceb4bd94b7068c713dfdc824b2341339a4cecb1f234d0fd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "SHALLOW CROSS",
+      "asset_id": "9fc1116bb59065ea3372f896cf342abdada722592b1f27ae3e25b985bfbf3505",
+      "asset_path": "/play-art/cfb27/assets/9fc1116bb59065ea3372f896cf342abdada722592b1f27ae3e25b985bfbf3505.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "WIDE ZONE",
+      "asset_id": "230885fe29d59fe5d9793036bcc809f9af790451a35980ff1a0b634e28366cf1",
+      "asset_path": "/play-art/cfb27/assets/230885fe29d59fe5d9793036bcc809f9af790451a35980ff1a0b634e28366cf1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "COUNTER Y",
+      "asset_id": "e5b93d2e54fbe701a0405d87ff561b20cec1e23379f23c8b613632ff400b9d78",
+      "asset_path": "/play-art/cfb27/assets/e5b93d2e54fbe701a0405d87ff561b20cec1e23379f23c8b613632ff400b9d78.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "UNDER Z CURL",
+      "asset_id": "4acd63a680699a920818a950f4c67c5c79a1ab2414b498420efd463e9a6bc7ed",
+      "asset_path": "/play-art/cfb27/assets/4acd63a680699a920818a950f4c67c5c79a1ab2414b498420efd463e9a6bc7ed.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Tight Y Off Flex",
+      "play_name": "01 TRAP",
+      "asset_id": "b56bd50a543573bbcdc043e83f9c0c1c974cf9c6a87fc9c1976ae8f2ac306589",
+      "asset_path": "/play-art/cfb27/assets/b56bd50a543573bbcdc043e83f9c0c1c974cf9c6a87fc9c1976ae8f2ac306589.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "f5cb01a28d2eeef3c9c9767581902ff02808d9eb10974362847c016447367bb7",
+      "asset_path": "/play-art/cfb27/assets/f5cb01a28d2eeef3c9c9767581902ff02808d9eb10974362847c016447367bb7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA DAGGER U CROSS",
+      "asset_id": "96050dcde0bd202473f4c5580ec94c4c0277c1924e0eba8a019027d68d5e3aea",
+      "asset_path": "/play-art/cfb27/assets/96050dcde0bd202473f4c5580ec94c4c0277c1924e0eba8a019027d68d5e3aea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB MISDIRECTION",
+      "asset_id": "1607aaf5c43def6c884ae65cc277041fbe410b9bd8de44c6e2bdaf44d4a1a1fe",
+      "asset_path": "/play-art/cfb27/assets/1607aaf5c43def6c884ae65cc277041fbe410b9bd8de44c6e2bdaf44d4a1a1fe.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "SLANTS",
+      "asset_id": "87fd9b7720743f7de540d4e897b263b28d4095460f9788eefc3aa183b420fe04",
+      "asset_path": "/play-art/cfb27/assets/87fd9b7720743f7de540d4e897b263b28d4095460f9788eefc3aa183b420fe04.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "525221950ff55aadc0bf839cddba0e555b9b6b796537c0a6224c2269673cdff2",
+      "asset_path": "/play-art/cfb27/assets/525221950ff55aadc0bf839cddba0e555b9b6b796537c0a6224c2269673cdff2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA BOOT SLIDE",
+      "asset_id": "3ad5f834253872d4b0aa6d56ed8e2f094f66844bddaa6ed6e42935cb2c54ca77",
+      "asset_path": "/play-art/cfb27/assets/3ad5f834253872d4b0aa6d56ed8e2f094f66844bddaa6ed6e42935cb2c54ca77.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB SLAM",
+      "asset_id": "2d7f5e1a39008a63ed973eb063d9cc4f6b90a04d275600babfd6b586ea588c61",
+      "asset_path": "/play-art/cfb27/assets/2d7f5e1a39008a63ed973eb063d9cc4f6b90a04d275600babfd6b586ea588c61.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "PA FLOOD",
+      "asset_id": "c2f7ea5f4ab93988c53fd80d670d753651dd15c541746a195fe0fe1eb5353531",
+      "asset_path": "/play-art/cfb27/assets/c2f7ea5f4ab93988c53fd80d670d753651dd15c541746a195fe0fe1eb5353531.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback U Off Trips",
+      "play_name": "HB COUNTER STR",
+      "asset_id": "e1721bce66f0fe0dfdb461a700230af87af4cbb22dec99895bd4a86e7c7f582c",
+      "asset_path": "/play-art/cfb27/assets/e1721bce66f0fe0dfdb461a700230af87af4cbb22dec99895bd4a86e7c7f582c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "MTN OUT N UP",
+      "asset_id": "1a68e6cdf41d42d6f020388828092f3c7783a3a565959fda36ba2e081b67202b",
+      "asset_path": "/play-art/cfb27/assets/1a68e6cdf41d42d6f020388828092f3c7783a3a565959fda36ba2e081b67202b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "MTN ZONE ALERT",
+      "asset_id": "a40556711b2400ad80a28da1d3c50935b1231e7d269ca08511cb0a2429f50fed",
+      "asset_path": "/play-art/cfb27/assets/a40556711b2400ad80a28da1d3c50935b1231e7d269ca08511cb0a2429f50fed.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "MTN PA Z SLIDE",
+      "asset_id": "c940a3ac43b093495708db6222e4aa3d43cf7cab3f0006d54e4790adf634278d",
+      "asset_path": "/play-art/cfb27/assets/c940a3ac43b093495708db6222e4aa3d43cf7cab3f0006d54e4790adf634278d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "WIDE ZONE",
+      "asset_id": "3dae3d4ddaf1722af966b71a1e544fedd960dfd7c82be683d82a8755de8261a3",
+      "asset_path": "/play-art/cfb27/assets/3dae3d4ddaf1722af966b71a1e544fedd960dfd7c82be683d82a8755de8261a3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "DBL OUTS",
+      "asset_id": "1a62a84ec4e58ed147a08e2edd75a513acb054e33793476dc5d5e005222c37a9",
+      "asset_path": "/play-art/cfb27/assets/1a62a84ec4e58ed147a08e2edd75a513acb054e33793476dc5d5e005222c37a9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "DUO",
+      "asset_id": "cadd49a5dde8044fa1b8117cd37860fe93318e50025a5c5e47b620fefc2406cf",
+      "asset_path": "/play-art/cfb27/assets/cadd49a5dde8044fa1b8117cd37860fe93318e50025a5c5e47b620fefc2406cf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "PA TE FLOOD",
+      "asset_id": "9188ce3e4c680f9ac7f6e97f15b7d701299d553ddfe1542f988cb55cd5cdeb8f",
+      "asset_path": "/play-art/cfb27/assets/9188ce3e4c680f9ac7f6e97f15b7d701299d553ddfe1542f988cb55cd5cdeb8f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "HB DIVE",
+      "asset_id": "5fc6e8f55185d9805373c4e6d63f0169c0aa957fdea91a51a9c15cd96590a64c",
+      "asset_path": "/play-art/cfb27/assets/5fc6e8f55185d9805373c4e6d63f0169c0aa957fdea91a51a9c15cd96590a64c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "PA CROSS",
+      "asset_id": "b259027c1399188282fc82c5ebfc1772eca4e46bc6f024629852a6011468001c",
+      "asset_path": "/play-art/cfb27/assets/b259027c1399188282fc82c5ebfc1772eca4e46bc6f024629852a6011468001c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "HB ZONE WK",
+      "asset_id": "54abcd6a59208daf56f5af863a6964792a347975defc47faf749f9e47b850465",
+      "asset_path": "/play-art/cfb27/assets/54abcd6a59208daf56f5af863a6964792a347975defc47faf749f9e47b850465.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "PA Y-DRAG WHEEL",
+      "asset_id": "8b52d7ee1c33cba7f8fa1ed8d0ec8b91b2cb6053da63f02b79efaf36e6ddfe9d",
+      "asset_path": "/play-art/cfb27/assets/8b52d7ee1c33cba7f8fa1ed8d0ec8b91b2cb6053da63f02b79efaf36e6ddfe9d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Singleback Wing Close",
+      "play_name": "HB ZONE TOSS",
+      "asset_id": "0a0e316faca719fbc768eba44df3e54d0e67828b6a6f61b02555cfaff20ae6bf",
+      "asset_path": "/play-art/cfb27/assets/0a0e316faca719fbc768eba44df3e54d0e67828b6a6f61b02555cfaff20ae6bf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "INSIDE ZONE SPLIT",
+      "asset_id": "6bef02db385a3ef8fe6aec875319c30a618a4e7342091395190f0ba0b8bc7f5e",
+      "asset_path": "/play-art/cfb27/assets/6bef02db385a3ef8fe6aec875319c30a618a4e7342091395190f0ba0b8bc7f5e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "PA BOOT Y LEAK",
+      "asset_id": "d8dfd5a66ac59ad6c8b6976f531804a5241ae8c0614705fc3f0662f0d508348c",
+      "asset_path": "/play-art/cfb27/assets/d8dfd5a66ac59ad6c8b6976f531804a5241ae8c0614705fc3f0662f0d508348c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "HB STRETCH",
+      "asset_id": "9654df28dd54598626e5aed3df345d78d58e5c969426fbf3ee4ffd93b421a0c6",
+      "asset_path": "/play-art/cfb27/assets/9654df28dd54598626e5aed3df345d78d58e5c969426fbf3ee4ffd93b421a0c6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "HB DIVE",
+      "asset_id": "9a7f06a312107b1656eee18eb2038a207a5edee77d81d13b4ba6c3c6327f38d2",
+      "asset_path": "/play-art/cfb27/assets/9a7f06a312107b1656eee18eb2038a207a5edee77d81d13b4ba6c3c6327f38d2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "BENCH",
+      "asset_id": "b2c43f68fe2619318d0dd12f3b25cc4adf9eda14af414b6f3204f0633f91f3dd",
+      "asset_path": "/play-art/cfb27/assets/b2c43f68fe2619318d0dd12f3b25cc4adf9eda14af414b6f3204f0633f91f3dd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "COUNTER Y",
+      "asset_id": "c3ff38056a43de04b18bbbee5de1bd978a4f06ea4274f69216cec03d9287273b",
+      "asset_path": "/play-art/cfb27/assets/c3ff38056a43de04b18bbbee5de1bd978a4f06ea4274f69216cec03d9287273b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "MESH SPOT",
+      "asset_id": "7d3d74a5e41253523540b94490360d803ba47f7ffdd1d8968380900e11f170ac",
+      "asset_path": "/play-art/cfb27/assets/7d3d74a5e41253523540b94490360d803ba47f7ffdd1d8968380900e11f170ac.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_id": "7d13cd33221010a3420ec60f18093fb15f748ef21a0e0f870c40cdf5902e4060",
+      "asset_path": "/play-art/cfb27/assets/7d13cd33221010a3420ec60f18093fb15f748ef21a0e0f870c40cdf5902e4060.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Pistol Deuce Close",
+      "play_name": "PA Z OVER",
+      "asset_id": "385ec8b5d68122ad26d2947243de450c1bb0bf70c24efa5412a9c9aa6223fe8b",
+      "asset_path": "/play-art/cfb27/assets/385ec8b5d68122ad26d2947243de450c1bb0bf70c24efa5412a9c9aa6223fe8b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "MILLS DOUBLE OUT",
+      "asset_id": "a99c0353eb657c65e061770a5c26fdbfb9a11cf294db7b8fd2e7f26dd5f9ba46",
+      "asset_path": "/play-art/cfb27/assets/a99c0353eb657c65e061770a5c26fdbfb9a11cf294db7b8fd2e7f26dd5f9ba46.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "SALEM SMASH UNDER",
+      "asset_id": "e5b80fdd3857b2f69b87547e8065ba11c3f8e6946ff2c0b0cc4a1f63e2eab759",
+      "asset_path": "/play-art/cfb27/assets/e5b80fdd3857b2f69b87547e8065ba11c3f8e6946ff2c0b0cc4a1f63e2eab759.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "SLOT DIG WIDE CORNER",
+      "asset_id": "f3834e82979637df59c0eb99ee7e68072c1ec7a26be133480e127adc3a3be2c2",
+      "asset_path": "/play-art/cfb27/assets/f3834e82979637df59c0eb99ee7e68072c1ec7a26be133480e127adc3a3be2c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "QB DRAW",
+      "asset_id": "0ead4b5dc32f344a0e1f0613daeec987f1eac71782b21325c47eae3c1ae9034f",
+      "asset_path": "/play-art/cfb27/assets/0ead4b5dc32f344a0e1f0613daeec987f1eac71782b21325c47eae3c1ae9034f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "SMASH DAGGER",
+      "asset_id": "3ecd39576dc2133568942aa8813cb28286158f10c97735c9c338b6fc9bc1f324",
+      "asset_path": "/play-art/cfb27/assets/3ecd39576dc2133568942aa8813cb28286158f10c97735c9c338b6fc9bc1f324.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "CLUSTER BUNCH",
+      "asset_id": "c20f949ecf39bdc69f444fc29ea5ab1dd067a837f0ca51d166f0d7a8271b5051",
+      "asset_path": "/play-art/cfb27/assets/c20f949ecf39bdc69f444fc29ea5ab1dd067a837f0ca51d166f0d7a8271b5051.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "MESH",
+      "asset_id": "054a8509c6c87d81436c704720bcf9836eed9041a5a057f5d28d13f2d23e8090",
+      "asset_path": "/play-art/cfb27/assets/054a8509c6c87d81436c704720bcf9836eed9041a5a057f5d28d13f2d23e8090.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "MESH POST",
+      "asset_id": "d6c84aa8334be40ece4c39db88161e280b153668b145335ba88d6accc9df572d",
+      "asset_path": "/play-art/cfb27/assets/d6c84aa8334be40ece4c39db88161e280b153668b145335ba88d6accc9df572d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "SPACING",
+      "asset_id": "0589cf647a4fefb610cdaab4c2be9ae4e51ba42e7646ce29691d7d49eb670a39",
+      "asset_path": "/play-art/cfb27/assets/0589cf647a4fefb610cdaab4c2be9ae4e51ba42e7646ce29691d7d49eb670a39.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "CLEAR DEEP",
+      "asset_id": "4ffb72ec3fcff43ca52769b6cd4f13840453812e65076868bb866325f8bcef2b",
+      "asset_path": "/play-art/cfb27/assets/4ffb72ec3fcff43ca52769b6cd4f13840453812e65076868bb866325f8bcef2b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "Z SPOT",
+      "asset_id": "aed54d72f77e1890074d5c916150f81d6cbbcb15858f9f4176982daec75abd21",
+      "asset_path": "/play-art/cfb27/assets/aed54d72f77e1890074d5c916150f81d6cbbcb15858f9f4176982daec75abd21.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun 5WR Tight",
+      "play_name": "Z SPOT SHAKE",
+      "asset_id": "a4901921d89c099b58ed5dcc41e2d5b0fe9c2f867839ed31c8fec5b8b990a981",
+      "asset_path": "/play-art/cfb27/assets/a4901921d89c099b58ed5dcc41e2d5b0fe9c2f867839ed31c8fec5b8b990a981.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN HB SEAM",
+      "asset_id": "bc1ceba0da18dbfa0290c3bc80753c2a469fdf4040e8ed0e2d2a8eb2069fa7fb",
+      "asset_path": "/play-art/cfb27/assets/bc1ceba0da18dbfa0290c3bc80753c2a469fdf4040e8ed0e2d2a8eb2069fa7fb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN DOUBLE PASS",
+      "asset_id": "094b1457f8359f4017a0637cadf5203baabf19dfd88d463a0230be84ddb7f829",
+      "asset_path": "/play-art/cfb27/assets/094b1457f8359f4017a0637cadf5203baabf19dfd88d463a0230be84ddb7f829.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN HB ANGLE",
+      "asset_id": "4dcbd44c3fe8cb2f4daf2b7ec792fc696a3b8efd98f6b3a33fd4574fd452bb6e",
+      "asset_path": "/play-art/cfb27/assets/4dcbd44c3fe8cb2f4daf2b7ec792fc696a3b8efd98f6b3a33fd4574fd452bb6e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN MESH TRAIL",
+      "asset_id": "1a82636685ebe6c5b7c8ad4c520ba26b4b8247a0d456dbea6ae8b4a804547146",
+      "asset_path": "/play-art/cfb27/assets/1a82636685ebe6c5b7c8ad4c520ba26b4b8247a0d456dbea6ae8b4a804547146.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN SMASH ANGLE",
+      "asset_id": "3c4c69e45f3b2bfd47c20bbc7aa5d25dde3ea9be1aa98d15f36442b1a9be940a",
+      "asset_path": "/play-art/cfb27/assets/3c4c69e45f3b2bfd47c20bbc7aa5d25dde3ea9be1aa98d15f36442b1a9be940a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MTN HB SLIP SCREEN",
+      "asset_id": "cc7368ca8845d87d104bde1e8d825a9b17f8920e5b06d95bf72bc8fd9879d351",
+      "asset_path": "/play-art/cfb27/assets/cc7368ca8845d87d104bde1e8d825a9b17f8920e5b06d95bf72bc8fd9879d351.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "MESH FLAT SPOT",
+      "asset_id": "1d4b67f84397e5fe7015e3928c73b63cad317bf03a9b1628689bf0078c52805c",
+      "asset_path": "/play-art/cfb27/assets/1d4b67f84397e5fe7015e3928c73b63cad317bf03a9b1628689bf0078c52805c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "4cd4f3ef1fcc7f8e08bbba9c69773d9862cd04f139bca9d0845613a0467a76e0",
+      "asset_path": "/play-art/cfb27/assets/4cd4f3ef1fcc7f8e08bbba9c69773d9862cd04f139bca9d0845613a0467a76e0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "PA BUNCH SHOT",
+      "asset_id": "69d7a4ab57ac9a2077d96949f52ae273a1c257eab1034affa2f0733cbbdfd664",
+      "asset_path": "/play-art/cfb27/assets/69d7a4ab57ac9a2077d96949f52ae273a1c257eab1034affa2f0733cbbdfd664.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "Y TRAIL",
+      "asset_id": "ecfdd2d0ba7046be6f46c5d8811237ce96505f85af140d95fd5abfe88f34042a",
+      "asset_path": "/play-art/cfb27/assets/ecfdd2d0ba7046be6f46c5d8811237ce96505f85af140d95fd5abfe88f34042a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "CRACK TOSS",
+      "asset_id": "9a06140ba214f8bc39eaef0f931ca2ccf5ae1bd2fdeca4e9154693b2b04fe906",
+      "asset_path": "/play-art/cfb27/assets/9a06140ba214f8bc39eaef0f931ca2ccf5ae1bd2fdeca4e9154693b2b04fe906.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "DAGGER",
+      "asset_id": "03dfb59c95736f43a9aa4249b44e39eeac002ee701c3b8bbaff9fa098859d8e2",
+      "asset_path": "/play-art/cfb27/assets/03dfb59c95736f43a9aa4249b44e39eeac002ee701c3b8bbaff9fa098859d8e2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "RPO READ BUBBLE",
+      "asset_id": "92af2377aaf4e7078966fc6bfbf939a67faa0a5f21c7d8563907126967a1057f",
+      "asset_path": "/play-art/cfb27/assets/92af2377aaf4e7078966fc6bfbf939a67faa0a5f21c7d8563907126967a1057f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "FLANKER DRIVE",
+      "asset_id": "ef65a8fbb057ce86d480dae219bd25ee11fc23feaaa67fbfe419e2276b214bc9",
+      "asset_path": "/play-art/cfb27/assets/ef65a8fbb057ce86d480dae219bd25ee11fc23feaaa67fbfe419e2276b214bc9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "RPO ZONE PEEK",
+      "asset_id": "8b1f4bf6c052cdbdae99d60f981d0caa3dd9b9a3dd88ec4e71041de362f4021f",
+      "asset_path": "/play-art/cfb27/assets/8b1f4bf6c052cdbdae99d60f981d0caa3dd9b9a3dd88ec4e71041de362f4021f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "Z SPOT QUICK",
+      "asset_id": "d762d6473636d263099f9d90c238e33f2bf962afe949e4a2633d47e51a91f897",
+      "asset_path": "/play-art/cfb27/assets/d762d6473636d263099f9d90c238e33f2bf962afe949e4a2633d47e51a91f897.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "Z MESH QUICK",
+      "asset_id": "156a777c7f73f8b86885b1aef946cb734b7dffeb346a51fa64c18233d1099618",
+      "asset_path": "/play-art/cfb27/assets/156a777c7f73f8b86885b1aef946cb734b7dffeb346a51fa64c18233d1099618.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Str Nasty",
+      "play_name": "Y FLAT QUICK",
+      "asset_id": "9e20809ccb07757033d7b4b64ba93e2b885b35d0e855e507a613cc9bed99d0db",
+      "asset_path": "/play-art/cfb27/assets/9e20809ccb07757033d7b4b64ba93e2b885b35d0e855e507a613cc9bed99d0db.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "MTN SLOT FLOOD",
+      "asset_id": "78a2691f7ae18599ff20622315c64f64078545f0bf2644929558360add865149",
+      "asset_path": "/play-art/cfb27/assets/78a2691f7ae18599ff20622315c64f64078545f0bf2644929558360add865149.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "MTN DIVIDE",
+      "asset_id": "256e3982fcbc56ad9f7cb65de9742c33ab7d13c314e6632366028e7c4f696e0a",
+      "asset_path": "/play-art/cfb27/assets/256e3982fcbc56ad9f7cb65de9742c33ab7d13c314e6632366028e7c4f696e0a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "MTN SNAG UNDER",
+      "asset_id": "4917bee95d8e7027eec826ee3da32702999654b70f4f1f75c2a1aa91826ec456",
+      "asset_path": "/play-art/cfb27/assets/4917bee95d8e7027eec826ee3da32702999654b70f4f1f75c2a1aa91826ec456.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "6c612c5964ded18c9611a762f54a7058aaaf6e31a0b8bad511db229c22569357",
+      "asset_path": "/play-art/cfb27/assets/6c612c5964ded18c9611a762f54a7058aaaf6e31a0b8bad511db229c22569357.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "PA BOOT OVER",
+      "asset_id": "d2919b12c69c99efea66dd9c8a1aa8a015183912a105d0bd80c8f69128cde5f7",
+      "asset_path": "/play-art/cfb27/assets/d2919b12c69c99efea66dd9c8a1aa8a015183912a105d0bd80c8f69128cde5f7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "READ OPTION",
+      "asset_id": "db1941ef223f73352903d9309533279e1039c1314df0847886f0b6597ebdcd34",
+      "asset_path": "/play-art/cfb27/assets/db1941ef223f73352903d9309533279e1039c1314df0847886f0b6597ebdcd34.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "CHEAT H OUT",
+      "asset_id": "2afcc4e541f88b793daaee43f29a72bb37a84a1ce50e4a7c60a8a07e15d0cf29",
+      "asset_path": "/play-art/cfb27/assets/2afcc4e541f88b793daaee43f29a72bb37a84a1ce50e4a7c60a8a07e15d0cf29.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "CHEAT TE HITCH HB SEAM",
+      "asset_id": "19ac46ac5a82ce7e4e1e155ce4065b0457176be8a9ef0b79cec56c4c4b610576",
+      "asset_path": "/play-art/cfb27/assets/19ac46ac5a82ce7e4e1e155ce4065b0457176be8a9ef0b79cec56c4c4b610576.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "CHEAT TE HITCH N GO",
+      "asset_id": "7ea878d841a8c6e2d96481b374364a4774ac26d73a9e83c54a79f69fa42d8a4f",
+      "asset_path": "/play-art/cfb27/assets/7ea878d841a8c6e2d96481b374364a4774ac26d73a9e83c54a79f69fa42d8a4f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "DEEP SMASH",
+      "asset_id": "d2c44b3ee1894ce165803ad8078b24f8abf42d8b28f8745a2317c3ce2513e949",
+      "asset_path": "/play-art/cfb27/assets/d2c44b3ee1894ce165803ad8078b24f8abf42d8b28f8745a2317c3ce2513e949.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "HB OFF TACKLE",
+      "asset_id": "11ba1ce89249cefca72a3b38e34b6f4db706ff13b561624a1284499a5d3eb796",
+      "asset_path": "/play-art/cfb27/assets/11ba1ce89249cefca72a3b38e34b6f4db706ff13b561624a1284499a5d3eb796.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "2c21c051f9f008d41f680db30ce51bd6eb63d0f3be1013aa212bbab8a03f6bfe",
+      "asset_path": "/play-art/cfb27/assets/2c21c051f9f008d41f680db30ce51bd6eb63d0f3be1013aa212bbab8a03f6bfe.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "INSIDE CROSS",
+      "asset_id": "dce86c6bea112e52f90d5cb09ded1d87cf663948afa52d3d4d1c553dc3572b82",
+      "asset_path": "/play-art/cfb27/assets/dce86c6bea112e52f90d5cb09ded1d87cf663948afa52d3d4d1c553dc3572b82.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "MESH",
+      "asset_id": "a848b8e4c72feec3ecc9de7460fd1e6b5639c90a32d1e815cc0266ed0611e778",
+      "asset_path": "/play-art/cfb27/assets/a848b8e4c72feec3ecc9de7460fd1e6b5639c90a32d1e815cc0266ed0611e778.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch TE",
+      "play_name": "WHIPS",
+      "asset_id": "a61d9a1034978a6dd4370eb65940f79b3621d4dd8a446cdba0ef4dc90999a1eb",
+      "asset_path": "/play-art/cfb27/assets/a61d9a1034978a6dd4370eb65940f79b3621d4dd8a446cdba0ef4dc90999a1eb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "MTN DAGGER SIT",
+      "asset_id": "a0aac46fcb51321900eb2797498733d08ebe8289949eb99169899c8383fb2abf",
+      "asset_path": "/play-art/cfb27/assets/a0aac46fcb51321900eb2797498733d08ebe8289949eb99169899c8383fb2abf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "MTN DRIVE ZIG",
+      "asset_id": "266a32f50ad6485740278e8b88cc780102caf0085130fd84efc3fb9733fe2af8",
+      "asset_path": "/play-art/cfb27/assets/266a32f50ad6485740278e8b88cc780102caf0085130fd84efc3fb9733fe2af8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "MTN INSIDE POST",
+      "asset_id": "4cc2ca9e779fa70c0f4c0d2e14bb94feb1f10c03fe28de631d1f0f6e75f59f6c",
+      "asset_path": "/play-art/cfb27/assets/4cc2ca9e779fa70c0f4c0d2e14bb94feb1f10c03fe28de631d1f0f6e75f59f6c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "Z SPOT",
+      "asset_id": "544f4438d5e2cf8fade41fe4151380680de84883b4bc930a67c806b50283fb2c",
+      "asset_path": "/play-art/cfb27/assets/544f4438d5e2cf8fade41fe4151380680de84883b4bc930a67c806b50283fb2c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "4a7710b42ca3b7ea3c04a17f8953a2086f50f7207a1f5b2c2ae37d87da8f73cd",
+      "asset_path": "/play-art/cfb27/assets/4a7710b42ca3b7ea3c04a17f8953a2086f50f7207a1f5b2c2ae37d87da8f73cd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "SWIRL HOOK N GO",
+      "asset_id": "c37f2c09fc5cd81875489cec41a2d25cab7972feb918969a2f663c82ed4480c9",
+      "asset_path": "/play-art/cfb27/assets/c37f2c09fc5cd81875489cec41a2d25cab7972feb918969a2f663c82ed4480c9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "BENCH PIVOT",
+      "asset_id": "0c362423ef985119850fab31288d66dd313cf4f9b0b946255378e9ddc312c7ed",
+      "asset_path": "/play-art/cfb27/assets/0c362423ef985119850fab31288d66dd313cf4f9b0b946255378e9ddc312c7ed.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "HB POWER",
+      "asset_id": "019fd0f10aa6ef58527bf435cf997acee386516f7e7909301acdc39a64cbdf7e",
+      "asset_path": "/play-art/cfb27/assets/019fd0f10aa6ef58527bf435cf997acee386516f7e7909301acdc39a64cbdf7e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "PA POST Y-CORNER",
+      "asset_id": "51c873dad327a7aea86e9acda3d54b28245b9e288b9647aeef3551b224757dd6",
+      "asset_path": "/play-art/cfb27/assets/51c873dad327a7aea86e9acda3d54b28245b9e288b9647aeef3551b224757dd6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "SPEED DIG",
+      "asset_id": "6f982035610e4f94afe9353c152470aad76655aec2884ef99f55b7386140f575",
+      "asset_path": "/play-art/cfb27/assets/6f982035610e4f94afe9353c152470aad76655aec2884ef99f55b7386140f575.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "SMASH RETURN",
+      "asset_id": "b20630b39730fe3c412f7240659b43bd83c094c67a484e9b1694a9da7b7a671b",
+      "asset_path": "/play-art/cfb27/assets/b20630b39730fe3c412f7240659b43bd83c094c67a484e9b1694a9da7b7a671b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "SPACING SWITCH",
+      "asset_id": "424f4a1e1f5947c528f44961825e972c454fa9fe08f431fe5851b55795ef068c",
+      "asset_path": "/play-art/cfb27/assets/424f4a1e1f5947c528f44961825e972c454fa9fe08f431fe5851b55795ef068c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "VERTICALS",
+      "asset_id": "d68523cae77cd2165c7ad56383a29e57465ba3fbff8680c877e803a8d27b453d",
+      "asset_path": "/play-art/cfb27/assets/d68523cae77cd2165c7ad56383a29e57465ba3fbff8680c877e803a8d27b453d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "FLOOD",
+      "asset_id": "a70e0dda034b32956d8181ed91fa3177b5b8c5f6e47ec72c8e9f06e184a6e7e3",
+      "asset_path": "/play-art/cfb27/assets/a70e0dda034b32956d8181ed91fa3177b5b8c5f6e47ec72c8e9f06e184a6e7e3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "7d0c380f5ea99118a9f2c991d7f305397a9077d2cab8d12a65d746998b0b2103",
+      "asset_path": "/play-art/cfb27/assets/7d0c380f5ea99118a9f2c991d7f305397a9077d2cab8d12a65d746998b0b2103.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "CHOICE SHALLOW DIG",
+      "asset_id": "c4238a8c1c44b28c128a3c2425dbb45416808dd1e3ebac4bc61238a5e22b9314",
+      "asset_path": "/play-art/cfb27/assets/c4238a8c1c44b28c128a3c2425dbb45416808dd1e3ebac4bc61238a5e22b9314.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "DEEP CORNER SHOT",
+      "asset_id": "23444601f37ccff7243983ac43cbfdc0425664af4bbcb4b418bed93b9362d07b",
+      "asset_path": "/play-art/cfb27/assets/23444601f37ccff7243983ac43cbfdc0425664af4bbcb4b418bed93b9362d07b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Bunch Y-Flex",
+      "play_name": "JET PULL SHALLOW",
+      "asset_id": "bf897e7b97f1fc0d5ef60b6017c2efdbb94ef418fa08c540b08adec2758b40d2",
+      "asset_path": "/play-art/cfb27/assets/bf897e7b97f1fc0d5ef60b6017c2efdbb94ef418fa08c540b08adec2758b40d2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN MESH REWIND",
+      "asset_id": "0d9bda427f6ff7c5d0f6f67037476cd34524b94b8fbf14585446d4c3de0b701c",
+      "asset_path": "/play-art/cfb27/assets/0d9bda427f6ff7c5d0f6f67037476cd34524b94b8fbf14585446d4c3de0b701c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN MESH POST",
+      "asset_id": "f22284d6b0d0095c85e844e3452db8c7d564a4707b53dae3ab0152912645e256",
+      "asset_path": "/play-art/cfb27/assets/f22284d6b0d0095c85e844e3452db8c7d564a4707b53dae3ab0152912645e256.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN MESH",
+      "asset_id": "839bccda1574d7fd0921d5b637c54f112823fff3269e3e1ba8c3a0ccb0b979d2",
+      "asset_path": "/play-art/cfb27/assets/839bccda1574d7fd0921d5b637c54f112823fff3269e3e1ba8c3a0ccb0b979d2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN CROSS SWITCH",
+      "asset_id": "0698cbbae338ac8e60c63332ea996bdc31d8dd5930ba8a43a04eae3348e30cde",
+      "asset_path": "/play-art/cfb27/assets/0698cbbae338ac8e60c63332ea996bdc31d8dd5930ba8a43a04eae3348e30cde.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN HB DRAW",
+      "asset_id": "d3c0872eaf3855bfb146f4679fd7ac65b114b25e37b82b3aecab81e51665a66e",
+      "asset_path": "/play-art/cfb27/assets/d3c0872eaf3855bfb146f4679fd7ac65b114b25e37b82b3aecab81e51665a66e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MTN SLOT SCREEN",
+      "asset_id": "45e7a21a4223ddb5a4a2a2de18674182e15dc19f0c4029c1f8856ac2f57dce7c",
+      "asset_path": "/play-art/cfb27/assets/45e7a21a4223ddb5a4a2a2de18674182e15dc19f0c4029c1f8856ac2f57dce7c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "19597469c4e83d9eb3df8f2d37854f124f753027250763466d00e18325293598",
+      "asset_path": "/play-art/cfb27/assets/19597469c4e83d9eb3df8f2d37854f124f753027250763466d00e18325293598.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "READ OPTION",
+      "asset_id": "7274e77f0ade8f4a7dc35f6889cb10a1cdf5c2fcc76ef713ed98a064c1525557",
+      "asset_path": "/play-art/cfb27/assets/7274e77f0ade8f4a7dc35f6889cb10a1cdf5c2fcc76ef713ed98a064c1525557.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "PA READ",
+      "asset_id": "d977d5bae488a73d046d042c6247803408ca6e50601afd774e4d3e021ee9a99c",
+      "asset_path": "/play-art/cfb27/assets/d977d5bae488a73d046d042c6247803408ca6e50601afd774e4d3e021ee9a99c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "FLANKER DRIVE",
+      "asset_id": "127472a0633c6d5b9bb5aca759662b04716d834792f27973b324d20a4b688e01",
+      "asset_path": "/play-art/cfb27/assets/127472a0633c6d5b9bb5aca759662b04716d834792f27973b324d20a4b688e01.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "45 QUICK BASE",
+      "asset_id": "00194c47df215e5806195ca8cb6bcded077369ce64ab63ac2f28700b49555593",
+      "asset_path": "/play-art/cfb27/assets/00194c47df215e5806195ca8cb6bcded077369ce64ab63ac2f28700b49555593.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "MESH SPOT",
+      "asset_id": "4b01c34264148c81a54b0fe1f812399505f5115f83f302b3d3fc70c6f4b22c42",
+      "asset_path": "/play-art/cfb27/assets/4b01c34264148c81a54b0fe1f812399505f5115f83f302b3d3fc70c6f4b22c42.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "POST CURLS",
+      "asset_id": "39ea9d8a3e943aefd0b4d36e40d79e3a32f824457f2ea26707ea40519cd0476e",
+      "asset_path": "/play-art/cfb27/assets/39ea9d8a3e943aefd0b4d36e40d79e3a32f824457f2ea26707ea40519cd0476e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "POST DIG",
+      "asset_id": "4a587e3d9dd1232e1d714ffa765a8ef5a57d571f96e97bbce806b97a03153477",
+      "asset_path": "/play-art/cfb27/assets/4a587e3d9dd1232e1d714ffa765a8ef5a57d571f96e97bbce806b97a03153477.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "SPACING",
+      "asset_id": "73db204165f5b8ebc478fd4986083727720bdeb005d5a69b35836b79d7cf9c62",
+      "asset_path": "/play-art/cfb27/assets/73db204165f5b8ebc478fd4986083727720bdeb005d5a69b35836b79d7cf9c62.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "SPOT LEAD SWING",
+      "asset_id": "7d6e60e7331208fa5e49be87cb765f077ae345d023fda0e91f269fac9fee9f00",
+      "asset_path": "/play-art/cfb27/assets/7d6e60e7331208fa5e49be87cb765f077ae345d023fda0e91f269fac9fee9f00.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "VERTICALS",
+      "asset_id": "936234c1a4a27a68f9522fd1cf6f3196454712c8d75a5e0fbad87490334b7707",
+      "asset_path": "/play-art/cfb27/assets/936234c1a4a27a68f9522fd1cf6f3196454712c8d75a5e0fbad87490334b7707.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Cluster HB Str",
+      "play_name": "Z SPOT",
+      "asset_id": "2b98eb1a16467bfc03c65ffc5993131211bb9240bb7fa7b828d8febfae87f8f2",
+      "asset_path": "/play-art/cfb27/assets/2b98eb1a16467bfc03c65ffc5993131211bb9240bb7fa7b828d8febfae87f8f2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MTN WR CORNER",
+      "asset_id": "9c34fc604571ecce25f159ee1c50193780a2d26a9cd49911ec7a2ab11954d98f",
+      "asset_path": "/play-art/cfb27/assets/9c34fc604571ecce25f159ee1c50193780a2d26a9cd49911ec7a2ab11954d98f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "RPO READ MTN STICK",
+      "asset_id": "535a8064ca43f3c93ba0624f16711e76b8dc67112a3cf6353b1e5ea7736dc17f",
+      "asset_path": "/play-art/cfb27/assets/535a8064ca43f3c93ba0624f16711e76b8dc67112a3cf6353b1e5ea7736dc17f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MTN Y OPTION",
+      "asset_id": "8a4e383c67582f0a8cc3539683a00a13a7d728b69e7aa1542bcdbc5b98df23e5",
+      "asset_path": "/play-art/cfb27/assets/8a4e383c67582f0a8cc3539683a00a13a7d728b69e7aa1542bcdbc5b98df23e5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MTN STICK",
+      "asset_id": "b78472075aa24e935e767eb6443cce03a48dd4d6215ce9daca536815487c3900",
+      "asset_path": "/play-art/cfb27/assets/b78472075aa24e935e767eb6443cce03a48dd4d6215ce9daca536815487c3900.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MTN ZONE SPLIT",
+      "asset_id": "b64cec9aad06b78f7c5df2bf014adc5078a4838a91006fe9f2971955c7a12dfc",
+      "asset_path": "/play-art/cfb27/assets/b64cec9aad06b78f7c5df2bf014adc5078a4838a91006fe9f2971955c7a12dfc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MTN PA SLIDE",
+      "asset_id": "cce96495068ea617a2cad233868c33cab4dea11398a2fa36a92c40d7e38d3c26",
+      "asset_path": "/play-art/cfb27/assets/cce96495068ea617a2cad233868c33cab4dea11398a2fa36a92c40d7e38d3c26.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "PA POST CROSS",
+      "asset_id": "cd364190c78fe79bbd74c0a2aad685f6088bcdcacaa4b66eb4c008f563a1e3a1",
+      "asset_path": "/play-art/cfb27/assets/cd364190c78fe79bbd74c0a2aad685f6088bcdcacaa4b66eb4c008f563a1e3a1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "3dee63a48cc15af0094b1de5cea32b7a0d900b1b4aa96d56810ae164c2e3ed18",
+      "asset_path": "/play-art/cfb27/assets/3dee63a48cc15af0094b1de5cea32b7a0d900b1b4aa96d56810ae164c2e3ed18.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "CORNER GOS FLAT",
+      "asset_id": "7ef6c753d64dc1e396cbebf1510f1c15bd9f7068acae0a5175a34a5c068ef4f5",
+      "asset_path": "/play-art/cfb27/assets/7ef6c753d64dc1e396cbebf1510f1c15bd9f7068acae0a5175a34a5c068ef4f5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "PA DEEP CURLS",
+      "asset_id": "69cc9ae49cd696476a930afd322fd7bc5fd72512658c448a35095273499df408",
+      "asset_path": "/play-art/cfb27/assets/69cc9ae49cd696476a930afd322fd7bc5fd72512658c448a35095273499df408.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "RPO ALERT OMAHA",
+      "asset_id": "a82e3b0895b83eee7cacb263a34e4ff32291371fb7b2fce0437f5116673c34e4",
+      "asset_path": "/play-art/cfb27/assets/a82e3b0895b83eee7cacb263a34e4ff32291371fb7b2fce0437f5116673c34e4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "MESH SPOT",
+      "asset_id": "1548f3e93c525cdb6d887891544bc8a99f4d30ff3c029f37648efbec9e9e533f",
+      "asset_path": "/play-art/cfb27/assets/1548f3e93c525cdb6d887891544bc8a99f4d30ff3c029f37648efbec9e9e533f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "BENCH",
+      "asset_id": "8ca98a3c4cab655201759c2838cf051fc4059b115cff7fab8de647ddb62e41bb",
+      "asset_path": "/play-art/cfb27/assets/8ca98a3c4cab655201759c2838cf051fc4059b115cff7fab8de647ddb62e41bb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "01 TRAP",
+      "asset_id": "cdb60d6c603a3222849c10d03898c78a98c40693555516b8afb4651a0b6f079c",
+      "asset_path": "/play-art/cfb27/assets/cdb60d6c603a3222849c10d03898c78a98c40693555516b8afb4651a0b6f079c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Deuce Close",
+      "play_name": "BENCH DIG CURL",
+      "asset_id": "0f127fa8cbccfa0079368a1365919b3203697fd48e9e0be0a3e3cfc0f1184b4e",
+      "asset_path": "/play-art/cfb27/assets/0f127fa8cbccfa0079368a1365919b3203697fd48e9e0be0a3e3cfc0f1184b4e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "CURL COMBO",
+      "asset_id": "fef54c1c11c9ba52b5570b35505d3b5f5c40d62c60171b973b1cc84c17922ed3",
+      "asset_path": "/play-art/cfb27/assets/fef54c1c11c9ba52b5570b35505d3b5f5c40d62c60171b973b1cc84c17922ed3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "QB DRAW",
+      "asset_id": "968e8df65105b5d6858524051d8171eb91bf39336c3868a4b7b6f6eefa64687a",
+      "asset_path": "/play-art/cfb27/assets/968e8df65105b5d6858524051d8171eb91bf39336c3868a4b7b6f6eefa64687a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "SHOCK SLOT OPTION",
+      "asset_id": "c8c43e09509f14be481f8afe13a7581054698f9f5a02c7ce74ba99111b44fcb2",
+      "asset_path": "/play-art/cfb27/assets/c8c43e09509f14be481f8afe13a7581054698f9f5a02c7ce74ba99111b44fcb2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "ALL HITCH",
+      "asset_id": "a2541868dcd83bdca68d3ab5d77e53c4f229a2d39486c4e970f40ab759d7d42a",
+      "asset_path": "/play-art/cfb27/assets/a2541868dcd83bdca68d3ab5d77e53c4f229a2d39486c4e970f40ab759d7d42a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "STICK NOD",
+      "asset_id": "9a17c1f829a8971cad2264d5c142b2a63eba1a31d3546aa2bf843910a1f2c1ea",
+      "asset_path": "/play-art/cfb27/assets/9a17c1f829a8971cad2264d5c142b2a63eba1a31d3546aa2bf843910a1f2c1ea.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "HOSS JUKE",
+      "asset_id": "3c14824e3c69b75853d026346b13ee491c5b2fcf2dfed6c8a5afe6978cdae27d",
+      "asset_path": "/play-art/cfb27/assets/3c14824e3c69b75853d026346b13ee491c5b2fcf2dfed6c8a5afe6978cdae27d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "DOUBLE SLANT STICK",
+      "asset_id": "1de55a6f5d3eed9703279f97547cb85eeaa709f540a8b92e996780d41d93d19f",
+      "asset_path": "/play-art/cfb27/assets/1de55a6f5d3eed9703279f97547cb85eeaa709f540a8b92e996780d41d93d19f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "SLANT FLAT",
+      "asset_id": "db9fd6a7976c899cca1bdc997737ae9e24bdc0f7d582f7eaa47c188d1ded400c",
+      "asset_path": "/play-art/cfb27/assets/db9fd6a7976c899cca1bdc997737ae9e24bdc0f7d582f7eaa47c188d1ded400c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Base Trio",
+      "play_name": "DOUBLE IN",
+      "asset_id": "d673c986cb8ff3cf5f6b66a2f11e2bbe94acb4d5422a6ab082c77e766d281f8a",
+      "asset_path": "/play-art/cfb27/assets/d673c986cb8ff3cf5f6b66a2f11e2bbe94acb4d5422a6ab082c77e766d281f8a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "CROSS Z POST",
+      "asset_id": "9ab27bb279da99a33f7d50f4d447717116a70fb506d1250e677a23d94e0bb4c1",
+      "asset_path": "/play-art/cfb27/assets/9ab27bb279da99a33f7d50f4d447717116a70fb506d1250e677a23d94e0bb4c1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "QB BLAST",
+      "asset_id": "ebc412ee2b030f55a61173cae353001cfcb6ea7374d741b0c10a10c7cd84783c",
+      "asset_path": "/play-art/cfb27/assets/ebc412ee2b030f55a61173cae353001cfcb6ea7374d741b0c10a10c7cd84783c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "OUT DOUBLE UNDER",
+      "asset_id": "afc3b03c71d225c363a4397dcf627f3735bf9f36039facb6f9d3470f446a0d8e",
+      "asset_path": "/play-art/cfb27/assets/afc3b03c71d225c363a4397dcf627f3735bf9f36039facb6f9d3470f446a0d8e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "CURL PIVOT DIG",
+      "asset_id": "05f44b33db3c13e6d78dcd476b4a4076c42006a610f959f8530542cb5fcf065f",
+      "asset_path": "/play-art/cfb27/assets/05f44b33db3c13e6d78dcd476b4a4076c42006a610f959f8530542cb5fcf065f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "QB DRAW",
+      "asset_id": "242050bc3240eb09b69154bec32e76653ccff2958123325656ca6256cab35e6d",
+      "asset_path": "/play-art/cfb27/assets/242050bc3240eb09b69154bec32e76653ccff2958123325656ca6256cab35e6d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "FOUR VERTICALS",
+      "asset_id": "8819925b0d7e73d39af7ad1a1f8c46f50b05bbd262b0d79e6abe1565e789e098",
+      "asset_path": "/play-art/cfb27/assets/8819925b0d7e73d39af7ad1a1f8c46f50b05bbd262b0d79e6abe1565e789e098.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "RPO ALERT QB DRAW",
+      "asset_id": "dcf92740d55b923907629dc8c67869f762ebdec5dde61b4a292fe1a7a9e80fb6",
+      "asset_path": "/play-art/cfb27/assets/dcf92740d55b923907629dc8c67869f762ebdec5dde61b4a292fe1a7a9e80fb6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "VERT DOUBLE UNDER",
+      "asset_id": "e2350c2d77fb6bcb3ff468b74bd2f203c79c7fbf8863b82c86db1597ca349553",
+      "asset_path": "/play-art/cfb27/assets/e2350c2d77fb6bcb3ff468b74bd2f203c79c7fbf8863b82c86db1597ca349553.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Empty Quads",
+      "play_name": "WR SCREEN",
+      "asset_id": "153bd176612f5880c377097e0beeeca7c1e8d2fad9ae2ceb2b1a5a62dce81d47",
+      "asset_path": "/play-art/cfb27/assets/153bd176612f5880c377097e0beeeca7c1e8d2fad9ae2ceb2b1a5a62dce81d47.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "MTN SWITCH CORNER",
+      "asset_id": "094adddadc468f54bdc5d83d87f015e5e555fc5af71a10056f9d7ad688954450",
+      "asset_path": "/play-art/cfb27/assets/094adddadc468f54bdc5d83d87f015e5e555fc5af71a10056f9d7ad688954450.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "MTN HB ANGLE",
+      "asset_id": "3efa28183beaeeb794ffcf0a9af9bd1a1aaeb661c9f074002be61db97c7f95d1",
+      "asset_path": "/play-art/cfb27/assets/3efa28183beaeeb794ffcf0a9af9bd1a1aaeb661c9f074002be61db97c7f95d1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "MTN ANGLE Y WHEEL",
+      "asset_id": "68762af30ad64ef0cbca69b39a82978092005ae794d4260eb96c468d0b13be64",
+      "asset_path": "/play-art/cfb27/assets/68762af30ad64ef0cbca69b39a82978092005ae794d4260eb96c468d0b13be64.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "DOUBLE SLANT",
+      "asset_id": "d361044ba5fb2690f6546ced3d715de98e6191bc2e3a05c4587f43cd2d919484",
+      "asset_path": "/play-art/cfb27/assets/d361044ba5fb2690f6546ced3d715de98e6191bc2e3a05c4587f43cd2d919484.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "RPO ALERT OUT",
+      "asset_id": "cf783ff8a15571546f16d95c43068a2b39be81204eaeab57222001a4a1236b70",
+      "asset_path": "/play-art/cfb27/assets/cf783ff8a15571546f16d95c43068a2b39be81204eaeab57222001a4a1236b70.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "WHEEL SWITCH",
+      "asset_id": "8eccdd9fc47b40c97b3304bf68192edec18a54782d6f9b2dad002e9c577d5c6d",
+      "asset_path": "/play-art/cfb27/assets/8eccdd9fc47b40c97b3304bf68192edec18a54782d6f9b2dad002e9c577d5c6d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "MESH SPOT",
+      "asset_id": "34fd588370ebeb759157e12719f4ac5610a06a3c460169ca3b9251360835b0f5",
+      "asset_path": "/play-art/cfb27/assets/34fd588370ebeb759157e12719f4ac5610a06a3c460169ca3b9251360835b0f5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "RPO ZONE PEEK",
+      "asset_id": "ebc0dcd4c7535f0c6a2ae15212d12c416a7bfe58618219a6f921be649e55b4e9",
+      "asset_path": "/play-art/cfb27/assets/ebc0dcd4c7535f0c6a2ae15212d12c416a7bfe58618219a6f921be649e55b4e9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "Y-SAIL",
+      "asset_id": "996bda4b9f2f498b9ee704fe38f163accf4637fcfca46b1aac064871fedeb251",
+      "asset_path": "/play-art/cfb27/assets/996bda4b9f2f498b9ee704fe38f163accf4637fcfca46b1aac064871fedeb251.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "ESCAPE",
+      "asset_id": "fc94b20698fe19594e7aaf95165aa4e3c205cc6dc71689edb0eb9b3bad264cff",
+      "asset_path": "/play-art/cfb27/assets/fc94b20698fe19594e7aaf95165aa4e3c205cc6dc71689edb0eb9b3bad264cff.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "66ebd69e30fc310f27f88ad627ec9014990c23d874ab6ae6d80277179baf447a",
+      "asset_path": "/play-art/cfb27/assets/66ebd69e30fc310f27f88ad627ec9014990c23d874ab6ae6d80277179baf447a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "HB SCISSORS",
+      "asset_id": "499116004928e29790591b3bf3a5f33cd70bbcb71fe07d60889b1130c989b7c4",
+      "asset_path": "/play-art/cfb27/assets/499116004928e29790591b3bf3a5f33cd70bbcb71fe07d60889b1130c989b7c4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "READ OPTION",
+      "asset_id": "f2b9bee49c8b9cf845e8c8299701d877d36fdf192371b426e75fb97326133550",
+      "asset_path": "/play-art/cfb27/assets/f2b9bee49c8b9cf845e8c8299701d877d36fdf192371b426e75fb97326133550.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "PA SNAG",
+      "asset_id": "339979f8467308c93b4916aea31032ccdd5c85a5f1ec1ffb16153f2c3619bd67",
+      "asset_path": "/play-art/cfb27/assets/339979f8467308c93b4916aea31032ccdd5c85a5f1ec1ffb16153f2c3619bd67.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Normal Y Off Close",
+      "play_name": "RPO PEEK STICK",
+      "asset_id": "e46b9d59fc21e87a790f15d29721ba3e26da9641ddfc2e51534b02fb3476d2d2",
+      "asset_path": "/play-art/cfb27/assets/e46b9d59fc21e87a790f15d29721ba3e26da9641ddfc2e51534b02fb3476d2d2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "MTN MESH DIG",
+      "asset_id": "09251b320f04004e710e60de741a20e8785508cf9e1fa584d5106853eeeccb42",
+      "asset_path": "/play-art/cfb27/assets/09251b320f04004e710e60de741a20e8785508cf9e1fa584d5106853eeeccb42.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "MTN X POST",
+      "asset_id": "ce24328e71811e5bcbc9588929954dda7c6144af8f10aa739c6766aed3cf4b95",
+      "asset_path": "/play-art/cfb27/assets/ce24328e71811e5bcbc9588929954dda7c6144af8f10aa739c6766aed3cf4b95.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "RETURN CURLS TEXAS",
+      "asset_id": "4059cae847ab7151fddcd005c42d675f95fec8c99918a6ea22fc524ce854ea1a",
+      "asset_path": "/play-art/cfb27/assets/4059cae847ab7151fddcd005c42d675f95fec8c99918a6ea22fc524ce854ea1a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "SLOT STICK",
+      "asset_id": "12214f75b6cb26644de7bc49cdc2866e63d1bdeeafedafe6c54e7bfc95d05546",
+      "asset_path": "/play-art/cfb27/assets/12214f75b6cb26644de7bc49cdc2866e63d1bdeeafedafe6c54e7bfc95d05546.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "b0982d7a1df4a217388d9c963b4f2f2b466d5f8461914c3600280ae5cbdb36ec",
+      "asset_path": "/play-art/cfb27/assets/b0982d7a1df4a217388d9c963b4f2f2b466d5f8461914c3600280ae5cbdb36ec.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "CROSS DIG",
+      "asset_id": "4bf3b5a761d22dd1b7f9c57b2c909cbf34ac34fcaf1abace3efaa85f8261043e",
+      "asset_path": "/play-art/cfb27/assets/4bf3b5a761d22dd1b7f9c57b2c909cbf34ac34fcaf1abace3efaa85f8261043e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "DOUBLE SLANT",
+      "asset_id": "3776489fe144e30c5018e3aefa581dea18e3fc194ad091d2fdbd1743594ceb7a",
+      "asset_path": "/play-art/cfb27/assets/3776489fe144e30c5018e3aefa581dea18e3fc194ad091d2fdbd1743594ceb7a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "PA READ",
+      "asset_id": "5c137f3ff748a98340928438c401f753860c75047ae7c8d0e471300fc0fc0565",
+      "asset_path": "/play-art/cfb27/assets/5c137f3ff748a98340928438c401f753860c75047ae7c8d0e471300fc0fc0565.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "OUT SEAMS",
+      "asset_id": "48f1144f5314ad923f46df9c2f03e610d120aabdaba55c3a7742e973837e5dbe",
+      "asset_path": "/play-art/cfb27/assets/48f1144f5314ad923f46df9c2f03e610d120aabdaba55c3a7742e973837e5dbe.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "SLOT OUTS",
+      "asset_id": "687f0fe7dd088fd680c3c30f5c34fa40801379cd829b38c22bb5c746504f37f9",
+      "asset_path": "/play-art/cfb27/assets/687f0fe7dd088fd680c3c30f5c34fa40801379cd829b38c22bb5c746504f37f9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "CURLS",
+      "asset_id": "bb2c25ffd6648d7194f4f71b121b3a666ac4247c5b6fc8ae80a5a45ffad710c1",
+      "asset_path": "/play-art/cfb27/assets/bb2c25ffd6648d7194f4f71b121b3a666ac4247c5b6fc8ae80a5a45ffad710c1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "CORNER STRIKE",
+      "asset_id": "8e7b897327786bd86587e86603823b1f1068cf9b587e29705973abe458b0e66b",
+      "asset_path": "/play-art/cfb27/assets/8e7b897327786bd86587e86603823b1f1068cf9b587e29705973abe458b0e66b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "OHIO DOUBLE IN",
+      "asset_id": "f425f14b95fd97322690338c1219d13ab86e8dd74f620c03da779a523253dab3",
+      "asset_path": "/play-art/cfb27/assets/f425f14b95fd97322690338c1219d13ab86e8dd74f620c03da779a523253dab3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "Y-SEAM",
+      "asset_id": "ab3ffe108e352c0d206da59697bef9114e65a25db7e6b436c5f835ba6ea9e271",
+      "asset_path": "/play-art/cfb27/assets/ab3ffe108e352c0d206da59697bef9114e65a25db7e6b436c5f835ba6ea9e271.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "FOUR VERTICALS",
+      "asset_id": "5dd4586bc80714a09f11d83b45f46c7754f1e9d918e579122a380b494c674928",
+      "asset_path": "/play-art/cfb27/assets/5dd4586bc80714a09f11d83b45f46c7754f1e9d918e579122a380b494c674928.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "ed40ae2b8cd357485090ad804cf26144ac06db7ea12a4fa2714dcc9659d66fd5",
+      "asset_path": "/play-art/cfb27/assets/ed40ae2b8cd357485090ad804cf26144ac06db7ea12a4fa2714dcc9659d66fd5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "X DAGGER",
+      "asset_id": "896c93f7195f41c4d3b3e0bd1c10a40e82399fcf005e654f4674e779e9a990ae",
+      "asset_path": "/play-art/cfb27/assets/896c93f7195f41c4d3b3e0bd1c10a40e82399fcf005e654f4674e779e9a990ae.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Spread Y-Slot",
+      "play_name": "WR MID SCREEN",
+      "asset_id": "0b2852b8894fbca9263a98917c5dd68c4484ffa03130b3c351e1397211f2f6c2",
+      "asset_path": "/play-art/cfb27/assets/0b2852b8894fbca9263a98917c5dd68c4484ffa03130b3c351e1397211f2f6c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "MTN CROSS HB SNEAK",
+      "asset_id": "89fc3fee5bc8d4229805f945cd1dc3507237bd24cefced04d11287f8ed7407aa",
+      "asset_path": "/play-art/cfb27/assets/89fc3fee5bc8d4229805f945cd1dc3507237bd24cefced04d11287f8ed7407aa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "MTN FK CROSS",
+      "asset_id": "596ca9e40721d0f4ae35be90839102131ff061677e72919b137ceeec51ee4e36",
+      "asset_path": "/play-art/cfb27/assets/596ca9e40721d0f4ae35be90839102131ff061677e72919b137ceeec51ee4e36.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "MTN BUNCH OPTION",
+      "asset_id": "479fc328a055f8d5d348083d81dcb63095552c2233ac35cd1e799aef1bce4c15",
+      "asset_path": "/play-art/cfb27/assets/479fc328a055f8d5d348083d81dcb63095552c2233ac35cd1e799aef1bce4c15.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "HB QUICK BASE",
+      "asset_id": "16c5e7f8d671c797c3e4f71383e7466f2298dfd49bb79c65cf9ee5c1a763a19c",
+      "asset_path": "/play-art/cfb27/assets/16c5e7f8d671c797c3e4f71383e7466f2298dfd49bb79c65cf9ee5c1a763a19c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "DBL STICK",
+      "asset_id": "c7e0458ac80cc6a920575155989405b1fc0fb77c1c1d704a29b1e14ed433fa8f",
+      "asset_path": "/play-art/cfb27/assets/c7e0458ac80cc6a920575155989405b1fc0fb77c1c1d704a29b1e14ed433fa8f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "PA WR CROSS",
+      "asset_id": "db868422e33cee4022119c868f68b23be7203b908b04e728b4d8809f46750a08",
+      "asset_path": "/play-art/cfb27/assets/db868422e33cee4022119c868f68b23be7203b908b04e728b4d8809f46750a08.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "MESH SPOT",
+      "asset_id": "92bfef5f8730738682a9f5faf0111d99ea5069297f317daab49cd095e828cb62",
+      "asset_path": "/play-art/cfb27/assets/92bfef5f8730738682a9f5faf0111d99ea5069297f317daab49cd095e828cb62.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "Z SPOT",
+      "asset_id": "6105d623487eac5d642c23e229ec686b0d4ae32e0b29db9f47170d45b8f7a94c",
+      "asset_path": "/play-art/cfb27/assets/6105d623487eac5d642c23e229ec686b0d4ae32e0b29db9f47170d45b8f7a94c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "FLOOD",
+      "asset_id": "497dc8fcbfcae443ce9534d6d5d22f93f23deb7017e2136d600a3e42f67cf094",
+      "asset_path": "/play-art/cfb27/assets/497dc8fcbfcae443ce9534d6d5d22f93f23deb7017e2136d600a3e42f67cf094.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "CURL",
+      "asset_id": "404e2771400a5401cebf8083d41d01b32f528b2467fcbed84337c14f9dc016e5",
+      "asset_path": "/play-art/cfb27/assets/404e2771400a5401cebf8083d41d01b32f528b2467fcbed84337c14f9dc016e5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "8adf6d86b4cc14b8b3c55d91c7f6522e0ce5bd2eb14526951c63244676e3e991",
+      "asset_path": "/play-art/cfb27/assets/8adf6d86b4cc14b8b3c55d91c7f6522e0ce5bd2eb14526951c63244676e3e991.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "d0b3ca2a4ed356e90b1aad0e5a9033cd3a14be399faeb383fcf9e356be355cde",
+      "asset_path": "/play-art/cfb27/assets/d0b3ca2a4ed356e90b1aad0e5a9033cd3a14be399faeb383fcf9e356be355cde.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "CROSS WHEELS",
+      "asset_id": "6b5f1d9aa711b10a9bc7679acc3bf6ce3ca002c766e6267d0d67b0743a98e1b4",
+      "asset_path": "/play-art/cfb27/assets/6b5f1d9aa711b10a9bc7679acc3bf6ce3ca002c766e6267d0d67b0743a98e1b4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "HB DRAW",
+      "asset_id": "64d685dc7b07554ba91203a28997ea7fcd9f5b5fa4e29e805e922387d11005d8",
+      "asset_path": "/play-art/cfb27/assets/64d685dc7b07554ba91203a28997ea7fcd9f5b5fa4e29e805e922387d11005d8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Doubles",
+      "play_name": "PA DEEP CURLS",
+      "asset_id": "1c17e984cfb311bd10b536235f5185f538fdc888498881c4bec89ca5dcc6edd2",
+      "asset_path": "/play-art/cfb27/assets/1c17e984cfb311bd10b536235f5185f538fdc888498881c4bec89ca5dcc6edd2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "CURL Y-OPTION",
+      "asset_id": "143298275713307fffac46f86241a26e4c38bb52605dccaff03c49d77c68eb77",
+      "asset_path": "/play-art/cfb27/assets/143298275713307fffac46f86241a26e4c38bb52605dccaff03c49d77c68eb77.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "39d2fc0bc78b682a86b37a51a8534f232ac1f9b0757459adc4cbf340c7c1faaf",
+      "asset_path": "/play-art/cfb27/assets/39d2fc0bc78b682a86b37a51a8534f232ac1f9b0757459adc4cbf340c7c1faaf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "PA SCISSORS",
+      "asset_id": "15b83888b5d9757851f3f8adad599319351ee0802bf7da60d490b8032a21c525",
+      "asset_path": "/play-art/cfb27/assets/15b83888b5d9757851f3f8adad599319351ee0802bf7da60d490b8032a21c525.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "MTN FLOOD H-CHOICE",
+      "asset_id": "a28cde65dd38b02cdef8f9ebc84ea78d2697df23b63905575af3df3220b2ba46",
+      "asset_path": "/play-art/cfb27/assets/a28cde65dd38b02cdef8f9ebc84ea78d2697df23b63905575af3df3220b2ba46.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "MTN SPOT Y-POST",
+      "asset_id": "206a15f065977432c19a5667690d1c74d1a6bf7682bd053bc69d74a8d99f8533",
+      "asset_path": "/play-art/cfb27/assets/206a15f065977432c19a5667690d1c74d1a6bf7682bd053bc69d74a8d99f8533.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "MTN JET PULL SHALLOW",
+      "asset_id": "9e9ebd79a4dcc8fe2afc8edd9c666333b12ad1d9e98aea187ecbc3bc93a85d24",
+      "asset_path": "/play-art/cfb27/assets/9e9ebd79a4dcc8fe2afc8edd9c666333b12ad1d9e98aea187ecbc3bc93a85d24.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "MESH CROSSERS",
+      "asset_id": "bfb5cf4478d5a6ed06094275e99ee9325ffad7e1c99c4bd784b47ffc361d7234",
+      "asset_path": "/play-art/cfb27/assets/bfb5cf4478d5a6ed06094275e99ee9325ffad7e1c99c4bd784b47ffc361d7234.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "READ OPTION",
+      "asset_id": "bdfe9292b9d8f79a331063e98c4969b113ce2901719fa7495b989aab8ca545f4",
+      "asset_path": "/play-art/cfb27/assets/bdfe9292b9d8f79a331063e98c4969b113ce2901719fa7495b989aab8ca545f4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "SPACING",
+      "asset_id": "6f98da0dde6e32d1fb57b7e729ed3f23a2fb2921ac17555251a70de4f1cbfc3c",
+      "asset_path": "/play-art/cfb27/assets/6f98da0dde6e32d1fb57b7e729ed3f23a2fb2921ac17555251a70de4f1cbfc3c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "SPOT X OPTION",
+      "asset_id": "b1f3ad788c64d2d53b13102631dd0fff45954c2fe312a218c62638eab7bb7ad2",
+      "asset_path": "/play-art/cfb27/assets/b1f3ad788c64d2d53b13102631dd0fff45954c2fe312a218c62638eab7bb7ad2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "STICK",
+      "asset_id": "dc055eb50b60fdab304c36c88c54da5b80e16fee970a3f19d12f2c8f8e8ad8f2",
+      "asset_path": "/play-art/cfb27/assets/dc055eb50b60fdab304c36c88c54da5b80e16fee970a3f19d12f2c8f8e8ad8f2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "SLOT POST",
+      "asset_id": "ec542c2a397f1dfc92e919bc64863d5bdce8836085193987a74af89d8b54548f",
+      "asset_path": "/play-art/cfb27/assets/ec542c2a397f1dfc92e919bc64863d5bdce8836085193987a74af89d8b54548f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "MESH SPOT",
+      "asset_id": "339c74576381c5f3fc929d98924b486f879c2d4885557c98f41522a16d73d52d",
+      "asset_path": "/play-art/cfb27/assets/339c74576381c5f3fc929d98924b486f879c2d4885557c98f41522a16d73d52d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "BENCH Z SPOT",
+      "asset_id": "8f4180aed5ed5d6e101804548f216cd2c9658cdaa692437e2d5fca483c71e3ad",
+      "asset_path": "/play-art/cfb27/assets/8f4180aed5ed5d6e101804548f216cd2c9658cdaa692437e2d5fca483c71e3ad.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "DIG Z SPOT",
+      "asset_id": "714b39527029d530756205462e2e5bf9aa20bfee72c5955763f5ec2b385dbb5f",
+      "asset_path": "/play-art/cfb27/assets/714b39527029d530756205462e2e5bf9aa20bfee72c5955763f5ec2b385dbb5f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "VERTICALS HB BURST",
+      "asset_id": "4344ab5d223412e8f33d7356d78ed2f8a4851f9606e35c24f4b4db2ef8344d25",
+      "asset_path": "/play-art/cfb27/assets/4344ab5d223412e8f33d7356d78ed2f8a4851f9606e35c24f4b4db2ef8344d25.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "HB DRAW",
+      "asset_id": "c64e1dd4f19b72ac66423c166ef3277466d1488e11b8922097e64c377d102bfa",
+      "asset_path": "/play-art/cfb27/assets/c64e1dd4f19b72ac66423c166ef3277466d1488e11b8922097e64c377d102bfa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Open",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "333a5d60d32099f7feb2e69bd2dd6500d80950bb0d3ebbd8d1ac5fdda190af0a",
+      "asset_path": "/play-art/cfb27/assets/333a5d60d32099f7feb2e69bd2dd6500d80950bb0d3ebbd8d1ac5fdda190af0a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "PA CHEAT WHEEL POST",
+      "asset_id": "601f782bb64dbfae17cd1086df99bf76cf04db97c16a79caf823b5bbd3f7c6fc",
+      "asset_path": "/play-art/cfb27/assets/601f782bb64dbfae17cd1086df99bf76cf04db97c16a79caf823b5bbd3f7c6fc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "CHEAT OUTSIDE ZONE",
+      "asset_id": "52a6d3d0c8556ce01218b180741a453f3107be78bbf2f933f7a7acbcad61ea38",
+      "asset_path": "/play-art/cfb27/assets/52a6d3d0c8556ce01218b180741a453f3107be78bbf2f933f7a7acbcad61ea38.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "PA CHEAT COMEBACK GO",
+      "asset_id": "40b3f9bd1caa1cf3fa85ad0e019d4e5cbe3f21079263ebdb4ff90d5ba2fb3308",
+      "asset_path": "/play-art/cfb27/assets/40b3f9bd1caa1cf3fa85ad0e019d4e5cbe3f21079263ebdb4ff90d5ba2fb3308.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "FORK Z-DIG",
+      "asset_id": "5ccb485a1a9bcfabd8a0bc1182110aaf42af92c537a55fa9c3bfea94278c94d0",
+      "asset_path": "/play-art/cfb27/assets/5ccb485a1a9bcfabd8a0bc1182110aaf42af92c537a55fa9c3bfea94278c94d0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "TACKLE TRAP",
+      "asset_id": "ca1b8a856deea38133727649cc1d129b36a3348be9f878165ba1c5c80ec41a72",
+      "asset_path": "/play-art/cfb27/assets/ca1b8a856deea38133727649cc1d129b36a3348be9f878165ba1c5c80ec41a72.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "PA CORNER",
+      "asset_id": "feec80fb2f2d80db1023272756c8cf62862fcf85c12ca9427bf5b05a15dffe10",
+      "asset_path": "/play-art/cfb27/assets/feec80fb2f2d80db1023272756c8cf62862fcf85c12ca9427bf5b05a15dffe10.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "PIVOT RETURN",
+      "asset_id": "7d2b3b398270adbc0e671ab76fe22b03c8e04cb43465404d29ee15628bef74a5",
+      "asset_path": "/play-art/cfb27/assets/7d2b3b398270adbc0e671ab76fe22b03c8e04cb43465404d29ee15628bef74a5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "RPO ZONE ALERT OMAHA",
+      "asset_id": "141d8a48d54058f64f979479f48d4e1bb98fa225a4719d6b8514054483690c59",
+      "asset_path": "/play-art/cfb27/assets/141d8a48d54058f64f979479f48d4e1bb98fa225a4719d6b8514054483690c59.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "SMASH HAMMER",
+      "asset_id": "4226eb086ba94537cde414608c3c9f2f12ee4176d5f47c9afd2ef925cf48acac",
+      "asset_path": "/play-art/cfb27/assets/4226eb086ba94537cde414608c3c9f2f12ee4176d5f47c9afd2ef925cf48acac.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "LEVELS",
+      "asset_id": "9696e00de68b28432d2e3fd17f2fa8051a31a5efc7047a576f85030077490c91",
+      "asset_path": "/play-art/cfb27/assets/9696e00de68b28432d2e3fd17f2fa8051a31a5efc7047a576f85030077490c91.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "e6a4ef80e3738860d69b22ce2062c1d7fd490d12cadfb7a693b445b40db53e54",
+      "asset_path": "/play-art/cfb27/assets/e6a4ef80e3738860d69b22ce2062c1d7fd490d12cadfb7a693b445b40db53e54.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Tight Y Off Wk",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "fc9fd12eda374eb29d2673769b71b7c5816a261c246ce9fb7a7b34123b56fc87",
+      "asset_path": "/play-art/cfb27/assets/fc9fd12eda374eb29d2673769b71b7c5816a261c246ce9fb7a7b34123b56fc87.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "MTN SLOT SCREEN",
+      "asset_id": "3d61e46eefdf19ee5738ffcf65022b18d6f0cb0724ee718847f07b7dafa568ac",
+      "asset_path": "/play-art/cfb27/assets/3d61e46eefdf19ee5738ffcf65022b18d6f0cb0724ee718847f07b7dafa568ac.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "MTN STICK",
+      "asset_id": "cbd5d8673209177102d2c9e224e106362c2f5b4879f4dc6bb77dbeaf1a3de281",
+      "asset_path": "/play-art/cfb27/assets/cbd5d8673209177102d2c9e224e106362c2f5b4879f4dc6bb77dbeaf1a3de281.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "MTN VERTICALS",
+      "asset_id": "e1f1d492fb0df8f00d2265e0a5c75a7f8070a55302c765c7701b14b2a059878f",
+      "asset_path": "/play-art/cfb27/assets/e1f1d492fb0df8f00d2265e0a5c75a7f8070a55302c765c7701b14b2a059878f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "RPO PEEK SLANT",
+      "asset_id": "546ee24a391c63779f86f3b9e4d5fceed843d232808fdc717cc5371abe7485db",
+      "asset_path": "/play-art/cfb27/assets/546ee24a391c63779f86f3b9e4d5fceed843d232808fdc717cc5371abe7485db.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "VERTICALS Y CROSS",
+      "asset_id": "0d8b0f3a5b64186abad1a9b1edbca048418383a09c3c02fb1dcf51b5a5e31958",
+      "asset_path": "/play-art/cfb27/assets/0d8b0f3a5b64186abad1a9b1edbca048418383a09c3c02fb1dcf51b5a5e31958.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "JET CHIP WASP",
+      "asset_id": "d388d88cbdfa1572dc65602b3e6c3f307d81c44b9b6940730799f6ae98b90bb5",
+      "asset_path": "/play-art/cfb27/assets/d388d88cbdfa1572dc65602b3e6c3f307d81c44b9b6940730799f6ae98b90bb5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "2928288f1012ac97707f3929942de806697723db42bf477b3eada786afac2306",
+      "asset_path": "/play-art/cfb27/assets/2928288f1012ac97707f3929942de806697723db42bf477b3eada786afac2306.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "PA SLOT CROSS",
+      "asset_id": "a69638ba35fb79f361af467393463fcd5a61366c8d2179a328e828a053df1887",
+      "asset_path": "/play-art/cfb27/assets/a69638ba35fb79f361af467393463fcd5a61366c8d2179a328e828a053df1887.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "SPOT QUADS",
+      "asset_id": "3dafa8ad5899cfcc8b9fba7709e3d31c434af4165c84711f2c15eae5bcbb458a",
+      "asset_path": "/play-art/cfb27/assets/3dafa8ad5899cfcc8b9fba7709e3d31c434af4165c84711f2c15eae5bcbb458a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "OUTSIDE ZONE",
+      "asset_id": "74c6c7cb30a2a58cddfa280d8f9928a22c4913aa8ef4687048e7f4041adf5908",
+      "asset_path": "/play-art/cfb27/assets/74c6c7cb30a2a58cddfa280d8f9928a22c4913aa8ef4687048e7f4041adf5908.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "PA CROSS SIT",
+      "asset_id": "5f32d8f638795290ccd675be20c2eeacd163dc34fd3e5673bf794b748aca3a00",
+      "asset_path": "/play-art/cfb27/assets/5f32d8f638795290ccd675be20c2eeacd163dc34fd3e5673bf794b748aca3a00.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "DAGGER SIT",
+      "asset_id": "918f51dd744d0bcb7e5d771799c07eb0b17d9ba7b44c375c0b8ea94b402082b7",
+      "asset_path": "/play-art/cfb27/assets/918f51dd744d0bcb7e5d771799c07eb0b17d9ba7b44c375c0b8ea94b402082b7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "01 TRAP",
+      "asset_id": "81bc29321adb14af2923d8836174b15590b16a27d9bebadc51360ab0377870ff",
+      "asset_path": "/play-art/cfb27/assets/81bc29321adb14af2923d8836174b15590b16a27d9bebadc51360ab0377870ff.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "FLOOD SIT",
+      "asset_id": "0d7f1d7ec01589bd793a06834cf56e4a68eeb15bf101fc2613b4198e5a3330d6",
+      "asset_path": "/play-art/cfb27/assets/0d7f1d7ec01589bd793a06834cf56e4a68eeb15bf101fc2613b4198e5a3330d6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "RPO READ FL SCREEN",
+      "asset_id": "63131fd8a2ed78223e7971d51d70e255eab967be78555133091d02d3673d0569",
+      "asset_path": "/play-art/cfb27/assets/63131fd8a2ed78223e7971d51d70e255eab967be78555133091d02d3673d0569.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "PA CROSSERS",
+      "asset_id": "ba85990c0b1c1c52ab74feef2b17401d42f5454d325af7a96c393cbabffe6720",
+      "asset_path": "/play-art/cfb27/assets/ba85990c0b1c1c52ab74feef2b17401d42f5454d325af7a96c393cbabffe6720.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trey Y-Flex Str",
+      "play_name": "HB DRAW",
+      "asset_id": "a6f5472b36b3ac93b9904bdb50b5fc8432f0d903ac2090f042f28ace4fc3f6f8",
+      "asset_path": "/play-art/cfb27/assets/a6f5472b36b3ac93b9904bdb50b5fc8432f0d903ac2090f042f28ace4fc3f6f8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "b59f9c18083975f5a46d5741761defce091f4e119331bda0b8122f98fc55c974",
+      "asset_path": "/play-art/cfb27/assets/b59f9c18083975f5a46d5741761defce091f4e119331bda0b8122f98fc55c974.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "WILDCATS CORNER UP",
+      "asset_id": "41626a73fe239a19e8f425147ac43e2fa9d8d6ede8ac9aa97719c34d982ab9cc",
+      "asset_path": "/play-art/cfb27/assets/41626a73fe239a19e8f425147ac43e2fa9d8d6ede8ac9aa97719c34d982ab9cc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "RPO ALERT QB DRAW",
+      "asset_id": "813244b13acf5106ffe62c890ac5e5fa50e42d148681f94c46d7787ad38e9b7d",
+      "asset_path": "/play-art/cfb27/assets/813244b13acf5106ffe62c890ac5e5fa50e42d148681f94c46d7787ad38e9b7d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "READ OPTION",
+      "asset_id": "bdb9eeb9e020070f7f9b92c6e69da6d6d56225dc0aed1111910e0d0425330549",
+      "asset_path": "/play-art/cfb27/assets/bdb9eeb9e020070f7f9b92c6e69da6d6d56225dc0aed1111910e0d0425330549.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "PA READ",
+      "asset_id": "ee51d16b197dbb5c603b27ec15bce96a28d58df786b6fa2954d226781020bc2f",
+      "asset_path": "/play-art/cfb27/assets/ee51d16b197dbb5c603b27ec15bce96a28d58df786b6fa2954d226781020bc2f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "DRIVE",
+      "asset_id": "1f4c3cdd9686655c328514bdcd81f43688388dd393773f85c85375d322b7db06",
+      "asset_path": "/play-art/cfb27/assets/1f4c3cdd9686655c328514bdcd81f43688388dd393773f85c85375d322b7db06.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "ALL CURL",
+      "asset_id": "97a705717c4062772b51903aa6b3df7c059e7dff20c5499d183d4b6051b22087",
+      "asset_path": "/play-art/cfb27/assets/97a705717c4062772b51903aa6b3df7c059e7dff20c5499d183d4b6051b22087.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "HB DRAW",
+      "asset_id": "7029f5103f6b67800fdf18b668501bcecf6eb7486b7f68dbaab53af1de977925",
+      "asset_path": "/play-art/cfb27/assets/7029f5103f6b67800fdf18b668501bcecf6eb7486b7f68dbaab53af1de977925.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "CROSS Z CURL",
+      "asset_id": "5f67fa5e04cce12af65d8224a30f096a911a385234de8916de7bd8de8db40434",
+      "asset_path": "/play-art/cfb27/assets/5f67fa5e04cce12af65d8224a30f096a911a385234de8916de7bd8de8db40434.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "FOUR VERTICALS",
+      "asset_id": "add168740905e95005bc7dd772afe309ee60ac018769591da9294f89116802d0",
+      "asset_path": "/play-art/cfb27/assets/add168740905e95005bc7dd772afe309ee60ac018769591da9294f89116802d0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "SPEED OPTION",
+      "asset_id": "af488187e19cbb5f23d2035f166a9ca7fb62a5a5b62d6db2e5613f16018f1fe6",
+      "asset_path": "/play-art/cfb27/assets/af488187e19cbb5f23d2035f166a9ca7fb62a5a5b62d6db2e5613f16018f1fe6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "STICK",
+      "asset_id": "ec743b48df31a63d3bf76e69ee641f58fcb46be417e37d5c76de7ece5ce724a1",
+      "asset_path": "/play-art/cfb27/assets/ec743b48df31a63d3bf76e69ee641f58fcb46be417e37d5c76de7ece5ce724a1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "DOUBLE POST",
+      "asset_id": "3aa61be8b3dad035b997c8f078ed667085e268d9a197b4bc602ea3420dcacd3d",
+      "asset_path": "/play-art/cfb27/assets/3aa61be8b3dad035b997c8f078ed667085e268d9a197b4bc602ea3420dcacd3d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_id": "5ce9efb53915b0d3ff0182b716bfac7c73d47ccdd9efc926e75b094b5f08704f",
+      "asset_path": "/play-art/cfb27/assets/5ce9efb53915b0d3ff0182b716bfac7c73d47ccdd9efc926e75b094b5f08704f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Rt Open",
+      "play_name": "WR MID SCREEN",
+      "asset_id": "8b65f7029669c51eeb4761fa450faf7652c087bd6d276addb32d8c15dcd5cd6d",
+      "asset_path": "/play-art/cfb27/assets/8b65f7029669c51eeb4761fa450faf7652c087bd6d276addb32d8c15dcd5cd6d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN OUT H-ANGLE",
+      "asset_id": "45498fb2b024601a9e078b05d8dea1be0019e9ac615d104b730eaac1aa9f2a85",
+      "asset_path": "/play-art/cfb27/assets/45498fb2b024601a9e078b05d8dea1be0019e9ac615d104b730eaac1aa9f2a85.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN OUT N UP",
+      "asset_id": "15f52d2cb6b5b709fb6d44374b8d233ea2e26037f34e3aced53c35e9b9d3074c",
+      "asset_path": "/play-art/cfb27/assets/15f52d2cb6b5b709fb6d44374b8d233ea2e26037f34e3aced53c35e9b9d3074c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN CORNER SLOT CHOICE",
+      "asset_id": "27f6f268bb7343a716d6769e54ad88313c12b0cc43dfd204cfbda77871471d7c",
+      "asset_path": "/play-art/cfb27/assets/27f6f268bb7343a716d6769e54ad88313c12b0cc43dfd204cfbda77871471d7c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN EMPTY SLOT SHAKE",
+      "asset_id": "af2df18291c7837e14ecae4589b9199dfd356cf0c6c9155f4a054fbb7f5970c1",
+      "asset_path": "/play-art/cfb27/assets/af2df18291c7837e14ecae4589b9199dfd356cf0c6c9155f4a054fbb7f5970c1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN EMPTY SLOT WHEEL",
+      "asset_id": "ce16d47e841ff9f4f62ba6d566e1701a1ec39865c676dca7d261b35ad3c75f81",
+      "asset_path": "/play-art/cfb27/assets/ce16d47e841ff9f4f62ba6d566e1701a1ec39865c676dca7d261b35ad3c75f81.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN EMPTY TE MID SCREEN",
+      "asset_id": "dfe649774af93e3645be5453c7b6c1717fad41bb9dcbbe69cbda63bcc87b5073",
+      "asset_path": "/play-art/cfb27/assets/dfe649774af93e3645be5453c7b6c1717fad41bb9dcbbe69cbda63bcc87b5073.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "SLOT UNDER H-ANGLE",
+      "asset_id": "bcc7787d9bea270f7420aaa2dbf84efc8d35365349ebf33eea7dd9b1284ddc07",
+      "asset_path": "/play-art/cfb27/assets/bcc7787d9bea270f7420aaa2dbf84efc8d35365349ebf33eea7dd9b1284ddc07.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "13238522c45d3f352f07f8e49de0cf89240deeb3a3ff6892dc669c0dcd43d58c",
+      "asset_path": "/play-art/cfb27/assets/13238522c45d3f352f07f8e49de0cf89240deeb3a3ff6892dc669c0dcd43d58c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "PA CROSSERS",
+      "asset_id": "59a2632533d99cb778992cefc9525ae5d02b861739eb533179d1396b500b8361",
+      "asset_path": "/play-art/cfb27/assets/59a2632533d99cb778992cefc9525ae5d02b861739eb533179d1396b500b8361.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN MILLS",
+      "asset_id": "41ff87bd9a282a7db57363ce4c79a124415a9149dc68a28550dca02077c65708",
+      "asset_path": "/play-art/cfb27/assets/41ff87bd9a282a7db57363ce4c79a124415a9149dc68a28550dca02077c65708.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN SHOCK SLOT DIG",
+      "asset_id": "c4ae3487ddcc294ef6e8ac15554030216cda8a59c51f9f025ad118c0e9083e6d",
+      "asset_path": "/play-art/cfb27/assets/c4ae3487ddcc294ef6e8ac15554030216cda8a59c51f9f025ad118c0e9083e6d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MTN STICK",
+      "asset_id": "b7786f15a52350141af13c6d336b15136e105648e4f6c53e684540fc88049f79",
+      "asset_path": "/play-art/cfb27/assets/b7786f15a52350141af13c6d336b15136e105648e4f6c53e684540fc88049f79.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "SHOCK H OPTION",
+      "asset_id": "6ba215a2856fcc811541fa7b659187db8ef6cfc5995648b8de48e608c2204412",
+      "asset_path": "/play-art/cfb27/assets/6ba215a2856fcc811541fa7b659187db8ef6cfc5995648b8de48e608c2204412.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "HB QUICK BASE",
+      "asset_id": "ea5adc63344985d87586a0fb429bc9f401ddd1ebc14485c20f3e676ce18ac971",
+      "asset_path": "/play-art/cfb27/assets/ea5adc63344985d87586a0fb429bc9f401ddd1ebc14485c20f3e676ce18ac971.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "PA DAGGER",
+      "asset_id": "92b2522de95d03b18937b0bf870592f65d2496154d023e4312f40434e64fa45d",
+      "asset_path": "/play-art/cfb27/assets/92b2522de95d03b18937b0bf870592f65d2496154d023e4312f40434e64fa45d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "SLOT SEAM",
+      "asset_id": "a5b1970c3cdc498567e758b798e93aa032541915ec1614ef1964e3655f79f590",
+      "asset_path": "/play-art/cfb27/assets/a5b1970c3cdc498567e758b798e93aa032541915ec1614ef1964e3655f79f590.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_id": "42d140dc503854d024295512e59584930b959537c2ceb049cc4ebb93c096baca",
+      "asset_path": "/play-art/cfb27/assets/42d140dc503854d024295512e59584930b959537c2ceb049cc4ebb93c096baca.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "MESH WHIPS",
+      "asset_id": "e127fbf42b8bb007d8c08008b0908dedcefe04a595ff1a515c7c7f5440550bee",
+      "asset_path": "/play-art/cfb27/assets/e127fbf42b8bb007d8c08008b0908dedcefe04a595ff1a515c7c7f5440550bee.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "CURL FLAT",
+      "asset_id": "89625253e5b9bb7a65bacc14785e2caf68a5c415a52b78df9e8a94136bc74283",
+      "asset_path": "/play-art/cfb27/assets/89625253e5b9bb7a65bacc14785e2caf68a5c415a52b78df9e8a94136bc74283.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "b615fa3b611cc73148f00eb0f5b6eeabf37c64031c2656aad75a007d3e6caf73",
+      "asset_path": "/play-art/cfb27/assets/b615fa3b611cc73148f00eb0f5b6eeabf37c64031c2656aad75a007d3e6caf73.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trio Y-Flex",
+      "play_name": "SLOT OUT",
+      "asset_id": "ef0c6d3e1a43f915a889e7e5758323971d62aaf12d3f8eace98c8ed444cd1885",
+      "asset_path": "/play-art/cfb27/assets/ef0c6d3e1a43f915a889e7e5758323971d62aaf12d3f8eace98c8ed444cd1885.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "STICK WHEEL",
+      "asset_id": "e237ad70814db82cf0034bcbd935ce6c53810091a84ed2efbf8184ff2f61bded",
+      "asset_path": "/play-art/cfb27/assets/e237ad70814db82cf0034bcbd935ce6c53810091a84ed2efbf8184ff2f61bded.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "RPO READ BUBBLE",
+      "asset_id": "13639503f5124f42f80012577813d4cae0a57ac07be3927ef018ff84a8b0bd24",
+      "asset_path": "/play-art/cfb27/assets/13639503f5124f42f80012577813d4cae0a57ac07be3927ef018ff84a8b0bd24.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "WR MID SCREEN",
+      "asset_id": "6f65c6f41359e3e1d217f86a58a843ce88134ac681a7067b0ea139be8af74e4a",
+      "asset_path": "/play-art/cfb27/assets/6f65c6f41359e3e1d217f86a58a843ce88134ac681a7067b0ea139be8af74e4a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "CURLS",
+      "asset_id": "eeb202842d0254161f2118ef2ae965e427409039018e9accd682d1a35e36881f",
+      "asset_path": "/play-art/cfb27/assets/eeb202842d0254161f2118ef2ae965e427409039018e9accd682d1a35e36881f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "RPO ALERT SCREEN",
+      "asset_id": "64980adad9831fe6ade5ca59d5ab40d267326357513cb0915ffbaa6d529c9377",
+      "asset_path": "/play-art/cfb27/assets/64980adad9831fe6ade5ca59d5ab40d267326357513cb0915ffbaa6d529c9377.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "SLOT DRIVE",
+      "asset_id": "371379a897a00850390536ce96a58eb32b9935db5252ed9d69b0d38c3cfe9b6c",
+      "asset_path": "/play-art/cfb27/assets/371379a897a00850390536ce96a58eb32b9935db5252ed9d69b0d38c3cfe9b6c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "d4fc61aa7ccdc0b8be459bb3af28a9535fc3eac2b3f02931ec297c335f4c0d64",
+      "asset_path": "/play-art/cfb27/assets/d4fc61aa7ccdc0b8be459bb3af28a9535fc3eac2b3f02931ec297c335f4c0d64.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "SLANT SMASH",
+      "asset_id": "58c8ed8875efb28df13efd214790585cee872545cd8e122c9f0ed2d794108ff4",
+      "asset_path": "/play-art/cfb27/assets/58c8ed8875efb28df13efd214790585cee872545cd8e122c9f0ed2d794108ff4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "RPO PEEK STICK",
+      "asset_id": "cbbd986a31bb52717bdf21c20dad85b628079e07259fbce37bdd9541226a5b42",
+      "asset_path": "/play-art/cfb27/assets/cbbd986a31bb52717bdf21c20dad85b628079e07259fbce37bdd9541226a5b42.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "FADE STOPS",
+      "asset_id": "6bb5ac2d7d643254d5fa77faf63cd1bd2a5fe4c8b0da697f3fc5e020e6750ea2",
+      "asset_path": "/play-art/cfb27/assets/6bb5ac2d7d643254d5fa77faf63cd1bd2a5fe4c8b0da697f3fc5e020e6750ea2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "f6b6f8af7dcab5c3142853b93abb44cb278a431612058cc7b483d5b8df342a79",
+      "asset_path": "/play-art/cfb27/assets/f6b6f8af7dcab5c3142853b93abb44cb278a431612058cc7b483d5b8df342a79.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips",
+      "play_name": "FOUR VERTICALS",
+      "asset_id": "6ada79296e1eb089726277a484b2190e6b5e43947882af46078676ee11631846",
+      "asset_path": "/play-art/cfb27/assets/6ada79296e1eb089726277a484b2190e6b5e43947882af46078676ee11631846.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "MTN BENCH",
+      "asset_id": "a309fb55ac5927d82f80d6950f59cb8d618bb5a30f902409e84b04a5ad1fa692",
+      "asset_path": "/play-art/cfb27/assets/a309fb55ac5927d82f80d6950f59cb8d618bb5a30f902409e84b04a5ad1fa692.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "MTN RETURN LEVELS",
+      "asset_id": "4b6de482d8db444435fe9582fe3dd6a7b4abe83e956a49287f4ce82106a47128",
+      "asset_path": "/play-art/cfb27/assets/4b6de482d8db444435fe9582fe3dd6a7b4abe83e956a49287f4ce82106a47128.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "MTN Z SPOT",
+      "asset_id": "7a17828455df9a6d35f9ef84fbc34caf60540d8d4e7c6b0b4d955c43bdd038a7",
+      "asset_path": "/play-art/cfb27/assets/7a17828455df9a6d35f9ef84fbc34caf60540d8d4e7c6b0b4d955c43bdd038a7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "QB ZONE",
+      "asset_id": "f025775b22a4836cecfd27b31aaafc85856142368388aa74dc0e43fb731c65d4",
+      "asset_path": "/play-art/cfb27/assets/f025775b22a4836cecfd27b31aaafc85856142368388aa74dc0e43fb731c65d4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "INSIDE CROSS",
+      "asset_id": "1b181478db5b0f4e4277e69800f5918d38bfb9a5449ebf5686b19d67d0c62411",
+      "asset_path": "/play-art/cfb27/assets/1b181478db5b0f4e4277e69800f5918d38bfb9a5449ebf5686b19d67d0c62411.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "QB STRONG POWER",
+      "asset_id": "f86ca4216b5e353e7de6ece44fa94aaec53072511254632e33fea296f7dedc97",
+      "asset_path": "/play-art/cfb27/assets/f86ca4216b5e353e7de6ece44fa94aaec53072511254632e33fea296f7dedc97.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "ORBIT CROSS SCREEN",
+      "asset_id": "a448847b69f8c365235bda5d292a1e3e3892b78511abdefeeb97a43068cd2d26",
+      "asset_path": "/play-art/cfb27/assets/a448847b69f8c365235bda5d292a1e3e3892b78511abdefeeb97a43068cd2d26.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "ORBIT PA HB WHEEL",
+      "asset_id": "788f6468a49559238fb8ef98a87d5c6baf1a4190434d83937d85ff91e49b2114",
+      "asset_path": "/play-art/cfb27/assets/788f6468a49559238fb8ef98a87d5c6baf1a4190434d83937d85ff91e49b2114.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "ORBIT RPO ALERT SCREEN",
+      "asset_id": "45e0a3182a49f671b13b83fd9065d10a4d5c55dba189aa0f9dcce44bf33b2ea7",
+      "asset_path": "/play-art/cfb27/assets/45e0a3182a49f671b13b83fd9065d10a4d5c55dba189aa0f9dcce44bf33b2ea7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "SLOT QUICK FLAT",
+      "asset_id": "0e6ef1dfc5e509378b3ca762976ac578e547fc876ba6d23d63cd5f358e605327",
+      "asset_path": "/play-art/cfb27/assets/0e6ef1dfc5e509378b3ca762976ac578e547fc876ba6d23d63cd5f358e605327.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_id": "62b9dd68718e0cf2bd01323f82522be4ce9fc87f9d7594afc57f78433898ea8e",
+      "asset_path": "/play-art/cfb27/assets/62b9dd68718e0cf2bd01323f82522be4ce9fc87f9d7594afc57f78433898ea8e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "PA BOOT SHOT",
+      "asset_id": "9e89b3c0b7fb1abe074d511a3997fbe0181f6ec774081346a416dc7cc170df7c",
+      "asset_path": "/play-art/cfb27/assets/9e89b3c0b7fb1abe074d511a3997fbe0181f6ec774081346a416dc7cc170df7c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "CHINA Y POST",
+      "asset_id": "e3df6653a978985335cb91a36c1aad60bf2650b0e947de35a58123b5a158d01b",
+      "asset_path": "/play-art/cfb27/assets/e3df6653a978985335cb91a36c1aad60bf2650b0e947de35a58123b5a158d01b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "HB COUNTER",
+      "asset_id": "6207e0a970d117df4a10dbdb373178a33f9970dde275c8196a7ba20a5d158810",
+      "asset_path": "/play-art/cfb27/assets/6207e0a970d117df4a10dbdb373178a33f9970dde275c8196a7ba20a5d158810.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "PA COUNTER GO",
+      "asset_id": "b01a5fb70a40c8fc67c208597c51b84b1e3a51d6a46b4e12f03f591205e15d49",
+      "asset_path": "/play-art/cfb27/assets/b01a5fb70a40c8fc67c208597c51b84b1e3a51d6a46b4e12f03f591205e15d49.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "SHALLOW X DIG",
+      "asset_id": "84565cf7e8bf1a9bff07e87b817354e2970a71678cc38f3c38b1db5caac2dd62",
+      "asset_path": "/play-art/cfb27/assets/84565cf7e8bf1a9bff07e87b817354e2970a71678cc38f3c38b1db5caac2dd62.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "READ OPTION",
+      "asset_id": "8acd9626f40d0b09282fab03591646a7db5e0c0b8a26353c32d21b955d3ed6ad",
+      "asset_path": "/play-art/cfb27/assets/8acd9626f40d0b09282fab03591646a7db5e0c0b8a26353c32d21b955d3ed6ad.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "DRIVE POST",
+      "asset_id": "ad0829d6787f1d5717c817090240ce99377b6a63c1d8a4095ab7a6bd5bff1c92",
+      "asset_path": "/play-art/cfb27/assets/ad0829d6787f1d5717c817090240ce99377b6a63c1d8a4095ab7a6bd5bff1c92.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "DEEP IN",
+      "asset_id": "aac2ccaa5ea050fb6d13f40499da98760c80ebacc1c22167babe5f3ab5afe0c4",
+      "asset_path": "/play-art/cfb27/assets/aac2ccaa5ea050fb6d13f40499da98760c80ebacc1c22167babe5f3ab5afe0c4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "CURL FLAT",
+      "asset_id": "7b7a4930cfa7b68954435434fd93b0712c391381afdb46b5746a198a6e24e4f3",
+      "asset_path": "/play-art/cfb27/assets/7b7a4930cfa7b68954435434fd93b0712c391381afdb46b5746a198a6e24e4f3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "WR SHORT POST",
+      "asset_id": "4acee75e2106acafc7b791f1902e47f0e9a8d187e6259e0620def228c8621501",
+      "asset_path": "/play-art/cfb27/assets/4acee75e2106acafc7b791f1902e47f0e9a8d187e6259e0620def228c8621501.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "VERTICALS",
+      "asset_id": "5a620424e3068d7b1be95f97b5adea11b118aacd156242050a3ac6d469c8e2bf",
+      "asset_path": "/play-art/cfb27/assets/5a620424e3068d7b1be95f97b5adea11b118aacd156242050a3ac6d469c8e2bf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "15c7cad3351014a774426a435189e765f23cb48111ccedc26432787b7555cac7",
+      "asset_path": "/play-art/cfb27/assets/15c7cad3351014a774426a435189e765f23cb48111ccedc26432787b7555cac7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "97e479d70ccf574bd5368dce7fd6c2f2600ca9a439c0cdc0d6c8d600de5b0ed1",
+      "asset_path": "/play-art/cfb27/assets/97e479d70ccf574bd5368dce7fd6c2f2600ca9a439c0cdc0d6c8d600de5b0ed1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "SHUFFLE MTN FK SCREEN WHEEL",
+      "asset_id": "8f1b2d94072b54e0e8a77f8e672fc7bb2ef91ee84a86590ab0b814a992917603",
+      "asset_path": "/play-art/cfb27/assets/8f1b2d94072b54e0e8a77f8e672fc7bb2ef91ee84a86590ab0b814a992917603.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "SHUFFLE MTN HB SWING",
+      "asset_id": "b24cb8540be389b0941fc8767c196be951907cbfb9a802b1525cfc32af92958c",
+      "asset_path": "/play-art/cfb27/assets/b24cb8540be389b0941fc8767c196be951907cbfb9a802b1525cfc32af92958c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips TE",
+      "play_name": "SHUFFLE MTN LEVELS",
+      "asset_id": "f802697c219430c390b6feb42341ab3179f51b762a863e960f0b87c88d976e51",
+      "asset_path": "/play-art/cfb27/assets/f802697c219430c390b6feb42341ab3179f51b762a863e960f0b87c88d976e51.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN DRAG SLUGGO",
+      "asset_id": "4a48664f3aa1c96c6d45488c1512e96457a8850795a3bd795b316a3d3afa03dd",
+      "asset_path": "/play-art/cfb27/assets/4a48664f3aa1c96c6d45488c1512e96457a8850795a3bd795b316a3d3afa03dd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN SLOT FADES",
+      "asset_id": "1593f5e24ac7c51f6f4585d00c755ad4f53ed7d84bfd7fb363755d64422fa3b2",
+      "asset_path": "/play-art/cfb27/assets/1593f5e24ac7c51f6f4585d00c755ad4f53ed7d84bfd7fb363755d64422fa3b2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN TRIPLE SLANTS",
+      "asset_id": "197c2094d0173ab6db8cbd4bd2d8da679e57f5ddd31f55e7d410e9a4033e353f",
+      "asset_path": "/play-art/cfb27/assets/197c2094d0173ab6db8cbd4bd2d8da679e57f5ddd31f55e7d410e9a4033e353f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "HI LO CROSS",
+      "asset_id": "965b17430063bcf7e93c925b1f4fffb1d719cb8442c0d124618911485d60060a",
+      "asset_path": "/play-art/cfb27/assets/965b17430063bcf7e93c925b1f4fffb1d719cb8442c0d124618911485d60060a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "5118201db14a39758363c95e58442cfe561ca71b36e137bd0fdb894fa1af18a5",
+      "asset_path": "/play-art/cfb27/assets/5118201db14a39758363c95e58442cfe561ca71b36e137bd0fdb894fa1af18a5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "PA X CROSS SHOT",
+      "asset_id": "5effeee1924be1661ad75ef0dfe3c9c33f44bcf7b47245cbf150699c3529f7c8",
+      "asset_path": "/play-art/cfb27/assets/5effeee1924be1661ad75ef0dfe3c9c33f44bcf7b47245cbf150699c3529f7c8.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "SLOT FADE H WHEEL",
+      "asset_id": "babae560050c3e8681ecd959d1768f231eb92c313345f7d00ee383699ee97a82",
+      "asset_path": "/play-art/cfb27/assets/babae560050c3e8681ecd959d1768f231eb92c313345f7d00ee383699ee97a82.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "HB OFF TACKLE",
+      "asset_id": "33b9bf0ea12ebeef053c6f85b825d9e76873322165ccf9179122f1d8df11e30a",
+      "asset_path": "/play-art/cfb27/assets/33b9bf0ea12ebeef053c6f85b825d9e76873322165ccf9179122f1d8df11e30a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "WR SMASH",
+      "asset_id": "513f3b460c3b02060d63473f212b0c7c31ebcec3459e67d329cfca0d237560eb",
+      "asset_path": "/play-art/cfb27/assets/513f3b460c3b02060d63473f212b0c7c31ebcec3459e67d329cfca0d237560eb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "QUICK UNDERS",
+      "asset_id": "055155e6266d66c6b8940e11b7b76e934a799608c996d36af192a0a80b595f7e",
+      "asset_path": "/play-art/cfb27/assets/055155e6266d66c6b8940e11b7b76e934a799608c996d36af192a0a80b595f7e.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "QUICK SHORT POST",
+      "asset_id": "a9ebbbf10e02d8d9cda7105f42852d7e38c63d479dc3d41e8874edcc2be32cfb",
+      "asset_path": "/play-art/cfb27/assets/a9ebbbf10e02d8d9cda7105f42852d7e38c63d479dc3d41e8874edcc2be32cfb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "QUICK FORK ZIG",
+      "asset_id": "45d47e9a2bcfb7de381fb8ae3bf387862ac2a29d5f0190e68e0ba237fb0c09df",
+      "asset_path": "/play-art/cfb27/assets/45d47e9a2bcfb7de381fb8ae3bf387862ac2a29d5f0190e68e0ba237fb0c09df.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN SPOT Y CORNER",
+      "asset_id": "a35a86bf90d7a847a50776dce4dd2b6e9f35a4cd95656c6052fe404947d606bb",
+      "asset_path": "/play-art/cfb27/assets/a35a86bf90d7a847a50776dce4dd2b6e9f35a4cd95656c6052fe404947d606bb.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN HB SWING",
+      "asset_id": "9550c0cb8e6dc017223fae82b960aae45c75ddbef54fd0f8bc22ea4df82d2378",
+      "asset_path": "/play-art/cfb27/assets/9550c0cb8e6dc017223fae82b960aae45c75ddbef54fd0f8bc22ea4df82d2378.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "MTN STICK WHEEL",
+      "asset_id": "d50518483be2e2286fbaf16de941570fae3331da0abfc28f46e8e82bf27eb8ce",
+      "asset_path": "/play-art/cfb27/assets/d50518483be2e2286fbaf16de941570fae3331da0abfc28f46e8e82bf27eb8ce.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "VERTICALS X SHALLOW",
+      "asset_id": "a739caa7736b384787b7d7b03fe3e3713a1692ee2c9679d2876268c04e62486c",
+      "asset_path": "/play-art/cfb27/assets/a739caa7736b384787b7d7b03fe3e3713a1692ee2c9679d2876268c04e62486c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "HB MID DRAW",
+      "asset_id": "67d469ff80e14d2d7d3e3fbbd91d79cf18801d153f292afd0cbbcf810ad946fa",
+      "asset_path": "/play-art/cfb27/assets/67d469ff80e14d2d7d3e3fbbd91d79cf18801d153f292afd0cbbcf810ad946fa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Trips X Nasty",
+      "play_name": "HI LO DIG",
+      "asset_id": "9b1aff7b385fc5f7a337ba3e912f0c6c691a2291d636d011d2d7d1f0b652367a",
+      "asset_path": "/play-art/cfb27/assets/9b1aff7b385fc5f7a337ba3e912f0c6c691a2291d636d011d2d7d1f0b652367a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "MESH SPOT",
+      "asset_id": "3f4143ac14593776085b1b082dc329075786d76d129e6adf880272c1b9b17f79",
+      "asset_path": "/play-art/cfb27/assets/3f4143ac14593776085b1b082dc329075786d76d129e6adf880272c1b9b17f79.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "37e08ebc2ba529c9cd11f81ca9d201050373f1d928e2bf31a094031f805cbfb7",
+      "asset_path": "/play-art/cfb27/assets/37e08ebc2ba529c9cd11f81ca9d201050373f1d928e2bf31a094031f805cbfb7.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "PA DOUBLE POST",
+      "asset_id": "dba784fe994c0a51a20847a28208c863970c5bfff30b771f0f62ef145215c0bc",
+      "asset_path": "/play-art/cfb27/assets/dba784fe994c0a51a20847a28208c863970c5bfff30b771f0f62ef145215c0bc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "DRAGON SPACING",
+      "asset_id": "c021c82e93410c467288e58a6727a21c491c391648cde3b675da5ce6557a5eb5",
+      "asset_path": "/play-art/cfb27/assets/c021c82e93410c467288e58a6727a21c491c391648cde3b675da5ce6557a5eb5.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "RPO ALERT BUBBLE",
+      "asset_id": "6c25d675475437677c391c67839ad2ff1aad1996385c1aea73c7d74342370d65",
+      "asset_path": "/play-art/cfb27/assets/6c25d675475437677c391c67839ad2ff1aad1996385c1aea73c7d74342370d65.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "SPOT OPTION",
+      "asset_id": "c30cf38257be34ecb90b064b4a5f595490f48c7993d86fc364374b3f247837c6",
+      "asset_path": "/play-art/cfb27/assets/c30cf38257be34ecb90b064b4a5f595490f48c7993d86fc364374b3f247837c6.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "DRIVE",
+      "asset_id": "d339d6d3538aa31751edbf29c8da71babff98fc742eb90eabce51e657c1e1397",
+      "asset_path": "/play-art/cfb27/assets/d339d6d3538aa31751edbf29c8da71babff98fc742eb90eabce51e657c1e1397.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "READ OPTION",
+      "asset_id": "c2e9d5a4854514cf4f52b8a03adef5471701c7358f836710b7fab5331a7f40d4",
+      "asset_path": "/play-art/cfb27/assets/c2e9d5a4854514cf4f52b8a03adef5471701c7358f836710b7fab5331a7f40d4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "PA READ",
+      "asset_id": "9e14a5160c0954aeac0645d41a9110544bd9d36359144dc06a3dcb0b640a1070",
+      "asset_path": "/play-art/cfb27/assets/9e14a5160c0954aeac0645d41a9110544bd9d36359144dc06a3dcb0b640a1070.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "STICK NOD VERTICAL",
+      "asset_id": "6fb5df02d9ee58a722ccf504352d1ea7fb3e6979228f8726f2db5cbb6a3674dc",
+      "asset_path": "/play-art/cfb27/assets/6fb5df02d9ee58a722ccf504352d1ea7fb3e6979228f8726f2db5cbb6a3674dc.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "POWER O",
+      "asset_id": "e3cdf63a1a6ac532796bfcde8c3be75d5bed12fe74a0cac523e95c326cd53cc2",
+      "asset_path": "/play-art/cfb27/assets/e3cdf63a1a6ac532796bfcde8c3be75d5bed12fe74a0cac523e95c326cd53cc2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Wing Slot Offset",
+      "play_name": "ALL GO",
+      "asset_id": "f4dfec441de3389dcfb815e51bc7fc4c0a15b7371119fe237d07b458421b0687",
+      "asset_path": "/play-art/cfb27/assets/f4dfec441de3389dcfb815e51bc7fc4c0a15b7371119fe237d07b458421b0687.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "DASH FLOOD",
+      "asset_id": "4da2aad309383ff7e37c3b0370c1e110bf10b4379c34c8eeb4407bb7ba93816b",
+      "asset_path": "/play-art/cfb27/assets/4da2aad309383ff7e37c3b0370c1e110bf10b4379c34c8eeb4407bb7ba93816b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "HB POWER O",
+      "asset_id": "d52e384e2f9e733d99a6cf737b2ff605a65ac192599870250665bfdd013392ce",
+      "asset_path": "/play-art/cfb27/assets/d52e384e2f9e733d99a6cf737b2ff605a65ac192599870250665bfdd013392ce.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "FLOOD",
+      "asset_id": "46065d32abd1c1ab88c7a8a59b2d6c4e0476915a3394d38dfbb89d83862a42f0",
+      "asset_path": "/play-art/cfb27/assets/46065d32abd1c1ab88c7a8a59b2d6c4e0476915a3394d38dfbb89d83862a42f0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN OUT DEEP CORNER",
+      "asset_id": "a15c4591dde84818d1a89971a54afd3af801a286ea562112d1462b06e228bf63",
+      "asset_path": "/play-art/cfb27/assets/a15c4591dde84818d1a89971a54afd3af801a286ea562112d1462b06e228bf63.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN INSIDE ZONE SPLIT",
+      "asset_id": "f27f7b5c4f1c09b06359cad72384dd2dce6a9e869a2f70ee3a2c69a0340b29bf",
+      "asset_path": "/play-art/cfb27/assets/f27f7b5c4f1c09b06359cad72384dd2dce6a9e869a2f70ee3a2c69a0340b29bf.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN FORK DAGGER",
+      "asset_id": "aea0efac8f902ac022e8585225a29e1bacbf0ca3af13373748f98031a5bf2211",
+      "asset_path": "/play-art/cfb27/assets/aea0efac8f902ac022e8585225a29e1bacbf0ca3af13373748f98031a5bf2211.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "SMASH RETURN",
+      "asset_id": "1e0f147c464ef814abd758a6a77eb390288dcf09a7d84d49f7f3910e85174c8d",
+      "asset_path": "/play-art/cfb27/assets/1e0f147c464ef814abd758a6a77eb390288dcf09a7d84d49f7f3910e85174c8d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "782d3c3e9037c94ac4a206f92bc1113369b96f5731ce0bd91d5d35d269c7d56f",
+      "asset_path": "/play-art/cfb27/assets/782d3c3e9037c94ac4a206f92bc1113369b96f5731ce0bd91d5d35d269c7d56f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "SNAG HB FLAT",
+      "asset_id": "e798e9d63a811c3abb75db3e2ca3f8fb05378bf60086e45c80431290ee0bd734",
+      "asset_path": "/play-art/cfb27/assets/e798e9d63a811c3abb75db3e2ca3f8fb05378bf60086e45c80431290ee0bd734.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN MESH Z RAIL",
+      "asset_id": "5022beafbed6fb92b1550730de13cfa4390088f82bb4a7d1abccc56c4ea8c7d9",
+      "asset_path": "/play-art/cfb27/assets/5022beafbed6fb92b1550730de13cfa4390088f82bb4a7d1abccc56c4ea8c7d9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN RPO ALERT SWING",
+      "asset_id": "feabb4ff85dce51d22d007cad1bca7aca56ff32e18587bd9c4e739f90eff2127",
+      "asset_path": "/play-art/cfb27/assets/feabb4ff85dce51d22d007cad1bca7aca56ff32e18587bd9c4e739f90eff2127.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Close Wk",
+      "play_name": "MTN PA X OVER",
+      "asset_id": "8f84b045f2b55f9ce3fce4627c2eefdb30d3797c1385e3ad1b9fc351cbcb2264",
+      "asset_path": "/play-art/cfb27/assets/8f84b045f2b55f9ce3fce4627c2eefdb30d3797c1385e3ad1b9fc351cbcb2264.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "MTN SMASH GO",
+      "asset_id": "73e1b6fa8e40c0ee41863f10358800fe3c839e86fc913939655a98db8cd2116a",
+      "asset_path": "/play-art/cfb27/assets/73e1b6fa8e40c0ee41863f10358800fe3c839e86fc913939655a98db8cd2116a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "MTN SPLIT ZONE",
+      "asset_id": "503d7d4a79dfa2f9265ef9435fa375bc94c9746371d37eb99672793313adc7c3",
+      "asset_path": "/play-art/cfb27/assets/503d7d4a79dfa2f9265ef9435fa375bc94c9746371d37eb99672793313adc7c3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "MTN PA DEEP OVER",
+      "asset_id": "10491ddb467183fd1cae635c15e105bf0c4d8e26cdb072a061e5fe74e057be03",
+      "asset_path": "/play-art/cfb27/assets/10491ddb467183fd1cae635c15e105bf0c4d8e26cdb072a061e5fe74e057be03.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "ORBIT PA CROSS",
+      "asset_id": "6e2a7aa41e669272a19925cd5bb2d9567f7b46f282178ca2cac50dc0729af8be",
+      "asset_path": "/play-art/cfb27/assets/6e2a7aa41e669272a19925cd5bb2d9567f7b46f282178ca2cac50dc0729af8be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "RPO ALERT ORBIT",
+      "asset_id": "ae31877887f66a5cd8a5e939b2aa029934915b6bcc8ac85bf28610cb16747054",
+      "asset_path": "/play-art/cfb27/assets/ae31877887f66a5cd8a5e939b2aa029934915b6bcc8ac85bf28610cb16747054.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "ORBIT PA SCISSORS",
+      "asset_id": "13c183c7c5ff128d4eb24c3ead97aee22849c015ec0c0a8d3d8b9a0ac1d37977",
+      "asset_path": "/play-art/cfb27/assets/13c183c7c5ff128d4eb24c3ead97aee22849c015ec0c0a8d3d8b9a0ac1d37977.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "QUICK FORK ZIG",
+      "asset_id": "8022fdc7b1089aca963e97af77d74f3fec98f474d5c20f4dbca361566176d0a9",
+      "asset_path": "/play-art/cfb27/assets/8022fdc7b1089aca963e97af77d74f3fec98f474d5c20f4dbca361566176d0a9.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "QUICK SHORT POST",
+      "asset_id": "19539ee8207b0ecbce0200bf25d8a2aa54d9c417fe80616127d2d671f17fad1b",
+      "asset_path": "/play-art/cfb27/assets/19539ee8207b0ecbce0200bf25d8a2aa54d9c417fe80616127d2d671f17fad1b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "QUICK UNDERS",
+      "asset_id": "861a05e942d9180788994eceb06981c980068ba55c1df5a2abb967d46e011d0a",
+      "asset_path": "/play-art/cfb27/assets/861a05e942d9180788994eceb06981c980068ba55c1df5a2abb967d46e011d0a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "SHOCK H OPTION",
+      "asset_id": "1a5bfa742be5753b42999b2bcf96d1339a50bcac4435d96b755848f094f1e462",
+      "asset_path": "/play-art/cfb27/assets/1a5bfa742be5753b42999b2bcf96d1339a50bcac4435d96b755848f094f1e462.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "Y LEAD READ OPTION",
+      "asset_id": "f8cf98337646216887044182cc3079f63382fe45a38be92494839901564d5091",
+      "asset_path": "/play-art/cfb27/assets/f8cf98337646216887044182cc3079f63382fe45a38be92494839901564d5091.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "PA Y WHEEL",
+      "asset_id": "e6d39f082b529a5846c9703f07b716badff2114cfb1719d20a491bb2d674c2c2",
+      "asset_path": "/play-art/cfb27/assets/e6d39f082b529a5846c9703f07b716badff2114cfb1719d20a491bb2d674c2c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "DAGGER X OUT",
+      "asset_id": "32f71c5bff47f96cd87d14460224a111e538ede188b2b523cc9fca1c580413d1",
+      "asset_path": "/play-art/cfb27/assets/32f71c5bff47f96cd87d14460224a111e538ede188b2b523cc9fca1c580413d1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "bfd3c28d1881805aeb14d8b1d071443b360f3b8c95a1891e7b0ab16d0b3141fd",
+      "asset_path": "/play-art/cfb27/assets/bfd3c28d1881805aeb14d8b1d071443b360f3b8c95a1891e7b0ab16d0b3141fd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB CIRCLE",
+      "asset_id": "df7727f7abc30a0a2390d8f271e6e96a697180484e51dbc8b00cb414e67ea184",
+      "asset_path": "/play-art/cfb27/assets/df7727f7abc30a0a2390d8f271e6e96a697180484e51dbc8b00cb414e67ea184.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "DOUBLE DRAGS",
+      "asset_id": "e1d39bcb22811a50bbab444fcbc26508eb298846f435b20627dce1217db8077f",
+      "asset_path": "/play-art/cfb27/assets/e1d39bcb22811a50bbab444fcbc26508eb298846f435b20627dce1217db8077f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB MID DRAW",
+      "asset_id": "b7df99109b36be8fac825db720291008685dc1b367c33e377ef0170e7f73e9be",
+      "asset_path": "/play-art/cfb27/assets/b7df99109b36be8fac825db720291008685dc1b367c33e377ef0170e7f73e9be.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "PA WR IN",
+      "asset_id": "636357279914c4271f48496ac8b9fd72be6a56e4a1a5910e410cc2504bf3994d",
+      "asset_path": "/play-art/cfb27/assets/636357279914c4271f48496ac8b9fd72be6a56e4a1a5910e410cc2504bf3994d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "FOUR VERTICALS",
+      "asset_id": "2fa323c9032eaa7429e436cf885d93995fa4ef629b6adb835094ed74d92e07c2",
+      "asset_path": "/play-art/cfb27/assets/2fa323c9032eaa7429e436cf885d93995fa4ef629b6adb835094ed74d92e07c2.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB BASE",
+      "asset_id": "a6ffd5d9e1de87db38cb2d4c20dbf00eb60d2584f1e8cf52765a787157a41a71",
+      "asset_path": "/play-art/cfb27/assets/a6ffd5d9e1de87db38cb2d4c20dbf00eb60d2584f1e8cf52765a787157a41a71.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trio Wk",
+      "play_name": "HB SLIP SCREEN",
+      "asset_id": "52057971cbabe59fe6531f62af01e8a6583c056b70e5021aed1f737fbfc50e28",
+      "asset_path": "/play-art/cfb27/assets/52057971cbabe59fe6531f62af01e8a6583c056b70e5021aed1f737fbfc50e28.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN CURL N GO",
+      "asset_id": "8fb4986b8234868b6032deb7046a755e955953192d718b6afb482099c161c018",
+      "asset_path": "/play-art/cfb27/assets/8fb4986b8234868b6032deb7046a755e955953192d718b6afb482099c161c018.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN COUNTER Y",
+      "asset_id": "2cedc9d178122f5bc5777c22ec5b2f929c3186fd4863be1f8e155faddba73cef",
+      "asset_path": "/play-art/cfb27/assets/2cedc9d178122f5bc5777c22ec5b2f929c3186fd4863be1f8e155faddba73cef.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN PA SMASH",
+      "asset_id": "2b738d4bb0003b1e70a015721748e2592134004c045fb467434e134c711922f0",
+      "asset_path": "/play-art/cfb27/assets/2b738d4bb0003b1e70a015721748e2592134004c045fb467434e134c711922f0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN Y SCREEN",
+      "asset_id": "338ab9a79d80b759817786fd4baaf4c51f37cc89c9e74eaa325213b834341ffa",
+      "asset_path": "/play-art/cfb27/assets/338ab9a79d80b759817786fd4baaf4c51f37cc89c9e74eaa325213b834341ffa.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN STICK",
+      "asset_id": "97e015048b905922d7b1cd8875127115bb2655204524620ee6a7d7b5580fc4d0",
+      "asset_path": "/play-art/cfb27/assets/97e015048b905922d7b1cd8875127115bb2655204524620ee6a7d7b5580fc4d0.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "MTN STICK N NOD",
+      "asset_id": "752a6f0c5cf1ce8d547e9c5c979bf342af40ef20ca55ff84a76cd03b5f52cf1a",
+      "asset_path": "/play-art/cfb27/assets/752a6f0c5cf1ce8d547e9c5c979bf342af40ef20ca55ff84a76cd03b5f52cf1a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "INSIDE ZONE",
+      "asset_id": "20f3f7ae23ca6db07e4e2835674f4b7d5f25abbe1fd8e4b6018786b251957c5d",
+      "asset_path": "/play-art/cfb27/assets/20f3f7ae23ca6db07e4e2835674f4b7d5f25abbe1fd8e4b6018786b251957c5d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "CURLS",
+      "asset_id": "aaf69a2d3613a59e391b72e2dc6cf6a2d787fd78926eeb33456060ac49fa797c",
+      "asset_path": "/play-art/cfb27/assets/aaf69a2d3613a59e391b72e2dc6cf6a2d787fd78926eeb33456060ac49fa797c.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO READ Y FLAT",
+      "asset_id": "6e30ce296408c5f8af673a54e93d284bfbb501245b0f59dbd9306568df3c3dca",
+      "asset_path": "/play-art/cfb27/assets/6e30ce296408c5f8af673a54e93d284bfbb501245b0f59dbd9306568df3c3dca.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "SLOT 2 BUC",
+      "asset_id": "bb9e778511b64dfc78c4d4b7f4c4446d3f7958c38e47880225323bcfb0e04edd",
+      "asset_path": "/play-art/cfb27/assets/bb9e778511b64dfc78c4d4b7f4c4446d3f7958c38e47880225323bcfb0e04edd.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "RPO GLANCE POST",
+      "asset_id": "941461bba6522cd68d27b49f0fd1443e05e0580b3854a6c61c23deaf37a3ab7f",
+      "asset_path": "/play-art/cfb27/assets/941461bba6522cd68d27b49f0fd1443e05e0580b3854a6c61c23deaf37a3ab7f.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Gun Y Off Trips",
+      "play_name": "VERTICALS Y OPTION",
+      "asset_id": "504cca0d942ae1b60656c402efb8aa643093dcff576547d415406224ac513204",
+      "asset_path": "/play-art/cfb27/assets/504cca0d942ae1b60656c402efb8aa643093dcff576547d415406224ac513204.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "HB DIVE",
+      "asset_id": "5308bc4c305715a07f201684e1dd651f31610a2f2707bfa738033eadd5bf37c4",
+      "asset_path": "/play-art/cfb27/assets/5308bc4c305715a07f201684e1dd651f31610a2f2707bfa738033eadd5bf37c4.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPOT",
+      "asset_id": "a023575cc8bbb062b48c105b1a5ad9421a87104f44744d42e392fba9b1b5d87d",
+      "asset_path": "/play-art/cfb27/assets/a023575cc8bbb062b48c105b1a5ad9421a87104f44744d42e392fba9b1b5d87d.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "QB SNEAK",
+      "asset_id": "94b6ffc5740c9090a02d3370b1324abd3916d2765adf977ee4322f7b40a35d2b",
+      "asset_path": "/play-art/cfb27/assets/94b6ffc5740c9090a02d3370b1324abd3916d2765adf977ee4322f7b40a35d2b.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "POWER O",
+      "asset_id": "2f528c7d845ec0b4b3f8635f939ee8b65c3ce923b521ebf8b17fa3f89c32c7de",
+      "asset_path": "/play-art/cfb27/assets/2f528c7d845ec0b4b3f8635f939ee8b65c3ce923b521ebf8b17fa3f89c32c7de.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "PA POWER O",
+      "asset_id": "d15c942767da7120aaecaf78cf7e2a95e4fa5f6ca188043ffcca7c2616d42416",
+      "asset_path": "/play-art/cfb27/assets/d15c942767da7120aaecaf78cf7e2a95e4fa5f6ca188043ffcca7c2616d42416.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "FB DIVE WEAK",
+      "asset_id": "21a5a1c566575aed7ea95108e998e13572d5ac39fce4b47cb63522b9796faa56",
+      "asset_path": "/play-art/cfb27/assets/21a5a1c566575aed7ea95108e998e13572d5ac39fce4b47cb63522b9796faa56.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "HB SPLIT 0",
+      "asset_id": "91ef989255b6c6e0af1ead3e8a9665c1c5a818c33219ae39f14db2851c91bd80",
+      "asset_path": "/play-art/cfb27/assets/91ef989255b6c6e0af1ead3e8a9665c1c5a818c33219ae39f14db2851c91bd80.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "PA SPRINT HB FLAT",
+      "asset_id": "df046ba8dc6c224fff0c96acb3a3b2da58600356c9a6e78a3b16493300144ae1",
+      "asset_path": "/play-art/cfb27/assets/df046ba8dc6c224fff0c96acb3a3b2da58600356c9a6e78a3b16493300144ae1.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "HB COUNTER WK",
+      "asset_id": "a642f727bc30c5f03767fba3514af5fbd5043f15a035c260309fcd8b0fc4ce9a",
+      "asset_path": "/play-art/cfb27/assets/a642f727bc30c5f03767fba3514af5fbd5043f15a035c260309fcd8b0fc4ce9a.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "HB STING",
+      "asset_id": "12ca1a979d027426d9faa07f0149a19861f81c0db9310a122667858943a69513",
+      "asset_path": "/play-art/cfb27/assets/12ca1a979d027426d9faa07f0149a19861f81c0db9310a122667858943a69513.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "PA WAGGLE",
+      "asset_id": "10cd4e9d56e750d6d19710a5213881cca13ec7264e687dc288ff064285fc77f3",
+      "asset_path": "/play-art/cfb27/assets/10cd4e9d56e750d6d19710a5213881cca13ec7264e687dc288ff064285fc77f3.jpg"
+    },
+    {
+      "game_version": "cfb27",
+      "side_of_ball": "offense",
+      "playbook": "California",
+      "formation": "Goal Line Normal",
+      "play_name": "STRONG TOSS",
+      "asset_id": "0c7cca3695691a8d446847990ff31d088ff6302f7d08cf3c98286e52e7672ebc",
+      "asset_path": "/play-art/cfb27/assets/0c7cca3695691a8d446847990ff31d088ff6302f7d08cf3c98286e52e7672ebc.jpg"
     }
   ]
 }
