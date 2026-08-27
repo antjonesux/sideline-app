@@ -33,6 +33,7 @@ Playbooks are discovered from matching reports under `scripts/play-art/reports/`
 | `1` / `2` / `3` | Confirm candidate |
 | `Enter` / `Space` / `→` | Confirm matcher ★ pick |
 | `S` | Skip |
+| `D` | Mark vault duplicate (same printed play already kept on another crop) |
 | `N` | Formation play picker (when top 3 are wrong) |
 | `←` | Undo last action (one level) |
 | `Q` | Save state and quit server |
@@ -74,6 +75,8 @@ Shape (existing matcher format):
 ```
 
 This is the operator confirmation path the matcher already reads. USC content-hash reuse (`trusted-hash.ts` + published manifest) is separate and not written by this tool.
+
+Within a formation, each play name maps to one crop. Confirming a play already assigned elsewhere **transfers** that claim to the current crop and **re-queues** the displaced crop (after remaining queue items) so you can assign its **different** correct art. The transferred play is **locked out** of that crop’s top-3 and N picker (press `←` to undo the transfer instead). If the displaced crop is a **vault flip / duplicate** of the same printed play, press **`D`** to omit it (writes `matching-omits/`; ingest PASSes it as `duplicate-omit` and does not publish a second mapping). Top-3 prefers unclaimed plays; the N picker still includes other claimed plays for intentional transfers. Crops that already have an override or omit are never shown again as pending.
 
 ## State
 

@@ -105,6 +105,18 @@ body.diagnostic .top {
   font-weight: 600;
 }
 
+.transfer-banner {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.85rem;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 4px;
+  color: #fde68a;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
 #formation-label .matcher-assigned {
   color: var(--diag);
 }

@@ -34,6 +34,10 @@ import {
   validateMatchingOverrides,
 } from "./matching-overrides";
 import {
+  defaultOmitsPath,
+  loadMatchingOmits,
+} from "./matching-omits";
+import {
   createReferenceDownloadStats,
   fetchReferenceImagesForFormation,
   logReferenceDownloadSummary,
@@ -268,7 +272,11 @@ export function classifyMatchV3(input: {
   edges: number;
   matchMethod: MatchMethod;
 }): MatchConfidenceStatus {
-  if (input.matchMethod === "trusted-hash" || input.matchMethod === "operator-override") {
+  if (
+    input.matchMethod === "trusted-hash" ||
+    input.matchMethod === "operator-override" ||
+    input.matchMethod === "duplicate-omit"
+  ) {
     return "PASS";
   }
   if (input.matchMethod === "normalized-exact") {
@@ -367,6 +375,10 @@ export type VisualMatchResult = {
   formationHeaders: number;
   playCards: number;
   referenceDownloadStats: ReferenceDownloadStats;
+  /** Crops marked vault-duplicate; excluded from publish mappings. */
+  omittedCropCount: number;
+  /** Formation → how many catalog plays may lack a unique vault card. */
+  unfulfilledAllowanceByFormation: Map<string, number>;
 };
 
 const UNAVAILABLE_REFERENCE_PAIR: PairScoreV3 = {
@@ -407,6 +419,8 @@ export async function matchPlayArtVisually(
 
   const overridesPath = options.overridesPath ?? defaultOverridesPath(reference);
   const rawOverrides = loadMatchingOverrides(overridesPath);
+  const omitsPath = defaultOmitsPath(reference);
+  const matchingOmits = loadMatchingOmits(omitsPath);
   const cropIdSets = new Map<string, Set<string>>();
   for (const [formationName, crops] of cropsByFormation) {
     cropIdSets.set(formationName, new Set(crops.map((c) => c.cropId)));
@@ -441,6 +455,7 @@ export async function matchPlayArtVisually(
     "geometry-v3.1": 0,
     "geometry-v3.2": 0,
     "operator-override": 0,
+    "duplicate-omit": 0,
   };
   const margins: number[] = [];
   let negativeMarginPassCount = 0;
@@ -606,13 +621,30 @@ export async function matchPlayArtVisually(
       continue;
     }
 
-    // Pre-resolve trusted-hash / overrides before visual scoring.
+    // Pre-resolve trusted-hash / overrides / duplicate-omits before visual scoring.
     const forcedPlayIndex = new Array<number>(crops.length).fill(-1);
     const forcedMethod = new Array<MatchMethod | null>(crops.length).fill(null);
     const formationOverrides = overrides[formationName] ?? {};
+    const formationOmits = matchingOmits[formationName] ?? {};
 
     for (let cropIndex = 0; cropIndex < crops.length; cropIndex += 1) {
       const crop = crops[cropIndex];
+      const omit = formationOmits[crop.cropId];
+      if (omit) {
+        const idx = playNames.findIndex(
+          (p) => p === normalizePlayName(omit.duplicateOf),
+        );
+        if (idx >= 0) {
+          forcedPlayIndex[cropIndex] = idx;
+          forcedMethod[cropIndex] = "duplicate-omit";
+        } else {
+          errors.push(
+            `Invalid duplicate-omit play for crop ${crop.cropId}: "${omit.duplicateOf}"`,
+          );
+        }
+        continue;
+      }
+
       const overridePlay = formationOverrides[crop.cropId];
       if (overridePlay) {
         const idx = playNames.findIndex((p) => p === normalizePlayName(overridePlay));
@@ -747,7 +779,8 @@ export async function matchPlayArtVisually(
       if (
         !referenceAvailable &&
         matchMethod !== "trusted-hash" &&
-        matchMethod !== "operator-override"
+        matchMethod !== "operator-override" &&
+        matchMethod !== "duplicate-omit"
       ) {
         status = "REVIEW";
       }
@@ -996,13 +1029,16 @@ export async function matchPlayArtVisually(
       }
 
       const playName = playNames[playIndex];
-      if (assignedPlays.has(playName)) {
+      const isDuplicateOmit = matchMethod === "duplicate-omit";
+      if (!isDuplicateOmit && assignedPlays.has(playName)) {
         errors.push(`Duplicate play assignment "${playName}" in formation "${formationName}"`);
       }
       if (assignedCrops.has(crop.cropId)) {
         errors.push(`Duplicate crop assignment "${crop.cropId}" in formation "${formationName}"`);
       }
-      assignedPlays.add(playName);
+      if (!isDuplicateOmit) {
+        assignedPlays.add(playName);
+      }
       assignedCrops.add(crop.cropId);
 
       assignments.push({
@@ -1031,15 +1067,18 @@ export async function matchPlayArtVisually(
         geometry: draft.geometry,
       });
 
-      mapped.push({
-        formation: formationName,
-        playName,
-        mediaPath: crop.mediaPath,
-        extension: crop.extension,
-        assetId: "",
-        assetPath: "",
-        blockIndex: crop.blockIndex,
-      });
+      // Vault duplicates are not published as a second logical mapping.
+      if (!isDuplicateOmit) {
+        mapped.push({
+          formation: formationName,
+          playName,
+          mediaPath: crop.mediaPath,
+          extension: crop.extension,
+          assetId: "",
+          assetPath: "",
+          blockIndex: crop.blockIndex,
+        });
+      }
     }
 
     const formationStatus: FormationMatchReport["status"] =
@@ -1119,12 +1158,22 @@ export async function matchPlayArtVisually(
     },
   };
 
+  const unfulfilledAllowanceByFormation = new Map<string, number>();
+  let omittedCropCount = 0;
+  for (const [formationName, cropMap] of Object.entries(matchingOmits)) {
+    const n = Object.keys(cropMap).length;
+    omittedCropCount += n;
+    if (n > 0) unfulfilledAllowanceByFormation.set(formationName, n);
+  }
+
   return {
     mapped,
     matchingReport,
     formationHeaders: positional.formationHeaders,
     playCards: positional.playCards,
     referenceDownloadStats: downloadStats,
+    omittedCropCount,
+    unfulfilledAllowanceByFormation,
   };
 }
 

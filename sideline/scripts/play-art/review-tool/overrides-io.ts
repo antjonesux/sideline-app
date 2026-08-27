@@ -9,7 +9,14 @@ import {
 import type { PlayArtReference } from "../types";
 
 export type ConfirmWriteResult =
-  | { ok: true; path: string; created: boolean; previousPlay: string | null }
+  | {
+      ok: true;
+      path: string;
+      created: boolean;
+      previousPlay: string | null;
+      /** Other crop that previously owned this play (cleared on transfer). */
+      displacedCropId: string | null;
+    }
   | { ok: false; error: string };
 
 export type UndoWriteResult =
@@ -55,14 +62,15 @@ export function writeOperatorConfirmation(input: {
   const formationMap = { ...(overrides[input.formation] ?? {}) };
   const previousPlay = formationMap[input.cropId] ?? null;
 
-  // One crop → one play; also refuse duplicate play assignment within formation.
+  // One play → one crop within a formation. If the play is already claimed,
+  // transfer ownership to this crop so operators can correct a prior mis-confirm.
+  let displacedCropId: string | null = null;
   for (const [otherCrop, otherPlay] of Object.entries(formationMap)) {
     if (otherCrop === input.cropId) continue;
     if (normalizePlayName(otherPlay) === normalizedPlay) {
-      return {
-        ok: false,
-        error: `Play "${canonicalPlay}" already assigned to crop "${otherCrop}" in "${input.formation}"`,
-      };
+      delete formationMap[otherCrop];
+      displacedCropId = otherCrop;
+      break;
     }
   }
 
@@ -83,12 +91,16 @@ export function writeOperatorConfirmation(input: {
   if (verify[input.formation]?.[input.cropId] !== canonicalPlay) {
     return { ok: false, error: "Override write verification failed" };
   }
+  if (displacedCropId && verify[input.formation]?.[displacedCropId] != null) {
+    return { ok: false, error: "Override transfer verification failed" };
+  }
 
   return {
     ok: true,
     path,
     created: !existed || previousPlay == null,
     previousPlay,
+    displacedCropId,
   };
 }
 
@@ -100,6 +112,8 @@ export function undoOperatorConfirmation(input: {
   expectedPlay: string;
   /** If the override existed before this session wrote it, refuse undo. */
   wasNew: boolean;
+  /** If confirm transferred the play from another crop, restore that claim. */
+  displacedCropId?: string | null;
   overridesPath?: string;
 }): UndoWriteResult {
   if (!input.wasNew) {
@@ -128,6 +142,9 @@ export function undoOperatorConfirmation(input: {
   }
 
   delete formationMap[input.cropId];
+  if (input.displacedCropId) {
+    formationMap[input.displacedCropId] = current;
+  }
   if (Object.keys(formationMap).length === 0) {
     delete overrides[input.formation];
   } else {
@@ -143,6 +160,38 @@ export function undoOperatorConfirmation(input: {
     };
   }
 
+  return { ok: true, path };
+}
+
+export function clearOperatorOverride(input: {
+  reference: PlayArtReference;
+  formation: string;
+  cropId: string;
+  overridesPath?: string;
+}): UndoWriteResult {
+  const path = input.overridesPath ?? defaultOverridesPath(input.reference);
+  if (!existsSync(path)) {
+    return { ok: true, path };
+  }
+  const overrides = loadMatchingOverrides(path);
+  const formationMap = { ...(overrides[input.formation] ?? {}) };
+  if (formationMap[input.cropId] == null) {
+    return { ok: true, path };
+  }
+  delete formationMap[input.cropId];
+  if (Object.keys(formationMap).length === 0) {
+    delete overrides[input.formation];
+  } else {
+    overrides[input.formation] = formationMap;
+  }
+  try {
+    writeOverridesFile(path, overrides);
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
   return { ok: true, path };
 }
 

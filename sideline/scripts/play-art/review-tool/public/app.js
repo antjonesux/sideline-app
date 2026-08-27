@@ -7,6 +7,7 @@
     eta: document.getElementById("stat-eta"),
     owned: document.getElementById("owned-img"),
     formation: document.getElementById("formation-label"),
+    transferBanner: document.getElementById("transfer-banner"),
     matcherHint: document.getElementById("matcher-hint"),
     reason: document.getElementById("reason-label"),
     candidates: document.getElementById("candidates"),
@@ -37,6 +38,7 @@
     <span><kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> confirm</span>
     <span><kbd>Enter</kbd>/<kbd>Space</kbd>/<kbd>→</kbd> confirm ★</span>
     <span><kbd>S</kbd> skip</span>
+    <span><kbd>D</kbd> vault duplicate</span>
     <span><kbd>N</kbd> none of these</span>
     <span><kbd>←</kbd> undo</span>
     <span><kbd>Q</kbd> quit</span>
@@ -198,9 +200,19 @@
         ? ` — skip: ${reviewCase.originalSkipReason}`
         : "";
       els.reason.textContent = `${reviewCase.cropId}${skipBit}`;
+      if (els.transferBanner) els.transferBanner.hidden = true;
     } else {
       els.formation.textContent = reviewCase.formation;
       els.reason.textContent = `${reviewCase.cropId} — ${reviewCase.reviewReason}`;
+      if (els.transferBanner) {
+        if (reviewCase.lockedPlay) {
+          els.transferBanner.hidden = false;
+          els.transferBanner.textContent = `Different crop than your last match. "${reviewCase.lockedPlay.playName}" stays on ${reviewCase.lockedPlay.ownerCropId}. If this crop is the same printed play, press D (vault duplicate). Otherwise pick a different play (← undoes that assignment).`;
+        } else {
+          els.transferBanner.hidden = true;
+          els.transferBanner.textContent = "";
+        }
+      }
     }
     els.owned.src = reviewCase.cropPath;
     els.owned.onerror = () => {
@@ -275,6 +287,11 @@
       });
       flashConfirm();
       updateProgress(data.progress);
+      if (data.requeuedDisplaced) {
+        showToast(
+          `Saved "${playName}". A different crop that had that name is still in queue — assign its real play next.`,
+        );
+      }
       await loadNext();
     } catch (err) {
       showToast(err.message || String(err), "error");
@@ -292,6 +309,34 @@
     const c = current?.candidates?.[index];
     if (!c) return;
     await confirmPlay(c.playName);
+  }
+
+  async function omitDuplicate() {
+    if (mode === "diagnostic" || !current || busy || pickerOpen || noteOpen) return;
+    if (!current.lockedPlay) {
+      showToast(
+        "D works after a transfer: this crop must be the duplicate of a play already kept on another crop.",
+        "error",
+      );
+      return;
+    }
+    busy = true;
+    try {
+      const data = await api("/api/omit-duplicate", {
+        method: "POST",
+        body: JSON.stringify({ caseKey: current.caseKey }),
+      });
+      flashConfirm();
+      updateProgress(data.progress);
+      showToast(
+        `Omitted vault duplicate of "${data.duplicateOf}" (kept on ${data.keptCropId})`,
+      );
+      await loadNext();
+    } catch (err) {
+      showToast(err.message || String(err), "error");
+    } finally {
+      busy = false;
+    }
   }
 
   async function skip(reason) {
@@ -521,6 +566,9 @@
     } else if (key === "s" || key === "S") {
       e.preventDefault();
       void skip("skipped");
+    } else if (key === "d" || key === "D") {
+      e.preventDefault();
+      void omitDuplicate();
     } else if (key === "n" || key === "N") {
       e.preventDefault();
       openPicker();

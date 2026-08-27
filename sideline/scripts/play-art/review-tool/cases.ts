@@ -10,6 +10,10 @@ import {
   loadSeedForReference,
 } from "../match-play-art";
 import {
+  defaultOmitsPath,
+  loadMatchingOmits,
+} from "../matching-omits";
+import {
   defaultOverridesPath,
   loadMatchingOverrides,
 } from "../matching-overrides";
@@ -70,6 +74,12 @@ export type ReviewCase = {
   candidates: ReviewCandidate[];
   reviewReason: string;
   formationPlays: string[];
+  /**
+   * Set when this crop lost a play to another crop (transfer). That play is
+   * locked out of top-3 and the N picker so confirm doesn't ping-pong.
+   * Undo (←) on the prior confirm is the path to reverse the transfer.
+   */
+  lockedPlay?: { playName: string; ownerCropId: string };
 };
 
 export type LoadedReviewData = {
@@ -82,6 +92,8 @@ export type LoadedReviewData = {
   cases: ReviewCase[];
   cropBytesByKey: Map<string, Buffer>;
   formationTypes: Map<string, string>;
+  /** Full matcher report — used to re-queue crops after override transfer. */
+  matchingReport: PlayArtMatchingReport;
 };
 
 function matchingReportPath(reference: PlayArtReference): string {
@@ -352,10 +364,31 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
   const extracted = await extractPlayArtDocx(sourcePath, reference);
   const cropsByFormation = collectFormationCrops(reference, extracted);
   const existingOverrides = loadMatchingOverrides(defaultOverridesPath(reference));
+  const existingOmits = loadMatchingOmits(defaultOmitsPath(reference));
 
   mkdirSync(CROP_CACHE_DIR, { recursive: true });
   const cropBytesByKey = new Map<string, Buffer>();
   const cases: ReviewCase[] = [];
+
+  // Cache bytes for REVIEW crops and any override crops so transfer re-queue can
+  // immediately present the displaced crop without re-extracting the DOCX.
+  for (const formationReport of report.formations) {
+    const formationName = formationReport.formation;
+    const crops = cropsByFormation.get(formationName) ?? [];
+    const overrideCrops = new Set(Object.keys(existingOverrides[formationName] ?? {}));
+    for (const assignment of formationReport.assignments) {
+      const needsCache =
+        assignment.status === "REVIEW" || overrideCrops.has(assignment.cropId);
+      if (!needsCache) continue;
+      const crop =
+        crops.find((c) => c.cropId === assignment.cropId) ??
+        crops.find((c) => c.mediaPath === assignment.mediaPath);
+      const buffer = crop ? extracted.mediaFiles.get(crop.mediaPath) : undefined;
+      if (!buffer) continue;
+      const key = caseKey(formationName, assignment.cropId);
+      cropBytesByKey.set(key, buffer);
+    }
+  }
 
   for (const formationReport of report.formations) {
     const formationName = formationReport.formation;
@@ -363,14 +396,12 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
     const formationPlays = refFormation?.plays ?? [];
     const formationType = formationTypes.get(formationName.trim()) ?? "";
     const crops = cropsByFormation.get(formationName) ?? [];
-    const claimedPlays = new Set(
-      Object.values(existingOverrides[formationName] ?? {}).map((p) => normalizePlayName(p)),
-    );
-
     for (const assignment of formationReport.assignments) {
       if (assignment.status !== "REVIEW") continue;
       // Already confirmed via overrides — skip (session state may also track these).
       if (existingOverrides[formationName]?.[assignment.cropId]) continue;
+      // Vault duplicate omitted — not a REVIEW.
+      if (existingOmits[formationName]?.[assignment.cropId]) continue;
 
       const crop =
         crops.find((c) => c.cropId === assignment.cropId) ??
@@ -379,7 +410,9 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
         console.warn(`Skipping REVIEW ${formationName}/${assignment.cropId}: crop not in DOCX`);
         continue;
       }
-      const buffer = extracted.mediaFiles.get(crop.mediaPath);
+      const buffer =
+        cropBytesByKey.get(caseKey(formationName, assignment.cropId)) ??
+        extracted.mediaFiles.get(crop.mediaPath);
       if (!buffer) {
         console.warn(`Skipping REVIEW ${formationName}/${assignment.cropId}: missing bytes`);
         continue;
@@ -393,19 +426,28 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
       }
       cropBytesByKey.set(key, buffer);
 
+      const claimedByOther = new Set<string>();
+      for (const [otherCrop, otherPlay] of Object.entries(
+        existingOverrides[formationName] ?? {},
+      )) {
+        if (otherCrop === assignment.cropId) continue;
+        claimedByOther.add(normalizePlayName(otherPlay));
+      }
+
+      // Prefer unclaimed plays in top-3. Claimed-by-other plays stay in the N
+      // picker so the operator can transfer ownership when this crop is correct.
       const candidates = buildCandidates(
         assignment,
         reference,
         formationType,
         formationPlays,
-      ).filter((c) => c.isAssigned || !claimedPlays.has(c.playId));
+      ).filter((c) => c.isAssigned || !claimedByOther.has(c.playId));
 
-      // Keep assigned even if somehow claimed; ensure up to 3 unique plays.
       while (candidates.length < 3) {
         const filler = formationPlays.find(
           (p) =>
-            !candidates.some((c) => c.playId === normalizePlayName(p)) &&
-            !claimedPlays.has(normalizePlayName(p)),
+            !claimedByOther.has(normalizePlayName(p)) &&
+            !candidates.some((c) => c.playId === normalizePlayName(p)),
         );
         if (!filler) break;
         const url =
@@ -432,7 +474,7 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
         mediaPath: crop.mediaPath,
         candidates: candidates.slice(0, 3),
         reviewReason: reviewReasonFromAssignment(assignment),
-        formationPlays: formationPlays.filter((p) => !claimedPlays.has(normalizePlayName(p))),
+        formationPlays: [...formationPlays],
       });
     }
   }
@@ -445,7 +487,7 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
 
   console.log(`Loaded ${cases.length} REVIEW cases for ${reference.playbook}`);
 
-  return {
+  const data: LoadedReviewData = {
     playbook,
     displayName: reference.playbook,
     reference,
@@ -455,7 +497,160 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
     cases,
     cropBytesByKey,
     formationTypes,
+    matchingReport: report,
   };
+
+  // If an override now owns a play that another crop previously held (or still
+  // scores as), re-queue that crop so the operator can assign its correct art.
+  for (const [formationName, cropMap] of Object.entries(existingOverrides)) {
+    for (const [ownerCropId, playName] of Object.entries(cropMap)) {
+      const formationReport = report.formations.find((f) => f.formation === formationName);
+      if (!formationReport) continue;
+      const playId = normalizePlayName(playName);
+      const crops = cropsByFormation.get(formationName) ?? [];
+      for (const assignment of formationReport.assignments) {
+        if (assignment.cropId === ownerCropId) continue;
+        if (existingOverrides[formationName]?.[assignment.cropId]) continue;
+        if (data.cases.some((c) => c.formation === formationName && c.cropId === assignment.cropId)) {
+          continue;
+        }
+        const wasPriorOwner =
+          assignment.overridden === true &&
+          normalizePlayName(assignment.playName ?? "") === playId;
+        if (!wasPriorOwner) continue;
+        const crop =
+          crops.find((c) => c.cropId === assignment.cropId) ??
+          crops.find((c) => c.mediaPath === assignment.mediaPath);
+        const buffer = crop ? extracted.mediaFiles.get(crop.mediaPath) : undefined;
+        const requeued = enqueueDisplacedCropForReview(data, {
+          formation: formationName,
+          cropId: assignment.cropId,
+          transferredPlay: playName,
+          newOwnerCropId: ownerCropId,
+          cropBuffer: buffer,
+        });
+        if (requeued) {
+          console.log(
+            `Re-queued ${formationName}/${assignment.cropId} after "${playName}" claimed by ${ownerCropId}`,
+          );
+        }
+      }
+    }
+  }
+
+  return data;
+}
+
+/**
+ * Build (or refresh) a review case for a crop after its override was transferred away.
+ * Puts the case at the front of `data.cases` so it is the next pending item.
+ */
+export function enqueueDisplacedCropForReview(
+  data: LoadedReviewData,
+  input: {
+    formation: string;
+    cropId: string;
+    /** Play that was moved onto another crop — deprioritize in top-3. */
+    transferredPlay: string;
+    /** Crop that now owns transferredPlay. */
+    newOwnerCropId: string;
+    mediaPath?: string;
+    cropBuffer?: Buffer;
+  },
+): ReviewCase | null {
+  const formationReport = data.matchingReport.formations.find(
+    (f) => f.formation === input.formation,
+  );
+  const assignment = formationReport?.assignments.find((a) => a.cropId === input.cropId);
+  if (!assignment) {
+    console.warn(
+      `Cannot re-queue ${input.formation}/${input.cropId}: not in matching report`,
+    );
+    return null;
+  }
+
+  const key = caseKey(input.formation, input.cropId);
+  const formationPlays =
+    data.reference.formations.find((f) => f.name === input.formation)?.plays ?? [];
+  const formationType = data.formationTypes.get(input.formation.trim()) ?? "";
+  const transferredId = normalizePlayName(input.transferredPlay);
+
+  let buffer = input.cropBuffer ?? data.cropBytesByKey.get(key);
+  if (!buffer && input.mediaPath) {
+    // Caller may not have bytes; leave missing and fail closed below.
+  }
+  if (!buffer) {
+    console.warn(
+      `Cannot re-queue ${input.formation}/${input.cropId}: crop bytes not cached`,
+    );
+    return null;
+  }
+
+  const sha = hashPlayArtBytes(buffer);
+  const cropFile = join(CROP_CACHE_DIR, `${data.playbook}-${sha.slice(0, 16)}.jpg`);
+  if (!existsSync(cropFile)) {
+    writeFileSync(cropFile, buffer);
+  }
+  data.cropBytesByKey.set(key, buffer);
+
+  const candidates = buildCandidates(
+    assignment,
+    data.reference,
+    formationType,
+    formationPlays,
+  ).filter((c) => c.playId !== transferredId);
+
+  while (candidates.length < 3) {
+    const filler = formationPlays.find(
+      (p) =>
+        normalizePlayName(p) !== transferredId &&
+        !candidates.some((c) => c.playId === normalizePlayName(p)),
+    );
+    if (!filler) break;
+    const url =
+      buildReferencePlayArtUrl(data.reference, input.formation, formationType, filler) ||
+      "";
+    candidates.push({
+      playName: filler,
+      playId: normalizePlayName(filler),
+      referenceUrl: url,
+      v3Score: null,
+      v3Margin: null,
+      geometryScore: null,
+      geometryMargin: null,
+      perHueMargin: null,
+      isAssigned: false,
+    });
+  }
+
+  // Lock the transferred play out of the picker — re-selecting it only ping-pongs
+  // ownership and feels like the prior confirm was ignored. Undo reverses transfer.
+  const unlockedPlays = formationPlays.filter(
+    (p) => normalizePlayName(p) !== transferredId,
+  );
+
+  const reviewCase: ReviewCase = {
+    caseKey: key,
+    cropId: input.cropId,
+    formation: input.formation,
+    cropPath: `/crops/${encodeURIComponent(data.playbook)}/${encodeURIComponent(input.cropId)}?f=${encodeURIComponent(input.formation)}`,
+    cropSha256: sha,
+    mediaPath: assignment.mediaPath,
+    candidates: candidates.slice(0, 3),
+    reviewReason:
+      `Different crop — "${input.transferredPlay}" already on ${input.newOwnerCropId}. Pick this crop's play (not "${input.transferredPlay}").`,
+    formationPlays: unlockedPlays,
+    lockedPlay: {
+      playName: input.transferredPlay,
+      ownerCropId: input.newOwnerCropId,
+    },
+  };
+
+  data.cases = data.cases.filter((c) => c.caseKey !== key);
+  // Append (don't jump to front) so a successful confirm advances past the
+  // current crop before the twin reappears — feels like the match stuck.
+  data.cases.push(reviewCase);
+  return reviewCase;
 }
 
 export function cropCacheDir(): string {

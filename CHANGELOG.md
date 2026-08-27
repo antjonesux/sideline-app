@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-27 — Play-art vault duplicate omit + publish Run & Shoot / Navy
+
+### What
+
+- Review tool: transfer-aware queue (lock transferred play, banner/`D` for vault duplicates, toast on re-queue); pending cases skip crops that already have overrides or omits.
+- New `matching-omits/` + matcher method `duplicate-omit`: operator marks a flip/duplicate crop (`D`); ingest PASSes it without a second publish mapping and allows one unfulfilled catalog play per omit (WARN).
+- Published **Run & Shoot** and **Navy** owned play-art after REVIEW=0 (ALL GO / WB DIVE kept; twin crops omitted as vault duplicates).
+- Manifest **6,254 → 6,992** (+738 unique assets). `npm run build` passed.
+
+### Why
+
+Two Vault cards can share the same printed play name while the catalog has only one. Forcing a different play cleared REVIEW incorrectly; omit is the honest path and unblocks Batch 1 finish for these books.
+
+### Status
+
+- Run & Shoot / Navy: **REVIEW 0**, published.
+- Catalog gaps (no unique vault card): Gun Trips **14**; Flexbone Close **QB COUNTER**.
+
+---
+
 ## 2026-08-26 — Play-art assets already tracked; ship batch reference JSONs
 
 ### What

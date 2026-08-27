@@ -16,6 +16,7 @@ import { dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   discoverIngestedPlaybooks,
+  enqueueDisplacedCropForReview,
   loadReviewData,
   parsePlaybookArg,
   printPlaybookList,
@@ -35,11 +36,15 @@ import {
   type DiagnosticCategory,
   type DiagnosticReport,
 } from "./diagnostic";
+import { loadMatchingOverrides } from "../matching-overrides";
+import { loadMatchingOmits, omitsPathFor, removeMatchingOmit, writeMatchingOmit } from "../matching-omits";
 import {
+  clearOperatorOverride,
   overridesPathFor,
   undoOperatorConfirmation,
   writeOperatorConfirmation,
 } from "./overrides-io";
+import { normalizePlayName } from "../../../lib/utils";
 import {
   caseKey,
   loadSessionState,
@@ -63,6 +68,17 @@ type LastAction =
       cropId: string;
       playName: string;
       wasNew: boolean;
+      /** Crop that previously owned this play before transfer (if any). */
+      displacedCropId: string | null;
+      elapsedMs: number;
+    }
+  | {
+      kind: "omit-duplicate";
+      caseKey: string;
+      formation: string;
+      cropId: string;
+      duplicateOf: string;
+      keptCropId: string;
       elapsedMs: number;
     }
   | {
@@ -245,7 +261,16 @@ function contentTypeFor(path: string): string {
 function pendingCases(rt: SessionRuntime): ReviewCase[] {
   const reviewed = new Set(rt.state.reviewed);
   const skipped = new Set(rt.state.skipped.map((s) => caseKey(s.formation, s.cropId)));
-  return rt.data.cases.filter((c) => !reviewed.has(c.caseKey) && !skipped.has(c.caseKey));
+  // Fail closed: never re-present a crop that already has an override (stale
+  // transfer re-queues + empty session can otherwise show an already-matched crop).
+  const overrides = loadMatchingOverrides(overridesPathFor(rt.data.reference));
+  const omits = loadMatchingOmits(omitsPathFor(rt.data.reference));
+  return rt.data.cases.filter((c) => {
+    if (reviewed.has(c.caseKey) || skipped.has(c.caseKey)) return false;
+    if (overrides[c.formation]?.[c.cropId]) return false;
+    if (omits[c.formation]?.[c.cropId]) return false;
+    return true;
+  });
 }
 
 function findCase(rt: SessionRuntime, key: string): ReviewCase | undefined {
@@ -262,6 +287,7 @@ function serializeCase(c: ReviewCase | DiagnosticCase) {
     candidates: c.candidates,
     reviewReason: c.reviewReason,
     formationPlays: c.formationPlays,
+    lockedPlay: "lockedPlay" in c ? c.lockedPlay : undefined,
     originalSkipReason:
       "originalSkipReason" in c ? (c as DiagnosticCase).originalSkipReason : undefined,
   };
@@ -453,6 +479,20 @@ function createReviewApp(rt: SessionRuntime) {
           return;
         }
 
+        // Displaced twin: refuse re-claiming the locked play (would ping-pong and
+        // look like the prior match was ignored). Undo the prior confirm instead.
+        if (
+          reviewCase.lockedPlay &&
+          normalizePlayName(playName) ===
+            normalizePlayName(reviewCase.lockedPlay.playName)
+        ) {
+          sendJson(res, 400, {
+            ok: false,
+            error: `"${reviewCase.lockedPlay.playName}" is already on ${reviewCase.lockedPlay.ownerCropId}. Pick a different play for this crop — or press ← to undo that assignment.`,
+          });
+          return;
+        }
+
         const result = writeOperatorConfirmation({
           reference: rt.data.reference,
           formation: reviewCase.formation,
@@ -474,6 +514,26 @@ function createReviewApp(rt: SessionRuntime) {
         );
         rt.state.totalTimeMs += elapsed;
         rt.state.reviewCount += 1;
+
+        // Transfer: immediately re-queue the crop that lost this play so the
+        // operator can assign its correct art in the same session.
+        let requeued: ReviewCase | null = null;
+        if (result.displacedCropId) {
+          requeued = enqueueDisplacedCropForReview(rt.data, {
+            formation: reviewCase.formation,
+            cropId: result.displacedCropId,
+            transferredPlay: playName,
+            newOwnerCropId: reviewCase.cropId,
+          });
+          if (requeued) {
+            const displacedKey = requeued.caseKey;
+            rt.state.reviewed = rt.state.reviewed.filter((k) => k !== displacedKey);
+            rt.state.skipped = rt.state.skipped.filter(
+              (s) => caseKey(s.formation, s.cropId) !== displacedKey,
+            );
+          }
+        }
+
         saveSessionState(rt.state);
 
         rt.lastAction = {
@@ -483,6 +543,7 @@ function createReviewApp(rt: SessionRuntime) {
           cropId: reviewCase.cropId,
           playName,
           wasNew: result.created,
+          displacedCropId: result.displacedCropId,
           elapsedMs: elapsed,
         };
         rt.caseStartedAt = Date.now();
@@ -490,6 +551,89 @@ function createReviewApp(rt: SessionRuntime) {
         sendJson(res, 200, {
           ok: true,
           overridesPath: result.path,
+          transferredFrom: result.displacedCropId,
+          requeuedDisplaced: requeued
+            ? { cropId: requeued.cropId, formation: requeued.formation }
+            : null,
+          progress: progressFromState(rt.state, rt.data.cases.length),
+        });
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/omit-duplicate") {
+        const body = JSON.parse(await readBody(req)) as {
+          caseKey?: string;
+          duplicateOf?: string;
+          keptCropId?: string;
+        };
+        const reviewCase = body.caseKey ? findCase(rt, body.caseKey) : undefined;
+        if (!reviewCase) {
+          sendJson(res, 400, { ok: false, error: `Unknown case: ${body.caseKey ?? ""}` });
+          return;
+        }
+        const duplicateOf =
+          body.duplicateOf?.trim() ||
+          reviewCase.lockedPlay?.playName ||
+          "";
+        const keptCropId =
+          body.keptCropId?.trim() ||
+          reviewCase.lockedPlay?.ownerCropId ||
+          "";
+        if (!duplicateOf || !keptCropId) {
+          sendJson(res, 400, {
+            ok: false,
+            error:
+              "duplicateOf and keptCropId required (or open this case after a transfer so the locked play is known)",
+          });
+          return;
+        }
+
+        const omit = writeMatchingOmit({
+          reference: rt.data.reference,
+          formation: reviewCase.formation,
+          cropId: reviewCase.cropId,
+          duplicateOf,
+          keptCropId,
+        });
+        if (!omit.ok) {
+          sendJson(res, 500, { ok: false, error: omit.error });
+          return;
+        }
+        // Drop any play override on the omitted twin so ingest doesn't fight the omit.
+        clearOperatorOverride({
+          reference: rt.data.reference,
+          formation: reviewCase.formation,
+          cropId: reviewCase.cropId,
+        });
+
+        const elapsed =
+          rt.caseStartedAt != null ? Math.max(0, Date.now() - rt.caseStartedAt) : 0;
+        if (!rt.state.reviewed.includes(reviewCase.caseKey)) {
+          rt.state.reviewed.push(reviewCase.caseKey);
+        }
+        rt.state.skipped = rt.state.skipped.filter(
+          (s) => caseKey(s.formation, s.cropId) !== reviewCase.caseKey,
+        );
+        rt.state.totalTimeMs += elapsed;
+        rt.state.reviewCount += 1;
+        saveSessionState(rt.state);
+
+        rt.lastAction = {
+          kind: "omit-duplicate",
+          caseKey: reviewCase.caseKey,
+          formation: reviewCase.formation,
+          cropId: reviewCase.cropId,
+          duplicateOf,
+          keptCropId,
+          elapsedMs: elapsed,
+        };
+        rt.caseStartedAt = Date.now();
+
+        sendJson(res, 200, {
+          ok: true,
+          omitsPath: omit.path,
+          duplicateOf,
+          keptCropId,
           progress: progressFromState(rt.state, rt.data.cases.length),
         });
         return;
@@ -557,6 +701,20 @@ function createReviewApp(rt: SessionRuntime) {
             cropId: action.cropId,
             expectedPlay: action.playName,
             wasNew: action.wasNew,
+            displacedCropId: action.displacedCropId,
+          });
+          if (!undo.ok) {
+            sendJson(res, 400, { ok: false, error: undo.error });
+            return;
+          }
+          rt.state.reviewed = rt.state.reviewed.filter((k) => k !== action.caseKey);
+          rt.state.totalTimeMs = Math.max(0, rt.state.totalTimeMs - action.elapsedMs);
+          rt.state.reviewCount = Math.max(0, rt.state.reviewCount - 1);
+        } else if (action.kind === "omit-duplicate") {
+          const undo = removeMatchingOmit({
+            reference: rt.data.reference,
+            formation: action.formation,
+            cropId: action.cropId,
           });
           if (!undo.ok) {
             sendJson(res, 400, { ok: false, error: undo.error });
@@ -768,11 +926,13 @@ function createDiagnosticApp(rt: DiagnosticRuntime) {
       // Review-only endpoints stay unavailable in diagnostic mode.
       if (
         method === "POST" &&
-        (url.pathname === "/api/confirm" || url.pathname === "/api/skip")
+        (url.pathname === "/api/confirm" ||
+          url.pathname === "/api/skip" ||
+          url.pathname === "/api/omit-duplicate")
       ) {
         sendJson(res, 400, {
           ok: false,
-          error: "Confirm/skip disabled in diagnostic mode — use F/C/A/O",
+          error: "Confirm/skip/omit disabled in diagnostic mode — use F/C/A/O",
         });
         return;
       }

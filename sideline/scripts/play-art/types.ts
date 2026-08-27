@@ -103,7 +103,9 @@ export type MatchMethod =
   | "visual-v3"
   | "geometry-v3.1"
   | "geometry-v3.2"
-  | "operator-override";
+  | "operator-override"
+  /** Vault flip / duplicate card; not published as a second play mapping. */
+  | "duplicate-omit";
 
 export type MatchSignals = {
   residual: number;

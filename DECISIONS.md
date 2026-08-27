@@ -6,7 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
-## 2026-08-25 — Formation OCR fuzzy match is length-aware (fail closed)
+## 2026-08-27 — Vault duplicate crops omit via matching-omits (not wrong play)
+
+**Decision:** When two owned Vault crops are the same printed play (flip/duplicate) and the catalog only has one name, operators mark the extra crop with review-tool **`D`**. That writes `scripts/play-art/matching-omits/{slug}.json`. Matcher PASSes the crop as `duplicate-omit` without a second publish mapping; validation allows one unfulfilled catalog play per omit (logged as WARN). Do not assign a knowingly wrong play to clear REVIEW.
+
+**Why:** Run & Shoot Gun Trips and Navy Flexbone Close each had a true vault duplicate (ALL GO / WB DIVE). Forcing a different play name was incorrect and blocked Batch 1 publish.
+
+**Impact:** `matching-omits.ts`, matcher/validate, review-tool `D` / `/api/omit-duplicate`; omits gitignored like overrides.
+
+---
+
 
 **Decision:** Accept fuzzy/containment formation OCR matches only when distance ≤ max(4, ⌊seedLen×0.25⌋), OCR length ≥ max(4, ⌊seedLen×0.5⌋), and the match is unique within that gate. Reject personnel-suffix ambiguity and proper-prefix extensions. Do not auto-re-ingest at-risk playbooks or overwrite trusted hashes from verification.
 

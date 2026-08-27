@@ -433,6 +433,8 @@ async function main(): Promise<void> {
   let matchingReportPath: string | null = null;
   let matchingReport: Awaited<ReturnType<typeof matchPlayArtVisually>>["matchingReport"] | null =
     null;
+  let omittedCropCount = 0;
+  let unfulfilledAllowanceByFormation = new Map<string, number>();
 
   if (args.positional) {
     const positional = mapPlayArtPositionally(effectiveReference, extracted);
@@ -451,6 +453,8 @@ async function main(): Promise<void> {
     formationHeaders = visual.formationHeaders;
     playCards = visual.playCards;
     matchingReport = visual.matchingReport;
+    omittedCropCount = visual.omittedCropCount;
+    unfulfilledAllowanceByFormation = visual.unfulfilledAllowanceByFormation;
 
     printMatchingSummary(matchingReport);
     printFormationMatchingReport(matchingReport);
@@ -482,6 +486,10 @@ async function main(): Promise<void> {
     mapped,
     formationHeaders,
     playCards,
+    {
+      omittedCropCount,
+      unfulfilledAllowanceByFormation,
+    },
   );
 
   mkdirSync(args.reportDir, { recursive: true });

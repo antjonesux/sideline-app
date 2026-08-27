@@ -11,9 +11,18 @@ export function validatePlayArtMapping(
   mapped: MappedPlayArt[],
   formationHeaderCount: number,
   playCardCount: number,
+  options?: {
+    /** Vault duplicate crops omitted from publish mappings. */
+    omittedCropCount?: number;
+    /** Per-formation allowance for catalog plays with no unique vault card. */
+    unfulfilledAllowanceByFormation?: Map<string, number>;
+  },
 ): PlayArtValidationReport {
   const errors: string[] = [];
   const formationResults: FormationValidationResult[] = [];
+  const omittedCropCount = options?.omittedCropCount ?? 0;
+  const unfulfilledAllowanceByFormation =
+    options?.unfulfilledAllowanceByFormation ?? new Map<string, number>();
 
   const expectedFormations = reference.formations.length;
   if (formationHeaderCount !== expectedFormations) {
@@ -51,17 +60,24 @@ export function validatePlayArtMapping(
   }
   // Content-addressed assets intentionally reuse the same asset_id/path for identical bytes.
 
-  if (mapped.length !== playCardCount) {
-    errors.push(`Unmapped play cards: extracted ${playCardCount}, mapped ${mapped.length}`);
+  if (mapped.length + omittedCropCount !== playCardCount) {
+    errors.push(
+      `Unmapped play cards: extracted ${playCardCount}, mapped ${mapped.length}, omitted ${omittedCropCount}`,
+    );
   }
 
   for (const formation of reference.formations) {
     const expectedPlays = formation.plays.length;
     const extractedPlays = mappedByFormation.get(formation.name)?.length ?? 0;
-    const status = extractedPlays === expectedPlays ? "pass" : "fail";
+    const allowance = unfulfilledAllowanceByFormation.get(formation.name) ?? 0;
+    const status =
+      extractedPlays === expectedPlays || extractedPlays + allowance === expectedPlays
+        ? "pass"
+        : "fail";
     if (status === "fail") {
       errors.push(
-        `Formation "${formation.name}": expected ${expectedPlays} plays, mapped ${extractedPlays}`,
+        `Formation "${formation.name}": expected ${expectedPlays} plays, mapped ${extractedPlays}` +
+          (allowance ? ` (omit allowance ${allowance})` : ""),
       );
     }
     formationResults.push({
@@ -83,12 +99,24 @@ export function validatePlayArtMapping(
       continue;
     }
     const mappedPlayNames = items.map((i) => normalizePlayName(i.playName));
+    const unfulfilled: string[] = [];
     for (const expectedPlay of refFormation.plays) {
       const normalized = normalizePlayName(expectedPlay);
       const count = mappedPlayNames.filter((p) => p === normalized).length;
       if (count === 0) {
+        unfulfilled.push(expectedPlay);
+      }
+    }
+    const allowance = unfulfilledAllowanceByFormation.get(formationName) ?? 0;
+    if (unfulfilled.length > allowance) {
+      for (const expectedPlay of unfulfilled) {
         errors.push(`Unfulfilled reference play "${expectedPlay}" in formation "${formationName}"`);
       }
+    } else if (unfulfilled.length > 0) {
+      console.warn(
+        `[WARN] ${formationName}: ${unfulfilled.length} catalog play(s) have no unique vault card ` +
+          `(duplicate-omit allowance ${allowance}): ${unfulfilled.join(", ")}`,
+      );
     }
   }
 
