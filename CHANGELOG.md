@@ -9,13 +9,13 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### What
 
-- Playbook cards now show team logo (ESPN CDN with initials fallback), team name in bold, mascot in regular weight.
-- Uniform card sizing across all playbooks; grid width aligned with marketing nav's horizontal edges.
-- Page header, subhead, and search bar stick to top on scroll.
-- Header and subhead text sizes reduced for a tighter sticky region.
+- Playbook cards now show team logo (ESPN CDN with initials fallback), team name in bold, mascot in regular weight; card content centered.
+- Uniform card sizing across all playbooks; content fills the `max-w-6xl` container edge-to-edge (no horizontal page padding).
+- Home header, subhead, and search pinned above a dedicated scroll pane (header does not scroll with the list); transparent header over marketing backdrop (no opaque fill).
+- Header and subhead text sizes reduced for a tighter pinned region.
 - Search bar clear (X) icon matches the app's existing search input pattern.
 - Section headings render in white.
-- `/playbooks/[playbookId]` breadcrumb now shows Home > Playbooks > {playbook name}; Home links to landing.
+- `/playbooks` breadcrumb: Home > Playbooks. `/playbooks/[playbookId]` breadcrumb: Home > Playbooks > {playbook name}; Home links to `/landing`.
 - Renamed "Browse Playbooks" to "Playbooks" across marketing nav, page heading, and breadcrumb.
 - Team logo mapping via ESPN CDN URLs (`sideline/lib/publicTeamLogos.ts`); initials fallback in emerald circle for missing logos or non-team playbooks.
 - Formation cards uniform width in a 3-column desktop grid (responsive on mobile/tablet).
@@ -23,7 +23,7 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### Why
 
-QA feedback on Pass 1 covering card content, layout uniformity, sticky navigation, text sizing, breadcrumb, terminology, team branding, and formation display cleanup.
+QA feedback on Pass 1 covering card content, layout uniformity, pinned navigation, text sizing, breadcrumb, terminology, team branding, and formation display cleanup — plus follow-up polish on padding, header chrome, and card alignment.
 
 ### Status
 
