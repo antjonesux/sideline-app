@@ -4,12 +4,12 @@ import { SkeletonBlock } from "@/components/shared/AppSkeleton";
 import { buildTendenciesQueryString } from "@/components/tendencies/TendenciesFilters";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { CatalogGameVersion } from "@/lib/constants";
 import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 type OverviewData = {
-  games_logged: number;
   wins: number;
   losses: number;
   win_rate_pct: number;
@@ -23,6 +23,7 @@ type OverviewResponse = { data: OverviewData };
 type Props = {
   sideOfBall: DriveSideOfBall;
   playbook: string | null;
+  gameVersion: CatalogGameVersion;
   pill?: "all" | "last5" | "last10" | "vs";
   opponentTeam?: string | null;
 };
@@ -49,8 +50,8 @@ function HeroStatCard({
 
 function HeroStatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-hidden>
-      {Array.from({ length: 4 }).map((_, i) => (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-hidden>
+      {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
           className="rounded-xl border border-slate-700 bg-slate-900 flex min-h-[132px] flex-col p-4"
@@ -65,7 +66,6 @@ function HeroStatsSkeleton() {
 }
 
 const emptyOverview: OverviewData = {
-  games_logged: 0,
   wins: 0,
   losses: 0,
   win_rate_pct: 0,
@@ -77,6 +77,7 @@ const emptyOverview: OverviewData = {
 export function MyTendenciesHeroStats({
   sideOfBall,
   playbook,
+  gameVersion,
   pill = "all",
   opponentTeam = null,
 }: Props) {
@@ -88,8 +89,9 @@ export function MyTendenciesHeroStats({
         minUses: 1,
         playbook,
         sideOfBall,
+        gameVersion,
       }),
-    [pill, opponentTeam, playbook, sideOfBall],
+    [pill, opponentTeam, playbook, sideOfBall, gameVersion],
   );
 
   const q = useQuery({
@@ -109,12 +111,7 @@ export function MyTendenciesHeroStats({
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <HeroStatCard
-          label="GAMES LOGGED"
-          value={showDash ? "—" : String(data.games_logged)}
-          description="This dynasty season"
-        />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <HeroStatCard
           label="WIN RATE"
           value={showDash ? "—" : `${data.win_rate_pct}%`}

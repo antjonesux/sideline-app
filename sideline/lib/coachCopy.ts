@@ -260,7 +260,16 @@ export const CALL_SHEET_VIEWER_MENU_REVIEW = "Film Room";
 export const CALL_SHEET_VIEWER_MENU_REVIEW_SOON = "Coming Soon";
 export const CALL_SHEET_VIEWER_MENU_SETTINGS = "Settings";
 /** Sidebar / drawer — cross-game tendencies dashboard (`/tendencies`). */
-export const APP_SHELL_MY_TENDENCIES_MENU_LABEL = "My Tendencies";
+export const APP_SHELL_TENDENCIES_MENU_LABEL = "Tendencies";
+/** @deprecated Use `APP_SHELL_TENDENCIES_MENU_LABEL`. */
+export const APP_SHELL_MY_TENDENCIES_MENU_LABEL = APP_SHELL_TENDENCIES_MENU_LABEL;
+/** Tendencies page subtitle — coach voice, no games count. */
+export const TENDENCIES_PAGE_SUBTITLE = "What kind of play caller are you becoming?";
+/** Section headings on the tendencies dashboard (matches add-play rail emerald). */
+export const TENDENCIES_SECTION_HEADING_CLASS =
+  "font-heading text-xl font-bold uppercase tracking-[0.12em] text-emerald-400";
+/** Scouting Report — coach-perspective subheading. */
+export const TENDENCIES_SCOUTING_REPORT_SUBHEADING = "What an opponent would notice in your calls.";
 /** What's Working — low-yield calls section heading. */
 export const TENDENCIES_CALLS_TO_RECONSIDER = "Calls to Reconsider";
 export const TENDENCIES_NO_DEFENSIVE_PLAYS = "No defensive plays logged yet.";

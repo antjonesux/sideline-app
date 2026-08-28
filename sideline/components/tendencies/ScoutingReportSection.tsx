@@ -1,5 +1,6 @@
 "use client";
 
+import { TENDENCIES_SCOUTING_REPORT_SUBHEADING, TENDENCIES_SECTION_HEADING_CLASS } from "@/lib/coachCopy";
 import { ScoutingFormationsReport } from "@/components/tendencies/ScoutingFormationsReport";
 import { ScoutingReport } from "@/components/tendencies/ScoutingReport";
 import type { ScoutingFormationReportRow, ScoutingReportRow } from "@/lib/tendenciesServer";
@@ -18,9 +19,9 @@ export function ScoutingReportSection({ situationRows, formationRows }: Props) {
   return (
     <section className="space-y-3">
       <div className="space-y-2">
-        <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Scouting Report</h2>
+        <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>Scouting Report</h2>
         <p className="font-sans text-[13px] font-normal leading-snug text-slate-400">
-          Opponent read on your tendencies.
+          {TENDENCIES_SCOUTING_REPORT_SUBHEADING}
         </p>
         <div className="grid grid-cols-2 border-b border-slate-800" role="tablist" aria-label="Scouting report views">
           <button

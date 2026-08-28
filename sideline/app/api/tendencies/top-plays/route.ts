@@ -4,7 +4,9 @@ import {
   aggregateByFormationPlay,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
+  filterGameRowsByGameVersion,
   mostCommonScenarioByFormationPlay,
+  parseGameVersionFilter,
   parsePlaybookFilter,
   parseScope,
   parseSideOfBallFilter,
@@ -24,10 +26,12 @@ export async function GET(req: NextRequest) {
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
   const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
+  const gameVersion = parseGameVersionFilter(sp.get("game_version"));
   const showAll = sp.get("expand") === "1" || sp.get("all") === "1";
   const limit = showAll ? 200 : 5;
 
-  const games = await fetchGamesOrdered(supabase, user.id);
+  const allGames = await fetchGamesOrdered(supabase, user.id);
+  const games = filterGameRowsByGameVersion(allGames, gameVersion);
   const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
   const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });

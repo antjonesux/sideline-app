@@ -1,10 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { isSpecialTeamsFormationPlayRow } from "@/lib/playTypeResolution";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
-import { CFB_CATALOG_GAME_VERSION, SCENARIO_SHORT, SCOUTING_REPORT_SCENARIOS, parseCatalogGameVersion, type CatalogGameVersion, type CatalogSideOfBall } from "@/lib/constants";
+import { CFB_CATALOG_GAME_VERSION, DEFAULT_CATALOG_GAME_VERSION, SCENARIO_SHORT, SCOUTING_REPORT_SCENARIOS, parseCatalogGameVersion, type CatalogGameVersion, type CatalogSideOfBall } from "@/lib/constants";
 import {
   categorizeCfbPlayType,
   deriveCfbPlayTypeFromName,
@@ -23,6 +24,7 @@ export type GameRow = {
   result: "W" | "L" | null;
   my_score: number | null;
   opponent_score: number | null;
+  game_version?: string | null;
 };
 
 export type LoggedPlayRow = {
@@ -79,6 +81,37 @@ export function parsePlaybookFilter(raw: string | null | undefined): string | nu
   return t ? t : null;
 }
 
+/** Tendencies scope filter — `game_version` query param (defaults to CFB27). */
+export function parseGameVersionFilter(raw: string | null | undefined): CatalogGameVersion {
+  return parseCatalogGameVersion(raw);
+}
+
+export function gameRowCatalogVersion(g: Pick<GameRow, "game_version">): CatalogGameVersion {
+  return parseCatalogGameVersion(g.game_version ?? undefined);
+}
+
+export function filterGameRowsByGameVersion(games: GameRow[], gameVersion: CatalogGameVersion): GameRow[] {
+  return games.filter((g) => gameRowCatalogVersion(g) === gameVersion);
+}
+
+/** Most recent catalog version in the user's logged games; CFB27 when empty. */
+export function resolveDefaultTendenciesGameVersion(games: Pick<GameRow, "game_version">[]): CatalogGameVersion {
+  const set = new Set<CatalogGameVersion>();
+  for (const g of games) {
+    set.add(gameRowCatalogVersion(g));
+  }
+  if (set.size === 0) return DEFAULT_CATALOG_GAME_VERSION;
+  return [...set].sort((a, b) => b.localeCompare(a))[0]!;
+}
+
+export function distinctGameVersionsFromGames(games: Pick<GameRow, "game_version">[]): CatalogGameVersion[] {
+  const set = new Set<CatalogGameVersion>();
+  for (const g of games) {
+    set.add(gameRowCatalogVersion(g));
+  }
+  return [...set].sort((a, b) => b.localeCompare(a));
+}
+
 /** Sessions that have a usable playbook label for tendencies (offensive_playbook or my_playbook). */
 export function gamesWithOffensivePlaybookOnly(games: GameRow[]): GameRow[] {
   return games.filter((g) => playbookForGame(g).trim().length > 0);
@@ -105,10 +138,14 @@ export function resolveTendenciesGamePool(
   return filterGameRowsByOffensivePlaybook(base, playbook);
 }
 
-export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
+export async function fetchDistinctOffensivePlaybooks(
+  supabase: SupabaseClient,
+  userId?: string,
+  gameVersion?: CatalogGameVersion,
+): Promise<string[]> {
   let query = supabase
     .from("game_sessions")
-    .select("offensive_playbook, my_playbook")
+    .select("offensive_playbook, my_playbook, game_version")
     .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
   const { data, error } = await query;
@@ -118,22 +155,28 @@ export async function fetchDistinctOffensivePlaybooks(supabase: SupabaseClient, 
   }
   const set = new Set<string>();
   for (const row of data ?? []) {
-    const v = playbookForGame(row as GameRow);
+    const game = row as GameRow;
+    if (gameVersion && gameRowCatalogVersion(game) !== gameVersion) continue;
+    const v = playbookForGame(game);
     if (v.trim()) set.add(v.trim());
   }
   return [...set].sort((a, b) => a.localeCompare(b));
 }
 
 /** Dropdown source for tendencies playbook filter: logged games only. */
-export async function fetchDistinctTendenciesPlaybooks(supabase: SupabaseClient, userId?: string): Promise<string[]> {
-  return fetchDistinctOffensivePlaybooks(supabase, userId);
+export async function fetchDistinctTendenciesPlaybooks(
+  supabase: SupabaseClient,
+  userId?: string,
+  gameVersion?: CatalogGameVersion,
+): Promise<string[]> {
+  return fetchDistinctOffensivePlaybooks(supabase, userId, gameVersion);
 }
 
 export async function fetchGamesOrdered(supabase: SupabaseClient, userId?: string): Promise<GameRow[]> {
   let query = supabase
     .from("game_sessions")
     .select(
-      "id, my_playbook, offensive_playbook, opponent_scheme, opponent_team, game_date, result, my_score, opponent_score",
+      "id, my_playbook, offensive_playbook, opponent_scheme, opponent_team, game_date, result, my_score, opponent_score, game_version",
     )
     .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
@@ -599,12 +642,53 @@ export function userMotionRate(plays: LoggedPlayRow[]): number {
   return motionUsageStats(plays).pct;
 }
 
+function isExplosiveRateExcludedPlay(p: LoggedPlayRow): boolean {
+  return isPunt(p) || isSpecialTeamsFormationPlayRow(p.formation, p.play_name);
+}
+
+/** Offensive plays with 15+ yards gained (excludes punt + film ST rows). */
+export function explosivePlayStats(plays: LoggedPlayRow[]): {
+  explosive_plays: number;
+  total_plays: number;
+  pct: number;
+} {
+  const scoped = plays.filter((p) => !isExplosiveRateExcludedPlay(p));
+  const total = scoped.length;
+  if (total === 0) return { explosive_plays: 0, total_plays: 0, pct: 0 };
+  const explosive = scoped.filter((p) => (p.yards_gained ?? 0) >= 15).length;
+  return {
+    explosive_plays: explosive,
+    total_plays: total,
+    pct: Math.round((explosive * 1000) / total) / 10,
+  };
+}
+
+function isRedZoneScenario(p: LoggedPlayRow): boolean {
+  const s = (p.scenario ?? "").trim();
+  return s === "Red Zone" || s === "Goal Line";
+}
+
+function isRedZoneScoringResultTag(p: LoggedPlayRow): boolean {
+  const t = (p.result_tag ?? "").toUpperCase().replace(/\s+/g, "_");
+  return t === "TOUCHDOWN" || t === "FIELD_GOAL";
+}
+
+/** Red zone plays ending in a scoring result (TD or FG made) / total red zone plays. */
+export function redZoneScoreStats(plays: LoggedPlayRow[]): {
+  scoring_plays: number;
+  plays: number;
+  pct: number;
+} {
+  const rz = plays.filter(isRedZoneScenario);
+  const n = rz.length;
+  if (n === 0) return { scoring_plays: 0, plays: 0, pct: 0 };
+  const scoring = rz.filter(isRedZoneScoringResultTag).length;
+  return { scoring_plays: scoring, plays: n, pct: Math.round((scoring * 1000) / n) / 10 };
+}
+
 /** TDs only (not first downs) in Red Zone + Goal Line scenarios. */
 export function redZoneTdStats(plays: LoggedPlayRow[]): { touchdowns: number; plays: number; pct: number } {
-  const rz = plays.filter((p) => {
-    const s = (p.scenario ?? "").trim();
-    return s === "Red Zone" || s === "Goal Line";
-  });
+  const rz = plays.filter(isRedZoneScenario);
   const n = rz.length;
   if (n === 0) return { touchdowns: 0, plays: 0, pct: 0 };
   const td = rz.filter((p) => {
@@ -640,6 +724,7 @@ export type ScoutingTopPlayRow = {
   play_name: string;
   formation: string;
   success_rate: number;
+  avg_yards: number;
   uses: number;
 };
 
@@ -648,14 +733,15 @@ export type ScoutingTopPlayRow = {
  * Sort by call count descending. `formation` is the most frequent formation paired with that play in the slice.
  */
 export function aggregateTopPlaysByPlayNameFrequency(plays: LoggedPlayRow[], topN: number): ScoutingTopPlayRow[] {
-  type Bucket = { uses: number; successes: number; formationCounts: Map<string, number> };
+  type Bucket = { uses: number; successes: number; yards: number; formationCounts: Map<string, number> };
   const m = new Map<string, Bucket>();
   for (const p of plays) {
     const pn = normalizePlayName(p.play_name ?? "");
     if (!pn) continue;
     const f = (p.formation ?? "").trim();
-    const b = m.get(pn) ?? { uses: 0, successes: 0, formationCounts: new Map<string, number>() };
+    const b = m.get(pn) ?? { uses: 0, successes: 0, yards: 0, formationCounts: new Map<string, number>() };
     b.uses += 1;
+    b.yards += p.yards_gained ?? 0;
     if (isSuccessPlay(p)) b.successes += 1;
     if (f) b.formationCounts.set(f, (b.formationCounts.get(f) ?? 0) + 1);
     m.set(pn, b);
@@ -676,6 +762,7 @@ export function aggregateTopPlaysByPlayNameFrequency(plays: LoggedPlayRow[], top
       formation,
       uses: b.uses,
       success_rate: b.uses > 0 ? Math.round((b.successes * 100) / b.uses) : 0,
+      avg_yards: b.uses > 0 ? Math.round((b.yards / b.uses) * 10) / 10 : 0,
     };
   });
   rows.sort((a, b) => b.uses - a.uses || a.play_name.localeCompare(b.play_name));
@@ -688,16 +775,19 @@ export type ScoutingReportRow = {
   run_pct: number;
   pass_pct: number;
   success_pct: number;
+  avg_yards_per_play: number;
   top_play: {
     play_name: string;
     formation: string;
     success_rate: number;
+    avg_yards: number;
     uses: number;
   } | null;
   top_plays: {
     play_name: string;
     formation: string;
     success_rate: number;
+    avg_yards: number;
     uses: number;
   }[];
 };
@@ -727,12 +817,16 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
     const pass_pct = total > 0 ? Math.round((other * 1000) / total) / 10 : 0;
     const success_pct = total > 0 ? Math.round((success * 1000) / total) / 10 : 0;
     const scenarioPlays = plays.filter((p) => tendenciesScenarioKey(p.scenario) === scenario);
+    const scenarioYards = scenarioPlays.reduce((sum, p) => sum + (p.yards_gained ?? 0), 0);
+    const avg_yards_per_play =
+      scenarioPlays.length > 0 ? Math.round((scenarioYards / scenarioPlays.length) * 10) / 10 : 0;
     const topRanked = aggregateTopPlaysByPlayNameFrequency(scenarioPlays, 3);
     const top = topRanked[0];
     const top_plays = topRanked.map((entry) => ({
       play_name: entry.play_name,
       formation: entry.formation,
       success_rate: entry.success_rate,
+      avg_yards: entry.avg_yards,
       uses: entry.uses,
     }));
     const top_play = top
@@ -740,10 +834,20 @@ export function scoutingReportRows(plays: LoggedPlayRow[], buckets: PlayTypeBuck
           play_name: top.play_name,
           formation: top.formation,
           success_rate: top.success_rate,
+          avg_yards: top.avg_yards,
           uses: top.uses,
         }
       : null;
-    out.push({ scenario, total_plays: total, run_pct, pass_pct, success_pct, top_play, top_plays });
+    out.push({
+      scenario,
+      total_plays: total,
+      run_pct,
+      pass_pct,
+      success_pct,
+      avg_yards_per_play,
+      top_play,
+      top_plays,
+    });
   }
   return out;
 }

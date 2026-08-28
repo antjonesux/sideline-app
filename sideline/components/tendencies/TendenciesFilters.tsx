@@ -1,6 +1,7 @@
 "use client";
 
 import { PlaybookFilter } from "@/components/tendencies/PlaybookFilter";
+import { CATALOG_GAME_VERSION_LABELS, type CatalogGameVersion } from "@/lib/constants";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePortalDropdown } from "@/hooks/usePortalDropdown";
@@ -17,6 +18,7 @@ export type TendenciesScopeParams = {
 export type TendenciesFilterParams = TendenciesScopeParams & {
   playbook: string | null;
   sideOfBall: "offense" | "defense";
+  gameVersion: CatalogGameVersion;
 };
 
 function pillClass(active: boolean) {
@@ -27,7 +29,7 @@ function pillClass(active: boolean) {
 
 const tendenciesPortalListboxClass = `min-w-0 rounded-lg border border-slate-700 bg-slate-950 text-sm shadow-lg fixed ${overlayZ.tendenciesPortalMenu} max-h-[min(18rem,calc(100dvh-2rem))] w-max max-w-[min(20rem,calc(100vw-1rem))] overflow-y-auto`;
 
-/** Short labels stay tight; long opponent / scope text truncates so three filters can stay one row. */
+/** Short labels stay tight; long opponent / scope text truncates so filters can stay one row. */
 const tendenciesFilterTriggerLabelClass = "max-w-[7rem] truncate whitespace-nowrap sm:max-w-[9rem]";
 
 function gameScopeTriggerLabel(pill: Pill, opponentTeam: string | null): string {
@@ -48,6 +50,7 @@ export function buildTendenciesQueryString(f: TendenciesFilterParams): string {
   sp.set("min_uses", String(f.minUses));
   if (f.playbook?.trim()) sp.set("playbook", f.playbook.trim());
   sp.set("side_of_ball", f.sideOfBall);
+  sp.set("game_version", f.gameVersion);
   return sp.toString();
 }
 
@@ -59,6 +62,9 @@ type Props = {
   onPlaybookChange: (next: string | null) => void;
   playbookOptions: string[];
   playbookLoading?: boolean;
+  gameVersion: CatalogGameVersion;
+  onGameVersionChange: (next: CatalogGameVersion) => void;
+  gameVersionOptions: CatalogGameVersion[];
   /** When false, hides the minimum-uses / "Include all" line (e.g. predictability view). */
   showMinUsesLine?: boolean;
 };
@@ -71,9 +77,13 @@ export function TendenciesFilters({
   onPlaybookChange,
   playbookOptions,
   playbookLoading = false,
+  gameVersion,
+  onGameVersionChange,
+  gameVersionOptions = [],
   showMinUsesLine = true,
 }: Props) {
   const setPill = (pill: Pill) => onChange({ ...value, pill, opponentTeam: pill === "vs" ? value.opponentTeam : null });
+  const gameVersionTriggerId = "tendencies-game-version";
   const gameScopeTriggerId = "tendencies-game-scope";
   const opponentSelectId = "tendencies-opponent-filter";
   const playbookInputId = "tendencies-playbook-filter";
@@ -81,6 +91,10 @@ export function TendenciesFilters({
   const opponentPillClass = opponentActive ? pillClass(true) : pillClass(false);
   /** Emerald pill when scoped to last N games or vs opponent (same signal as PlaybookFilter / opponent trigger). */
   const gameScopePillActive = value.pill !== "all";
+
+  const gameVersionRootRef = useRef<HTMLDivElement>(null);
+  const gameVersionTriggerRef = useRef<HTMLButtonElement>(null);
+  const gameVersionMenu = usePortalDropdown(gameVersionRootRef, gameVersionTriggerRef);
 
   const gameScopeRootRef = useRef<HTMLDivElement>(null);
   const gameScopeTriggerRef = useRef<HTMLButtonElement>(null);
@@ -91,10 +105,68 @@ export function TendenciesFilters({
   const opponent = usePortalDropdown(opponentRootRef, opponentTriggerRef);
 
   const gameScopeCommittedLabel = gameScopeTriggerLabel(value.pill, value.opponentTeam);
+  const gameVersionLabel = CATALOG_GAME_VERSION_LABELS[gameVersion];
 
   return (
     <div className="space-y-2">
       <div className="flex min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2">
+        <div ref={gameVersionRootRef} className="relative w-fit max-w-full shrink-0">
+          <label htmlFor={gameVersionTriggerId} className="sr-only">
+            Game version
+          </label>
+          <button
+            ref={gameVersionTriggerRef}
+            id={gameVersionTriggerId}
+            type="button"
+            aria-label="Game version"
+            aria-expanded={gameVersionMenu.open}
+            aria-haspopup="listbox"
+            disabled={gameVersionOptions.length === 0}
+            className={`min-h-11 w-max max-w-full appearance-none rounded-full border px-3 py-2 pe-9 text-left text-sm font-body ${pillClass(true)} inline-flex items-center disabled:cursor-not-allowed disabled:opacity-70`}
+            onClick={gameVersionMenu.toggleMenu}
+          >
+            <span className={tendenciesFilterTriggerLabelClass}>{gameVersionLabel}</span>
+          </button>
+          <span className="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-slate-400" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+          {gameVersionMenu.open
+            ? createPortal(
+                <div
+                  ref={gameVersionMenu.menuRef}
+                  role="listbox"
+                  aria-label="Game version options"
+                  className={tendenciesPortalListboxClass}
+                  style={{
+                    ...(gameVersionMenu.menuPos.top != null ? { top: gameVersionMenu.menuPos.top } : {}),
+                    ...(gameVersionMenu.menuPos.bottom != null ? { bottom: gameVersionMenu.menuPos.bottom } : {}),
+                    left: gameVersionMenu.menuPos.left,
+                    minWidth: gameVersionMenu.menuPos.minWidth,
+                  }}
+                >
+                  {gameVersionOptions.map((version) => (
+                    <button
+                      key={version}
+                      type="button"
+                      role="option"
+                      aria-selected={gameVersion === version}
+                      className="flex min-h-11 w-full items-center border-b border-slate-800 px-3 py-2 text-left font-body text-sm last:border-b-0 hover:bg-slate-800/80"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        onGameVersionChange(version);
+                        gameVersionMenu.closeMenu();
+                      }}
+                    >
+                      {CATALOG_GAME_VERSION_LABELS[version]}
+                    </button>
+                  ))}
+                </div>,
+                document.body,
+              )
+            : null}
+        </div>
         <div ref={gameScopeRootRef} className="relative w-fit max-w-full shrink-0">
           <label htmlFor={gameScopeTriggerId} className="sr-only">
             Game range
@@ -174,6 +246,15 @@ export function TendenciesFilters({
               )
             : null}
         </div>
+        <div className="flex min-w-0 shrink-0 justify-start">
+          <PlaybookFilter
+            inputId={playbookInputId}
+            value={playbook}
+            onChange={onPlaybookChange}
+            options={playbookOptions}
+            loading={playbookLoading}
+          />
+        </div>
         <div ref={opponentRootRef} className="relative w-fit max-w-full shrink-0">
           <label htmlFor={opponentSelectId} className="sr-only">
             OPPONENT
@@ -242,15 +323,6 @@ export function TendenciesFilters({
                 document.body,
               )
             : null}
-        </div>
-        <div className="flex min-w-0 flex-1 basis-0 justify-start">
-          <PlaybookFilter
-            inputId={playbookInputId}
-            value={playbook}
-            onChange={onPlaybookChange}
-            options={playbookOptions}
-            loading={playbookLoading}
-          />
         </div>
       </div>
       {showMinUsesLine ? (

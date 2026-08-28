@@ -1,5 +1,3 @@
-import { playbookListQueryKey } from "@/lib/playbookListQuery";
-
 import type { DriveSideOfBall } from "@/lib/types";
 
 export const tendenciesQueryKeys = {
@@ -11,5 +9,5 @@ export const tendenciesQueryKeys = {
   game: (gameId: string, sideOfBall: DriveSideOfBall = "offense") =>
     [...tendenciesQueryKeys.all, "game", gameId, sideOfBall] as const,
   opponents: () => [...tendenciesQueryKeys.all, "opponents"] as const,
-  playbooksList: () => playbookListQueryKey,
+  playbooksList: (gameVersion: string) => [...tendenciesQueryKeys.all, "playbooks-list", gameVersion] as const,
 };

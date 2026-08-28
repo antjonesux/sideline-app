@@ -14,6 +14,7 @@ function emptyScoutingRow(scenario: string): ScoutingReportRow {
     run_pct: 0,
     pass_pct: 0,
     success_pct: 0,
+    avg_yards_per_play: 0,
     top_play: null,
     top_plays: [],
   };
@@ -55,11 +56,12 @@ export function ScoutingReport({ rows }: Props) {
           );
         }
         const situationAvg = Math.round(r.success_pct);
+        const situationAvgYpp = r.avg_yards_per_play;
         const passRounded = Math.round(r.pass_pct);
         const runRounded = Math.round(r.run_pct);
         const tendencySkewed = passRounded >= 80 || runRounded >= 80;
-        const tendencyLine =
-          r.pass_pct >= r.run_pct ? `Tendency: ${passRounded}% pass` : `Tendency: ${runRounded}% run`;
+        const tendencyPct = r.pass_pct >= r.run_pct ? passRounded : runRounded;
+        const tendencyLabel = r.pass_pct >= r.run_pct ? "pass" : "run";
         const tendencyClass = tendencySkewed ? "text-amber-400" : "text-slate-400";
 
         return (
@@ -72,6 +74,10 @@ export function ScoutingReport({ rows }: Props) {
                 <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">{r.scenario}</h3>
                 <span className="font-mono text-xs font-medium tabular-nums text-slate-400">
                   {r.total_plays} {r.total_plays === 1 ? "call" : "calls"}
+                  <span className="text-slate-600"> · </span>
+                  <span className={tendencyClass}>
+                    {tendencyPct}% {tendencyLabel}
+                  </span>
                 </span>
               </div>
               <p className={`mt-2 font-mono text-sm font-semibold tabular-nums ${successRateTextClass(situationAvg)}`}>
@@ -83,8 +89,8 @@ export function ScoutingReport({ rows }: Props) {
               <p className="mb-2 font-sans text-xs uppercase tracking-widest text-slate-500">Top Calls</p>
               <ul className="space-y-3">
                 {r.top_plays.slice(0, 3).map((play, idx) => {
-                  const underVsSituation =
-                    play.uses > 0 && situationAvg - Math.round(play.success_rate) >= 10;
+                  const yardsDelta = situationAvgYpp - play.avg_yards;
+                  const underVsSituation = play.uses > 0 && yardsDelta > 0;
                   return (
                     <li
                       key={`${play.formation}-${play.play_name}-${idx}`}
@@ -114,7 +120,7 @@ export function ScoutingReport({ rows }: Props) {
                                 <path d="M12 8v5m0 4h.01" />
                                 <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
                               </svg>
-                              Below your {r.scenario} avg
+                              {yardsDelta.toFixed(1)} yds below your {r.scenario} avg
                             </p>
                           ) : null}
                         </div>
@@ -123,10 +129,6 @@ export function ScoutingReport({ rows }: Props) {
                   );
                 })}
               </ul>
-            </div>
-
-            <div className="border-t border-slate-800/80 bg-slate-800/40 px-4 py-3">
-              <p className={`font-sans text-sm ${tendencyClass}`}>{tendencyLine}</p>
             </div>
           </article>
         );

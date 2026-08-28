@@ -5,6 +5,8 @@ import {
   fetchCfbPlayTypeMap,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
+  filterGameRowsByGameVersion,
+  parseGameVersionFilter,
   parsePlaybookFilter,
   parseScope,
   parseSideOfBallFilter,
@@ -28,9 +30,11 @@ export async function GET(req: NextRequest) {
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
   const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
+  const gameVersion = parseGameVersionFilter(sp.get("game_version"));
 
   try {
-    const games = await fetchGamesOrdered(supabase, user.id);
+    const allGames = await fetchGamesOrdered(supabase, user.id);
+    const games = filterGameRowsByGameVersion(allGames, gameVersion);
     const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
     const gameIds = resolveFilteredGameIds(pool, scope, opponent);
     const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });
@@ -46,6 +50,7 @@ export async function GET(req: NextRequest) {
 
     const cfbTypes = await fetchCfbPlayTypeMap(supabase, [...playbookLabels], {
       sideOfBall,
+      gameVersion,
     });
     const typed = attachPlayTypes(plays, gamesById, cfbTypes, undefined, sideOfBall);
     const data = summarizeTendenciesOverview(

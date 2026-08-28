@@ -4,16 +4,27 @@ import { AmIPredictable } from "@/components/tendencies/AmIPredictable";
 import { MyTendenciesHeroStats } from "@/components/tendencies/MyTendenciesHeroStats";
 import { TendenciesSideOfBallToggle } from "@/components/tendencies/TendenciesSideOfBallToggle";
 import { WhatsWorking } from "@/components/tendencies/WhatsWorking";
-import { buildTendenciesQueryString } from "@/components/tendencies/TendenciesFilters";
+import {
+  TendenciesFilters,
+  buildTendenciesQueryString,
+  type TendenciesScopeParams,
+} from "@/components/tendencies/TendenciesFilters";
 import { TendenciesHomeSkeleton } from "@/components/shared/PageSkeleton";
 import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
 import {
-  APP_SHELL_MY_TENDENCIES_MENU_LABEL,
+  APP_SHELL_TENDENCIES_MENU_LABEL,
   TENDENCIES_NO_DEFENSIVE_PLAYS,
+  TENDENCIES_PAGE_SUBTITLE,
 } from "@/lib/coachCopy";
+import { DEFAULT_CATALOG_GAME_VERSION, type CatalogGameVersion } from "@/lib/constants";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
 import { isOnboardingGameSession } from "@/lib/onboardingImportSource";
-import { playbookForGame } from "@/lib/tendenciesServer";
+import {
+  distinctGameVersionsFromGames,
+  gameRowCatalogVersion,
+  playbookForGame,
+  resolveDefaultTendenciesGameVersion,
+} from "@/lib/tendenciesServer";
 import type { DriveSideOfBall, GameSession } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -42,6 +53,8 @@ export function TendenciesHome() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sideOfBall, setSideOfBall] = useState<DriveSideOfBall>("offense");
   const [tab, setTab] = useState<Tab>("working");
+  const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
+  const [gameVersion, setGameVersion] = useState<CatalogGameVersion | null>(null);
 
   useEffect(() => {
     emitProductEvent("tendencies_viewed", { path: `${pathname}` }, { dedupeKey: "tendencies", dedupeWindowMs: 2000 });
@@ -70,10 +83,25 @@ export function TendenciesHome() {
     staleTime: 60 * 1000,
   });
 
+  const games = (Array.isArray(gamesQuery.data) ? gamesQuery.data : []).filter((g) => !isOnboardingGameSession(g));
+  const defaultGameVersion = useMemo(
+    () => (games.length > 0 ? resolveDefaultTendenciesGameVersion(games) : DEFAULT_CATALOG_GAME_VERSION),
+    [games],
+  );
+  const effectiveGameVersion = gameVersion ?? defaultGameVersion ?? DEFAULT_CATALOG_GAME_VERSION;
+  const gameVersionOptions = useMemo(() => distinctGameVersionsFromGames(games), [games]);
+
+  useEffect(() => {
+    if (games.length > 0 && gameVersion === null) {
+      setGameVersion(defaultGameVersion);
+    }
+  }, [games.length, defaultGameVersion, gameVersion]);
+
   const playbooksQuery = useQuery({
-    queryKey: tendenciesQueryKeys.playbooksList(),
+    queryKey: tendenciesQueryKeys.playbooksList(effectiveGameVersion),
     queryFn: async () => {
-      const res = await fetch("/api/playbooks/list");
+      const sp = new URLSearchParams({ game_version: effectiveGameVersion });
+      const res = await fetch(`/api/playbooks/list?${sp.toString()}`);
       if (!res.ok) throw new Error("playbooks list");
       return res.json() as Promise<{ playbooks: string[] }>;
     },
@@ -83,13 +111,13 @@ export function TendenciesHome() {
   const overviewQs = useMemo(
     () =>
       buildTendenciesQueryString({
-        pill: "all",
-        opponentTeam: null,
+        ...filters,
         minUses: 1,
         playbook: playbookParam,
         sideOfBall,
+        gameVersion: effectiveGameVersion,
       }),
-    [playbookParam, sideOfBall],
+    [filters, playbookParam, sideOfBall, effectiveGameVersion],
   );
 
   const overviewQuery = useQuery({
@@ -103,12 +131,23 @@ export function TendenciesHome() {
     enabled: sideOfBall === "defense",
   });
 
-  const games = (Array.isArray(gamesQuery.data) ? gamesQuery.data : []).filter((g) => !isOnboardingGameSession(g));
   const playbookOptions = Array.isArray(playbooksQuery.data?.playbooks) ? playbooksQuery.data.playbooks : [];
+
+  useEffect(() => {
+    if (!playbookParam || playbookOptions.length === 0 || playbooksQuery.isLoading) return;
+    if (!playbookOptions.includes(playbookParam)) {
+      setPlaybookInUrl(null);
+    }
+  }, [playbookParam, playbookOptions, playbooksQuery.isLoading, setPlaybookInUrl]);
+
+  const gamesInVersion = useMemo(
+    () => games.filter((g) => gameRowCatalogVersion(g) === effectiveGameVersion),
+    [games, effectiveGameVersion],
+  );
 
   const opponents = useMemo(() => {
     const s = new Set<string>();
-    for (const g of games) {
+    for (const g of gamesInVersion) {
       const playbook = playbookForGame({
         offensive_playbook: g.offensive_playbook ?? null,
         my_playbook: g.my_playbook ?? null,
@@ -118,7 +157,14 @@ export function TendenciesHome() {
       if (o) s.add(o);
     }
     return [...s].sort((a, b) => a.localeCompare(b));
-  }, [games]);
+  }, [gamesInVersion]);
+
+  useEffect(() => {
+    if (!filters.opponentTeam) return;
+    if (!opponents.includes(filters.opponentTeam)) {
+      setFilters((prev) => ({ ...prev, pill: "all", opponentTeam: null }));
+    }
+  }, [filters.opponentTeam, opponents]);
 
   const defenseEmpty =
     sideOfBall === "defense" &&
@@ -136,7 +182,7 @@ export function TendenciesHome() {
         <header className="flex items-center gap-4">
           <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
           <h1 className="min-w-0 flex-1 font-heading text-3xl font-bold uppercase tracking-[0.12em] text-slate-100">
-            {APP_SHELL_MY_TENDENCIES_MENU_LABEL}
+            {APP_SHELL_TENDENCIES_MENU_LABEL}
           </h1>
         </header>
         <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
@@ -160,17 +206,32 @@ export function TendenciesHome() {
           <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
           <div className="min-w-0 flex-1 space-y-1">
             <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.12em] text-slate-100">
-              {APP_SHELL_MY_TENDENCIES_MENU_LABEL}
+              {APP_SHELL_TENDENCIES_MENU_LABEL}
             </h1>
-            <p className="font-body text-sm text-slate-400">
-              What kind of play caller are you becoming? — {games.length} games logged
-            </p>
+            <p className="font-body text-sm text-slate-400">{TENDENCIES_PAGE_SUBTITLE}</p>
           </div>
         </div>
       </header>
       <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
 
-      <TendenciesSideOfBallToggle value={sideOfBall} onChange={setSideOfBall} />
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <TendenciesSideOfBallToggle value={sideOfBall} onChange={setSideOfBall} />
+        <div className="min-w-0 w-full md:flex-1 md:max-w-none">
+          <TendenciesFilters
+            value={filters}
+            onChange={setFilters}
+            opponents={opponents}
+            playbook={playbookParam}
+            onPlaybookChange={setPlaybookInUrl}
+            playbookOptions={playbookOptions}
+            playbookLoading={playbooksQuery.isLoading}
+            gameVersion={effectiveGameVersion}
+            onGameVersionChange={setGameVersion}
+            gameVersionOptions={gameVersionOptions}
+            showMinUsesLine={false}
+          />
+        </div>
+      </div>
 
       {defenseEmpty ? (
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 py-10 text-center">
@@ -178,7 +239,13 @@ export function TendenciesHome() {
         </div>
       ) : (
         <>
-          <MyTendenciesHeroStats sideOfBall={sideOfBall} playbook={playbookParam} />
+          <MyTendenciesHeroStats
+            sideOfBall={sideOfBall}
+            playbook={playbookParam}
+            pill={filters.pill}
+            opponentTeam={filters.opponentTeam}
+            gameVersion={effectiveGameVersion}
+          />
 
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="w-full">
             <TabsList
@@ -196,12 +263,10 @@ export function TendenciesHome() {
               <TabsContent value="working" className="mt-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                 {tab === "working" ? (
                   <WhatsWorking
-                    opponents={opponents}
                     playbook={playbookParam}
-                    onPlaybookChange={setPlaybookInUrl}
-                    playbookOptions={playbookOptions}
-                    playbookLoading={playbooksQuery.isLoading}
+                    filters={filters}
                     sideOfBall={sideOfBall}
+                    gameVersion={effectiveGameVersion}
                   />
                 ) : null}
               </TabsContent>
@@ -210,10 +275,9 @@ export function TendenciesHome() {
                   <AmIPredictable
                     opponents={opponents}
                     playbook={playbookParam}
-                    onPlaybookChange={setPlaybookInUrl}
-                    playbookOptions={playbookOptions}
-                    playbookLoading={playbooksQuery.isLoading}
+                    filters={filters}
                     sideOfBall={sideOfBall}
+                    gameVersion={effectiveGameVersion}
                   />
                 ) : null}
               </TabsContent>

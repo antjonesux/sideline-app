@@ -1,18 +1,15 @@
 "use client";
 
 import { ReconsiderPlays } from "@/components/tendencies/ReconsiderPlays";
-import {
-  TendenciesFilters,
-  buildTendenciesQueryString,
-  type TendenciesScopeParams,
-} from "@/components/tendencies/TendenciesFilters";
+import { buildTendenciesQueryString, type TendenciesScopeParams } from "@/components/tendencies/TendenciesFilters";
 import { TendenciesEmptyState } from "@/components/tendencies/TendenciesEmptyState";
 import { TopFormationsList, type TopFormationRow } from "@/components/tendencies/TopFormationsList";
 import { TopPlaysList, type TopPlayRow } from "@/components/tendencies/TopPlaysList";
 import { WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 import { TendenciesWhatsWorkingBodySkeleton } from "@/components/shared/AppSkeleton";
-import { TENDENCIES_CALLS_TO_RECONSIDER } from "@/lib/coachCopy";
+import { TENDENCIES_CALLS_TO_RECONSIDER, TENDENCIES_SECTION_HEADING_CLASS } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { CatalogGameVersion } from "@/lib/constants";
 import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -31,23 +28,13 @@ type TopFormationsApi = {
 };
 
 type Props = {
-  opponents: string[];
   playbook: string | null;
-  onPlaybookChange: (next: string | null) => void;
-  playbookOptions: string[];
-  playbookLoading?: boolean;
+  filters: TendenciesScopeParams;
   sideOfBall: DriveSideOfBall;
+  gameVersion: CatalogGameVersion;
 };
 
-export function WhatsWorking({
-  opponents,
-  playbook,
-  onPlaybookChange,
-  playbookOptions,
-  playbookLoading = false,
-  sideOfBall,
-}: Props) {
-  const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
+export function WhatsWorking({ playbook, filters, sideOfBall, gameVersion }: Props) {
   const [playsExpanded, setPlaysExpanded] = useState(false);
   const [playsPage, setPlaysPage] = useState(1);
   const [formationsExpanded, setFormationsExpanded] = useState(false);
@@ -56,11 +43,11 @@ export function WhatsWorking({
   const [reconsiderPage, setReconsiderPage] = useState(1);
 
   const qs = useMemo(() => {
-    const raw = buildTendenciesQueryString({ ...filters, playbook, sideOfBall });
+    const raw = buildTendenciesQueryString({ ...filters, playbook, sideOfBall, gameVersion });
     const sp = new URLSearchParams(raw);
     sp.delete("min_uses");
     return sp.toString();
-  }, [filters, playbook, sideOfBall]);
+  }, [filters, playbook, sideOfBall, gameVersion]);
   const qsPlays = useMemo(() => {
     const sp = new URLSearchParams(qs);
     if (playsExpanded) sp.set("expand", "1");
@@ -142,17 +129,6 @@ export function WhatsWorking({
 
   return (
     <div className="space-y-8">
-      <TendenciesFilters
-        value={filters}
-        onChange={setFilters}
-        opponents={opponents}
-        playbook={playbook}
-        onPlaybookChange={onPlaybookChange}
-        playbookOptions={playbookOptions}
-        playbookLoading={playbookLoading}
-        showMinUsesLine={false}
-      />
-
       {showPlaybookEmpty && playbook ? <TendenciesEmptyState playbookName={playbook} /> : null}
 
       {showPlaybookEmpty ? null : dataLoading ? (
@@ -160,7 +136,7 @@ export function WhatsWorking({
       ) : (
         <>
           <section className="space-y-3">
-            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Top plays</h2>
+            <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>Top plays</h2>
             {playsQuery.data && playsQuery.data.meta.play_count === 0 ? (
               <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 text-center">
                 <p className="font-body text-sm text-slate-300">No calls logged for this filter yet.</p>
@@ -188,7 +164,7 @@ export function WhatsWorking({
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Top formations</h2>
+            <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>Top formations</h2>
             {formationsQuery.data?.top_formations?.length ? (
               <TopFormationsList
                 rows={formationsRows}
@@ -209,9 +185,7 @@ export function WhatsWorking({
 
           {playsQuery.data?.reconsider_plays?.length ? (
             <section className="space-y-3">
-              <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">
-                {TENDENCIES_CALLS_TO_RECONSIDER}
-              </h2>
+              <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>{TENDENCIES_CALLS_TO_RECONSIDER}</h2>
               <ReconsiderPlays
                 rows={reconsiderRows}
                 totalCount={playsQuery.data.reconsider_plays.length}

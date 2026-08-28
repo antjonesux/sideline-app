@@ -3,17 +3,15 @@
 import { PlayTypeDistribution } from "@/components/tendencies/PlayTypeDistribution";
 import { ScoutingReportSection } from "@/components/tendencies/ScoutingReportSection";
 import type { ScoutingFormationReportRow, ScoutingReportRow } from "@/lib/tendenciesServer";
-import {
-  TendenciesFilters,
-  buildTendenciesQueryString,
-  type TendenciesScopeParams,
-} from "@/components/tendencies/TendenciesFilters";
+import { buildTendenciesQueryString, type TendenciesScopeParams } from "@/components/tendencies/TendenciesFilters";
 import { TendenciesEmptyState } from "@/components/tendencies/TendenciesEmptyState";
 import { TendenciesPredictabilityBodySkeleton } from "@/components/shared/AppSkeleton";
+import { TENDENCIES_SECTION_HEADING_CLASS } from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { CatalogGameVersion } from "@/lib/constants";
 import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type PredictApi = {
   play_type_distribution: { name: string; pct: number; count: number }[];
@@ -21,6 +19,7 @@ type PredictApi = {
   scouting_formation_report?: ScoutingFormationReportRow[];
   key_rates: {
     turnover: { pct: number; turnovers: number; total_plays: number };
+    explosive_play: { pct: number; explosive_plays: number; total_plays: number };
     motion: {
       pct: number;
       motion_plays: number;
@@ -29,7 +28,7 @@ type PredictApi = {
       playbook_name: string;
       underutilizing: boolean;
     };
-    red_zone_td: { pct: number; touchdowns: number; plays: number };
+    red_zone: { pct: number; scoring_plays: number; plays: number };
     third_down: { pct: number; conversions: number; plays: number };
   };
   motion: { user_pct: number; playbook_pct: number; playbook_name: string; underutilizing: boolean };
@@ -56,24 +55,15 @@ function KeyRateCard({ label, pctDisplay, description }: { label: string; pctDis
 type Props = {
   opponents: string[];
   playbook: string | null;
-  onPlaybookChange: (next: string | null) => void;
-  playbookOptions: string[];
-  playbookLoading?: boolean;
+  filters: TendenciesScopeParams;
   sideOfBall: DriveSideOfBall;
+  gameVersion: CatalogGameVersion;
 };
 
-export function AmIPredictable({
-  opponents,
-  playbook,
-  onPlaybookChange,
-  playbookOptions,
-  playbookLoading = false,
-  sideOfBall,
-}: Props) {
-  const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
+export function AmIPredictable({ opponents: _opponents, playbook, filters, sideOfBall, gameVersion }: Props) {
   const qs = useMemo(
-    () => buildTendenciesQueryString({ ...filters, playbook, sideOfBall }),
-    [filters, playbook, sideOfBall],
+    () => buildTendenciesQueryString({ ...filters, playbook, sideOfBall, gameVersion }),
+    [filters, playbook, sideOfBall, gameVersion],
   );
 
   const q = useQuery({
@@ -94,17 +84,6 @@ export function AmIPredictable({
 
   return (
     <div className="space-y-8">
-      <TendenciesFilters
-        value={filters}
-        onChange={setFilters}
-        opponents={opponents}
-        playbook={playbook}
-        onPlaybookChange={onPlaybookChange}
-        playbookOptions={playbookOptions}
-        playbookLoading={playbookLoading}
-        showMinUsesLine={false}
-      />
-
       {showPlaybookEmpty && playbook ? <TendenciesEmptyState playbookName={playbook} /> : null}
 
       {showPlaybookEmpty ? null : dataLoading ? (
@@ -112,34 +91,21 @@ export function AmIPredictable({
       ) : (
         <>
           <section className="space-y-3">
-            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Play type distribution</h2>
+            <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>Play type distribution</h2>
             {q.data ? <PlayTypeDistribution data={q.data.play_type_distribution} /> : null}
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-heading text-xl font-bold uppercase tracking-[0.12em] text-slate-100">Key Rates</h2>
+            <h2 className={TENDENCIES_SECTION_HEADING_CLASS}>Key Rates</h2>
             {q.data ? (
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <KeyRateCard
-                  label="TURNOVER RATE"
-                  pctDisplay={`${Math.round(q.data.key_rates.turnover.pct)}%`}
-                  description={`${q.data.key_rates.turnover.turnovers.toLocaleString("en-US")} TO · ${q.data.key_rates.turnover.total_plays.toLocaleString("en-US")} calls`}
-                />
-                <KeyRateCard
-                  label="MOTION USAGE"
-                  pctDisplay={`${Math.round(q.data.key_rates.motion.pct)}%`}
+                  label="RED ZONE %"
+                  pctDisplay={`${Math.round(q.data.key_rates.red_zone.pct)}%`}
                   description={(() => {
-                    const m = q.data.key_rates.motion;
-                    return `${m.motion_plays.toLocaleString("en-US")} motion · ${m.total_plays.toLocaleString("en-US")} calls`;
-                  })()}
-                />
-                <KeyRateCard
-                  label="RED ZONE TD%"
-                  pctDisplay={`${Math.round(q.data.key_rates.red_zone_td.pct)}%`}
-                  description={(() => {
-                    const z = q.data.key_rates.red_zone_td;
+                    const z = q.data.key_rates.red_zone;
                     if (z.plays === 0) return "No red zone calls in this filter.";
-                    return `${z.touchdowns.toLocaleString("en-US")} TD · ${z.plays.toLocaleString("en-US")} red zone calls`;
+                    return `${z.scoring_plays.toLocaleString("en-US")} scores · ${z.plays.toLocaleString("en-US")} red zone calls`;
                   })()}
                 />
                 <KeyRateCard
@@ -150,6 +116,19 @@ export function AmIPredictable({
                     if (t.plays === 0) return "No third-down calls in this filter.";
                     return `${t.conversions.toLocaleString("en-US")} conversions · ${t.plays.toLocaleString("en-US")} third-down calls`;
                   })()}
+                />
+                <KeyRateCard
+                  label="EXPLOSIVE PLAY %"
+                  pctDisplay={`${Math.round(q.data.key_rates.explosive_play.pct)}%`}
+                  description={(() => {
+                    const e = q.data.key_rates.explosive_play;
+                    return `${e.explosive_plays.toLocaleString("en-US")} plays · ${e.total_plays.toLocaleString("en-US")} calls · 15+ yds`;
+                  })()}
+                />
+                <KeyRateCard
+                  label="TURNOVER RATE"
+                  pctDisplay={`${Math.round(q.data.key_rates.turnover.pct)}%`}
+                  description={`${q.data.key_rates.turnover.turnovers.toLocaleString("en-US")} TO · ${q.data.key_rates.turnover.total_plays.toLocaleString("en-US")} calls`}
                 />
               </div>
             ) : null}

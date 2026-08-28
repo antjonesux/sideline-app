@@ -4,6 +4,58 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-27 — Tendencies filter polish (Pass A follow-up)
+
+### What
+
+- Reordered filter row: Game version, Game scope, Playbook, Opponent (playbook moved before opponent).
+- Reordered Key Rates cards: Red Zone %, 3rd Down Conv %, Explosive Play %, Turnover Rate.
+- Playbook filter now restricted to playbooks the user has logged games with; narrows further by selected game version.
+- Added game version filter to Tendencies. Defaults to most recent version in the user's data. Filters all sections via `game_version` param on tendencies API routes.
+
+### Why
+
+QA feedback on Pass A. Coaches switch between game versions across dynasty saves and need tendencies scoped to the version being played.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to other filters or the offense/defense toggle.
+- Playbook filter was already scoped to logged games; follow-up adds `game_version` narrowing.
+- Game version default: highest sorted `game_version` in user's games; fallback `cfb27`.
+- Defensive defaults on game version filter props prevent hot-reload crashes.
+
+---
+
+## 2026-08-27 — Tendencies dashboard polish (Pass A: visual + copy)
+
+### What
+
+- Renamed nav item from "My Tendencies" to "Tendencies"; swapped icon from Activity to LineChart.
+- Removed Games Logged card from hero stats; grid is now 3 cards (Win Rate, Avg YPP, Run/Pass).
+- Removed subtitle games count; subtitle now reads "What kind of play caller are you becoming?"
+- Replaced Motion Usage key rate with Explosive Play % (plays of 15+ yards / total offensive plays).
+- Renamed Red Zone TD% → Red Zone %; redefined as red zone plays ending in a scoring result (TDs + FGs made). Attribution: play-level via `result_tag`.
+- Lifted filter row to page-level; on desktop filters render alongside the Offense/Defense switch, on mobile the switch is full-width with filters below.
+- Dashboard card headers now use emerald green matching add-play rail formation headers.
+- Fixed "All playbooks" filter duplicate key error via option deduplication and stable keys.
+- Play Type Distribution now renders as a recharts donut chart on desktop/tablet with a labeled list beside it; mobile retains the bar-list view.
+- Rewrote Scouting Report subheading from coach's perspective.
+- Moved tendency % into Scouting Report situation card headers; repositioned formation "% of total plays" into the header.
+- Updated "Below your [down] avg" copy to include the yards delta ("{delta} yds below your [down] avg").
+
+### Why
+
+QA feedback surfaced a set of visual, copy, and layout issues on the new tendencies dashboard alongside a broken filter. Consolidated polish into one pass; data correctness (win rate calc, "Other" bucket, catalog version) is Pass B.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to WhatsWorking, filter state, or URL playbook param.
+- Pass B (data correctness) queued next.
+
+---
+
 ## 2026-08-27 — Play-art vault duplicate omit + publish Run & Shoot / Navy
 
 ### What

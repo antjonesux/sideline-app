@@ -5,15 +5,18 @@ import {
   fetchCfbPlayTypeMap,
   fetchGamesOrdered,
   fetchLoggedPlaysForGames,
+  explosivePlayStats,
+  filterGameRowsByGameVersion,
   motionStatsForPlaybook,
   motionUsageStats,
   isSuccessPlay,
+  parseGameVersionFilter,
   parsePlaybookFilter,
   parseScope,
   parseSideOfBallFilter,
   playbookForTendenciesSide,
   playTypeCounts,
-  redZoneTdStats,
+  redZoneScoreStats,
   resolveFilteredGameIds,
   resolveTendenciesGamePool,
   scoutingFormationReportRows,
@@ -32,6 +35,7 @@ export async function GET(req: NextRequest) {
   const opponent = sp.get("opponent")?.trim() || null;
   const playbook = parsePlaybookFilter(sp.get("playbook"));
   const sideOfBall = parseSideOfBallFilter(sp.get("side_of_ball"));
+  const gameVersion = parseGameVersionFilter(sp.get("game_version"));
   const escapedOpponent = opponent ? opponent.replace(/'/g, "''") : null;
 
   const debugSql = `
@@ -94,7 +98,7 @@ ORDER BY total_plays DESC;
   );
   console.info("[predictability] debug SQL (reference for LOWER join path):\n" + debugSql);
 
-  const games = await fetchGamesOrdered(supabase, user.id);
+  const games = filterGameRowsByGameVersion(await fetchGamesOrdered(supabase, user.id), gameVersion);
   const pool = resolveTendenciesGamePool(games, playbook, sideOfBall);
   const gameIds = resolveFilteredGameIds(pool, scope, opponent);
   const plays = await fetchLoggedPlaysForGames(supabase, gameIds, user.id, { sideOfBall });
@@ -119,6 +123,7 @@ ORDER BY total_plays DESC;
 
   const cfbTypes = await fetchCfbPlayTypeMap(supabase, [...playbookCounts.keys()], {
     sideOfBall,
+    gameVersion,
   });
   const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes, undefined, sideOfBall);
   const rawPlayTypeCounts = typedPlays.reduce<Record<string, number>>((acc, row) => {
@@ -179,7 +184,8 @@ ORDER BY total_plays DESC;
   const turnoverRate = plays.length > 0 ? Math.round((turnoverCount * 1000) / plays.length) / 10 : 0;
   const overallSuccessRate =
     plays.length > 0 ? Math.round((plays.filter((p) => isSuccessPlay(p)).length * 1000) / plays.length) / 10 : 0;
-  const redZone = redZoneTdStats(plays);
+  const redZone = redZoneScoreStats(plays);
+  const explosive = explosivePlayStats(plays);
   const thirdDown = thirdDownConvStats(plays);
 
   return NextResponse.json({
@@ -192,6 +198,11 @@ ORDER BY total_plays DESC;
         turnovers: turnoverCount,
         total_plays: plays.length,
       },
+      explosive_play: {
+        pct: explosive.pct,
+        explosive_plays: explosive.explosive_plays,
+        total_plays: explosive.total_plays,
+      },
       motion: {
         pct: userMotionPct,
         motion_plays: motionStats.motion_plays,
@@ -200,9 +211,9 @@ ORDER BY total_plays DESC;
         playbook_name: dominantPlaybook,
         underutilizing,
       },
-      red_zone_td: {
+      red_zone: {
         pct: redZone.pct,
-        touchdowns: redZone.touchdowns,
+        scoring_plays: redZone.scoring_plays,
         plays: redZone.plays,
       },
       third_down: {

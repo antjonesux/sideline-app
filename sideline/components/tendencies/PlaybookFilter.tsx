@@ -14,6 +14,7 @@ type Props = {
 };
 
 const ALL_LABEL = "All Playbooks";
+const ALL_OPTION_KEY = "__all_playbooks__";
 
 /** Matches `TendenciesFilters` opponent dropdown pill styling. */
 function triggerPillClass(hasSelection: boolean) {
@@ -29,14 +30,28 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdown = usePortalDropdown(rootRef, triggerRef);
 
+  const dedupedOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const raw of options) {
+      const name = typeof raw === "string" ? raw.trim() : "";
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(name);
+    }
+    return out.sort((a, b) => a.localeCompare(b));
+  }, [options]);
+
   const committedLabel = value ? value : ALL_LABEL;
   const hasPlaybookSelection = Boolean(value);
 
   const filteredPlaybooks = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter((o) => o.toLowerCase().includes(q));
-  }, [options, searchQuery]);
+    if (!q) return dedupedOptions;
+    return dedupedOptions.filter((o) => o.toLowerCase().includes(q));
+  }, [dedupedOptions, searchQuery]);
 
   const showAllRow = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -116,6 +131,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
                   <>
                     {showAllRow ? (
                       <button
+                        key={ALL_OPTION_KEY}
                         type="button"
                         role="option"
                         aria-selected={value === null}
@@ -148,7 +164,7 @@ export function PlaybookFilter({ value, onChange, options, loading = false, inpu
                     {filteredPlaybooks.length === 0 && !showAllRow ? (
                       <div className="px-3 py-2 font-body text-sm text-slate-400">No playbooks match that search.</div>
                     ) : null}
-                    {options.length === 0 ? (
+                    {dedupedOptions.length === 0 ? (
                       <div className="border-t border-slate-800 px-3 py-2 font-body text-sm text-slate-500">
                         Log a game with an offensive playbook to add filters here.
                       </div>

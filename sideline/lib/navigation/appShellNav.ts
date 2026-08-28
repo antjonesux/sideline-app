@@ -1,5 +1,5 @@
 import {
-  APP_SHELL_MY_TENDENCIES_MENU_LABEL,
+  APP_SHELL_TENDENCIES_MENU_LABEL,
   CALL_SHEET_MENU_LABEL,
   CALL_SHEET_VIEWER_MENU_REVIEW,
   CALL_SHEET_VIEWER_MENU_SETTINGS,
@@ -8,7 +8,7 @@ import {
 import { isFilmRoomBetaUser } from "@/lib/featureFlags";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
-import { Activity, ClipboardList, Headset, Settings, Video } from "lucide-react";
+import { ClipboardList, Headset, LineChart, Settings, Video } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AppShellSidebarNavItem = {
@@ -24,7 +24,7 @@ export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
   { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Headset },
   { id: "review", href: "/film", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video },
-  { id: "my-tendencies", href: "/tendencies", label: APP_SHELL_MY_TENDENCIES_MENU_LABEL, icon: Activity },
+  { id: "my-tendencies", href: "/tendencies", label: APP_SHELL_TENDENCIES_MENU_LABEL, icon: LineChart },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];
 
