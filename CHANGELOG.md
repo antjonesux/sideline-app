@@ -4,6 +4,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-28 — Play-art Batch 3 publish (8 playbooks)
+
+### What
+
+- Published owned play-art for **Washington State**, **Western Kentucky**, **Boston College**, **Iowa**, **Miami**, **Boise State**, **Arizona**, and **Nebraska** after manual REVIEW confirmation.
+- Skipped cases where cfb.fan reference art was wrong still published as owned Vault crops via operator overrides using vault positional play names (e.g. Washington State / Boise State Gun Bunch X Nasty; Arizona Singleback Wing).
+- Where positional overrides displaced other crops in the same formation, sealed the formation by assigning remaining crops to positional plays so REVIEW cleared without inventing play names.
+- Manifest **10,711 → 14,417** (+3,706 unique assets). `npm run build` passed.
+
+### Why
+
+Batch 3 continues the operator review pass for scheme-folder DOCXs. Skip meant the matcher’s cfb.fan candidate was unreliable, not that the Vault card lacked a catalog play — positional vault order is the honest assignment path for those cases.
+
+### Status
+
+- Batch 3 playbooks: **REVIEW 0**, published.
+- Diagnostic-queue books still excluded: Air Raid, Purdue, Iowa State, Central Michigan, Multiple.
+
+---
+
 ## 2026-08-28 — QA51 container-based scroll and add-play rail (Pass 3)
 
 ### What
