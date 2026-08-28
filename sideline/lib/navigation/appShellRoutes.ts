@@ -26,10 +26,10 @@ export function isOnboardingChromePath(pathname: string, searchParams: URLSearch
 }
 
 export function isAuthOrMarketingPath(pathname: string): boolean {
-  if (pathname === "/landing" || pathname === "/playbooks") return true;
-  return AUTH_MARKETING_PREFIXES.some((prefix) =>
-    prefix.endsWith("/") ? pathname.startsWith(prefix) : pathname === prefix,
-  );
+  return AUTH_MARKETING_PREFIXES.some((prefix) => {
+    if (prefix.endsWith("/")) return pathname.startsWith(prefix);
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+  });
 }
 
 /** QA preview routes use mock chrome; no persistent sidebar. */

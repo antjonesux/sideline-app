@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   "/auth/callback",
   "/auth/confirm",
   "/reset-password",
+  "/api/public",
 ];
 
 function isPublic(pathname: string) {

@@ -5,6 +5,55 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Playbook lookup Pass 1 QA corrections
+
+### What
+
+- Playbook cards now show team logo (ESPN CDN with initials fallback), team name in bold, mascot in regular weight.
+- Uniform card sizing across all playbooks; grid width aligned with marketing nav's horizontal edges.
+- Page header, subhead, and search bar stick to top on scroll.
+- Header and subhead text sizes reduced for a tighter sticky region.
+- Search bar clear (X) icon matches the app's existing search input pattern.
+- Section headings render in white.
+- `/playbooks/[playbookId]` breadcrumb now shows Home > Playbooks > {playbook name}; Home links to landing.
+- Renamed "Browse Playbooks" to "Playbooks" across marketing nav, page heading, and breadcrumb.
+- Team logo mapping via ESPN CDN URLs (`sideline/lib/publicTeamLogos.ts`); initials fallback in emerald circle for missing logos or non-team playbooks.
+- Formation cards uniform width in a 3-column desktop grid (responsive on mobile/tablet).
+- Formation names display without category prefix (e.g. "Pistol Empty Tight Stack" → "Empty Tight Stack"); category shown via the section heading only.
+
+### Why
+
+QA feedback on Pass 1 covering card content, layout uniformity, sticky navigation, text sizing, breadcrumb, terminology, team branding, and formation display cleanup.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to Pass 1 routes, search, or data flow.
+- Team logos load via ESPN CDN; initials fallback covers ESPN misses and non-team playbooks.
+
+## 2026-08-28 — Public playbook lookup Pass 1 (home + playbook detail)
+
+### What
+
+- Built `/playbooks` public route: three sections (offensive team playbooks, alternative offensive playbooks, defensive playbooks), alphabetical within each, with client-side playbook-name search.
+- Built `/playbooks/[playbookId]` public route: playbook header, breadcrumb, formations grouped by category. Formations render as non-clickable placeholders in Pass 1; Pass 2 adds formation and play detail routes.
+- New public API endpoints: `/api/public/playbooks` and `/api/public/playbooks/[playbookId]/formations`. No auth required, CFB27 only.
+- Playbook classification helper distinguishes team vs alternative offense — reuses `GENERIC_OFFENSIVE_PLAYBOOKS` + `side_of_ball` (no formal type column on `playbooks`).
+- Replaced the "Coming soon" `/playbooks` empty state.
+- Browse Playbooks nav link shows active state on `/playbooks` routes.
+- Marketing chrome (`data-marketing-chrome`) and app-shell exclusion extended to `/playbooks/*` detail routes.
+
+### Why
+
+Public playbook lookup is the largest top-of-funnel feature since launch. Matches the browse patterns coaches expect from cfb.fan and Civil Playbook, using The Sideline's design system. Pass 1 establishes routes, data flow, and the two entry screens. Pass 2 adds formation detail, play detail, cross-references, add-to-call-sheet CTA, and search-within-playbook. Pass 3 adds global search.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to landing, authenticated app, or `playbooks` catalog queries used internally.
+- Public routes verified on signed-out and signed-in states — marketing chrome renders in both cases.
+- Play art deferred to Pass 2 (introduced on formation detail).
+
 ## 2026-08-28 — Play-art Batch 5 (Illinois) + Batch 6 publish
 
 ### What

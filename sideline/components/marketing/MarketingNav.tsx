@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,13 @@ function NavSeparator({ className }: { className?: string }) {
   return <span className={cn("shrink-0 bg-slate-700", className)} aria-hidden />;
 }
 
+function isBrowsePlaybooksActive(pathname: string): boolean {
+  return pathname === "/playbooks" || pathname.startsWith("/playbooks/");
+}
+
 export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
+  const pathname = usePathname();
+  const browseActive = isBrowsePlaybooksActive(pathname);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -37,6 +44,12 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  const browsePlaybooksClass = cn(
+    authOAuthButtonClass,
+    browseActive &&
+      "border-emerald-600/60 bg-emerald-500/10 text-emerald-200 hover:border-emerald-600/60 hover:bg-emerald-500/15 hover:text-emerald-100",
+  );
+
   return (
     <nav
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
@@ -50,8 +63,10 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
         </Link>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="default" className={cn("hidden md:inline-flex", authOAuthButtonClass)} asChild>
-            <Link href={BROWSE_PLAYBOOKS_HREF}>Browse Playbooks</Link>
+          <Button variant="outline" size="default" className={cn("hidden md:inline-flex", browsePlaybooksClass)} asChild>
+            <Link href={BROWSE_PLAYBOOKS_HREF} aria-current={browseActive ? "page" : undefined}>
+              Playbooks
+            </Link>
           </Button>
           <NavSeparator className="hidden h-6 w-px md:block" />
           <Button variant="outline" size="default" className={cn("hidden md:inline-flex", authOAuthButtonClass)} asChild>
@@ -75,9 +90,13 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
       {open ? (
         <div className="border-b border-slate-700/50 bg-slate-950/98 px-6 pb-5 pt-2 md:hidden">
           <div className="flex flex-col gap-2">
-            <Button variant="outline" size="default" className={authOAuthButtonClass} asChild>
-              <Link href={BROWSE_PLAYBOOKS_HREF} onClick={() => setOpen(false)}>
-                Browse Playbooks
+            <Button variant="outline" size="default" className={browsePlaybooksClass} asChild>
+              <Link
+                href={BROWSE_PLAYBOOKS_HREF}
+                onClick={() => setOpen(false)}
+                aria-current={browseActive ? "page" : undefined}
+              >
+                Playbooks
               </Link>
             </Button>
             <NavSeparator className="h-px w-full" />
