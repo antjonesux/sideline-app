@@ -3,6 +3,26 @@
 All notable changes to **The Sideline** (CFB play-calling / film logging assistant) are recorded here. The deployable Next.js app lives in `sideline/`.
 
 ---
+---
+
+## 2026-08-28 — Play-art Batch 5 (Illinois) + Batch 6 publish
+
+### What
+
+- Published **Illinois** (Batch 5 leftover from the matched queue): **REVIEW 0**, 465 assets.
+- Initial-ingested and published Batch 6: **Appalachian State**, **Ball State**, **Arkansas State**, **Buffalo**, **Akron**, **Arkansas**, **Auburn**, and **Bowling Green** after manual REVIEW confirmation.
+- Manifest **18,138 → 22,236** (+4,098 unique assets; Illinois + Batch 6). `npm run build` passed.
+- Operator batch size increased to **12 playbooks** going forward.
+
+### Why
+
+Illinois closed the prior matcher-report queue. Batch 6 starts the Spread / Power Spread / Veer & Shoot first-ingest wave. Larger batches (12) keep operator throughput up against ~60+ remaining untouched DOCXs.
+
+### Status
+
+- Illinois + Batch 6: **REVIEW 0**, published.
+- Diagnostic-queue books still excluded: Air Raid, Purdue, Iowa State, Central Michigan, Multiple.
+
 
 ## 2026-08-28 — Play-art Batch 4 publish (8 playbooks)
 

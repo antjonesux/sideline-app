@@ -1,0 +1,621 @@
+{
+  "gameVersion": "cfb27",
+  "sideOfBall": "offense",
+  "playbook": "Bowling Green",
+  "formations": [
+    {
+      "name": "Wildcat Wing Slot",
+      "plays": [
+        "LEAD",
+        "PA READ",
+        "POWER G",
+        "READ OPTION",
+        "WRAP",
+        "ZONE"
+      ]
+    },
+    {
+      "name": "Pistol Spread",
+      "plays": [
+        "ALL GO",
+        "FADE SMASH",
+        "HB DIVE",
+        "HB STRETCH",
+        "PA BOOT",
+        "PA WHEELIE CURLS",
+        "PA WHEELIES",
+        "QUICK SLANTS",
+        "QUICK SLOT OUT",
+        "READ OPTION",
+        "RNS HOOK",
+        "RPO ALERT DIVE HITCHES",
+        "RPO ALERT DIVE OUT",
+        "SLOT OUTSIDE",
+        "SPEED OPTION",
+        "WIDE ZONE",
+        "WIDE ZONE WK",
+        "Y SHALLOW CROSS",
+        "Z SPOT",
+        "ZONE ALERT BUBBLE",
+        "ZONE ALERT X SMOKE"
+      ]
+    },
+    {
+      "name": "Pistol Trips",
+      "plays": [
+        "BUBBLE SCREEN",
+        "FK BUBBLE SCREEN",
+        "HB DIVE",
+        "HB STRETCH",
+        "HB ZONE WK",
+        "PA BOOT LT",
+        "PA COMEBACK",
+        "PA DAGGER",
+        "PA DEEP IN",
+        "PA X DAGGER",
+        "PIN PULL SWEEP",
+        "READ OPTION",
+        "RPO ALERT BUBBLE",
+        "RPO READ BUBBLE",
+        "SLANTS",
+        "VERTICALS",
+        "WR SCREEN",
+        "X SPOT"
+      ]
+    },
+    {
+      "name": "Pistol Trips Left Open",
+      "plays": [
+        "ALL GO",
+        "FLOOD POST",
+        "HB COUNTER",
+        "HB DIVE",
+        "HB DRAW",
+        "HB SLIP SCREEN",
+        "INSIDE SWITCH",
+        "PA DEEP IN",
+        "READ OPTION",
+        "RPO ALERT SCREEN",
+        "RPO READ BUBBLE",
+        "ZONE ALERT BUBBLE"
+      ]
+    },
+    {
+      "name": "Pistol Wing X Off Close",
+      "plays": [
+        "HB STRETCH",
+        "JET HB POWER",
+        "JET HB SLAM",
+        "JET PA BOOT LT",
+        "JET PA POWER WHEEL",
+        "JET TOUCH PASS",
+        "JET ZONE WK",
+        "PA BOOT RT",
+        "WIDE ZONE WK"
+      ]
+    },
+    {
+      "name": "Gun Bunch Offset",
+      "plays": [
+        "518 HOOK",
+        "BUBBLE SCREEN",
+        "BUNCH TRAIL",
+        "CLOSE INSIDE ZONE",
+        "CLOSE OUTSIDE ZONE",
+        "CLOSE PA CURLS",
+        "DOUBLE POST",
+        "INSIDE ZONE SPLIT",
+        "JET PULL SHALLOW",
+        "MTN ALL CURL",
+        "MTN LEAD SWING SPOT",
+        "MTN WR MID SCREEN",
+        "OUTSIDE ZONE",
+        "READ OPTION",
+        "RPO ALERT ZONE HITCH",
+        "SPACING",
+        "SPACING SWITCH",
+        "VERTS HB UNDER"
+      ]
+    },
+    {
+      "name": "Gun Bunch Spread",
+      "plays": [
+        "CROSS SCREEN",
+        "CURL FLAT",
+        "INSIDE ZONE",
+        "LEVELS DIG",
+        "OUTSIDE ZONE",
+        "PA POST",
+        "SEAM DIVIDE",
+        "SLOT HOOK",
+        "SPACING",
+        "VERTICALS",
+        "Y TRAIL",
+        "Z SPOT"
+      ]
+    },
+    {
+      "name": "Gun Bunch Str Offset",
+      "plays": [
+        "CORNER STRIKE",
+        "CRACK TOSS",
+        "DAGGER",
+        "DUO",
+        "FLOOD",
+        "INSIDE ZONE",
+        "READ OPTION",
+        "RPO ALERT SCREEN",
+        "Y TRAIL"
+      ]
+    },
+    {
+      "name": "Gun Bunch TE",
+      "plays": [
+        "CURL FLAT CORNER",
+        "HB DRAW",
+        "HB OFF TACKLE",
+        "HB SLIP SCREEN",
+        "INSIDE CROSS",
+        "INSIDE ZONE",
+        "INSIDE ZONE SPLIT",
+        "MESH DIG",
+        "QB WRAP",
+        "READ OPTION",
+        "RPO ALERT BUBBLE",
+        "SPACING",
+        "STICK",
+        "TE CORNER",
+        "X SPOT"
+      ]
+    },
+    {
+      "name": "Gun Doubles HB Wk",
+      "plays": [
+        "BUCK SWEEP",
+        "DOUBLE POST",
+        "HB BASE",
+        "INSIDE ZONE",
+        "MILLS",
+        "MTN BUCK SWEEP",
+        "MTN HB BASE",
+        "MTN PA CROSS",
+        "MTN PA WHEEL",
+        "PA DEEP POST",
+        "PA JAILBREAK SLOT",
+        "PORTLAND MESH",
+        "READ OPTION",
+        "RPO ALERT BUBBLE",
+        "RPO ALERT MTN SWING",
+        "RPO READ BUBBLE",
+        "SAIL DIG",
+        "SHAKE HB CORNER",
+        "WIDE ZONE"
+      ]
+    },
+    {
+      "name": "Gun Empty Base Flex",
+      "plays": [
+        "CORNER UP",
+        "HOSS Y JUKE",
+        "JAILBREAK SLOT SCREEN",
+        "LEVELS SWITCH",
+        "MIDDLE HI LO",
+        "QB DRAW",
+        "REDZONE UP",
+        "STICK",
+        "STRONG CURL",
+        "TRAIL SHAKE",
+        "VERTICALS",
+        "VERTICALS UNDER",
+        "WR SCREEN",
+        "Y CORNER",
+        "Y SHALLOW CROSS"
+      ]
+    },
+    {
+      "name": "Gun Flex Y Off Close",
+      "plays": [
+        "COUNTER Y",
+        "CURL OHIO",
+        "ESCAPE",
+        "FLOOD",
+        "HB CIRCLE",
+        "HB SLIP SCREEN",
+        "HITCH HB RAIL",
+        "INSIDE ZONE",
+        "LEVELS MILLS",
+        "PA POST SHOT",
+        "RETURN BENCH",
+        "RETURN PA Z OVER",
+        "RETURN RPO ZONE ALERT",
+        "RPO ALERT OUT",
+        "TE WHEEL"
+      ]
+    },
+    {
+      "name": "Gun Normal Y Off",
+      "plays": [
+        "45 QUICK BASE",
+        "ALL GO",
+        "EXIT RPO ALERT SCREEN",
+        "EXIT SLOT OPTION",
+        "EXIT SWITCH OUT",
+        "HB SCISSORS",
+        "HB SLIP SCREEN",
+        "INSIDE ZONE",
+        "JET TOUCH PASS",
+        "MID ZONE",
+        "PA BOOT",
+        "PA BOOT HB SCREEN",
+        "PA DEEP SAIL",
+        "PA JET SWEEP",
+        "PA SHOT CORNER-POST",
+        "QB WRAP",
+        "READ OPTION",
+        "SLANT FLAT",
+        "SNAG",
+        "STRONG FLOOD",
+        "ZONE FAKE JET"
+      ]
+    },
+    {
+      "name": "Gun Normal Y Off Close",
+      "plays": [
+        "CHEAT FLAT X POST",
+        "CHEAT INSIDE ZONE",
+        "CHEAT SLASH WHEEL IN",
+        "CHEAT SLOT FADE",
+        "CHEAT TE ANGLE",
+        "CHEAT TE SCREEN",
+        "DOUBLE SLANT",
+        "EXIT HB CROSS SCREEN",
+        "EXIT PA SMASH",
+        "EXIT RPO ZONE HITCHES",
+        "INSIDE ZONE",
+        "MESH SPOT",
+        "PA SHOT",
+        "RPO ALERT OUT",
+        "RPO PEEK SPOT",
+        "WHEEL SWITCH",
+        "Y-SAIL",
+        "Y-STICK DIG"
+      ]
+    },
+    {
+      "name": "Gun Slot Right Wk",
+      "plays": [
+        "CURLS",
+        "HB DRAW",
+        "HB SLIP SCREEN",
+        "INSIDE ZONE SPLIT",
+        "MTN CROSS HB FLAT",
+        "MTN TR OPTLT",
+        "MTN WR SWING",
+        "PA SLIDE",
+        "RPO ALERT SHOCK",
+        "RPO GLANCE SHOCK",
+        "STRONG FLOOD",
+        "Y LEAD READ OPTION"
+      ]
+    },
+    {
+      "name": "Gun Spread Dbl Flex",
+      "plays": [
+        "ALL GO",
+        "CORNER STRIKE",
+        "CURL FLATS",
+        "DEEP CURL",
+        "FL CROSS",
+        "HB DIRECT",
+        "HB MID DRAW",
+        "HB SLIP SCREEN",
+        "HITCH CORNERS",
+        "INSIDE ZONE",
+        "PA COMEBACKS",
+        "PA READ",
+        "QB WRAP",
+        "READ OPTION",
+        "RPO PEEK SLANT",
+        "SLANTS MIDDLE",
+        "SLOT OUT",
+        "Y SHALLOW CROSS"
+      ]
+    },
+    {
+      "name": "Gun Spread Y-Flex",
+      "plays": [
+        "ALL GO",
+        "ALL HITCH",
+        "DRIVE",
+        "HB QUICK BASE",
+        "INSIDE ZONE",
+        "INVERTED VEER",
+        "MTN FK SWING WHEEL",
+        "MTN HB SWING",
+        "MTN TE MID SCREEN",
+        "READ OPTION",
+        "RPO PEEK SLANT",
+        "SEAMS DBL OUT",
+        "WR SCREEN",
+        "Y CROSS",
+        "Y SAIL"
+      ]
+    },
+    {
+      "name": "Gun Spread Y-Slot Wk",
+      "plays": [
+        "ALL GO",
+        "CAKE READ OPTION",
+        "H SHALLOW CROSS",
+        "HB COUNTER",
+        "HB SLIP SCREEN",
+        "INSIDE ZONE",
+        "MTN ALL CURL",
+        "MTN HB SCREEN",
+        "MTN HB SWING",
+        "MTN Y CROSS",
+        "MTN Y SAIL",
+        "MTN Z SPOT",
+        "OUT N UP WHEEL",
+        "OUTS CORNER STRIKE",
+        "PA BUBBLE Y OVER",
+        "PA DAGGER",
+        "READ OPTION",
+        "RPO READ BUBBLE"
+      ]
+    },
+    {
+      "name": "Gun Trio Rt Open",
+      "plays": [
+        "ALL CURL",
+        "CORNER STRIKE",
+        "CROSS Z CURL",
+        "DOUBLE POST",
+        "DRIVE",
+        "FOUR VERTICALS",
+        "HB DRAW",
+        "INSIDE ZONE",
+        "PA READ",
+        "READ OPTION",
+        "RPO ALERT BUBBLE",
+        "SPEED OPTION",
+        "STICK",
+        "WR MID SCREEN",
+        "Z UNDER"
+      ]
+    },
+    {
+      "name": "Gun Trips Offset",
+      "plays": [
+        "0 1 TRAP",
+        "ALL GO",
+        "CURLS",
+        "FAKE BUBBLE POST",
+        "FAKE SCREEN WHEEL",
+        "HB COUNTER",
+        "HB DRAW",
+        "HB SLIP SCREEN",
+        "QB SLOT OPTION",
+        "READ OPTION",
+        "RPO ALERT ZONE BUBBLE",
+        "RPO ALERT ZONE SCREEN",
+        "RPO READ BUBBLE",
+        "SLOT DRIVE",
+        "SLOT UNDER",
+        "SMASH",
+        "STICK",
+        "VERTICALS",
+        "WR MID SCREEN",
+        "Z SPOT",
+        "ZONE SPEED OPTION"
+      ]
+    },
+    {
+      "name": "Gun Trips TE",
+      "plays": [
+        "45 QUICK BASE",
+        "ALL CURL",
+        "CURL FLAT",
+        "HB COUNTER",
+        "HB SLIP SCREEN",
+        "INSIDE ZONE",
+        "PA SHOT WHEEL",
+        "READ OPTION",
+        "RPO ALERT BUBBLE",
+        "SHUFFLE SLOT DBL POSTS",
+        "SHUFFLE STICK",
+        "SHUFFLE TE SCREEN",
+        "SLOT QUICK FLAT",
+        "SPEED OPTION",
+        "TE CORNER",
+        "WR SCREEN",
+        "WR SHORT POST",
+        "X SPOT"
+      ]
+    },
+    {
+      "name": "Gun Trips Y Over",
+      "plays": [
+        "45 QUICK BASE",
+        "INSIDE ZONE",
+        "JAILBREAK SLOT SCREEN",
+        "PA SLOT POST",
+        "PA WHEEL",
+        "RPO READ BUBBLE",
+        "RPO ZONE ALERT BUBBLE",
+        "RPO ZONE ALERT SHOCK",
+        "RPO ZONE ALERT SLANTS",
+        "SLOT FADE",
+        "SPRINT CORNER",
+        "Z SPOT"
+      ]
+    },
+    {
+      "name": "Gun Trips Y Slot Wk",
+      "plays": [
+        "ALL CURL",
+        "DEEP FLOOD",
+        "HANK",
+        "HB BASE",
+        "HB OFF TACKLE",
+        "INSIDE ZONE",
+        "MTN HB SWING",
+        "MTN STICK WHEEL",
+        "MTN WHIP SLOT WHEEL",
+        "PA QB CHOICE",
+        "READ OPTION",
+        "SHOCK",
+        "SHUFFLE ALL GO",
+        "SHUFFLE DOUBLE SPOT",
+        "SHUFFLE SLOT MID SCREEN",
+        "SPRINT WK FLOOD",
+        "TRIPLE SLANT",
+        "Y CROSS"
+      ]
+    },
+    {
+      "name": "Gun Wing",
+      "plays": [
+        "INSIDE ZONE",
+        "PA BOOT",
+        "PA FORK",
+        "READ OPTION",
+        "RPO GLANCE POST",
+        "SLOT 2 BUC",
+        "SPEED OPTION",
+        "SPOT TE SEAM",
+        "SPRINTOUT SMASH",
+        "STICK",
+        "TE ATTACK",
+        "Y DRIVE CLOWN"
+      ]
+    },
+    {
+      "name": "Gun Wing HB Wk",
+      "plays": [
+        "BUCK SWEEP",
+        "CURL COMBO",
+        "DOUBLE CROSS",
+        "HB BASE",
+        "OUTSIDE ZONE",
+        "PA Y OVER",
+        "PA Y WHEEL",
+        "RPO READ Y FLAT",
+        "Y STICK"
+      ]
+    },
+    {
+      "name": "Gun Wing Offset",
+      "plays": [
+        "DRIVE",
+        "FOUR VERTICALS",
+        "HB PUNCH",
+        "INSIDE ZONE",
+        "OUTSIDE ZONE",
+        "PA SLANTS",
+        "PA TE ATTACK",
+        "SPEED OPTION",
+        "STICK"
+      ]
+    },
+    {
+      "name": "Gun Wing Slot Over",
+      "plays": [
+        "COUNTER EXTRA",
+        "HB STRONG ZONE",
+        "INSIDE ZONE",
+        "MTN PA DOUBLE POST",
+        "MTN RPO ALERT SLANT FLAT",
+        "MTN RPO ALERT WR SWING",
+        "PA FLOOD",
+        "PA POST CURL",
+        "QB WRAP",
+        "READ OPTION",
+        "RPO ALERT SLANT-HITCH",
+        "RUB Z UNDER",
+        "SPEED OPTION",
+        "SPRINT SWITCH SMASH",
+        "SPRINTOUT SMASH"
+      ]
+    },
+    {
+      "name": "Gun Y Off Trips",
+      "plays": [
+        "0 1 TRAP",
+        "ALL CURL",
+        "ALL GO",
+        "COUNTER Y",
+        "FLOOD HB SWING",
+        "HB DIVE",
+        "HB DRAW",
+        "HB SWING SCREEN",
+        "HB ZONE TOSS",
+        "INSIDE ZONE",
+        "ISO Y INSERT",
+        "LEAD SWING ALL CURL",
+        "OUTSIDE ZONE",
+        "PA BOOT",
+        "PA DOUBLE POST",
+        "PA SLOT CROSS",
+        "PA Y FLOOD",
+        "RPO ALERT SHOCK",
+        "RPO ZONE PEEK STICK",
+        "RUB Z UNDER",
+        "SAME SIDE ZONE",
+        "SHOT SLOT POCO",
+        "VERTICALS DIG"
+      ]
+    },
+    {
+      "name": "Gun Y Off Trips Wk",
+      "plays": [
+        "ALL GO",
+        "BUCK SWEEP",
+        "CLOSE PA X OVER",
+        "CLOSE RPO ALERT OUT",
+        "CLOSE RPO READ Y FLAT",
+        "CROSS Z POST",
+        "HB POWER O",
+        "HB SLIP SCREEN",
+        "HB SWEEP",
+        "INSIDE ZONE",
+        "INSIDE ZONE SPLIT",
+        "MTN HB SWING",
+        "MTN PUMP AND GO",
+        "MTN Z SPOT",
+        "OUTSIDE ZONE",
+        "PA SLIDE",
+        "PA SWEEP",
+        "RPO ALERT HITCHES",
+        "SLOT FADE",
+        "STICK",
+        "Y LEAD READ OPTION"
+      ]
+    },
+    {
+      "name": "Goal Line Normal",
+      "plays": [
+        "FB DIVE WEAK",
+        "HB COUNTER WK",
+        "HB DIVE",
+        "HB SPLIT 0",
+        "HB STING",
+        "PA POWER O",
+        "PA SPOT",
+        "PA SPRINT HB FLAT",
+        "PA WAGGLE",
+        "POWER O",
+        "QB SNEAK",
+        "STRONG TOSS"
+      ]
+    },
+    {
+      "name": "Hail Mary Hail Mary",
+      "plays": [
+        "GOAL POST",
+        "HAIL MARY",
+        "SHOT SAVE CLOCK"
+      ]
+    }
+  ]
+}
