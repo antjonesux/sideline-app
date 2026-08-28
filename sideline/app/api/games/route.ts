@@ -39,7 +39,7 @@ type GameSessionInsert = {
   game_date: string;
   my_score: number;
   opponent_score: number;
-  result: "W" | "L";
+  result: "W" | "L" | null;
   import_source: "live" | "csv" | typeof GAME_SESSION_IMPORT_SOURCE_ONBOARDING;
   quarter_started_logging?: number;
   play_sheet_id?: string | null;
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     game_date: typeof body.game_date === "string" && body.game_date.trim() ? body.game_date.trim() : gameDate,
     my_score: Number.isFinite(Number(body.my_score)) ? Number(body.my_score) : 0,
     opponent_score: Number.isFinite(Number(body.opponent_score)) ? Number(body.opponent_score) : 0,
-    result: body.result === "L" ? "L" : "W",
+    result: body.result === "W" || body.result === "L" ? body.result : null,
     import_source: wantsOnboarding ? GAME_SESSION_IMPORT_SOURCE_ONBOARDING : "live",
     game_version: parseCatalogGameVersion(
       typeof body.game_version === "string" ? body.game_version : DEFAULT_CATALOG_GAME_VERSION,

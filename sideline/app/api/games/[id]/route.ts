@@ -4,6 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
+/** Score-derived W/L; ties (including 0–0) return null. */
+function deriveGameResultFromScores(myScore: number, opponentScore: number): "W" | "L" | null {
+  if (myScore > opponentScore) return "W";
+  if (myScore < opponentScore) return "L";
+  return null;
+}
+
 export async function GET(_: NextRequest, ctx: Ctx) {
   const supabase = await createClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -28,6 +35,25 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
   delete payload.user_id;
   delete payload.id;
+
+  const endingGame = payload.ended_at != null && payload.ended_at !== "";
+  if (endingGame) {
+    const myScore = payload.my_score;
+    const oppScore = payload.opponent_score;
+    if (Number.isFinite(Number(myScore)) && Number.isFinite(Number(oppScore))) {
+      payload.result = deriveGameResultFromScores(Number(myScore), Number(oppScore));
+    }
+  } else if ("result" in payload) {
+    const { data: existing } = await supabase
+      .from("game_sessions")
+      .select("ended_at")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!existing?.ended_at) {
+      payload.result = null;
+    }
+  }
 
   if ("play_sheet_id" in payload) {
     const rawSheetId = typeof payload.play_sheet_id === "string" ? payload.play_sheet_id.trim() : "";

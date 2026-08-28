@@ -25,6 +25,7 @@ export type GameRow = {
   my_score: number | null;
   opponent_score: number | null;
   game_version?: string | null;
+  ended_at?: string | null;
 };
 
 export type LoggedPlayRow = {
@@ -176,7 +177,7 @@ export async function fetchGamesOrdered(supabase: SupabaseClient, userId?: strin
   let query = supabase
     .from("game_sessions")
     .select(
-      "id, my_playbook, offensive_playbook, opponent_scheme, opponent_team, game_date, result, my_score, opponent_score, game_version",
+      "id, my_playbook, offensive_playbook, opponent_scheme, opponent_team, game_date, result, my_score, opponent_score, game_version, ended_at",
     )
     .neq("import_source", GAME_SESSION_IMPORT_SOURCE_ONBOARDING);
   if (userId) query = query.eq("user_id", userId);
@@ -401,6 +402,13 @@ export type TendenciesOverviewData = {
   pass_pct: number;
 };
 
+/** Offensive play-type distribution: exclude punts and film special-teams rows. */
+export function isOffensivePlayTypeDistributionExcludedPlay(
+  play: Pick<LoggedPlayRow, "play_name" | "result_tag" | "formation">,
+): boolean {
+  return isPunt(play) || isSpecialTeamsFormationPlayRow(play.formation, play.play_name);
+}
+
 /** Cross-game hero stats for My Tendencies — games with plays on the filtered side. */
 export function summarizeTendenciesOverview(
   plays: LoggedPlayRow[],
@@ -413,6 +421,7 @@ export function summarizeTendenciesOverview(
   for (const id of gameIdsWithPlays) {
     const g = gamesById.get(id);
     if (!g) continue;
+    if (!g.ended_at) continue;
     if (g.result === "W") wins += 1;
     else if (g.result === "L") losses += 1;
   }
@@ -607,13 +616,17 @@ export function bestPlayForFormation(plays: LoggedPlayRow[], formation: string, 
   return ranked[0] ?? null;
 }
 
-export async function motionStatsForPlaybook(supabase: SupabaseClient, playbook: string) {
+export async function motionStatsForPlaybook(
+  supabase: SupabaseClient,
+  playbook: string,
+  gameVersion: CatalogGameVersion = DEFAULT_CATALOG_GAME_VERSION,
+) {
   const pb = playbook.trim();
   if (!pb) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const { data, error } = await supabase
     .from("playbooks")
     .select("play_name")
-    .eq("game_version", CFB_CATALOG_GAME_VERSION)
+    .eq("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(pb));
   if (error) return { motionPlays: 0, totalPlays: 0, motionPct: 0 };
   const names = (data ?? []).map((r) => normalizePlayName(String(r.play_name ?? "")));

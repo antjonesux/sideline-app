@@ -4,6 +4,31 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-27 — Tendencies data correctness (Pass B)
+
+### What
+
+- End Game now derives `result` from final scores (`my_score > opponent_score` → W, `<` → L, equal → NULL) alongside `ended_at`. Previously, End Game wrote only scores; `result` defaulted to `"W"` on create and was never updated.
+- Create Game no longer defaults `result` to `"W"`; new games start with `result = NULL` until End Game runs.
+- `PUT /api/games/[id]` clears `result` on in-progress saves when Edit Game Details would otherwise re-write a stale `"W"`.
+- Migration `20260827210000_backfill_game_result_from_scores.sql` corrects production data: ended games with scores disagreeing with stored `result` are synced; in-progress games with stale `"W"` defaults reset to `NULL`. Idempotent.
+- Win rate denominator now explicitly excludes in-progress games (`ended_at IS NULL`) and null-result games. Ties are `NULL` and excluded.
+- Play type distribution now filters special teams plays (Field Goals, kickoffs, XPs) from the offensive breakdown, matching the existing punt filter.
+- Tendencies aggregation no longer hardcodes `"cfb26"` for catalog lookup; the selected `game_version` from the filter chain drives catalog resolution.
+
+### Why
+
+Phase 0 audit surfaced two root causes on the tendencies dashboard: win rate was inflated (~100% for a user with two clear losses) because the write path never synced `result` from scores, and the "Other" bucket in play type distribution was bloated by special teams inclusion and a version mismatch between logged CFB27 games and the hardcoded CFB26 catalog lookup.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Migration ready to apply; win rate reflects score-derived truth once backfill runs.
+- No regressions to Film Room, Game Plan, or `FilmGameTendenciesBody`.
+- Deferred to a future pass: name-ladder gaps on stubborn unmatched play names (audit estimated small residual "Other").
+
+---
+
 ## 2026-08-27 — Tendencies filter polish (Pass A follow-up)
 
 ### What

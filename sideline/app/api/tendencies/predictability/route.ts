@@ -1,4 +1,3 @@
-import { CFB_CATALOG_GAME_VERSION } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import {
   attachPlayTypes,
@@ -7,6 +6,7 @@ import {
   fetchLoggedPlaysForGames,
   explosivePlayStats,
   filterGameRowsByGameVersion,
+  isOffensivePlayTypeDistributionExcludedPlay,
   motionStatsForPlaybook,
   motionUsageStats,
   isSuccessPlay,
@@ -80,7 +80,7 @@ typed_plays AS (
     ON LOWER(TRIM(cp.playbook)) = LOWER(TRIM(sp.game_playbook))
    AND LOWER(TRIM(cp.formation)) = LOWER(TRIM(sp.formation))
    AND LOWER(TRIM(cp.play_name)) = LOWER(TRIM(sp.play_name))
-   AND cp.game_version = '${CFB_CATALOG_GAME_VERSION}'
+   AND cp.game_version = '${gameVersion}'
 )
 SELECT
   game_playbook,
@@ -147,13 +147,18 @@ ORDER BY total_plays DESC;
     return acc;
   }, {});
   const otherPlays = Object.values(otherPlayCounts).sort((a, b) => b.count - a.count || a.formation.localeCompare(b.formation) || a.play.localeCompare(b.play));
-  // Distribution must include every in-scope play: `attachPlayTypes` already resolves bucket from
-  // catalog + name ladder. Filtering to `matched` only dropped catalog misses (screens, PA, etc.).
-  const distributionBuckets = typedPlays.map((row) => row.bucket);
+  // Distribution excludes special teams (FG, kickoff, XP, etc.); other predictability metrics keep them.
+  const distributionIndices = typedPlays
+    .map((_, idx) => idx)
+    .filter((idx) => {
+      const play = plays[idx];
+      return play != null && !isOffensivePlayTypeDistributionExcludedPlay(play);
+    });
+  const distributionBuckets = distributionIndices.map((idx) => typedPlays[idx]!.bucket);
   const counts = playTypeCounts(distributionBuckets);
-  const unclassifiedCount = typedPlays.filter((row) => !row.matched).length;
-  const catalogMatchedCount = typedPlays.length - unclassifiedCount;
-  const distributionDenom = typedPlays.length > 0 ? typedPlays.length : 1;
+  const unclassifiedCount = distributionIndices.filter((idx) => !typedPlays[idx]!.matched).length;
+  const catalogMatchedCount = distributionIndices.length - unclassifiedCount;
+  const distributionDenom = distributionIndices.length > 0 ? distributionIndices.length : 1;
   const playbooksInScope = [...playbookCounts.keys()].sort((a, b) => a.localeCompare(b));
   console.info(
     `[Tendencies] Games: ${gameIds.length} | Playbooks: ${JSON.stringify(playbooksInScope)} | Total plays: ${plays.length} | Catalog-matched: ${catalogMatchedCount} | Catalog-unmatched: ${unclassifiedCount}`,
@@ -177,7 +182,7 @@ ORDER BY total_plays DESC;
 
   const motionStats = motionUsageStats(plays);
   const userMotionPct = motionStats.pct;
-  const { motionPct: playbookMotionPct } = await motionStatsForPlaybook(supabase, dominantPlaybook);
+  const { motionPct: playbookMotionPct } = await motionStatsForPlaybook(supabase, dominantPlaybook, gameVersion);
   const underutilizing =
     Boolean(dominantPlaybook) && playbookMotionPct >= 10 && userMotionPct < playbookMotionPct - 5;
   const turnoverCount = plays.filter((p) => p.result_tag === "TURNOVER").length;
