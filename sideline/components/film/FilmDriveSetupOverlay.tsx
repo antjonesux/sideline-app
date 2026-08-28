@@ -1,28 +1,20 @@
 "use client";
 
-import { DriveSetupForm } from "@/components/film/DriveSetupForm";
+import { DriveSetupForm, type DriveSetupSubmitPayload } from "@/components/film/DriveSetupForm";
 import { quarterFromDriveForSetup } from "@/lib/filmGameDetailHelpers";
 import { modalDialogTitleClass, responsiveOverlayBottomShellPositionClass } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
-import type { Drive } from "@/lib/types";
+import type { Drive, GameSession } from "@/lib/types";
 
 type FilmDriveSetupOverlayProps = {
   open: boolean;
+  game: Pick<GameSession, "offensive_playbook" | "my_playbook" | "opponent_scheme" | "game_version"> | null;
   drives: Drive[];
   onClose: () => void;
-  onSubmit: (values: {
-    side_of_ball: "offense" | "defense";
-    quarter: number;
-    score_mine: number;
-    score_opponent: number;
-    starting_side: "OWN" | "OPP";
-    starting_yard_line: number;
-    starting_down: number;
-    starting_distance: number;
-  }) => Promise<void>;
+  onSubmit: (values: DriveSetupSubmitPayload) => Promise<void>;
 };
 
-export function FilmDriveSetupOverlay({ open, drives, onClose, onSubmit }: FilmDriveSetupOverlayProps) {
+export function FilmDriveSetupOverlay({ open, game, drives, onClose, onSubmit }: FilmDriveSetupOverlayProps) {
   if (!open) return null;
 
   const lastDrive = drives[drives.length - 1];
@@ -41,6 +33,7 @@ export function FilmDriveSetupOverlay({ open, drives, onClose, onSubmit }: FilmD
             </button>
           </div>
           <DriveSetupForm
+            game={game}
             defaultValues={{
               side_of_ball: "offense",
               quarter: quarterFromDriveForSetup(lastDrive?.quarter),
@@ -52,18 +45,7 @@ export function FilmDriveSetupOverlay({ open, drives, onClose, onSubmit }: FilmD
               starting_distance: 10,
             }}
             onCancel={onClose}
-            onSubmit={async (values) => {
-              await onSubmit({
-                side_of_ball: values.side_of_ball,
-                quarter: values.quarter === "OT" ? 5 : Number(values.quarter),
-                score_mine: values.score_mine,
-                score_opponent: values.score_opponent,
-                starting_side: values.starting_side,
-                starting_yard_line: values.starting_yard_line,
-                starting_down: values.starting_down,
-                starting_distance: values.starting_distance,
-              });
-            }}
+            onSubmit={onSubmit}
           />
         </div>
       </div>

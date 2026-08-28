@@ -9,6 +9,7 @@ import {
   defensivePlayTypeBadgeClass,
   isDefensivePlayType,
 } from "@/lib/defensivePlayTypeResolution";
+import { playResultDisplayLabel } from "@/lib/filmConversionResults";
 import {
   FILM_LOGGER_SPECIAL_TEAMS_ACCENT_CLASS,
   FILM_LOGGER_SPECIAL_TEAMS_BADGE_CLASS,
@@ -58,8 +59,8 @@ function streamOpacityClass(streamIndex: number): string {
   return "opacity-30";
 }
 
-function resultBadgeLabel(tag: string): string {
-  return tag.trim().toUpperCase().replace(/_/g, " ");
+function resultBadgeLabel(play: LoggedPlay): string {
+  return playResultDisplayLabel(play);
 }
 
 export function PlayRow(props: PlayRowProps) {
@@ -78,7 +79,7 @@ export function PlayRow(props: PlayRowProps) {
         </span>
         {play.result_tag ? (
           <span className="inline-flex max-w-[5.5rem] shrink-0 truncate">
-            <ResultBadge label={resultBadgeLabel(play.result_tag)} />
+            <ResultBadge label={resultBadgeLabel(play)} />
           </span>
         ) : null}
         <span className="shrink-0 font-mono text-xs text-slate-400">

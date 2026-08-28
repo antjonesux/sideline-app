@@ -15,6 +15,7 @@ export const SCENARIOS = [
   "2 Minute",
   "4 Minute",
   "2 Point",
+  "XP",
 ] as const;
 
 /** Situational labels for logging, Tendencies, and legacy play sheets. */
@@ -178,7 +179,7 @@ export const TENDENCIES_SCENARIOS = SCENARIOS.filter(
 );
 
 /** Situations omitted from the Tendencies scouting report (niche / low-signal for the summary). */
-const SCOUTING_REPORT_EXCLUDED = new Set<string>(["2 Point", "2 Minute", "4 Minute"]);
+const SCOUTING_REPORT_EXCLUDED = new Set<string>(["2 Point", "XP", "2 Minute", "4 Minute"]);
 
 /** `TENDENCIES_SCENARIOS` minus niche situations not shown in the scouting summary. */
 export const SCOUTING_REPORT_SCENARIOS = TENDENCIES_SCENARIOS.filter((s) => !SCOUTING_REPORT_EXCLUDED.has(s));
@@ -199,6 +200,7 @@ export const SCENARIO_SHORT: Record<string, string> = {
   "2 Minute": "2 Minute",
   "4 Minute": "4 Minute",
   "2 Point": "2 Point",
+  XP: "XP",
   "2-Minute Drill": "2 Minute",
   "4-Minute": "4 Minute",
   "2-Point Conversion": "2 Point",

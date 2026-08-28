@@ -200,15 +200,15 @@ export function snapStateFromDriveStarting(drive: Drive): GameState {
 
   const absStored = drive.starting_absolute_yard;
   let absoluteYard: number;
-  if (typeof absStored === "number" && absStored >= 1 && absStored <= 99) {
-    absoluteYard = absStored;
-  } else if (
+  if (
     (drive.starting_side === "OWN" || drive.starting_side === "OPP") &&
     drive.starting_yard_line != null &&
     drive.starting_yard_line >= 1 &&
     drive.starting_yard_line <= 50
   ) {
     absoluteYard = toAbsoluteYard(drive.starting_side, drive.starting_yard_line);
+  } else if (typeof absStored === "number" && absStored >= 1 && absStored <= 99) {
+    absoluteYard = absStored;
   } else {
     absoluteYard = parseFieldPosition("OWN", 25);
   }

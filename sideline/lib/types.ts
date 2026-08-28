@@ -45,6 +45,10 @@ export type LoggedPlay = {
   play_type?: "RUN" | "PASS" | "RPO" | "MAN" | "ZONE" | "BLITZ" | "MATCH" | null;
   /** UX flag when distance is 1 — stored as distance 1; same scenario buckets as 1 yard. */
   is_inches?: boolean | null;
+  /** Situation label persisted on the logged play (e.g. Red Zone, XP, 2 Point). */
+  scenario?: string | null;
+  /** Coach override when scenario differs from down/distance derivation. */
+  situation_override?: string | null;
 };
 
 export type DriveSideOfBall = "offense" | "defense";

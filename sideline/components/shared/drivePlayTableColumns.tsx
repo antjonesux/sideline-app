@@ -1,3 +1,4 @@
+import { playResultDisplayLabel } from "@/lib/filmConversionResults";
 import { ResultBadge } from "@/components/import/ResultBadge";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { formatBallSpot } from "@/lib/fieldPosition";
@@ -18,6 +19,8 @@ export type DrivePlayTableRow = {
   ending_field_position?: number | null;
   /** Film UI: computed from snap + result when `ending_field_position` is absent. */
   ending_absolute_yard?: number | null;
+  scenario?: string | null;
+  situation_override?: string | null;
 };
 
 export type DrivePlayTableColumnsOptions = {
@@ -62,7 +65,7 @@ export function drivePlayTableColumns(
       header: "RESULT",
       render: (play) => (
         <span className="inline-flex pr-4">
-          <ResultBadge label={play.result_tag} />
+          <ResultBadge label={playResultDisplayLabel(play)} />
         </span>
       ),
     },

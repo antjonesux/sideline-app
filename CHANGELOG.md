@@ -23,12 +23,34 @@ Batch 2 completes the second operator review pass for scheme-folder DOCXs. The O
 
 ---
 
+## 2026-08-28 — Film Room Pass 1 QA corrections
+
+### What
+
+- XP plays now show only "XP Made" / "XP Missed" as result options; 2PT plays show only "2PT Made" / "2PT Missed". Regular play result options (yardage, TD, turnovers) are hidden for these scenarios.
+- Drive result stays "Touchdown" regardless of XP/2PT outcome. TD is always 6 points; XP made adds 1, 2PT made adds 2, either missed adds 0.
+- Per-play badges: "Extra Point" for XP plays, "2-Point" for 2PT plays.
+- Drive score column now displays cumulative running game total across all completed drives, not per-drive score.
+- Tendencies Run/Pass hero card formatted as `{run_pct}% / {pass_pct}%` (e.g. `42% / 58%`) instead of raw `42/58`.
+
+### Why
+
+Pass 1 conflated the TD scoring event with the XP/2PT attempt: XP was logged as a 1-point FG play, drive result was overwritten from Touchdown to Field Goal, and the score math was wrong. QA also surfaced that drive score display was per-drive rather than cumulative, which coaches expect from a scoreboard-style view.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to non-scoring drives, FG-only drives, existing scoring flows, or Pass A/B tendencies.
+- Deferred: one-time migration for Pass 1 XP rows logged as `FIELD_GOAL` + scenario `XP` (reclassify to `XP_MADE` / `XP_MISSED` for accurate replay).
+
+---
+
 ## 2026-08-28 — Film Room game lifecycle bug fixes (Pass 1)
 
 ### What
 
-- Added `XP` as a new scenario alongside `2 Point`. XP awards 1 point; 2PT successful awards 2 points; TD, FG, and safety scoring unchanged.
-- Post-TD flow: after a play is committed with a TD result, an inline XP/2PT selector appears. XP creates a logged play with the FG play and `XP` scenario; 2PT scopes the next-play input to `2 Point`.
+- Added `XP` as a new scenario alongside `2 Point`. TD scores 6 points; XP made adds 1; 2PT made adds 2; FG unchanged at 3 (see QA corrections entry for conversion Made/Missed logging).
+- Post-TD flow: after an offensive TD, an inline XP/2PT selector appears before the drive closes. 2PT scopes the next play to the `2 Point` scenario.
 - Drive setup on a game created with only one side of the ball now offers the opposite side. Selecting the missing side prompts for a playbook; on save, the playbook persists to `game_sessions` for subsequent drives on that side.
 - Spot changes after drive setup now propagate to the play logger's field position source. Yardage on subsequent plays calculates against the current spot, not the drive's initial starting field.
 - End Game modal autopopulates `my_score` and `opponent_score` from the most recent drive's running score. Coach can override before submitting.

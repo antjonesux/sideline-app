@@ -1,5 +1,7 @@
 /** Drive ended / still active from the last logged play (offense perspective). */
 
+import { isPostTdFollowUpScenario, playScenario } from "@/lib/filmConversionResults";
+
 export type DrivePossessionOutcome =
   | "TOUCHDOWN"
   | "TURNOVER"
@@ -28,17 +30,25 @@ export function isTurnoverOnDownsPlay(p: { down: number | null | undefined; resu
 }
 
 export function getDrivePossessionOutcome(
-  plays: Array<{ down: number | null | undefined; result_tag: string }> | undefined | null,
+  plays: Array<{ down: number | null | undefined; result_tag: string; scenario?: string | null; situation_override?: string | null }> | undefined | null,
 ): DrivePossessionOutcome {
   if (!plays || plays.length === 0) return "NO_PLAYS";
-  const last = plays[plays.length - 1];
-  const t = normTag(last.result_tag);
-  if (t === "TOUCHDOWN") return "TOUCHDOWN";
-  if (isTurnoverTag(t)) return "TURNOVER";
-  if (t === "PUNT") return "PUNT";
-  if (t === "FIELD_GOAL") return "FIELD_GOAL";
-  if (isTurnoverOnDownsPlay(last)) return "TURNOVER_ON_DOWNS";
-  return "ACTIVE";
+
+  for (let i = plays.length - 1; i >= 0; i--) {
+    const play = plays[i];
+    const scenario = playScenario(play);
+    if (isPostTdFollowUpScenario(scenario)) continue;
+
+    const t = normTag(play.result_tag);
+    if (t === "TOUCHDOWN") return "TOUCHDOWN";
+    if (isTurnoverTag(t)) return "TURNOVER";
+    if (t === "PUNT") return "PUNT";
+    if (t === "FIELD_GOAL") return "FIELD_GOAL";
+    if (isTurnoverOnDownsPlay(play)) return "TURNOVER_ON_DOWNS";
+    return "ACTIVE";
+  }
+
+  return "NO_PLAYS";
 }
 
 /** Whether the offense should start a new drive (possession ended on this play). */

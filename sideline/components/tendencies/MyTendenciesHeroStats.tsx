@@ -124,7 +124,7 @@ export function MyTendenciesHeroStats({
         />
         <HeroStatCard
           label="RUN / PASS"
-          value={showDash ? "—" : `${data.run_pct}/${data.pass_pct}`}
+          value={showDash ? "—" : `${data.run_pct}% / ${data.pass_pct}%`}
           description="Play type split"
         />
       </div>

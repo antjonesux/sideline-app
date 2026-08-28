@@ -18,6 +18,7 @@ type FilmPlayLoggerOverlayProps = {
   allGameCoachCalls: LoggedPlay[];
   onClose: () => void;
   onRefresh: () => Promise<void>;
+  onDriveScoreAdjust?: (args: { driveId: string; points: number }) => void | Promise<void>;
   onPossessionEndedAfterLog: (payload: { driveId: string; storedResultTag: string }) => void;
 };
 
@@ -30,6 +31,7 @@ function LoggerBody({
   totalCoachCallsInGame,
   allGameCoachCalls,
   onRefresh,
+  onDriveScoreAdjust,
   onPossessionEndedAfterLog,
 }: Omit<FilmPlayLoggerOverlayProps, "open" | "onClose" | "layout">) {
   const { sheetId, playbook, catalogSideOfBall } = resolveDriveLoggerContext(game, activeDrive);
@@ -49,6 +51,7 @@ function LoggerBody({
       allGameCoachCalls={allGameCoachCalls}
       catalogGameVersion={game.game_version}
       catalogSideOfBall={catalogSideOfBall}
+      onDriveScoreAdjust={onDriveScoreAdjust}
       onPossessionEndedAfterLog={(payload) => onPossessionEndedAfterLog(payload)}
     />
   );
@@ -66,6 +69,7 @@ export function FilmPlayLoggerOverlay({
   allGameCoachCalls,
   onClose,
   onRefresh,
+  onDriveScoreAdjust,
   onPossessionEndedAfterLog,
 }: FilmPlayLoggerOverlayProps) {
   const bodyProps = {
@@ -77,6 +81,7 @@ export function FilmPlayLoggerOverlay({
     totalCoachCallsInGame,
     allGameCoachCalls,
     onRefresh,
+    onDriveScoreAdjust,
     onPossessionEndedAfterLog,
   };
 

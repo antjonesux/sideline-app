@@ -7,6 +7,19 @@ export function driveSideOfBall(drive: Pick<Drive, "side_of_ball">): DriveSideOf
   return drive.side_of_ball === "defense" ? "defense" : "offense";
 }
 
+/** Resolved catalog playbook name for a game side (matches game create / tendencies). */
+export function playbookForGameSide(game: Pick<GameSession, "offensive_playbook" | "my_playbook" | "opponent_scheme">, side: DriveSideOfBall): string {
+  if (side === "defense") return (game.opponent_scheme ?? "").trim();
+  return (game.offensive_playbook ?? game.my_playbook ?? "").trim();
+}
+
+export function gameSideMissingPlaybook(
+  game: Pick<GameSession, "offensive_playbook" | "my_playbook" | "opponent_scheme">,
+  side: DriveSideOfBall,
+): boolean {
+  return !playbookForGameSide(game, side);
+}
+
 export function driveSideBadgeLabel(side: DriveSideOfBall): string {
   return side === "defense" ? "DEF" : "OFF";
 }

@@ -20,6 +20,7 @@ import { DropdownMenu } from "@/components/shared/DropdownMenu";
 import { DataTable } from "@/components/shared/DataTable";
 import { drivePlayTableColumns } from "@/components/shared/drivePlayTableColumns";
 import { Button } from "@/components/ui/button";
+import { computeCumulativeDriveScores } from "@/lib/filmPostTdFlow";
 import { getDriveResult, getDriveSummaryOutcomeLabel, driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { absoluteYardAfterLoggedPlay } from "@/lib/gameStateEngine";
 import type { Drive } from "@/lib/types";
@@ -52,6 +53,7 @@ export function DriveList({
   onShowDriveSetup,
 }: DriveListProps) {
   const drivePlayCols = useMemo(() => drivePlayTableColumns(), []);
+  const cumulativeScores = useMemo(() => computeCumulativeDriveScores(drives), [drives]);
   const sortedDrives = useMemo(
     () => [...drives].sort((a, b) => b.drive_number - a.drive_number),
     [drives],
@@ -71,8 +73,9 @@ export function DriveList({
           const outcomeLabel = getDriveSummaryOutcomeLabel(drive, { isLastDrive: drive.id === lastDriveId, isGameEnded });
           const showOutcomeBadge = outcomeLabel !== "ACTIVE";
           const isExpanded = expandedDriveIds.includes(drive.id);
-          const mine = drive.score_mine ?? 0;
-          const theirs = drive.score_opponent ?? 0;
+          const cumulative = cumulativeScores.get(drive.id);
+          const mine = cumulative?.scoreMine ?? drive.score_mine ?? 0;
+          const theirs = cumulative?.scoreOpponent ?? drive.score_opponent ?? 0;
 
           function toggleDriveExpanded() {
             onExpandedDriveIdsChange((current) => {
@@ -186,8 +189,8 @@ export function DriveList({
                     <DriveInlineScores
                       key={drive.id}
                       driveId={drive.id}
-                      scoreMine={drive.score_mine}
-                      scoreOpponent={drive.score_opponent}
+                      scoreMine={cumulative?.scoreMine ?? drive.score_mine}
+                      scoreOpponent={cumulative?.scoreOpponent ?? drive.score_opponent}
                       onSaveBoth={(mineScore, oppScore) =>
                         onPatchDrive(drive.id, { score_mine: mineScore, score_opponent: oppScore })
                       }

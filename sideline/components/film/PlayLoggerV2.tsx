@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlayRow } from "@/components/film/atoms/PlayRow";
 import { AddPlayBrowseRow } from "@/components/playbook/AddPlayBrowseRow";
 import { DefensiveLogSheet } from "@/components/film/DefensiveLogSheet";
+import { ConversionAttemptSheet } from "@/components/film/ConversionAttemptSheet";
+import { PostTdAttemptSelector } from "@/components/film/PostTdAttemptSelector";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { deriveDefensiveStoredResultTag, type DefensiveResultTag } from "@/lib/defensiveResultTags";
@@ -16,6 +18,9 @@ import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { PlaySheetSituationChipScroll } from "@/components/shared/PlaySheetSituationChipScroll";
 import { scenarioDisplayLabel, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
+import { isConversionScenario } from "@/lib/filmConversionResults";
+import { driveNeedsPostTdAttempt, offensiveScorePoints } from "@/lib/filmPostTdFlow";
+import { FILM_LOGGER_ST_FIELD_GOAL } from "@/lib/filmLoggerSpecialTeams";
 import { possessionEndedFromSnapAndTag } from "@/lib/driveOutcome";
 import { formatFieldPosition } from "@/lib/fieldPosition";
 import { formatDownDistanceLabel } from "@/lib/formatDownDistance";
@@ -29,7 +34,7 @@ import { isFilmLoggerSpecialTeamsEntry } from "@/lib/filmLoggerSpecialTeams";
 import { endCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 
-type LoggerView = "suggestions" | "yardage";
+type LoggerView = "suggestions" | "yardage" | "conversion";
 
 type LoggerPickTab = "browse" | "my_sheet";
 
@@ -62,6 +67,8 @@ interface PlayLoggerV2Props {
   totalCoachCallsInGame: number;
   /** Fired after a successful save when this snap ended the possession (TD, FG, punt, turnover, turnover on downs, etc.). */
   onPossessionEndedAfterLog?: (args: { driveId: string; storedResultTag: string }) => void;
+  /** Add points to the drive running score (TD, XP, 2PT, etc.). */
+  onDriveScoreAdjust?: (args: { driveId: string; points: number }) => void | Promise<void>;
   /** All coach calls logged in this game (all drives) — powers situation-weighted suggestions without refetching drives. */
   allGameCoachCalls: LoggedPlay[];
   /** Catalog game version for play-art resolution in Browse. */
@@ -83,6 +90,7 @@ export function PlayLoggerV2({
   totalPlayRowsInGame,
   totalCoachCallsInGame,
   onPossessionEndedAfterLog,
+  onDriveScoreAdjust,
   allGameCoachCalls,
   catalogGameVersion,
   catalogSideOfBall = "offense",
@@ -103,6 +111,9 @@ export function PlayLoggerV2({
   const [accordionExpanded, setAccordionExpanded] = useState(false);
   const [locallyHiddenPlayIds, setLocallyHiddenPlayIds] = useState<Set<string>>(() => new Set());
   const [pendingDeletePlayId, setPendingDeletePlayId] = useState<string | null>(null);
+  const [showPostTdSelector, setShowPostTdSelector] = useState(false);
+  const [pendingScenarioOverride, setPendingScenarioOverride] = useState<string | null>(null);
+  const [postTdBusy, setPostTdBusy] = useState(false);
 
   const hasMySheet = Boolean(sheetId?.trim());
 
@@ -141,6 +152,16 @@ export function PlayLoggerV2({
     [mergedPlays, drive],
   );
 
+  useEffect(() => {
+    if (isDefensiveDrive) {
+      setShowPostTdSelector(false);
+      setPendingScenarioOverride(null);
+      return;
+    }
+    if (pendingScenarioOverride === "2 Point") return;
+    setShowPostTdSelector(driveNeedsPostTdAttempt(mergedPlays));
+  }, [isDefensiveDrive, mergedPlays, pendingScenarioOverride]);
+
   const { sheetName, scenarioLabel } = usePlaySuggestions({
     down: currentGameState.down,
     distance: currentGameState.distance,
@@ -149,7 +170,10 @@ export function PlayLoggerV2({
     allGameCoachCalls,
     sheetId,
     loggerOpenFlowId,
+    scenarioOverride: pendingScenarioOverride,
   });
+
+  const activeScenarioLabel = pendingScenarioOverride ?? scenarioLabel;
 
   const [mySheetSelectedScenario, setMySheetSelectedScenario] = useState(() =>
     guidedOnboarding && guidedMySheetScenario?.trim() ? guidedMySheetScenario.trim() : scenarioLabel,
@@ -166,8 +190,12 @@ export function PlayLoggerV2({
   useLayoutEffect(() => {
     if (guidedOnboarding) return;
     if (pickTab !== "my_sheet") return;
+    if (pendingScenarioOverride) {
+      setMySheetSelectedScenario(pendingScenarioOverride);
+      return;
+    }
     setMySheetSelectedScenario(scenarioLabel);
-  }, [guidedOnboarding, pickTab, scenarioLabel]);
+  }, [guidedOnboarding, pickTab, scenarioLabel, pendingScenarioOverride]);
 
   const sheetOverviewQuery = useQuery({
     queryKey: filmLoggerQueryKeys.playSheetOverview(sheetId ?? ""),
@@ -202,7 +230,7 @@ export function PlayLoggerV2({
   function handlePlaySelect(play: PlaybookEntry, source: "sheet" | "situation_suggestions" | "browser") {
     setSelectedPlay(play);
     setPlaySelectionSource(source);
-    setView("yardage");
+    setView(pendingScenarioOverride === "2 Point" ? "conversion" : "yardage");
   }
 
   async function persistLoggedPlay(
@@ -221,7 +249,7 @@ export function PlayLoggerV2({
       game_session_id: string;
       opponent_scheme: string;
       drive_number: number;
-      situation_override: null;
+      situation_override: string | null;
       result_tags?: string[] | null;
       play_type?: string;
     },
@@ -305,7 +333,37 @@ export function PlayLoggerV2({
           resultTag: snap.result_tag,
         });
       }
-      if (possessionEndedFromSnapAndTag(snap.down, snap.result_tag)) {
+
+      const points = !isDefensiveDrive
+        ? offensiveScorePoints({ resultTag: snap.result_tag, scenario: logScenario })
+        : 0;
+      if (points > 0) {
+        await onDriveScoreAdjust?.({ driveId, points });
+      }
+
+      const normResult = snap.result_tag.trim().toUpperCase().replace(/\s+/g, "_");
+      const isXpPlay = logScenario === "XP";
+      const isTwoPtPlay = logScenario === "2 Point";
+      const isOffensiveTd = !isDefensiveDrive && normResult === "TOUCHDOWN" && !isXpPlay && !isTwoPtPlay;
+
+      if (isOffensiveTd) {
+        setShowPostTdSelector(true);
+        return;
+      }
+
+      if (isTwoPtPlay) {
+        setPendingScenarioOverride(null);
+        setShowPostTdSelector(false);
+      }
+      if (isXpPlay) {
+        setShowPostTdSelector(false);
+      }
+
+      if (
+        isXpPlay ||
+        isTwoPtPlay ||
+        (!isOffensiveTd && possessionEndedFromSnapAndTag(snap.down, snap.result_tag))
+      ) {
         onPossessionEndedAfterLog?.({ driveId, storedResultTag: snap.result_tag });
       }
     } catch (error) {
@@ -330,7 +388,7 @@ export function PlayLoggerV2({
     const loggedPlay = selectedPlay;
     const logSelectionSource = playSelectionSource;
     const logCameFromSheet = logSelectionSource === "sheet";
-    const logScenario = scenarioLabel;
+    const logScenario = activeScenarioLabel;
     const storedTag = deriveDefensiveStoredResultTag(resultTags, yards, currentGameState.distance);
     const snap = {
       down: currentGameState.down,
@@ -349,7 +407,7 @@ export function PlayLoggerV2({
       game_session_id: gameId,
       opponent_scheme: "",
       drive_number: drive.drive_number,
-      situation_override: null,
+      situation_override: pendingScenarioOverride,
     };
     const optimisticPlay: LoggedPlay = {
       id: `optimistic-${Date.now()}`,
@@ -381,7 +439,7 @@ export function PlayLoggerV2({
     const loggedPlay = selectedPlay;
     const logSelectionSource = playSelectionSource;
     const logCameFromSheet = logSelectionSource === "sheet";
-    const logScenario = scenarioLabel;
+    const logScenario = activeScenarioLabel;
     const uiTag =
       result === "PUNT"
         ? "PUNT"
@@ -420,7 +478,7 @@ export function PlayLoggerV2({
       game_session_id: gameId,
       opponent_scheme: "",
       drive_number: drive.drive_number,
-      situation_override: null,
+      situation_override: pendingScenarioOverride,
     };
     const optimisticPlay: LoggedPlay = {
       id: `optimistic-${Date.now()}`,
@@ -436,6 +494,8 @@ export function PlayLoggerV2({
       play_name: snap.play_name,
       result_tag: snap.result_tag,
       yards_gained: snap.yards_gained,
+      scenario: logScenario,
+      situation_override: pendingScenarioOverride,
     };
 
     await persistLoggedPlay(snap, optimisticPlay, {
@@ -445,6 +505,86 @@ export function PlayLoggerV2({
       logScenario,
       submitFlowId,
     });
+  }
+
+  async function handleConversionLog(storedTag: string) {
+    if (!selectedPlay || !isConversionScenario(pendingScenarioOverride)) return;
+    const scenario = pendingScenarioOverride;
+    const loggedPlay = selectedPlay;
+    const snap = {
+      down: 1,
+      distance: 1,
+      is_inches: false,
+      yard_line: 3,
+      side: "OPP" as const,
+      hash: "MIDDLE" as const,
+      formation: loggedPlay.formation,
+      play_name: loggedPlay.play_name,
+      play_type: loggedPlay.play_type,
+      result_tag: storedTag,
+      yards_gained: 0,
+      note: null,
+      game_session_id: gameId,
+      opponent_scheme: "",
+      drive_number: drive.drive_number,
+      situation_override: scenario,
+    };
+    const optimisticPlay: LoggedPlay = {
+      id: `optimistic-${Date.now()}`,
+      play_number: mergedPlays.length + 1,
+      drive_number: drive.drive_number,
+      down: snap.down,
+      distance: snap.distance,
+      is_inches: snap.is_inches,
+      yard_line: snap.yard_line,
+      side: snap.side,
+      hash: snap.hash,
+      formation: snap.formation,
+      play_name: snap.play_name,
+      result_tag: snap.result_tag,
+      yards_gained: snap.yards_gained,
+      scenario,
+      situation_override: scenario,
+    };
+    setPostTdBusy(true);
+    try {
+      await persistLoggedPlay(snap, optimisticPlay, {
+        loggedPlay,
+        logSelectionSource: playSelectionSource ?? "browser",
+        logCameFromSheet: playSelectionSource === "sheet",
+        logScenario: scenario,
+      });
+    } finally {
+      setPostTdBusy(false);
+    }
+  }
+
+  function handleSelectXp() {
+    setSelectedPlay(FILM_LOGGER_ST_FIELD_GOAL);
+    setPlaySelectionSource("browser");
+    setPendingScenarioOverride("XP");
+    setShowPostTdSelector(false);
+    setView("conversion");
+  }
+
+  function handleCancelConversion() {
+    const scenario = pendingScenarioOverride;
+    setSelectedPlay(null);
+    setPlaySelectionSource(null);
+    setView("suggestions");
+    if (scenario === "XP") {
+      setPendingScenarioOverride(null);
+      setShowPostTdSelector(true);
+    }
+  }
+
+  function handleSelectTwoPoint() {
+    setPendingScenarioOverride("2 Point");
+    setShowPostTdSelector(false);
+    if (hasMySheet) {
+      setPickTab("my_sheet");
+      setMySheetSelectedScenario("2 Point");
+    }
   }
 
   async function handleConfirmDeletePlay(play: LoggedPlay) {
@@ -554,7 +694,13 @@ export function PlayLoggerV2({
         }`}
       >
         {view === "suggestions" ? (
-          hasMySheet ? (
+          showPostTdSelector ? (
+            <PostTdAttemptSelector
+              busy={postTdBusy}
+              onSelectXp={() => void handleSelectXp()}
+              onSelectTwoPoint={handleSelectTwoPoint}
+            />
+          ) : hasMySheet ? (
             <Tabs
               value={pickTab}
               onValueChange={(v) => setPickTab(v as LoggerPickTab)}
@@ -573,6 +719,11 @@ export function PlayLoggerV2({
               </TabsList>
 
               <div className="relative z-[5] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-3">
+                {pendingScenarioOverride === "2 Point" ? (
+                  <p className="mx-4 mb-2 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 font-sans text-sm text-slate-200">
+                    Log the two-point attempt — situation is set to <span className="font-semibold text-amber-300">2 Point</span>.
+                  </p>
+                ) : null}
                 <TabsContent
                   value="my_sheet"
                   className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto outline-none focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=inactive]:hidden"
@@ -647,7 +798,13 @@ export function PlayLoggerV2({
               </div>
             </Tabs>
           ) : (
-            <PlayBrowser
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              {pendingScenarioOverride === "2 Point" ? (
+                <p className="mx-4 mb-2 mt-3 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 font-sans text-sm text-slate-200">
+                  Log the two-point attempt — situation is set to <span className="font-semibold text-amber-300">2 Point</span>.
+                </p>
+              ) : null}
+              <PlayBrowser
               playbook={playbook}
               presentation="inline"
               onClose={() => {}}
@@ -658,6 +815,7 @@ export function PlayLoggerV2({
               catalogGameVersion={resolvedCatalogGameVersion}
               hideSearchSeparator
             />
+            </div>
           )
         ) : null}
 
@@ -686,6 +844,16 @@ export function PlayLoggerV2({
               }}
             />
           )
+        ) : null}
+
+        {view === "conversion" && selectedPlay && isConversionScenario(pendingScenarioOverride) ? (
+          <ConversionAttemptSheet
+            scenario={pendingScenarioOverride}
+            play={selectedPlay}
+            busy={postTdBusy}
+            onLog={handleConversionLog}
+            onCancel={handleCancelConversion}
+          />
         ) : null}
       </div>
 

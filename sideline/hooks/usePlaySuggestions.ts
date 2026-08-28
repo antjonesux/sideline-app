@@ -21,6 +21,8 @@ type Args = {
   sheetId?: string | null;
   /** Optional in-flight logger-open flow id started by the parent. */
   loggerOpenFlowId?: string | null;
+  /** Coach-selected scenario override (e.g. post-TD 2 Point attempt). */
+  scenarioOverride?: string | null;
 };
 
 const CATALOG_STALE_MS = 5 * 60 * 1000;
@@ -36,14 +38,17 @@ export function usePlaySuggestions({
   allGameCoachCalls,
   sheetId,
   loggerOpenFlowId,
+  scenarioOverride,
 }: Args) {
-  const scenarioLabel = useMemo(() => {
+  const derivedScenarioLabel = useMemo(() => {
     const { side, yard_line } = fromAbsoluteYard(fieldPos);
     const fieldZone = deriveFieldZone(yard_line, side);
     return deriveScenario(down, distance, fieldZone);
   }, [down, distance, fieldPos]);
 
-  const situationKey = `${down}:${distance}:${fieldPos}`;
+  const scenarioLabel = scenarioOverride?.trim() ? scenarioOverride.trim() : derivedScenarioLabel;
+
+  const situationKey = `${down}:${distance}:${fieldPos}:${scenarioLabel}`;
 
   const catalogQuery = useQuery({
     queryKey: filmLoggerQueryKeys.cfb26Catalog(playbook),

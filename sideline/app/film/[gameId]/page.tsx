@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { DriveList } from "@/components/film/DriveList";
+import type { DriveSetupSubmitPayload } from "@/components/film/DriveSetupForm";
 import { FilmDriveSetupOverlay } from "@/components/film/FilmDriveSetupOverlay";
 import { FilmEndGameScoreDialog } from "@/components/film/FilmEndGameScoreDialog";
 import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
@@ -205,29 +206,55 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       endGameScoresSeededRef.current = false;
       return;
     }
-    if (!game || endGameScoresSeededRef.current) return;
+    if (endGameScoresSeededRef.current) return;
     endGameScoresSeededRef.current = true;
     const last = drives[drives.length - 1];
-    const mine = game.my_score ?? last?.score_mine ?? 0;
-    const opp = game.opponent_score ?? last?.score_opponent ?? 0;
+    const mine = last?.score_mine ?? 0;
+    const opp = last?.score_opponent ?? 0;
     setEndGameScoreMine(String(Math.max(0, Number(mine) || 0)));
     setEndGameScoreOpp(String(Math.max(0, Number(opp) || 0)));
-  }, [showEndGameModal, game, drives]);
+  }, [showEndGameModal, drives]);
 
-  async function createDrive(payload?: Partial<Drive> & { side_of_ball?: "offense" | "defense" }) {
+  async function persistMissingSidePlaybook(payload: NonNullable<DriveSetupSubmitPayload["persist_playbook"]>) {
+    if (!gameId) return false;
+    const body: Record<string, string> =
+      payload.side === "defense"
+        ? { opponent_scheme: payload.playbook }
+        : { offensive_playbook: payload.playbook };
+    const res = await fetch(`/api/games/${gameId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      addToast(COULDNT_SAVE, "error");
+      return false;
+    }
+    setGame((await res.json()) as GameSession);
+    return true;
+  }
+
+  async function createDrive(payload?: DriveSetupSubmitPayload) {
     if (!gameId) return;
+
+    if (payload?.persist_playbook) {
+      const ok = await persistMissingSidePlaybook(payload.persist_playbook);
+      if (!ok) return;
+    }
 
     const prevDrive = drives[drives.length - 1];
     const prevQuarter = prevDrive?.quarter != null && prevDrive.quarter >= 1 ? prevDrive.quarter : 1;
     const prevMine = Math.max(0, Number(prevDrive?.score_mine ?? 0)) || 0;
     const prevOpp = Math.max(0, Number(prevDrive?.score_opponent ?? 0)) || 0;
+    const quarterNum =
+      payload?.quarter === "OT" ? 5 : payload?.quarter != null ? Number(payload.quarter) : prevQuarter;
 
     const res = await fetch(`/api/games/${gameId}/drives`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         side_of_ball: payload?.side_of_ball === "defense" ? "defense" : "offense",
-        quarter: payload?.quarter ?? prevQuarter,
+        quarter: quarterNum,
         score_mine: payload?.score_mine ?? prevMine,
         score_opponent: payload?.score_opponent ?? prevOpp,
         starting_down: payload?.starting_down ?? 1,
@@ -330,29 +357,38 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   }
 
   function patchDriveAndPersist(id: string, partial: Partial<Drive>) {
-    setDrives((all) => all.map((d) => (d.id === id ? { ...d, ...partial } : d)));
+    setDrives((all) =>
+      all.map((d) => {
+        if (d.id !== id) return d;
+        const next = { ...d, ...partial };
+        const startingSide = next.starting_side === "OWN" || next.starting_side === "OPP" ? next.starting_side : null;
+        const startingYardLine =
+          typeof next.starting_yard_line === "number" && next.starting_yard_line >= 1 && next.starting_yard_line <= 50
+            ? next.starting_yard_line
+            : null;
+        if (startingSide && startingYardLine != null) {
+          next.starting_absolute_yard = parseFieldPosition(startingSide, startingYardLine);
+        }
+        return next;
+      }),
+    );
     scheduleDrivePersist(id);
+  }
+
+  async function adjustDriveScore(driveId: string, points: number) {
+    if (points <= 0) return;
+    const dr = drivesRef.current.find((d) => d.id === driveId);
+    if (!dr) return;
+    await saveDrive(
+      { ...dr, score_mine: Math.max(0, Number(dr.score_mine ?? 0) + points) },
+      { silent: true, skipRefresh: true },
+    );
   }
 
   async function handlePossessionEndedAfterLog(args: { driveId: string; storedResultTag: string }) {
     const { driveId, storedResultTag } = args;
     setShowLogger(false);
     setActiveDrive(driveId);
-
-    const norm = storedResultTag.trim().toUpperCase().replace(/\s+/g, "_");
-    let bump = 0;
-    if (norm === "TOUCHDOWN") bump = 7;
-    else if (norm === "FIELD_GOAL") bump = 3;
-
-    if (bump > 0) {
-      const dr = drivesRef.current.find((d) => d.id === driveId);
-      if (dr) {
-        await saveDrive(
-          { ...dr, score_mine: Math.max(0, Number(dr.score_mine ?? 0) + bump) },
-          { silent: true, skipRefresh: true },
-        );
-      }
-    }
     await refresh({ pruneClosedPossessions: true });
   }
 
@@ -556,6 +592,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               allGameCoachCalls={allGameCoachCalls}
               onClose={() => setShowLogger(false)}
               onRefresh={refresh}
+              onDriveScoreAdjust={(args) => void adjustDriveScore(args.driveId, args.points)}
               onPossessionEndedAfterLog={(payload) => {
                 void handlePossessionEndedAfterLog(payload);
               }}
@@ -577,6 +614,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
           allGameCoachCalls={allGameCoachCalls}
           onClose={() => setShowLogger(false)}
           onRefresh={refresh}
+          onDriveScoreAdjust={(args) => void adjustDriveScore(args.driveId, args.points)}
           onPossessionEndedAfterLog={(payload) => {
             void handlePossessionEndedAfterLog(payload);
           }}
@@ -596,6 +634,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
 
       <FilmDriveSetupOverlay
         open={showDriveSetup && Boolean(game)}
+        game={game}
         drives={drives}
         onClose={() => setShowDriveSetup(false)}
         onSubmit={async (values) => {

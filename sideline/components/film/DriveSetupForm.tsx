@@ -2,10 +2,12 @@
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
 import { Button } from "@/components/ui/button";
+import { DriveMissingSidePlaybookPicker } from "@/components/film/DriveMissingSidePlaybookPicker";
 import { modalCtaFooterClass } from "@/lib/constants/designTokens";
 import { CATALOG_SIDES_OF_BALL, CATALOG_SIDE_OF_BALL_LABELS, type CatalogSideOfBall } from "@/lib/constants";
-import type { DriveSideOfBall } from "@/lib/types";
-import { useState } from "react";
+import { gameSideMissingPlaybook } from "@/lib/filmGameDetailHelpers";
+import type { DriveSideOfBall, GameSession } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 export type Quarter = "1" | "2" | "3" | "4" | "OT";
 
@@ -20,6 +22,11 @@ export type DriveSetupValues = {
   starting_distance: number;
 };
 
+export type DriveSetupSubmitPayload = DriveSetupValues & {
+  /** When the selected side had no playbook on the game session, persist this first. */
+  persist_playbook?: { side: DriveSideOfBall; playbook: string };
+};
+
 const QUARTER_PRESETS = ["1", "2", "3", "4", "OT"] as const satisfies readonly Quarter[];
 
 const sideToggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
@@ -27,14 +34,17 @@ const sideToggleOff = "border-slate-700 bg-slate-900 text-slate-400";
 
 export function DriveSetupForm({
   defaultValues,
+  game,
   onCancel,
   onSubmit,
 }: {
   defaultValues: DriveSetupValues;
+  game?: Pick<GameSession, "offensive_playbook" | "my_playbook" | "opponent_scheme" | "game_version"> | null;
   onCancel: () => void;
-  onSubmit: (values: DriveSetupValues) => Promise<void>;
+  onSubmit: (values: DriveSetupSubmitPayload) => Promise<void>;
 }) {
   const [values, setValues] = useState<DriveSetupValues>(defaultValues);
+  const [missingSidePlaybook, setMissingSidePlaybook] = useState<string | null>(null);
   const [startingYardStr, setStartingYardStr] = useState(() => String(defaultValues.starting_yard_line));
   const [scoreMineStr, setScoreMineStr] = useState(() => String(defaultValues.score_mine));
   const [scoreOppStr, setScoreOppStr] = useState(() => String(defaultValues.score_opponent));
@@ -42,26 +52,41 @@ export function DriveSetupForm({
   const [distanceStr, setDistanceStr] = useState(() => String(defaultValues.starting_distance));
   const [busy, setBusy] = useState(false);
 
+  const needsPlaybook =
+    game != null && gameSideMissingPlaybook(game, values.side_of_ball);
+
+  useEffect(() => {
+    setMissingSidePlaybook(null);
+  }, [values.side_of_ball]);
+
   const parsedStartingYard = Number.parseInt(startingYardStr.trim(), 10);
   const startingYardValid =
     !Number.isNaN(parsedStartingYard) && parsedStartingYard >= 1 && parsedStartingYard <= 50;
+  const playbookReady = !needsPlaybook || Boolean(missingSidePlaybook?.trim());
 
   async function submit() {
-    if (!startingYardValid) return;
+    if (!startingYardValid || !playbookReady) return;
     setBusy(true);
     try {
       const scoreMine = Math.max(0, Number.parseInt(scoreMineStr.replace(/\D/g, ""), 10) || 0);
       const scoreOpp = Math.max(0, Number.parseInt(scoreOppStr.replace(/\D/g, ""), 10) || 0);
       const down = Math.max(1, Math.min(4, Number.parseInt(downStr.replace(/\D/g, ""), 10) || 1)) as 1 | 2 | 3 | 4;
       const distance = Math.max(1, Math.min(99, Number.parseInt(distanceStr.replace(/\D/g, ""), 10) || 10));
-      await onSubmit({
+      const payload: DriveSetupSubmitPayload = {
         ...values,
         starting_yard_line: parsedStartingYard,
         score_mine: scoreMine,
         score_opponent: scoreOpp,
         starting_down: down,
         starting_distance: distance,
-      });
+      };
+      if (needsPlaybook && missingSidePlaybook?.trim()) {
+        payload.persist_playbook = {
+          side: values.side_of_ball,
+          playbook: missingSidePlaybook.trim(),
+        };
+      }
+      await onSubmit(payload);
     } finally {
       setBusy(false);
     }
@@ -93,6 +118,15 @@ export function DriveSetupForm({
           ))}
         </div>
       </fieldset>
+
+      {needsPlaybook ? (
+        <DriveMissingSidePlaybookPicker
+          sideOfBall={values.side_of_ball as CatalogSideOfBall}
+          gameVersion={game?.game_version}
+          selectedPlaybook={missingSidePlaybook}
+          onPlaybookChange={setMissingSidePlaybook}
+        />
+      ) : null}
 
       <div>
         <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-widest text-slate-500">
@@ -214,7 +248,7 @@ export function DriveSetupForm({
       <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
         Cancel
       </Button>
-      <Button type="button" variant="default" className="flex-1" disabled={!startingYardValid || busy} onClick={() => void submit()}>
+      <Button type="button" variant="default" className="flex-1" disabled={!startingYardValid || !playbookReady || busy} onClick={() => void submit()}>
         Start Drive
       </Button>
     </div>
