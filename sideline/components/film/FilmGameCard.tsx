@@ -99,7 +99,7 @@ export function FilmGameCard({
             <span className="text-slate-300">{game.opponent_score ?? "—"}</span>
           </p>
 
-          <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
+          <div className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
             <GameStatsInline
               playCount={game.playCount}
               driveCount={game.driveCount}

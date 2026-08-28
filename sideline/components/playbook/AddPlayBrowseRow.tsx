@@ -106,12 +106,17 @@ export function AddPlayBrowseRow({
     </>
   );
 
-  const artBlock =
-    resolvedArt ? (
-      <div className="px-3 pb-3">
-        <PlayArtImage src={resolvedArt.src} source={resolvedArt.source} alt="" />
-      </div>
-    ) : null;
+  const showArtSlot = Boolean(catalogSideOfBall && catalogGameVersion && catalogPlaybook);
+
+  const artBlock = showArtSlot ? (
+    <div className="px-3 pb-3">
+      <PlayArtImage
+        src={resolvedArt?.src ?? null}
+        source={resolvedArt?.source}
+        alt=""
+      />
+    </div>
+  ) : null;
 
   if (onSelect) {
     return (

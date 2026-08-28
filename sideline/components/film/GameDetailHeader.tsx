@@ -17,6 +17,8 @@ type GameDetailStats = {
 type GameDetailHeaderProps = {
   game: GameSession | null;
   stats: GameDetailStats;
+  scoreMine: number;
+  scoreOpponent: number;
   isGameEnded: boolean;
   endingGame: boolean;
   onAddDrive: () => void;
@@ -27,15 +29,15 @@ type GameDetailHeaderProps = {
 export function GameDetailHeader({
   game,
   stats,
+  scoreMine,
+  scoreOpponent,
   isGameEnded,
   endingGame,
   onAddDrive,
   onEndGame,
   onResumeGame,
 }: GameDetailHeaderProps) {
-  const resultLabel = game?.result === "W" ? "W" : game?.result === "L" ? "L" : "—";
-  const scoreMine = game?.my_score ?? "—";
-  const scoreOpp = game?.opponent_score ?? "—";
+  const showResult = game?.result === "W" || game?.result === "L";
 
   return (
     <div className="space-y-3 pb-4">
@@ -53,9 +55,14 @@ export function GameDetailHeader({
       </h1>
 
       <p className="font-body text-sm text-slate-400">
-        <span className="font-mono font-semibold text-slate-200">{resultLabel}</span>
-        <span className="mx-2 font-mono tabular-nums text-slate-200">
-          {scoreMine} – {scoreOpp}
+        {showResult ? (
+          <>
+            <span className="font-mono font-semibold text-slate-200">{game?.result}</span>
+            <span className="mx-2 text-slate-600">·</span>
+          </>
+        ) : null}
+        <span className="font-mono tabular-nums text-slate-200">
+          {scoreMine} - {scoreOpponent}
         </span>
         {game?.game_date ? (
           <>
@@ -64,7 +71,7 @@ export function GameDetailHeader({
           </>
         ) : null}
       </p>
-      <div className="overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
+      <div className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none]">
         <GameStatsInline
           playCount={stats.playCount}
           driveCount={stats.driveCount}

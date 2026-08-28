@@ -1,6 +1,7 @@
 "use client";
 
 import { DriveSetupForm, type DriveSetupSubmitPayload } from "@/components/film/DriveSetupForm";
+import { computeCumulativeDriveScores } from "@/lib/filmPostTdFlow";
 import { quarterFromDriveForSetup } from "@/lib/filmGameDetailHelpers";
 import { modalDialogTitleClass, responsiveOverlayBottomShellPositionClass } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,10 @@ type FilmDriveSetupOverlayProps = {
 export function FilmDriveSetupOverlay({ open, game, drives, onClose, onSubmit }: FilmDriveSetupOverlayProps) {
   if (!open) return null;
 
-  const lastDrive = drives[drives.length - 1];
+  const lastDrive = drives.length > 0
+    ? [...drives].sort((a, b) => a.drive_number - b.drive_number)[drives.length - 1]
+    : undefined;
+  const runningScore = lastDrive ? computeCumulativeDriveScores(drives).get(lastDrive.id) : null;
 
   return (
     <div className="fixed inset-0 z-[195] bg-black/60" onClick={onClose}>
@@ -37,8 +41,8 @@ export function FilmDriveSetupOverlay({ open, game, drives, onClose, onSubmit }:
             defaultValues={{
               side_of_ball: "offense",
               quarter: quarterFromDriveForSetup(lastDrive?.quarter),
-              score_mine: Math.max(0, Number(lastDrive?.score_mine ?? 0)),
-              score_opponent: Math.max(0, Number(lastDrive?.score_opponent ?? 0)),
+              score_mine: runningScore?.scoreMine ?? 0,
+              score_opponent: runningScore?.scoreOpponent ?? 0,
               starting_side: "OWN",
               starting_yard_line: 25,
               starting_down: 1,

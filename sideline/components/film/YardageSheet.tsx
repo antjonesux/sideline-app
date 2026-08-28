@@ -323,10 +323,10 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel, onboardi
           </p>
         ) : null}
         <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">BALL SPOTTED AT</p>
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-2 flex items-stretch gap-2">
           <button
             type="button"
-            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors ${
+            className={`min-h-11 flex-1 rounded-lg border text-sm font-semibold transition-colors ${
               endSide === "OWN"
                 ? "border-transparent bg-emerald-600 text-slate-100"
                 : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
@@ -337,7 +337,7 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel, onboardi
           </button>
           <button
             type="button"
-            className={`min-h-[44px] flex-1 rounded-lg border text-sm font-semibold transition-colors ${
+            className={`min-h-11 flex-1 rounded-lg border text-sm font-semibold transition-colors ${
               endSide === "OPP"
                 ? "border-transparent bg-emerald-600 text-slate-100"
                 : "border-slate-700 bg-transparent text-slate-300 hover:border-slate-500"
@@ -346,14 +346,14 @@ export function YardageSheet({ play, currentGameState, onLog, onCancel, onboardi
           >
             OPP
           </button>
-          <label className="flex min-h-[44px] min-w-0 flex-1">
+          <label className="flex min-h-11 min-w-0 flex-1">
             <span className="sr-only">Yard line 1 to 50</span>
             <input
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
               placeholder="0"
-              className="min-h-[44px] w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-center font-mono text-xl font-bold text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="min-h-11 w-full flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-center font-mono text-xl font-bold text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               value={endYardStr}
               onChange={(e) => setEndYardStr(e.target.value.replace(/\D/g, ""))}
             />

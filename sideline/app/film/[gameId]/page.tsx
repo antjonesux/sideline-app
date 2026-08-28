@@ -31,6 +31,7 @@ import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { countCoachCallsInGame, countPlaysInGame, isCoachCallPlay } from "@/lib/filmPlayCounting";
+import { computeCumulativeDriveScores } from "@/lib/filmPostTdFlow";
 import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -189,6 +190,26 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
     return out;
   }, [drives]);
+
+  const isGameEnded = Boolean(game?.ended_at);
+  const headerScores = useMemo(() => {
+    if (isGameEnded && game?.my_score != null && game?.opponent_score != null) {
+      return {
+        scoreMine: Math.max(0, Number(game.my_score) || 0),
+        scoreOpponent: Math.max(0, Number(game.opponent_score) || 0),
+      };
+    }
+    const chronological = [...drives].sort((a, b) => a.drive_number - b.drive_number);
+    const lastDrive = chronological[chronological.length - 1];
+    if (!lastDrive) {
+      return { scoreMine: 0, scoreOpponent: 0 };
+    }
+    const running = computeCumulativeDriveScores(drives).get(lastDrive.id);
+    return {
+      scoreMine: running?.scoreMine ?? 0,
+      scoreOpponent: running?.scoreOpponent ?? 0,
+    };
+  }, [drives, game?.my_score, game?.opponent_score, isGameEnded]);
 
   useEffect(() => {
     if (!pageReady || !game?.offensive_playbook?.trim()) return;
@@ -485,7 +506,6 @@ export default function GameLogPage({ params }: GameLogPageProps) {
       }).length,
     0,
   );
-  const isGameEnded = Boolean(game?.ended_at);
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
   const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
@@ -531,6 +551,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
               <GameDetailHeader
                 game={game}
                 stats={{ playCount: totalPlays, driveCount: totalDrives, totalYards, tds, turnovers }}
+                scoreMine={headerScores.scoreMine}
+                scoreOpponent={headerScores.scoreOpponent}
                 isGameEnded={isGameEnded}
                 endingGame={endingGame}
                 onAddDrive={() => setShowDriveSetup(true)}

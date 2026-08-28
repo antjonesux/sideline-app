@@ -72,7 +72,7 @@ export function DataTable<T>({
   const thPad = dense ? "px-2 py-1.5" : "px-4 py-2";
   const tdPad = dense ? "px-2 py-2" : "px-4 py-3";
 
-  const wrapperClasses = ["min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x", wrapperClassName].filter(Boolean).join(" ");
+  const wrapperClasses = ["min-w-0 overflow-x-auto overscroll-x-contain", wrapperClassName].filter(Boolean).join(" ");
 
   return (
     <div className={wrapperClasses}>

@@ -42,7 +42,7 @@ export function FilmRoomVersionFilter({ className }: Props) {
   return (
     <div className={className}>
       <Select value={selected} onValueChange={onChange}>
-        <SelectTrigger className="hs-input h-auto w-full max-w-xs rounded-lg border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:ring-emerald-500/25">
+        <SelectTrigger className="hs-input h-auto w-full rounded-lg border-slate-700 bg-slate-900 px-3 py-2.5 font-body text-sm text-slate-100 focus:border-emerald-600/60 focus:ring-emerald-500/25 md:max-w-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="border-slate-700 bg-slate-950 text-slate-100">

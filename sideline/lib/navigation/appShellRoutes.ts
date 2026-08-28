@@ -3,6 +3,8 @@
  * Marketing, auth, onboarding, and QA preview routes stay on the legacy full-width chrome.
  */
 
+import { playSheetIdFromPath } from "@/lib/navigation/playSheetNav";
+
 const AUTH_MARKETING_PREFIXES = [
   "/login",
   "/signup",
@@ -39,4 +41,35 @@ export function shouldUseAppShell(pathname: string, searchParams: URLSearchParam
   if (isOnboardingChromePath(pathname, searchParams)) return false;
   if (isQaPreviewPath(pathname)) return false;
   return true;
+}
+
+/** Film Room game detail — `/film/{id}` excluding new / import. */
+export function isFilmGameDetailPath(pathname: string): boolean {
+  if (!pathname.startsWith("/film/")) return false;
+  const segment = pathname.slice("/film/".length).split("/")[0];
+  if (!segment || segment === "new" || segment === "import") return false;
+  return true;
+}
+
+/** Call sheet situation detail — `/playbook/{id}?situation=…`. */
+export function isCallSheetSituationDetailPath(
+  pathname: string,
+  searchParams: URLSearchParams,
+): boolean {
+  if (!playSheetIdFromPath(pathname)) return false;
+  return Boolean(searchParams.get("situation")?.trim());
+}
+
+/**
+ * QA51 Pass 3 — container-based scroll at `md+` on Film game details and call sheet
+ * situation details only. Other shell routes keep page-level scroll.
+ */
+export function shouldUseAppShellContainerScroll(
+  pathname: string,
+  searchParams: URLSearchParams,
+): boolean {
+  if (!shouldUseAppShell(pathname, searchParams)) return false;
+  return (
+    isFilmGameDetailPath(pathname) || isCallSheetSituationDetailPath(pathname, searchParams)
+  );
 }

@@ -14,7 +14,7 @@ import type { ComponentProps } from "react";
 type HeaderProps = ComponentProps<typeof CallSheetBuilderSituationHeader>;
 type BrowsePanelProps = ComponentProps<typeof CallSheetBuilderSituationBrowsePanel>;
 
-/** Tablet / desktop situation detail workspace shell (Session 11 + QA41 scroll). */
+/** Tablet / desktop situation detail workspace shell (Session 11 + QA51 container scroll). */
 export function CallSheetBuilderSituationWorkspace({
   header,
   browsePanel,

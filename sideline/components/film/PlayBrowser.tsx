@@ -136,12 +136,9 @@ export function PlayBrowser({
 
   useLayoutEffect(() => {
     if (!selectedFormation) return;
+    if (usePageScrollResults) return;
     const el = playsScrollRef.current;
     if (!el) return;
-    if (usePageScrollResults) {
-      el.scrollIntoView({ block: "start" });
-      return;
-    }
     el.scrollTop = 0;
   }, [selectedFormation?.group, selectedFormation?.name, usePageScrollResults]);
 

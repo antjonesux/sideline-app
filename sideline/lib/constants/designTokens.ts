@@ -122,7 +122,7 @@ export const appShellBuilderBrowseButtonClass =
 export const appShellBuilderAddSituationClass =
   "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 font-sans text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-11 md:px-4 md:text-sm";
 
-/** Situation detail workspace shell — document-flow columns (md+); page owns vertical scroll. */
+/** Situation detail workspace shell — container-scroll at md+ on gated routes (QA51 Pass 3). */
 export const appShellSituationWorkspaceClass = "app-shell-situation-workspace";
 
 /**

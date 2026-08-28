@@ -4,7 +4,70 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
-## 2026-08-28 — Play-art Batch 2 publish (8 playbooks) + review-tool crop alignment fix
+## 2026-08-28 — QA51 container-based scroll and add-play rail (Pass 3)
+
+### What
+
+- Shifted scroll ownership from root `html` to `.app-shell-workspace` on Film game details and call sheet situation details at `md+` (`data-app-shell-container-scroll`). Sidebar stays fixed; main content scrolls in the workspace; add-play / logger rail stays sticky and scrolls via its inner column.
+- Mobile (`< md`) retains page-level scroll behavior; other shell routes (Film home, Tendencies, Schemes, Settings) unchanged.
+- Fixed the layout shift when a formation is selected from the add-play rail. Root cause: `PlayBrowser` called `scrollIntoView({ block: "start" })` when `pageScrollResults` was on (panel shell), which scrolled the plays header to the top of the page. That call is removed; rail scroll no longer jumps the page.
+- Non-sidebar routes (landing, onboarding, viewer chrome, hamburger nav) retain page-level scroll.
+
+### Why
+
+Coaches on desktop expect the sidebar to stay put and the content area to scroll independently — the dashboard mental model. Page-level scroll made the whole shell feel like it was moving when only the main content changed. Container-based scroll also isolates the add-play rail so scrolling one doesn't affect the other. The formation click layout shift compounded the disorientation.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to modals, tendencies, Film Room game lifecycle, or recent QA corrections passes.
+- Remaining from the QA51 batch: equal horizontal space on situation details (not flagged recently; deferred).
+
+---
+
+## 2026-08-28 — Film Room Pass 2 QA corrections
+
+### What
+
+- Fixed mobile scroll on Film Room landing and game details. Pass 2 removed `touch-pan-x` only from game-detail stats/tables; Film Room landing cards still had it, and `AppShellChrome` pinned the workspace to `min-h-dvh` flex columns that competed with root scroll. Also ref-counted `useScrollLock` and dropped redundant `padding-right` compensation (layout shift + stuck lock with Radix overlays).
+- Drive setup modal now displays the score after the most recent completed drive (or `0 - 0` if no drives yet), sourced from `computeCumulativeDriveScores`.
+- Fixed game details header score format: shows `{my_score} - {opponent_score}` from cumulative logged plays (or final game scores when ended) instead of em-dash placeholders reading as `— — – —`.
+- Call sheet Add Play drawer (play art browse) no longer shifts layout on open or leaves scroll locked after close — shared `useScrollLock` fix.
+- Updated play art placeholder copy to "No image available".
+
+### Why
+
+Pass 2 QA revealed the mobile scroll fix didn't hold and had spread to Film Room landing, pointing to a shell-level rather than surface-level issue. The call sheet play art scroll lock and layout shift shared symptoms with redundant scroll-lock padding compensation. The drive setup score and header format are small but visible bugs coaches would hit every session.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to Pass 1 game lifecycle, Pass A/B tendencies, or recent corrections passes.
+- Remaining from the QA51 batch: call sheet situation details layout (Pass 3).
+
+---
+
+## 2026-08-28 — Film Room UX cleanup (Pass 2)
+
+### What
+
+- Fixed mobile scroll on game details page. Root cause: `touch-pan-x` on the stats strip and drive play tables restricted touch scrolling to horizontal-only, blocking vertical page scroll on iOS when gestures started on those regions.
+- Mobile game version select component now fills the horizontal space matching game card width (`w-full`; `md:max-w-xs` on tablet/desktop).
+- "Ball spotted at" input in play logger now matches the height of the Own/Opp buttons (`min-h-11`, `items-stretch` row).
+- Plays without art now render a placeholder card with the same dimensions and a coach-facing message ("Play art coming soon").
+
+### Why
+
+QA feedback on Film Room mobile experience and play art gaps during batch ingestion. All cosmetic; no data or game state changes.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to Film Room game lifecycle (Pass 1), tendencies (Pass A/B), or the recent QA corrections.
+- Remaining from the QA51 batch: call sheet situation details layout (Pass 3).
+
+---
+
 
 ### What
 

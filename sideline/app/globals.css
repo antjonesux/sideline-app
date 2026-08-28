@@ -261,9 +261,9 @@
   }
 
   /**
-   * Situation detail workspace — natural document height (md+).
-   * Vertical scroll is owned by the page (`html` overflow-y); columns no longer nest
-   * independent overflow (QA41). Add Play search stays sticky in the rail.
+   * Situation detail workspace — fills the container-scroll workspace at md+.
+   * Vertical scroll is owned by `.app-shell-workspace` (QA51 Pass 3); the rail
+   * scrolls independently via its own overflow. Mobile keeps page-level scroll.
    */
   .app-shell-situation-workspace {
     box-sizing: border-box;
@@ -273,6 +273,7 @@
    * Situation detail browse panel — tablet / desktop side rail (Session 11 + QA50).
    * Fixed width via `--app-shell-situation-browse-panel-width`; does not grow with content.
    * Pair with `sticky top-0 self-start` on the shell so the rail stays in the viewport.
+   * On container-scroll routes the panel is viewport-tall; inner column owns rail scroll.
    */
   .app-shell-situation-browse-panel {
     box-sizing: border-box;
@@ -297,6 +298,40 @@
       width: calc(100% + (2 * var(--app-shell-px)) + (2 * var(--app-shell-situation-browse-bleed)));
       margin-inline-start: calc(-1 * var(--app-shell-px) - var(--app-shell-situation-browse-bleed));
       margin-inline-end: calc(-1 * var(--app-shell-px) - var(--app-shell-situation-browse-bleed));
+    }
+
+    /**
+     * QA51 Pass 3 — container-based scroll on Film game details + call sheet situation
+     * details only (`data-app-shell-container-scroll`). Root html no longer owns scroll;
+     * `.app-shell-workspace` scrolls main content; the add-play / logger rail stays sticky
+     * and scrolls via its inner column. Mobile (`< md`) and other shell routes unchanged.
+     */
+    html[data-app-shell-container-scroll="true"],
+    html[data-app-shell-container-scroll="true"] body {
+      height: 100dvh;
+      max-height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+      scrollbar-gutter: auto;
+    }
+
+    html[data-app-shell-container-scroll="true"] .app-shell-frame {
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
+    }
+
+    html[data-app-shell-container-scroll="true"] .app-shell-workspace {
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
+
+    html[data-app-shell-container-scroll="true"] .app-shell-situation-browse-panel {
+      height: 100dvh;
+      max-height: 100dvh;
     }
   }
 }
