@@ -3,6 +3,27 @@
 All notable changes to **The Sideline** (CFB play-calling / film logging assistant) are recorded here. The deployable Next.js app lives in `sideline/`.
 
 ---
+---
+
+## 2026-08-28 — Play-art Batch 4 publish (8 playbooks)
+
+### What
+
+- Published owned play-art for **Oregon State**, **Kansas**, **Michigan State**, **Wyoming**, **Alabama**, **Minnesota**, **North Dakota State**, and **Louisiana Tech** after manual REVIEW confirmation.
+- Skipped cases where cfb.fan reference art was wrong overridden to vault positional plays: Michigan State Gun Bunch X Nasty **MESH SPOT**; Minnesota Singleback Wing **PA BOOT**.
+- Formations with ownership-transfer cascades sealed via positional overrides before publish (Oregon State, Kansas, Michigan State, Minnesota, North Dakota State).
+- Manifest **14,417 → 18,138** (+3,721 unique assets). `npm run build` passed.
+
+### Why
+
+Batch 4 continues the operator review pass. Skip meant the cfb.fan comparison image was unreliable — the Vault crop still maps to a catalog play via positional order in the DOCX.
+
+### Status
+
+- Batch 4 playbooks: **REVIEW 0**, published.
+- **Illinois** (101 REVIEW) remains — sole book left in the current ingest queue.
+- Diagnostic-queue books still excluded: Air Raid, Purdue, Iowa State, Central Michigan, Multiple.
+
 
 ## 2026-08-28 — Play-art Batch 3 publish (8 playbooks)
 
