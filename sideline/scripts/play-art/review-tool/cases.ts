@@ -362,7 +362,10 @@ export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedRevi
 
   console.log("Extracting owned crops from DOCX…");
   const extracted = await extractPlayArtDocx(sourcePath, reference);
-  const cropsByFormation = collectFormationCrops(reference, extracted);
+  // Match ingest/matcher: blocks are emitted in OCR-effective formation order, not
+  // the full reference list (optional formations omitted from DOCX are skipped).
+  const effectiveReference = extracted.effectiveReference ?? reference;
+  const cropsByFormation = collectFormationCrops(effectiveReference, extracted);
   const existingOverrides = loadMatchingOverrides(defaultOverridesPath(reference));
   const existingOmits = loadMatchingOmits(defaultOmitsPath(reference));
 

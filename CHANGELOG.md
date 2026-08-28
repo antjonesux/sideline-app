@@ -4,6 +4,47 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ---
 
+## 2026-08-28 — Play-art Batch 2 publish (8 playbooks) + review-tool crop alignment fix
+
+### What
+
+- Published owned play-art for **Baylor**, **Sam Houston**, **South Carolina**, **Kansas State**, **Option**, **Florida Atlantic**, **Louisville**, and **Pro Style** after manual REVIEW confirmation (operator overrides in `matching-overrides/`).
+- Review tool: `loadReviewData` maps DOCX crops with `extracted.effectiveReference` (OCR-effective formation order), matching ingest/matcher — fixes Option Wingbone REVIEW cases showing “nothing to review” despite 8 crops on disk.
+- Manifest **6,992 → 10,711** (+3,719 unique assets). `npm run build` passed.
+
+### Why
+
+Batch 2 completes the second operator review pass for scheme-folder DOCXs. The Option empty queue was a formation-index mismatch: optional formations omitted from the Vault DOCX shift block order; the review UI was indexing crops against the full reference list.
+
+### Status
+
+- Batch 2 playbooks: **REVIEW 0**, published.
+- Diagnostic-queue books still excluded: Air Raid, Purdue, Iowa State, Central Michigan, Multiple.
+
+---
+
+## 2026-08-28 — Film Room game lifecycle bug fixes (Pass 1)
+
+### What
+
+- Added `XP` as a new scenario alongside `2 Point`. XP awards 1 point; 2PT successful awards 2 points; TD, FG, and safety scoring unchanged.
+- Post-TD flow: after a play is committed with a TD result, an inline XP/2PT selector appears. XP creates a logged play with the FG play and `XP` scenario; 2PT scopes the next-play input to `2 Point`.
+- Drive setup on a game created with only one side of the ball now offers the opposite side. Selecting the missing side prompts for a playbook; on save, the playbook persists to `game_sessions` for subsequent drives on that side.
+- Spot changes after drive setup now propagate to the play logger's field position source. Yardage on subsequent plays calculates against the current spot, not the drive's initial starting field.
+- End Game modal autopopulates `my_score` and `opponent_score` from the most recent drive's running score. Coach can override before submitting.
+
+### Why
+
+Four highest-friction bugs in the Film Room live-game loop. XP/2PT flow was missing entirely, coaches couldn't add drives to a missing side of ball, spot changes silently lost data, and End Game required manual score entry despite drives tracking running score.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No regressions to existing TD flow, drive setup on both-sides games, drive table SPOT column, or Pass A/B tendencies.
+- Deferred: Pass 2 (mobile scroll, input heights, play art placeholder), Pass 3 (QA51 situation details layout).
+
+---
+
 ## 2026-08-27 — Tendencies data correctness (Pass B)
 
 ### What
