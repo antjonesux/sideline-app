@@ -2,9 +2,6 @@ import Link from "next/link";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 
 const FOOTER_LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "About", href: "#about" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
 ] as const;

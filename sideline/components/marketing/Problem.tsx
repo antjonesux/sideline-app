@@ -5,17 +5,17 @@ const PROBLEMS = [
   {
     icon: Layers,
     title: "Too many plays",
-    body: "Remembering hundreds of plays during a game is difficult. The playbook is overwhelming when you need answers fast.",
+    body: "Remembering hundreds of plays during a game is difficult. The playbook is overwhelming when you need answers fast — on offense and defense.",
   },
   {
     icon: BookOpen,
-    title: "Generic playbooks",
-    body: "Most players call the same handful of plays because searching through the playbook takes too long. There's no structure behind their decisions.",
+    title: "No structure behind decisions",
+    body: "Most players call the same handful of plays because searching through the playbook takes too long. There's no game plan, no film review, and no tendency study.",
   },
   {
     icon: Clock,
-    title: "No preparation",
-    body: "The best players enter every game already knowing what they want to call. Everyone else improvises — and loses.",
+    title: "No preparation loop",
+    body: "The best coaches build a plan, call with confidence, review the film, and study what worked. Everyone else improvises — and loses.",
   },
 ] as const;
 

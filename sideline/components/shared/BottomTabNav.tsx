@@ -45,7 +45,7 @@ export default function BottomTabNav() {
     const root = document.documentElement;
     if (onboardingChrome) root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
-    if (pathname === "/landing") root.setAttribute("data-marketing-chrome", "true");
+    if (pathname === "/landing" || pathname === "/playbooks") root.setAttribute("data-marketing-chrome", "true");
     else root.removeAttribute("data-marketing-chrome");
     if (hamburgerNavChrome) root.setAttribute("data-hamburger-nav-chrome", "true");
     else root.removeAttribute("data-hamburger-nav-chrome");

@@ -399,3 +399,241 @@ export function MarketingAddPlayIllustration({
     </IllustrationShell>
   );
 }
+
+type FilmRoomLoggedPlayMock = {
+  formation: string;
+  play_name: string;
+  yards: number;
+  spot?: string;
+  play_type: GamePlanPlayType;
+};
+
+type FilmRoomDriveMock = {
+  id: string;
+  label: string;
+  result: string;
+  resultClass: string;
+  plays: number;
+  expanded?: boolean;
+  loggedPlays?: FilmRoomLoggedPlayMock[];
+};
+
+const FILM_ROOM_DRIVES_MOCK: FilmRoomDriveMock[] = [
+  { id: "1", label: "Drive 1", result: "TD", resultClass: "bg-emerald-500/15 text-emerald-400", plays: 3 },
+  {
+    id: "2",
+    label: "Drive 2",
+    result: "FG",
+    resultClass: "bg-amber-500/15 text-amber-400",
+    plays: 5,
+    expanded: true,
+    loggedPlays: [
+      { formation: "Gun Trips", play_name: "Y Cross", yards: 12, spot: "OWN 32", play_type: "PASS" },
+      { formation: "Singleback", play_name: "PA Post", yards: 24, spot: "OWN 44", play_type: "PASS" },
+      { formation: "Gun Bunch", play_name: "Mesh", yards: 8, spot: "OPP 32", play_type: "PASS" },
+    ],
+  },
+  { id: "3", label: "Drive 3", result: "PUNT", resultClass: "bg-slate-700/50 text-slate-400", plays: 3 },
+];
+
+function FilmRoomDriveRow({ drive }: { drive: FilmRoomDriveMock }) {
+  return (
+    <div className={cn("overflow-hidden", drive.expanded ? "rounded-lg border border-slate-700/80" : "")}>
+      <div
+        className={cn(
+          "flex min-h-9 items-center gap-2 px-2.5 py-1.5",
+          drive.expanded ? "border-b border-slate-700/50 bg-slate-950/40" : "rounded-md bg-slate-950/30",
+        )}
+      >
+        <div className="w-3 shrink-0 text-slate-600" aria-hidden>
+          <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="9" cy="6" r="1.5" />
+            <circle cx="9" cy="12" r="1.5" />
+            <circle cx="9" cy="18" r="1.5" />
+          </svg>
+        </div>
+        <p className="min-w-0 flex-1 truncate font-sans text-[10px] font-semibold text-slate-100">{drive.label}</p>
+        <span className="shrink-0 font-mono text-[9px] text-slate-500">{drive.plays} plays</span>
+        <span className={cn("shrink-0 rounded px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase", drive.resultClass)}>
+          {drive.result}
+        </span>
+      </div>
+      {drive.expanded && drive.loggedPlays ? (
+        <div>
+          <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,0.5fr)_minmax(0,0.4fr)] gap-1 border-b border-slate-700/50 px-2.5 py-1 font-mono text-[8px] font-semibold uppercase tracking-widest text-slate-500">
+            <span>Play</span>
+            <span>Spot</span>
+            <span className="text-right">Yds</span>
+            <span className="text-center">Type</span>
+          </div>
+          {drive.loggedPlays.map((play) => (
+            <div
+              key={`${play.formation}-${play.play_name}`}
+              className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,0.5fr)_minmax(0,0.4fr)] items-center gap-1 border-b border-slate-700/30 px-2.5 py-1.5 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-sans text-[10px] font-semibold text-white">{play.play_name}</p>
+                <p className="truncate font-body text-[8px] text-slate-500">{play.formation}</p>
+              </div>
+              <p className="truncate font-mono text-[8px] text-slate-500">{play.spot ?? "—"}</p>
+              <p className="text-right font-mono text-[9px] font-semibold text-emerald-400">+{play.yards}</p>
+              <div className="flex justify-center">
+                <PlayTypeBadge type={play.play_type} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Film Room — drive summary with one expanded drive and logged plays. */
+export function MarketingFilmRoomIllustration({
+  label = "Film Room",
+  sheetTitle = "Week 7 — vs Alabama",
+  className,
+}: {
+  label?: string;
+  sheetTitle?: string;
+  className?: string;
+}) {
+  return (
+    <IllustrationShell label={label} className={className}>
+      <div className="border-b border-slate-800 px-4 py-2.5">
+        <p className={marketingSheetTitleClass}>{sheetTitle}</p>
+      </div>
+      <div className="space-y-1.5 p-2.5">
+        {FILM_ROOM_DRIVES_MOCK.map((drive) => (
+          <FilmRoomDriveRow key={drive.id} drive={drive} />
+        ))}
+      </div>
+    </IllustrationShell>
+  );
+}
+
+type TendenciesStatMock = {
+  label: string;
+  value: string;
+};
+
+type TendenciesTopPlayMock = {
+  rank: number;
+  formation: string;
+  play_name: string;
+  tds: number;
+  uses: number;
+  avg: number;
+};
+
+const TENDENCIES_STATS_MOCK: TendenciesStatMock[] = [
+  { label: "Win Rate", value: "71%" },
+  { label: "Avg YPP", value: "6.4" },
+  { label: "Run / Pass", value: "42% / 58%" },
+];
+
+const TENDENCIES_TOP_PLAYS_MOCK: TendenciesTopPlayMock[] = [
+  { rank: 1, formation: "Gun Trips", play_name: "Y Cross", tds: 2, uses: 14, avg: 11.2 },
+  { rank: 2, formation: "Singleback", play_name: "PA Post", tds: 1, uses: 9, avg: 18.4 },
+  { rank: 3, formation: "Gun Bunch", play_name: "Mesh", tds: 0, uses: 11, avg: 8.1 },
+];
+
+const TENDENCIES_PLAY_TYPE_DISTRIBUTION_MOCK = [
+  { name: "Run", pct: 42, colorClass: "text-emerald-500" },
+  { name: "Pass", pct: 51, colorClass: "text-blue-500" },
+  { name: "RPO", pct: 7, colorClass: "text-amber-500" },
+] as const;
+
+function MarketingPlayTypeDistributionRow({
+  name,
+  pct,
+  colorClass,
+}: {
+  name: string;
+  pct: number;
+  colorClass: string;
+}) {
+  const width = Math.max(4, Math.min(100, pct));
+
+  return (
+    <div className="grid min-h-6 grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_24px] items-center gap-1.5 py-0.5">
+      <span className="truncate font-body text-[9px] text-slate-200">{name}</span>
+      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+        <svg className={cn("h-full w-full", colorClass)} viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden>
+          <rect x="0" y="0" width={width} height="6" rx="1.5" fill="currentColor" />
+        </svg>
+      </div>
+      <span className="text-left font-mono text-[8px] tabular-nums text-slate-300">{Math.round(pct)}%</span>
+    </div>
+  );
+}
+
+function TendenciesTopPlayRow({ play }: { play: TendenciesTopPlayMock }) {
+  return (
+    <div className="flex min-h-9 items-center gap-2 border-b border-slate-700/30 px-2.5 py-1.5 last:border-b-0">
+      <span className="w-4 shrink-0 font-mono text-[9px] font-bold text-emerald-500">{play.rank}</span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-sans text-[10px] font-semibold text-white">{play.play_name}</p>
+        <p className="truncate font-body text-[8px] text-slate-500">{play.formation}</p>
+      </div>
+      <div className="flex shrink-0 gap-2 font-mono text-[8px] text-slate-500">
+        <span>
+          <span className="text-slate-600">TD</span> {play.tds}
+        </span>
+        <span>
+          <span className="text-slate-600">USE</span> {play.uses}
+        </span>
+        <span className="text-emerald-400/90">
+          <span className="text-slate-600">AVG</span> {play.avg}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Tendencies — hero stats, top plays, and play-type distribution. */
+export function MarketingTendenciesIllustration({
+  label = "Tendencies",
+  className,
+}: {
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <IllustrationShell label={label} className={className}>
+      <div className="space-y-3 p-3">
+        <div className="grid grid-cols-3 gap-1.5">
+          {TENDENCIES_STATS_MOCK.map((stat) => (
+            <div key={stat.label} className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2 text-center">
+              <p className="font-mono text-[8px] uppercase tracking-widest text-slate-500">{stat.label}</p>
+              <p className="mt-0.5 font-heading text-sm font-bold text-white">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
+          <div className="border-b border-slate-700/50 px-2.5 py-1.5 font-mono text-[8px] font-semibold uppercase tracking-widest text-slate-500">
+            Top Plays
+          </div>
+          {TENDENCIES_TOP_PLAYS_MOCK.map((play) => (
+            <TendenciesTopPlayRow key={play.play_name} play={play} />
+          ))}
+        </div>
+        <div>
+          <p className="mb-1.5 font-mono text-[8px] font-semibold uppercase tracking-widest text-slate-500">
+            Play Type Distribution
+          </p>
+          <div className="space-y-1">
+            {TENDENCIES_PLAY_TYPE_DISTRIBUTION_MOCK.map((row) => (
+              <MarketingPlayTypeDistributionRow
+                key={row.name}
+                name={row.name}
+                pct={row.pct}
+                colorClass={row.colorClass}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </IllustrationShell>
+  );
+}

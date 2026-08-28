@@ -97,3 +97,28 @@ export function SituationPanel({ className = "" }: { className?: string }) {
     </PanelCard>
   );
 }
+
+export function TendenciesPanel({ className = "" }: { className?: string }) {
+  return (
+    <PanelCard className={className} width={200}>
+      <PanelHeader>
+        <p className={marketingPanelHeaderClass}>Tendencies</p>
+      </PanelHeader>
+      <div className="p-3">
+        <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2.5 text-center">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-slate-500">Win Rate</p>
+          <p className="mt-0.5 font-heading text-2xl font-bold text-emerald-500">71%</p>
+        </div>
+        <div className="mt-2.5 rounded-lg border border-slate-800 bg-slate-950/40 px-2.5 py-2">
+          <p className="font-mono text-[8px] uppercase tracking-widest text-slate-500">Top Play</p>
+          <p className="mt-1 truncate font-sans text-[10px] font-semibold text-white">PA BOOT OVER</p>
+          <p className="truncate font-body text-[9px] text-slate-500">Gun Doubles Offset</p>
+          <p className="mt-1 font-mono text-[9px] text-slate-500">
+            <span className="text-slate-600">AVG </span>
+            <span className="text-emerald-400/90">11.2</span>
+          </p>
+        </div>
+      </div>
+    </PanelCard>
+  );
+}

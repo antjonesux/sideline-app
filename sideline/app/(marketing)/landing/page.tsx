@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
-import { FeatureGrid } from "@/components/marketing/FeatureGrid";
-import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { Hero } from "@/components/marketing/Hero";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Problem } from "@/components/marketing/Problem";
-import { ProductShowcase } from "@/components/marketing/ProductShowcase";
-import { WhatIsCallSheet } from "@/components/marketing/WhatIsCallSheet";
 import { WhySideline } from "@/components/marketing/WhySideline";
 
 export const metadata: Metadata = {
   title: "The Sideline",
-  description:
-    "The modern digital Call Sheet for EA SPORTS College Football 27. Build offensive and defensive game plans, organize your plays into custom situations, and call every game with confidence.",
+  description: "Study your game. Call it smarter.",
 };
 
 function first(param: string | string[] | undefined): string | undefined {
@@ -35,13 +30,9 @@ export default async function MarketingLandingPage({
     <>
       <MarketingNav nextFromUrl={nextFromUrl} />
       <Hero nextFromUrl={nextFromUrl} />
-      <WhatIsCallSheet />
       <Problem />
       <HowItWorks />
-      <FeatureGrid />
-      <ProductShowcase />
       <WhySideline nextFromUrl={nextFromUrl} />
-      <FinalCTA nextFromUrl={nextFromUrl} />
       <MarketingFooter />
     </>
   );

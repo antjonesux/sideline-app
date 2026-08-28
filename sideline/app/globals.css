@@ -183,7 +183,7 @@
   }
 
   /**
-   * Marketing landing at `/landing` only (`data-marketing-chrome` from BottomTabNav).
+   * Marketing landing at `/landing` and `/playbooks` (`data-marketing-chrome` from BottomTabNav).
    * Full-width `<main>` so the hero grid / gradient (fixed SVG in HeroSection) align edge-to-edge with the
    * viewport; horizontal padding lives on the landing section so copy stays readable. Other routes use
    * `--app-shell-max-width` from `.app-shell-main`.

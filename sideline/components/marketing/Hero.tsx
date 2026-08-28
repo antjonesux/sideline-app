@@ -8,6 +8,7 @@ import {
   CallSheetPanel,
   PlaybookPanel,
   SituationPanel,
+  TendenciesPanel,
 } from "@/components/marketing/HeroPanels";
 import { SectionBadge } from "@/components/marketing/SectionBadge";
 
@@ -16,7 +17,7 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
   const getStartedHref = buildLoginHref({ register: true, next: nextFromUrl });
 
   return (
-    <section className="relative flex min-h-0 flex-col justify-start pt-[4.5rem] md:min-h-screen md:justify-center md:pt-24">
+    <section className="relative flex min-h-0 flex-col justify-start pt-12 md:min-h-screen md:justify-center md:pt-0">
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-4 sm:pt-6 md:py-20">
         <div className="grid items-center gap-16 lg:grid-cols-2">
           <div>
@@ -26,14 +27,10 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
             </SectionBadge>
 
             <h1 className="mt-6 font-heading text-5xl font-extrabold normal-case leading-[1.05] tracking-tight text-white lg:text-6xl xl:text-7xl">
-              Build better <span className="text-emerald-500">game plans.</span> Call smarter plays.
+              Study your game. <span className="text-emerald-500">Call it smarter.</span>
             </h1>
 
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-400">{MARKETING_HERO_SUBTITLE}</p>
-
-            <p className="mt-3 text-base font-semibold text-slate-400">
-              Stop guessing and <span className="text-emerald-500">start playing with a plan.</span>
-            </p>
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Button size="lg" asChild>
@@ -56,15 +53,18 @@ export function Hero({ nextFromUrl }: { nextFromUrl?: string }) {
             </div>
           </div>
 
-          <div className="relative hidden lg:block" style={{ height: 540 }}>
-            <div className="absolute right-0 top-[60px] z-20 rotate-[1.5deg]">
+          <div className="relative hidden lg:block" style={{ height: 560 }}>
+            <div className="absolute right-0 top-[52px] z-20 rotate-[1.5deg]">
               <CallSheetPanel />
             </div>
             <div className="absolute left-0 top-0 z-10 -rotate-2">
               <PlaybookPanel />
             </div>
-            <div className="absolute bottom-5 left-5 z-30 -rotate-1">
+            <div className="absolute bottom-8 left-4 z-30 -rotate-1">
               <SituationPanel />
+            </div>
+            <div className="absolute bottom-12 right-6 z-[25] rotate-[2deg]">
+              <TendenciesPanel />
             </div>
             <div
               className="pointer-events-none absolute inset-0"

@@ -11,6 +11,7 @@ const AUTH_MARKETING_PREFIXES = [
   "/auth/",
   "/reset-password",
   "/landing",
+  "/playbooks",
   "/terms",
   "/privacy",
 ] as const;
@@ -25,7 +26,7 @@ export function isOnboardingChromePath(pathname: string, searchParams: URLSearch
 }
 
 export function isAuthOrMarketingPath(pathname: string): boolean {
-  if (pathname === "/landing") return true;
+  if (pathname === "/landing" || pathname === "/playbooks") return true;
   return AUTH_MARKETING_PREFIXES.some((prefix) =>
     prefix.endsWith("/") ? pathname.startsWith(prefix) : pathname === prefix,
   );

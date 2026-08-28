@@ -9,11 +9,11 @@ import { authOAuthButtonClass } from "@/lib/constants/designTokens";
 import { buildLoginHref } from "@/lib/navigation/loginHref";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "About", href: "#about" },
-] as const;
+const BROWSE_PLAYBOOKS_HREF = "/playbooks";
+
+function NavSeparator({ className }: { className?: string }) {
+  return <span className={cn("shrink-0 bg-slate-700", className)} aria-hidden />;
+}
 
 export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
   const [open, setOpen] = useState(false);
@@ -49,19 +49,11 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
           <span className="sr-only">The Sideline</span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="font-heading text-sm normal-case tracking-normal text-slate-400 transition-colors hover:text-white"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
         <div className="flex items-center gap-3">
+          <Button variant="outline" size="default" className={cn("hidden md:inline-flex", authOAuthButtonClass)} asChild>
+            <Link href={BROWSE_PLAYBOOKS_HREF}>Browse Playbooks</Link>
+          </Button>
+          <NavSeparator className="hidden h-6 w-px md:block" />
           <Button variant="outline" size="default" className={cn("hidden md:inline-flex", authOAuthButtonClass)} asChild>
             <Link href={signInHref}>Sign In</Link>
           </Button>
@@ -82,18 +74,14 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
 
       {open ? (
         <div className="border-b border-slate-700/50 bg-slate-950/98 px-6 pb-5 pt-2 md:hidden">
-          <div className="flex flex-col gap-3">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="py-2 font-heading text-sm normal-case tracking-normal text-slate-400"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
-            <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-2">
+            <Button variant="outline" size="default" className={authOAuthButtonClass} asChild>
+              <Link href={BROWSE_PLAYBOOKS_HREF} onClick={() => setOpen(false)}>
+                Browse Playbooks
+              </Link>
+            </Button>
+            <NavSeparator className="h-px w-full" />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Button variant="outline" size="default" className={authOAuthButtonClass} asChild>
                 <Link href={signInHref} onClick={() => setOpen(false)}>
                   Sign In

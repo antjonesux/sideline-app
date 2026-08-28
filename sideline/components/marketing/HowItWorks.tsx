@@ -1,52 +1,41 @@
 import {
-  BUILDER_SITUATION_GRID_MOCK,
-  COACH_VIEW_SECTIONS_MOCK,
   MarketingAddPlayIllustration,
   MarketingCoachViewIllustration,
-  MarketingSituationGridIllustration,
+  MarketingFilmRoomIllustration,
+  MarketingTendenciesIllustration,
+  COACH_VIEW_SECTIONS_MOCK,
 } from "@/components/marketing/MarketingCallSheetIllustrations";
 import { SectionBadge } from "@/components/marketing/SectionBadge";
 
 const STEPS = [
   {
     num: "01",
-    title: "Build your Call Sheets",
-    body: "Browse your playbook and organize your favorite plays into custom situations — on offense and defense. Your game plan starts taking shape before kickoff.",
-    ui: <MarketingAddPlayIllustration />,
+    title: "Build",
+    body: "Build Call Sheets and Schemes for offense and defense. Browse your playbook, organize your best plays into custom situations, and pair both sides of the ball into a named identity before kickoff.",
+    ui: <MarketingAddPlayIllustration label="Call Sheet Builder" />,
   },
   {
     num: "02",
-    title: "Prepare your strategy",
-    body: "Build Go-To Plays, Tempo, Run Game, Pass Game, Man Beaters, Zone Beaters, Take a Shot, and Redzone packages — every situation covered, both sides of the ball.",
-    ui: (
-      <MarketingSituationGridIllustration
-        situations={BUILDER_SITUATION_GRID_MOCK}
-        label="Situations"
-      />
-    ),
-  },
-  {
-    num: "03",
-    title: "Group into a Scheme",
-    body: "Pair your offensive and defensive call sheets into a named scheme. One tap gives you both sides of the ball, ready for game day.",
-    ui: (
-      <MarketingCoachViewIllustration
-        sections={COACH_VIEW_SECTIONS_MOCK}
-        label="Scheme"
-        sheetTitle="Base vs Spread"
-      />
-    ),
-  },
-  {
-    num: "04",
-    title: "Call with confidence",
-    body: "Open your Call Sheet during gameplay and reference your game plan in seconds. Your best plays on offense and defense, always ready.",
+    title: "Call",
+    body: "Reference your plan during gameplay in Coach View. Your Go-To Plays, Red Zone packages, and situational calls are one tap away — no scrolling through hundreds of plays mid-drive.",
     ui: (
       <MarketingCoachViewIllustration
         sections={COACH_VIEW_SECTIONS_MOCK}
         label="Coach View"
       />
     ),
+  },
+  {
+    num: "03",
+    title: "Study",
+    body: "Log your calls and review the film after each game. Film Room captures every drive — formation, play name, yardage, and result — so you know what actually worked when the game is over.",
+    ui: <MarketingFilmRoomIllustration />,
+  },
+  {
+    num: "04",
+    title: "Improve",
+    body: "Study your tendencies across the season to sharpen decisions. Win rate, yards per play, top performers, and play-type mix — surfaced automatically so you walk into the next game smarter.",
+    ui: <MarketingTendenciesIllustration />,
   },
 ] as const;
 
@@ -57,8 +46,11 @@ export function HowItWorks() {
         <div className="mb-20 text-center">
           <SectionBadge>How It Works</SectionBadge>
           <h2 className="mt-5 font-heading text-4xl font-extrabold normal-case tracking-tight text-white lg:text-5xl">
-            Four steps to a smarter game.
+            Build. Call. Study. Improve.
           </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-slate-400">
+            The full coaching loop — from game plan to film review to tendency study — in four steps.
+          </p>
         </div>
 
         <div className="space-y-20">

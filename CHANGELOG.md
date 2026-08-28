@@ -3,7 +3,6 @@
 All notable changes to **The Sideline** (CFB play-calling / film logging assistant) are recorded here. The deployable Next.js app lives in `sideline/`.
 
 ---
----
 
 ## 2026-08-28 — Play-art Batch 4 publish (8 playbooks)
 
@@ -24,6 +23,60 @@ Batch 4 continues the operator review pass. Skip meant the cfb.fan comparison im
 - **Illinois** (101 REVIEW) remains — sole book left in the current ingest queue.
 - Diagnostic-queue books still excluded: Air Raid, Purdue, Iowa State, Central Michigan, Multiple.
 
+---
+
+## 2026-08-28 — Landing page refresh corrections
+
+### What
+
+- Removed four redundant sections from landing: "The Concept" ("What is a Call Sheet?"), "Features" / "Everything you need to run the coaching loop" grid, "Your Game Day Workspace", and "Ready to Start" CTA. Each duplicated information already delivered by Hero, "How It Works", or "Preparation wins games".
+- Removed "The Surfaces" feature deep-dive section (also redundant with "How It Works").
+- Created `/playbooks` route with a minimal empty state matching landing marketing chrome. Copy: "Browse the full playbook database. Coming soon." Includes a signup CTA.
+- Fixed Browse Playbooks nav link routing — `/playbooks` was not a public path in `proxy.ts`, so unauthenticated clicks redirected back to `/landing?next=/playbooks` without rendering a new page. Added `/playbooks` to marketing chrome in `BottomTabNav` and `appShellRoutes`.
+- Top nav: Browse Playbooks as an outline button (matching Sign In) with a separator before Sign In; removed center text anchor links (Features, How It Works, About). Footer trimmed to Privacy and Terms only.
+- Hero headline: "Study your game. Call it smarter." Metadata description matches.
+- Hero subcopy: "Build call sheets, review your film, and study your tendencies. Enhance your college football experience and feel like a real coach." Removed secondary "full coaching loop" tagline.
+- Hero visual: fourth Tendencies panel (Win Rate, top play); Tendencies header matches other panels (bold white). Film Room mockup intentionally omitted from hero.
+- Hero desktop top padding tightened to `md:pt-0` below the fixed nav.
+- How It Works: Build / Call / Study / Improve loop with Film Room and Tendencies mockups. Tendencies illustration drops "Season Overview" header; "Play Type Distribution" uses mobile-style per-type bar rows (Run, Pass, RPO).
+
+### Why
+
+The refreshed landing had too many sections telling the same story in different formats. Each removal tightens the page and lets the remaining sections carry their weight. The Browse Playbooks link failing silently was a first-impression bug on a marketing surface.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Landing sections preserved: Hero, "The Problem", "How It Works", "Preparation wins games", Footer.
+- `/playbooks` empty state ships now; full public playbook lookup feature ships in a separate pass.
+- No regressions to sign-in / sign-up or existing landing behavior.
+
+---
+
+## 2026-08-28 — Landing page refresh
+
+### What
+
+- Updated hero headline to "Study your game. Call it smarter." and broadened subcopy to reflect the full coaching loop.
+- Restructured "How It Works" section from the pre-game-only four-step to a Build / Call / Study / Improve loop covering Call Sheets, Coach View, Film Room, and Tendencies.
+- Feature explainer section expanded to cover Call Sheets, Schemes, Film Room, and Tendencies (six feature tiles including Playbook Lookup and Coach View).
+- Added "Browse Playbooks" to the top nav (link to `/playbooks`; route ships separately).
+- Generated new landing mockups for Film Room (drive summary + logged plays) and Tendencies (hero stats + top plays), matching existing landing mockup style.
+- "What is a Call Sheet?" section broadened to describe the full workflow (Option B).
+- Copy pass throughout to shift positioning from "call sheet builder" to "coaching intelligence companion".
+
+### Why
+
+The landing was correct at launch but presented the app as one feature (Call Sheets) when it's now a full coaching loop with Schemes, Film Room, and Tendencies live. Refreshing positioning is the foundation for the upcoming email announcement and the public playbook lookup route.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Mobile responsive across all sections.
+- No regressions to authenticated app shell, tendencies, Film Room, or existing marketing chrome.
+- Browse Playbooks nav link 404s until the `/playbooks` route ships in a separate pass.
+
+---
 
 ## 2026-08-28 — Play-art Batch 3 publish (8 playbooks)
 
