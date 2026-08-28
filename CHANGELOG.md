@@ -43,7 +43,7 @@ Pass 2 QA revealed the mobile scroll fix didn't hold and had spread to Film Room
 
 - `npm run build` from `sideline/` passed.
 - No regressions to Pass 1 game lifecycle, Pass A/B tendencies, or recent corrections passes.
-- Remaining from the QA51 batch: call sheet situation details layout (Pass 3).
+- QA51 Pass 3 (container-based scroll + add-play rail) shipped in a later entry on this date.
 
 ---
 
