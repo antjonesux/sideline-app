@@ -130,11 +130,13 @@ export function catalogMetaForSheet(
 export function callSheetListMetadataLabels(
   meta: CatalogPlaybookLookup,
   scheme?: string | null,
+  options?: { omitGameVersion?: boolean },
 ): string[] {
-  const labels = [
-    catalogGameVersionCompactLabel(meta.game_version),
-    CATALOG_SIDE_OF_BALL_LABELS[meta.side_of_ball],
-  ];
+  const labels: string[] = [];
+  if (!options?.omitGameVersion) {
+    labels.push(catalogGameVersionCompactLabel(meta.game_version));
+  }
+  labels.push(CATALOG_SIDE_OF_BALL_LABELS[meta.side_of_ball]);
   const schemeTrim = scheme?.trim();
   if (schemeTrim) labels.push(schemeTrim);
   return labels;
@@ -145,8 +147,9 @@ export function callSheetDetailsMetadataLabels(
   meta: CatalogPlaybookLookup,
   scheme: string | undefined | null,
   playbookName: string,
+  options?: { omitGameVersion?: boolean },
 ): string[] {
-  const labels = callSheetListMetadataLabels(meta, scheme);
+  const labels = callSheetListMetadataLabels(meta, scheme, options);
   const schemeTrim = scheme?.trim();
   const playbookTrim = playbookName.trim();
   const omitPlaybook =

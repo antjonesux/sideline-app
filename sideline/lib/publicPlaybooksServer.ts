@@ -484,3 +484,222 @@ export async function listPublicFormationStaticParams(): Promise<
     .filter((p) => p.playbookId && p.formationId)
     .sort((a, b) => a.playbookId.localeCompare(b.playbookId) || a.formationId.localeCompare(b.formationId));
 }
+
+/** Shorter cache for dynamic public search queries. */
+export const PUBLIC_SEARCH_API_CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+} as const;
+
+const PUBLIC_SEARCH_RESULT_CAP = 20;
+
+function sanitizePublicSearchTerm(raw: string): string {
+  return raw.trim().replace(/%/g, "").replace(/_/g, "").replace(/,/g, "");
+}
+
+function publicSearchIlikePattern(term: string): string {
+  return `%${term}%`;
+}
+
+export type PublicSearchPlaybookResult = {
+  name: string;
+  classification: PublicPlaybookClassification;
+  side_of_ball: CatalogSideOfBall;
+};
+
+export type PublicSearchFormationResult = {
+  name: string;
+  playbook: string;
+  category: string;
+  side_of_ball: CatalogSideOfBall;
+};
+
+export type PublicSearchPlayResult = {
+  name: string;
+  formation: string;
+  playbook: string;
+  side_of_ball: CatalogSideOfBall;
+};
+
+export type PublicGlobalSearchData = {
+  playbooks: PublicSearchPlaybookResult[];
+  formations: PublicSearchFormationResult[];
+  plays: PublicSearchPlayResult[];
+};
+
+export type PublicPlaybookCatalogPlay = {
+  play_name: string;
+  formation: string;
+  category: string;
+};
+
+export type PublicPlaybookCatalogData = PublicPlaybookFormationsData & {
+  plays: PublicPlaybookCatalogPlay[];
+};
+
+export async function fetchPublicGlobalSearch(queryRaw: string): Promise<PublicGlobalSearchData> {
+  const term = sanitizePublicSearchTerm(queryRaw);
+  if (term.length < 2) {
+    return { playbooks: [], formations: [], plays: [] };
+  }
+
+  const pattern = publicSearchIlikePattern(term);
+
+  const [playbookRes, formationRes, playRes] = await Promise.all([
+    supabase
+      .from("playbooks")
+      .select("playbook, side_of_ball")
+      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("playbook", pattern)
+      .not("playbook", "is", null)
+      .limit(2000),
+    supabase
+      .from("playbooks")
+      .select("playbook, formation, formation_type, side_of_ball")
+      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("formation", pattern)
+      .not("playbook", "is", null)
+      .not("formation", "is", null)
+      .limit(4000),
+    supabase
+      .from("playbooks")
+      .select("playbook, formation, play_name, side_of_ball")
+      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("play_name", pattern)
+      .not("playbook", "is", null)
+      .not("formation", "is", null)
+      .not("play_name", "is", null)
+      .limit(4000),
+  ]);
+
+  if (playbookRes.error) {
+    console.error("[publicPlaybooksServer] global search playbooks:", playbookRes.error);
+    throw playbookRes.error;
+  }
+  if (formationRes.error) {
+    console.error("[publicPlaybooksServer] global search formations:", formationRes.error);
+    throw formationRes.error;
+  }
+  if (playRes.error) {
+    console.error("[publicPlaybooksServer] global search plays:", playRes.error);
+    throw playRes.error;
+  }
+
+  const playbookSeen = new Map<string, PublicSearchPlaybookResult>();
+  for (const row of playbookRes.data ?? []) {
+    const name = String((row as { playbook?: string }).playbook ?? "").trim();
+    if (!name || name.startsWith("_")) continue;
+    const sideRaw = String((row as { side_of_ball?: string }).side_of_ball ?? "").trim();
+    const side_of_ball: CatalogSideOfBall = sideRaw === "defense" ? "defense" : "offense";
+    const key = `${side_of_ball}:${name}`;
+    if (playbookSeen.has(key)) continue;
+    playbookSeen.set(key, {
+      name,
+      side_of_ball,
+      classification: classifyPlaybook(name, side_of_ball),
+    });
+  }
+
+  const playbooks = [...playbookSeen.values()]
+    .sort((a, b) => a.name.localeCompare(b.name) || a.side_of_ball.localeCompare(b.side_of_ball))
+    .slice(0, PUBLIC_SEARCH_RESULT_CAP);
+
+  const formationSeen = new Map<string, PublicSearchFormationResult>();
+  for (const row of formationRes.data ?? []) {
+    const playbook = String((row as { playbook?: string }).playbook ?? "").trim();
+    const formation = String((row as { formation?: string }).formation ?? "").trim();
+    if (!playbook || !formation || playbook.startsWith("_")) continue;
+    const sideRaw = String((row as { side_of_ball?: string }).side_of_ball ?? "").trim();
+    const side_of_ball: CatalogSideOfBall = sideRaw === "defense" ? "defense" : "offense";
+    const formation_type = ((row as { formation_type?: string | null }).formation_type ?? null) as string | null;
+    const key = `${side_of_ball}:${playbook}:${formation.toLowerCase()}`;
+    if (formationSeen.has(key)) continue;
+    formationSeen.set(key, {
+      name: formation,
+      playbook,
+      category: resolveFormationSection(formation, formation_type),
+      side_of_ball,
+    });
+  }
+
+  const formations = [...formationSeen.values()]
+    .sort((a, b) => a.name.localeCompare(b.name) || a.playbook.localeCompare(b.playbook))
+    .slice(0, PUBLIC_SEARCH_RESULT_CAP);
+
+  const playSeen = new Map<string, PublicSearchPlayResult>();
+  for (const row of playRes.data ?? []) {
+    const playbook = String((row as { playbook?: string }).playbook ?? "").trim();
+    const formation = String((row as { formation?: string }).formation ?? "").trim();
+    const play_name = normalizePlayName(String((row as { play_name?: string }).play_name ?? ""));
+    if (!playbook || !formation || !play_name || playbook.startsWith("_")) continue;
+    const sideRaw = String((row as { side_of_ball?: string }).side_of_ball ?? "").trim();
+    const side_of_ball: CatalogSideOfBall = sideRaw === "defense" ? "defense" : "offense";
+    const key = `${side_of_ball}:${playbook}:${formation.toLowerCase()}:${play_name.toLowerCase()}`;
+    if (playSeen.has(key)) continue;
+    playSeen.set(key, { name: play_name, formation, playbook, side_of_ball });
+  }
+
+  const plays = [...playSeen.values()]
+    .sort((a, b) => a.name.localeCompare(b.name) || a.playbook.localeCompare(b.playbook))
+    .slice(0, PUBLIC_SEARCH_RESULT_CAP);
+
+  return { playbooks, formations, plays };
+}
+
+/** Full playbook catalog (formations + all plays) for client-side within-playbook search. */
+export async function fetchPublicPlaybookCatalog(
+  playbookName: string,
+  preferredSide?: CatalogSideOfBall | null,
+): Promise<PublicPlaybookCatalogData | null> {
+  const trimmed = playbookName.trim();
+  if (!trimmed) return null;
+
+  const sideOfBall = await resolvePublicPlaybookSide(trimmed, preferredSide);
+  if (!sideOfBall) return null;
+
+  const { data, error } = await supabase
+    .from("playbooks")
+    .select("formation, formation_type, play_name")
+    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("playbook", playbookIlikeExactPattern(trimmed))
+    .eq("side_of_ball", sideOfBall)
+    .order("formation", { ascending: true })
+    .order("play_name", { ascending: true })
+    .limit(12000);
+
+  if (error) {
+    console.error("[publicPlaybooksServer] catalog:", error);
+    throw error;
+  }
+
+  const rows = data ?? [];
+  if (rows.length === 0) return null;
+
+  const formationRows = rows.map((r) => ({
+    formation: String((r as { formation?: string }).formation ?? "").trim() || "Other",
+    formation_type: ((r as { formation_type?: string | null }).formation_type ?? null) as string | null,
+  }));
+
+  const playSeen = new Map<string, PublicPlaybookCatalogPlay>();
+  for (const row of rows) {
+    const formation = String((row as { formation?: string }).formation ?? "").trim() || "Other";
+    const play_name = normalizePlayName(String((row as { play_name?: string }).play_name ?? ""));
+    if (!play_name) continue;
+    const formation_type = ((row as { formation_type?: string | null }).formation_type ?? null) as string | null;
+    const category = resolveFormationSection(formation, formation_type);
+    const key = `${formation.toLowerCase()}\t${play_name.toLowerCase()}`;
+    if (playSeen.has(key)) continue;
+    playSeen.set(key, { play_name, formation, category });
+  }
+
+  const plays = [...playSeen.values()].sort(
+    (a, b) => a.formation.localeCompare(b.formation) || a.play_name.localeCompare(b.play_name),
+  );
+
+  return {
+    name: trimmed,
+    side_of_ball: sideOfBall,
+    classification: classifyPlaybook(trimmed, sideOfBall),
+    formationGroups: groupFormationsByCategory(formationRows, sideOfBall),
+    plays,
+  };
+}

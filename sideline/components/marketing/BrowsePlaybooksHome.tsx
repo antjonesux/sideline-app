@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { PublicPlaybookHomeSkeleton } from "@/components/marketing/PublicPlaybookHomeSkeleton";
 import { PublicPlaybookSection } from "@/components/marketing/PublicPlaybookSection";
+import { PublicPlaybookSearchInput } from "@/components/marketing/PublicPlaybookSearchInput";
+import { PublicGlobalSearchResults } from "@/components/marketing/PublicPlaybookSearchResults";
 import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { useDebounced } from "@/hooks/useDebounced";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
-import { appShellFormInputClass } from "@/lib/constants/designTokens";
-import type { PublicPlaybookListData } from "@/lib/publicPlaybooksServer";
-import { cn } from "@/lib/utils";
+import type { PublicGlobalSearchData, PublicPlaybookListData } from "@/lib/publicPlaybooksServer";
+
+const SEARCH_MIN_LENGTH = 2;
+const SEARCH_DEBOUNCE_MS = 300;
 
 async function fetchPublicPlaybooks(): Promise<PublicPlaybookListData> {
   const res = await fetch("/api/public/playbooks");
@@ -21,42 +24,42 @@ async function fetchPublicPlaybooks(): Promise<PublicPlaybookListData> {
   return json.data;
 }
 
-function filterNames(names: string[], query: string): string[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return names;
-  return names.filter((name) => name.toLowerCase().includes(q));
+async function fetchPublicGlobalSearch(q: string): Promise<PublicGlobalSearchData> {
+  const res = await fetch(`/api/public/search?q=${encodeURIComponent(q)}`);
+  const json = (await res.json()) as { data?: PublicGlobalSearchData; error?: string };
+  if (!res.ok || !json.data) throw new Error(json.error ?? COULDNT_LOAD);
+  return json.data;
 }
 
 export function BrowsePlaybooksHome() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const query = useQuery({
+  const debouncedSearch = useDebounced(search, SEARCH_DEBOUNCE_MS);
+  const trimmedDebounced = debouncedSearch.trim();
+  const searchActive = trimmedDebounced.length >= SEARCH_MIN_LENGTH;
+  const searchPending = search.trim() !== trimmedDebounced;
+
+  const listQuery = useQuery({
     queryKey: ["public", "playbooks"],
     queryFn: fetchPublicPlaybooks,
     staleTime: 5 * 60 * 1000,
+    enabled: !searchActive,
   });
 
-  const filtered = useMemo(() => {
-    const data = query.data;
-    if (!data) {
-      return {
-        offensiveTeamPlaybooks: [] as string[],
-        alternativeOffensivePlaybooks: [] as string[],
-        defensivePlaybooks: [] as string[],
-      };
-    }
-    return {
-      offensiveTeamPlaybooks: filterNames(data.offensiveTeamPlaybooks, search),
-      alternativeOffensivePlaybooks: filterNames(data.alternativeOffensivePlaybooks, search),
-      defensivePlaybooks: filterNames(data.defensivePlaybooks, search),
-    };
-  }, [query.data, search]);
+  const searchQuery = useQuery({
+    queryKey: ["public", "search", trimmedDebounced.toLowerCase()],
+    queryFn: () => fetchPublicGlobalSearch(trimmedDebounced),
+    enabled: searchActive,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
+  });
 
-  const hasAnyMatch =
-    filtered.offensiveTeamPlaybooks.length > 0 ||
-    filtered.alternativeOffensivePlaybooks.length > 0 ||
-    filtered.defensivePlaybooks.length > 0;
+  const browseLoading = !searchActive && listQuery.isPending;
+  const searchLoading = searchActive && (searchPending || searchQuery.isFetching);
+  const showSearchError = searchActive && searchQuery.isError;
+  const showListError = !searchActive && listQuery.isError;
+
+  const listData = listQuery.data;
 
   return (
     <PublicPlaybooksBrowseFrame
@@ -74,71 +77,56 @@ export function BrowsePlaybooksHome() {
             </p>
           </header>
 
-          <div className="relative mt-4 w-full">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
-              aria-hidden
-            />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search playbooks by name"
-              aria-label="Search playbooks by name"
-              autoComplete="off"
-              enterKeyHint="search"
-              className={cn(appShellFormInputClass, "ps-10", search.length > 0 ? "pe-10" : "")}
-            />
-            {search.length > 0 ? (
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-500 transition-colors hover:text-slate-300"
-                aria-label="Clear search"
-                onClick={() => {
-                  setSearch("");
-                  searchInputRef.current?.focus();
-                }}
-              >
-                <X className="h-4 w-4" aria-hidden />
-              </button>
-            ) : null}
-          </div>
+          <PublicPlaybookSearchInput
+            className="mt-4"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search playbooks, formations, and plays"
+            ariaLabel="Search playbooks, formations, and plays"
+            loading={searchLoading}
+          />
         </>
       }
     >
-      {query.isPending ? <PublicPlaybookHomeSkeleton /> : null}
+      {browseLoading ? <PublicPlaybookHomeSkeleton /> : null}
 
-      {query.isError ? (
+      {showListError ? (
         <div className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-6 text-center" role="alert">
           <p className="font-body text-sm text-slate-300">{COULDNT_LOAD}</p>
-          <Button type="button" variant="outline" className="mt-4" onClick={() => void query.refetch()}>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => void listQuery.refetch()}>
             Try again
           </Button>
         </div>
       ) : null}
 
-      {query.isSuccess && !hasAnyMatch ? (
-        <p className="font-body text-sm text-slate-400" role="status">
-          No playbooks match your search.
-        </p>
+      {showSearchError ? (
+        <div className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-6 text-center" role="alert">
+          <p className="font-body text-sm text-slate-300">Search failed. Try again.</p>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => void searchQuery.refetch()}>
+            Try again
+          </Button>
+        </div>
       ) : null}
 
-      {query.isSuccess && hasAnyMatch ? (
+      {searchActive && searchQuery.isSuccess && searchQuery.data ? (
+        <PublicGlobalSearchResults query={trimmedDebounced} data={searchQuery.data} />
+      ) : null}
+
+      {!searchActive && listQuery.isSuccess && listData ? (
         <>
           <PublicPlaybookSection
             title="Offensive Team Playbooks"
-            playbooks={filtered.offensiveTeamPlaybooks}
+            playbooks={listData.offensiveTeamPlaybooks}
             side="offense"
           />
           <PublicPlaybookSection
             title="Alternative Offensive Playbooks"
-            playbooks={filtered.alternativeOffensivePlaybooks}
+            playbooks={listData.alternativeOffensivePlaybooks}
             side="offense"
           />
           <PublicPlaybookSection
             title="Defensive Playbooks"
-            playbooks={filtered.defensivePlaybooks}
+            playbooks={listData.defensivePlaybooks}
             side="defense"
           />
         </>

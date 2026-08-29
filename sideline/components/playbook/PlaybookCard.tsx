@@ -6,10 +6,13 @@ import { CallSheetMetadataRow } from "@/components/playbook/CallSheetMetadataRow
 import { CardKebabMenu } from "@/components/shared/CardKebabMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
+import { PublicTeamMark } from "@/components/marketing/PublicTeamMark";
 import { useCatalogPlaybookMeta } from "@/hooks/useCatalogPlaybooks";
 import { usePlaySheetDisplayMeta } from "@/hooks/usePlaySheetDisplayMeta";
 import { callSheetDetailsMetadataLabels, catalogMetaForSheet } from "@/lib/playbookUtils";
+import { isGenericOffensivePlaybook } from "@/lib/playbooks/generic-playbooks";
 import { playbookListQueryKey } from "@/lib/playbookListQuery";
+import { getTeamLogoInfo } from "@/lib/publicTeamLogos";
 import type { PlaybookSummary } from "@/lib/types";
 import { COULDNT_DELETE, ADD_TO_SCHEME_MENU_LABEL } from "@/lib/coachCopy";
 import { useToastStore } from "@/store/toastStore";
@@ -20,11 +23,6 @@ import { useState } from "react";
 
 const menuItemClass =
   "flex min-h-11 w-full items-center px-3 py-2 text-left font-body text-sm text-slate-200 transition-colors hover:bg-slate-800 rounded-none";
-
-function sheetInitial(name: string): string {
-  const trimmed = name.trim();
-  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
-}
 
 export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,11 +35,18 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
   const addToast = useToastStore((s) => s.addToast);
   const { data: catalogMeta } = useCatalogPlaybookMeta(item.playbook);
   const { data: sheetMeta } = usePlaySheetDisplayMeta(item);
+  const playbookName = sheetMeta?.playbook ?? item.playbook;
+  const sideOfBall = catalogMeta?.side_of_ball ?? "offense";
+  const showTeamLogo =
+    sideOfBall !== "defense" &&
+    !isGenericOffensivePlaybook(playbookName) &&
+    Boolean(getTeamLogoInfo(playbookName));
 
   const metadataLabels = callSheetDetailsMetadataLabels(
     catalogMetaForSheet(catalogMeta ?? null, sheetMeta?.game_version ?? item.game_version),
     sheetMeta?.scheme ?? item.scheme,
     sheetMeta?.playbook ?? item.playbook,
+    { omitGameVersion: true },
   );
 
   async function confirmDeletePlaybook() {
@@ -66,14 +71,13 @@ export function PlaybookCard({ item }: { item: PlaybookSummary }) {
     <>
       <Link
         href={`/playbook/${item.id}`}
-        className="group block rounded-xl border border-slate-800 bg-slate-900 p-4 pr-14 transition-colors hover:border-emerald-500/20 hover:bg-emerald-500/[0.03] md:flex md:items-center md:gap-4 md:rounded-2xl md:px-5 md:py-4 md:pr-16"
+        className="group flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900 p-4 pr-14 transition-colors hover:border-emerald-500/20 hover:bg-emerald-500/[0.03] md:rounded-2xl md:px-5 md:py-4 md:pr-16"
       >
-        <div
-          className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 font-heading text-[15px] font-bold text-emerald-400 md:flex"
-          aria-hidden
-        >
-          {sheetInitial(item.name)}
-        </div>
+        <PublicTeamMark
+          playbookName={playbookName}
+          preferInitials={!showTeamLogo}
+          className="h-10 w-10"
+        />
 
         <div className="min-w-0 flex-1">
           <h2 className="min-w-0 truncate font-sans text-base font-semibold text-white md:text-[15px] md:leading-tight">

@@ -11,6 +11,8 @@ import {
   APP_SHELL_NEW_SCHEME_LABEL,
   CALL_SHEET_VIEWER_MENU_REVIEW_SOON,
 } from "@/lib/coachCopy";
+import { DEFAULT_CATALOG_GAME_VERSION } from "@/lib/constants";
+import { callSheetMatchesVersionFilter } from "@/lib/callSheetVersionFilter";
 import {
   appShellNavItemActiveClass,
   appShellNavItemClass,
@@ -142,7 +144,9 @@ function SidebarNavItem({
 function CallSheetsNavGroup() {
   const pathname = usePathname();
   const { data, isLoading, isError } = usePlaybookList();
-  const sheets = data?.playbooks ?? [];
+  const sheets = (data?.playbooks ?? []).filter((sheet) =>
+    callSheetMatchesVersionFilter(sheet.game_version, DEFAULT_CATALOG_GAME_VERSION),
+  );
   const activeSheetId = playSheetIdFromPath(pathname);
   const listActive = isPlaySheetListPath(pathname);
   const newActive = isPlaySheetNewPath(pathname);

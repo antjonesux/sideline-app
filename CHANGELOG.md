@@ -5,6 +5,45 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Call sheet cards: school logos + CFB27 sidebar filter
+
+### What
+
+- Call sheet list cards use `PublicTeamMark` from the linked CFB playbook (team logo when available; initials for defense / generic schemes), matching public Playbooks browse branding. Logo shows on mobile and desktop.
+- Call sheet card metadata omits game version (still available on sheet details).
+- Authenticated sidebar Call Sheets submenu only lists sheets for the current catalog game version (CFB27).
+
+### Why
+
+School logos are now available; cards should brand by linked playbook rather than a sheet-name initial. Sidebar should surface current-version sheets only so coaches are not hunting across older game catalogs.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Play-art asset ingest / manifest updates remain uncommitted.
+
+## 2026-08-28 — Public playbook lookup Pass 3 (global search + search-within-playbook)
+
+### What
+
+- Extended the `/playbooks` home page search to a global search across playbook names, formation names, and play names. Results grouped: Playbooks, Formations, Plays. First 5 per section shown; "See all {N}" expands in place to up to 20 per level from the API.
+- Added within-playbook search on `/playbooks/[playbookId]` that filters formations and plays in the current playbook via client-side filter over pre-fetched catalog data.
+- New public API endpoints: `GET /api/public/search?q=…` for global search; `GET /api/public/playbooks/[playbookId]/catalog` for full playbook catalog (formations + plays).
+- Debounced input (300ms), 2-character minimum for both searches.
+- Empty query on home restores the three-section playbook browse; empty query on playbook detail restores the standard formation category list.
+- Empty state: "No results for '{query}'" on both searches.
+
+### Why
+
+Completes the public playbook lookup by making the entire catalog queryable. Coaches can find a specific play by name across all playbooks, or narrow a large playbook to a specific formation or play. Pass 3 closes the browse loop that started in Pass 1.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Within-playbook search uses Option A (client-side filter over `/catalog` payload) — single-playbook play counts are bounded (~50–200).
+- Global search queries the `playbooks` table with parallel ILIKE filters; capped at 20 results per level server-side.
+- No regressions to Pass 1/Pass 2 browse, add-to-sheet, cross-references, adaptive chrome, or static generation on non-search routes.
+
 ## 2026-08-28 — Authenticated Playbooks browse chrome alignment
 
 ### What
