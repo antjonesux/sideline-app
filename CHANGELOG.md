@@ -6,6 +6,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Play-art Batch 10 publish (10 of 12)
+
+### What
+
+- Published **Batch 10** (10 books): Nevada, New Mexico, New Mexico State, North Carolina, North Texas, Northern Illinois, Northwestern, Ohio, Oklahoma, Old Dominion (+4,576 assets).
+- Manifest **38,754 → 43,330**.
+- **North Carolina:** sealed 4 skipped Pistol Trips Open Y Slot REVIEW crops to matcher plays (WIDE ZONE WK, SMASH, LEVELS, STICK BUBBLE) and published (459 assets).
+- **Notre Dame** blocked: DOCX 29 sections vs 28 required (+ Hail Mary optional).
+- **Ole Miss** blocked: section #27 unidentified.
+
+### Why
+
+Continue the 12-book review cadence; publish only books with full operator overrides and zero unresolved REVIEW.
+
+### Status
+
+- Ten Batch 10 team books published at REVIEW 0.
+- Matching overrides remain local/gitignored.
+- Still blocked / not published: Notre Dame, Ole Miss; plus earlier diagnostic queue (Mississippi State, Air Raid, Central Michigan, Iowa State, Purdue).
+
 ## 2026-08-29 — Play-art Batch 9 publish + Marshall Goal Line / browse formation labels
 
 ### What
