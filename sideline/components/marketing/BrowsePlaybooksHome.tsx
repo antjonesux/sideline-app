@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
 import { PublicPlaybookHomeSkeleton } from "@/components/marketing/PublicPlaybookHomeSkeleton";
 import { PublicPlaybookSection } from "@/components/marketing/PublicPlaybookSection";
-import { PublicPlaybooksBreadcrumb } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -61,16 +61,11 @@ export function BrowsePlaybooksHome() {
   return (
     <PublicPlaybooksBrowseFrame
       breadcrumb={
-        <PublicPlaybooksBreadcrumb
-          items={[
-            { label: "Home", href: user ? "/playbook" : "/landing" },
-            { label: "Playbooks" },
-          ]}
-        />
+        <PublicPlaybooksBreadcrumb items={publicPlaybooksBreadcrumbTrail(Boolean(user), [])} />
       }
       pinnedHeaderExtra={
         <>
-          <header className="mt-4">
+          <header className={user ? undefined : "mt-4"}>
             <h1 className="font-heading text-2xl font-extrabold uppercase tracking-[0.08em] text-white sm:text-3xl">
               Playbooks
             </h1>

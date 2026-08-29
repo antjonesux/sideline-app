@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { PublicCrossRefSection } from "@/components/marketing/PublicCrossRefSection";
 import { PublicPlayTile } from "@/components/marketing/PublicPlayTile";
-import { PublicPlaybooksBreadcrumb } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -82,12 +82,11 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
     <PublicPlaybooksBrowseFrame
       breadcrumb={
         <PublicPlaybooksBreadcrumb
-          items={[
-            { label: "Home", href: user ? "/playbook" : "/landing" },
+          items={publicPlaybooksBreadcrumbTrail(Boolean(user), [
             { label: "Playbooks", href: "/playbooks" },
             { label: playbookId, href: `/playbooks/${encodeURIComponent(playbookId)}${sideQs}` },
             { label: displayFormation },
-          ]}
+          ])}
         />
       }
     >

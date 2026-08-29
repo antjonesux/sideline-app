@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AddPlayToSheetModal } from "@/components/marketing/AddPlayToSheetModal";
 import { PublicCrossRefSection } from "@/components/marketing/PublicCrossRefSection";
-import { PublicPlaybooksBreadcrumb } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { SignupToSavePlayModal } from "@/components/marketing/SignupToSavePlayModal";
 import { PlayArtImage } from "@/components/playbook/PlayArtImage";
@@ -105,8 +105,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
     <PublicPlaybooksBrowseFrame
       breadcrumb={
         <PublicPlaybooksBreadcrumb
-          items={[
-            { label: "Home", href: user ? "/playbook" : "/landing" },
+          items={publicPlaybooksBreadcrumbTrail(Boolean(user), [
             { label: "Playbooks", href: "/playbooks" },
             {
               label: playbookId,
@@ -117,7 +116,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
               href: `/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}${sideQs}`,
             },
             { label: playId },
-          ]}
+          ])}
         />
       }
     >

@@ -5,6 +5,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Authenticated Playbooks browse chrome alignment
+
+### What
+
+- Signed-in playbooks breadcrumbs no longer show Home (call sheets is app home via sidebar).
+- Playbooks home (`/playbooks`) shows no breadcrumb when signed in; signed-out keeps Home → `/landing` only.
+- Deeper signed-in trails start at Playbooks (playbook → formation → play).
+- Pinned search header border aligns with the content column (no double horizontal padding).
+- Signed-in top spacing matches Call Sheets, Schemes, Film Room, and Tendencies — uses `<main>` `--app-shell-pt` only, no extra page-level inset.
+
+### Why
+
+Authenticated Playbooks lives in the app shell; breadcrumbs and layout should match other shell list pages instead of marketing-style Home links and extra padding.
+
+### Status
+
+- Play-art asset ingest / manifest updates remain uncommitted.
+
 ## 2026-08-28 — Add-to-call-sheet catalog guard + Pass 2 polish
 
 ### What

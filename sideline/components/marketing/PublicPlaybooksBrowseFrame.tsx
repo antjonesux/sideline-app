@@ -18,28 +18,29 @@ export function PublicPlaybooksBrowseFrame({
   pinnedHeaderExtra?: React.ReactNode;
 }) {
   const { user } = useAuth();
-  const shellPad = user ? "px-[var(--app-shell-px)]" : "";
-  const topPad = user ? "pt-6" : "pt-24";
+  /** Signed-in pages inherit `--app-shell-pt` from `<main>`; marketing keeps hero offset. */
+  const topPad = user ? "" : "pt-24";
+  const headerInsetClass = user ? "" : "pt-2";
 
   if (pinnedHeaderExtra) {
     return (
       <div className={cn("flex h-dvh flex-col", topPad)}>
-        <div className={cn("shrink-0 border-b border-slate-800/80", shellPad)}>
-          <div className="mx-auto w-full max-w-6xl pb-4 pt-2">
+        <div className="shrink-0">
+          <div className={cn("mx-auto w-full max-w-6xl border-b border-slate-800/80 pb-4", headerInsetClass)}>
             {breadcrumb}
             {pinnedHeaderExtra}
           </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-          <div className={cn("mx-auto w-full max-w-6xl pb-16 pt-8", shellPad)}>{children}</div>
+          <div className="mx-auto w-full max-w-6xl pb-16 pt-8">{children}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn("mx-auto w-full max-w-6xl pb-16", topPad, shellPad)}>
-      <div className="pt-2">{breadcrumb}</div>
+    <div className={cn("mx-auto w-full max-w-6xl pb-16", topPad)}>
+      {breadcrumb ? <div className={headerInsetClass}>{breadcrumb}</div> : null}
       {children}
     </div>
   );

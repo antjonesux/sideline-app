@@ -7,6 +7,15 @@ export type PublicBreadcrumbItem = {
   href?: string;
 };
 
+/** Signed-out trails prepend Home → /landing; signed-in trails start at Playbooks (call sheets is app home). */
+export function publicPlaybooksBreadcrumbTrail(
+  signedIn: boolean,
+  trail: PublicBreadcrumbItem[],
+): PublicBreadcrumbItem[] {
+  if (signedIn) return trail;
+  return [{ label: "Home", href: "/landing" }, ...trail];
+}
+
 function getMobileBackTarget(items: PublicBreadcrumbItem[]): { href: string; label: string } | null {
   if (items.length <= 1) return null;
   for (let i = items.length - 2; i >= 0; i--) {
@@ -19,6 +28,8 @@ function getMobileBackTarget(items: PublicBreadcrumbItem[]): { href: string; lab
 }
 
 export function PublicPlaybooksBreadcrumb({ items }: { items: PublicBreadcrumbItem[] }) {
+  if (items.length === 0) return null;
+
   const back = getMobileBackTarget(items);
 
   return (
