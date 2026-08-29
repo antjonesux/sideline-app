@@ -10,10 +10,10 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 
 ### What
 
-- Added “Follow on Discord” link with Discord brand mark to landing footer, linking to `discord.gg/a9TeQggFqF`. Carries through to public playbook routes via shared footer.
-- Added “Follow on Discord” as a top-level nav item in the authenticated app sidebar, positioned between My Tendencies and Settings. Opens in a new tab.
-- New `external?: boolean` flag on the sidebar nav item type for external URL handling (never active, no active dot, target="_blank").
-- Shared `DiscordIcon` (Clyde mark, `currentColor`) used in footer and sidebar/drawer.
+- Added “Follow on Discord” link with Discord brand mark to landing footer, linking to `discord.gg/a9TeQggFqF`. Carries through to public playbook routes via shared footer (`PlaybooksPageShell`).
+- Added “Follow on Discord” as a top-level nav item in the authenticated app sidebar and mobile drawer, positioned immediately above Settings in the utility block. Opens in a new tab.
+- New `external?: boolean` flag on the sidebar nav item type for external URL handling (never active, no active dot, `target="_blank"` + `rel="noopener noreferrer"`).
+- Shared `DiscordIcon` (Clyde mark, `currentColor`) used in footer, sidebar, and drawer.
 
 ### Why
 
