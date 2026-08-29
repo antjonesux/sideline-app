@@ -56,9 +56,13 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
   const [signOutBusy, setSignOutBusy] = useState(false);
 
   const sidebarNav = getAppShellSidebarNav(user?.id);
+  const discordItem = sidebarNav.find((item) => item.id === "discord");
   const settingsItem = sidebarNav.find((item) => item.id === "settings");
-  const primaryNav = sidebarNav.filter((item) => item.id !== "settings");
+  const primaryNav = sidebarNav.filter(
+    (item) => item.id !== "discord" && item.id !== "settings",
+  );
   const settingsActive = settingsItem ? isAppShellSidebarNavActive(pathname, settingsItem) : false;
+  const DiscordIcon = discordItem?.icon;
 
   async function handleSignOut() {
     setSignOutBusy(true);
@@ -104,20 +108,34 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
               const active = isAppShellSidebarNavActive(pathname, item);
               const Icon = item.icon;
 
+              const label = (
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  <span className="truncate">{item.label}</span>
+                </span>
+              );
+
               const row =
                 item.comingSoon || !item.href ? (
                   <span
                     className={cn(menuItemClass, menuItemDefaultClass, "cursor-default text-slate-600")}
                     aria-disabled="true"
                   >
-                    <span className="flex min-w-0 flex-1 items-center gap-3">
-                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                      <span className="truncate">{item.label}</span>
-                    </span>
+                    {label}
                     <span className="shrink-0 rounded bg-slate-800/80 px-1.5 py-0.5 font-sans text-[10px] font-medium leading-none text-slate-500">
                       {CALL_SHEET_VIEWER_MENU_REVIEW_SOON}
                     </span>
                   </span>
+                ) : item.external ? (
+                  <a
+                    href={item.href}
+                    className={cn(menuItemClass, menuItemDefaultClass)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    {label}
+                  </a>
                 ) : (
                   <Link
                     href={item.href}
@@ -130,10 +148,7 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
                     aria-current={active ? "page" : undefined}
                     onClick={() => onOpenChange(false)}
                   >
-                    <span className="flex min-w-0 flex-1 items-center gap-3">
-                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                      <span className="truncate">{item.label}</span>
-                    </span>
+                    {label}
                     <ChevronRight
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
@@ -156,6 +171,20 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
           </nav>
 
           <div className="mt-auto shrink-0 border-t border-slate-800/80 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] space-y-2">
+            {discordItem?.href && discordItem.external && DiscordIcon ? (
+              <a
+                href={discordItem.href}
+                className={cn(menuItemClass, menuItemDefaultClass)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => onOpenChange(false)}
+              >
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  <DiscordIcon className="h-4 w-4 shrink-0" aria-hidden />
+                  <span className="truncate">{discordItem.label}</span>
+                </span>
+              </a>
+            ) : null}
             {settingsItem?.href ? (
               <Link
                 href={settingsItem.href}

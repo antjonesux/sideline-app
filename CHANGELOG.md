@@ -6,6 +6,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Discord link on landing footer + in-app sidebar
+
+### What
+
+- Added “Follow on Discord” link with Discord brand mark to landing footer, linking to `discord.gg/a9TeQggFqF`. Carries through to public playbook routes via shared footer.
+- Added “Follow on Discord” as a top-level nav item in the authenticated app sidebar, positioned between My Tendencies and Settings. Opens in a new tab.
+- New `external?: boolean` flag on the sidebar nav item type for external URL handling (never active, no active dot, target="_blank").
+- Shared `DiscordIcon` (Clyde mark, `currentColor`) used in footer and sidebar/drawer.
+
+### Why
+
+Product updates and community engagement move to Discord in place of the previously-planned email announcement. Landing footer entry gives public visitors a path in; authenticated sidebar entry keeps the community one click away for active users.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Discord nav item visible to all authenticated users (not beta-gated).
+- No regressions to other nav items, footer links, or active state logic.
+
 ## 2026-08-29 — Welcome modal + per-feature onboarding modals
 
 ### What

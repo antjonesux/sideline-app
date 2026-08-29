@@ -129,6 +129,20 @@ function SidebarNavItem({
     );
   }
 
+  if (item.external) {
+    return (
+      <a
+        href={item.href}
+        className={className}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onNavigate}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <Link
       href={item.href}
@@ -375,8 +389,10 @@ export function AppShellSidebar({ className }: { className?: string }) {
       item.id !== "playbooks" &&
       item.id !== "call-sheets" &&
       item.id !== "schemes" &&
+      item.id !== "discord" &&
       item.id !== "settings",
   );
+  const discordItem = sidebarNav.find((item) => item.id === "discord");
   const settingsItem = sidebarNav.find((item) => item.id === "settings");
 
   return (
@@ -421,6 +437,12 @@ export function AppShellSidebar({ className }: { className?: string }) {
       </nav>
 
       <div className="shrink-0 space-y-0.5 border-t border-slate-800/80 px-3 py-3">
+        {discordItem ? (
+          <SidebarNavItem
+            item={discordItem}
+            active={isAppShellSidebarNavActive(pathname, discordItem)}
+          />
+        ) : null}
         {settingsItem ? (
           <SidebarNavItem
             item={settingsItem}

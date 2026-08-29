@@ -1,9 +1,10 @@
 "use client";
 
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-/** Renders marketing top nav only for signed-out visitors on public playbook pages. */
+/** Renders marketing chrome for signed-out visitors on public playbook pages. */
 export function PlaybooksPageShell({
   children,
   nextFromUrl,
@@ -21,6 +22,7 @@ export function PlaybooksPageShell({
     <>
       <MarketingNav nextFromUrl={nextFromUrl} />
       {children}
+      <MarketingFooter />
     </>
   );
 }
