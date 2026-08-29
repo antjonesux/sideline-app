@@ -5,6 +5,30 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Add-to-call-sheet catalog guard + Pass 2 polish
+
+### What
+
+- Adding a play to a call sheet (POST) or swapping a play (PUT) now requires the sheet’s linked CFB playbook to contain that formation and the play within it. Coach-facing errors when the formation or play is missing.
+- Public Add to Call Sheet modal only lists call sheets and scheme sides whose linked playbook matches the playbook being browsed; empty state when none match.
+- Add to Call Sheet modal uses the content-hugging centered dialog pattern (no unused bottom sheet height) and compact footer spacing.
+- Signup-to-save modal follows the same centered / compact footer sizing.
+- Playbooks breadcrumb: back button on mobile (`< md`); full breadcrumb trail on tablet/desktop.
+- Playbooks home search spans the full container width.
+- Authenticated sidebar: Playbooks pinned at the top of the nav with a separator before Call Sheets / Schemes.
+- Play detail: formation label matches cross-ref header weight; removed subtitle and play-type badge under the play name.
+- Play cross-refs dedupe by playbook (same team no longer listed multiple times for different formations).
+
+### Why
+
+Coaches must not add catalog plays that do not exist in the call sheet’s linked playbook. Pass 2 follow-up QA also tightened modal sizing, mobile browse chrome, nav order, and cross-ref accuracy.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Play-art asset ingest / manifest updates intentionally excluded from this commit.
+- Pass 3 remaining: global search across playbooks/formations/plays; optional search-within-playbook.
+
 ## 2026-08-28 — Public playbook lookup Pass 2 (formation detail, play detail, add CTA, performance, auth nav)
 
 ### What

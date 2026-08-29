@@ -1,6 +1,7 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { aggregateLoggedPlays, buildSuggestions, comboKey } from "@/lib/loggedPlayStats";
 import { resolveCfbDisplayPlayType } from "@/lib/playbook";
+import { assertPlayInSheetCatalog } from "@/lib/playbooks/assertPlayInCatalogPlaybook";
 import { fetchCfbPlayTypeMap, playTypeLookupKey } from "@/lib/playTypeResolution";
 import { normalizePlayName } from "@/lib/utils";
 import { isOpeningScript, loggedPlayScenarioLabels, loggedPlayScenarioLabelsForSuggestions, maxSlotsForSheetScenario } from "@/lib/playbookUtils";
@@ -23,10 +24,16 @@ type PlayRow = {
 
 type PlayRowWithCfbType = PlayRow & { play_type: string | null };
 
+type SheetOwnershipRow = {
+  id: string;
+  playbook: string | null;
+  game_version: string | null;
+};
+
 async function assertSheetOwnership(sb: SupabaseClient, sheetId: string, userId: string) {
   const { data, error } = await sb
     .from("play_sheets")
-    .select("id")
+    .select("id, playbook, game_version")
     .eq("id", sheetId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -35,7 +42,7 @@ async function assertSheetOwnership(sb: SupabaseClient, sheetId: string, userId:
     return { error: COULDNT_FINISH_THAT };
   }
   if (!data) return { error: "Sheet not found" };
-  return { sheet: data };
+  return { sheet: data as SheetOwnershipRow };
 }
 
 async function assertScenarioOnSheet(sb: SupabaseClient, sheetId: string, scenarioId: string, userId: string) {
@@ -271,6 +278,11 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const sc = await assertScenarioOnSheet(supabase, sheetId, scenarioId, user.id);
   if ("error" in sc) return NextResponse.json({ error: sc.error }, { status: 404 });
 
+  const catalogCheck = await assertPlayInSheetCatalog(supabase, ownership.sheet, formation, play_name);
+  if ("error" in catalogCheck) {
+    return NextResponse.json({ error: catalogCheck.error }, { status: 400 });
+  }
+
   const max = maxSlotsForSheetScenario(sc.scenario.scenario);
   const { count, error: cErr } = await supabase
     .from("play_sheet_plays")
@@ -458,6 +470,11 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
     const chk = await assertPlayOnSheet(supabase, sheetId, playId, user.id);
     if ("error" in chk) return NextResponse.json({ error: chk.error }, { status: 404 });
+
+    const catalogCheck = await assertPlayInSheetCatalog(supabase, ownership.sheet, formation, play_name);
+    if ("error" in catalogCheck) {
+      return NextResponse.json({ error: catalogCheck.error }, { status: 400 });
+    }
 
     const scenarioId = chk.play.scenario_id;
 

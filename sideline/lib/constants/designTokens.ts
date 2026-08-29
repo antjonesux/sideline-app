@@ -51,6 +51,10 @@ export const tokens = {
  * Film hand-rolled logger / Add Play shells (`filmBackdrop` / `filmShell`).
  * Radix portaled menus must sit above `filmShell` or clicks hit the backdrop instead.
  */
+/** Bottom CTA strip for compact centered modals — hugs content (no safe-area inflation). */
+export const modalCompactFooterClass =
+  "flex shrink-0 flex-col gap-3 px-4 py-4 sm:px-6";
+
 /** Bottom CTA strip for modals / bottom sheets — consistent horizontal padding and safe-area inset. */
 export const modalCtaFooterClass =
   "flex shrink-0 gap-3 border-t border-slate-800 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:pt-5 sm:pb-6";
@@ -186,6 +190,14 @@ const responsiveOverlayMaxWidthClass: Record<ResponsiveOverlayMaxWidth, string> 
   "4xl": "md:max-w-4xl",
 };
 
+/** Centered modal width — inset on mobile; full max-width token at `md+`. */
+const responsiveOverlayCenteredWidthClass: Record<ResponsiveOverlayMaxWidth, string> = {
+  md: "w-[min(calc(100vw-2rem),28rem)] md:w-full md:max-w-md",
+  lg: "w-[min(calc(100vw-2rem),32rem)] md:w-full md:max-w-lg",
+  "2xl": "w-[min(calc(100vw-2rem),42rem)] md:w-full md:max-w-2xl",
+  "4xl": "w-[min(calc(100vw-2rem),56rem)] md:w-full md:max-w-4xl",
+};
+
 /** Radix dialog close control styling for app overlays. */
 export const responsiveOverlayDialogCloseButtonClass =
   "[&>button]:text-slate-400 [&>button]:hover:text-white";
@@ -199,8 +211,8 @@ export function responsiveOverlayDialogContentClass(
   extra?: string,
 ): string {
   return [
-    "inset-x-0 bottom-0 left-0 top-auto flex max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 p-0 text-slate-100",
-    "md:left-[50%] md:top-[50%] md:max-h-[90vh] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg",
+    "inset-x-0 bottom-0 left-0 top-auto flex h-auto max-h-[90vh] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-900 p-0 text-slate-100",
+    "md:left-[50%] md:top-[50%] md:h-auto md:max-h-[90vh] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg",
     responsiveOverlayMaxWidthClass[maxWidth],
     responsiveOverlayDialogCloseButtonClass,
     extra,
@@ -231,12 +243,12 @@ export function responsiveOverlayBottomShellPositionClass(maxWidth: ResponsiveOv
 export const responsiveOverlayInnerCardClass =
   "flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-t-xl rounded-b-none border border-slate-700 bg-slate-950 md:h-auto md:max-h-[85vh] md:rounded-xl";
 
-/** Tablet/desktop centered dialog without mobile bottom-sheet positioning (forms already full-page on mobile). */
+/** Centered dialog — hugs content; inset width on mobile (unlike bottom-sheet overlays). */
 export function responsiveOverlayCenteredDialogClass(maxWidth: ResponsiveOverlayMaxWidth = "lg"): string {
   return [
-    "fixed left-[50%] top-[50%] z-[220] !flex w-full -translate-x-1/2 -translate-y-1/2 flex-col gap-0 !overflow-visible rounded-lg border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-lg",
+    "fixed left-[50%] top-[50%] z-[220] !flex -translate-x-1/2 -translate-y-1/2 flex-col gap-0 !overflow-visible rounded-lg border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-lg",
     "!h-auto !max-h-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-    responsiveOverlayMaxWidthClass[maxWidth],
+    responsiveOverlayCenteredWidthClass[maxWidth],
     responsiveOverlayDialogCloseButtonClass,
   ].join(" ");
 }

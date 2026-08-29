@@ -12,8 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePlaybookList } from "@/hooks/usePlaybookList";
 import { useSchemeList } from "@/hooks/useSchemeList";
-import { COULDNT_FINISH_THAT, COULDNT_LOAD } from "@/lib/coachCopy";
-import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
+import {
+  ADD_PLAY_NO_MATCHING_SHEETS,
+  COULDNT_FINISH_THAT,
+  COULDNT_LOAD,
+} from "@/lib/coachCopy";
+import {
+  modalCompactFooterClass,
+  responsiveOverlayCenteredDialogClass,
+} from "@/lib/constants/designTokens";
+import { catalogPlaybookNamesMatch } from "@/lib/playbookUtils";
 import { useToastStore } from "@/store/toastStore";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
@@ -27,6 +35,8 @@ type SheetScenario = {
 type AddPlayToSheetModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** CFB catalog playbook the play was browsed from (must match the call sheet's linked playbook). */
+  sourcePlaybook: string;
   formation: string;
   playName: string;
 };
@@ -48,6 +58,7 @@ async function fetchSheetScenarios(sheetId: string): Promise<SheetScenario[]> {
 export function AddPlayToSheetModal({
   open,
   onOpenChange,
+  sourcePlaybook,
   formation,
   playName,
 }: AddPlayToSheetModalProps) {
@@ -67,6 +78,42 @@ export function AddPlayToSheetModal({
 
   const sheets = sheetsQuery.data?.playbooks ?? [];
   const schemes = schemesQuery.data ?? [];
+
+  const matchingSheets = useMemo(
+    () => sheets.filter((sheet) => catalogPlaybookNamesMatch(sheet.playbook, sourcePlaybook)),
+    [sheets, sourcePlaybook],
+  );
+
+  const sheetPlaybookById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const sheet of sheets) map.set(sheet.id, sheet.playbook);
+    return map;
+  }, [sheets]);
+
+  const matchingSchemes = useMemo(() => {
+    return schemes
+      .map((scheme) => {
+        const offensePlaybook = scheme.offense_call_sheet_id
+          ? sheetPlaybookById.get(scheme.offense_call_sheet_id)
+          : undefined;
+        const defensePlaybook = scheme.defense_call_sheet_id
+          ? sheetPlaybookById.get(scheme.defense_call_sheet_id)
+          : undefined;
+        const offenseMatches =
+          scheme.offense_call_sheet_id &&
+          scheme.offense_call_sheet_name &&
+          offensePlaybook &&
+          catalogPlaybookNamesMatch(offensePlaybook, sourcePlaybook);
+        const defenseMatches =
+          scheme.defense_call_sheet_id &&
+          scheme.defense_call_sheet_name &&
+          defensePlaybook &&
+          catalogPlaybookNamesMatch(defensePlaybook, sourcePlaybook);
+        if (!offenseMatches && !defenseMatches) return null;
+        return { scheme, offenseMatches: Boolean(offenseMatches), defenseMatches: Boolean(defenseMatches) };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  }, [schemes, sheetPlaybookById, sourcePlaybook]);
 
   const title = useMemo(() => {
     if (step.kind === "pick-scenario") return `Add ${playName} to ${step.sheetName}`;
@@ -106,8 +153,8 @@ export function AddPlayToSheetModal({
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
-      <DialogContent className={responsiveOverlayDialogContentClass("md")}>
-        <DialogHeader className="space-y-0 border-b border-slate-800 px-4 py-3 text-left md:px-6">
+      <DialogContent className={responsiveOverlayCenteredDialogClass("md")}>
+        <DialogHeader className="shrink-0 space-y-0 border-b border-slate-800 px-4 py-3 text-left md:px-6">
           <DialogTitle className="font-heading text-lg font-bold uppercase tracking-[0.08em] text-white">
             {title}
           </DialogTitle>
@@ -116,7 +163,7 @@ export function AddPlayToSheetModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[min(24rem,50dvh)] overflow-y-auto px-4 py-3 md:px-6">
+        <div className="max-h-[min(24rem,50dvh)] shrink-0 overflow-y-auto px-4 py-3 md:px-6">
           {step.kind === "pick-target" ? (
             <>
               <div className="mb-3 flex gap-2">
@@ -149,13 +196,15 @@ export function AddPlayToSheetModal({
               {tab === "sheets" ? (
                 sheetsQuery.isPending ? (
                   <p className="font-body text-sm text-slate-500">Loading call sheets…</p>
-                ) : sheets.length === 0 ? (
+                ) : matchingSheets.length === 0 ? (
                   <p className="font-body text-sm text-slate-400">
-                    No call sheets yet. Create one from the sidebar to add plays here.
+                    {sheets.length === 0
+                      ? "No call sheets yet. Create one from the sidebar to add plays here."
+                      : ADD_PLAY_NO_MATCHING_SHEETS}
                   </p>
                 ) : (
                   <ul className="space-y-2">
-                    {sheets.map((sheet) => (
+                    {matchingSheets.map((sheet) => (
                       <li key={sheet.id}>
                         <button
                           type="button"
@@ -173,17 +222,19 @@ export function AddPlayToSheetModal({
                 )
               ) : schemesQuery.isPending ? (
                 <p className="font-body text-sm text-slate-500">Loading schemes…</p>
-              ) : schemes.length === 0 ? (
+              ) : matchingSchemes.length === 0 ? (
                 <p className="font-body text-sm text-slate-400">
-                  No schemes yet. Create one from the sidebar to add plays here.
+                  {schemes.length === 0
+                    ? "No schemes yet. Create one from the sidebar to add plays here."
+                    : ADD_PLAY_NO_MATCHING_SHEETS}
                 </p>
               ) : (
                 <ul className="space-y-3">
-                  {schemes.map((scheme) => (
+                  {matchingSchemes.map(({ scheme, offenseMatches, defenseMatches }) => (
                     <li key={scheme.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
                       <p className="font-body text-sm font-medium text-white">{scheme.name}</p>
                       <div className="mt-2 space-y-2">
-                        {scheme.offense_call_sheet_id && scheme.offense_call_sheet_name ? (
+                        {offenseMatches && scheme.offense_call_sheet_id && scheme.offense_call_sheet_name ? (
                           <button
                             type="button"
                             className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left text-sm hover:border-emerald-600/50"
@@ -198,7 +249,7 @@ export function AddPlayToSheetModal({
                             <span className="text-slate-200">Offense · {scheme.offense_call_sheet_name}</span>
                           </button>
                         ) : null}
-                        {scheme.defense_call_sheet_id && scheme.defense_call_sheet_name ? (
+                        {defenseMatches && scheme.defense_call_sheet_id && scheme.defense_call_sheet_name ? (
                           <button
                             type="button"
                             className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left text-sm hover:border-emerald-600/50"
@@ -254,7 +305,7 @@ export function AddPlayToSheetModal({
           )}
         </div>
 
-        <div className={modalCtaFooterClass}>
+        <div className={modalCompactFooterClass}>
           <Button type="button" variant="secondary" className="w-full" onClick={() => resetAndClose(false)}>
             Cancel
           </Button>

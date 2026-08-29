@@ -9,8 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { modalCtaFooterClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
+import {
+  authOAuthButtonClass,
+  modalCompactFooterClass,
+  responsiveOverlayCenteredDialogClass,
+} from "@/lib/constants/designTokens";
 import { buildLoginHref } from "@/lib/navigation/loginHref";
+import { cn } from "@/lib/utils";
 
 type SignupToSavePlayModalProps = {
   open: boolean;
@@ -30,8 +35,8 @@ export function SignupToSavePlayModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={responsiveOverlayDialogContentClass("md")}>
-        <DialogHeader className="space-y-0 border-b border-slate-800 px-4 py-3 text-left md:px-6">
+      <DialogContent className={responsiveOverlayCenteredDialogClass("md")}>
+        <DialogHeader className="shrink-0 space-y-0 border-b border-slate-800 px-4 py-3 text-left md:px-6">
           <DialogTitle className="font-heading text-lg font-bold uppercase tracking-[0.08em] text-white">
             Save this play
           </DialogTitle>
@@ -39,11 +44,11 @@ export function SignupToSavePlayModal({
             Sign up to save {playName} to your call sheet.
           </DialogDescription>
         </DialogHeader>
-        <div className={modalCtaFooterClass}>
-          <Button asChild className="w-full">
+        <div className={modalCompactFooterClass}>
+          <Button size="default" asChild className="w-full">
             <Link href={getStartedHref}>Get Started</Link>
           </Button>
-          <Button variant="outline" asChild className="w-full">
+          <Button variant="outline" size="default" asChild className={cn("w-full", authOAuthButtonClass)}>
             <Link href={signInHref}>Already have an account? Sign in</Link>
           </Button>
         </div>

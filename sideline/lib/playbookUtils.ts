@@ -109,6 +109,11 @@ function catalogLabelsMatch(a: string, b: string): boolean {
   return a.localeCompare(b, undefined, { sensitivity: "accent" }) === 0;
 }
 
+/** Case-insensitive match for CFB catalog playbook names (call sheet vs browse source). */
+export function catalogPlaybookNamesMatch(a: string, b: string): boolean {
+  return catalogLabelsMatch(a.trim(), b.trim());
+}
+
 /** Merge stored call-sheet `game_version` over catalog lookup (lookup prefers newest catalog row). */
 export function catalogMetaForSheet(
   catalogMeta: CatalogPlaybookLookup | null | undefined,

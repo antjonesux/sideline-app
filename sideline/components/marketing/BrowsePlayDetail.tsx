@@ -16,14 +16,12 @@ import { SkeletonBlock } from "@/components/shared/AppSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import type { CatalogSideOfBall } from "@/lib/constants";
 import { resolvePlayArtUrl } from "@/lib/playArtUrl";
-import type { CatalogPlayType } from "@/lib/playbook";
 import {
   PUBLIC_PLAYBOOK_GAME_VERSION,
   type PublicPlaybookCrossRef,
   type PublicPlayDetailData,
 } from "@/lib/publicPlaybooksServer";
 import { stripFormationCategoryPrefix } from "@/lib/stripFormationCategoryPrefix";
-import { cn } from "@/lib/utils";
 
 async function fetchPlayDetail(
   playbookId: string,
@@ -48,13 +46,6 @@ async function fetchPlayCrossRefs(playId: string, excludePlaybook: string): Prom
   const json = (await res.json()) as { data?: PublicPlaybookCrossRef[]; error?: string };
   if (!res.ok) throw new Error(json.error ?? COULDNT_LOAD);
   return json.data ?? [];
-}
-
-function playTypeBadgeClass(playType: CatalogPlayType): string {
-  if (playType === "RUN") return "border-amber-600/50 bg-amber-500/15 text-amber-200";
-  if (playType === "PASS") return "border-sky-600/50 bg-sky-500/15 text-sky-200";
-  if (playType === "RPO") return "border-violet-600/50 bg-violet-500/15 text-violet-200";
-  return "border-slate-600 bg-slate-800 text-slate-300";
 }
 
 type BrowsePlayDetailProps = {
@@ -163,21 +154,12 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
       {detailQuery.isSuccess && detailQuery.data ? (
         <>
           <header className="mt-4 text-center sm:text-left">
-            <p className="font-mono text-xs uppercase tracking-wide text-slate-500">{displayFormation}</p>
+            <p className="font-heading text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
+              {displayFormation}
+            </p>
             <h1 className="mt-2 font-heading text-3xl font-extrabold uppercase tracking-[0.08em] text-white sm:text-4xl">
               {detailQuery.data.play_name}
             </h1>
-            <p className="mt-2 text-sm text-slate-400 sm:text-base">
-              Every playbook with {detailQuery.data.play_name} in College Football 27.
-            </p>
-            <span
-              className={cn(
-                "mt-3 inline-flex rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wide",
-                playTypeBadgeClass(detailQuery.data.play_type),
-              )}
-            >
-              {detailQuery.data.play_type}
-            </span>
           </header>
 
           <div className="mx-auto mt-8 w-full max-w-2xl">
@@ -218,6 +200,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
           <AddPlayToSheetModal
             open={addOpen}
             onOpenChange={setAddOpen}
+            sourcePlaybook={playbookId}
             formation={detailQuery.data.formation}
             playName={detailQuery.data.play_name}
           />

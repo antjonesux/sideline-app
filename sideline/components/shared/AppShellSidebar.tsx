@@ -365,8 +365,13 @@ export function AppShellSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const { user } = useAuth();
   const sidebarNav = getAppShellSidebarNav(user?.id);
+  const playbooksItem = sidebarNav.find((item) => item.id === "playbooks");
   const secondaryNav = sidebarNav.filter(
-    (item) => item.id !== "call-sheets" && item.id !== "schemes" && item.id !== "settings",
+    (item) =>
+      item.id !== "playbooks" &&
+      item.id !== "call-sheets" &&
+      item.id !== "schemes" &&
+      item.id !== "settings",
   );
   const settingsItem = sidebarNav.find((item) => item.id === "settings");
 
@@ -383,6 +388,18 @@ export function AppShellSidebar({ className }: { className?: string }) {
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-2">
+        {playbooksItem ? (
+          <div className="flex flex-col">
+            <SidebarNavItem
+              item={playbooksItem}
+              active={isAppShellSidebarNavActive(pathname, playbooksItem)}
+            />
+            {playbooksItem.separatorAfter ? (
+              <div className="my-2 border-b border-slate-800" aria-hidden />
+            ) : null}
+          </div>
+        ) : null}
+
         <CallSheetsNavGroup />
         <SchemesNavGroup />
 

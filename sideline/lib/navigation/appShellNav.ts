@@ -21,12 +21,12 @@ export type AppShellSidebarNavItem = {
   separatorAfter?: boolean;
 };
 
-/** Hamburger / sidebar destinations — call sheets, schemes, film room, playbooks, tendencies, settings. */
+/** Hamburger / sidebar destinations — playbooks, call sheets, schemes, film room, tendencies, settings. */
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
+  { id: "playbooks", href: "/playbooks", label: "Playbooks", icon: BookOpen, separatorAfter: true },
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
   { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Headset },
   { id: "review", href: "/film", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video },
-  { id: "playbooks", href: "/playbooks", label: "Playbooks", icon: BookOpen, separatorAfter: true },
   { id: "my-tendencies", href: "/tendencies", label: APP_SHELL_TENDENCIES_MENU_LABEL, icon: LineChart },
   { id: "settings", href: "/settings", label: CALL_SHEET_VIEWER_MENU_SETTINGS, icon: Settings },
 ];

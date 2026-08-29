@@ -221,6 +221,15 @@ export const BUILDER_BROWSE_PLAYBOOK = "Browse Playbook";
 export const BUILDER_ADD_PLAY = "Add play";
 export const BUILDER_ADD_PLAY_FOR_SITUATION = (situationDisplay: string) =>
   `Add play: ${situationDisplay}`;
+/** Call sheet add — play is not in the sheet's linked CFB playbook catalog. */
+export const ADD_PLAY_NOT_IN_PLAYBOOK = "This play isn't in your call sheet's playbook.";
+export const ADD_PLAY_FORMATION_NOT_IN_PLAYBOOK = (playbook: string, formation: string) =>
+  `${formation} isn't in the ${playbook} playbook.`;
+export const ADD_PLAY_PLAY_NOT_IN_FORMATION = (playbook: string, formation: string, playName: string) =>
+  `${playName} isn't in ${formation} in the ${playbook} playbook.`;
+/** Public browse add-to-sheet — no call sheets use this playbook. */
+export const ADD_PLAY_NO_MATCHING_SHEETS =
+  "None of your call sheets use this playbook. Create one from this playbook first.";
 /** Browse playbook flow — pick which situation bucket receives the play. */
 export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
 export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>

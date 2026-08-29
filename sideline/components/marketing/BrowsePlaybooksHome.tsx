@@ -79,7 +79,7 @@ export function BrowsePlaybooksHome() {
             </p>
           </header>
 
-          <div className="relative mt-4 max-w-2xl">
+          <div className="relative mt-4 w-full">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
               aria-hidden

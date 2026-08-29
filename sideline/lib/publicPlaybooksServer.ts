@@ -420,16 +420,15 @@ export async function fetchPlaybooksWithPlay(
     if (!side) continue;
     const f = String((row as { formation?: string }).formation ?? "").trim();
     if (!f) continue;
-    const key = `${side}:${name.toLowerCase()}:${f.toLowerCase()}`;
-    if (seen.has(key)) continue;
-    seen.set(key, { playbook: name, side_of_ball: side, formation: f });
+    const key = `${side}:${name.toLowerCase()}`;
+    const candidate: PublicPlaybookCrossRef = { playbook: name, side_of_ball: side, formation: f };
+    const existing = seen.get(key);
+    if (!existing || f.localeCompare(existing.formation) < 0) {
+      seen.set(key, candidate);
+    }
   }
 
-  return [...seen.values()].sort((a, b) => {
-    const byBook = a.playbook.localeCompare(b.playbook);
-    if (byBook !== 0) return byBook;
-    return a.formation.localeCompare(b.formation);
-  });
+  return [...seen.values()].sort((a, b) => a.playbook.localeCompare(b.playbook));
 }
 
 /** Params for playbook detail SSG. */
