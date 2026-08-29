@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { PublicPlaybookHomeSkeleton } from "@/components/marketing/PublicPlaybookHomeSkeleton";
 import { PublicPlaybookSection } from "@/components/marketing/PublicPlaybookSection";
+import { PublicPlaybooksBreadcrumb } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import { appShellFormInputClass } from "@/lib/constants/designTokens";
@@ -26,6 +28,7 @@ function filterNames(names: string[], query: string): string[] {
 }
 
 export function BrowsePlaybooksHome() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const query = useQuery({
@@ -56,24 +59,17 @@ export function BrowsePlaybooksHome() {
     filtered.defensivePlaybooks.length > 0;
 
   return (
-    <div className="flex h-dvh flex-col pt-24">
-      {/* Pinned below marketing nav — outside the scroll pane, so no opaque bg needed. */}
-      <div className="shrink-0 border-b border-slate-800/80">
-        <div className="mx-auto w-full max-w-6xl pb-4 pt-2">
-          <nav className="font-mono text-xs uppercase tracking-wide text-slate-500" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-1.5">
-              <li>
-                <Link href="/landing" className="transition-colors hover:text-slate-300">
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden>
-                <ChevronRight className="h-3 w-3 shrink-0 text-slate-600" />
-              </li>
-              <li className="text-slate-400">Playbooks</li>
-            </ol>
-          </nav>
-
+    <PublicPlaybooksBrowseFrame
+      breadcrumb={
+        <PublicPlaybooksBreadcrumb
+          items={[
+            { label: "Home", href: user ? "/playbook" : "/landing" },
+            { label: "Playbooks" },
+          ]}
+        />
+      }
+      pinnedHeaderExtra={
+        <>
           <header className="mt-4">
             <h1 className="font-heading text-2xl font-extrabold uppercase tracking-[0.08em] text-white sm:text-3xl">
               Playbooks
@@ -113,49 +109,45 @@ export function BrowsePlaybooksHome() {
               </button>
             ) : null}
           </div>
+        </>
+      }
+    >
+      {query.isPending ? <PublicPlaybookHomeSkeleton /> : null}
+
+      {query.isError ? (
+        <div className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-6 text-center" role="alert">
+          <p className="font-body text-sm text-slate-300">{COULDNT_LOAD}</p>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => void query.refetch()}>
+            Try again
+          </Button>
         </div>
-      </div>
+      ) : null}
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="mx-auto w-full max-w-6xl pb-16 pt-8">
-          {query.isPending ? <PublicPlaybookHomeSkeleton /> : null}
+      {query.isSuccess && !hasAnyMatch ? (
+        <p className="font-body text-sm text-slate-400" role="status">
+          No playbooks match your search.
+        </p>
+      ) : null}
 
-          {query.isError ? (
-            <div className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-6 text-center" role="alert">
-              <p className="font-body text-sm text-slate-300">{COULDNT_LOAD}</p>
-              <Button type="button" variant="outline" className="mt-4" onClick={() => void query.refetch()}>
-                Try again
-              </Button>
-            </div>
-          ) : null}
-
-          {query.isSuccess && !hasAnyMatch ? (
-            <p className="font-body text-sm text-slate-400" role="status">
-              No playbooks match your search.
-            </p>
-          ) : null}
-
-          {query.isSuccess && hasAnyMatch ? (
-            <>
-              <PublicPlaybookSection
-                title="Offensive Team Playbooks"
-                playbooks={filtered.offensiveTeamPlaybooks}
-                side="offense"
-              />
-              <PublicPlaybookSection
-                title="Alternative Offensive Playbooks"
-                playbooks={filtered.alternativeOffensivePlaybooks}
-                side="offense"
-              />
-              <PublicPlaybookSection
-                title="Defensive Playbooks"
-                playbooks={filtered.defensivePlaybooks}
-                side="defense"
-              />
-            </>
-          ) : null}
-        </div>
-      </div>
-    </div>
+      {query.isSuccess && hasAnyMatch ? (
+        <>
+          <PublicPlaybookSection
+            title="Offensive Team Playbooks"
+            playbooks={filtered.offensiveTeamPlaybooks}
+            side="offense"
+          />
+          <PublicPlaybookSection
+            title="Alternative Offensive Playbooks"
+            playbooks={filtered.alternativeOffensivePlaybooks}
+            side="offense"
+          />
+          <PublicPlaybookSection
+            title="Defensive Playbooks"
+            playbooks={filtered.defensivePlaybooks}
+            side="defense"
+          />
+        </>
+      ) : null}
+    </PublicPlaybooksBrowseFrame>
   );
 }

@@ -1,6 +1,7 @@
 /**
  * Routes that use the authenticated app shell (sidebar at md+, hamburger drawer on mobile).
  * Marketing, auth, onboarding, and QA preview routes stay on the legacy full-width chrome.
+ * `/playbooks/*` is adaptive: app shell when signed in, marketing chrome when signed out.
  */
 
 import { playSheetIdFromPath } from "@/lib/navigation/playSheetNav";
@@ -11,10 +12,13 @@ const AUTH_MARKETING_PREFIXES = [
   "/auth/",
   "/reset-password",
   "/landing",
-  "/playbooks",
   "/terms",
   "/privacy",
 ] as const;
+
+export function isPublicPlaybooksPath(pathname: string): boolean {
+  return pathname === "/playbooks" || pathname.startsWith("/playbooks/");
+}
 
 export function isOnboardingChromePath(pathname: string, searchParams: URLSearchParams): boolean {
   if (pathname === "/") return true;
@@ -26,6 +30,7 @@ export function isOnboardingChromePath(pathname: string, searchParams: URLSearch
 }
 
 export function isAuthOrMarketingPath(pathname: string): boolean {
+  if (isPublicPlaybooksPath(pathname)) return true;
   return AUTH_MARKETING_PREFIXES.some((prefix) => {
     if (prefix.endsWith("/")) return pathname.startsWith(prefix);
     return pathname === prefix || pathname.startsWith(`${prefix}/`);
@@ -37,7 +42,19 @@ export function isQaPreviewPath(pathname: string): boolean {
   return pathname.startsWith("/qa/");
 }
 
-export function shouldUseAppShell(pathname: string, searchParams: URLSearchParams): boolean {
+export type AppShellAuthOptions = {
+  /** When set, `/playbooks/*` uses the app shell for signed-in users. */
+  isAuthenticated?: boolean;
+};
+
+export function shouldUseAppShell(
+  pathname: string,
+  searchParams: URLSearchParams,
+  options?: AppShellAuthOptions,
+): boolean {
+  if (isPublicPlaybooksPath(pathname)) {
+    return Boolean(options?.isAuthenticated);
+  }
   if (isAuthOrMarketingPath(pathname)) return false;
   if (isOnboardingChromePath(pathname, searchParams)) return false;
   if (isQaPreviewPath(pathname)) return false;
@@ -68,8 +85,9 @@ export function isCallSheetSituationDetailPath(
 export function shouldUseAppShellContainerScroll(
   pathname: string,
   searchParams: URLSearchParams,
+  options?: AppShellAuthOptions,
 ): boolean {
-  if (!shouldUseAppShell(pathname, searchParams)) return false;
+  if (!shouldUseAppShell(pathname, searchParams, options)) return false;
   return (
     isFilmGameDetailPath(pathname) || isCallSheetSituationDetailPath(pathname, searchParams)
   );

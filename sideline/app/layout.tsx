@@ -33,14 +33,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-slate-950 text-white">
-        <Suspense fallback={null}>
-          <BottomTabNav />
-        </Suspense>
         <AppProviders>
           {/**
+           * Chrome flags + optional tab bar — must sit inside AuthProvider (adaptive `/playbooks`).
            * Responsive shell: `AppShellChrome` (sidebar at md+), `globals.css` `.app-shell-main`
            * + `--app-shell-*` tokens. Bottom padding clears the fixed tab bar on mobile only.
            */}
+          <Suspense fallback={null}>
+            <BottomTabNav />
+          </Suspense>
           <Suspense fallback={null}>
             <AppShellChrome>
               <main className={appShellMainClass}>

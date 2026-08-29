@@ -3,10 +3,12 @@
 
 import Link from "next/link";
 import { ChartNoAxesCombined, ClipboardList, Video } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { APP_SHELL_MOBILE_TABS } from "@/lib/navigation/appShellNav";
 import {
   isAuthOrMarketingPath,
   isOnboardingChromePath,
+  isPublicPlaybooksPath,
   shouldUseAppShell,
 } from "@/lib/navigation/appShellRoutes";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -24,6 +26,12 @@ const TAB_ICONS = {
 export default function BottomTabNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = Boolean(user);
+  const authOpts = useMemo(
+    () => ({ isAuthenticated: isLoading ? false : isAuthenticated }),
+    [isAuthenticated, isLoading],
+  );
 
   const onboardingChrome = useMemo(
     () => isOnboardingChromePath(pathname, searchParams),
@@ -31,27 +39,27 @@ export default function BottomTabNav() {
   );
 
   const shellActive = useMemo(
-    () => shouldUseAppShell(pathname, searchParams),
-    [pathname, searchParams],
+    () => shouldUseAppShell(pathname, searchParams, authOpts),
+    [pathname, searchParams, authOpts],
   );
 
   const showMobileTabBar =
     BOTTOM_TAB_NAV_ENABLED && shellActive && !onboardingChrome && !isAuthOrMarketingPath(pathname);
 
-  const hamburgerNavChrome = shellActive && !onboardingChrome && !isAuthOrMarketingPath(pathname);
+  const hamburgerNavChrome =
+    shellActive &&
+    !onboardingChrome &&
+    (!isAuthOrMarketingPath(pathname) || (isPublicPlaybooksPath(pathname) && isAuthenticated));
 
   /** Chrome flags for full-bleed / reduced-inset shells (see globals.css). */
   useLayoutEffect(() => {
     const root = document.documentElement;
     if (onboardingChrome) root.setAttribute("data-onboarding-chrome", "true");
     else root.removeAttribute("data-onboarding-chrome");
-    if (
-      pathname === "/landing" ||
-      pathname === "/playbooks" ||
-      pathname.startsWith("/playbooks/")
-    ) {
-      root.setAttribute("data-marketing-chrome", "true");
-    } else root.removeAttribute("data-marketing-chrome");
+    const marketingChrome =
+      pathname === "/landing" || (isPublicPlaybooksPath(pathname) && !isAuthenticated);
+    if (marketingChrome) root.setAttribute("data-marketing-chrome", "true");
+    else root.removeAttribute("data-marketing-chrome");
     if (hamburgerNavChrome) root.setAttribute("data-hamburger-nav-chrome", "true");
     else root.removeAttribute("data-hamburger-nav-chrome");
     return () => {
@@ -59,7 +67,7 @@ export default function BottomTabNav() {
       root.removeAttribute("data-marketing-chrome");
       root.removeAttribute("data-hamburger-nav-chrome");
     };
-  }, [onboardingChrome, pathname, hamburgerNavChrome]);
+  }, [onboardingChrome, pathname, hamburgerNavChrome, isAuthenticated]);
 
   if (!showMobileTabBar) return null;
 

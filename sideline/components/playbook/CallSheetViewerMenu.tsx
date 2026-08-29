@@ -104,10 +104,9 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
               const active = isAppShellSidebarNavActive(pathname, item);
               const Icon = item.icon;
 
-              if (item.comingSoon || !item.href) {
-                return (
+              const row =
+                item.comingSoon || !item.href ? (
                   <span
-                    key={item.id}
                     className={cn(menuItemClass, menuItemDefaultClass, "cursor-default text-slate-600")}
                     aria-disabled="true"
                   >
@@ -119,34 +118,39 @@ export function CallSheetViewerMenu({ open, onOpenChange }: { open: boolean; onO
                       {CALL_SHEET_VIEWER_MENU_REVIEW_SOON}
                     </span>
                   </span>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      menuItemClass,
+                      active
+                        ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
+                        : menuItemDefaultClass,
+                    )}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => onOpenChange(false)}
+                  >
+                    <span className="flex min-w-0 flex-1 items-center gap-3">
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                      <span className="truncate">{item.label}</span>
+                    </span>
+                    <ChevronRight
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-colors",
+                        active ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
+                      )}
+                      aria-hidden
+                    />
+                  </Link>
                 );
-              }
 
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={cn(
-                    menuItemClass,
-                    active
-                      ? "border-emerald-600/45 bg-emerald-950/25 text-emerald-400"
-                      : menuItemDefaultClass,
-                  )}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => onOpenChange(false)}
-                >
-                  <span className="flex min-w-0 flex-1 items-center gap-3">
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                    <span className="truncate">{item.label}</span>
-                  </span>
-                  <ChevronRight
-                    className={cn(
-                      "h-4 w-4 shrink-0 transition-colors",
-                      active ? "text-emerald-400/80" : "text-slate-500 group-hover:text-slate-400",
-                    )}
-                    aria-hidden
-                  />
-                </Link>
+                <div key={item.id} className="flex flex-col gap-2">
+                  {row}
+                  {item.separatorAfter ? (
+                    <div className="my-1 border-b border-slate-800" aria-hidden />
+                  ) : null}
+                </div>
               );
             })}
           </nav>

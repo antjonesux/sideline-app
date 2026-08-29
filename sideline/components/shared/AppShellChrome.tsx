@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShellSidebar } from "@/components/shared/AppShellSidebar";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   shouldUseAppShell,
   shouldUseAppShellContainerScroll,
@@ -12,17 +13,26 @@ import { useLayoutEffect, useMemo } from "react";
 /**
  * Responsive authenticated shell — persistent sidebar at `md+`, hamburger drawer on mobile.
  * Marketing, auth, and onboarding routes render children without shell chrome.
+ * `/playbooks/*` uses the shell when the user is signed in.
  */
 export function AppShellChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = Boolean(user);
   const shellActive = useMemo(
-    () => shouldUseAppShell(pathname, searchParams),
-    [pathname, searchParams],
+    () =>
+      shouldUseAppShell(pathname, searchParams, {
+        isAuthenticated: isLoading ? false : isAuthenticated,
+      }),
+    [pathname, searchParams, isAuthenticated, isLoading],
   );
   const containerScrollActive = useMemo(
-    () => shouldUseAppShellContainerScroll(pathname, searchParams),
-    [pathname, searchParams],
+    () =>
+      shouldUseAppShellContainerScroll(pathname, searchParams, {
+        isAuthenticated: isLoading ? false : isAuthenticated,
+      }),
+    [pathname, searchParams, isAuthenticated, isLoading],
   );
 
   useLayoutEffect(() => {

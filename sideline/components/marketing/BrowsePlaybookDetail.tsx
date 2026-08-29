@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight } from "lucide-react";
 import { PublicFormationList } from "@/components/marketing/PublicFormationList";
 import { PublicPlaybookDetailHeader } from "@/components/marketing/PublicPlaybookDetailHeader";
 import { PublicPlaybookDetailSkeleton } from "@/components/marketing/PublicPlaybookDetailSkeleton";
+import { PublicPlaybooksBreadcrumb } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import type { PublicPlaybookFormationsData } from "@/lib/publicPlaybooksServer";
@@ -24,10 +27,14 @@ async function fetchPlaybookFormations(
 
 type BrowsePlaybookDetailProps = {
   playbookId: string;
-  side: string | null;
 };
 
-export function BrowsePlaybookDetail({ playbookId, side }: BrowsePlaybookDetailProps) {
+export function BrowsePlaybookDetail({ playbookId }: BrowsePlaybookDetailProps) {
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const sideRaw = searchParams.get("side");
+  const side = sideRaw === "defense" || sideRaw === "offense" ? sideRaw : null;
+
   const query = useQuery({
     queryKey: ["public", "playbooks", playbookId, side ?? ""],
     queryFn: () => fetchPlaybookFormations(playbookId, side),
@@ -41,29 +48,17 @@ export function BrowsePlaybookDetail({ playbookId, side }: BrowsePlaybookDetailP
   const notFound = query.isError && query.error instanceof Error && query.error.message === "NOT_FOUND";
 
   return (
-    <div className="mx-auto w-full max-w-6xl pb-16 pt-24">
-      <nav className="font-mono text-xs uppercase tracking-wide text-slate-500" aria-label="Breadcrumb">
-        <ol className="flex flex-wrap items-center gap-1.5">
-          <li>
-            <Link href="/landing" className="transition-colors hover:text-slate-300">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>
-            <ChevronRight className="h-3 w-3 shrink-0 text-slate-600" />
-          </li>
-          <li>
-            <Link href="/playbooks" className="transition-colors hover:text-slate-300">
-              Playbooks
-            </Link>
-          </li>
-          <li aria-hidden>
-            <ChevronRight className="h-3 w-3 shrink-0 text-slate-600" />
-          </li>
-          <li className="min-w-0 truncate text-slate-400">{playbookId}</li>
-        </ol>
-      </nav>
-
+    <PublicPlaybooksBrowseFrame
+      breadcrumb={
+        <PublicPlaybooksBreadcrumb
+          items={[
+            { label: "Home", href: user ? "/playbook" : "/landing" },
+            { label: "Playbooks", href: "/playbooks" },
+            { label: playbookId },
+          ]}
+        />
+      }
+    >
       {query.isPending ? (
         <>
           <div className="mt-4 space-y-3">
@@ -95,9 +90,13 @@ export function BrowsePlaybookDetail({ playbookId, side }: BrowsePlaybookDetailP
       {query.isSuccess && query.data ? (
         <>
           <PublicPlaybookDetailHeader name={query.data.name} sideOfBall={query.data.side_of_ball} />
-          <PublicFormationList groups={query.data.formationGroups} />
+          <PublicFormationList
+            groups={query.data.formationGroups}
+            playbookId={playbookId}
+            side={side ?? query.data.side_of_ball}
+          />
         </>
       ) : null}
-    </div>
+    </PublicPlaybooksBrowseFrame>
   );
 }

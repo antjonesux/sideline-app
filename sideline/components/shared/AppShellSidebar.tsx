@@ -387,11 +387,15 @@ export function AppShellSidebar({ className }: { className?: string }) {
         <SchemesNavGroup />
 
         {secondaryNav.map((item) => (
-          <SidebarNavItem
-            key={item.id}
-            item={item}
-            active={isAppShellSidebarNavActive(pathname, item)}
-          />
+          <div key={item.id} className="flex flex-col">
+            <SidebarNavItem
+              item={item}
+              active={isAppShellSidebarNavActive(pathname, item)}
+            />
+            {item.separatorAfter ? (
+              <div className="my-2 border-b border-slate-800" aria-hidden />
+            ) : null}
+          </div>
         ))}
       </nav>
 

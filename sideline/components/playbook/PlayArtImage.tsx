@@ -73,7 +73,7 @@ export function PlayArtImage({
           className="pointer-events-none absolute inset-0 flex items-center justify-center select-none"
           aria-hidden
         >
-          <span className="block text-center font-sans font-bold uppercase leading-none tracking-[0.2em] text-white opacity-[0.09] text-[length:calc(85cqw/8.8)]">
+          <span className="block text-center font-sans font-extrabold uppercase leading-none tracking-[0.2em] text-white opacity-[0.05] text-[length:calc(85cqw/8.8)]">
             SIDELINE.PRO
           </span>
         </div>

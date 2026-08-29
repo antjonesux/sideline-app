@@ -1,6 +1,9 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import { parseCatalogSideOfBall } from "@/lib/constants";
-import { fetchPublicPlaybookFormations } from "@/lib/publicPlaybooksServer";
+import {
+  fetchPublicPlaybookFormations,
+  PUBLIC_PLAYBOOK_API_CACHE_HEADERS,
+} from "@/lib/publicPlaybooksServer";
 import { NextRequest, NextResponse } from "next/server";
 
 type RouteParams = { params: Promise<{ playbookId: string }> };
@@ -26,7 +29,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if (!data) {
       return NextResponse.json({ error: "Playbook not found" }, { status: 404 });
     }
-    return NextResponse.json({ data });
+    return NextResponse.json({ data }, { headers: PUBLIC_PLAYBOOK_API_CACHE_HEADERS });
   } catch {
     return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 500 });
   }

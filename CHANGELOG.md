@@ -5,6 +5,35 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Public playbook lookup Pass 2 (formation detail, play detail, add CTA, performance, auth nav)
+
+### What
+
+- Built `/playbooks/[playbookId]/[formationId]` formation detail: play tiles grid, cross-references to other playbooks with the same formation.
+- Built `/playbooks/[playbookId]/[formationId]/[playId]` play detail: large play art, Add to Call Sheet CTA, cross-references to other playbooks with the same play.
+- Add to Call Sheet CTA: signed-out users see signup prompt with return URL; signed-in users see modal picker of their existing call sheets and schemes.
+- Modal picker adds the play to the selected call sheet via the existing add-play API; toast confirms.
+- Adaptive chrome on `/playbooks/*`: signed-in users see the app sidebar; signed-out users see marketing chrome.
+- Added "Playbooks" nav item to authenticated app shell between Film Room and My Tendencies. Visual separator below distinguishes it from surrounding items.
+- Wired Pass 1 formation cards to route to formation detail.
+- Migrated public playbook routes to static generation with 24h revalidation. Public API endpoints return cache headers (s-maxage=86400, stale-while-revalidate=604800). Play art tiles lazy-load below the fold.
+- New public API endpoints: `/api/public/playbooks/[playbookId]/formations/[formationId]/plays`, `/api/public/formations/[formationId]/playbooks`, `/api/public/plays/[playId]/playbooks` (plus play detail under formations).
+- Shared browse frame keeps breadcrumbs in a fixed screen position across home, playbook, formation, and play routes.
+- Formation detail play tiles use the same 3-column grid as playbook formation lists (no fourth column at large breakpoints).
+- Formation play cards show art and play name only — play type badges removed from browse tiles.
+- Owned play art watermark: lower opacity and extrabold weight on `SIDELINE.PRO` overlay.
+
+### Why
+
+Pass 1 delivered the browse foundation but didn't let coaches see plays or take action. Pass 2 completes the browse loop (playbook → formation → play → add), makes Playbooks a first-class part of the authenticated app instead of a public-only surface, and moves the entire browse to static generation for near-instant loads.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Static generation approach: playbooks and formations pre-generated; play detail on-demand (triples too large for full SSG).
+- No regressions to Tendencies, Film Room, authenticated app shell, or Pass 1 QA'd surfaces.
+- Pass 3 remaining: global search across playbooks/formations/plays; optional search-within-playbook.
+
 ## 2026-08-28 — Playbook lookup Pass 1 QA corrections
 
 ### What
