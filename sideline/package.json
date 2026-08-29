@@ -24,6 +24,7 @@
     "play-art:svg-prototype": "NODE_PATH=./node_modules tsx ./scripts/play-art/svg-prototype/trace-sample.ts",
     "play-art:review": "NODE_PATH=./node_modules tsx ./scripts/play-art/review-tool/server.ts",
     "play-art:validate-formation-ocr": "NODE_PATH=./node_modules tsx ./scripts/play-art/validate-formation-ocr.ts",
+    "play-art:validate-positional": "NODE_PATH=./node_modules tsx ./scripts/play-art/diagnostics/validate-positional-mapping.ts",
     "ingest:play-art": "NODE_PATH=./node_modules tsx ./scripts/play-art/ingest-playbook.ts",
     "prepare": "husky",
     "playwright:install": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",

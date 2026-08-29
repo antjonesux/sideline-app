@@ -6,6 +6,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Play-art Batch 9 publish + Marshall Goal Line / browse formation labels
+
+### What
+
+- Published **Batch 9** (12 books): Middle Tennessee, Maryland, Georgia Southern, NC State, Louisiana, Marshall, Miami OH, Memphis, Missouri, Missouri State, LSU, Michigan (+5,475 assets).
+- Manifest **33,279 → 38,754**.
+- **Marshall Goal Line Normal:** replaced the incorrect Split T play list with the standard 12-play Goal Line set (HB DIVE, PA SPOT, QB SNEAK, POWER O, PA POWER O, FB DIVE WEAK, HB SPLIT 0, PA SPRINT HB FLAT, HB COUNTER WK, HB STING, PA WAGGLE, STRONG TOSS); reseeded the Supabase catalog after deleting orphan Split T rows under Goal Line.
+- **Georgia Southern:** removed bogus **Gun Normal Y Off Close**; vault uses **Gun Flex Y Off Close**.
+- **Louisiana:** sealed Gun Trio 4WR Str cascade REVIEW (`RPO ALERT SCREEN`) and republished.
+- **Browse playbooks:** formation detail header and breadcrumb use the full catalog formation name (e.g. `Goal Line Normal`, `Gun Bunch TE Wk`) instead of stripping the type prefix.
+- Play-art ingest: playbook-specific optional DOCX formations via `docx-optional-formations.json`; added `play-art:validate-positional` diagnostic.
+
+### Why
+
+Continue the 12-book review cadence; Marshall Goal Line was showing Split T names/art in the app because the seed and catalog copied Split T; browse labels were dropping the formation type and confusing coaches.
+
+### Status
+
+- Batch 9 team books published; Marshall Goal Line catalog + owned art verified locally.
+- Matching overrides remain local/gitignored.
+- Still blocked / not published: Mississippi State (duplicate Gun Deuce section OCR), Air Raid (crop-header OCR), Central Michigan (empty header), Iowa State (unidentified section), Purdue (section count mismatch).
+
 ## 2026-08-29 — Discord link on landing footer + in-app sidebar
 
 ### What

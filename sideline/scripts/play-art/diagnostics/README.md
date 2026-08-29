@@ -2,6 +2,25 @@
 
 Diagnose DOCX strip classification and per-formation crop counts **without** modifying `extract-docx.ts`.
 
+## Positional-first validation (read-only)
+
+Simulate OCR-formation + Vault crop order → seed play order against published
+operator-approved mappings. Does **not** change matcher, overrides, omits,
+manifest, or assets.
+
+```bash
+npm run play-art:validate-positional
+npm run play-art:validate-positional -- --playbook=usc
+npm run play-art:validate-positional -- --re-extract=air-force
+npm run play-art:validate-positional -- --include-unpublished --unpublished-limit=3
+```
+
+Outputs (gitignored under `diagnostics/reports/`):
+
+- `positional-validation-summary.json`
+- `positional-validation-mismatches.json`
+- `positional-validation-formations.json`
+
 ## Prerequisites
 
 - DOCX files under `scripts/play-art/source/`

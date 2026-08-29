@@ -11,7 +11,6 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { SkeletonBlock } from "@/components/shared/AppSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
-import { stripFormationCategoryPrefix } from "@/lib/stripFormationCategoryPrefix";
 import type {
   PublicFormationDetailData,
   PublicPlaybookCrossRef,
@@ -72,9 +71,8 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
   const notFound =
     detailQuery.isError && detailQuery.error instanceof Error && detailQuery.error.message === "NOT_FOUND";
 
-  const displayFormation = detailQuery.data
-    ? stripFormationCategoryPrefix(detailQuery.data.formation, detailQuery.data.formation_type)
-    : formationId;
+  /** Full catalog formation name (e.g. "Gun Bunch TE Wk", "Goal Line Normal"). */
+  const displayFormation = detailQuery.data?.formation ?? formationId;
 
   const sideQs = side === "defense" ? "?side=defense" : "";
 

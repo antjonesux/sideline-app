@@ -21,7 +21,6 @@ import {
   type PublicPlaybookCrossRef,
   type PublicPlayDetailData,
 } from "@/lib/publicPlaybooksServer";
-import { stripFormationCategoryPrefix } from "@/lib/stripFormationCategoryPrefix";
 
 async function fetchPlayDetail(
   playbookId: string,
@@ -79,9 +78,8 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
   const notFound =
     detailQuery.isError && detailQuery.error instanceof Error && detailQuery.error.message === "NOT_FOUND";
 
-  const displayFormation = detailQuery.data
-    ? stripFormationCategoryPrefix(detailQuery.data.formation, detailQuery.data.formation_type)
-    : formationId;
+  /** Full catalog formation name (e.g. "Gun Bunch TE Wk", "Goal Line Normal"). */
+  const displayFormation = detailQuery.data?.formation ?? formationId;
 
   const returnPath = useMemo(() => {
     const base = `/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}/${encodeURIComponent(playId)}`;

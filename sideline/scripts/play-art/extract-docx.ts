@@ -1,5 +1,7 @@
 import JSZip from "jszip";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import {
   extractPersonnelHint,
@@ -12,6 +14,9 @@ import {
   type SectionOcrAssignment,
 } from "./formation-ocr";
 import type { ClassifiedDocxBlock, ExtractedPlayArtDoc, PlayArtReference } from "./types";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DOCX_OPTIONAL_FORMATIONS_PATH = join(__dirname, "docx-optional-formations.json");
 
 /** All USC pilot strips are 2048×355 with three equal cards and two ~85px gutters. */
 export const PLAY_STRIP_WIDTH = 2048;
@@ -28,10 +33,49 @@ const GUTTER_LUMINANCE_MAX = 25;
 /** Fail if more than 5% of sections cannot be OCR-identified (structural problem). */
 const MAX_SECTION_UNIDENTIFIED_RATE = 0.05;
 
-/** Formations that may be absent from Vault DOCX exports (cfb.fan fallback). */
-export function isDocxOptionalFormation(name: string): boolean {
-  const n = name.trim().toLowerCase().replace(/\s+/g, " ");
-  return n === "hail mary" || n === "hail mary hail mary" || n.startsWith("hail mary ");
+function normalizeFormationKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+let docxOptionalByPlaybook: Map<string, Set<string>> | null = null;
+
+function loadDocxOptionalByPlaybook(): Map<string, Set<string>> {
+  if (docxOptionalByPlaybook) return docxOptionalByPlaybook;
+  const map = new Map<string, Set<string>>();
+  if (!existsSync(DOCX_OPTIONAL_FORMATIONS_PATH)) {
+    docxOptionalByPlaybook = map;
+    return map;
+  }
+  const parsed = JSON.parse(readFileSync(DOCX_OPTIONAL_FORMATIONS_PATH, "utf8")) as Record<
+    string,
+    string[]
+  >;
+  for (const [playbook, formations] of Object.entries(parsed)) {
+    if (!Array.isArray(formations)) continue;
+    map.set(
+      normalizeFormationKey(playbook),
+      new Set(formations.map((f) => normalizeFormationKey(f))),
+    );
+  }
+  docxOptionalByPlaybook = map;
+  return map;
+}
+
+/**
+ * Formations that may be absent from Vault DOCX exports (cfb.fan fallback).
+ * Hail Mary is always optional; playbook-specific vault gaps live in
+ * `docx-optional-formations.json`.
+ */
+export function isDocxOptionalFormation(name: string, playbook?: string): boolean {
+  const n = normalizeFormationKey(name);
+  if (n === "hail mary" || n === "hail mary hail mary" || n.startsWith("hail mary ")) {
+    return true;
+  }
+  if (playbook) {
+    const extras = loadDocxOptionalByPlaybook().get(normalizeFormationKey(playbook));
+    if (extras?.has(n)) return true;
+  }
+  return false;
 }
 
 /**
@@ -380,8 +424,12 @@ export async function extractPlayArtDocx(
   }
 
   const sections = await segmentAnonymousSections(strips);
-  const requiredFormations = reference.formations.filter((f) => !isDocxOptionalFormation(f.name));
-  const optionalFormations = reference.formations.filter((f) => isDocxOptionalFormation(f.name));
+  const requiredFormations = reference.formations.filter(
+    (f) => !isDocxOptionalFormation(f.name, reference.playbook),
+  );
+  const optionalFormations = reference.formations.filter((f) =>
+    isDocxOptionalFormation(f.name, reference.playbook),
+  );
 
   if (sections.length !== requiredFormations.length) {
     throw new Error(
@@ -466,7 +514,7 @@ export async function extractPlayArtDocx(
   const omittedFormations: NonNullable<PlayArtStructureReport["omittedFormations"]> = [];
   for (const formation of reference.formations) {
     if (usedFormations.has(formation.name)) continue;
-    if (isDocxOptionalFormation(formation.name)) {
+    if (isDocxOptionalFormation(formation.name, reference.playbook)) {
       omittedFormations.push({
         formation: formation.name,
         reason: "absent_from_docx",
