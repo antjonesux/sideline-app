@@ -5,6 +5,20 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-28 — Sidebar expandable nav collapses by default
+
+### What
+
+- Authenticated left nav Call Sheets and Schemes groups now start collapsed instead of expanded. Coaches can still expand via the chevron; collapsed parents stay highlighted on nested routes.
+
+### Why
+
+Keeps the signed-in nav compact by default so the primary destinations stay visible without a long sheet/scheme list open on every load.
+
+### Status
+
+- Change limited to default `expanded` state in `AppShellSidebar`; expand/collapse behavior unchanged.
+
 ## 2026-08-28 — Call sheet cards: school logos + CFB27 sidebar filter
 
 ### What
