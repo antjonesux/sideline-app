@@ -153,7 +153,7 @@ function CallSheetsNavGroup() {
   const callSheetsItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "call-sheets");
   const Icon = callSheetsItem?.icon ?? LayoutGrid;
   const label = callSheetsItem?.label ?? "Call Sheets";
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const submenuId = useId();
   // When collapsed, surface section active on the header so nested routes stay visible.
   const headerActive = expanded ? listActive : isPlaySheetBuilderPath(pathname);
@@ -257,7 +257,7 @@ function SchemesNavGroup() {
   const schemesItem = APP_SHELL_SIDEBAR_NAV.find((item) => item.id === "schemes");
   const Icon = schemesItem?.icon ?? LayoutGrid;
   const label = schemesItem?.label ?? "Schemes";
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const submenuId = useId();
   // When collapsed, surface section active on the header so nested routes stay visible.
   const headerActive = expanded ? listActive : isSchemeBuilderPath(pathname);
