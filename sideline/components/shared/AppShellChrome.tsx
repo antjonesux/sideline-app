@@ -1,8 +1,11 @@
 "use client";
 
+import { WelcomeModalHost } from "@/components/onboarding/WelcomeModalHost";
 import { AppShellSidebar } from "@/components/shared/AppShellSidebar";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { isFilmRoomBetaUser } from "@/lib/featureFlags";
 import {
+  isPublicPlaybooksPath,
   shouldUseAppShell,
   shouldUseAppShellContainerScroll,
 } from "@/lib/navigation/appShellRoutes";
@@ -34,6 +37,12 @@ export function AppShellChrome({ children }: { children: React.ReactNode }) {
       }),
     [pathname, searchParams, isAuthenticated, isLoading],
   );
+  const showWelcomeHost =
+    shellActive &&
+    isAuthenticated &&
+    !isLoading &&
+    isFilmRoomBetaUser(user?.id) &&
+    !isPublicPlaybooksPath(pathname);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -55,6 +64,7 @@ export function AppShellChrome({ children }: { children: React.ReactNode }) {
     <div className={cn("app-shell-frame w-full")}>
       <AppShellSidebar />
       <div className="app-shell-workspace flex min-w-0 flex-1 flex-col">{children}</div>
+      {showWelcomeHost ? <WelcomeModalHost /> : null}
     </div>
   );
 }

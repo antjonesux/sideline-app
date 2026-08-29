@@ -11,7 +11,10 @@ const sideToneClass: Record<DriveSideOfBall, string> = {
 export function DriveSideBadge({ side }: { side: DriveSideOfBall }) {
   const label = driveSideBadgeLabel(side);
   return (
-    <span aria-label={side === "defense" ? "Defensive drive" : "Offensive drive"}>
+    <span
+      className="inline-flex items-center"
+      aria-label={side === "defense" ? "Defensive drive" : "Offensive drive"}
+    >
       <ResultBadge label={label} className={sideToneClass[side]} />
     </span>
   );

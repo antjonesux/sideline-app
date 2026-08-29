@@ -11,6 +11,7 @@ import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSou
 import { FilmGameCard } from "@/components/film/FilmGameCard";
 import { FilmRoomHomeHeader } from "@/components/film/FilmRoomHomeHeader";
 import { FilmRoomVersionFilter } from "@/components/film/FilmRoomVersionFilter";
+import { FilmRoomOnboarding } from "@/components/onboarding/FilmRoomOnboarding";
 import {
   FILM_ROOM_VERSION_ALL,
   filmRoomNewGameHref,
@@ -218,6 +219,7 @@ export default async function FilmRoomPage({ searchParams }: FilmRoomPageProps) 
           </ul>
         )}
       </div>
+      <FilmRoomOnboarding />
     </div>
   );
 }

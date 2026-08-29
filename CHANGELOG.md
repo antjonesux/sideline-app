@@ -6,6 +6,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Welcome modal + per-feature onboarding modals
+
+### What
+
+- Added a multi-step **New Enhancements** welcome modal (Film Room → Tendencies → Browse Playbooks) and single-step per-feature onboarding on first entry to Call Sheets, Schemes, Film Room, and Tendencies.
+- New `user_onboarding_prefs` table (`welcome_modal_version_seen`, `onboarding_seen`) with `GET/POST /api/user/onboarding-state`; shared Radix `OnboardingModal` shell.
+- Gated behind `isFilmRoomBetaUser`; `QA_FORCE_FIRE_MODALS = true` for QA (flip to `false` before rollout).
+- QA polish: feature name / “New Enhancements” top bars (bold white), slate Next/Previous/Got it, black fade overlays on visuals, no `NEW ·` / `WELCOME ·` eyebrows, no trailing periods on headings.
+- Mockups aligned to real UI — Film Room drive summary cards, Tendencies hero + top plays, Browse Playbooks with team logos, Call Sheets Coach View situations, Schemes detail (side toggle + coach accordion).
+- Copy updates for Film Room, Tendencies, Schemes, and Call Sheets.
+
+### Why
+
+Returning users miss new features; new users hit each surface cold. Modals close both gaps with opt-out dismiss and once-per-version / once-per-feature tracking. QA polish tightens coach voice and visual accuracy against shipped screens.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Migration applied on the-sideline-app (`user_onboarding_prefs`).
+- Welcome takes priority over per-feature; force-fire still on for beta QA.
+- No regressions to Film Room, Tendencies, Call Sheets, Schemes, or public playbook routes.
+
 ## 2026-08-29 — Play-art Batches 7–8 publish + FIU/Charlotte ingest fixes
 
 ### What

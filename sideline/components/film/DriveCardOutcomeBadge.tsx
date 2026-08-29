@@ -22,7 +22,7 @@ export function DriveCardOutcomeBadge({ label }: { label: string }) {
   const surface =
     label === "TD" || label === "FG" || label === "FIRST DOWN"
       ? figmaSuccess
-      : label === "TURNOVER"
+      : label === "TURNOVER" || label === "INTERCEPTION" || label === "FUMBLE"
         ? danger
         : label === "TOD"
           ? warning

@@ -8,6 +8,14 @@ create table if not exists user_profiles (
   created_at timestamptz default now()
 );
 
+-- Welcome + per-feature onboarding dismissal state (see migrations/20260829120000_user_onboarding_prefs.sql).
+create table if not exists user_onboarding_prefs (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  welcome_modal_version_seen integer,
+  onboarding_seen jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists game_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
@@ -365,6 +373,12 @@ create policy "Owner access" on user_call_sheet_prefs for all to authenticated
       or exists (select 1 from play_sheets ps where ps.id = active_call_sheet_id and ps.user_id = auth.uid())
     )
   );
+
+alter table user_onboarding_prefs enable row level security;
+drop policy if exists "Owner access" on user_onboarding_prefs;
+create policy "Owner access" on user_onboarding_prefs for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 alter table play_sheets enable row level security;
 drop policy if exists "Owner access" on play_sheets;

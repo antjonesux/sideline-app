@@ -1,3 +1,4 @@
+import { CallSheetsOnboarding } from "@/components/onboarding/CallSheetsOnboarding";
 import { PlaybookHome } from "@/components/playbook/PlaybookHome";
 import { PlaySheetHomeSkeleton } from "@/components/shared/PageSkeleton";
 import { redirect } from "next/navigation";
@@ -24,9 +25,12 @@ export default async function PlaybookPage({
     redirect(`/playbook/new${qs ? `?${qs}` : ""}`);
   }
 
+  const guidedOnboarding = first(sp.onboarding) === "1";
+
   return (
     <Suspense fallback={<PlaySheetHomeSkeleton />}>
       <PlaybookHome />
+      {guidedOnboarding ? null : <CallSheetsOnboarding />}
     </Suspense>
   );
 }
