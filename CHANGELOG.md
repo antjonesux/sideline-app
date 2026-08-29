@@ -5,6 +5,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+
+## 2026-08-29 — Play-art Batches 7–8 publish + FIU/Charlotte ingest fixes
+
+### What
+
+- Published **Batch 7** (12 books): Colorado, Colorado State, Eastern Michigan, BYU, Coastal Carolina, Clemson, Delaware, Florida State, Fresno State, Cincinnati, Duke, Florida (+5,526 assets).
+- Published **Batch 8** (12 books): Charlotte, Florida International (FIU), Kent State, Georgia State, Houston, Jacksonville State, Georgia Tech, James Madison, Kentucky, Kennesaw State, Hawaii, Indiana (+5,517 assets).
+- Manifest **22,236 → 33,279** (+11,043).
+- **FIU:** seed load now resolves via playbook catalog (`cfb27-fiu`) instead of deriving `cfb27-florida-international` from the display name; report slugs align to `cfb27-offense-fiu`.
+- **Charlotte:** added missing **Gun Stack Y Off** formation (civil.gg / vault; absent from cfb.fan) so DOCX section count matches the seed; sealed that formation to positional plays after a skip override cascade.
+- **Deferred:** Georgia Southern (26 DOCX sections vs 27 required).
+
+### Why
+
+Continue the 12-book operator review cadence and unblock FIU/Charlotte first-ingest failures so those books can join the published set.
+
+### Status
+
+- All Batch 7–8 books published at REVIEW 0 after operator confirmation.
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-28 — Sidebar expandable nav collapses by default
 
 ### What

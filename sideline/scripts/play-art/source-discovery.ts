@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { PlayArtSourceDiscoveryResult, PlayArtSourceDiscoveryStatus } from "./types";
+import { displayNameToTeamSlug } from "./lib/slug-utils";
+import type { PlayArtReference, PlayArtSourceDiscoveryResult, PlayArtSourceDiscoveryStatus } from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -219,4 +220,33 @@ export function discoverAndResolveSources(options?: {
   const aliases = loadSourceAliases(options?.aliasPath ?? SOURCE_ALIASES_PATH);
   const files = discoverSourceDocxFiles(sourceRoot);
   return files.map((path) => resolveSourceDocx(path, catalog, aliases, sourceRoot));
+}
+
+/**
+ * Resolve seed module slug from a canonical reference (team display name → catalog seed file).
+ * Falls back to displayNameToTeamSlug when the catalog has no unique match (e.g. scheme playbooks).
+ */
+export function resolveSeedSlugFromPlaybookReference(reference: PlayArtReference): string {
+  const catalog = loadPlaybookCatalog();
+  const normalized = normalizeSourceName(reference.playbook);
+  const hits = catalog.filter(
+    (entry) =>
+      entry.gameVersion === reference.gameVersion &&
+      entry.sideOfBall === reference.sideOfBall &&
+      entry.normalizedTeam === normalized,
+  );
+
+  if (hits.length === 1) {
+    return hits[0].seedSlug;
+  }
+
+  const derivedSlug = `${reference.gameVersion}-${displayNameToTeamSlug(reference.playbook)}`;
+  if (hits.length > 1) {
+    const exact = hits.find((entry) => entry.seedSlug === derivedSlug);
+    if (exact) {
+      return exact.seedSlug;
+    }
+  }
+
+  return derivedSlug;
 }

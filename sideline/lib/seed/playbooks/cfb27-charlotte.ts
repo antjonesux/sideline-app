@@ -389,6 +389,26 @@ export const CFB27_CHARLOTTE_SEED: TeamPlaybookSeed = {
       ],
     },
     {
+      formation: "Gun Stack Y Off",
+      formationType: "Gun",
+      plays: [
+        { playName: "BENCH HB ANGLE", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "CORNER STRIKE", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "FAKE JET HB SEAM", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "FAKE JET PASS POWER", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "FLOOD DRIVE", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "HB SLIP SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "INSIDE ZONE", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "JET PASS FK ZONE", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "JET TOUCH PASS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "LEVELS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "PA JET SWEEP", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "REDZONE SCISSORS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "RPO ALERT OUT", isNewIn26: false, isNewIn27: false, playType: "RPO" },
+        { playName: "ZONE FAKE JET", isNewIn26: false, isNewIn27: false, playType: "Run" },
+      ],
+    },
+    {
       formation: "Gun Stack Y Off Wk",
       formationType: "Gun",
       plays: [

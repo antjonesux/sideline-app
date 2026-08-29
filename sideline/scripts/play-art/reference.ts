@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { displayNameToTeamSlug } from "./lib/slug-utils";
+import { resolveSeedSlugFromPlaybookReference } from "./source-discovery";
 import type { PlayArtReference } from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -55,7 +56,13 @@ function validateReferenceShape(ref: PlayArtReference, path: string): void {
 }
 
 export function referenceSlug(ref: PlayArtReference): string {
-  return `${ref.gameVersion}-${ref.sideOfBall}-${displayNameToTeamSlug(ref.playbook)}`;
+  const seedSlug = resolveSeedSlugFromPlaybookReference(ref);
+  const match = seedSlug.match(/^(cfb\d+)-(.+)$/);
+  if (!match) {
+    return `${ref.gameVersion}-${ref.sideOfBall}-${displayNameToTeamSlug(ref.playbook)}`;
+  }
+  const [, game, teamSlug] = match;
+  return `${game}-${ref.sideOfBall}-${teamSlug}`;
 }
 
 export function totalExpectedPlays(ref: PlayArtReference): number {

@@ -2,7 +2,7 @@ import { normalizePlayName } from "../../lib/utils";
 import type { TeamPlaybookSeed } from "../../lib/seed/types";
 import { importSeedModule } from "./build-reference";
 import { hashPlayArtBytes } from "./content-hash";
-import { displayNameToTeamSlug } from "./lib/slug-utils";
+import { resolveSeedSlugFromPlaybookReference } from "./source-discovery";
 import {
   extractColorClassMasks,
   extractGeometryFeatures,
@@ -89,8 +89,7 @@ export const MATCH_THRESHOLDS = {
 } as const;
 
 export function seedSlugFromReference(reference: PlayArtReference): string {
-  const team = displayNameToTeamSlug(reference.playbook);
-  return `${reference.gameVersion}-${team}`;
+  return resolveSeedSlugFromPlaybookReference(reference);
 }
 
 export function cropIdFromMediaPath(mediaPath: string): {
