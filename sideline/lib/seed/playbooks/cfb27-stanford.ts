@@ -629,6 +629,22 @@ export const CFB27_STANFORD_SEED: TeamPlaybookSeed = {
       ],
     },
     {
+      // Vault DOCX section labeled Pistol Normal (9 plays); absent from prior cfb.fan seed.
+      formation: "Pistol Normal",
+      formationType: "Pistol",
+      plays: [
+        { playName: "CURLS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "HB SLIP SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "HB ZONE WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "PA COMEBACKS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "PA CROSSERS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "SLANTS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "TRIPLE OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "Y CORNER", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "F LEAD READ OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
+      ],
+    },
+    {
       formation: "Hail Mary Hail Mary",
       formationType: "Hail Mary",
       plays: [

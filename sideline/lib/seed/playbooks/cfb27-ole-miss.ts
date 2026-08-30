@@ -26,8 +26,9 @@ export const CFB27_OLE_MISS_SEED: TeamPlaybookSeed = {
       ],
     },
     {
-      formation: "Strong Wing",
-      formationType: "Strong",
+      // Vault DOCX labels this section Pistol Wing (9 plays); cfb.fan still lists Strong Wing.
+      formation: "Pistol Wing",
+      formationType: "Pistol",
       plays: [
         { playName: "HB DIVE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB STRETCH", isNewIn26: false, isNewIn27: false, playType: "Run" },

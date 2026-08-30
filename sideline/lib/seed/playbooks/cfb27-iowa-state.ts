@@ -29,8 +29,9 @@ export const CFB27_IOWA_STATE_SEED: TeamPlaybookSeed = {
       ],
     },
     {
-      formation: "Singleback Deuce Close",
-      formationType: "Singleback",
+      // Vault DOCX labels this Gun Deuce Close (15 plays); seed had Singleback Deuce Close.
+      formation: "Gun Deuce Close",
+      formationType: "Gun",
       plays: [
         { playName: "0 1 TRAP", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "BENCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },

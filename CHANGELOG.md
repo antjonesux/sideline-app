@@ -6,6 +6,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Play-art Batch 11 publish + Batch 12 ingest
+
+### What
+
+- Published **Batch 11** (10 books): Pittsburgh, Southern Miss, Texas A&M, Notre Dame, Texas State, Sacramento State, Ole Miss, Oregon, Texas Tech, Penn State (+4,628 assets).
+- Manifest **43,330 → 47,958**.
+- Seed fixes for ingest: **Notre Dame** Goal Line Normal, **Ole Miss** Pistol Wing (vault label), **Stanford** Pistol Normal, **Iowa State** Gun Deuce Close rename.
+- **Batch 12 ingested** (9 for review): Tulane, Utah State, Virginia Tech, UAB, Virginia, Wisconsin, Vanderbilt, Troy, West Virginia.
+- **Deferred (skips — fix later):** San Jose State, Tennessee, Rutgers, Stanford.
+- **Blocked:** Central Michigan (no strips after #29), Iowa State (Gun Deuce Close play-count), Mississippi State (duplicate Gun Deuce OCR), Purdue, Air Raid.
+
+### Why
+
+Continue the 12-book review cadence after operator review; publish sealed books and queue the next alphabetical untouched team books.
+
+### Status
+
+- Ten Batch 11 team books published at REVIEW 0 (Southern Miss/Ole Miss used `--approve-review` with minor residual REVIEW).
+- Nine Batch 12 books ready for operator review.
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-29 — Play-art Batch 10 publish (10 of 12)
 
 ### What

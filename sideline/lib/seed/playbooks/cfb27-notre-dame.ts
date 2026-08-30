@@ -635,6 +635,24 @@ export const CFB27_NOTRE_DAME_SEED: TeamPlaybookSeed = {
       ],
     },
     {
+      formation: "Goal Line Normal",
+      formationType: "Goal Line",
+      plays: [
+        { playName: "FB DIVE WEAK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "HB COUNTER WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "HB DIVE", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "HB SPLIT 0", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "HB STING", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "PA POWER O", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "PA SPOT", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "PA SPRINT HB FLAT", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "PA WAGGLE", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "POWER O", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "QB SNEAK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "STRONG TOSS", isNewIn26: false, isNewIn27: false, playType: "Run" },
+      ],
+    },
+    {
       formation: "Hail Mary Hail Mary",
       formationType: "Hail Mary",
       plays: [
