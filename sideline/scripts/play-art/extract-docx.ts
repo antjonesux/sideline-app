@@ -659,10 +659,11 @@ async function segmentAnonymousSections(strips: SourceStrip[]): Promise<Anonymou
     }
 
     if (cards.length === 0) {
-      throw new Error(
-        `DOCX segmentation failed: no play strips found after header at DOCX position #${docPosition} ` +
-          `(sourceIndex=${header.sourceIndex})`,
+      console.warn(
+        `  Skipping corrupt formation header at DOCX position #${docPosition} ` +
+          `(sourceIndex=${header.sourceIndex}) — no play strips follow`,
       );
+      continue;
     }
 
     sections.push({
@@ -688,8 +689,104 @@ type SectionMatchRow = {
 };
 
 /**
+ * OCR one formation-header strip and match against the seed list (with optional exclusions).
+ */
+async function matchOneSectionByHeaderOcr(
+  section: AnonymousDocxSection,
+  availableFormations: string[],
+  playCountByFormation: Map<string, number>,
+): Promise<Omit<SectionMatchRow, "docPosition" | "headerSourceIndex" | "cards">> {
+  const midRegion = PLAY_CARD_REGIONS[1];
+  const leftRegion = PLAY_CARD_REGIONS[0];
+  const [midPanel, leftPanel] = await Promise.all([
+    sharp(section.headerBuffer)
+      .extract({
+        left: midRegion.x,
+        top: midRegion.y,
+        width: midRegion.width,
+        height: midRegion.height,
+      })
+      .jpeg({ quality: 92, mozjpeg: true })
+      .toBuffer(),
+    sharp(section.headerBuffer)
+      .extract({
+        left: leftRegion.x,
+        top: leftRegion.y,
+        width: leftRegion.width,
+        height: leftRegion.height,
+      })
+      .jpeg({ quality: 92, mozjpeg: true })
+      .toBuffer(),
+  ]);
+
+  let ocrRawText = "";
+  let ocrFormationText = "";
+  let leftRaw = "";
+  try {
+    const [midOcr, leftOcr] = await Promise.all([
+      ocrPlayCardHeader(midPanel),
+      ocrPlayCardHeader(leftPanel),
+    ]);
+    ocrRawText = midOcr.rawText;
+    leftRaw = leftOcr.rawText;
+    ocrFormationText =
+      midOcr.formationText ||
+      (midOcr.playNameText ?? "") ||
+      (midOcr.rawText.split(/\r?\n/).map((l) => l.trim()).find((l) => l.length >= 2) ?? "");
+  } catch (err) {
+    ocrRawText = `ocr_error:${err instanceof Error ? err.message : String(err)}`;
+    ocrFormationText = "";
+  }
+
+  let match = matchSectionHeaderToFormation(
+    ocrFormationText,
+    availableFormations,
+    playCountByFormation,
+    section.cards.length,
+  );
+
+  if (!match.matchedFormation && section.cards.length > 0) {
+    const cropVote = await majorityVoteFormationFromCrops(
+      section.cards,
+      availableFormations,
+      playCountByFormation,
+      section.cards.length,
+    );
+    if (cropVote.matchedFormation) {
+      match = cropVote;
+      ocrRawText = `crop-vote: ${cropVote.cleanedText} | ${ocrRawText}`;
+    }
+  }
+
+  if (!match.matchedFormation) {
+    const hint = extractPersonnelHint(leftRaw);
+    if (hint) {
+      const combined = `${hint} ${match.cleanedText || ocrFormationText}`.trim();
+      match = matchSectionHeaderToFormation(
+        combined,
+        availableFormations,
+        playCountByFormation,
+        section.cards.length,
+      );
+      if (match.matchedFormation) {
+        ocrRawText = `${leftRaw} | ${ocrRawText}`;
+      }
+    }
+  }
+
+  return {
+    ocrRawText,
+    ocrFormationText: match.cleanedText || ocrFormationText,
+    matchedFormation: match.matchedFormation,
+    matchConfidence: match.matchConfidence,
+    matchDistance: match.matchDistance,
+  };
+}
+
+/**
  * OCR the middle panel of each formation-header strip and match against the seed list.
  * Fail-closed: unmatched sections leave matchedFormation null (caller errors).
+ * Duplicate assignments retry later sections with earlier names excluded (e.g. Gun vs Pistol Deuce).
  */
 async function matchSectionsByHeaderOcr(
   sections: AnonymousDocxSection[],
@@ -699,97 +796,45 @@ async function matchSectionsByHeaderOcr(
   const out: SectionMatchRow[] = [];
 
   for (const section of sections) {
-    const midRegion = PLAY_CARD_REGIONS[1];
-    const leftRegion = PLAY_CARD_REGIONS[0];
-    const [midPanel, leftPanel] = await Promise.all([
-      sharp(section.headerBuffer)
-        .extract({
-          left: midRegion.x,
-          top: midRegion.y,
-          width: midRegion.width,
-          height: midRegion.height,
-        })
-        .jpeg({ quality: 92, mozjpeg: true })
-        .toBuffer(),
-      sharp(section.headerBuffer)
-        .extract({
-          left: leftRegion.x,
-          top: leftRegion.y,
-          width: leftRegion.width,
-          height: leftRegion.height,
-        })
-        .jpeg({ quality: 92, mozjpeg: true })
-        .toBuffer(),
-    ]);
-
-    let ocrRawText = "";
-    let ocrFormationText = "";
-    let leftRaw = "";
-    try {
-      const [midOcr, leftOcr] = await Promise.all([
-        ocrPlayCardHeader(midPanel),
-        ocrPlayCardHeader(leftPanel),
-      ]);
-      ocrRawText = midOcr.rawText;
-      leftRaw = leftOcr.rawText;
-      ocrFormationText =
-        midOcr.formationText ||
-        (midOcr.playNameText ?? "") ||
-        (midOcr.rawText.split(/\r?\n/).map((l) => l.trim()).find((l) => l.length >= 2) ?? "");
-    } catch (err) {
-      ocrRawText = `ocr_error:${err instanceof Error ? err.message : String(err)}`;
-      ocrFormationText = "";
-    }
-
-    let match = matchSectionHeaderToFormation(
-      ocrFormationText,
-      knownFormations,
-      playCountByFormation,
-      section.cards.length,
-    );
-
-    // Ambiguous/short section titles — crop-header majority vote before left-panel hint
-    // (left panel OCR can misread Flexbone/Wingbone).
-    if (!match.matchedFormation && section.cards.length > 0) {
-      const cropVote = await majorityVoteFormationFromCrops(
-        section.cards,
-        knownFormations,
-        playCountByFormation,
-        section.cards.length,
-      );
-      if (cropVote.matchedFormation) {
-        match = cropVote;
-        ocrRawText = `crop-vote: ${cropVote.cleanedText} | ${ocrRawText}`;
-      }
-    }
-
-    // Still ambiguous — prepend left-panel personnel hint (Flexbone/Gun/…).
-    if (!match.matchedFormation) {
-      const hint = extractPersonnelHint(leftRaw);
-      if (hint) {
-        const combined = `${hint} ${match.cleanedText || ocrFormationText}`.trim();
-        match = matchSectionHeaderToFormation(
-          combined,
-          knownFormations,
-          playCountByFormation,
-          section.cards.length,
-        );
-        if (match.matchedFormation) {
-          ocrRawText = `${leftRaw} | ${ocrRawText}`;
-        }
-      }
-    }
-
+    const matched = await matchOneSectionByHeaderOcr(section, knownFormations, playCountByFormation);
     out.push({
       docPosition: section.docPosition,
       headerSourceIndex: section.headerSourceIndex,
       cards: section.cards,
-      ocrRawText,
-      ocrFormationText: match.cleanedText || ocrFormationText,
-      matchedFormation: match.matchedFormation,
-      matchConfidence: match.matchConfidence,
-      matchDistance: match.matchDistance,
+      ...matched,
     });
+  }
+
+  const usedByEarlier = (docPosition: number): Set<string> => {
+    const used = new Set<string>();
+    for (const row of out) {
+      if (row.docPosition >= docPosition || !row.matchedFormation) continue;
+      used.add(row.matchedFormation);
+    }
+    return used;
+  };
+
+  for (let pass = 0; pass < sections.length; pass += 1) {
+    const seen = new Map<string, number>();
+    let retried = false;
+    for (const row of out) {
+      if (!row.matchedFormation) continue;
+      const firstAt = seen.get(row.matchedFormation);
+      if (firstAt === undefined) {
+        seen.set(row.matchedFormation, row.docPosition);
+        continue;
+      }
+      const section = sections.find((s) => s.docPosition === row.docPosition);
+      if (!section) continue;
+      const exclude = usedByEarlier(row.docPosition);
+      exclude.add(row.matchedFormation);
+      const available = knownFormations.filter((n) => !exclude.has(n));
+      const rematch = await matchOneSectionByHeaderOcr(section, available, playCountByFormation);
+      Object.assign(row, rematch);
+      retried = true;
+      break;
+    }
+    if (!retried) break;
   }
 
   return out;

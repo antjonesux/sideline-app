@@ -6,6 +6,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Play-art Batch 13 publish + QA57 skip fixes
+
+### What
+
+- Published **Stanford** and **Central Michigan** from Batch 13 (+945 assets). Manifest **52,542 → 53,487**.
+- **Stanford seed fix:** replaced erroneous Pistol Normal with **Goal Line Normal** (9 plays per vault DOCX / QA57).
+- **Central Michigan:** confirmed **A GAP POWER** in Power I Strong; pipeline now ingests cleanly.
+- **Pipeline:** skip corrupt DOCX headers with no play strips (unblocks Central Michigan); duplicate formation OCR assignment improvements.
+- Added operator QA reference: `sideline/scripts/play-art/qa-fixes/20260829-QA57.md` (formation play-order grids for skip fixes).
+- Applied QA57 positional overrides locally for deferred books (San Jose State, Tennessee, Rutgers, Iowa State, Air Raid, plus carry-forward from earlier batches).
+
+### Why
+
+Seal Batch 13 books after operator QA57 skip documentation; correct Stanford formation seed mismatch; finish vault queue.
+
+### Status
+
+- **Published this round:** Stanford, Central Michigan (Purdue published earlier in Batch 13 ingest).
+- **Remaining for review:** San Jose State, Tennessee, Rutgers, Iowa State, Air Raid; Mississippi State blocked (duplicate Gun Deuce OCR).
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-29 — Play-art Batch 12 publish + Batch 13 ingest
 
 ### What
@@ -32,7 +53,7 @@ Publish operator-sealed Batch 12 books and process the remaining vault queue (de
 
 - Published **Batch 11** (10 books): Pittsburgh, Southern Miss, Texas A&M, Notre Dame, Texas State, Sacramento State, Ole Miss, Oregon, Texas Tech, Penn State (+4,628 assets).
 - Manifest **43,330 → 47,958**.
-- Seed fixes for ingest: **Notre Dame** Goal Line Normal, **Ole Miss** Pistol Wing (vault label), **Stanford** Pistol Normal, **Iowa State** Gun Deuce Close rename.
+- Seed fixes for ingest: **Notre Dame** Goal Line Normal, **Ole Miss** Pistol Wing (vault label), **Stanford** Goal Line Normal (replaces erroneous Pistol Normal), **Iowa State** Gun Deuce Close rename.
 - **Batch 12 ingested** (9 for review): Tulane, Utah State, Virginia Tech, UAB, Virginia, Wisconsin, Vanderbilt, Troy, West Virginia.
 - **Deferred (skips — fix later):** San Jose State, Tennessee, Rutgers, Stanford.
 - **Blocked:** Central Michigan (no strips after #29), Iowa State (Gun Deuce Close play-count), Mississippi State (duplicate Gun Deuce OCR), Purdue, Air Raid.

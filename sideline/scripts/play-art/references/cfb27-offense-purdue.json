@@ -169,38 +169,6 @@
       ]
     },
     {
-      "name": "Gun Split Slot",
-      "plays": [
-        "689 HOOK",
-        "DIY SWEEP REVERSE",
-        "FB INSIDE",
-        "FLAT COMBO",
-        "FLOOD",
-        "HB ANGLE SCREEN",
-        "HB DRAW",
-        "HB OFF TACKLE",
-        "HB SLIP SCREEN",
-        "HB SWEEP WK",
-        "HORIZONTAL",
-        "INSIDE ZONE SPLIT",
-        "MESH",
-        "MESH POST WHEEL",
-        "MTN FK SWING WHEEL",
-        "MTN HB COUNTER",
-        "MTN LEAD SWING",
-        "PA F SLIDE",
-        "PA SNEAK BANG",
-        "PA WHEEL",
-        "RPO READ SLIDE",
-        "SHAKES",
-        "SHOVEL OPTION",
-        "SLANTS",
-        "SLOT POST ANGLE",
-        "WR SCREEN",
-        "Y CROSS"
-      ]
-    },
-    {
       "name": "Gun Split Slot Offset",
       "plays": [
         "FL DRAG",

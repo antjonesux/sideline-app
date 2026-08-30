@@ -759,13 +759,18 @@ export async function validateCropHeadersAgainstSections(
     (a) => a.formationAssignmentSource === "crop_ocr_validated",
   ).length;
   const failures = assignments.filter((a) => a.matchConfidence === "none").length;
-  const disagreements = assignments.length - agreements;
+  const structuralDisagreements = assignments.filter(
+    (a) =>
+      a.matchedFormation !== null && a.matchedFormation !== a.assignedFormation,
+  );
+  const disagreements = structuralDisagreements.length;
   const disagreementRate =
     assignments.length === 0 ? 0 : disagreements / assignments.length;
+  const unreadableRate =
+    assignments.length === 0 ? 0 : failures / assignments.length;
 
   if (disagreementRate > 0.2) {
-    const samples = assignments
-      .filter((a) => a.formationAssignmentSource === "section_ocr")
+    const samples = structuralDisagreements
       .slice(0, 8)
       .map(
         (a) =>
@@ -775,6 +780,13 @@ export async function validateCropHeadersAgainstSections(
     throw new Error(
       `Crop-header OCR disagrees with section OCR on ${(disagreementRate * 100).toFixed(1)}% of crops ` +
         `(threshold 20%). Section assignments may be wrong.\n${samples}`,
+    );
+  }
+
+  if (unreadableRate > 0.35) {
+    throw new Error(
+      `Crop-header OCR unreadable on ${(unreadableRate * 100).toFixed(1)}% of crops ` +
+        `(threshold 35%) — section assignments cannot be validated.`,
     );
   }
 

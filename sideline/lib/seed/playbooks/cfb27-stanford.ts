@@ -629,19 +629,19 @@ export const CFB27_STANFORD_SEED: TeamPlaybookSeed = {
       ],
     },
     {
-      // Vault DOCX section labeled Pistol Normal (9 plays); absent from prior cfb.fan seed.
-      formation: "Pistol Normal",
-      formationType: "Pistol",
+      // Vault DOCX Goal Line Normal (9 plays); prior ingest mislabeled as Pistol Normal.
+      formation: "Goal Line Normal",
+      formationType: "Goal Line",
       plays: [
-        { playName: "CURLS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "HB SLIP SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
-        { playName: "HB ZONE WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
-        { playName: "PA COMEBACKS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
-        { playName: "PA CROSSERS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
-        { playName: "SLANTS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "TRIPLE OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
-        { playName: "Y CORNER", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "F LEAD READ OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "HB DIVE", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "PA SPOT", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "QB SNEAK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "POWER O", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "PA POWER O", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "FB DIVE WEAK", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "HB STING", isNewIn26: false, isNewIn27: false, playType: "Run" },
+        { playName: "PA WAGGLE", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "STRONG TOSS", isNewIn26: false, isNewIn27: false, playType: "Run" },
       ],
     },
     {

@@ -29,7 +29,7 @@ export const CFB27_IOWA_STATE_SEED: TeamPlaybookSeed = {
       ],
     },
     {
-      // Vault DOCX labels this Gun Deuce Close (15 plays); seed had Singleback Deuce Close.
+      // Vault DOCX: 12 play cards (header chrome says 15; cfb.fan over-counted).
       formation: "Gun Deuce Close",
       formationType: "Gun",
       plays: [
@@ -45,9 +45,6 @@ export const CFB27_IOWA_STATE_SEED: TeamPlaybookSeed = {
         { playName: "PA MISDIRECTION", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA MTN SPIDER Y LEAK", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA X POST CROSS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
-        { playName: "SPACING SWITCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "STICK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "ZONE SPLIT WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
       ],
     },
     {

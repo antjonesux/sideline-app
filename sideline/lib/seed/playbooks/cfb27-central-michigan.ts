@@ -47,6 +47,7 @@ export const CFB27_CENTRAL_MICHIGAN_SEED: TeamPlaybookSeed = {
       ],
     },
     {
+      // Vault DOCX: 21 play cards (header chrome says 22; cfb.fan over-counted).
       formation: "Power I Strong",
       formationType: "Power I",
       plays: [
@@ -71,7 +72,6 @@ export const CFB27_CENTRAL_MICHIGAN_SEED: TeamPlaybookSeed = {
         { playName: "SHIFT PA FB FLAT", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "SHIFT PA POWER O", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "SHIFT POWER O", isNewIn26: false, isNewIn27: false, playType: "Run" },
-        { playName: "X SLANT", isNewIn26: false, isNewIn27: false, playType: "Pass" },
       ],
     },
     {
