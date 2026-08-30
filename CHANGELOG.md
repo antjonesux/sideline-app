@@ -6,6 +6,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-30 — Play-art Batch 15 publish (scheme books)
+
+### What
+
+- Published **Pistol**, **Multiple**, and **Power Spread** (+1,238 assets). Manifest **56,229 → 57,467**.
+- **Power Spread** seed: added **Gun Gate** (vault DOCX section #14); Hail Mary optional/absent.
+- **Multiple** source alias `Multiple → cfb27-multiple` (disambiguate offense vs defense seed).
+- Extract count gate now accepts optional formations present in DOCX (Hail Mary range).
+- Power Spread published with `--approve-review` for 4 operator-skipped crops (Gun Gate + Pistol U Off Trips) — on skip fix list.
+
+### Why
+
+Finish remaining scheme DOCX already in the vault after operator Batch 15 review.
+
+### Status
+
+- All vault-present offense DOCX published.
+- Still need DOCX for 21 teams + Go Go + Spread before offense catalog is complete.
+- Defense deferred (manual capture later).
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-30 — Play-art Batch 14 publish (final vault DOCX queue)
 
 ### What

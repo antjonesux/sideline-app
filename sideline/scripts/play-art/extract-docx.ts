@@ -431,14 +431,21 @@ export async function extractPlayArtDocx(
     isDocxOptionalFormation(f.name, reference.playbook),
   );
 
-  if (sections.length !== requiredFormations.length) {
+  // Optional formations (e.g. Hail Mary) may be absent OR present in the vault DOCX.
+  // Accept section counts from required-only up through required + all optionals.
+  const maxFormations = reference.formations.length;
+  if (
+    sections.length < requiredFormations.length ||
+    sections.length > maxFormations
+  ) {
     throw new Error(
       `DOCX segmentation failed: found ${sections.length} formation section(s) but reference ` +
-        `expects ${requiredFormations.length} required formation(s)` +
+        `expects ${requiredFormations.length}–${maxFormations} ` +
+        `(${requiredFormations.length} required` +
         (optionalFormations.length > 0
-          ? ` (+ ${optionalFormations.length} optional: ${optionalFormations.map((f) => f.name).join(", ")})`
+          ? ` + up to ${optionalFormations.length} optional: ${optionalFormations.map((f) => f.name).join(", ")}`
           : "") +
-        `. Do not fall back to positional pairing.`,
+        `). Do not fall back to positional pairing.`,
     );
   }
 

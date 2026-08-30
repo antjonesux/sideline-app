@@ -242,6 +242,19 @@ export const CFB27_POWER_SPREAD_SEED: TeamPlaybookSeed = {
       ],
     },
     {
+      // Vault DOCX section #14 labeled GATE (6 plays); absent from prior cfb.fan seed.
+      formation: "Gun Gate",
+      formationType: "Gun",
+      plays: [
+        { playName: "FAKE JET VERTS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "FAKE SCREEN GO", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "JET TOUCH PASS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "JET WR MID SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "SCREEN SLANT", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "SPRINT SMASH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+      ],
+    },
+    {
       formation: "Gun Deuce",
       formationType: "Gun",
       plays: [
