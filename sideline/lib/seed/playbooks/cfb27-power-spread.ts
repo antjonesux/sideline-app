@@ -124,8 +124,10 @@ export const CFB27_POWER_SPREAD_SEED: TeamPlaybookSeed = {
     {
       formation: "Pistol U Off Trips",
       formationType: "Pistol",
+      // Vault DOCX: 21 play cards (header chrome); cfb.fan seed was short 3 plays.
       plays: [
         { playName: "DBL POST", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "HB DIVE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB SLAM", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB SPLIT DIVE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB STRETCH", isNewIn26: false, isNewIn27: false, playType: "Run" },
@@ -137,10 +139,12 @@ export const CFB27_POWER_SPREAD_SEED: TeamPlaybookSeed = {
         { playName: "LEAD READ OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "PA BOOT", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA BOOT OVER", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "PA FL CLOWN", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA SLOT OUT", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA Y CORNER", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "READ OPTION", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "SHOCK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "STICK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "STRONG POWER", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "TE CROSS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
       ],
@@ -245,13 +249,14 @@ export const CFB27_POWER_SPREAD_SEED: TeamPlaybookSeed = {
       // Vault DOCX section #14 labeled GATE (6 plays); absent from prior cfb.fan seed.
       formation: "Gun Gate",
       formationType: "Gun",
+      // Vault DOCX order / labels (QB ZONE replaces SPRINT SMASH from prior seed).
       plays: [
         { playName: "FAKE JET VERTS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "FAKE SCREEN GO", isNewIn26: false, isNewIn27: false, playType: "Screen" },
         { playName: "JET TOUCH PASS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "JET WR MID SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
+        { playName: "QB ZONE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "SCREEN SLANT", isNewIn26: false, isNewIn27: false, playType: "Screen" },
-        { playName: "SPRINT SMASH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
       ],
     },
     {

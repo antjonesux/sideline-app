@@ -5,6 +5,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-30 — Power Spread play-art QA (Pistol U Off Trips + Gun Gate)
+
+### What
+
+- **Pistol U Off Trips** seed expanded 18 → **21** plays (added STICK, HB DIVE, PA FL CLOWN) to match vault DOCX; positional overrides sealed to operator grid.
+- **Gun Gate**: replaced SPRINT SMASH with **QB ZONE** per vault; sealed 6-play grid.
+- Re-ingested/published Power Spread — **REVIEW 0**. Manifest **57,467 → 57,470** (+3).
+
+### Why
+
+Operator QA grids for the four previously skipped Power Spread crops; vault DOCX is authoritative.
+
+### Status
+
+- Civil reference download for `qb-zone.jpg` still fails; identity comes from DOCX crop + override.
+- Matching overrides remain local/gitignored.
+
 
 ## 2026-08-30 — Play-art Batch 15 publish (scheme books)
 

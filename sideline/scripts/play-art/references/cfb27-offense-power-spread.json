@@ -111,6 +111,7 @@
       "name": "Pistol U Off Trips",
       "plays": [
         "DBL POST",
+        "HB DIVE",
         "HB SLAM",
         "HB SPLIT DIVE",
         "HB STRETCH",
@@ -122,10 +123,12 @@
         "LEAD READ OPTION",
         "PA BOOT",
         "PA BOOT OVER",
+        "PA FL CLOWN",
         "PA SLOT OUT",
         "PA Y CORNER",
         "READ OPTION",
         "SHOCK",
+        "STICK",
         "STRONG POWER",
         "TE CROSS"
       ]
@@ -228,8 +231,8 @@
         "FAKE SCREEN GO",
         "JET TOUCH PASS",
         "JET WR MID SCREEN",
-        "SCREEN SLANT",
-        "SPRINT SMASH"
+        "QB ZONE",
+        "SCREEN SLANT"
       ]
     },
     {
