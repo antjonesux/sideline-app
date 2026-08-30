@@ -12,10 +12,11 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 - **Pistol U Off Trips** seed expanded 18 → **21** plays (added STICK, HB DIVE, PA FL CLOWN) to match vault DOCX; positional overrides sealed to operator grid.
 - **Gun Gate**: replaced SPRINT SMASH with **QB ZONE** per vault; sealed 6-play grid.
 - Re-ingested/published Power Spread — **REVIEW 0**. Manifest **57,467 → 57,470** (+3).
+- Upserted seed to Supabase `playbooks` (`npm run seed:playbook -- cfb27-power-spread`): **+9** rows (Gun Gate ×6 + U Off Trips ×3).
 
 ### Why
 
-Operator QA grids for the four previously skipped Power Spread crops; vault DOCX is authoritative.
+Operator QA grids for the four previously skipped Power Spread crops; vault DOCX is authoritative. Catalog rows must be seeded separately from play-art publish.
 
 ### Status
 
