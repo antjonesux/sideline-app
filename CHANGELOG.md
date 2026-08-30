@@ -6,6 +6,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-29 — Play-art Batch 12 publish + Batch 13 ingest
+
+### What
+
+- Published **Batch 12** (9 books): Tulane, Utah State, Virginia Tech, UAB, Virginia, Wisconsin, Vanderbilt, Troy, West Virginia (+4,145 assets).
+- Manifest **47,958 → 52,103**.
+- **Batch 13 ingested** (final queue): Rutgers, San Jose State, Tennessee, Stanford, Iowa State, Central Michigan, Mississippi State, Purdue, Air Raid.
+- **Purdue** auto-published on re-ingest (REVIEW 0, +439 assets → manifest **52,542**).
+- **Carried forward (skips — fix later):** San Jose State, Tennessee, Rutgers, Stanford from Batch 11.
+
+### Why
+
+Publish operator-sealed Batch 12 books and process the remaining vault queue (deferred skips + blocked diagnostics).
+
+### Status
+
+- Nine Batch 12 team books published at REVIEW 0.
+- Eight Batch 13 books queued for operator review (Purdue published during ingest).
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-29 — Play-art Batch 11 publish + Batch 12 ingest
 
 ### What
