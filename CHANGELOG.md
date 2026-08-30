@@ -5,6 +5,27 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-08-30 — OBS Go Go play-art publish (first game-capture book)
+
+### What
+
+- Bridged validated OBS video-staging (+ manual supplements) into `play-art:ingest` via `--video-staging`.
+- **OBS identity:** game capture is source of truth — namespace + formation/play OCR + exact catalog resolution. No visual matcher identity, no `play-art:review`, no overrides/omits for OBS.
+- Optional `--obs-visual-diagnostic` for informational external comparison only (does not block publish).
+- Published **Go Go** from OBS pilot: **405** mappings / **405** unique assets. Manifest **57,470 → 57,875**.
+- Added OBS source-prep tooling: `play-art:video`, `play-art:supplement`, `video/`, `source-video/`, `manual-supplements/` (staging remains gitignored).
+
+### Why
+
+DOCX capture is the bottleneck for remaining books; OBS recordings already show labeled in-game play cards. Go Go proves game-capture → catalog → publish without a matcher REVIEW queue.
+
+### Status
+
+- Go Go is the first OBS-published offense book.
+- DOCX ingest + `play-art:review` unchanged for vault books.
+- Remaining offense gaps still need DOCX or additional OBS recordings.
+
+
 ## 2026-08-30 — Power Spread play-art QA (Pistol U Off Trips + Gun Gate)
 
 ### What

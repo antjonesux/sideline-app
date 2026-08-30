@@ -79,6 +79,15 @@ npm run play-art:reference -- --seed=cfb27-usc
 npm run play-art:reference -- --source="scripts/play-art/source/Multiple & Pro Style/California.docx"
 ```
 
+### Prepare OBS video source (diagnostic only)
+
+```bash
+npm run play-art:video -- --source=scripts/play-art/source-video/offense/cfb27-offense-go-go.mp4
+```
+
+Filename contract: `{game-version}-{side}-{playbook-slug}.mp4`. Does **not** publish.
+See `scripts/play-art/video/README.md`.
+
 ### Inspect DOCX structure
 
 ```bash
@@ -93,6 +102,27 @@ npm run play-art:ingest -- \
 npm run play-art:ingest -- \
   --source="scripts/play-art/source/Air Raid/cfb27-offense-USC.docx" \
   --validate-only
+```
+
+### OBS video-staging (game-capture identity; Go Go pilot)
+
+Requires combined validated staging (video + NEW_MISSING_PLAY supplements) at 100% catalog coverage.
+
+**Identity authority:** game capture — filename namespace + formation OCR + play OCR + exact catalog resolution. The captured art on that labeled card is the production art.  
+**Does not use** visual matcher for identity, `play-art:review`, or external imagery as a publish gate.  
+Optional: `--obs-visual-diagnostic` for informational external comparison only.
+
+```bash
+npm run play-art:ingest -- \
+  --video-staging=scripts/play-art/video-staging/cfb27/offense/go-go \
+  --validate-only
+```
+
+Publish when the OBS publish gate PASSes (omit `--validate-only`):
+
+```bash
+npm run play-art:ingest -- \
+  --video-staging=scripts/play-art/video-staging/cfb27/offense/go-go
 ```
 
 ### Full ingest (stage → validate → publish)

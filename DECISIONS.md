@@ -6,6 +6,66 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-30 — OBS Go Go first publish (game-capture identity)
+
+**Decision:** Allow `--video-staging` publish when the OBS publish gate PASSes (namespace + 405/405 unique catalog identities + crops + structural validation). No visual matcher / review-tool / overrides required. Go Go is the pilot first publish from OBS + manual supplements.
+
+**Why:** Gate already passed validate-only; game capture is the art source of truth.
+
+**Impact:** `ingest-playbook.ts` no longer forces `--validate-only` or defers OBS publish after gate PASS.
+
+## 2026-08-30 — OBS game capture is publish source of truth (no visual gate)
+
+**Decision:** For OBS/video-staging sources, the game-captured labeled play card is the authoritative play-art. Canonical identity = namespace + formation OCR + play OCR + exact catalog resolution. External imagery (cfb.fan / DOCX / other providers) must not overrule identity or block publish. Optional `--obs-visual-diagnostic` may emit informational VISUAL_AGREEMENT / VISUAL_DISAGREEMENT / VISUAL_UNAVAILABLE only. Do not use `play-art:review`, overrides, or omits for OBS. DOCX path unchanged (visual matcher + review).
+
+**Why:** OBS already captures the exact in-game art for the labeled play; requiring external visual agreement reintroduced a false fail-closed gate (Go Go 39 disagreements) and an unnecessary external dependency.
+
+**Impact:** `evaluateObsPublishGate` ignores visual counts; ingest skips visual by default; diagnostic opt-in via `--obs-visual-diagnostic`.
+
+## 2026-08-30 — OBS ingest identity is OCR/catalog; visual is verification only
+
+**Decision:** For OBS video-staging (+ manual supplements), production play identity is filename namespace + formation OCR + play-name OCR + exact catalog resolution — all four required. **Superseded for publish gate:** see “OBS game capture is publish source of truth” — visual comparison must not block publish.
+
+**Why:** OBS staging already resolves exact catalog identities before ingest.
+
+**Impact:** `verify-obs-visual.ts`; `ingest-playbook.ts` OBS path.
+
+## 2026-08-30 — OBS video-staging bridges into existing play-art ingest (validate-only)
+
+**Decision:** Validated OBS video-staging (+ NEW_MISSING_PLAY supplements) adapts into the same `ExtractedPlayArtDoc` shape DOCX extract produces for shared validation/publish plumbing. **Superseded for identity/review:** see “OBS ingest identity is OCR/catalog” same day — visual matcher is verification only; no play-art:review for OBS.
+
+**Why:** OBS prep reached 405/405 catalog identities in staging; reuse validation/publish asset plumbing without inventing a second publisher.
+
+**Impact:** `adapt-video-staging.ts`; `play-art:ingest -- --video-staging=… --validate-only`.
+
+## 2026-08-30 — Manual screenshot supplements for OBS video gaps
+
+**Decision:** Add a supplemental source path under `manual-supplements/{game}/{side}/{slug}/` so operators can fill missing plays from screenshots of the existing OBS recording. Path is namespace authority (fail-closed). Supplements reuse the video crop profile, card extraction, OCR, catalog validation, and coverage reporting. They merge with video staging for combined coverage + updated `recapture-queue.json` without overwriting video-only artifacts (`report.json`, `recapture-queue.video-only.json`). Supplements never publish and never weaken existing validated video identities.
+
+**Why:** Video extraction leaves residual gaps (not-captured / OCR); a full re-record is not required when the missing screens exist in the same recording.
+
+**Impact:** `scripts/play-art/video/process-supplements.ts`, `prepare-supplement.ts`, `play-art:supplement`; optional auto-discovery from `play-art:video`. Staging outputs only.
+
+## 2026-08-30 — OBS video Stage A/B extraction (short-hold recovery)
+
+**Decision:** Video prep uses two tiers: Stage A broad three-card fingerprint candidates (8fps, short holds allowed) and Stage B strict rejection (KEY PLAYERS / formation disagreement / no formation match). Per-formation coverage + `recapture-queue.json` guide operator re-records. Still diagnostic-only; no ingest/publish.
+
+**Why:** First go-go run missed ~0.5s holds (111 vs ~135 screens). Dense sampling recovered candidates; Stage B blocked transition frames. Remaining gaps are mostly not-captured pages in the recording, not geometry failure.
+
+**Impact:** `scripts/play-art/video/*`; go-go after: 145 accepted screens, 319/405 catalog-valid (78.8%).
+
+---
+
+## 2026-08-30 — OBS video is a diagnostic play-art source prep path only
+
+**Decision:** Add `play-art:video` to convert OBS MP4 recordings into staged frames / three-card crops / OCR catalog comparison. Filename `{game}-{side}-{slug}.mp4` is the sole namespace authority (fail-closed). Video does **not** publish and does **not** replace DOCX ingest. Positional/screen order is **not** play identity. **Later same-day ingest bridge:** for OBS, OCR/catalog is production identity and visual is verification-only (see “OBS ingest identity is OCR/catalog”).
+
+**Why:** Manual capture→DOCX→extract is the bottleneck for new books; OBS can supply the same three-card UI frames with catalog-resolved identities before publish.
+
+**Impact:** `scripts/play-art/video/*`, `source-video/`, `video-staging/` (gitignored). Ingest bridge under `--video-staging` (validate-only until publish decision).
+
+---
+
 ## 2026-08-27 — Vault duplicate crops omit via matching-omits (not wrong play)
 
 **Decision:** When two owned Vault crops are the same printed play (flip/duplicate) and the catalog only has one name, operators mark the extra crop with review-tool **`D`**. That writes `scripts/play-art/matching-omits/{slug}.json`. Matcher PASSes the crop as `duplicate-omit` without a second publish mapping; validation allows one unfulfilled catalog play per omit (logged as WARN). Do not assign a knowingly wrong play to clear REVIEW.

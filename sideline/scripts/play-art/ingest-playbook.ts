@@ -11,10 +11,16 @@
  *     --source "scripts/play-art/source/Option & Spread Option/Air Force.docx"
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizePlayName } from "../../lib/utils";
+import {
+  adaptVideoStagingToExtracted,
+  printVideoStagingBridgeReport,
+  resolveVideoStagingNamespace,
+  type VideoStagingBridgeReport,
+} from "./adapt-video-staging";
 import { buildReferenceFromSeedSlug, resolveSeedSlugFromArgs } from "./build-reference";
 import { assignContentHashedAssets } from "./content-hash";
 import { extractPlayArtDocx, summarizeDocxStructure } from "./extract-docx";
@@ -48,7 +54,19 @@ import {
   writeMappedAssetsToStaging,
 } from "./staging";
 import { printValidationSummary, validatePlayArtMapping } from "./validate";
-import type { MappedPlayArt, PlayArtManifestRecord } from "./types";
+import {
+  attachObsBlockIndexes,
+  evaluateObsPublishGate,
+  mapObsCatalogIdentity,
+  printObsVisualVerificationReport,
+  verifyObsVisualIdentity,
+  type ObsVisualVerificationReport,
+} from "./verify-obs-visual";
+import type {
+  MappedPlayArt,
+  PlayArtManifestRecord,
+  PlayArtMatchingReport,
+} from "./types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const GENERATED_MANIFEST_PATH = join(__dirname, "..", "..", "lib", "generated", "play-art-manifest.json");
@@ -56,6 +74,7 @@ const GENERATED_MANIFEST_PATH = join(__dirname, "..", "..", "lib", "generated", 
 type CliArgs = {
   referencePath: string;
   sourcePath: string;
+  videoStagingPath: string;
   structureReport: boolean;
   validateOnly: boolean;
   regression: boolean;
@@ -63,6 +82,7 @@ type CliArgs = {
   approveReview: boolean;
   skipTrustedHash: boolean;
   noAutoReference: boolean;
+  obsVisualDiagnostic: boolean;
   reportDir: string;
   overridesPath?: string;
   seedSlug?: string;
@@ -112,13 +132,15 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
 
   let referencePath = readFlag(argv, "--reference")?.trim() ?? "";
   let sourcePath = (readFlag(argv, "--source") ?? readFlag(argv, "--docx"))?.trim() ?? "";
+  const videoStagingPath = readFlag(argv, "--video-staging")?.trim() ?? "";
   const structureReport = hasFlag(argv, "--structure-report");
-  const validateOnly = hasFlag(argv, "--validate-only");
+  let validateOnly = hasFlag(argv, "--validate-only");
   const regression = hasFlag(argv, "--regression");
   const positional = hasFlag(argv, "--positional");
   const approveReview = hasFlag(argv, "--approve-review");
   const skipTrustedHash = hasFlag(argv, "--skip-trusted-hash");
   const noAutoReference = hasFlag(argv, "--no-auto-reference");
+  const obsVisualDiagnostic = hasFlag(argv, "--obs-visual-diagnostic");
   const reportDir = readFlag(argv, "--report-dir")?.trim() || join(__dirname, "reports");
   const overridesPath = readFlag(argv, "--overrides")?.trim();
 
@@ -126,6 +148,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
     "--reference",
     "--source",
     "--docx",
+    "--video-staging",
     "--structure-report",
     "--validate-only",
     "--regression",
@@ -133,6 +156,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
     "--approve-review",
     "--skip-trusted-hash",
     "--no-auto-reference",
+    "--obs-visual-diagnostic",
     "--report-dir",
     "--overrides",
     "--seed",
@@ -155,6 +179,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
       (name === "--reference" ||
         name === "--source" ||
         name === "--docx" ||
+        name === "--video-staging" ||
         name === "--report-dir" ||
         name === "--overrides" ||
         name === "--seed" ||
@@ -165,9 +190,30 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
     }
   }
 
-  if (!sourcePath && !referencePath) {
+  if (videoStagingPath && sourcePath) {
+    console.error("Error: Pass either --video-staging or --source=<docx>, not both.\n");
+    process.exit(1);
+  }
+
+  if (videoStagingPath) {
+    if (!existsSync(videoStagingPath)) {
+      console.error(`Error: Video staging path not found: ${videoStagingPath}`);
+      process.exit(1);
+    }
+    if (structureReport) {
+      console.error("Error: --structure-report is DOCX-only (not supported with --video-staging).");
+      process.exit(1);
+    }
+    if (positional) {
+      console.error("Error: --positional is DOCX-legacy only (not supported with --video-staging).");
+      process.exit(1);
+    }
+  }
+
+  if (!sourcePath && !videoStagingPath && !referencePath) {
     console.error(
-      "Error: Must provide either --source=<docx> or --seed=<slug> (or --reference=<path> for ingest).\n",
+      "Error: Must provide --source=<docx> or --video-staging=<path> " +
+        "(or --seed=<slug> / --reference=<path> with a source).\n",
     );
     printHelp();
     process.exit(1);
@@ -175,13 +221,13 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
 
   let seedSlug: string | undefined;
 
-  if (!sourcePath) {
-    console.error("Error: --source=<docx> is required for ingest.\n");
+  if (!sourcePath && !videoStagingPath) {
+    console.error("Error: --source=<docx> or --video-staging=<path> is required for ingest.\n");
     printHelp();
     process.exit(1);
   }
 
-  if (!existsSync(sourcePath)) {
+  if (sourcePath && !existsSync(sourcePath)) {
     const suggestion = suggestNearbyDocx(sourcePath);
     let message = `Error: DOCX not found: ${sourcePath}`;
     if (suggestion) {
@@ -193,11 +239,19 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
 
   if (!referencePath) {
     try {
-      const resolved = resolveSeedSlugFromArgs(argv);
-      seedSlug = resolved.seedSlug;
-      referencePath = seedSlugToReferencePath(seedSlug, referencesDir());
-      console.log(`Derived seed: ${seedSlug}`);
-      console.log(`Derived reference path: ${referencePath}`);
+      if (videoStagingPath) {
+        const ns = resolveVideoStagingNamespace(videoStagingPath);
+        seedSlug = ns.seedSlug;
+        referencePath = seedSlugToReferencePath(seedSlug, referencesDir());
+        console.log(`Derived seed from video-staging: ${seedSlug}`);
+        console.log(`Derived reference path: ${referencePath}`);
+      } else {
+        const resolved = resolveSeedSlugFromArgs(argv);
+        seedSlug = resolved.seedSlug;
+        referencePath = seedSlugToReferencePath(seedSlug, referencesDir());
+        console.log(`Derived seed: ${seedSlug}`);
+        console.log(`Derived reference path: ${referencePath}`);
+      }
     } catch (err) {
       console.error(err instanceof Error ? err.message : String(err));
       process.exit(1);
@@ -215,7 +269,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
         `Reference not found at ${referencePath}. Auto-building from seed ${seedSlug}...`,
       );
       try {
-        const built = await buildReferenceFromSeedSlug(seedSlug);
+        const built = await buildReferenceFromSeedSlug(seedSlug!);
         referencePath = built.path;
         console.log(`Auto-built reference: ${referencePath}`);
       } catch (err) {
@@ -236,6 +290,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
   return {
     referencePath,
     sourcePath,
+    videoStagingPath,
     structureReport,
     validateOnly,
     regression,
@@ -245,6 +300,7 @@ async function parseArgs(argv: string[]): Promise<CliArgs> {
     approveReview,
     skipTrustedHash,
     noAutoReference,
+    obsVisualDiagnostic,
     seedSlug,
   };
 }
@@ -255,6 +311,12 @@ function printHelp(): void {
 Primary (recommended):
   --source <path>      Purchased source DOCX (alias: --docx)
                        Derives seed + reference path; auto-builds reference if missing
+
+OBS video staging (game-capture OCR/catalog identity; Go Go pilot):
+  --video-staging <path>   Validated staging dir (e.g. scripts/play-art/video-staging/cfb27/offense/go-go)
+  --validate-only          Map + validate; do not publish
+  --obs-visual-diagnostic  Optional external comparison report (informational; never blocks publish)
+                           Does NOT use play-art:review. Publish when OBS gate PASSes (omit --validate-only).
 
 Backward-compatible:
   --reference <path>   Canonical ordered reference JSON (skips auto-derive)
@@ -268,11 +330,37 @@ Optional:
   --validate-only      Map + validate; do not publish assets or manifest
   --regression         Visual-match benchmark vs published manifest (no publish)
   --positional         Use legacy positional mapping (debug / USC comparison)
-  --approve-review     Allow publish when REVIEW items remain (operator reviewed report)
+  --approve-review     Allow publish when REVIEW items remain (DOCX path only)
   --skip-trusted-hash  Force pure visual path (ignore trusted owned-asset hashes)
-  --overrides <path>   Formation-scoped REVIEW override JSON
+  --overrides <path>   Formation-scoped REVIEW override JSON (DOCX path only)
   --report-dir <path>  Validation report output (default: scripts/play-art/reports)
 `);
+}
+
+function printGoGoProductionState(reference: ReturnType<typeof loadPlayArtReference>): void {
+  const published = loadManifestEntriesForPlaybook(reference);
+  const slug = displayNameToTeamSlug(reference.playbook);
+  const publicPlaybookTree = join(
+    __dirname,
+    "..",
+    "..",
+    "public",
+    "play-art",
+    reference.gameVersion,
+    reference.sideOfBall,
+    slug,
+  );
+  const publicAssetsExist = existsSync(publicPlaybookTree);
+  console.log("");
+  console.log("GO GO PRODUCTION STATE");
+  console.log(`Existing public assets (legacy tree): ${publicAssetsExist ? "present" : 0}`);
+  console.log(`Existing manifest mappings: ${published.length}`);
+  console.log(
+    `Existing source/reference: ${existsSync(join(referencesDir(), `cfb27-offense-${slug}.json`)) ? `references/cfb27-offense-${slug}.json` : "none prior to this run"}`,
+  );
+  console.log(`Potential collision count: ${published.length}`);
+  console.log("No publish yet.");
+  console.log("");
 }
 
 function loadManifestEntriesForPlaybook(
@@ -374,6 +462,7 @@ async function main(): Promise<void> {
   const args = await parseArgs(process.argv.slice(2));
   const reference = loadPlayArtReference(args.referencePath);
   const slug = referenceSlug(reference);
+  const usingVideoStaging = Boolean(args.videoStagingPath);
 
   if (args.structureReport) {
     const summary = await summarizeDocxStructure(args.sourcePath, reference);
@@ -383,17 +472,71 @@ async function main(): Promise<void> {
 
   console.log(`Processing ${reference.playbook} (${reference.gameVersion}, ${reference.sideOfBall})`);
   console.log(`  Reference: ${args.referencePath}`);
-  console.log(`  Source: ${args.sourcePath}`);
+  console.log(
+    usingVideoStaging
+      ? `  Source: video-staging ${args.videoStagingPath}`
+      : `  Source: ${args.sourcePath}`,
+  );
   console.log(`  Expected: ${reference.formations.length} formations, ${totalExpectedPlays(reference)} plays`);
   console.log(
-    `  Mapping: ${args.positional ? "positional (legacy)" : "visual-v3.1 (V3 + geometry REVIEW resolver)"}`,
+    usingVideoStaging
+      ? "  Identity: OBS game-capture OCR → exact catalog (visual diagnostic optional; no play-art:review)"
+      : `  Mapping: ${args.positional ? "positional (legacy)" : "visual-v3.1 (V3 + geometry REVIEW resolver)"}`,
   );
+
+  if (usingVideoStaging) {
+    printGoGoProductionState(reference);
+  }
 
   if (!args.regression) {
     clearStaging(slug);
   }
 
-  const extracted = await extractPlayArtDocx(args.sourcePath, reference);
+  let extracted: Awaited<ReturnType<typeof extractPlayArtDocx>>;
+  let bridgeReport: VideoStagingBridgeReport | null = null;
+  let obsVerification: ObsVisualVerificationReport | null = null;
+
+  if (usingVideoStaging) {
+    const adapted = adaptVideoStagingToExtracted(args.videoStagingPath, reference);
+    printVideoStagingBridgeReport(adapted.bridgeReport);
+    bridgeReport = adapted.bridgeReport;
+    extracted = adapted.extracted as Awaited<ReturnType<typeof extractPlayArtDocx>>;
+
+    mkdirSync(args.reportDir, { recursive: true });
+    const provenancePath = join(args.reportDir, `${slug}-video-ingest-provenance.json`);
+    writeFileSync(
+      provenancePath,
+      `${JSON.stringify(
+        {
+          sourceKind: "video-staging",
+          identityAuthority: "obs-ocr-catalog",
+          ...adapted.bridgeReport,
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+    console.log(`  Video ingest provenance: ${provenancePath}`);
+
+    // Do not leave DOCX-style matcher reports that feed play-art:review.
+    const legacyMatching = join(args.reportDir, `${slug}-matching.json`);
+    if (existsSync(legacyMatching)) {
+      unlinkSync(legacyMatching);
+      console.log(`  Removed legacy matcher report (OBS does not use play-art:review): ${legacyMatching}`);
+    }
+    const legacyOcrVs = join(args.reportDir, `${slug}-ocr-vs-visual.json`);
+    if (existsSync(legacyOcrVs)) {
+      unlinkSync(legacyOcrVs);
+    }
+    const legacyVisualVerify = join(args.reportDir, `${slug}-obs-visual-verification.json`);
+    if (existsSync(legacyVisualVerify)) {
+      unlinkSync(legacyVisualVerify);
+    }
+  } else {
+    extracted = await extractPlayArtDocx(args.sourcePath, reference);
+  }
+
   const effectiveReference = extracted.effectiveReference ?? reference;
   if (
     extracted.structure.omittedFormations &&
@@ -404,9 +547,11 @@ async function main(): Promise<void> {
     );
   }
   console.log(
-    `  Source strips: ${extracted.structure.embeddedImages} embedded ` +
-      `(${extracted.structure.formationHeaders} headers, ${extracted.structure.playStrips} play strips) → ` +
-      `${extracted.structure.generatedPlayCards} play cards`,
+    usingVideoStaging
+      ? `  Video staging cards: ${extracted.structure.generatedPlayCards} → OCR/catalog identity mappings`
+      : `  Source strips: ${extracted.structure.embeddedImages} embedded ` +
+          `(${extracted.structure.formationHeaders} headers, ${extracted.structure.playStrips} play strips) → ` +
+          `${extracted.structure.generatedPlayCards} play cards`,
   );
   if (extracted.formationOcrAssignments) {
     mkdirSync(args.reportDir, { recursive: true });
@@ -436,7 +581,40 @@ async function main(): Promise<void> {
   let omittedCropCount = 0;
   let unfulfilledAllowanceByFormation = new Map<string, number>();
 
-  if (args.positional) {
+  if (usingVideoStaging && bridgeReport) {
+    // OBS path: game-capture OCR/catalog is production identity.
+    // External visual comparison is optional diagnostics only — never publish gate.
+    mapped = attachObsBlockIndexes(
+      mapObsCatalogIdentity({
+        reference: effectiveReference,
+        provenance: bridgeReport.provenance,
+      }),
+      extracted,
+    );
+    formationHeaders = effectiveReference.formations.length;
+    playCards = mapped.length;
+
+    if (args.obsVisualDiagnostic) {
+      const seed = await loadSeedForReference(reference);
+      obsVerification = await verifyObsVisualIdentity({
+        reference: effectiveReference,
+        seed,
+        extracted,
+        provenance: bridgeReport.provenance,
+        mapped,
+      });
+      printObsVisualVerificationReport(obsVerification);
+      mkdirSync(args.reportDir, { recursive: true });
+      const verifyPath = join(args.reportDir, `${slug}-obs-visual-diagnostic.json`);
+      writeFileSync(verifyPath, `${JSON.stringify(obsVerification, null, 2)}\n`, "utf8");
+      console.log(`OBS visual diagnostic (informational): ${verifyPath}`);
+    } else {
+      console.log(
+        "  OBS visual diagnostic: skipped (game capture is source of truth; " +
+          "pass --obs-visual-diagnostic for optional external comparison)",
+      );
+    }
+  } else if (args.positional) {
     const positional = mapPlayArtPositionally(effectiveReference, extracted);
     mapped = positional.mapped;
     formationHeaders = positional.formationHeaders;
@@ -463,12 +641,17 @@ async function main(): Promise<void> {
     console.log(`Matching report: ${matchingReportPath}`);
 
     if (matchingReport.status !== "pass" && !args.regression && !args.approveReview) {
-      clearStaging(slug);
-      console.error(
-        "Pipeline aborted: visual matching not ready to publish. " +
-          "Resolve REVIEW items via matching-overrides or fix FAIL matches.",
+      if (!args.validateOnly) {
+        clearStaging(slug);
+        console.error(
+          "Pipeline aborted: visual matching not ready to publish. " +
+            "Resolve REVIEW items via matching-overrides or fix FAIL matches.",
+        );
+        process.exit(1);
+      }
+      console.log(
+        "Validate-only: matching has REVIEW/FAIL — reports written; publish skipped.",
       );
-      process.exit(1);
     }
   }
 
@@ -503,7 +686,108 @@ async function main(): Promise<void> {
   printValidationSummary(report);
   console.log(`Validation report: ${reportPath}`);
 
-  if (report.status === "fail") {
+  if (usingVideoStaging && bridgeReport) {
+    const ns = resolveVideoStagingNamespace(args.videoStagingPath);
+    const namespaceOk =
+      ns.gameVersion === reference.gameVersion.toLowerCase() &&
+      ns.side === reference.sideOfBall.toLowerCase() &&
+      ns.playbookDisplayName.trim() === reference.playbook.trim();
+
+    let missingSourceCards = 0;
+    let missingArtCrops = 0;
+    for (const prov of bridgeReport.provenance) {
+      if (!existsSync(prov.sourceCardPath)) missingSourceCards += 1;
+      if (!existsSync(prov.artCropPath)) missingArtCrops += 1;
+    }
+
+    const gate = evaluateObsPublishGate({
+      namespaceOk,
+      expectedIdentities: bridgeReport.expectedIdentities,
+      normalizedInputs: bridgeReport.normalizedInputs,
+      uniqueIdentities: bridgeReport.uniqueFormationPlayCandidates,
+      duplicates:
+        bridgeReport.uniqueFormationPlayCandidates === bridgeReport.expectedIdentities
+          ? 0
+          : Math.max(
+              0,
+              bridgeReport.normalizedInputs - bridgeReport.uniqueFormationPlayCandidates,
+            ),
+      unresolvedOcr: 0,
+      catalogMismatches: 0,
+      missingSourceCards: missingSourceCards + bridgeReport.missingInputs.length,
+      missingArtCrops,
+      structuralValidationPass: report.status === "pass",
+    });
+    console.log("");
+    console.log("OBS PUBLISH GATE");
+    console.log(`Namespace: ${ns.gameVersion.toUpperCase()} / ${ns.side === "offense" ? "Offense" : "Defense"} / ${ns.playbookDisplayName}`);
+    console.log(`Catalog identities: ${bridgeReport.expectedIdentities}`);
+    console.log(`Validated identities: ${bridgeReport.normalizedInputs}`);
+    console.log(`Unique identities: ${bridgeReport.uniqueFormationPlayCandidates}`);
+    console.log(`Missing: ${bridgeReport.missingInputs.length}`);
+    console.log(`Duplicates: ${gate.failures.some((f) => f.startsWith("Duplicates")) ? "FAIL" : 0}`);
+    console.log(`Source crops: ${bridgeReport.normalizedInputs - missingSourceCards}/${bridgeReport.normalizedInputs}`);
+    console.log(`Production art crops: ${bridgeReport.normalizedInputs - missingArtCrops}/${bridgeReport.normalizedInputs}`);
+    console.log(`Structural validation: ${report.status === "pass" ? "PASS" : "FAIL"}`);
+    if (obsVerification) {
+      console.log(
+        `Visual diagnostic disagreements: ${obsVerification.visualDisagreement} informational`,
+      );
+    } else {
+      console.log("Visual diagnostic disagreements: skipped (informational only when enabled)");
+    }
+    if (gate.ready) {
+      console.log("Publish gate: PASS — READY TO PUBLISH (not auto-published)");
+    } else {
+      console.log("Publish gate: FAIL");
+      for (const failure of gate.failures) {
+        console.log(`  - ${failure}`);
+      }
+      console.log("Do not run play-art:review. Fix source prep and rerun ingest validation.");
+    }
+    const gatePath = join(args.reportDir, `${slug}-obs-publish-gate.json`);
+    writeFileSync(
+      gatePath,
+      `${JSON.stringify(
+        {
+          ...gate,
+          namespaceOk,
+          identityAuthority: "obs-game-capture-ocr-catalog",
+          visualAffectsPublish: false,
+          bridge: {
+            expectedIdentities: bridgeReport.expectedIdentities,
+            normalizedInputs: bridgeReport.normalizedInputs,
+            uniqueIdentities: bridgeReport.uniqueFormationPlayCandidates,
+            missingInputs: bridgeReport.missingInputs.length,
+            missingSourceCards,
+            missingArtCrops,
+          },
+          visualDiagnostic: obsVerification
+            ? {
+                visualAgreement: obsVerification.visualAgreement,
+                visualDisagreement: obsVerification.visualDisagreement,
+                visualUnavailable: obsVerification.visualUnavailable,
+                informationalOnly: true,
+              }
+            : null,
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+    console.log(`Publish gate report: ${gatePath}`);
+
+    if (!gate.ready) {
+      if (!args.validateOnly) {
+        clearStaging(slug);
+        console.error("Pipeline aborted: OBS publish gate failed. Published assets unchanged.");
+      }
+      process.exit(1);
+    }
+  }
+
+  if (report.status === "fail" && !args.validateOnly) {
     clearStaging(slug);
     console.error("Pipeline aborted: validation failed. Published assets and manifest were not modified.");
     process.exit(1);
@@ -514,6 +798,12 @@ async function main(): Promise<void> {
       `Validate-only mode: ${mapped.length} logical mappings → ${uniqueAssetCount} unique physical assets ` +
         `(${mapped.length - uniqueAssetCount} duplicates eliminated). Skipping publish.`,
     );
+    if (usingVideoStaging) {
+      console.log("Production changes: NONE");
+      console.log(
+        "OBS identity path complete — game capture is source of truth; no play-art:review queue.",
+      );
+    }
     process.exit(0);
   }
 

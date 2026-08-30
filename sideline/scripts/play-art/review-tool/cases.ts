@@ -323,6 +323,11 @@ export function parsePlaybookArg(raw: string | undefined): PlaybookSlug {
   return v;
 }
 
+/**
+ * DOCX matcher REVIEW loader only.
+ * OBS / video-staging sources do NOT use play-art:review — game-capture OCR/catalog
+ * identity is authoritative; optional visual diagnostics never create review work.
+ */
 export async function loadReviewData(playbook: PlaybookSlug): Promise<LoadedReviewData> {
   const available = discoverIngestedPlaybooks();
   const discovered = available.find((p) => p.slug === playbook);

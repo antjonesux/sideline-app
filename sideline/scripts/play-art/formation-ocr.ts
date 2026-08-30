@@ -610,6 +610,47 @@ async function preprocessHeaderForOcr(cardBuffer: Buffer): Promise<Buffer> {
     .toBuffer();
 }
 
+function scoreHeaderParse(parsed: {
+  formationText: string;
+  playNameText: string | null;
+}): number {
+  let score = 0;
+  if (parsed.formationText) score += Math.min(40, parsed.formationText.length);
+  if (parsed.playNameText) {
+    score += Math.min(40, parsed.playNameText.length) * 2;
+    if (/\s/.test(parsed.playNameText)) score += 8;
+    // Prefer play names that look like words, not mashed junk.
+    const letters = parsed.playNameText.replace(/[^A-Za-z]/g, "");
+    const vowels = (letters.match(/[AEIOUaeiou]/g) ?? []).length;
+    if (letters.length >= 4 && vowels / letters.length >= 0.2) score += 10;
+  }
+  return score;
+}
+
+function runTesseractHeader(
+  tesseractPath: string,
+  imagePath: string,
+  psm: string,
+): string {
+  const result = spawnSync(
+    tesseractPath,
+    [
+      imagePath,
+      "stdout",
+      "--psm",
+      psm,
+      "-c",
+      "tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 /",
+    ],
+    { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 },
+  );
+  if (result.status !== 0) {
+    const err = (result.stderr || result.stdout || "tesseract failed").trim();
+    throw new Error(`tesseract failed: ${err}`);
+  }
+  return (result.stdout ?? "").trim();
+}
+
 export async function ocrPlayCardHeader(
   cardBuffer: Buffer,
   tesseractPath = whichTesseract(),
@@ -619,21 +660,29 @@ export async function ocrPlayCardHeader(
   const imagePath = join(dir, "header.png");
   try {
     writeFileSync(imagePath, prepared);
-    const result = spawnSync(
-      tesseractPath,
-      [imagePath, "stdout", "--psm", "6", "-c", "tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 /"],
-      { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 },
-    );
-    if (result.status !== 0) {
-      const err = (result.stderr || result.stdout || "tesseract failed").trim();
-      throw new Error(`tesseract failed: ${err}`);
+    // PSM 6 is the primary path; PSM 4 recovers some dense play-name headers
+    // (e.g. HB ZONE / CURL FLATS / HB SPLIT 0) that PSM 6 mangled.
+    const candidates: Array<{ rawText: string; parsed: ReturnType<typeof parseHeaderOcrText> }> =
+      [];
+    for (const psm of ["6", "4"]) {
+      try {
+        const rawText = runTesseractHeader(tesseractPath, imagePath, psm);
+        candidates.push({ rawText, parsed: parseHeaderOcrText(rawText) });
+      } catch {
+        /* try next psm */
+      }
     }
-    const rawText = (result.stdout ?? "").trim();
-    const parsed = parseHeaderOcrText(rawText);
+    if (candidates.length === 0) {
+      throw new Error("tesseract failed: no usable PSM result");
+    }
+    candidates.sort(
+      (a, b) => scoreHeaderParse(b.parsed) - scoreHeaderParse(a.parsed),
+    );
+    const best = candidates[0];
     return {
-      rawText,
-      formationText: parsed.formationText,
-      playNameText: parsed.playNameText,
+      rawText: best.rawText,
+      formationText: best.parsed.formationText,
+      playNameText: best.parsed.playNameText,
     };
   } finally {
     rmSync(dir, { recursive: true, force: true });

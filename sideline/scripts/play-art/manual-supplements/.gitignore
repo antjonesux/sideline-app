@@ -1,0 +1,11 @@
+# Ignore operator screenshots; keep layout + docs.
+*.png
+*.jpg
+*.jpeg
+*.PNG
+*.JPG
+*.JPEG
+.DS_Store
+*.txt
+*.json
+!README.md
