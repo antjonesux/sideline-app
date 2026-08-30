@@ -23,18 +23,18 @@
     {
       "name": "Gun Deuce Close",
       "plays": [
-        "0 1 TRAP",
         "BENCH",
         "COUNTER Y",
         "HB ZONE WK",
-        "INSIDE ZONE SPLIT",
         "MTN DUO",
         "MTN ZONE SPLIT",
         "PA BOOT SLIDE",
-        "PA DRAG WHEEL",
         "PA MISDIRECTION",
         "PA MTN SPIDER Y LEAK",
-        "PA X POST CROSS"
+        "PA X POST CROSS",
+        "SPACING SWITCH",
+        "STICK",
+        "ZONE SPLIT WK"
       ]
     },
     {
@@ -68,6 +68,7 @@
     {
       "name": "Singleback Wing",
       "plays": [
+        "CLOSE PA CROSS",
         "CLOSE PA POST",
         "CLOSE ZONE STRG",
         "CURL COMBO",

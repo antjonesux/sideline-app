@@ -29,22 +29,22 @@ export const CFB27_IOWA_STATE_SEED: TeamPlaybookSeed = {
       ],
     },
     {
-      // Vault DOCX: 12 play cards (header chrome says 15; cfb.fan over-counted).
+      // Vault DOCX: 12 play cards (QA57 order).
       formation: "Gun Deuce Close",
       formationType: "Gun",
       plays: [
-        { playName: "0 1 TRAP", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "BENCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COUNTER Y", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB ZONE WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
-        { playName: "INSIDE ZONE SPLIT", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "MTN DUO", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "MTN ZONE SPLIT", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "PA BOOT SLIDE", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
-        { playName: "PA DRAG WHEEL", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA MISDIRECTION", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA MTN SPIDER Y LEAK", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "PA X POST CROSS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
+        { playName: "SPACING SWITCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "STICK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "ZONE SPLIT WK", isNewIn26: false, isNewIn27: false, playType: "Run" },
       ],
     },
     {
@@ -81,6 +81,7 @@ export const CFB27_IOWA_STATE_SEED: TeamPlaybookSeed = {
       formation: "Singleback Wing",
       formationType: "Singleback",
       plays: [
+        { playName: "CLOSE PA CROSS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "CLOSE PA POST", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "CLOSE ZONE STRG", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "CURL COMBO", isNewIn26: false, isNewIn27: false, playType: "Pass" },

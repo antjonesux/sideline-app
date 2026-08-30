@@ -14,6 +14,7 @@ export const CFB27_RUTGERS_SEED: TeamPlaybookSeed = {
       formation: "Singleback Wing",
       formationType: "Singleback",
       plays: [
+        { playName: "CLOSE PA CROSS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "CLOSE PA SAIL", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "CLOSE ZONE STRG", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB DUO", isNewIn26: false, isNewIn27: false, playType: "Run" },

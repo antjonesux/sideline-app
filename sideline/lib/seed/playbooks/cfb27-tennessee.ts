@@ -163,7 +163,7 @@ export const CFB27_TENNESSEE_SEED: TeamPlaybookSeed = {
         { playName: "MESH TRAFFIC", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "MESH TRAFFIC X UNDER", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "QB SWEEP", isNewIn26: false, isNewIn27: false, playType: "Run" },
-        { playName: "RPO ZONE ALERT FLAT", isNewIn26: false, isNewIn27: false, playType: "RPO" },
+        { playName: "RPO ALERT SLANT", isNewIn26: false, isNewIn27: false, playType: "RPO" },
         { playName: "RZ PA OVER DBL POST", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "RZ PA X WHIP", isNewIn26: false, isNewIn27: false, playType: "Play Action" },
         { playName: "Z SPOT GOALLINE", isNewIn26: false, isNewIn27: false, playType: "Pass" },

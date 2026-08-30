@@ -6,6 +6,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 
 
+## 2026-08-30 — Play-art Batch 14 publish (final vault DOCX queue)
+
+### What
+
+- Published remaining vault books: **Mississippi State**, **San Jose State**, **Rutgers**, **Tennessee**, **Iowa State**, **Air Raid** (+2,742 assets).
+- Manifest **53,487 → 56,229**.
+- Seed/reference fixes from QA57: San Jose State / Rutgers **CLOSE PA CROSS**; Tennessee **RPO ALERT SLANT** (replaces RPO ZONE ALERT FLAT in Gun Bunch X Nasty); Iowa State **Gun Deuce Close** reordered to vault 12-play set.
+
+### Why
+
+Seal the last books that had DOCX in `scripts/play-art/source/` after operator QA57 skip documentation.
+
+### Status
+
+- Vault DOCX queue complete for all books present under `source/`.
+- Remaining offense gaps need new DOCX (see next entry / session).
+- Matching overrides remain local/gitignored.
+
 ## 2026-08-29 — Play-art Batch 13 publish + QA57 skip fixes
 
 ### What
