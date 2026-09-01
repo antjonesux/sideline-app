@@ -291,7 +291,6 @@ export async function processScreenshotScreens(input: {
   sourceType: CardSourceType;
   stemPrefix: string;
 }): Promise<ScreenshotScreenStats> {
-  const profile = OBS_1920x1080_TOP_BAND;
   mkdirSync(input.screensDir, { recursive: true });
   mkdirSync(input.sourceCardsDir, { recursive: true });
   mkdirSync(input.artCropsDir, { recursive: true });
@@ -314,6 +313,7 @@ export async function processScreenshotScreens(input: {
   let unresolvedPlayOcr = 0;
   let invalidCropGeometry = 0;
   let missingArtCrops = 0;
+  let lastProfile = OBS_1920x1080_TOP_BAND;
 
   for (let i = 0; i < input.imagePaths.length; i += 1) {
     const imagePath = input.imagePaths[i];
@@ -331,6 +331,8 @@ export async function processScreenshotScreens(input: {
       continue;
     }
 
+    const profile = resolveCropProfile(dim.width, dim.height);
+    lastProfile = profile;
     const stagedScreenPath = join(input.screensDir, fileName);
     copyFileSync(imagePath, stagedScreenPath);
 
@@ -639,6 +641,6 @@ export async function processScreenshotScreens(input: {
     unresolvedPlayOcr,
     invalidCropGeometry,
     missingArtCrops,
-    cropProfileId: profile.id,
+    cropProfileId: lastProfile.id,
   };
 }

@@ -415,16 +415,34 @@ function main(): void {
   );
 
   const queueLines: string[] = [];
-  queueLines.push("# Defensive Unique Capture Queue");
+  queueLines.push("# Defensive Unique Capture Queue (Deprecated)");
+  queueLines.push("");
+  queueLines.push("**This file is NOT authoritative.**");
+  queueLines.push("");
+  queueLines.push("Authoritative unresolved defensive work:");
+  queueLines.push("- `DEFENSIVE_RESOLUTION_QUEUE.md` — source exists; safe canonical ID not yet established");
+  queueLines.push("- Capture required ONLY for `GENUINELY_NOT_CAPTURED` / `INVALID_EXISTING_CAPTURE`");
+  queueLines.push("");
+  queueLines.push("## NO DEFENSIVE CAPTURES REQUIRED");
   queueLines.push("");
   queueLines.push(
-    "Organized by formation → play → affected playbooks. Excludes identities already satisfiable from existing validated art elsewhere.",
+    "`AMBIGUOUS_SOURCE` and `SOURCE_FOUND_RESOLUTION_REQUIRED` must not appear in a capture-required queue.",
   );
   queueLines.push("");
-  queueLines.push("## Summary");
+  queueLines.push(
+    "Run `npm run play-art:defense-global-recovery` to regenerate authoritative operator queues from the latest recovery pass.",
+  );
   queueLines.push("");
-  queueLines.push(`Total missing playbook mappings: ${totalMappings}`);
-  queueLines.push(`Unique capture-required identities: ${uniqueNeedsCapture.length}`);
+  queueLines.push("---");
+  queueLines.push("");
+  queueLines.push("## Legacy Overlap Analysis (reference only)");
+  queueLines.push("");
+  queueLines.push(
+    "The section below reflects pre-recovery overlap analysis and may overstate capture need.",
+  );
+  queueLines.push("");
+  queueLines.push(`Total missing playbook mappings (legacy): ${totalMappings}`);
+  queueLines.push(`Unique identities flagged NOT_CAPTURED (legacy): ${uniqueNeedsCapture.length}`);
   queueLines.push(`Existing-art reuse opportunities: ${uniqueReusable} unique / ${reusableMappings} mappings`);
   queueLines.push("");
 
@@ -493,6 +511,23 @@ function main(): void {
   const queuePath = join(STAGING_ROOT, "DEFENSIVE_UNIQUE_CAPTURE_QUEUE.md");
   writeFileSync(analysisPath, `${analysisLines.join("\n").trimEnd()}\n`, "utf8");
   writeFileSync(queuePath, `${queueLines.join("\n").trimEnd()}\n`, "utf8");
+
+  const resolutionStubPath = join(STAGING_ROOT, "DEFENSIVE_RESOLUTION_QUEUE.md");
+  if (!existsSync(resolutionStubPath)) {
+    writeFileSync(
+      resolutionStubPath,
+      [
+        "# Defensive Resolution Queue",
+        "",
+        "Run `npm run play-art:defense-global-recovery` to populate this file from the latest recovery pass.",
+        "",
+        "This queue lists identities where source pixels exist but exact canonical identity",
+        "has not yet been established safely. No new defensive screenshots are required for these rows.",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+  }
 
   const jsonPath = join(STAGING_ROOT, "DEFENSIVE_CAPTURE_OVERLAP.json");
   writeFileSync(

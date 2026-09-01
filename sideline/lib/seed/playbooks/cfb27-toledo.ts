@@ -60,7 +60,6 @@ export const CFB27_TOLEDO_SEED: TeamPlaybookSeed = {
         { playName: "RETURN WHIP SWITCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "RETURN WHIP TRAIL CORNER", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "RPO ZONE ALERT", isNewIn26: false, isNewIn27: false, playType: "RPO" },
-        { playName: "RPO ZONE ALERT FLAT", isNewIn26: false, isNewIn27: false, playType: "RPO" },
         { playName: "RZ PA OVER DBL POST", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "RZ PA X WHIP", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "SMASH RETURN", isNewIn26: false, isNewIn27: false, playType: "Pass" },

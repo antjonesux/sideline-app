@@ -5,6 +5,8 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { normalizePlayName } from "../../../lib/utils";
+import { formationOcrSupportsTarget } from "./defensive-formation-evidence";
+import { recoveryNeedleOrSourceGroundedMatch } from "./defensive-recovery-needles";
 import {
   DEFENSIVE_REUSE_GAME_VERSION,
   DEFENSIVE_REUSE_SIDE,
@@ -200,12 +202,12 @@ export function filterSourceCandidates(
   const playNorm = normalizePlayName(targetPlay);
   const playTokens = playNorm.split(/\s+/).filter((t) => t.length >= 3);
   const isGoalLine = /^GOAL LINE/i.test(targetFormation);
-  const formRawUpper = (entry.formationOcrRaw ?? "").toUpperCase();
 
   return index.filter((entry) => {
     if (entry.validationStatus === "invalid") return false;
     const playOcr = normalizePlayName(entry.playNameOcr ?? entry.playNameOcrRaw ?? "");
     const formOcr = (entry.formationOcr ?? entry.formationOcrRaw ?? "").toUpperCase();
+    const formRawUpper = (entry.formationOcrRaw ?? "").toUpperCase();
 
     if (entry.matchedFormation === targetFormation && entry.matchedPlay) {
       if (normalizePlayName(entry.matchedPlay) === playNorm) return true;
@@ -230,9 +232,26 @@ export function filterSourceCandidates(
       const candidateNorm = normalizePlayName(candidate);
       if (candidateNorm === playNorm) return true;
       if (playTokens.some((token) => candidateNorm.includes(token))) return true;
+      if (recoveryNeedleOrSourceGroundedMatch({
+        formationOcrRaw: formRawUpper,
+        formationOcr: entry.formationOcr ?? "",
+        targetFormation,
+        targetPlay,
+        playOcr: candidate,
+        allFormationNames: [],
+      })) return true;
     }
 
-    if (entry.validationStatus === "unresolved") return true;
+    if (
+      formationOcrSupportsTarget({
+        formationOcrRaw: formRawUpper,
+        formationOcr: entry.formationOcr ?? "",
+        targetFormation,
+        allFormationNames: [],
+      })
+    ) {
+      return true;
+    }
 
     return false;
   });

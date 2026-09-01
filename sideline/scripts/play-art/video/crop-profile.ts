@@ -35,7 +35,31 @@ export const OBS_1920x1080_TOP_BAND: VideoCropProfile = {
   },
 };
 
-const PROFILES: VideoCropProfile[] = [OBS_1920x1080_TOP_BAND];
+/**
+ * Pre-cropped OBS top play-call band (1920×380) — same card geometry as the top
+ * 380px of obs-1920x1080-top-band-v1 without letterboxing.
+ */
+export const OBS_1920x380_TOP_BAND: VideoCropProfile = {
+  id: "obs-1920x380-top-band-v1",
+  frameWidth: 1920,
+  frameHeight: 380,
+  contentBand: { x: 0, y: 0, width: 1, height: 1 },
+  navBand: { x: 0.12, y: 0, width: 0.76, height: 44 / 380 },
+  cards: {
+    left: { x: 72 / 1920, y: 45 / 380, width: 545 / 1920, height: 334 / 380 },
+    middle: { x: 687 / 1920, y: 45 / 380, width: 545 / 1920, height: 334 / 380 },
+    right: { x: 1302 / 1920, y: 45 / 380, width: 545 / 1920, height: 334 / 380 },
+  },
+  cardHeaderHeightFrac: FORMATION_HEADER_REGION.height / OWNED_CARD_HEIGHT,
+  cardArt: {
+    x: 0.02,
+    y: FORMATION_HEADER_REGION.height / OWNED_CARD_HEIGHT,
+    width: 0.96,
+    height: 1 - FORMATION_HEADER_REGION.height / OWNED_CARD_HEIGHT - 0.12,
+  },
+};
+
+const PROFILES: VideoCropProfile[] = [OBS_1920x1080_TOP_BAND, OBS_1920x380_TOP_BAND];
 
 export function resolveCropProfile(
   frameWidth: number,

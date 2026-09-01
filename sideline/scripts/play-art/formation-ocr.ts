@@ -235,6 +235,16 @@ export function normalizeFormationOcrText(input: string): string {
     .trim();
 }
 
+/** Play-name header OCR: preserve numeric tokens (617, 46 Y CROSS). */
+export function normalizePlayHeaderOcrText(input: string): string {
+  return input
+    .toUpperCase()
+    .replace(/[®©™@]/g, " ")
+    .replace(/[^A-Z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
   if (a.length === 0) return b.length;
@@ -283,7 +293,7 @@ export function parseHeaderOcrText(raw: string): {
     if (parts.length >= 2) {
       return {
         formationText: normalizeFormationOcrText(parts[0]),
-        playNameText: normalizeFormationOcrText(parts.slice(1).join(" ")),
+        playNameText: normalizePlayHeaderOcrText(parts.slice(1).join(" ")),
       };
     }
     return { formationText: normalizeFormationOcrText(lines[0]), playNameText: null };
@@ -291,7 +301,7 @@ export function parseHeaderOcrText(raw: string): {
 
   return {
     formationText: normalizeFormationOcrText(lines[0]),
-    playNameText: normalizeFormationOcrText(lines[1]),
+    playNameText: normalizePlayHeaderOcrText(lines[1]),
   };
 }
 
@@ -322,8 +332,11 @@ export function cleanSectionHeaderOcrText(input: string): string {
     .replace(/\bYFLEX\b/gi, "Y FLEX")
     .replace(/\bYSLOT\b/gi, "Y SLOT")
     .replace(/\bXNASTY\b/gi, "X NASTY")
-    .replace(/\bHBSTR\b/gi, "HB STR");
+    .replace(/\bHBSTR\b/gi, "HB STR")
+    .replace(/\bOFF WE\b/gi, "OFF WK");
   let cleaned = normalizeFormationOcrText(deconfused);
+  // Leading digit crumbs before personnel ("6 GUN STACK…") — not real tokens.
+  cleaned = cleaned.replace(/^\d+\s+(?=GUN\b)/i, "").trim();
   // Leading 1–2 letter OCR crumbs ("A TWINS…", "Q SPLIT…", "CL TREY…") — not real tokens.
   cleaned = cleaned.replace(/^(A|Q|CL)\s+/i, "").trim();
   return cleaned;

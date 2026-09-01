@@ -17,7 +17,7 @@ import {
   buildFormationCoverage,
   buildRecaptureQueue,
 } from "./formation-coverage";
-import { compareToCatalog } from "./ocr-and-catalog";
+import { compareToCatalog, rematchCardsToCatalog } from "./ocr-and-catalog";
 import {
   cardIdentityKey,
   listScreenshotImages,
@@ -152,7 +152,10 @@ export async function processManualSupplements(input: {
   mkdirSync(stagingRoot, { recursive: true });
 
   const videoReport = loadVideoReport(stagingRoot);
-  const videoOnlyCards = annotateVideoCards(videoReport?.cards ?? []);
+  const videoOnlyCards = rematchCardsToCatalog(
+    annotateVideoCards(videoReport?.cards ?? []),
+    input.reference,
+  );
   const videoCatalog = compareToCatalog(input.reference, videoOnlyCards);
   const videoFormationCoverage = buildFormationCoverage(
     input.reference,

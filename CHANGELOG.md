@@ -5,6 +5,33 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-01 — CFB27 offensive source coverage complete (10,633/10,633)
+
+### What
+
+- Completed global offensive source recovery: **10,633 expected / 10,633 resolved / 0 missing**. Operator queues now show **0** capture-required and **0** processing-resolution items across the full CFB27 offense corpus.
+- Added `play-art:offense-global-recovery` plus offensive reuse/recovery modules (`offensive-art-reuse`, `offensive-global-source-index`, `offensive-source-recovery`, `offense-global-recovery-apply`) with regression tests (`play-art:test-offense-recovery`, `play-art:test-offense-canonical`).
+- Extended OCR/catalog rematch (`rematchCardsToCatalog`) and normalizations: `PO READ/PEEK/BUBBLE → RPO`, `STRONG FLOOD XCROSS → STRONG FLOOD X-CROSS`, `SMASU → SMASH`, numeric play-header preservation (`617`), BDUO/DUO canonical handling.
+- **Catalog corrections** (seed-only; no generic identity aliases):
+  - **Western Michigan** — `27 MTN PA HB SEAM` → `Z MTN PA HB SEAM` (`Gun Split Z Plus`)
+  - **TCU** — `HUSKIES SPRINT SLOT OUT` → `SPRINT SLOT OUT`
+  - **UTSA** — `MTN HILLTOPPERS STICK WHEEL` → `MTN STICK WHEEL`
+  - **Toledo** — removed spurious `RPO ZONE ALERT FLAT`
+- **Final identity resolutions:** WMU `Z MTN PA HB SEAM` from existing local video/supplement source; UTEP `RPO BUBBLE Y POP` from existing local video (`PO BUBBLE Y POP` OCR).
+- Added first-class screenshot source scaffolding (`source-screenshots/`, `screenshot-staging/`, band crop profile `obs-1920x380-top-band-v1`) and manual-supplement symlinks for remaining offense books.
+- Defensive recovery hardening: formation evidence, recovery needles, global index OCR filtering, `SOURCE_DISCOVERY_DEFECT` classification.
+
+### Why
+
+Operator-verified corrections and exhaustive corpus search showed the last two “missing” offensive identities were catalog/OCR defects with existing local pixels—not new capture gaps. Recovery tooling and rematch fixes close the loop before the offensive publish gate.
+
+### Status
+
+- **OFFENSIVE SOURCE COVERAGE COMPLETE:** yes (10,633/10,633).
+- **READY_FOR_OFFENSIVE_PUBLISH_GATE:** yes — staging only; **not published** in this change.
+- Production manifest/assets unchanged.
+
+
 ## 2026-09-01 — CFB27 offensive OBS reconciliation + 11-book publish
 
 ### What

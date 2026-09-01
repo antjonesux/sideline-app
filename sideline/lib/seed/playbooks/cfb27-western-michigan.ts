@@ -416,7 +416,7 @@ export const CFB27_WESTERN_MICHIGAN_SEED: TeamPlaybookSeed = {
       formation: "Gun Split Z Plus",
       formationType: "Gun",
       plays: [
-        { playName: "27 MTN PA HB SEAM", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "Z MTN PA HB SEAM", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "MTN ALERT SWING POWER G", isNewIn26: false, isNewIn27: false, playType: "Screen" },
         { playName: "MTN ALERT SWING ZONE", isNewIn26: false, isNewIn27: false, playType: "Screen" },
         { playName: "MTN PA WHEEL", isNewIn26: false, isNewIn27: false, playType: "Pass" },

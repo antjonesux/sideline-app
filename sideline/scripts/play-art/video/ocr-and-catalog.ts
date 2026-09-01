@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { normalizePlayName } from "../../../lib/utils";
+import { normalizeCanonicalOffensivePlayName } from "./offensive-canonical-play";
 import {
   matchKnownFormation,
   normalizeFormationOcrText,
@@ -33,13 +34,16 @@ function levenshtein(a: string, b: string): number {
 }
 
 /** Common game-capture play-label OCR confusions (OBS/screenshot path only). */
-function normalizePlayOcrText(raw: string): string {
+export function normalizePlayOcrText(raw: string): string {
   let t = raw.trim().toUpperCase();
   t = t.replace(/^UP\s+/, "HB ");
   t = t.replace(/^UE\s+/, "HB ");
   t = t.replace(/^WE\s+/, "HB ");
   t = t.replace(/^UWE\s+/, "HB ");
-  t = t.replace(/^PO\s+(READ|PEEK)\b/, "RPO $1");
+  t = t.replace(/^PN\b/, "PA");
+  t = t.replace(/\bCURTIS\s+MS\b/g, "CURLS");
+  t = t.replace(/\b7 SHALLOW CROSS\b/g, "Z SHALLOW CROSS");
+  t = t.replace(/^PO\s+(READ|PEEK|BUBBLE)\b/, "RPO $1");
   t = t.replace(/^PPO\s+/, "RPO ");
   t = t.replace(/\bOUICK\b/g, "QUICK");
   t = t.replace(/\bJET\s+OB\b/g, "JET QB");
@@ -58,6 +62,8 @@ function normalizePlayOcrText(raw: string): string {
     t = t.replace(/\bDIVIDE\s+X-?DRAG\b/g, "BUNCH DIVIDE X-DRAG");
   }
   t = t.replace(/\bXDRAG\b/g, "X-DRAG");
+  t = t.replace(/\bSTRONG FLOOD XCROSS\b/g, "STRONG FLOOD X-CROSS");
+  t = t.replace(/\bSMASU\b/g, "SMASH");
   return t;
 }
 
@@ -218,6 +224,29 @@ export function matchPlayInFormation(
   const naturalNeedle = normalizePlayName(cleaned);
   if (!naturalNeedle) return { matchedPlay: null, matchConfidence: "none" };
 
+  // OCR drops leading 0 on trap runs (0 1 TRAP → 1TRAP).
+  if (
+    naturalNeedle === "1 TRAP" ||
+    naturalNeedle.replace(/\s+/g, "") === "1TRAP"
+  ) {
+    const trap = formationPlays.find(
+      (p) => normalizePlayName(p) === normalizePlayName("0 1 TRAP"),
+    );
+    if (trap) return { matchedPlay: trap, matchConfidence: "exact" };
+  }
+
+  // OCR glues 46 + Z → 467 (467CROSS → 46 Z CROSS only).
+  const compactNeedle = naturalNeedle.replace(/\s+/g, "");
+  if (/^467CROSS$/i.test(compactNeedle)) {
+    const zCross = formationPlays.find(
+      (p) => normalizePlayName(p).replace(/\s+/g, "") === "46ZCROSS",
+    );
+    if (zCross) {
+      return { matchedPlay: zCross, matchConfidence: "fuzzy" };
+    }
+    return { matchedPlay: null, matchConfidence: "none" };
+  }
+
   // OCR often drops formation prefix digits (619 SAIL → SAIL).
   if (naturalNeedle === "SAIL") {
     const sailPlays = formationPlays.filter((p) =>
@@ -248,16 +277,6 @@ export function matchPlayInFormation(
     if (!hasSplitVariant && baseNeedle) {
       const baseHit = matchPlayNeedle(baseNeedle, formationPlays);
       if (baseHit.matchedPlay) return baseHit;
-    }
-  }
-
-  // MTN STICK WHEEL OCR often omits the HILLTOPPERS token when it is unique in formation.
-  if (naturalNeedle === "MTN STICK WHEEL") {
-    const stickWheelHits = formationPlays.filter((p) =>
-      playEndsWithToken(normalizePlayName(p), "STICK WHEEL"),
-    );
-    if (stickWheelHits.length === 1) {
-      return { matchedPlay: stickWheelHits[0], matchConfidence: "fuzzy" };
     }
   }
 
@@ -300,6 +319,80 @@ export function matchPlayInFormation(
   }
 
   return { matchedPlay: null, matchConfidence: "none" };
+}
+
+/** Re-resolve stored OCR against the current reference catalog (e.g. after seed correction). */
+export function rematchCardsToCatalog(
+  cards: ExtractedVideoCard[],
+  reference: PlayArtReference,
+): ExtractedVideoCard[] {
+  const knownFormations = reference.formations.map((f) => f.name);
+  const playsByFormation = new Map(
+    reference.formations.map((f) => [f.name, f.plays] as const),
+  );
+
+  return cards.map((card) => {
+    if (card.emptySlot || card.screenRejected) return card;
+
+    const formationCandidates = [
+      card.formationOcr,
+      ...(card.formationOcrRaw ?? "")
+        .split(/\n/)
+        .map((line) => line.trim())
+        .filter(Boolean),
+    ].filter(Boolean) as string[];
+
+    let formationName: string | null = null;
+    let formationMatchConfidence: ExtractedVideoCard["formationMatchConfidence"] = "none";
+    for (const candidate of formationCandidates) {
+      const match = matchKnownFormation(candidate, knownFormations);
+      if (match.matchedFormation && match.matchConfidence !== "none") {
+        formationName = match.matchedFormation;
+        formationMatchConfidence = match.matchConfidence;
+        break;
+      }
+    }
+
+    const plays = formationName ? (playsByFormation.get(formationName) ?? []) : [];
+    const playCandidates = [
+      card.playNameOcr,
+      card.playNameOcrRaw,
+      ...(card.formationOcrRaw ?? "")
+        .split(/\n/)
+        .slice(1)
+        .map((line) => line.trim())
+        .filter(Boolean),
+    ].filter(Boolean) as string[];
+
+    let matchedPlay: string | null = null;
+    let playMatchConfidence: ExtractedVideoCard["playMatchConfidence"] = "none";
+    for (const playOcr of playCandidates) {
+      const playMatch = matchPlayInFormation(playOcr, plays);
+      if (
+        playMatch.matchedPlay &&
+        playMatch.matchConfidence !== "none" &&
+        playMatch.matchConfidence !== "skipped"
+      ) {
+        matchedPlay = playMatch.matchedPlay;
+        playMatchConfidence = playMatch.matchConfidence;
+        break;
+      }
+    }
+
+    const catalogValid =
+      formationMatchConfidence !== "none" &&
+      matchedPlay != null &&
+      (playMatchConfidence === "exact" || playMatchConfidence === "fuzzy");
+
+    return {
+      ...card,
+      matchedFormation: formationName,
+      formationMatchConfidence,
+      matchedPlay,
+      playMatchConfidence,
+      catalogValid,
+    };
+  });
 }
 
 function isChromeNoise(raw: string, formationText: string): boolean {
@@ -453,12 +546,17 @@ export function compareToCatalog(
   const detectedPlayKeys = new Set<string>();
   const unexpectedDetectedPlays: VideoCatalogCompare["unexpectedDetectedPlays"] = [];
 
+  const playKeyNormalizer =
+    reference.sideOfBall === "offense"
+      ? normalizeCanonicalOffensivePlayName
+      : normalizePlayName;
+
   for (const card of cards) {
     if (card.emptySlot || card.screenRejected) continue;
     if (card.matchedFormation) detectedFormationSet.add(card.matchedFormation);
     if (card.catalogValid && card.matchedFormation && card.matchedPlay) {
       detectedPlayKeys.add(
-        `${card.matchedFormation}\0${normalizePlayName(card.matchedPlay)}`,
+        `${card.matchedFormation}\0${playKeyNormalizer(card.matchedPlay)}`,
       );
     } else if (card.playNameOcr && card.formationOcr && !card.matchedPlay) {
       unexpectedDetectedPlays.push({
@@ -477,7 +575,7 @@ export function compareToCatalog(
   const missingCatalogPlays: VideoCatalogCompare["missingCatalogPlays"] = [];
   for (const f of reference.formations) {
     for (const play of f.plays) {
-      const key = `${f.name}\0${normalizePlayName(play)}`;
+      const key = `${f.name}\0${playKeyNormalizer(play)}`;
       if (!detectedPlayKeys.has(key)) {
         missingCatalogPlays.push({ formation: f.name, play });
       }

@@ -298,7 +298,7 @@ export const CFB27_TCU_SEED: TeamPlaybookSeed = {
         { playName: "DOUBLE POST", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "HB MID DRAW", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "HB SLIP SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
-        { playName: "HUSKIES SPRINT SLOT OUT", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "SPRINT SLOT OUT", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "INSIDE ZONE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "MTN BUCK SWEEP", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "MTN PA CROSS", isNewIn26: false, isNewIn27: false, playType: "Play Action" },

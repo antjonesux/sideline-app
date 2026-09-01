@@ -343,7 +343,7 @@ export const CFB27_UTSA_SEED: TeamPlaybookSeed = {
         { playName: "INSIDE CROSS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "INSIDE ZONE", isNewIn26: false, isNewIn27: false, playType: "Run" },
         { playName: "MTN HB SLIP SCREEN", isNewIn26: false, isNewIn27: false, playType: "Screen" },
-        { playName: "MTN HILLTOPPERS STICK WHEEL", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "MTN STICK WHEEL", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "MTN SHOCK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "PIVOT IN SEAMS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "POWER READ", isNewIn26: false, isNewIn27: false, playType: "Run" },

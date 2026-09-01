@@ -30,6 +30,7 @@ import {
   globalRecoveredRegistryPath,
   loadDirectValidatedCards,
   listDefensivePlaybookSlugs,
+  loadGlobalRecoveredCards,
   type DefensiveArtCorpus,
 } from "./defensive-art-reuse";
 import { buildGlobalDefensiveFormationCatalog } from "./defensive-global-formation-catalog";
@@ -100,51 +101,35 @@ function resolveSeedSlug(playbookSlug: string): string {
   return report?.seedSlug ?? playbookSlug;
 }
 
-function loadStartingCaptureTargets(): {
-  uniqueCaptureRequired: number;
+function loadRemainingMissingTargets(): {
+  uniqueRemaining: number;
   totalMissingMappings: number;
   targets: MissingIdentityTarget[];
 } {
-  const overlapPath = join(VIDEO_STAGING, "DEFENSIVE_CAPTURE_OVERLAP.json");
-  if (existsSync(overlapPath)) {
-    const raw = JSON.parse(readFileSync(overlapPath, "utf8")) as {
-      summary?: { uniqueNeedsCapture?: number; totalMissingMappings?: number };
-      uniqueIdentities?: Array<{
-        formation: string;
-        play: string;
-        effectiveReason: string;
-      }>;
-    };
-    const targets = (raw.uniqueIdentities ?? [])
-      .filter((u) => u.effectiveReason !== "EXISTING_ART_REUSABLE")
-      .map((u) => ({
-        formation: u.formation,
-        play: u.play,
-        artKey: defensiveReusableArtKey(u.formation, u.play),
-      }));
-    return {
-      uniqueCaptureRequired: raw.summary?.uniqueNeedsCapture ?? targets.length,
-      totalMissingMappings: raw.summary?.totalMissingMappings ?? 0,
-      targets,
-    };
-  }
-
   const targets: MissingIdentityTarget[] = [];
   let totalMissingMappings = 0;
+
   for (const slug of listDefensivePlaybookSlugs(PLAY_ART_ROOT)) {
-    const supplement = loadSupplementReport(join(VIDEO_STAGING, slug));
-    for (const formation of supplement?.recaptureQueue?.formationsToRecapture ?? []) {
-      for (const play of formation.missingPlays) {
-        totalMissingMappings += 1;
-        const artKey = defensiveReusableArtKey(formation.formation, play);
-        if (!targets.some((t) => t.artKey === artKey)) {
-          targets.push({ formation: formation.formation, play, artKey });
-        }
+    const supplement = loadSupplementReport(join(VIDEO_STAGING, slug)) as
+      | (ManualSupplementReport & {
+          issues?: Array<{ formation: string; play: string }>;
+        })
+      | null;
+    for (const issue of supplement?.issues ?? []) {
+      totalMissingMappings += 1;
+      const artKey = defensiveReusableArtKey(issue.formation, issue.play);
+      if (!targets.some((t) => t.artKey === artKey)) {
+        targets.push({
+          formation: issue.formation,
+          play: issue.play,
+          artKey,
+        });
       }
     }
   }
+
   return {
-    uniqueCaptureRequired: targets.length,
+    uniqueRemaining: targets.length,
     totalMissingMappings,
     targets,
   };
@@ -355,19 +340,139 @@ function formatCandidate(result: IdentityRecoveryResult): string {
   ].join(" | ");
 }
 
+function writeOperatorQueues(input: {
+  recoveryResults: IdentityRecoveryResult[];
+  books: BookResult[];
+}): void {
+  const resolutionRequired = input.recoveryResults.filter(
+    (r) => r.classification === "AMBIGUOUS_SOURCE",
+  );
+  const captureRequired = input.recoveryResults.filter((r) =>
+    ["GENUINELY_NOT_CAPTURED", "INVALID_EXISTING_CAPTURE"].includes(r.classification),
+  );
+
+  const resolutionLines: string[] = [];
+  resolutionLines.push("# Defensive Resolution Queue");
+  resolutionLines.push("");
+  resolutionLines.push(
+    "Source pixels exist; exact canonical identity has not yet been established safely.",
+  );
+  resolutionLines.push("No new defensive screenshots are required for these rows.");
+  resolutionLines.push("");
+  resolutionLines.push("## Summary");
+  resolutionLines.push("");
+  resolutionLines.push(
+    `Missing playbook mappings: ${input.books.reduce((n, b) => n + b.missing, 0)}`,
+  );
+  resolutionLines.push(`Resolution-required identities: ${resolutionRequired.length}`);
+  resolutionLines.push("");
+
+  if (resolutionRequired.length === 0) {
+    resolutionLines.push("## DEFENSIVE RESOLUTION QUEUE COMPLETE");
+    resolutionLines.push("");
+    resolutionLines.push("NO DEFENSIVE CAPTURES REQUIRED");
+    resolutionLines.push("");
+  } else {
+    const byFormation = new Map<string, IdentityRecoveryResult[]>();
+    for (const result of resolutionRequired) {
+      const list = byFormation.get(result.target.formation) ?? [];
+      list.push(result);
+      byFormation.set(result.target.formation, list);
+    }
+    for (const [formation, results] of [...byFormation.entries()].sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    )) {
+      resolutionLines.push(`## ${formation}`);
+      resolutionLines.push("");
+      for (const result of results.sort((a, b) => a.target.play.localeCompare(b.target.play))) {
+        const w = result.winningCandidate;
+        resolutionLines.push(`### ${result.target.play}`);
+        resolutionLines.push("");
+        resolutionLines.push(`- Classification: ${result.classification}`);
+        resolutionLines.push(`- Root cause: ${result.ambiguityRootCause ?? "OTHER"}`);
+        if (w) {
+          resolutionLines.push(
+            `- Source: ${w.indexed.sourcePlaybookDisplayName} / ${w.indexed.sourceFile}`,
+          );
+          resolutionLines.push(`- Formation OCR: ${w.formationOcrRaw.replace(/\n/g, " | ")}`);
+          resolutionLines.push(`- Play OCR: ${w.playNameOcr ?? w.playNameOcrRaw ?? ""}`);
+          resolutionLines.push(
+            `- Art crop: ${relative(SIDELINE_ROOT, w.indexed.artCropPath)}`,
+          );
+        }
+        if (result.competingCatalogCandidates?.length) {
+          resolutionLines.push("- Competing candidates:");
+          for (const c of result.competingCatalogCandidates) {
+            resolutionLines.push(`  - ${c}`);
+          }
+        }
+        resolutionLines.push(`- Why fail-closed: ${result.notes.join(" ")}`);
+        resolutionLines.push("");
+      }
+    }
+  }
+
+  writeFileSync(
+    join(VIDEO_STAGING, "DEFENSIVE_RESOLUTION_QUEUE.md"),
+    `${resolutionLines.join("\n").trimEnd()}\n`,
+    "utf8",
+  );
+
+  const captureLines: string[] = [];
+  captureLines.push("# Defensive Unique Capture Queue (Deprecated)");
+  captureLines.push("");
+  captureLines.push("**NO DEFENSIVE CAPTURES REQUIRED**");
+  captureLines.push("");
+  captureLines.push(
+    "Authoritative unresolved work is now `DEFENSIVE_RESOLUTION_QUEUE.md`.",
+  );
+  captureLines.push("");
+  captureLines.push(
+    "This file is retained for pipeline compatibility only. Identities classified as",
+  );
+  captureLines.push(
+    "`AMBIGUOUS_SOURCE` or `SOURCE_FOUND_RESOLUTION_REQUIRED` must not appear here.",
+  );
+  captureLines.push("");
+  if (captureRequired.length === 0) {
+    captureLines.push("_No identities classified as GENUINELY_NOT_CAPTURED or INVALID_EXISTING_CAPTURE._");
+  } else {
+    captureLines.push(`Capture-required identities: ${captureRequired.length}`);
+    captureLines.push("");
+    for (const result of captureRequired) {
+      captureLines.push(`- ${result.target.formation} / ${result.target.play} — ${result.classification}`);
+    }
+  }
+  captureLines.push("");
+
+  writeFileSync(
+    join(VIDEO_STAGING, "DEFENSIVE_UNIQUE_CAPTURE_QUEUE.md"),
+    `${captureLines.join("\n").trimEnd()}\n`,
+    "utf8",
+  );
+}
+
 function writeRecoveryReports(input: {
   startingUnique: number;
   startingMissingMappings: number;
   recoveryResults: IdentityRecoveryResult[];
   books: BookResult[];
   globalRecoveredCount: number;
+  passLabel: string;
 }): void {
-  const stillNeedsCapture = input.recoveryResults.filter((r) =>
-    ["GENUINELY_NOT_CAPTURED", "INVALID_EXISTING_CAPTURE", "AMBIGUOUS_SOURCE"].includes(
-      r.classification,
-    ),
-  );
-  const mappingsRecovered = input.startingMissingMappings - input.books.reduce((n, b) => n + b.missing, 0);
+  const resolvedThisPass = input.recoveryResults.filter(
+    (r) => r.classification === "RECOVERED_EXISTING_SOURCE",
+  ).length;
+  const stillAmbiguous = input.recoveryResults.filter(
+    (r) => r.classification === "AMBIGUOUS_SOURCE",
+  ).length;
+  const mappingsRecovered =
+    input.startingMissingMappings - input.books.reduce((n, b) => n + b.missing, 0);
+
+  writeOperatorQueues({
+    recoveryResults: input.recoveryResults,
+    books: input.books,
+  });
 
   const recoveryLines: string[] = [];
   recoveryLines.push("# Defensive Global Source Recovery");
@@ -387,9 +492,7 @@ function writeRecoveryReports(input: {
   recoveryLines.push(
     `Recovered from previously unresolved source: **${input.recoveryResults.filter((r) => r.classification === "RECOVERED_EXISTING_SOURCE").length}**`,
   );
-  recoveryLines.push(
-    `Still ambiguous: **${input.recoveryResults.filter((r) => r.classification === "AMBIGUOUS_SOURCE").length}**`,
-  );
+  recoveryLines.push(`Still ambiguous: **${stillAmbiguous}**`);
   recoveryLines.push(
     `Invalid existing source: **${input.recoveryResults.filter((r) => r.classification === "INVALID_EXISTING_CAPTURE").length}**`,
   );
@@ -442,9 +545,10 @@ function writeRecoveryReports(input: {
   recoveryLines.push(`Outcome: **${nickel?.classification ?? "N/A"}**`);
   recoveryLines.push(`Source: ${nickel ? formatCandidate(nickel) : "_none_"}`);
   recoveryLines.push("");
-  recoveryLines.push("## Remaining Unique Capture Requirements");
+  recoveryLines.push("## Remaining Resolution Queue");
   recoveryLines.push("");
-  recoveryLines.push(`Count: **${stillNeedsCapture.length}**`);
+  recoveryLines.push(`Authoritative file: \`DEFENSIVE_RESOLUTION_QUEUE.md\``);
+  recoveryLines.push(`Resolution-required count: **${stillAmbiguous}**`);
   recoveryLines.push("");
 
   writeFileSync(
@@ -453,39 +557,40 @@ function writeRecoveryReports(input: {
     "utf8",
   );
 
-  const queueLines: string[] = [];
-  queueLines.push("# Defensive Unique Capture Queue");
-  queueLines.push("");
-  queueLines.push(
-    "ONLY identities with no recoverable source after global defensive corpus search.",
+  const finalLines: string[] = [];
+  finalLines.push(`# Defensive Final Ambiguity Resolution (${input.passLabel})`);
+  finalLines.push("");
+  finalLines.push("## Summary");
+  finalLines.push("");
+  finalLines.push(`Starting ambiguous identities: **${input.startingUnique}**`);
+  finalLines.push(`Starting missing mappings: **${input.startingMissingMappings}**`);
+  finalLines.push(`Resolved this pass: **${resolvedThisPass}**`);
+  finalLines.push(`Still ambiguous: **${stillAmbiguous}**`);
+  finalLines.push(
+    `Final missing mappings: **${input.books.reduce((n, b) => n + b.missing, 0)}**`,
   );
-  queueLines.push("");
-  queueLines.push("## Summary");
-  queueLines.push("");
-  queueLines.push(`Total missing playbook mappings: ${input.books.reduce((n, b) => n + b.missing, 0)}`);
-  queueLines.push(`Unique capture-required identities: ${stillNeedsCapture.length}`);
-  queueLines.push("");
-
-  const byFormation = new Map<string, IdentityRecoveryResult[]>();
-  for (const result of stillNeedsCapture) {
-    const list = byFormation.get(result.target.formation) ?? [];
-    list.push(result);
-    byFormation.set(result.target.formation, list);
-  }
-  for (const [formation, results] of [...byFormation.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0]),
+  finalLines.push(
+    `Aggregate coverage: **${input.books.reduce((n, b) => n + b.totalCoverage, 0)} / ${input.books.reduce((n, b) => n + b.expected, 0)}**`,
+  );
+  finalLines.push("");
+  finalLines.push("## Results");
+  finalLines.push("");
+  finalLines.push("| Formation | Play | Final Result | Root Cause |");
+  finalLines.push("|---|---|---|---|");
+  for (const result of input.recoveryResults.sort(
+    (a, b) =>
+      a.target.formation.localeCompare(b.target.formation) ||
+      a.target.play.localeCompare(b.target.play),
   )) {
-    queueLines.push(`## ${formation}`);
-    queueLines.push("");
-    for (const result of results.sort((a, b) => a.target.play.localeCompare(b.target.play))) {
-      queueLines.push(`- [ ] ${result.target.play} — ${result.classification}`);
-    }
-    queueLines.push("");
+    finalLines.push(
+      `| ${result.target.formation} | ${result.target.play} | ${result.classification} | ${result.ambiguityRootCause ?? ""} |`,
+    );
   }
+  finalLines.push("");
 
   writeFileSync(
-    join(VIDEO_STAGING, "DEFENSIVE_UNIQUE_CAPTURE_QUEUE.md"),
-    `${queueLines.join("\n").trimEnd()}\n`,
+    join(VIDEO_STAGING, "DEFENSIVE_FINAL_AMBIGUITY_RESOLUTION.md"),
+    `${finalLines.join("\n").trimEnd()}\n`,
     "utf8",
   );
 
@@ -513,9 +618,9 @@ async function main(): Promise<void> {
   console.log(`Staging: ${VIDEO_STAGING}`);
   console.log("");
 
-  const starting = loadStartingCaptureTargets();
+  const starting = loadRemainingMissingTargets();
   console.log(
-    `Starting capture queue: ${starting.uniqueCaptureRequired} unique / ${starting.totalMissingMappings} mappings`,
+    `Remaining missing: ${starting.uniqueRemaining} unique / ${starting.totalMissingMappings} mappings`,
   );
 
   const sourceIndex = buildGlobalDefensiveSourceIndex(PLAY_ART_ROOT);
@@ -559,23 +664,42 @@ async function main(): Promise<void> {
     corpus: preCorpus,
   });
 
+  const mergedRecovered = new Map<string, ExtractedVideoCard>();
+  for (const card of loadGlobalRecoveredCards(PLAY_ART_ROOT)) {
+    if (!card.matchedFormation || !card.matchedPlay) continue;
+    mergedRecovered.set(
+      defensiveReusableArtKey(card.matchedFormation, card.matchedPlay),
+      card,
+    );
+  }
+  for (const card of recoveryPass.recoveredCards) {
+    if (!card.matchedFormation || !card.matchedPlay) continue;
+    mergedRecovered.set(
+      defensiveReusableArtKey(card.matchedFormation, card.matchedPlay),
+      card,
+    );
+  }
+  const allRecoveredCards = [...mergedRecovered.values()];
+
   writeFileSync(
     globalRecoveredRegistryPath(PLAY_ART_ROOT),
     `${JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
-        recoveredCount: recoveryPass.recoveredCards.length,
-        recovered: recoveryPass.recoveredCards,
+        recoveredCount: allRecoveredCards.length,
+        recovered: allRecoveredCards,
         identityResults: recoveryPass.identityResults.map((r) => ({
           formation: r.target.formation,
           play: r.target.play,
           classification: r.classification,
+          ambiguityRootCause: r.ambiguityRootCause ?? null,
+          competingCatalogCandidates: r.competingCatalogCandidates ?? [],
           sourceCandidates: r.sourceCandidates,
           source: r.winningCandidate
             ? {
                 playbook: r.winningCandidate.indexed.sourcePlaybookDisplayName,
                 file: r.winningCandidate.indexed.sourceFile,
-                formationOcr: r.winningCandidate.formationOcr,
+                formationOcr: r.winningCandidate.formationOcrRaw,
                 playOcr: r.winningCandidate.playNameOcr,
                 artCropPath: r.winningCandidate.indexed.artCropPath,
               }
@@ -590,7 +714,7 @@ async function main(): Promise<void> {
     "utf8",
   );
 
-  console.log(`Recovered canonical identities: ${recoveryPass.recoveredCards.length}`);
+  console.log(`Recovered canonical identities: ${allRecoveredCards.length}`);
 
   const corpus = buildDefensiveValidatedArtCorpus(PLAY_ART_ROOT);
   const books: BookResult[] = [];
@@ -600,17 +724,18 @@ async function main(): Promise<void> {
       await reapplyBook({
         playbookSlug: slug,
         corpus,
-        globalRecovered: recoveryPass.recoveredCards,
+        globalRecovered: allRecoveredCards,
       }),
     );
   }
 
   writeRecoveryReports({
-    startingUnique: starting.uniqueCaptureRequired,
+    startingUnique: starting.uniqueRemaining,
     startingMissingMappings: starting.totalMissingMappings,
     recoveryResults: recoveryPass.identityResults,
     books,
-    globalRecoveredCount: recoveryPass.recoveredCards.length,
+    globalRecoveredCount: allRecoveredCards.length,
+    passLabel: "disambiguation pass",
   });
 
   const stamp = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
@@ -635,14 +760,12 @@ async function main(): Promise<void> {
   console.log(
     JSON.stringify(
       {
-        startingUnique: starting.uniqueCaptureRequired,
+        startingUnique: starting.uniqueRemaining,
         startingMissingMappings: starting.totalMissingMappings,
         recoveredIdentities: recoveryPass.summary.recoveredExistingSource,
         remainingMissingMappings: books.reduce((n, b) => n + b.missing, 0),
-        remainingUniqueCapture: recoveryPass.identityResults.filter((r) =>
-          ["GENUINELY_NOT_CAPTURED", "INVALID_EXISTING_CAPTURE", "AMBIGUOUS_SOURCE"].includes(
-            r.classification,
-          ),
+        remainingResolutionRequired: recoveryPass.identityResults.filter((r) =>
+          r.classification === "AMBIGUOUS_SOURCE",
         ).length,
       },
       null,

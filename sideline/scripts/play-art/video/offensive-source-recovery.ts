@@ -1,5 +1,5 @@
 /**
- * Global defensive source recovery — discover existing pixels before capture.
+ * Global offensive source recovery — discover existing pixels before capture.
  *
  * Separates source discovery from canonical validation.
  * Formation-aware play resolution against target catalog identity (not OCR formation).
@@ -7,32 +7,24 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { normalizePlayName } from "../../../lib/utils";
-import { ocrPlayCardHeader } from "../formation-ocr";
+import { ocrPlayCardHeader, matchKnownFormation } from "../formation-ocr";
 import {
   compareValidatedArtEntries,
-  defensiveReusableArtKey,
+  offensiveReusableArtKey,
   isValidatedReusableArtCard,
-  type DefensiveArtCorpus,
+  type OffensiveArtCorpus,
   type ValidatedArtEntry,
-} from "./defensive-art-reuse";
+} from "./offensive-art-reuse";
 import {
   filterSourceCandidates,
   extractPlayOcrCandidates,
   type IndexedSourceCard,
-} from "./defensive-global-source-index";
+  type UnprocessedSourceScreenshot,
+} from "./offensive-global-source-index";
 import {
-  formationOcrSupportsTarget,
-  headerContainsExactPlay,
-  inferAmbiguityRootCause,
-  numericSuffixMatchesTarget,
-} from "./defensive-formation-evidence";
-import {
-  normalizeOcrNeedle,
-  RECOVERY_PLAY_NEEDLES,
-  recoveryNeedleOrSourceGroundedMatch,
-  sourceGroundedPlayMatch,
-} from "./defensive-recovery-needles";
-import { matchPlayInFormation } from "./ocr-and-catalog";
+  matchOffensivePlayInFormation,
+  normalizeCanonicalOffensivePlayName,
+} from "./offensive-canonical-play";
 import type {
   CardSourceType,
   ExtractedVideoCard,
@@ -45,7 +37,9 @@ export type RecoveryClassification =
   | "RECOVERED_EXISTING_SOURCE"
   | "GENUINELY_NOT_CAPTURED"
   | "INVALID_EXISTING_CAPTURE"
-  | "AMBIGUOUS_SOURCE";
+  | "AMBIGUOUS_SOURCE"
+  | "SOURCE_DISCOVERY_DEFECT"
+  | "CATALOG_DATA_ERROR";
 
 export type MissingIdentityTarget = {
   formation: string;
@@ -63,8 +57,6 @@ export type RecoveryCandidate = {
   playMatchConfidence: "exact" | "fuzzy";
   recoveryMethod: RecoveredExistingSourceProvenance["recoveryMethod"];
   reOcrApplied: boolean;
-  formationEvidence: boolean;
-  headerExactPlay: boolean;
 };
 
 export type IdentityRecoveryResult = {
@@ -75,8 +67,6 @@ export type IdentityRecoveryResult = {
   winningCandidate: RecoveryCandidate | null;
   ambiguousCandidates: RecoveryCandidate[];
   notes: string[];
-  ambiguityRootCause?: string;
-  competingCatalogCandidates?: string[];
 };
 
 export type GlobalRecoveryPassResult = {
@@ -93,100 +83,69 @@ export type GlobalRecoveryPassResult = {
   };
 };
 
-/** Goal Line 6-2 OCR often drops the `60` prefix or misreads formation as 5-3. */
-const GOAL_LINE_62_PLAY_NEEDLES: Record<string, string[]> = {
-  "60 BASE": ["60 BASE", "BASE"],
-  "60 HALF OUT": ["60 HALF OUT", "HALF OUT"],
-  "60 OUT": ["60 OUT", "OUT", "GO OUT", "GOOUT", "GOUT", "GO O0UT", "G0O0UT", "60 0UT"],
-  "60 OUT JACKS": ["60 OUT JACKS", "OUT JACKS", "OUR JACKS", "OVR JACKS", "60 OUR JACKS"],
-  "60 PINCH": ["60 PINCH", "PINCH"],
-  GUTS: ["GUTS"],
-};
-
-function recoveryPlayNeedleMatch(
-  playOcr: string | null,
-  targetFormation: string,
-  targetPlay: string,
-  formationPlays: string[],
-  formationOcrRaw: string,
-  formationOcr: string,
-  allFormationNames: string[],
-): {
-  matchedPlay: string;
-  playMatchConfidence: "exact" | "fuzzy";
-  recoveryMethod: RecoveredExistingSourceProvenance["recoveryMethod"];
-} | null {
-  if (!playOcr?.trim()) return null;
-  if (!formationPlays.some((p) => normalizePlayName(p) === normalizePlayName(targetPlay))) {
-    return null;
-  }
-
-  if (
-    sourceGroundedPlayMatch({
-      formationOcrRaw,
-      formationOcr,
-      targetFormation,
-      targetPlay,
-      playOcr,
-      allFormationNames,
-    })
-  ) {
-    return {
-      matchedPlay: targetPlay,
-      playMatchConfidence: "fuzzy",
-      recoveryMethod: "FORMATION_AWARE_REOCR",
-    };
-  }
-
-  if (
-    !recoveryNeedleOrSourceGroundedMatch({
-      formationOcrRaw,
-      formationOcr,
-      targetFormation,
-      targetPlay,
-      playOcr,
-      allFormationNames,
-    })
-  ) {
-    return null;
-  }
-  const needles = RECOVERY_PLAY_NEEDLES[targetPlay] ?? [];
-  const norm = normalizeOcrNeedle(playOcr);
-  const hits = needles.filter((needle) => normalizeOcrNeedle(needle) === norm);
-  return {
-    matchedPlay: targetPlay,
-    playMatchConfidence: hits[0] === targetPlay ? "exact" : "fuzzy",
-    recoveryMethod: "FORMATION_AWARE_REOCR",
-  };
+function hasExactVisiblePlayLabel(input: {
+  candidates: IndexedSourceCard[];
+  targetFormation: string;
+  targetPlay: string;
+  knownFormations: string[];
+  sourceIndex: IndexedSourceCard[];
+}): boolean {
+  const playNorm = normalizeCanonicalOffensivePlayName(input.targetPlay);
+  return input.candidates.some((entry) => {
+    if (
+      !sourceFormationMatchesTarget({
+        indexed: entry,
+        targetFormation: input.targetFormation,
+        knownFormations: input.knownFormations,
+        sourceIndex: input.sourceIndex,
+      })
+    ) {
+      return false;
+    }
+    return extractPlayOcrCandidates(entry).some(
+      (candidate) => normalizeCanonicalOffensivePlayName(candidate) === playNorm,
+    );
+  });
 }
 
-function goalLine62NeedleMatch(
-  playOcr: string | null,
-  targetPlay: string,
-  formationPlays: string[],
-): {
-  matchedPlay: string;
-  playMatchConfidence: "exact" | "fuzzy";
-  recoveryMethod: RecoveredExistingSourceProvenance["recoveryMethod"];
-} | null {
-  const needles = GOAL_LINE_62_PLAY_NEEDLES[targetPlay];
-  if (!needles || !playOcr?.trim()) return null;
-  if (!formationPlays.some((p) => normalizePlayName(p) === normalizePlayName(targetPlay))) {
-    return null;
+function sourceFormationMatchesTarget(input: {
+  indexed: IndexedSourceCard;
+  targetFormation: string;
+  knownFormations: string[];
+  sourceIndex: IndexedSourceCard[];
+}): boolean {
+  if (input.indexed.matchedFormation === input.targetFormation) return true;
+
+  const ocrCandidates = [
+    input.indexed.formationOcr,
+    ...(input.indexed.formationOcrRaw ?? "")
+      .split(/\n/)
+      .map((line) => line.trim())
+      .filter(Boolean),
+  ].filter(Boolean) as string[];
+
+  for (const candidate of ocrCandidates) {
+    const match = matchKnownFormation(candidate, input.knownFormations);
+    if (
+      match.matchedFormation === input.targetFormation &&
+      match.matchConfidence !== "none"
+    ) {
+      return true;
+    }
   }
 
-  const norm = normalizeOcrNeedle(playOcr);
-  if (!norm) return null;
-
-  const hits = needles.filter((needle) => normalizeOcrNeedle(needle) === norm);
-  if (hits.length === 1) {
-    return {
-      matchedPlay: targetPlay,
-      playMatchConfidence: hits[0] === targetPlay ? "exact" : "fuzzy",
-      recoveryMethod: "GOAL_LINE_62_NEEDLE",
-    };
-  }
-  return null;
+  const siblings = input.sourceIndex.filter(
+    (entry) =>
+      entry.sourcePlaybookSlug === input.indexed.sourcePlaybookSlug &&
+      entry.sourceFile === input.indexed.sourceFile &&
+      entry.card.screenIndex === input.indexed.card.screenIndex &&
+      entry.artCropPath !== input.indexed.artCropPath,
+  );
+  return siblings.some(
+    (sibling) =>
+      sibling.matchedFormation === input.targetFormation &&
+      sibling.validationStatus === "validated",
+  );
 }
 
 function resolvePlayForTargetFormation(input: {
@@ -194,21 +153,18 @@ function resolvePlayForTargetFormation(input: {
   targetFormation: string;
   targetPlay: string;
   formationPlays: string[];
-  formationOcrRaw: string;
-  formationOcr: string;
-  allFormationNames: string[];
 }): {
   matchedPlay: string | null;
   playMatchConfidence: "exact" | "fuzzy" | "none";
   recoveryMethod: RecoveredExistingSourceProvenance["recoveryMethod"];
 } {
-  const targetNorm = normalizePlayName(input.targetPlay);
-  const base = matchPlayInFormation(input.playOcr, input.formationPlays);
+  const targetNorm = normalizeCanonicalOffensivePlayName(input.targetPlay);
+  const base = matchOffensivePlayInFormation(input.playOcr, input.formationPlays);
   if (
     base.matchedPlay &&
     base.matchConfidence !== "none" &&
     base.matchConfidence !== "skipped" &&
-    normalizePlayName(base.matchedPlay) === targetNorm
+    normalizeCanonicalOffensivePlayName(base.matchedPlay) === targetNorm
   ) {
     return {
       matchedPlay: input.targetPlay,
@@ -217,26 +173,6 @@ function resolvePlayForTargetFormation(input: {
     };
   }
 
-  if (input.targetFormation === "Goal Line 6-2") {
-    const needle = goalLine62NeedleMatch(
-      input.playOcr,
-      input.targetPlay,
-      input.formationPlays,
-    );
-    if (needle) return needle;
-  }
-
-  const recoveryNeedle = recoveryPlayNeedleMatch(
-    input.playOcr,
-    input.targetFormation,
-    input.targetPlay,
-    input.formationPlays,
-    input.formationOcrRaw,
-    input.formationOcr,
-    input.allFormationNames,
-  );
-  if (recoveryNeedle) return recoveryNeedle;
-
   return { matchedPlay: null, playMatchConfidence: "none", recoveryMethod: "FORMATION_AWARE_REOCR" };
 }
 
@@ -244,20 +180,20 @@ type OcrHeader = Awaited<ReturnType<typeof ocrPlayCardHeader>>;
 
 const reOcrCache = new Map<string, OcrHeader>();
 
-async function getCardHeaderOcr(sourceCardPath: string): Promise<OcrHeader> {
+async function getCardHeaderOcr(sourceCardPath: string): Promise<OcrHeader | null> {
   const cached = reOcrCache.get(sourceCardPath);
   if (cached) return cached;
-  const buffer = readFileSync(sourceCardPath);
-  const header = await ocrPlayCardHeader(buffer);
-  reOcrCache.set(sourceCardPath, header);
-  return header;
+  try {
+    const buffer = readFileSync(sourceCardPath);
+    const header = await ocrPlayCardHeader(buffer);
+    reOcrCache.set(sourceCardPath, header);
+    return header;
+  } catch {
+    return null;
+  }
 }
 
 function compareRecoveryCandidates(a: RecoveryCandidate, b: RecoveryCandidate): number {
-  const formCmp = Number(b.formationEvidence) - Number(a.formationEvidence);
-  if (formCmp !== 0) return formCmp;
-  const headerCmp = Number(b.headerExactPlay) - Number(a.headerExactPlay);
-  if (headerCmp !== 0) return headerCmp;
   const confRank = (c: "exact" | "fuzzy") => (c === "exact" ? 0 : 1);
   const confCmp = confRank(a.playMatchConfidence) - confRank(b.playMatchConfidence);
   if (confCmp !== 0) return confCmp;
@@ -283,7 +219,8 @@ async function evaluateIndexedCard(input: {
   targetFormation: string;
   targetPlay: string;
   formationPlays: string[];
-  allFormationNames: string[];
+  knownFormations: string[];
+  sourceIndex: IndexedSourceCard[];
   forceReOcr: boolean;
 }): Promise<RecoveryCandidate | null> {
   const { indexed } = input;
@@ -301,9 +238,6 @@ async function evaluateIndexedCard(input: {
       targetFormation: input.targetFormation,
       targetPlay: input.targetPlay,
       formationPlays: input.formationPlays,
-      formationOcrRaw,
-      formationOcr,
-      allFormationNames: input.allFormationNames,
     });
 
   const tryCandidates = (candidates: string[]) => {
@@ -326,44 +260,33 @@ async function evaluateIndexedCard(input: {
 
   if (!resolved.matchedPlay && input.forceReOcr) {
     const header = await getCardHeaderOcr(indexed.sourceCardPath);
-    formationOcrRaw = header.rawText ?? formationOcrRaw;
-    formationOcr = header.formationText ?? formationOcr;
-    playNameOcrRaw = header.playNameText ?? playNameOcrRaw;
-    playNameOcr = header.playNameText ?? playNameOcr;
-    reOcrApplied = true;
-    resolved = tryCandidates(
-      extractPlayOcrCandidates({
-        playNameOcr,
-        playNameOcrRaw,
-        formationOcrRaw,
-      }),
-    );
+    if (header) {
+      formationOcrRaw = header.rawText ?? formationOcrRaw;
+      formationOcr = header.formationText ?? formationOcr;
+      playNameOcrRaw = header.playNameText ?? playNameOcrRaw;
+      playNameOcr = header.playNameText ?? playNameOcr;
+      reOcrApplied = true;
+      resolved = tryCandidates(
+        extractPlayOcrCandidates({
+          playNameOcr,
+          playNameOcrRaw,
+          formationOcrRaw,
+        }),
+      );
+    }
   }
 
   if (!resolved.matchedPlay || resolved.playMatchConfidence === "none") return null;
 
-  let playMatchConfidence = resolved.playMatchConfidence;
-  const headerExactPlay = headerContainsExactPlay(
-    formationOcrRaw,
-    playNameOcr ?? playNameOcrRaw,
-    input.targetPlay,
-  );
-  if (headerExactPlay) {
-    playMatchConfidence = "exact";
-  }
-
-  const formationEvidence = formationOcrSupportsTarget({
-    formationOcrRaw,
-    formationOcr,
-    targetFormation: input.targetFormation,
-    allFormationNames: input.allFormationNames,
-  });
-
   if (
-    formationEvidence &&
-    headerContainsExactPlay(formationOcrRaw, playNameOcr ?? playNameOcrRaw, input.targetPlay)
+    !sourceFormationMatchesTarget({
+      indexed,
+      targetFormation: input.targetFormation,
+      knownFormations: input.knownFormations,
+      sourceIndex: input.sourceIndex,
+    })
   ) {
-    playMatchConfidence = "exact";
+    return null;
   }
 
   return {
@@ -373,11 +296,9 @@ async function evaluateIndexedCard(input: {
     playNameOcrRaw,
     playNameOcr,
     matchedPlay: resolved.matchedPlay,
-    playMatchConfidence,
+    playMatchConfidence: resolved.playMatchConfidence,
     recoveryMethod: resolved.recoveryMethod,
     reOcrApplied,
-    formationEvidence,
-    headerExactPlay,
   };
 }
 
@@ -388,7 +309,7 @@ export function buildRecoveredVideoCard(input: {
 }): ExtractedVideoCard {
   const candidate = input.candidate;
   const indexed = candidate.indexed;
-  const reusableArtKey = defensiveReusableArtKey(input.targetFormation, input.targetPlay);
+  const reusableArtKey = offensiveReusableArtKey(input.targetFormation, input.targetPlay);
   const sourceType = (
     indexed.sourceType === "cross-playbook-reuse" ||
     indexed.sourceType === "recovered-existing-source"
@@ -446,80 +367,22 @@ export function buildRecoveredVideoCard(input: {
   };
 }
 
-function dedupeMatchesByArtCrop(matches: RecoveryCandidate[]): RecoveryCandidate[] {
-  const byCrop = new Map<string, RecoveryCandidate>();
-  for (const match of matches) {
-    const existing = byCrop.get(match.indexed.artCropPath);
-    if (!existing || compareRecoveryCandidates(match, existing) < 0) {
-      byCrop.set(match.indexed.artCropPath, match);
-    }
-  }
-  return [...byCrop.values()].sort(compareRecoveryCandidates);
-}
-
-function selectFinalistMatches(
-  matches: RecoveryCandidate[],
-  targetFormation: string,
-  targetPlay: string,
-  allFormationNames: string[],
-): RecoveryCandidate[] {
-  const unique = dedupeMatchesByArtCrop(matches);
-  const formationSupported = unique.filter((m) => m.formationEvidence);
-  if (formationSupported.length === 0) return [];
-
-  let finalists = formationSupported;
-
-  if (/\d/.test(targetPlay)) {
-    const numericOk = finalists.filter(
-      (m) =>
-        headerContainsExactPlay(m.formationOcrRaw, m.playNameOcr ?? m.playNameOcrRaw, targetPlay) ||
-        numericSuffixMatchesTarget(m.playNameOcr ?? m.playNameOcrRaw ?? "", targetPlay) ||
-        sourceGroundedPlayMatch({
-          formationOcrRaw: m.formationOcrRaw,
-          formationOcr: m.formationOcr,
-          targetFormation,
-          targetPlay,
-          playOcr: m.playNameOcr ?? m.playNameOcrRaw,
-          allFormationNames,
-        }),
-    );
-    if (numericOk.length > 0) finalists = numericOk;
-  }
-
-  const headerExact = finalists.filter((m) => m.headerExactPlay);
-  if (headerExact.length === 1) {
-    finalists = headerExact;
-  } else if (headerExact.length > 1) {
-    finalists = headerExact;
-  }
-
-  const exactPlay = finalists.filter((m) => m.playMatchConfidence === "exact");
-  if (exactPlay.length === 1) {
-    finalists = exactPlay;
-  }
-
-  return finalists.sort(compareRecoveryCandidates);
-}
-
-function describeCompetingCandidates(matches: RecoveryCandidate[]): string[] {
-  return matches.slice(0, 5).map(
-    (m) =>
-      `${m.indexed.sourcePlaybookSlug}/${m.indexed.sourceFile}: formation="${m.formationOcrRaw.replace(/\n/g, " | ")}" play="${m.playNameOcr ?? ""}"`,
-  );
-}
-
 export async function recoverMissingIdentity(input: {
   target: MissingIdentityTarget;
+  targetPlaybookSlug: string;
   formationPlays: string[];
+  knownFormations: string[];
   sourceIndex: IndexedSourceCard[];
-  corpus: DefensiveArtCorpus;
-  allFormationNames: string[];
+  corpus: OffensiveArtCorpus;
+  unprocessedSourceScreenshots?: UnprocessedSourceScreenshot[];
 }): Promise<IdentityRecoveryResult> {
   const { target } = input;
 
   const corpusEntries = input.corpus.get(target.artKey) ?? [];
-  const validatedCorpus = corpusEntries.filter((e) => isValidatedReusableArtCard(e.card));
-  if (validatedCorpus.length > 0) {
+  const externalValidated = corpusEntries.filter(
+    (e) => isValidatedReusableArtCard(e.card) && e.playbookSlug !== input.targetPlaybookSlug,
+  );
+  if (externalValidated.length > 0) {
     return {
       target,
       classification: "EXACT_VALIDATED_REUSE",
@@ -527,7 +390,9 @@ export async function recoverMissingIdentity(input: {
       sourceCandidates: 0,
       winningCandidate: null,
       ambiguousCandidates: [],
-      notes: ["Validated art already present in defensive corpus."],
+      notes: [
+        `Validated art exists in ${externalValidated.map((e) => e.playbookSlug).join(", ")}.`,
+      ],
     };
   }
 
@@ -545,7 +410,8 @@ export async function recoverMissingIdentity(input: {
       targetFormation: target.formation,
       targetPlay: target.play,
       formationPlays: input.formationPlays,
-      allFormationNames: input.allFormationNames,
+      knownFormations: input.knownFormations,
+      sourceIndex: input.sourceIndex,
       forceReOcr: false,
     });
     if (match) matches.push(match);
@@ -559,7 +425,8 @@ export async function recoverMissingIdentity(input: {
         targetFormation: target.formation,
         targetPlay: target.play,
         formationPlays: input.formationPlays,
-        allFormationNames: input.allFormationNames,
+        knownFormations: input.knownFormations,
+        sourceIndex: input.sourceIndex,
         forceReOcr: true,
       });
       if (match) matches.push(match);
@@ -567,48 +434,44 @@ export async function recoverMissingIdentity(input: {
   }
 
   if (matches.length === 0) {
-    const invalidOnly = candidates.length > 0 && candidates.every((c) => c.validationStatus === "invalid");
-    return {
-      target,
-      classification: invalidOnly ? "INVALID_EXISTING_CAPTURE" : "GENUINELY_NOT_CAPTURED",
-      recoveredCard: null,
-      sourceCandidates: candidates.length,
-      winningCandidate: null,
-      ambiguousCandidates: [],
-      notes: invalidOnly
-        ? ["Candidate pixels exist but art crops are unusable."]
-        : ["No source card resolves to this formation/play identity."],
-    };
-  }
-
-  const finalists = selectFinalistMatches(
-    matches,
-    target.formation,
-    target.play,
-    input.allFormationNames,
-  );
-  if (finalists.length === 0) {
-    if (matches.length > 0) {
-      const topUnscoped = dedupeMatchesByArtCrop(matches).sort(compareRecoveryCandidates)[0] ?? null;
+    if (
+      hasExactVisiblePlayLabel({
+        candidates,
+        targetFormation: target.formation,
+        targetPlay: target.play,
+        knownFormations: input.knownFormations,
+        sourceIndex: input.sourceIndex,
+      })
+    ) {
       return {
         target,
-        classification: "AMBIGUOUS_SOURCE",
+        classification: "SOURCE_FOUND_RESOLUTION_REQUIRED",
         recoveredCard: null,
         sourceCandidates: candidates.length,
-        winningCandidate: topUnscoped,
+        winningCandidate: null,
         ambiguousCandidates: [],
-        notes: [
-          "Source pixels match play tokens but formation OCR could not be established safely.",
-          ...describeCompetingCandidates(dedupeMatchesByArtCrop(matches).slice(0, 4)),
-        ],
-        ambiguityRootCause: "FORMATION_OCR",
-        competingCatalogCandidates: describeCompetingCandidates(
-          dedupeMatchesByArtCrop(matches).slice(0, 6),
-        ),
+        notes: ["Expected play label visible in source but canonical resolution failed."],
       };
     }
+
     const invalidOnly =
       candidates.length > 0 && candidates.every((c) => c.validationStatus === "invalid");
+    const unprocessedForBook = (input.unprocessedSourceScreenshots ?? []).filter(
+      (s) => s.playbookSlug === input.targetPlaybookSlug,
+    );
+    if (unprocessedForBook.length > 0) {
+      return {
+        target,
+        classification: "SOURCE_DISCOVERY_DEFECT",
+        recoveredCard: null,
+        sourceCandidates: candidates.length,
+        winningCandidate: null,
+        ambiguousCandidates: [],
+        notes: [
+          `${unprocessedForBook.length} source-screenshot(s) exist but are not indexed: ${unprocessedForBook.map((s) => s.fileName).join(", ")}.`,
+        ],
+      };
+    }
     return {
       target,
       classification: invalidOnly ? "INVALID_EXISTING_CAPTURE" : "GENUINELY_NOT_CAPTURED",
@@ -622,27 +485,15 @@ export async function recoverMissingIdentity(input: {
     };
   }
 
-  const top = finalists[0]!;
-  const ambiguous = finalists.filter(
+  matches.sort(compareRecoveryCandidates);
+  const top = matches[0]!;
+  const ambiguous = matches.filter(
     (m) =>
       m.indexed.artCropPath !== top.indexed.artCropPath &&
-      m.playMatchConfidence === top.playMatchConfidence &&
-      m.formationEvidence === top.formationEvidence,
+      m.playMatchConfidence === top.playMatchConfidence,
   );
 
-  const competingCatalogCandidates = describeCompetingCandidates(finalists.slice(0, 6));
-  const ambiguityRootCause = inferAmbiguityRootCause({
-    targetFormation: target.formation,
-    targetPlay: target.play,
-    winningCandidate: top,
-    competingCount: finalists.length,
-  });
-
-  if (
-    ambiguous.length > 0 &&
-    top.playMatchConfidence !== "exact" &&
-    !(top.formationEvidence && ambiguous.every((a) => !a.formationEvidence))
-  ) {
+  if (ambiguous.length > 0 && top.playMatchConfidence !== "exact") {
     return {
       target,
       classification: "AMBIGUOUS_SOURCE",
@@ -650,12 +501,7 @@ export async function recoverMissingIdentity(input: {
       sourceCandidates: candidates.length,
       winningCandidate: top,
       ambiguousCandidates: ambiguous,
-      notes: [
-        `${finalists.length} distinct source crops match with ${top.playMatchConfidence} confidence.`,
-        ...competingCatalogCandidates,
-      ],
-      ambiguityRootCause,
-      competingCatalogCandidates,
+      notes: [`${matches.length} source cards match with non-exact confidence.`],
     };
   }
 
@@ -685,22 +531,29 @@ export async function recoverMissingIdentity(input: {
     winningCandidate: top,
     ambiguousCandidates: [],
     notes: ["Recovered from existing source pixels via formation-aware resolution."],
-    ambiguityRootCause,
-    competingCatalogCandidates,
   };
 }
 
-export async function runGlobalDefensiveRecovery(input: {
-  missingTargets: MissingIdentityTarget[];
+export async function runGlobalOffensiveRecovery(input: {
+  queueItems: Array<{
+    playbookSlug: string;
+    formation: string;
+    play: string;
+  }>;
   formationCatalog: Map<string, string[]>;
   sourceIndex: IndexedSourceCard[];
-  corpus: DefensiveArtCorpus;
+  corpus: OffensiveArtCorpus;
+  unprocessedSourceScreenshots?: UnprocessedSourceScreenshot[];
 }): Promise<GlobalRecoveryPassResult> {
-  const allFormationNames = [...input.formationCatalog.keys()];
   const recoveredByArtKey = new Map<string, ExtractedVideoCard>();
   const identityResults: IdentityRecoveryResult[] = [];
 
-  for (const target of input.missingTargets) {
+  for (const item of input.queueItems) {
+    const target: MissingIdentityTarget = {
+      formation: item.formation,
+      play: item.play,
+      artKey: offensiveReusableArtKey(item.formation, item.play),
+    };
     const formationPlays = input.formationCatalog.get(target.formation);
     if (!formationPlays?.length) {
       identityResults.push({
@@ -710,17 +563,19 @@ export async function runGlobalDefensiveRecovery(input: {
         sourceCandidates: 0,
         winningCandidate: null,
         ambiguousCandidates: [],
-        notes: ["Formation not found in global defensive catalog."],
+        notes: ["Formation not found in global offensive catalog."],
       });
       continue;
     }
 
     const result = await recoverMissingIdentity({
       target,
+      targetPlaybookSlug: item.playbookSlug,
       formationPlays,
+      knownFormations: [...input.formationCatalog.keys()],
       sourceIndex: input.sourceIndex,
       corpus: input.corpus,
-      allFormationNames,
+      unprocessedSourceScreenshots: input.unprocessedSourceScreenshots,
     });
     identityResults.push(result);
 
