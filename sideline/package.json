@@ -35,7 +35,7 @@
     "play-art:defense-art-reuse": "NODE_PATH=./node_modules tsx ./scripts/play-art/video/defense-art-reuse-apply.ts",
     "play-art:defense-global-recovery": "NODE_PATH=./node_modules tsx ./scripts/play-art/video/defense-global-recovery-apply.ts",
     "play-art:test-defense-reuse": "NODE_PATH=./node_modules tsx --test ./scripts/play-art/video/defensive-art-reuse.test.ts",
-    "play-art:test-defense-recovery": "NODE_PATH=./node_modules tsx --test ./scripts/play-art/video/defensive-source-recovery.test.ts",
+    "play-art:test-defense-recovery": "NODE_PATH=./node_modules tsx --test ./scripts/play-art/video/defensive-source-recovery.test.ts ./scripts/play-art/video/defensive-catalog-reconciliation.test.ts",
     "play-art:test-offense-recovery": "NODE_PATH=./node_modules tsx --test ./scripts/play-art/video/offensive-source-recovery.test.ts",
     "play-art:test-offense-canonical": "NODE_PATH=./node_modules tsx --test ./scripts/play-art/video/offensive-canonical-play.test.ts",
     "play-art:offense-global-recovery": "NODE_PATH=./node_modules tsx ./scripts/play-art/video/offense-global-recovery-apply.ts",

@@ -1077,7 +1077,9 @@ function printSummary(r: DefenseMergeBookResult): void {
   }
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : err);
-  process.exitCode = 1;
-});
+if (process.argv[1]?.endsWith("defense-screenshot-merge.ts")) {
+  main().catch((err) => {
+    console.error(err instanceof Error ? err.message : err);
+    process.exitCode = 1;
+  });
+}

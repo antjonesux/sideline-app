@@ -233,7 +233,7 @@ export const CFB27_3_3_5_THREE_HIGH_SEED: TeamPlaybookSeed = {
         { playName: "COVER 1 ROBBER PRESS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 2 HARD FLAT", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 2 MAN", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "COVER 2 SINK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "COVER 2 MATCH", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 3 BUZZ MATCH WK", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 3 CLOUD", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 3 HARD FLAT", isNewIn26: false, isNewIn27: false, playType: "Pass" },

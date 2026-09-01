@@ -34,7 +34,7 @@ export const CFB27_4_3_PRESS_QUARTERS_SEED: TeamPlaybookSeed = {
         { playName: "COVER 3 CLOUD PRESS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 3 SKY", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 4 PALMS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
-        { playName: "COVER 4 PRESS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
+        { playName: "PRESS QUARTERS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 4 QUARTERS", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "COVER 6", isNewIn26: false, isNewIn27: false, playType: "Pass" },
         { playName: "OLB FIRE MAN", isNewIn26: false, isNewIn27: false, playType: "Pass" },

@@ -5,6 +5,29 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-01 — CFB27 defensive source coverage complete (6,268/6,268)
+
+### What
+
+- Completed defensive catalog reconciliation and global source recovery: **6,268 expected / 6,268 resolved / 0 missing**. All **31** defensive playbooks `READY_TO_PUBLISH` in staging; resolution queue empty.
+- **Catalog corrections** (seed-only; no OCR/fuzzy/canonical aliases):
+  - **4-3 Press Quarters** — `4-3 Over`: `COVER 4 PRESS` → `PRESS QUARTERS` (operator-verified from `vlcsnap-2026-08-31-22h43m17s321`)
+  - **3-3-5 Three High** — `Dime 2-3 Odd`: removed spurious `COVER 2 SINK`; added missing `COVER 2 MATCH` (operator-verified from `vlcsnap-2026-08-31-23h03m47s835` and full-formation source sweep)
+- Prior source-grounded recovery pass (4 identities): narrow formation/play evidence for `OKIE ROLL 3`, `4-2-5 Even / 1 DOUBLE WR1`, `4-3 Over Walk / SS BLITZ 1`, `Nickel 2-4 / 1 DOUBLE WR1` — wired through `defensive-formation-evidence`, `defensive-recovery-needles`, and `defensive-source-recovery` with regression tests.
+- Fixed `defense-screenshot-merge.ts` accidental `main()` on import when global recovery apply imports merge helpers (prevented concurrent staging corruption).
+- Added `defensive-catalog-reconciliation.test.ts`; wired into `play-art:test-defense-recovery`.
+
+### Why
+
+Operator-verified game evidence showed the last two “missing” defensive mappings were catalog defects with existing local pixels—not capture gaps. `COVER 4 PRESS` and `COVER 2 SINK` were wrong seed names; correcting authoritative seeds and rematching closed coverage without broadening OCR or fuzzy matching.
+
+### Status
+
+- **DEFENSIVE SOURCE COVERAGE COMPLETE:** yes (6,268/6,268).
+- **READY_FOR_DEFENSIVE_PUBLISH_GATE:** yes — staging only; **not published** in this change.
+- Production manifest/assets unchanged.
+
+
 ## 2026-09-01 — CFB27 offensive source coverage complete (10,633/10,633)
 
 ### What
