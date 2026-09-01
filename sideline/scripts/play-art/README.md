@@ -88,6 +88,17 @@ npm run play-art:video -- --source=scripts/play-art/source-video/offense/cfb27-o
 Filename contract: `{game-version}-{side}-{playbook-slug}.mp4`. Does **not** publish.
 See `scripts/play-art/video/README.md`.
 
+### Prepare screenshot source (first-class game capture; no publish)
+
+```bash
+npm run play-art:screenshot -- --source=scripts/play-art/source-screenshots/cfb27/offense/texas
+npm run play-art:screenshot-batch
+npm run play-art:screenshot-batch -- --force
+```
+
+Directory namespace: `source-screenshots/{game}/{side}/{playbook-slug}/`. Same OCR/catalog identity
+contract as OBS (no review-tool / external visual gate). See `source-screenshots/README.md`.
+
 ### Inspect DOCX structure
 
 ```bash

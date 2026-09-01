@@ -6,6 +6,14 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-08-30 — First-class screenshot play-art sources (OCR/catalog identity)
+
+**Decision:** Treat `source-screenshots/{game}/{side}/{playbook-slug}/` as a first-class game-capture play-art source. Directory path is namespace authority (fail-closed). Identity = namespace + formation OCR + play OCR + exact catalog resolution — same contract as OBS. Reuse shared screenshot processing with `manual-supplements` (crop profile, OCR, catalog, dedupe). No positional identity, no `play-art:review`, no external visual publish gate. Prep/validate only until an explicit publish command; DOCX and OBS video pipelines remain unchanged.
+
+**Why:** Stable-screen video extraction misses too many screens; operators already scrub recordings into labeled screenshots that should not require a second video pass.
+
+**Impact:** `play-art:screenshot`, `play-art:screenshot-batch`, `source-screenshots/`, `screenshot-staging/` (gitignored), shared `process-screenshot-screens.ts`.
+
 ## 2026-08-30 — OBS Go Go first publish (game-capture identity)
 
 **Decision:** Allow `--video-staging` publish when the OBS publish gate PASSes (namespace + 405/405 unique catalog identities + crops + structural validation). No visual matcher / review-tool / overrides required. Go Go is the pilot first publish from OBS + manual supplements.

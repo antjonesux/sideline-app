@@ -5,6 +5,48 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-01 — CFB27 offensive OBS reconciliation + 11-book publish
+
+### What
+
+- Completed offensive supplement reconciliation: merged new supplement screenshots with existing video staging, re-OCR/catalog-matched all cards, and regenerated operator queues (`CAPTURE_REQUIRED.md`, `PROCESSING_RESOLUTION_REQUIRED.md`).
+- Added OCR matcher fixes and regression tests (`play-art:test-ocr-match`): DUO/BDUO token boundary, `OVICK BASE → 45 QUICK BASE`, `PO READ/PEEK → RPO`, `UWE → HB`, `INSIDE ZONE SPLIT` base fallback, `MTN STICK WHEEL` suffix match.
+- Added `offensive-reconcile.ts` to rebuild per-book coverage and exception classification from combined staging.
+- **Published 11 OBS offense books** at 100% canonical coverage via `--video-staging` (game-capture identity; no review-tool gate):
+  - **SMU** (464), **South Florida** (468), **Spread** (471), **Syracuse** (467), **Temple** (471), **Tulsa** (466), **UCF** (470), **UCLA** (470), **UConn** (464), **UMass** (439), **Utah** (459)
+- Manifest **57,875 → 62,984** (+5,109 mappings). **Go Go** (405) was already published; **12** offense books now live from OBS capture.
+- **35** offense identities remain processing-only (OCR/catalog); **0** additional captures required.
+
+### Why
+
+Operators supplied recapture screenshots and completed supplement passes; ready books needed manifest publish while incomplete books stay in staging queues for OCR tuning.
+
+### Status
+
+- **READY_TO_PUBLISH:** 12 offense books (incl. Go Go).
+- **NEEDS_SUPPLEMENTS:** 11 offense books (35 missing identities — all processing defects).
+- DOCX ingest + `play-art:review` unchanged for vault books.
+
+
+## 2026-08-30 — First-class screenshot play-art source path
+
+### What
+
+- Added `source-screenshots/{game}/{side}/{slug}/` as a first-class game-capture source (directory namespace authoritative).
+- Reused shared screenshot crop/OCR/catalog processing with manual supplements.
+- Added `play-art:screenshot` and `play-art:screenshot-batch` (prep/validate only — no auto-publish).
+- Status: READY_TO_PUBLISH / NEEDS_SUPPLEMENTS / FAILED + operator `RECAPTURE_CHECKLIST.md`.
+
+### Why
+
+OBS stable-screen extraction misses too many screens; operators already capture labeled game screenshots that should feed the same OCR/catalog identity contract without a video pass.
+
+### Status
+
+- DOCX and OBS video pipelines unchanged.
+- Screenshot publish remains an explicit later step.
+
+
 ## 2026-08-30 — OBS Go Go play-art publish (first game-capture book)
 
 ### What

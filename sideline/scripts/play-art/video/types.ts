@@ -14,7 +14,10 @@ export type ResolvedVideoSource = {
   basename: string;
   gameVersion: string;
   side: VideoSideOfBall;
+  /** Canonical catalog slug (matches seed / staging paths). */
   playbookSlug: string;
+  /** Slug parsed from filename before defense compact expansion. */
+  filenamePlaybookSlug?: string;
   playbookDisplayName: string;
   seedSlug: string;
   seedPath: string;
@@ -83,7 +86,12 @@ export type RejectedCandidate = {
   notes?: string;
 };
 
-export type CardSourceType = "video" | "manual-supplement";
+export type CardSourceType =
+  | "video"
+  | "manual-supplement"
+  | "screenshot"
+  | "cross-playbook-reuse"
+  | "recovered-existing-source";
 
 export type SupplementCardClass =
   | "NEW_MISSING_PLAY"
@@ -91,7 +99,36 @@ export type SupplementCardClass =
   | "OCR_UNRESOLVED"
   | "CATALOG_MISMATCH"
   | "INVALID_SCREEN"
-  | "EMPTY_SLOT";
+  | "EMPTY_SLOT"
+  | "CROSS_PLAYBOOK_REUSE"
+  | "RECOVERED_EXISTING_SOURCE";
+
+export type CrossPlaybookReuseProvenance = {
+  reusableArtKey: string;
+  sourcePlaybookSlug: string;
+  sourcePlaybookDisplayName: string;
+  sourceType: Exclude<CardSourceType, "cross-playbook-reuse">;
+  sourceFile: string;
+  sourceArtCropPath: string;
+  sourceCardPath: string;
+};
+
+export type RecoveredExistingSourceProvenance = {
+  reusableArtKey: string;
+  targetFormation: string;
+  targetPlay: string;
+  sourcePlaybookSlug: string;
+  sourcePlaybookDisplayName: string;
+  sourceType: Exclude<CardSourceType, "cross-playbook-reuse" | "recovered-existing-source">;
+  sourceFile: string;
+  sourceArtCropPath: string;
+  sourceCardPath: string;
+  formationOcrRaw: string;
+  formationOcr: string;
+  playNameOcrRaw: string | null;
+  playNameOcr: string | null;
+  recoveryMethod: "FORMATION_AWARE_REOCR" | "GOAL_LINE_62_NEEDLE";
+};
 
 export type ExtractedVideoCard = {
   gameVersion: string;
@@ -122,6 +159,10 @@ export type ExtractedVideoCard = {
   sourceFile?: string;
   /** Manual-supplement classification (per card). */
   supplementClass?: SupplementCardClass;
+  /** Present when art was satisfied via exact cross-playbook reuse. */
+  reuseProvenance?: CrossPlaybookReuseProvenance;
+  /** Present when art was recovered from existing unresolved source pixels. */
+  recoveryProvenance?: RecoveredExistingSourceProvenance;
 };
 
 export type FormationCoverageStatus =

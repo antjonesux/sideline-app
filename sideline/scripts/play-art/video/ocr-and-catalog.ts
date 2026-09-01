@@ -32,29 +32,84 @@ function levenshtein(a: string, b: string): number {
   return prev[b.length];
 }
 
+/** Common game-capture play-label OCR confusions (OBS/screenshot path only). */
+function normalizePlayOcrText(raw: string): string {
+  let t = raw.trim().toUpperCase();
+  t = t.replace(/^UP\s+/, "HB ");
+  t = t.replace(/^UE\s+/, "HB ");
+  t = t.replace(/^WE\s+/, "HB ");
+  t = t.replace(/^UWE\s+/, "HB ");
+  t = t.replace(/^PO\s+(READ|PEEK)\b/, "RPO $1");
+  t = t.replace(/^PPO\s+/, "RPO ");
+  t = t.replace(/\bOUICK\b/g, "QUICK");
+  t = t.replace(/\bJET\s+OB\b/g, "JET QB");
+  t = t.replace(/\bOB\s+COUNTER\b/g, "QB COUNTER");
+  t = t.replace(/\bPOWERO\b/g, "POWER O");
+  t = t.replace(/\bPAYV?FLOOP\b/g, "PA Y FLOOD");
+  t = t.replace(/\bPAY\s*FLOOD\b/g, "PA Y FLOOD");
+  t = t.replace(/\bPA\s*Y\s*FLOOP\b/g, "PA Y FLOOD");
+  t = t.replace(/\bRFIOOP\b/g, "FLOOD");
+  t = t.replace(/\bRIOOP\b/g, "FLOOD");
+  t = t.replace(/\bRTOOP\b/g, "FLOOD");
+  t = t.replace(/\bVFLOOP\b/g, "FLOOD");
+  t = t.replace(/\bVENRTICATS\b/g, "VERTICALS");
+  t = t.replace(/\bOVICK\s+BASE\b/g, "45 QUICK BASE");
+  if (!/\bBUNCH DIVIDE X-DRAG\b/.test(t)) {
+    t = t.replace(/\bDIVIDE\s+X-?DRAG\b/g, "BUNCH DIVIDE X-DRAG");
+  }
+  t = t.replace(/\bXDRAG\b/g, "X-DRAG");
+  return t;
+}
+
+/** Suffix is valid only when `needle` is a full spaced token at the end of `playNorm`. */
+function playEndsWithToken(playNorm: string, needle: string): boolean {
+  if (!needle || playNorm.length <= needle.length) return false;
+  if (!playNorm.endsWith(needle)) return false;
+  const boundaryIdx = playNorm.length - needle.length - 1;
+  return boundaryIdx < 0 || playNorm[boundaryIdx] === " ";
+}
+
+function uniqueContainedPlayMatch(
+  needle: string,
+  formationPlays: string[],
+): string | null {
+  const n = normalizePlayName(needle);
+  if (!n) return null;
+
+  const suffixHits = formationPlays.filter((play) => {
+    const p = normalizePlayName(play);
+    if (p === n) return false;
+    return playEndsWithToken(p, n);
+  });
+  if (suffixHits.length === 1) return suffixHits[0];
+
+  const nCompact = n.replace(/\s+/g, "");
+  const prefixHits = formationPlays.filter((play) => {
+    const pCompact = normalizePlayName(play).replace(/\s+/g, "");
+    return pCompact.startsWith(nCompact) && pCompact.length > nCompact.length;
+  });
+  if (prefixHits.length === 1) return prefixHits[0];
+
+  return null;
+}
+
 /**
  * Match OCR play text against plays in one formation only (filename namespace).
  * Reuses length-aware fuzzy gates from formation OCR — no broader fuzzy.
  *
  * Also tries space-compact equality so OCR like "JETPAHB SWEEP" uniquely
  * resolves to "JET PA HB SWEEP" instead of tying with "JET HB SWEEP".
+ *
+ * Digit-0 substitution (OCR letter O → 0) runs only after natural OCR fails,
+ * so catalog names ending in " O" (e.g. HB POWER O) are not rewritten to " 0".
  */
-export function matchPlayInFormation(
-  ocrPlayText: string | null,
+function matchPlayNeedle(
+  needle: string,
   formationPlays: string[],
 ): {
   matchedPlay: string | null;
-  matchConfidence: "exact" | "fuzzy" | "none" | "skipped";
+  matchConfidence: "exact" | "fuzzy" | "none";
 } {
-  if (!ocrPlayText || !ocrPlayText.trim()) {
-    return { matchedPlay: null, matchConfidence: "skipped" };
-  }
-  // OCR often reads digit 0 as letter O in play names (e.g. HB SPLIT 0).
-  const needle = normalizePlayName(
-    ocrPlayText.replace(/\bO\b/g, "0").replace(/(\d)\s*O\b/g, "$10").replace(/\bO\s*(\d)/g, "0$1"),
-  );
-  if (!needle) return { matchedPlay: null, matchConfidence: "none" };
-
   const exact = formationPlays.find((p) => normalizePlayName(p) === needle);
   if (exact) return { matchedPlay: exact, matchConfidence: "exact" };
 
@@ -68,6 +123,14 @@ export function matchPlayInFormation(
   const cands: Cand[] = [];
   for (const play of formationPlays) {
     const seedNorm = normalizePlayName(play);
+    const pCompact = seedNorm.replace(/\s+/g, "");
+    if (
+      pCompact.endsWith(needleCompact) &&
+      pCompact.length > needleCompact.length &&
+      !playEndsWithToken(seedNorm, needle)
+    ) {
+      continue;
+    }
     const distance = levenshtein(needle, seedNorm);
     const gate = passesLengthAwareFuzzyThreshold(needle, seedNorm, distance);
     if (!gate.ok) continue;
@@ -83,7 +146,11 @@ export function matchPlayInFormation(
       a.compactDistance - b.compactDistance ||
       a.play.localeCompare(b.play),
   );
-  if (cands.length === 0) return { matchedPlay: null, matchConfidence: "none" };
+  if (cands.length === 0) {
+    const contained = uniqueContainedPlayMatch(needle, formationPlays);
+    if (contained) return { matchedPlay: contained, matchConfidence: "fuzzy" };
+    return { matchedPlay: null, matchConfidence: "none" };
+  }
   if (
     cands.length > 1 &&
     cands[0].distance === cands[1].distance &&
@@ -92,6 +159,147 @@ export function matchPlayInFormation(
     return { matchedPlay: null, matchConfidence: "none" };
   }
   return { matchedPlay: cands[0].play, matchConfidence: "fuzzy" };
+}
+
+/**
+ * Conservative OCR cleanups for play-name text before catalog match.
+ * Only rewrites known systematic misreads; never invents play identity.
+ * Safe for offense + defense (no offense play names use these tokens).
+ */
+function cleanupPlayOcrText(raw: string): string {
+  let s = raw;
+
+  // COVER: V often read as W
+  s = s.replace(/\bCOWER\b/gi, "COVER");
+  // CLOUD: D often read as P
+  s = s.replace(/\bCLOUP\b/gi, "CLOUD");
+
+  // Compact role+BLITZ forms FIRST: SAWSTITZ3 / SAWSUTZ2 → SAW BLITZ 3
+  s = s.replace(
+    /\b([A-Z]{2,8})S[A-Z]{0,2}T?ITZ([0-9O])\b/gi,
+    (_m, role: string, dig: string) => {
+      const d = /O/i.test(dig) ? "0" : dig;
+      return `${role} BLITZ ${d}`;
+    },
+  );
+
+  // Standalone BLITZ misreads: STITZO / STITZ3 / SITZ / SUITZ / SUTZ / STITZ
+  s = s.replace(/\bS[A-Z]{0,3}T?ITZ[A-Z0-9]*\b/gi, (token) => {
+    const upper = token.toUpperCase();
+    const digitMatch = upper.match(/(\d)\s*$/);
+    if (digitMatch) return `BLITZ ${digitMatch[1]}`;
+    if (/O\s*$/i.test(upper)) return "BLITZ 0";
+    return "BLITZ";
+  });
+
+  // SAW SIZ / SAM SIZ (BLITZ with missing BT)
+  s = s.replace(/\b(SAW|SAM|MIKE|WILL|HOT|EDGE|NICKEL)\s+SIZ\b/gi, "$1 BLITZ");
+
+  // Split glued letter+digit / digit+letter tokens: SHOW2 → SHOW 2, 7EDGE → 7 EDGE
+  s = s.replace(/\b([A-Za-z]+?)(\d)\b/g, "$1 $2");
+  s = s.replace(/\b(\d)([A-Za-z]+)\b/g, "$1 $2");
+
+  return s;
+}
+
+export function matchPlayInFormation(
+  ocrPlayText: string | null,
+  formationPlays: string[],
+): {
+  matchedPlay: string | null;
+  matchConfidence: "exact" | "fuzzy" | "none" | "skipped";
+} {
+  if (!ocrPlayText || !ocrPlayText.trim()) {
+    return { matchedPlay: null, matchConfidence: "skipped" };
+  }
+
+  const cleaned = cleanupPlayOcrText(normalizePlayOcrText(ocrPlayText));
+
+  const naturalNeedle = normalizePlayName(cleaned);
+  if (!naturalNeedle) return { matchedPlay: null, matchConfidence: "none" };
+
+  // OCR often drops formation prefix digits (619 SAIL → SAIL).
+  if (naturalNeedle === "SAIL") {
+    const sailPlays = formationPlays.filter((p) =>
+      /\bSAIL\b/.test(normalizePlayName(p)),
+    );
+    const numbered = sailPlays.filter((p) =>
+      /\d+\s+SAIL\b/.test(normalizePlayName(p)),
+    );
+    if (numbered.length === 1) {
+      return { matchedPlay: numbered[0], matchConfidence: "fuzzy" };
+    }
+    if (sailPlays.length === 1) {
+      return { matchedPlay: sailPlays[0], matchConfidence: "fuzzy" };
+    }
+  }
+
+  const naturalHit = matchPlayNeedle(naturalNeedle, formationPlays);
+  if (naturalHit.matchedPlay) {
+    return naturalHit;
+  }
+
+  // OCR sometimes appends SPLIT to a base run name not present as its own catalog play.
+  if (/\bSPLIT$/.test(naturalNeedle)) {
+    const baseNeedle = naturalNeedle.replace(/\s+SPLIT$/, "");
+    const hasSplitVariant = formationPlays.some(
+      (p) => normalizePlayName(p) === naturalNeedle,
+    );
+    if (!hasSplitVariant && baseNeedle) {
+      const baseHit = matchPlayNeedle(baseNeedle, formationPlays);
+      if (baseHit.matchedPlay) return baseHit;
+    }
+  }
+
+  // MTN STICK WHEEL OCR often omits the HILLTOPPERS token when it is unique in formation.
+  if (naturalNeedle === "MTN STICK WHEEL") {
+    const stickWheelHits = formationPlays.filter((p) =>
+      playEndsWithToken(normalizePlayName(p), "STICK WHEEL"),
+    );
+    if (stickWheelHits.length === 1) {
+      return { matchedPlay: stickWheelHits[0], matchConfidence: "fuzzy" };
+    }
+  }
+
+  const contained = uniqueContainedPlayMatch(naturalNeedle, formationPlays);
+  if (contained) {
+    return { matchedPlay: contained, matchConfidence: "fuzzy" };
+  }
+
+  // Unique suffix / containment: OCR "EDGE PINCH" or "CROSS SHOW 2" uniquely
+  // identifies one catalog play when only one formation play ends with / contains it.
+  if (naturalNeedle.length >= 8) {
+    const suffixHits = formationPlays.filter((p) => {
+      const seed = normalizePlayName(p);
+      return seed === naturalNeedle || playEndsWithToken(seed, naturalNeedle);
+    });
+    if (suffixHits.length === 1) {
+      return { matchedPlay: suffixHits[0], matchConfidence: "fuzzy" };
+    }
+  }
+
+  // OCR often reads digit 0 as letter O in play names (e.g. HB SPLIT 0).
+  const zeroFixedNeedle = normalizePlayName(
+    cleaned
+      .replace(/\bO\b/g, "0")
+      .replace(/(\d)\s*O\b/g, "$10")
+      .replace(/\bO\s*(\d)/g, "0$1"),
+  );
+  if (zeroFixedNeedle && zeroFixedNeedle !== naturalNeedle) {
+    const zeroHit = matchPlayNeedle(zeroFixedNeedle, formationPlays);
+    if (zeroHit.matchedPlay) return zeroHit;
+  }
+
+  // Also try original text if cleanup changed anything (avoid over-normalize misses).
+  if (cleaned !== ocrPlayText) {
+    const rawNeedle = normalizePlayName(ocrPlayText);
+    if (rawNeedle && rawNeedle !== naturalNeedle) {
+      const rawHit = matchPlayNeedle(rawNeedle, formationPlays);
+      if (rawHit.matchedPlay) return rawHit;
+    }
+  }
+
+  return { matchedPlay: null, matchConfidence: "none" };
 }
 
 function isChromeNoise(raw: string, formationText: string): boolean {

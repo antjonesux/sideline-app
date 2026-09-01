@@ -1,27 +1,29 @@
+/**
+ * Manual screenshot supplements for OBS video gaps (diagnostic only).
+ *
+ * Reuses shared screenshot screen processing (`process-screenshot-screens.ts`).
+ * Merges with video staging for combined coverage — does not publish.
+ */
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { basename, extname, join } from "node:path";
-import sharp from "sharp";
-import { normalizePlayName } from "../../../lib/utils";
-import {
-  matchKnownFormation,
-  normalizeFormationOcrText,
-  ocrPlayCardHeader,
-} from "../formation-ocr";
+import { join } from "node:path";
 import type { PlayArtReference } from "../types";
-import { cropScreenCards } from "./crop-cards";
-import { OBS_1920x1080_TOP_BAND, resolveCropProfile } from "./crop-profile";
 import {
   buildFormationCoverage,
   buildRecaptureQueue,
 } from "./formation-coverage";
-import { compareToCatalog, matchPlayInFormation } from "./ocr-and-catalog";
+import { compareToCatalog } from "./ocr-and-catalog";
+import {
+  cardIdentityKey,
+  listScreenshotImages,
+  processScreenshotScreens,
+  type InvalidScreenshotReason,
+} from "./process-screenshot-screens";
 import {
   defaultSupplementFolder,
   resolveSupplementNamespace,
@@ -32,18 +34,19 @@ import type {
   ExtractedVideoCard,
   FormationCoverageRow,
   RecaptureQueue,
-  SupplementCardClass,
   VideoPrepareReport,
   VideoSideOfBall,
 } from "./types";
+import {
+  applyDefensiveCrossPlaybookReuse,
+  buildDefensiveValidatedArtCorpus,
+  computeDefensiveReuseCoverage,
+  isDefensiveReuseEligible,
+  type DefensiveArtCorpus,
+  type DefensiveReuseCoverage,
+} from "./defensive-art-reuse";
 
-export type InvalidScreenshotReason =
-  | "WRONG_DIMENSIONS"
-  | "INVALID_CROP_PROFILE"
-  | "NO_PLAY_CARDS"
-  | "TRANSITION_SCREEN"
-  | "FORMATION_MISMATCH"
-  | "UNREADABLE_IMAGE";
+export type { InvalidScreenshotReason };
 
 export type FormationDeltaRow = {
   formation: string;
@@ -102,110 +105,12 @@ export type ManualSupplementReport = {
   combinedFormationCoverage: FormationCoverageRow[];
   recaptureQueue: RecaptureQueue;
   notes: string[];
+  reuseCards: ExtractedVideoCard[];
+  reuseCoverage: DefensiveReuseCoverage | null;
 };
 
-const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg"]);
-
-function playIdentityKey(formation: string, play: string): string {
-  return `${formation}\0${normalizePlayName(play)}`;
-}
-
-function cardIdentityKey(card: ExtractedVideoCard): string | null {
-  if (!card.catalogValid || !card.matchedFormation || !card.matchedPlay) return null;
-  return playIdentityKey(card.matchedFormation, card.matchedPlay);
-}
-
-export function listSupplementScreenshots(folderPath: string): string[] {
-  if (!existsSync(folderPath)) return [];
-  return readdirSync(folderPath)
-    .filter((name) => {
-      if (name.startsWith(".")) return false;
-      const ext = extname(name).toLowerCase();
-      return IMAGE_EXTS.has(ext);
-    })
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-    .map((name) => join(folderPath, name));
-}
-
-function isChromeNoise(raw: string, formationText: string): boolean {
-  return (
-    /\bKEY\s+PLAYERS\b/i.test(raw) ||
-    /\b\d+\s*PLAYS\b/i.test(formationText) ||
-    /\bAVGYDS\b/i.test(formationText) ||
-    /\bPLAYS\b/i.test(formationText)
-  );
-}
-
-function classifyCard(input: {
-  emptySlot: boolean;
-  screenInvalid: boolean;
-  catalogValid: boolean;
-  identityKey: string | null;
-  alreadyHave: Set<string>;
-  formationMatched: boolean;
-  playOcr: string | null;
-  playMatchConfidence: ExtractedVideoCard["playMatchConfidence"];
-}): SupplementCardClass {
-  if (input.screenInvalid) return "INVALID_SCREEN";
-  if (input.emptySlot) return "EMPTY_SLOT";
-  if (input.catalogValid && input.identityKey) {
-    if (input.alreadyHave.has(input.identityKey)) return "DUPLICATE_EXISTING";
-    return "NEW_MISSING_PLAY";
-  }
-  if (
-    input.formationMatched &&
-    (input.playMatchConfidence === "skipped" ||
-      !input.playOcr ||
-      !input.playOcr.trim())
-  ) {
-    return "OCR_UNRESOLVED";
-  }
-  if (input.formationMatched && input.playMatchConfidence === "none") {
-    return "OCR_UNRESOLVED";
-  }
-  return "CATALOG_MISMATCH";
-}
-
-async function validateScreenshotDimensions(
-  imagePath: string,
-): Promise<
-  | { ok: true; width: number; height: number }
-  | { ok: false; reason: InvalidScreenshotReason; notes: string }
-> {
-  let width = 0;
-  let height = 0;
-  try {
-    const meta = await sharp(imagePath).metadata();
-    width = meta.width ?? 0;
-    height = meta.height ?? 0;
-  } catch (err) {
-    return {
-      ok: false,
-      reason: "UNREADABLE_IMAGE",
-      notes: err instanceof Error ? err.message : String(err),
-    };
-  }
-  if (width <= 0 || height <= 0) {
-    return {
-      ok: false,
-      reason: "UNREADABLE_IMAGE",
-      notes: "Missing width/height metadata",
-    };
-  }
-  try {
-    resolveCropProfile(width, height);
-  } catch (err) {
-    return {
-      ok: false,
-      reason: "WRONG_DIMENSIONS",
-      notes:
-        err instanceof Error
-          ? err.message
-          : `Unsupported ${width}×${height}`,
-    };
-  }
-  return { ok: true, width, height };
-}
+/** @deprecated Prefer listScreenshotImages — kept for callers. */
+export const listSupplementScreenshots = listScreenshotImages;
 
 function loadVideoReport(stagingRoot: string): VideoPrepareReport | null {
   const reportPath = join(stagingRoot, "report.json");
@@ -231,10 +136,11 @@ export async function processManualSupplements(input: {
   reference: PlayArtReference;
   /** Optional pre-resolved namespace (skips re-resolve). */
   namespace?: ResolvedSupplementNamespace;
+  /** Optional pre-built corpus (avoids rebuilding for batch runs). */
+  defensiveReuseCorpus?: DefensiveArtCorpus;
 }): Promise<ManualSupplementReport> {
   const ns = input.namespace ?? resolveSupplementNamespace(input.folderPath);
   const resolved = supplementNamespaceToResolved(ns);
-  const profile = OBS_1920x1080_TOP_BAND;
 
   const stagingRoot = join(
     input.playArtRoot,
@@ -253,338 +159,59 @@ export async function processManualSupplements(input: {
     videoOnlyCards,
   );
 
-  const knownFormations = input.reference.formations.map((f) => f.name);
-  const playsByFormation = new Map(
-    input.reference.formations.map((f) => [f.name, f.plays] as const),
-  );
-
   const ownedKeys = new Set<string>();
   for (const card of videoOnlyCards) {
     const key = cardIdentityKey(card);
     if (key) ownedKeys.add(key);
   }
 
-  const screenshots = listSupplementScreenshots(ns.folderPath);
-  const sourceCardsDir = join(stagingRoot, "supplement-source-cards");
-  const artCropsDir = join(stagingRoot, "supplement-art-crops");
-  const screensDir = join(stagingRoot, "supplement-screens");
-  mkdirSync(sourceCardsDir, { recursive: true });
-  mkdirSync(artCropsDir, { recursive: true });
-  mkdirSync(screensDir, { recursive: true });
+  const screenshots = listScreenshotImages(ns.folderPath);
+  const screenStats = await processScreenshotScreens({
+    imagePaths: screenshots,
+    namespace: {
+      gameVersion: ns.gameVersion,
+      side: ns.side,
+      playbookSlug: ns.playbookSlug,
+    },
+    reference: input.reference,
+    alreadyHave: ownedKeys,
+    screensDir: join(stagingRoot, "supplement-screens"),
+    sourceCardsDir: join(stagingRoot, "supplement-source-cards"),
+    artCropsDir: join(stagingRoot, "supplement-art-crops"),
+    sourceType: "manual-supplement",
+    stemPrefix: "supp",
+  });
 
-  const invalidScreenshots: ManualSupplementReport["invalidScreenshots"] = [];
-  const supplementCards: ExtractedVideoCard[] = [];
-  let screenshotsAccepted = 0;
-  let newMissing = 0;
-  let duplicates = 0;
-  let ocrUnresolved = 0;
-  let catalogMismatches = 0;
-  let emptySlots = 0;
-  let invalidScreenCards = 0;
-
-  for (let i = 0; i < screenshots.length; i += 1) {
-    const imagePath = screenshots[i];
-    const fileName = basename(imagePath);
-    const dim = await validateScreenshotDimensions(imagePath);
-    if (!dim.ok) {
-      invalidScreenshots.push({
-        file: fileName,
-        reason: dim.reason,
-        notes: dim.notes,
-      });
-      continue;
-    }
-
-    const stagedScreenPath = join(screensDir, fileName);
-    copyFileSync(imagePath, stagedScreenPath);
-
-    const stemSafe = fileName.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]+/g, "-");
-    let cropped;
-    try {
-      cropped = await cropScreenCards({
-        screen: {
-          screenIndex: i + 1,
-          timestampSec: 0,
-          timestampLabel: fileName,
-          samplePath: stagedScreenPath,
-          framePath: stagedScreenPath,
-          stableDurationSec: 0,
-          shortHold: false,
-          fingerprintHash: `manual:${fileName}`,
-          sharpnessScore: 0,
-          localMotionScore: 0,
-        },
-        profile,
-        sourceCardsDir,
-        artCropsDir,
-        stemPrefix: `supp-${stemSafe}`,
-      });
-    } catch (err) {
-      invalidScreenshots.push({
-        file: fileName,
-        reason: "INVALID_CROP_PROFILE",
-        notes: err instanceof Error ? err.message : String(err),
-      });
-      continue;
-    }
-
-    type Draft = {
-      position: ExtractedVideoCard["cardPosition"];
-      sourceCardPath: string;
-      artCropPath: string;
-      emptySlot: boolean;
-      formationOcrRaw: string;
-      formationOcr: string;
-      playNameOcrRaw: string | null;
-      playNameOcr: string | null;
-      matchedFormation: string | null;
-      formationMatchConfidence: ExtractedVideoCard["formationMatchConfidence"];
-      matchedPlay: string | null;
-      playMatchConfidence: ExtractedVideoCard["playMatchConfidence"];
-      catalogValid: boolean;
-      chrome: boolean;
-    };
-
-    const drafts: Draft[] = [];
-    for (const card of cropped.cards) {
-      if (card.emptySlot) {
-        drafts.push({
-          position: card.position,
-          sourceCardPath: card.sourceCardPath,
-          artCropPath: card.artCropPath,
-          emptySlot: true,
-          formationOcrRaw: "",
-          formationOcr: "",
-          playNameOcrRaw: null,
-          playNameOcr: null,
-          matchedFormation: null,
-          formationMatchConfidence: "none",
-          matchedPlay: null,
-          playMatchConfidence: "skipped",
-          catalogValid: false,
-          chrome: false,
-        });
-        continue;
-      }
-
-      const buf = readFileSync(card.sourceCardPath);
-      let ocr: { rawText: string; formationText: string; playNameText: string | null };
-      try {
-        ocr = await ocrPlayCardHeader(buf);
-      } catch (err) {
-        ocr = { rawText: "", formationText: "", playNameText: null };
-        console.warn(
-          `  OCR failed ${fileName} ${card.position}: ` +
-            `${err instanceof Error ? err.message : String(err)}`,
-        );
-      }
-
-      const formationMatch = matchKnownFormation(ocr.formationText, knownFormations);
-      let formationName = formationMatch.matchedFormation;
-      let formationMatchConfidence = formationMatch.matchConfidence;
-      let matchedPlay: string | null = null;
-      let playMatchConfidence: ExtractedVideoCard["playMatchConfidence"] = "skipped";
-      if (formationName) {
-        const plays = playsByFormation.get(formationName) ?? [];
-        const playMatch = matchPlayInFormation(ocr.playNameText, plays);
-        matchedPlay = playMatch.matchedPlay;
-        playMatchConfidence = playMatch.matchConfidence;
-      } else if (ocr.playNameText) {
-        playMatchConfidence = "none";
-      }
-
-      const chrome = isChromeNoise(ocr.rawText, ocr.formationText);
-      if (chrome) {
-        formationName = null;
-        formationMatchConfidence = "none";
-        matchedPlay = null;
-        playMatchConfidence = "none";
-      }
-
-      const catalogValid =
-        formationMatchConfidence !== "none" &&
-        matchedPlay != null &&
-        (playMatchConfidence === "exact" || playMatchConfidence === "fuzzy");
-
-      drafts.push({
-        position: card.position,
-        sourceCardPath: card.sourceCardPath,
-        artCropPath: card.artCropPath,
-        emptySlot: false,
-        formationOcrRaw: ocr.rawText,
-        formationOcr: ocr.formationText || normalizeFormationOcrText(ocr.rawText),
-        playNameOcrRaw: ocr.playNameText,
-        playNameOcr: ocr.playNameText,
-        matchedFormation: formationName,
-        formationMatchConfidence,
-        matchedPlay,
-        playMatchConfidence,
-        catalogValid,
-        chrome,
-      });
-    }
-
-    const nonEmpty = drafts.filter((d) => !d.emptySlot);
-    if (nonEmpty.length === 0) {
-      invalidScreenshots.push({
-        file: fileName,
-        reason: "NO_PLAY_CARDS",
-        notes: "All three card slots look empty",
-      });
-      for (const d of drafts) {
-        emptySlots += 1;
-        supplementCards.push({
-          gameVersion: ns.gameVersion,
-          side: ns.side,
-          playbookSlug: ns.playbookSlug,
-          videoFile: fileName,
-          timestamp: fileName,
-          timestampSec: 0,
-          screenIndex: i + 1,
-          cardPosition: d.position,
-          sourceCardPath: d.sourceCardPath,
-          artCropPath: d.artCropPath,
-          emptySlot: true,
-          formationOcrRaw: "",
-          formationOcr: "",
-          playNameOcrRaw: null,
-          playNameOcr: null,
-          matchedFormation: null,
-          formationMatchConfidence: "none",
-          matchedPlay: null,
-          playMatchConfidence: "skipped",
-          catalogValid: false,
-          screenRejected: true,
-          rejectReason: "NO_VALID_CARDS",
-          sourceType: "manual-supplement",
-          sourceFile: fileName,
-          supplementClass: "INVALID_SCREEN",
-        });
-        invalidScreenCards += 1;
-      }
-      continue;
-    }
-
-    if (nonEmpty.every((d) => d.chrome)) {
-      invalidScreenshots.push({
-        file: fileName,
-        reason: "TRANSITION_SCREEN",
-        notes: "KEY PLAYERS / chrome-only screen",
-      });
-      for (const d of drafts) {
-        invalidScreenCards += 1;
-        supplementCards.push(makeSupplementCard({
-          ns,
-          fileName,
-          screenIndex: i + 1,
-          draft: d,
-          screenInvalid: true,
-          supplementClass: "INVALID_SCREEN",
-        }));
-      }
-      continue;
-    }
-
-    const formationNames = nonEmpty
-      .map((d) => d.matchedFormation)
-      .filter((f): f is string => f != null);
-    const uniqueFormations = new Set(formationNames);
-    const formationMismatch =
-      formationNames.length >= 2 && uniqueFormations.size > 1;
-
-    if (formationMismatch) {
-      invalidScreenshots.push({
-        file: fileName,
-        reason: "FORMATION_MISMATCH",
-        notes: `Card formations disagree: ${[...uniqueFormations].join(" | ")}`,
-      });
-      for (const d of drafts) {
-        invalidScreenCards += 1;
-        supplementCards.push(makeSupplementCard({
-          ns,
-          fileName,
-          screenIndex: i + 1,
-          draft: d,
-          screenInvalid: true,
-          supplementClass: "INVALID_SCREEN",
-        }));
-      }
-      continue;
-    }
-
-    // Sibling formation consensus: when ≥1 card on the screen resolves a
-    // formation and no disagreement, apply that formation to cards whose
-    // play OCR succeeded but formation OCR failed. Does NOT invent play
-    // identity from the missing-catalog list — play text must still match.
-    if (uniqueFormations.size === 1) {
-      const consensusFormation = [...uniqueFormations][0];
-      const plays = playsByFormation.get(consensusFormation) ?? [];
-      for (const d of drafts) {
-        if (d.emptySlot || d.chrome) continue;
-        if (d.matchedFormation) continue;
-        if (!d.playNameOcr || !d.playNameOcr.trim()) continue;
-        const playMatch = matchPlayInFormation(d.playNameOcr, plays);
-        if (
-          playMatch.matchedPlay &&
-          (playMatch.matchConfidence === "exact" ||
-            playMatch.matchConfidence === "fuzzy")
-        ) {
-          d.matchedFormation = consensusFormation;
-          d.formationMatchConfidence = "fuzzy";
-          d.matchedPlay = playMatch.matchedPlay;
-          d.playMatchConfidence = playMatch.matchConfidence;
-          d.catalogValid = true;
-        }
-      }
-    }
-
-    screenshotsAccepted += 1;
-
-    for (const d of drafts) {
-      const identityKey =
-        d.catalogValid && d.matchedFormation && d.matchedPlay
-          ? playIdentityKey(d.matchedFormation, d.matchedPlay)
-          : null;
-
-      const supplementClass = classifyCard({
-        emptySlot: d.emptySlot,
-        screenInvalid: false,
-        catalogValid: d.catalogValid,
-        identityKey,
-        alreadyHave: ownedKeys,
-        formationMatched: d.formationMatchConfidence !== "none",
-        playOcr: d.playNameOcr,
-        playMatchConfidence: d.playMatchConfidence,
-      });
-
-      if (supplementClass === "EMPTY_SLOT") emptySlots += 1;
-      if (supplementClass === "DUPLICATE_EXISTING") duplicates += 1;
-      if (supplementClass === "OCR_UNRESOLVED") ocrUnresolved += 1;
-      if (supplementClass === "CATALOG_MISMATCH") catalogMismatches += 1;
-      if (supplementClass === "NEW_MISSING_PLAY" && identityKey) {
-        newMissing += 1;
-        ownedKeys.add(identityKey);
-      }
-
-      supplementCards.push(
-        makeSupplementCard({
-          ns,
-          fileName,
-          screenIndex: i + 1,
-          draft: d,
-          screenInvalid: false,
-          supplementClass,
-        }),
-      );
-    }
-  }
-
-  // Combined = video cards + only NEW_MISSING_PLAY supplement cards (and keep
-  // other supplement cards in report, but coverage uses recovered + video).
+  const supplementCards = screenStats.cards;
   const recoveredCards = supplementCards.filter(
     (c) => c.supplementClass === "NEW_MISSING_PLAY" && c.catalogValid,
   );
-  const combinedCards = [...videoOnlyCards, ...recoveredCards];
+  const directCombinedCards = [...videoOnlyCards, ...recoveredCards];
+
+  let reuseCards: ExtractedVideoCard[] = [];
+  let combinedCards = directCombinedCards;
+  let reuseCoverage: DefensiveReuseCoverage | null = null;
+
+  if (isDefensiveReuseEligible(ns.gameVersion, ns.side)) {
+    const corpus =
+      input.defensiveReuseCorpus ??
+      buildDefensiveValidatedArtCorpus(input.playArtRoot);
+    const reuseResult = applyDefensiveCrossPlaybookReuse({
+      targetPlaybookSlug: ns.playbookSlug,
+      targetDisplayName: ns.playbookDisplayName,
+      reference: input.reference,
+      directCards: directCombinedCards,
+      corpus,
+    });
+    reuseCards = reuseResult.reuseCards;
+    combinedCards = reuseResult.combinedCards;
+    reuseCoverage = computeDefensiveReuseCoverage({
+      reference: input.reference,
+      directCards: directCombinedCards,
+      combinedCards,
+    });
+  }
+
   const combinedCatalog = compareToCatalog(input.reference, combinedCards);
   const combinedFormationCoverage = buildFormationCoverage(
     input.reference,
@@ -631,7 +258,6 @@ export async function processManualSupplements(input: {
   const supplementReportPath = join(stagingRoot, "supplement-report.json");
   const recaptureQueuePath = join(stagingRoot, "recapture-queue.json");
 
-  // Preserve original video report / video-only recapture snapshot if present.
   if (videoReport && !existsSync(join(stagingRoot, "recapture-queue.video-only.json"))) {
     const videoOnlyQueue = join(stagingRoot, "recapture-queue.video-only.json");
     if (existsSync(recaptureQueuePath)) {
@@ -653,17 +279,17 @@ export async function processManualSupplements(input: {
       playbookDisplayName: ns.playbookDisplayName,
     },
     folder: ns.folderPath,
-    screenshotsFound: screenshots.length,
-    screenshotsAccepted,
-    screenshotsInvalid: invalidScreenshots.length,
-    invalidScreenshots,
-    cardsProcessed: supplementCards.filter((c) => !c.emptySlot).length,
-    newMissingPlaysRecovered: newMissing,
-    duplicates,
-    ocrUnresolved,
-    catalogMismatches,
-    emptySlots,
-    invalidScreenCards,
+    screenshotsFound: screenStats.screenshotsFound,
+    screenshotsAccepted: screenStats.screenshotsAccepted,
+    screenshotsInvalid: screenStats.screenshotsInvalid,
+    invalidScreenshots: screenStats.invalidScreenshots,
+    cardsProcessed: screenStats.cardsProcessed,
+    newMissingPlaysRecovered: screenStats.newIdentities,
+    duplicates: screenStats.duplicates,
+    ocrUnresolved: screenStats.ocrUnresolved,
+    catalogMismatches: screenStats.catalogMismatches,
+    emptySlots: screenStats.emptySlots,
+    invalidScreenCards: screenStats.invalidScreenCards,
     videoOnlyCoverage: {
       detected: videoDetected,
       expected,
@@ -689,10 +315,17 @@ export async function processManualSupplements(input: {
     notes: [
       "Manual supplements are diagnostic only — nothing published.",
       "cardPosition / sourceFile are provenance only — not play identity.",
-      "Combined coverage = video catalog-valid identities ∪ NEW_MISSING_PLAY supplements.",
+      "Combined coverage = video catalog-valid identities ∪ NEW_MISSING_PLAY supplements ∪ exact cross-playbook reuse.",
       "Duplicates never overwrite or weaken existing validated results.",
-      `Crop profile: ${profile.id}`,
+      `Crop profile: ${screenStats.cropProfileId}`,
+      ...(reuseCoverage
+        ? [
+            `Exact cross-playbook reuse: ${reuseCoverage.exactReused} identities (${reuseCoverage.directCaptured} direct + ${reuseCoverage.exactReused} reused = ${reuseCoverage.totalCoverage} total).`,
+          ]
+        : []),
     ],
+    reuseCards,
+    reuseCoverage,
   };
 
   writeFileSync(supplementReportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -702,7 +335,6 @@ export async function processManualSupplements(input: {
     "utf8",
   );
 
-  // Lightweight combined coverage sidecar (does not overwrite report.json).
   writeFileSync(
     join(stagingRoot, "combined-coverage.json"),
     `${JSON.stringify(
@@ -721,68 +353,6 @@ export async function processManualSupplements(input: {
 
   void resolved;
   return report;
-}
-
-function makeSupplementCard(input: {
-  ns: ResolvedSupplementNamespace;
-  fileName: string;
-  screenIndex: number;
-  draft: {
-    position: ExtractedVideoCard["cardPosition"];
-    sourceCardPath: string;
-    artCropPath: string;
-    emptySlot: boolean;
-    formationOcrRaw: string;
-    formationOcr: string;
-    playNameOcrRaw: string | null;
-    playNameOcr: string | null;
-    matchedFormation: string | null;
-    formationMatchConfidence: ExtractedVideoCard["formationMatchConfidence"];
-    matchedPlay: string | null;
-    playMatchConfidence: ExtractedVideoCard["playMatchConfidence"];
-    catalogValid: boolean;
-  };
-  screenInvalid: boolean;
-  supplementClass: SupplementCardClass;
-}): ExtractedVideoCard {
-  // Only NEW_MISSING_PLAY cards contribute catalogValid to combined coverage.
-  // Duplicates keep matchedFormation/play for provenance but catalogValid=false.
-  const contributes =
-    !input.screenInvalid &&
-    input.supplementClass === "NEW_MISSING_PLAY" &&
-    input.draft.catalogValid;
-
-  return {
-    gameVersion: input.ns.gameVersion,
-    side: input.ns.side,
-    playbookSlug: input.ns.playbookSlug,
-    videoFile: input.fileName,
-    timestamp: input.fileName,
-    timestampSec: 0,
-    screenIndex: input.screenIndex,
-    cardPosition: input.draft.position,
-    sourceCardPath: input.draft.sourceCardPath,
-    artCropPath: input.draft.artCropPath,
-    emptySlot: input.draft.emptySlot,
-    formationOcrRaw: input.draft.formationOcrRaw,
-    formationOcr: input.draft.formationOcr,
-    playNameOcrRaw: input.draft.playNameOcrRaw,
-    playNameOcr: input.draft.playNameOcr,
-    matchedFormation: input.screenInvalid ? null : input.draft.matchedFormation,
-    formationMatchConfidence: input.screenInvalid
-      ? "none"
-      : input.draft.formationMatchConfidence,
-    matchedPlay: input.screenInvalid ? null : input.draft.matchedPlay,
-    playMatchConfidence: input.screenInvalid
-      ? "none"
-      : input.draft.playMatchConfidence,
-    catalogValid: contributes,
-    screenRejected: input.screenInvalid,
-    rejectReason: input.screenInvalid ? "NO_VALID_CARDS" : null,
-    sourceType: "manual-supplement",
-    sourceFile: input.fileName,
-    supplementClass: input.supplementClass,
-  };
 }
 
 export function printManualSupplementReport(report: ManualSupplementReport): void {
@@ -837,16 +407,8 @@ export function printManualSupplementReport(report: ManualSupplementReport): voi
     for (const d of deltasToShow) {
       console.log(d.formation);
       console.log(`  Before: ${d.beforeDetected} / ${d.beforeExpected}`);
-      console.log(`  Manual supplement recovered: ${d.recovered}`);
       console.log(`  After: ${d.afterDetected} / ${d.afterExpected}`);
-      if (d.stillMissing.length > 0) {
-        console.log(`  Still missing:`);
-        for (const p of d.stillMissing.slice(0, 12)) console.log(`  - ${p}`);
-        if (d.stillMissing.length > 12) {
-          console.log(`  - … +${d.stillMissing.length - 12} more`);
-        }
-      }
-      console.log(`  Status: ${d.status}`);
+      console.log(`  Recovered: ${d.recovered}`);
       console.log("");
     }
   }

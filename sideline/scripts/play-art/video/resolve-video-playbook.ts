@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { loadPlaybookCatalog, SEED_PLAYBOOKS_DIR } from "../source-discovery";
 import { teamSlugToSeedSlug } from "../lib/slug-utils";
 import { inferDirectorySide, parseVideoFilename } from "./parse-video-filename";
+import { defenseVideoSlugCandidates } from "./resolve-defense-video-slug";
 import type { ResolvedVideoSource } from "./types";
 
 /**
@@ -22,63 +23,67 @@ export function resolveVideoPlaybook(videoPath: string): ResolvedVideoSource {
     );
   }
 
-  const seedSlug = teamSlugToSeedSlug(parsed.playbookSlug, parsed.gameVersion);
-  const seedPath = join(SEED_PLAYBOOKS_DIR, `${seedSlug}.ts`);
-  if (!existsSync(seedPath)) {
-    throw new Error(
-      `No ${parsed.gameVersion.toUpperCase()} ${parsed.side} playbook resolved for slug:\n` +
-        `  ${parsed.playbookSlug}\n` +
-        `Expected seed module: lib/seed/playbooks/${seedSlug}.ts\n` +
-        `File: ${parsed.basename}`,
-    );
-  }
+  const slugCandidates =
+    parsed.side === "defense"
+      ? defenseVideoSlugCandidates(parsed.playbookSlug)
+      : [parsed.playbookSlug];
 
   const catalog = loadPlaybookCatalog(SEED_PLAYBOOKS_DIR);
-  const matches = catalog.filter(
-    (e) =>
-      e.seedSlug === seedSlug &&
-      e.gameVersion === parsed.gameVersion &&
-      e.sideOfBall === parsed.side,
-  );
+  const attempted: string[] = [];
 
-  if (matches.length === 0) {
-    const sameSlug = catalog.filter((e) => e.seedSlug === seedSlug);
-    if (sameSlug.length > 0) {
-      const got = sameSlug
-        .map((e) => `${e.gameVersion}/${e.sideOfBall}/${e.team}`)
-        .join(", ");
+  for (const candidateSlug of slugCandidates) {
+    const seedSlug = teamSlugToSeedSlug(candidateSlug, parsed.gameVersion);
+    attempted.push(seedSlug);
+    const seedPath = join(SEED_PLAYBOOKS_DIR, `${seedSlug}.ts`);
+    if (!existsSync(seedPath)) {
+      continue;
+    }
+
+    const matches = catalog.filter(
+      (e) =>
+        e.seedSlug === seedSlug &&
+        e.gameVersion === parsed.gameVersion &&
+        e.sideOfBall === parsed.side,
+    );
+
+    if (matches.length === 0) {
+      const sameSlug = catalog.filter((e) => e.seedSlug === seedSlug);
+      if (sameSlug.length > 0) {
+        // Side mismatch — try next slug candidate (e.g. offense Multiple vs defense).
+        continue;
+      }
+      continue;
+    }
+
+    if (matches.length > 1) {
       throw new Error(
-        `Seed ${seedSlug}.ts exists but does not match filename namespace.\n` +
-          `Filename requires: ${parsed.gameVersion} / ${parsed.side}\n` +
-          `Seed provides: ${got}\n` +
-          `File: ${parsed.basename}`,
+        `Ambiguous playbook resolution for ${parsed.basename}: ` +
+          matches.map((m) => m.team).join(", "),
       );
     }
-    throw new Error(
-      `No ${parsed.gameVersion.toUpperCase()} ${parsed.side} playbook resolved for slug:\n` +
-        `  ${parsed.playbookSlug}`,
-    );
+
+    const entry = matches[0];
+    return {
+      videoPath,
+      basename: parsed.basename,
+      gameVersion: parsed.gameVersion,
+      side: parsed.side,
+      playbookSlug: candidateSlug,
+      filenamePlaybookSlug: parsed.playbookSlug,
+      playbookDisplayName: entry.team,
+      seedSlug,
+      seedPath,
+      directorySide,
+    };
   }
 
-  if (matches.length > 1) {
-    throw new Error(
-      `Ambiguous playbook resolution for ${parsed.basename}: ` +
-        matches.map((m) => m.team).join(", "),
-    );
-  }
-
-  const entry = matches[0];
-  return {
-    videoPath,
-    basename: parsed.basename,
-    gameVersion: parsed.gameVersion,
-    side: parsed.side,
-    playbookSlug: parsed.playbookSlug,
-    playbookDisplayName: entry.team,
-    seedSlug,
-    seedPath,
-    directorySide,
-  };
+  throw new Error(
+    `No ${parsed.gameVersion.toUpperCase()} ${parsed.side} playbook resolved for slug:\n` +
+      `  ${parsed.playbookSlug}\n` +
+      `Attempted seed modules:\n` +
+      attempted.map((s) => `  lib/seed/playbooks/${s}.ts`).join("\n") +
+      `\nFile: ${parsed.basename}`,
+  );
 }
 
 export function printResolvedVideoSource(resolved: ResolvedVideoSource): void {
