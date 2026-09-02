@@ -5,7 +5,6 @@ import { SchemesOnboardingMockup } from "@/components/onboarding/mockups/Schemes
 import {
   useFeatureOnboardingOpen,
   useMarkOnboardingSeen,
-  useOnboardingBetaEnabled,
 } from "@/hooks/useOnboardingState";
 import { FEATURE_ONBOARDING_KEYS } from "@/lib/onboardingVersion";
 import { useState } from "react";
@@ -19,13 +18,10 @@ const STEPS: OnboardingStep[] = [
 ];
 
 export function SchemesOnboarding() {
-  const isBeta = useOnboardingBetaEnabled();
   const [dismissedLocally, setDismissedLocally] = useState(false);
-  const enabled = isBeta && !dismissedLocally;
+  const enabled = !dismissedLocally;
   const { open } = useFeatureOnboardingOpen(FEATURE_ONBOARDING_KEYS.schemes, enabled);
   const markSeen = useMarkOnboardingSeen();
-
-  if (!isBeta) return null;
 
   return (
     <OnboardingModal

@@ -5,6 +5,28 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-02 — Remove beta feature flags (Film Room, Tendencies, welcome + onboarding modals)
+
+### What
+
+- Deleted `isFilmRoomBetaUser` function, `NEXT_PUBLIC_FILM_BETA_USER_IDS` allowlist, and `sideline/lib/featureFlags.ts`. All previously-gated features now visible to every authenticated user.
+- Updated `getAppShellSidebarNav` to return the full sidebar nav unfiltered (passthrough kept for future filter extensibility).
+- Removed beta-gate guards on welcome modal and per-feature onboarding modal triggers (`WelcomeModalHost`, Call Sheets / Schemes / Film Room / Tendencies onboarding).
+- Removed `/film` beta redirects from `proxy.ts` and deleted `app/film/layout.tsx` (auth-only gating remains via proxy).
+- Flipped `QA_FORCE_FIRE_MODALS` from `true` to `false` in `onboardingVersion.ts`. Modals now behave as designed: welcome fires once per version per user; per-feature onboarding fires once per feature per user.
+
+### Why
+
+Film Room, Tendencies, welcome modal, and per-feature onboarding modals passed QA and are ready for general availability. Play art ingestion is complete enough that public play visibility is production-ready. Removing the flag opens the full app to the user base; deleting the flag entirely lets the codebase reflect current reality.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- All authenticated users now see Call Sheets, Schemes, Film Room, Playbooks, My Tendencies, Discord, Settings in the sidebar.
+- Welcome modal will fire on next login for existing users who haven't seen version 1; dismissal writes to DB per intended behavior.
+- Per-feature onboarding modals will fire once per feature on first entry for users who haven't seen them.
+- No regressions to Tendencies, Film Room, Call Sheets, Schemes, public playbook routes, landing, or Discord placement.
+
 ## 2026-09-01 — CFB27 defensive source coverage complete (6,268/6,268)
 
 ### What

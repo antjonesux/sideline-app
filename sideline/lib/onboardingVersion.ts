@@ -1,15 +1,12 @@
 export const CURRENT_WELCOME_VERSION = 1;
 
-// Set to true during QA to force modals to fire on every load / route entry
-// regardless of stored seen state. DB writes still happen, but re-triggering
-// is not blocked. Flip to false before general rollout so users see each
-// modal only once as intended.
 /**
  * QA mode: when true, modals ignore the "seen" state and fire on every
  * app load (welcome) / every feature route entry (per-feature onboarding).
- * Set to false before general rollout.
+ * Off in production so users see each modal only once as intended.
+ * Flip to true again during future QA cycles.
  */
-export const QA_FORCE_FIRE_MODALS = true;
+export const QA_FORCE_FIRE_MODALS = false;
 
 export const FEATURE_ONBOARDING_KEYS = {
   callSheets: "call_sheets",

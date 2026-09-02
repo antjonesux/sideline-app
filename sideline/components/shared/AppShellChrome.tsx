@@ -3,7 +3,6 @@
 import { WelcomeModalHost } from "@/components/onboarding/WelcomeModalHost";
 import { AppShellSidebar } from "@/components/shared/AppShellSidebar";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { isFilmRoomBetaUser } from "@/lib/featureFlags";
 import {
   isPublicPlaybooksPath,
   shouldUseAppShell,
@@ -38,11 +37,7 @@ export function AppShellChrome({ children }: { children: React.ReactNode }) {
     [pathname, searchParams, isAuthenticated, isLoading],
   );
   const showWelcomeHost =
-    shellActive &&
-    isAuthenticated &&
-    !isLoading &&
-    isFilmRoomBetaUser(user?.id) &&
-    !isPublicPlaybooksPath(pathname);
+    shellActive && isAuthenticated && !isLoading && !isPublicPlaybooksPath(pathname);
 
   useLayoutEffect(() => {
     const root = document.documentElement;

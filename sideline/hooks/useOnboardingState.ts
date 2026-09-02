@@ -15,7 +15,6 @@ import {
   wasWelcomeDismissedThisSession,
 } from "@/lib/onboardingSessionGate";
 import { COULDNT_SAVE } from "@/lib/coachCopy";
-import { isFilmRoomBetaUser } from "@/lib/featureFlags";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToastStore } from "@/store/toastStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,21 +36,14 @@ export function onboardingStateQueryKeyForUser(userId: string | undefined) {
   return [...onboardingStateQueryKey, userId ?? "anon"] as const;
 }
 
-/** Beta-only onboarding surfaces — no fetch / no mount for non-beta users. */
-export function useOnboardingBetaEnabled(): boolean {
-  const { user, isLoading } = useAuth();
-  return !isLoading && isFilmRoomBetaUser(user?.id);
-}
-
 export function useOnboardingState(enabled = true) {
   const { user } = useAuth();
   const userId = user?.id;
-  const isBeta = isFilmRoomBetaUser(userId);
 
   return useQuery({
     queryKey: onboardingStateQueryKeyForUser(userId),
     queryFn: fetchOnboardingState,
-    enabled: enabled && Boolean(userId) && isBeta,
+    enabled: enabled && Boolean(userId),
     staleTime: Infinity,
     gcTime: Infinity,
     retry: false,

@@ -5,7 +5,6 @@ import { CallSheetsOnboardingMockup } from "@/components/onboarding/mockups/Call
 import {
   useFeatureOnboardingOpen,
   useMarkOnboardingSeen,
-  useOnboardingBetaEnabled,
 } from "@/hooks/useOnboardingState";
 import { FEATURE_ONBOARDING_KEYS } from "@/lib/onboardingVersion";
 import { useState } from "react";
@@ -19,13 +18,10 @@ const STEPS: OnboardingStep[] = [
 ];
 
 export function CallSheetsOnboarding() {
-  const isBeta = useOnboardingBetaEnabled();
   const [dismissedLocally, setDismissedLocally] = useState(false);
-  const enabled = isBeta && !dismissedLocally;
+  const enabled = !dismissedLocally;
   const { open } = useFeatureOnboardingOpen(FEATURE_ONBOARDING_KEYS.callSheets, enabled);
   const markSeen = useMarkOnboardingSeen();
-
-  if (!isBeta) return null;
 
   return (
     <OnboardingModal
