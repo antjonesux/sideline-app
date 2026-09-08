@@ -10,7 +10,7 @@ import {
   type TendenciesScopeParams,
 } from "@/components/tendencies/TendenciesFilters";
 import { TendenciesHomeSkeleton } from "@/components/shared/PageSkeleton";
-import { CallSheetMenuButton, CallSheetViewerMenu } from "@/components/playbook/CallSheetViewerMenu";
+import { AppShellMenuHeader } from "@/components/shared/AppShellMenuHeader";
 import {
   APP_SHELL_TENDENCIES_MENU_LABEL,
   TENDENCIES_NO_DEFENSIVE_PLAYS,
@@ -50,7 +50,6 @@ export function TendenciesHome() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [sideOfBall, setSideOfBall] = useState<DriveSideOfBall>("offense");
   const [tab, setTab] = useState<Tab>("working");
   const [filters, setFilters] = useState<TendenciesScopeParams>({ pill: "all", opponentTeam: null, minUses: 3 });
@@ -179,13 +178,7 @@ export function TendenciesHome() {
   if (games.length === 0) {
     return (
       <section className="space-y-6">
-        <header className="flex items-center gap-4">
-          <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
-          <h1 className="min-w-0 flex-1 font-heading text-3xl font-bold uppercase tracking-[0.12em] text-slate-100">
-            {APP_SHELL_TENDENCIES_MENU_LABEL}
-          </h1>
-        </header>
-        <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
+        <AppShellMenuHeader title={APP_SHELL_TENDENCIES_MENU_LABEL} />
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex min-h-[320px] flex-col items-center justify-center py-8 text-center sm:px-8">
           <p className="font-sans text-base font-medium text-white">No games logged yet.</p>
           <p className="mt-2 font-sans text-sm text-slate-500">Log some games to see your tendencies.</p>
@@ -201,18 +194,10 @@ export function TendenciesHome() {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-4">
-          <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
-          <div className="min-w-0 flex-1 space-y-1">
-            <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.12em] text-slate-100">
-              {APP_SHELL_TENDENCIES_MENU_LABEL}
-            </h1>
-            <p className="font-body text-sm text-slate-400">{TENDENCIES_PAGE_SUBTITLE}</p>
-          </div>
-        </div>
-      </header>
-      <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} />
+      <div className="space-y-2">
+        <AppShellMenuHeader title={APP_SHELL_TENDENCIES_MENU_LABEL} />
+        <p className="font-body text-sm text-slate-400">{TENDENCIES_PAGE_SUBTITLE}</p>
+      </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <TendenciesSideOfBallToggle value={sideOfBall} onChange={setSideOfBall} />

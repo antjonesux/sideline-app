@@ -23,12 +23,16 @@ export function AppShellMenuHeader({
 
   return (
     <>
-      <header className={cn("flex items-center gap-4", className)}>
+      <header className="space-y-3">
         {showMenu ? (
-          <CallSheetMenuButton className="md:hidden" onClick={() => setMenuOpen(true)} />
+          <div className="md:hidden">
+            <CallSheetMenuButton onClick={() => setMenuOpen(true)} />
+          </div>
         ) : null}
-        <h1 className={cn(`${appShellPageTitleClass} min-w-0 flex-1 truncate`, titleClassName)}>{title}</h1>
-        {trailing}
+        <div className={cn("flex items-center gap-4", className)}>
+          <h1 className={cn(`${appShellPageTitleClass} min-w-0 flex-1 truncate`, titleClassName)}>{title}</h1>
+          {trailing}
+        </div>
       </header>
       {showMenu ? <CallSheetViewerMenu open={menuOpen} onOpenChange={setMenuOpen} /> : null}
     </>

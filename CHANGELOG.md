@@ -5,6 +5,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-08 — Pass 1: Mobile nav row, public playbooks chrome, call sheet version select
+
+### What
+
+- **`AppShellMenuHeader`:** Hamburger sits on its own `md:hidden` top row above the title/trailing row (call sheets, film, schemes, settings inherit). Skeletons match. **`TendenciesHome`** migrated onto the shared header.
+- **Public playbooks:** Signed-in mobile hamburger via **`PublicPlaybooksBrowseFrame`** (`CallSheetMenuButton` + `CallSheetViewerMenu`). **`PlaybooksPageShell`** always pins **`MarketingFooter`** with `min-h-dvh` flex layout; home frame uses `flex-1` instead of `h-dvh` so footer is not pushed off-screen.
+- **Breadcrumbs:** Landing shows **Home > Playbooks**; trail helper always prepends Home (`/landing` signed-out, `/playbook` signed-in).
+- **`CallSheetsVersionFilter`:** Full-width on mobile (`md:max-w-xs`), same as Film Room version filter.
+
+### Why
+
+Authenticated coaches could not leave public playbooks on mobile; shared hamburger+title rows felt cramped; short public pages left the footer mid-viewport.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Layout/nav only — no SEO URL migration or playbook filter work (Pass 2+).
+
 ## 2026-09-02 — Remove beta feature flags (Film Room, Tendencies, welcome + onboarding modals)
 
 ### What

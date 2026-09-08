@@ -10,12 +10,14 @@ function AppShellMenuHeaderSkeleton({
   trailingClassName?: string;
 }) {
   return (
-    <header className="flex items-center gap-4">
+    <header className="space-y-3">
       <SkeletonBlock className="size-8 shrink-0 rounded-lg md:hidden" />
-      <SkeletonBlock className="h-9 flex-1 max-w-[12rem] sm:max-w-[14rem]" />
-      {trailing ? (
-        <SkeletonBlock className={`h-9 w-24 shrink-0 rounded-lg ${trailingClassName ?? ""}`} />
-      ) : null}
+      <div className="flex items-center gap-4">
+        <SkeletonBlock className="h-9 flex-1 max-w-[12rem] sm:max-w-[14rem]" />
+        {trailing ? (
+          <SkeletonBlock className={`h-9 w-24 shrink-0 rounded-lg ${trailingClassName ?? ""}`} />
+        ) : null}
+      </div>
     </header>
   );
 }

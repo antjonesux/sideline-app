@@ -4,7 +4,10 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-/** Renders marketing chrome for signed-out visitors on public playbook pages. */
+/**
+ * Public playbooks chrome — marketing nav for signed-out visitors; footer always.
+ * Signed-in users get app-shell sidebar at md+; mobile hamburger lives in PublicPlaybooksBrowseFrame.
+ */
 export function PlaybooksPageShell({
   children,
   nextFromUrl,
@@ -13,16 +16,13 @@ export function PlaybooksPageShell({
   nextFromUrl?: string;
 }) {
   const { user, isLoading } = useAuth();
-
-  if (isLoading || user) {
-    return <>{children}</>;
-  }
+  const showMarketingNav = !isLoading && !user;
 
   return (
-    <>
-      <MarketingNav nextFromUrl={nextFromUrl} />
-      {children}
+    <div className="flex min-h-dvh flex-col">
+      {showMarketingNav ? <MarketingNav nextFromUrl={nextFromUrl} /> : null}
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       <MarketingFooter />
-    </>
+    </div>
   );
 }

@@ -64,11 +64,13 @@ export function BrowsePlaybooksHome() {
   return (
     <PublicPlaybooksBrowseFrame
       breadcrumb={
-        <PublicPlaybooksBreadcrumb items={publicPlaybooksBreadcrumbTrail(Boolean(user), [])} />
+        <PublicPlaybooksBreadcrumb
+          items={publicPlaybooksBreadcrumbTrail(Boolean(user), [{ label: "Playbooks" }])}
+        />
       }
       pinnedHeaderExtra={
         <>
-          <header className={user ? undefined : "mt-4"}>
+          <header className="mt-4">
             <h1 className="font-heading text-2xl font-extrabold uppercase tracking-[0.08em] text-white sm:text-3xl">
               Playbooks
             </h1>
