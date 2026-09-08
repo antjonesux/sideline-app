@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PublicTeamMark } from "@/components/marketing/PublicTeamMark";
 import { isGenericOffensivePlaybook } from "@/lib/playbooks/generic-playbooks";
+import { publicPlaybooksHrefWithSide } from "@/lib/publicPlaybooksPaths";
 import { getTeamLogoInfo, getTeamMascot } from "@/lib/publicTeamLogos";
 import { cn } from "@/lib/utils";
 
@@ -13,11 +14,7 @@ type PublicPlaybookCardProps = {
 };
 
 export function PublicPlaybookCard({ name, side }: PublicPlaybookCardProps) {
-  const href =
-    side === "defense"
-      ? `/playbooks/${encodeURIComponent(name)}?side=defense`
-      : `/playbooks/${encodeURIComponent(name)}`;
-
+  const href = publicPlaybooksHrefWithSide([name], side);
   /** Team offense only — scheme/alternative + defense use initials, no mascot. */
   const showTeamBranding =
     side !== "defense" && !isGenericOffensivePlaybook(name) && Boolean(getTeamLogoInfo(name));

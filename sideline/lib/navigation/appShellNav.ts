@@ -7,6 +7,7 @@ import {
 } from "@/lib/coachCopy";
 import { isPlaySheetBuilderPath } from "@/lib/navigation/playSheetNav";
 import { isSchemeBuilderPath } from "@/lib/navigation/schemeNav";
+import { PUBLIC_PLAYBOOKS_BASE_PATH } from "@/lib/publicPlaybooksPaths";
 import {
   BookOpen,
   ClipboardList,
@@ -35,7 +36,7 @@ export type AppShellSidebarNavItem = {
 
 /** Hamburger / sidebar destinations — playbooks, call sheets, schemes, film room, tendencies, settings. */
 export const APP_SHELL_SIDEBAR_NAV: AppShellSidebarNavItem[] = [
-  { id: "playbooks", href: "/playbooks", label: "Playbooks", icon: BookOpen, separatorAfter: true },
+  { id: "playbooks", href: PUBLIC_PLAYBOOKS_BASE_PATH, label: "Playbooks", icon: BookOpen, separatorAfter: true },
   { id: "call-sheets", href: "/playbook", label: CALL_SHEET_MENU_LABEL, icon: ClipboardList },
   { id: "schemes", href: "/schemes", label: APP_SHELL_SCHEMES_MENU_LABEL, icon: Headset },
   { id: "review", href: "/film", label: CALL_SHEET_VIEWER_MENU_REVIEW, icon: Video },

@@ -13,6 +13,7 @@ import {
   PublicWithinPlaybookSearchResults,
 } from "@/components/marketing/PublicPlaybookSearchResults";
 import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PUBLIC_PLAYBOOKS_BASE_PATH } from "@/lib/publicPlaybooksPaths";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export function BrowsePlaybookDetail({ playbookId }: BrowsePlaybookDetailProps) 
       breadcrumb={
         <PublicPlaybooksBreadcrumb
           items={publicPlaybooksBreadcrumbTrail(Boolean(user), [
-            { label: "Playbooks", href: "/playbooks" },
+            { label: "Playbooks", href: PUBLIC_PLAYBOOKS_BASE_PATH },
             { label: playbookId },
           ])}
         />
@@ -95,7 +96,7 @@ export function BrowsePlaybookDetail({ playbookId }: BrowsePlaybookDetailProps) 
         <div className="mt-10 rounded-xl border border-slate-700 bg-slate-900 px-4 py-8 text-center" role="alert">
           <p className="font-body text-base text-slate-200">Playbook not found</p>
           <Button variant="outline" className="mt-4" asChild>
-            <Link href="/playbooks">Back to Playbooks</Link>
+            <Link href={PUBLIC_PLAYBOOKS_BASE_PATH}>Back to Playbooks</Link>
           </Button>
         </div>
       ) : null}

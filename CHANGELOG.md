@@ -5,6 +5,26 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-08 — Pass 2: Public playbooks SEO URL `/playbooks/college-football`
+
+### What
+
+- Moved public browse pages under evergreen **`/playbooks/college-football`** (home, playbook, formation, play). Nested segments stay catalog display names (`playbookId` / `formationId` / `playId`).
+- **Permanent redirects** from old paths: `next.config.ts` 301s for `/playbooks`, `/playbooks/`, and nested legacy URLs (negative lookahead so the new tree does not loop); **`app/(marketing)/playbooks/page.tsx`** uses `permanentRedirect()` so client navigations also rewrite the URL bar.
+- **`resolvePublicPlaybookGameVersion()`** in `publicPlaybooksServer.ts` (React `cache`): walks `CATALOG_GAME_VERSIONS` newest-first and picks the first version with catalog rows; server queries use it. Sync `PUBLIC_PLAYBOOK_GAME_VERSION` + `publicPlaybookSeoYear()` live in `publicPlaybooksPaths.ts` for client play-art / copy.
+- Path helper **`lib/publicPlaybooksPaths.ts`** (`PUBLIC_PLAYBOOKS_BASE_PATH`, `publicPlaybooksHref`, `publicPlaybooksHrefWithSide`) wired through landing nav, sidebar, cards, search, breadcrumbs, and cross-refs.
+- **`generateMetadata`** on all public playbook pages — titles/descriptions/OG include “College Football” + resolved year; on-page copy uses the same year helper.
+- `/api/public/*` paths unchanged.
+
+### Why
+
+Organic discovery needs a “college football” URL that keeps authority across game years without embedding the year in the path. Landing CTAs and bookmarks must land on the evergreen path with the correct URL in the bar.
+
+### Status
+
+- `npm run build` from `sideline/` passed (SSG under `/playbooks/college-football/...`).
+- External links (Discord, README) may still point at `/playbooks` — update manually outside the app; in-app redirects cover bookmarks.
+
 ## 2026-09-08 — Pass 1: Mobile nav row, public playbooks chrome, call sheet version select
 
 ### What

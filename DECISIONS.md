@@ -6,6 +6,14 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-09-08 — Public playbooks evergreen SEO path
+
+**Decision:** Public catalog browse lives at evergreen `/playbooks/college-football` (and nested playbook/formation/play segments). Game version is **not** in the URL; `resolvePublicPlaybookGameVersion()` (server-only, React `cache`) picks the newest `CATALOG_GAME_VERSIONS` entry that has `playbooks` rows. Old `/playbooks` URLs 301 via `next.config.ts`. Authenticated `/playbook` (call sheets) and `/api/public/*` paths stay unchanged.
+
+**Why:** Rank for “college football playbook” searches while accumulating authority across CFB releases without year-in-slug churn.
+
+**Impact:** `app/(marketing)/playbooks/college-football/**`, `lib/publicPlaybooksPaths.ts`, `resolvePublicPlaybookGameVersion` in `publicPlaybooksServer.ts`, `next.config.ts` redirects.
+
 ## 2026-08-30 — First-class screenshot play-art sources (OCR/catalog identity)
 
 **Decision:** Treat `source-screenshots/{game}/{side}/{playbook-slug}/` as a first-class game-capture play-art source. Directory path is namespace authority (fail-closed). Identity = namespace + formation OCR + play OCR + exact catalog resolution — same contract as OBS. Reuse shared screenshot processing with `manual-supplements` (crop profile, OCR, catalog, dedupe). No positional identity, no `play-art:review`, no external visual publish gate. Prep/validate only until an explicit publish command; DOCX and OBS video pipelines remain unchanged.

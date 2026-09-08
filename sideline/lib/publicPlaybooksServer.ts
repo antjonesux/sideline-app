@@ -1,4 +1,7 @@
-import type { CatalogSideOfBall } from "@/lib/constants";
+import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
+import {
+  CATALOG_GAME_VERSIONS,
+} from "@/lib/constants";
 import { resolveDefensiveDisplayPlayType } from "@/lib/defensivePlayTypeResolution";
 import {
   resolveCfbBrowserPlayType,
@@ -16,10 +19,35 @@ import {
   pinTrailingFormationGroups,
   sortFormationTypes,
 } from "@/lib/playbooks/formation-types";
+import { PUBLIC_PLAYBOOK_GAME_VERSION } from "@/lib/publicPlaybooksPaths";
 import { normalizePlayName } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { cache } from "react";
 
-export const PUBLIC_PLAYBOOK_GAME_VERSION = "cfb27" as const;
+export { PUBLIC_PLAYBOOK_GAME_VERSION, publicPlaybookSeoYear } from "@/lib/publicPlaybooksPaths";
+
+/**
+ * Latest active public catalog version (server-only — call from route handlers / RSC).
+ * Walks `CATALOG_GAME_VERSIONS` (newest-first: cfb27, then cfb26) and returns
+ * the first version that has at least one `playbooks` row. When CFB28 is added
+ * to `CATALOG_GAME_VERSIONS` ahead of cfb27 and seeded, this picks it up automatically.
+ * Cached per-request via React `cache`.
+ */
+export const resolvePublicPlaybookGameVersion = cache(async (): Promise<CatalogGameVersion> => {
+  for (const version of CATALOG_GAME_VERSIONS) {
+    const { count, error } = await supabase
+      .from("playbooks")
+      .select("id", { count: "exact", head: true })
+      .ilike("game_version", version);
+
+    if (error) {
+      console.error("[publicPlaybooksServer] resolvePublicPlaybookGameVersion:", error);
+      continue;
+    }
+    if ((count ?? 0) > 0) return version;
+  }
+  return PUBLIC_PLAYBOOK_GAME_VERSION;
+});
 
 /** CDN / edge cache for public browse APIs (24h + SWR week). */
 export const PUBLIC_PLAYBOOK_API_CACHE_HEADERS = {
@@ -92,7 +120,8 @@ async function fetchDistinctPlaybookSides(gameVersion: string): Promise<Playbook
 }
 
 export async function fetchPublicPlaybookList(): Promise<PublicPlaybookListData> {
-  const rows = await fetchDistinctPlaybookSides(PUBLIC_PLAYBOOK_GAME_VERSION);
+  const gameVersion = await resolvePublicPlaybookGameVersion();
+  const rows = await fetchDistinctPlaybookSides(gameVersion);
   const offensiveTeamPlaybooks: string[] = [];
   const alternativeOffensivePlaybooks: string[] = [];
   const defensivePlaybooks: string[] = [];
@@ -151,10 +180,11 @@ export async function resolvePublicPlaybookSide(
   const trimmed = playbookName.trim();
   if (!trimmed) return null;
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("side_of_ball")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(trimmed))
     .not("playbook", "is", null)
     .limit(500);
@@ -186,10 +216,11 @@ export async function fetchPublicPlaybookFormations(
   const sideOfBall = await resolvePublicPlaybookSide(trimmed, preferredSide);
   if (!sideOfBall) return null;
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("formation, formation_type")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(trimmed))
     .eq("side_of_ball", sideOfBall)
     .order("formation", { ascending: true })
@@ -269,10 +300,11 @@ export async function fetchPublicFormationPlays(
   const sideOfBall = await resolvePublicPlaybookSide(playbook, preferredSide);
   if (!sideOfBall) return null;
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("play_name, play_type, formation_type, formation")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(playbook))
     .eq("side_of_ball", sideOfBall)
     .ilike("formation", playbookIlikeExactPattern(formation))
@@ -356,10 +388,11 @@ export async function fetchPlaybooksWithFormation(
   const formation = formationName.trim();
   if (!formation) return [];
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("playbook, side_of_ball, formation")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("formation", playbookIlikeExactPattern(formation))
     .not("playbook", "is", null)
     .limit(8000);
@@ -395,10 +428,11 @@ export async function fetchPlaybooksWithPlay(
   const playName = normalizePlayName(playNameRaw);
   if (!playName) return [];
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("playbook, side_of_ball, formation, play_name")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("play_name", playbookIlikeExactPattern(playName))
     .not("playbook", "is", null)
     .limit(8000);
@@ -448,13 +482,14 @@ export async function listPublicPlaybookStaticParams(): Promise<{ playbookId: st
 export async function listPublicFormationStaticParams(): Promise<
   { playbookId: string; formationId: string }[]
 > {
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const pairs = new Set<string>();
   const pageSize = 1000;
   for (let offset = 0; offset < 500000; offset += pageSize) {
     const { data, error } = await supabase
       .from("playbooks")
       .select("playbook, formation")
-      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .not("playbook", "is", null)
       .not("formation", "is", null)
       .range(offset, offset + pageSize - 1);
@@ -543,19 +578,20 @@ export async function fetchPublicGlobalSearch(queryRaw: string): Promise<PublicG
   }
 
   const pattern = publicSearchIlikePattern(term);
+  const gameVersion = await resolvePublicPlaybookGameVersion();
 
   const [playbookRes, formationRes, playRes] = await Promise.all([
     supabase
       .from("playbooks")
       .select("playbook, side_of_ball")
-      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("playbook", pattern)
       .not("playbook", "is", null)
       .limit(2000),
     supabase
       .from("playbooks")
       .select("playbook, formation, formation_type, side_of_ball")
-      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("formation", pattern)
       .not("playbook", "is", null)
       .not("formation", "is", null)
@@ -563,7 +599,7 @@ export async function fetchPublicGlobalSearch(queryRaw: string): Promise<PublicG
     supabase
       .from("playbooks")
       .select("playbook, formation, play_name, side_of_ball")
-      .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+      .ilike("game_version", gameVersion)
       .ilike("play_name", pattern)
       .not("playbook", "is", null)
       .not("formation", "is", null)
@@ -656,10 +692,11 @@ export async function fetchPublicPlaybookCatalog(
   const sideOfBall = await resolvePublicPlaybookSide(trimmed, preferredSide);
   if (!sideOfBall) return null;
 
+  const gameVersion = await resolvePublicPlaybookGameVersion();
   const { data, error } = await supabase
     .from("playbooks")
     .select("formation, formation_type, play_name")
-    .ilike("game_version", PUBLIC_PLAYBOOK_GAME_VERSION)
+    .ilike("game_version", gameVersion)
     .ilike("playbook", playbookIlikeExactPattern(trimmed))
     .eq("side_of_ball", sideOfBall)
     .order("formation", { ascending: true })

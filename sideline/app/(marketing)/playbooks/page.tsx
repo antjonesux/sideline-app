@@ -1,19 +1,10 @@
-import type { Metadata } from "next";
-import { BrowsePlaybooksHome } from "@/components/marketing/BrowsePlaybooksHome";
-import { PlaybooksPageShell } from "@/components/marketing/PlaybooksPageShell";
+import { permanentRedirect } from "next/navigation";
+import { PUBLIC_PLAYBOOKS_BASE_PATH } from "@/lib/publicPlaybooksPaths";
 
-/** 24h ISR for public playbook browse. */
-export const revalidate = 86400;
-
-export const metadata: Metadata = {
-  title: "Playbooks — The Sideline",
-  description: "Every playbook in EA SPORTS College Football 27. Explore formations and plays.",
-};
-
-export default function PlaybooksHomePage() {
-  return (
-    <PlaybooksPageShell nextFromUrl="/playbooks">
-      <BrowsePlaybooksHome />
-    </PlaybooksPageShell>
-  );
+/**
+ * Legacy `/playbooks` entry — always land on the evergreen SEO path.
+ * Complements the 301 in `next.config.ts` so client navigations also rewrite the URL bar.
+ */
+export default function PlaybooksLegacyIndexRedirect() {
+  permanentRedirect(PUBLIC_PLAYBOOKS_BASE_PATH);
 }

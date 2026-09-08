@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AddPlayToSheetModal } from "@/components/marketing/AddPlayToSheetModal";
 import { PublicCrossRefSection } from "@/components/marketing/PublicCrossRefSection";
 import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PUBLIC_PLAYBOOKS_BASE_PATH, publicPlaybooksHref, publicPlaybooksHrefWithSide } from "@/lib/publicPlaybooksPaths";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { SignupToSavePlayModal } from "@/components/marketing/SignupToSavePlayModal";
 import { PlayArtImage } from "@/components/playbook/PlayArtImage";
@@ -16,10 +17,10 @@ import { SkeletonBlock } from "@/components/shared/AppSkeleton";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import type { CatalogSideOfBall } from "@/lib/constants";
 import { resolvePlayArtUrl } from "@/lib/playArtUrl";
-import {
-  PUBLIC_PLAYBOOK_GAME_VERSION,
-  type PublicPlaybookCrossRef,
-  type PublicPlayDetailData,
+import { PUBLIC_PLAYBOOK_GAME_VERSION } from "@/lib/publicPlaybooksPaths";
+import type {
+  PublicPlaybookCrossRef,
+  PublicPlayDetailData,
 } from "@/lib/publicPlaybooksServer";
 
 async function fetchPlayDetail(
@@ -82,7 +83,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
   const displayFormation = detailQuery.data?.formation ?? formationId;
 
   const returnPath = useMemo(() => {
-    const base = `/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}/${encodeURIComponent(playId)}`;
+    const base = publicPlaybooksHref(playbookId, formationId, playId);
     return side === "defense" ? `${base}?side=defense` : base;
   }, [playbookId, formationId, playId, side]);
 
@@ -97,21 +98,19 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
       })
     : null;
 
-  const sideQs = side === "defense" ? "?side=defense" : "";
-
   return (
     <PublicPlaybooksBrowseFrame
       breadcrumb={
         <PublicPlaybooksBreadcrumb
           items={publicPlaybooksBreadcrumbTrail(Boolean(user), [
-            { label: "Playbooks", href: "/playbooks" },
+            { label: "Playbooks", href: PUBLIC_PLAYBOOKS_BASE_PATH },
             {
               label: playbookId,
-              href: `/playbooks/${encodeURIComponent(playbookId)}${sideQs}`,
+              href: publicPlaybooksHrefWithSide([playbookId], side),
             },
             {
               label: displayFormation,
-              href: `/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}${sideQs}`,
+              href: publicPlaybooksHrefWithSide([playbookId, formationId], side),
             },
             { label: playId },
           ])}
@@ -131,7 +130,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
           <p className="font-body text-base text-slate-200">Play not found</p>
           <Button variant="outline" className="mt-4" asChild>
             <Link
-              href={`/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}`}
+              href={publicPlaybooksHrefWithSide([playbookId, formationId], side)}
             >
               Back to formation
             </Link>
@@ -184,7 +183,7 @@ export function BrowsePlayDetail({ playbookId, formationId, playId }: BrowsePlay
             title="All playbooks with this play"
             refs={crossQuery.data ?? []}
             hrefFor={(ref) =>
-              `/playbooks/${encodeURIComponent(ref.playbook)}/${encodeURIComponent(ref.formation)}/${encodeURIComponent(detailQuery.data.play_name)}${ref.side_of_ball === "defense" ? "?side=defense" : ""}`
+              publicPlaybooksHrefWithSide([ref.playbook, ref.formation, detailQuery.data.play_name], ref.side_of_ball)
             }
           />
 

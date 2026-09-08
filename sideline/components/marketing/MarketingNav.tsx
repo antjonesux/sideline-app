@@ -7,10 +7,9 @@ import { useEffect, useState } from "react";
 import { AppCompactWordmark } from "@/components/shared/AppCompactWordmark";
 import { Button } from "@/components/ui/button";
 import { authOAuthButtonClass } from "@/lib/constants/designTokens";
+import { PUBLIC_PLAYBOOKS_BASE_PATH } from "@/lib/publicPlaybooksPaths";
 import { buildLoginHref } from "@/lib/navigation/loginHref";
 import { cn } from "@/lib/utils";
-
-const BROWSE_PLAYBOOKS_HREF = "/playbooks";
 
 function NavSeparator({ className }: { className?: string }) {
   return <span className={cn("shrink-0 bg-slate-700", className)} aria-hidden />;
@@ -64,7 +63,7 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
 
         <div className="flex items-center gap-3">
           <Button variant="outline" size="default" className={cn("hidden md:inline-flex", browsePlaybooksClass)} asChild>
-            <Link href={BROWSE_PLAYBOOKS_HREF} aria-current={browseActive ? "page" : undefined}>
+            <Link href={PUBLIC_PLAYBOOKS_BASE_PATH} aria-current={browseActive ? "page" : undefined}>
               Playbooks
             </Link>
           </Button>
@@ -92,7 +91,7 @@ export function MarketingNav({ nextFromUrl }: { nextFromUrl?: string }) {
           <div className="flex flex-col gap-2">
             <Button variant="outline" size="default" className={browsePlaybooksClass} asChild>
               <Link
-                href={BROWSE_PLAYBOOKS_HREF}
+                href={PUBLIC_PLAYBOOKS_BASE_PATH}
                 onClick={() => setOpen(false)}
                 aria-current={browseActive ? "page" : undefined}
               >

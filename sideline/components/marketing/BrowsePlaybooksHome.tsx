@@ -12,6 +12,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { useDebounced } from "@/hooks/useDebounced";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
+import { publicPlaybookSeoYear } from "@/lib/publicPlaybooksPaths";
 import type { PublicGlobalSearchData, PublicPlaybookListData } from "@/lib/publicPlaybooksServer";
 
 const SEARCH_MIN_LENGTH = 2;
@@ -75,7 +76,8 @@ export function BrowsePlaybooksHome() {
               Playbooks
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-400 sm:text-base">
-              Every playbook in EA SPORTS College Football 27. Explore formations and plays.
+              Every playbook in EA SPORTS College Football {publicPlaybookSeoYear()}. Explore formations and
+              plays.
             </p>
           </header>
 

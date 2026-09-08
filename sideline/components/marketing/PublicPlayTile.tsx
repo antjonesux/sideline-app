@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { PlayArtImage } from "@/components/playbook/PlayArtImage";
-import { PUBLIC_PLAYBOOK_GAME_VERSION } from "@/lib/publicPlaybooksServer";
+import { PUBLIC_PLAYBOOK_GAME_VERSION } from "@/lib/publicPlaybooksPaths";
 import { resolvePlayArtUrl } from "@/lib/playArtUrl";
 import type { CatalogSideOfBall } from "@/lib/constants";
 import { cn } from "@/lib/utils";

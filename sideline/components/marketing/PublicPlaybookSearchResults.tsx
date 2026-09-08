@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PublicPlaybookCard } from "@/components/marketing/PublicPlaybookCard";
+import { publicPlaybooksHrefWithSide } from "@/lib/publicPlaybooksPaths";
 import { stripFormationCategoryPrefix } from "@/lib/stripFormationCategoryPrefix";
 import type {
   PublicGlobalSearchData,
@@ -12,10 +13,6 @@ import type {
 import { cn } from "@/lib/utils";
 
 const DEFAULT_VISIBLE = 5;
-
-function sideQuery(side: "offense" | "defense"): string {
-  return side === "defense" ? "?side=defense" : "";
-}
 
 function SearchSection({
   title,
@@ -53,7 +50,7 @@ function SearchSection({
 
 function FormationSearchCard({ item }: { item: PublicSearchFormationResult }) {
   const displayName = stripFormationCategoryPrefix(item.name, item.category);
-  const href = `/playbooks/${encodeURIComponent(item.playbook)}/${encodeURIComponent(item.name)}${sideQuery(item.side_of_ball)}`;
+  const href = publicPlaybooksHrefWithSide([item.playbook, item.name], item.side_of_ball);
 
   return (
     <li>
@@ -76,7 +73,10 @@ function FormationSearchCard({ item }: { item: PublicSearchFormationResult }) {
 }
 
 function PlaySearchCard({ item }: { item: PublicSearchPlayResult }) {
-  const href = `/playbooks/${encodeURIComponent(item.playbook)}/${encodeURIComponent(item.formation)}/${encodeURIComponent(item.name)}${sideQuery(item.side_of_ball)}`;
+  const href = publicPlaybooksHrefWithSide(
+    [item.playbook, item.formation, item.name],
+    item.side_of_ball,
+  );
 
   return (
     <li>

@@ -1,4 +1,5 @@
 import type { PublicFormationGroup } from "@/lib/publicPlaybooksServer";
+import { publicPlaybooksHrefWithSide } from "@/lib/publicPlaybooksPaths";
 import { stripFormationCategoryPrefix } from "@/lib/stripFormationCategoryPrefix";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -18,8 +19,6 @@ export function PublicFormationList({ groups, playbookId, side }: PublicFormatio
     );
   }
 
-  const sideQs = side === "defense" ? "?side=defense" : "";
-
   return (
     <div className="mt-10 space-y-10">
       {groups.map((group) => (
@@ -30,7 +29,7 @@ export function PublicFormationList({ groups, playbookId, side }: PublicFormatio
           <ul className="mt-4 grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             {group.formations.map((formation) => {
               const displayName = stripFormationCategoryPrefix(formation, group.category);
-              const href = `/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formation)}${sideQs}`;
+              const href = publicPlaybooksHrefWithSide([playbookId, formation], side);
               return (
                 <li key={formation}>
                   <Link

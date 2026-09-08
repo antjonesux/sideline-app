@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PublicCrossRefSection } from "@/components/marketing/PublicCrossRefSection";
 import { PublicPlayTile } from "@/components/marketing/PublicPlayTile";
 import { PublicPlaybooksBreadcrumb, publicPlaybooksBreadcrumbTrail } from "@/components/marketing/PublicPlaybooksBreadcrumb";
+import { PUBLIC_PLAYBOOKS_BASE_PATH, publicPlaybooksHrefWithSide } from "@/lib/publicPlaybooksPaths";
 import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlaybooksBrowseFrame";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -74,15 +75,13 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
   /** Full catalog formation name (e.g. "Gun Bunch TE Wk", "Goal Line Normal"). */
   const displayFormation = detailQuery.data?.formation ?? formationId;
 
-  const sideQs = side === "defense" ? "?side=defense" : "";
-
   return (
     <PublicPlaybooksBrowseFrame
       breadcrumb={
         <PublicPlaybooksBreadcrumb
           items={publicPlaybooksBreadcrumbTrail(Boolean(user), [
-            { label: "Playbooks", href: "/playbooks" },
-            { label: playbookId, href: `/playbooks/${encodeURIComponent(playbookId)}${sideQs}` },
+            { label: "Playbooks", href: PUBLIC_PLAYBOOKS_BASE_PATH },
+            { label: playbookId, href: publicPlaybooksHrefWithSide([playbookId], side) },
             { label: displayFormation },
           ])}
         />
@@ -104,7 +103,7 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
         <div className="mt-10 rounded-xl border border-slate-700 bg-slate-900 px-4 py-8 text-center" role="alert">
           <p className="font-body text-base text-slate-200">Formation not found</p>
           <Button variant="outline" className="mt-4" asChild>
-            <Link href={`/playbooks/${encodeURIComponent(playbookId)}`}>Back to playbook</Link>
+            <Link href={publicPlaybooksHrefWithSide([playbookId], side)}>Back to playbook</Link>
           </Button>
         </div>
       ) : null}
@@ -134,7 +133,7 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
             {detailQuery.data.plays.map((play) => (
               <li key={play.play_name}>
                 <PublicPlayTile
-                  href={`/playbooks/${encodeURIComponent(playbookId)}/${encodeURIComponent(formationId)}/${encodeURIComponent(play.play_name)}${sideQs}`}
+                  href={publicPlaybooksHrefWithSide([playbookId, formationId, play.play_name], side)}
                   playbook={detailQuery.data.playbook}
                   formation={detailQuery.data.formation}
                   formationType={detailQuery.data.formation_type}
@@ -149,7 +148,7 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
             title="Also in these playbooks"
             refs={crossQuery.data ?? []}
             hrefFor={(ref) =>
-              `/playbooks/${encodeURIComponent(ref.playbook)}/${encodeURIComponent(ref.formation)}${ref.side_of_ball === "defense" ? "?side=defense" : ""}`
+              publicPlaybooksHrefWithSide([ref.playbook, ref.formation], ref.side_of_ball)
             }
           />
         </>
