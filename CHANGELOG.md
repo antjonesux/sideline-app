@@ -5,6 +5,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-08 — Pass 3: Play browsing UX (sticky formation, in-formation search, edit situation)
+
+### What
+
+- **`AddPlayDrawer`:** When a formation is selected, formation title + back stay pinned (panel: `sticky top-0` inside `SituationSideRail` scroll; modal: shrink-0 header outside nested play scroll). In-formation **Search plays** field filters the list client-side via `formationPlayFilter` on `PlayBrowser`.
+- **`PlayBrowser`:** Optional `formationPlayFilter` → `visiblePlays` using existing `matchesFormationPlaySearch`; empty copy distinguishes no matches vs empty formation. `useFormationGroups` unchanged.
+- **`PlaybookEditor`:** Edit situation uses the same `SituationFormModal` as create with `mode="edit"`, `presentation="responsive"`, and `onUpdateSituation` (PATCH) so save updates rather than duplicating.
+
+### Why
+
+Coaches lose formation context while scrolling long play lists, cannot filter within a formation, and edit situation should feel identical to add.
+
+### Status
+
+- Sticky does not change md+ container scroll architecture (rail / main / sidebar still independent).
+- Handoff: sticky = CSS sticky in panel scrollport + layout pin in modal; add vs edit via existing `mode` prop; search owned by drawer, filter prop on browser.
+
 ## 2026-09-08 — Pass 2: Public playbooks SEO URL `/playbooks/college-football`
 
 ### What

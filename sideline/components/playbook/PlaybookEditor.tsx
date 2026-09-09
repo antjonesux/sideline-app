@@ -1546,7 +1546,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
         <SituationFormModal
           open={editSituationOpen}
           mode="edit"
-          presentation="page"
+          presentation="responsive"
           initialValues={{
             name: activeBlock.scenario,
             description: activeBlock.description ?? callSheetScenarioHelperText(activeBlock.scenario),

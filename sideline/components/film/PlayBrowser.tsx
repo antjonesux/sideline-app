@@ -9,6 +9,7 @@ import { isExcludedFromPlaySheetPlay } from "@/lib/filmPlayCounting";
 import { useFormationGroups, formationGroupsFromEntries, type FormationGroup } from "@/hooks/useFormationGroups";
 import { sheetPlayComboKey } from "@/lib/playbookUtils";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
+import { matchesFormationPlaySearch } from "@/lib/matchesFormationPlaySearch";
 import { playSheetFormationTileClass } from "@/lib/constants/designTokens";
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
 import {
@@ -56,6 +57,11 @@ interface PlayBrowserProps {
    * (no nested overflow-y). Modal / Film keep nested scroll (default).
    */
   pageScrollResults?: boolean;
+  /**
+   * Call sheet add-play: parent-owned filter for plays within the selected formation.
+   * Filtered client-side; empty / omitted shows the full formation list.
+   */
+  formationPlayFilter?: string;
   /** Play Sheet add-play: pins Goal Line + Hail Mary (offense) or Goal Line + Prevent (defense) to the bottom. */
   catalogSideOfBall?: CatalogSideOfBall;
   /** Play Sheet add-play: catalog game version for cfb.fan play-art URLs. */
@@ -104,6 +110,7 @@ export function PlayBrowser({
   addDisabled = false,
   onPlaySheetNavChange,
   pageScrollResults = false,
+  formationPlayFilter,
   catalogSideOfBall,
   catalogGameVersion,
   showPlayArtRows = false,
@@ -228,6 +235,14 @@ export function PlayBrowser({
     if (!excludePlaySheetSpecialTeams) return raw;
     return raw.filter((p) => !isExcludedFromPlaySheetPlay(p));
   }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
+
+  const visiblePlays = useMemo(() => {
+    const filter = formationPlayFilter?.trim() ?? "";
+    if (!filter) return selectedPlays;
+    return selectedPlays.filter((play) =>
+      matchesFormationPlaySearch(filter, play.formation, play.play_name),
+    );
+  }, [selectedPlays, formationPlayFilter]);
 
   const level1Header = (
     <div
@@ -442,33 +457,49 @@ export function PlayBrowser({
           >
             {useArtBrowseRows ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
-                {selectedPlays.map((play) => {
-                  const comboKey = sheetPlayComboKey(play.formation, play.play_name);
-                  return (
-                    <AddPlayBrowseRow
-                      key={play.play_id}
-                      play={play}
-                      formationLabel={formationDisplayLabel}
-                      inGoTo={goToPlayKeys?.has(comboKey) ?? false}
-                      goToBusy={goToBusyComboKey === comboKey}
-                      showGoToStar={showGoToStar}
-                      added={addedPlayKeys?.has(comboKey) ?? false}
-                      addDisabled={addDisabled}
-                      onAdd={playSheetAddLayout ? onSelect : undefined}
-                      onSelect={showPlayArtRows ? onSelect : undefined}
-                      onToggleGoTo={onToggleGoTo}
-                      catalogSideOfBall={artSideOfBall}
-                      catalogGameVersion={catalogGameVersion}
-                      catalogPlaybook={playbook}
-                    />
-                  );
-                })}
+                {visiblePlays.length === 0 ? (
+                  <p className="px-4 py-6 text-center font-body text-sm text-slate-400" role="status">
+                    {formationPlayFilter?.trim()
+                      ? "No plays match this search."
+                      : "No plays in this formation."}
+                  </p>
+                ) : (
+                  visiblePlays.map((play) => {
+                    const comboKey = sheetPlayComboKey(play.formation, play.play_name);
+                    return (
+                      <AddPlayBrowseRow
+                        key={play.play_id}
+                        play={play}
+                        formationLabel={formationDisplayLabel}
+                        inGoTo={goToPlayKeys?.has(comboKey) ?? false}
+                        goToBusy={goToBusyComboKey === comboKey}
+                        showGoToStar={showGoToStar}
+                        added={addedPlayKeys?.has(comboKey) ?? false}
+                        addDisabled={addDisabled}
+                        onAdd={playSheetAddLayout ? onSelect : undefined}
+                        onSelect={showPlayArtRows ? onSelect : undefined}
+                        onToggleGoTo={onToggleGoTo}
+                        catalogSideOfBall={artSideOfBall}
+                        catalogGameVersion={catalogGameVersion}
+                        catalogPlaybook={playbook}
+                      />
+                    );
+                  })
+                )}
               </div>
             ) : (
               <div className="flex flex-col gap-2 px-4 pb-4">
-                {selectedPlays.map((play) => (
-                  <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
-                ))}
+                {visiblePlays.length === 0 ? (
+                  <p className="py-6 text-center font-body text-sm text-slate-400" role="status">
+                    {formationPlayFilter?.trim()
+                      ? "No plays match this search."
+                      : "No plays in this formation."}
+                  </p>
+                ) : (
+                  visiblePlays.map((play) => (
+                    <PlayRow key={play.play_id} play={play} onSelect={onSelect} />
+                  ))
+                )}
               </div>
             )}
           </div>

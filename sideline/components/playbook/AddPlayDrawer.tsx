@@ -1,7 +1,7 @@
 "use client";
 // QA26: Design system enforcement pass — replaced inline styles, unified icons, enforced card/typography tokens
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PlayBrowser, stripFormationGroupPrefix, type PlaySheetAddNav } from "@/components/film/PlayBrowser";
 import { IconBackButton } from "@/components/shared/IconBackButton";
 import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants/designTokens";
 import { callSheetScenarioDisplayName } from "@/lib/playbookUtils";
 import { cn, normalizePlayName } from "@/lib/utils";
+import { X } from "lucide-react";
 
 type AddPlayDrawerProps = {
   open: boolean;
@@ -69,14 +70,20 @@ export function AddPlayDrawer({
       onBack: () => {},
     };
   });
+  const [formationPlayQuery, setFormationPlayQuery] = useState("");
 
   const handleNavChange = useCallback((next: PlaySheetAddNav) => {
     setNav(next);
   }, []);
 
+  const formationSelected = nav.step === "plays" && Boolean(nav.formationLabel);
+
+  useEffect(() => {
+    if (!formationSelected) setFormationPlayQuery("");
+  }, [formationSelected, nav.formationLabel]);
+
   if (!open) return null;
 
-  const formationSelected = nav.step === "plays" && Boolean(nav.formationLabel);
   const headerTitle = formationSelected
     ? nav.formationLabel!
     : scenarioName.trim()
@@ -96,6 +103,34 @@ export function AddPlayDrawer({
     onClose();
   };
 
+  const formationSearchField = formationSelected ? (
+    <div className="relative min-h-11 w-full">
+      <input
+        type="text"
+        value={formationPlayQuery}
+        onChange={(e) => setFormationPlayQuery(e.target.value)}
+        placeholder="Search plays"
+        aria-label="Search plays in this formation"
+        autoComplete="off"
+        enterKeyHint="search"
+        className={cn(
+          "min-h-11 w-full touch-manipulation rounded-xl border border-slate-700 bg-slate-900 py-2 pl-3 font-sans text-sm text-white placeholder:text-slate-500 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/25",
+          formationPlayQuery.length > 0 ? "pr-10" : "pr-3",
+        )}
+      />
+      {formationPlayQuery.length > 0 ? (
+        <button
+          type="button"
+          className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-500 transition-colors hover:text-slate-300"
+          aria-label="Clear search"
+          onClick={() => setFormationPlayQuery("")}
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      ) : null}
+    </div>
+  ) : null;
+
   const browser = (
     <div
       className={cn(
@@ -109,6 +144,7 @@ export function AddPlayDrawer({
         presentation="inline"
         playSheetAddLayout
         pageScrollResults={shell === "panel"}
+        formationPlayFilter={formationSelected ? formationPlayQuery : undefined}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
@@ -147,15 +183,18 @@ export function AddPlayDrawer({
     return (
       <div className="flex w-full flex-col">
         {formationSelected ? (
-          <div className="flex items-center gap-2 border-b border-slate-800/80 bg-slate-950 px-4 py-2.5">
-            <IconBackButton
-              data-no-press
-              aria-label={headerBackLabel}
-              onClick={() => {
-                handleHeaderBack();
-              }}
-            />
-            <h2 className={formationHeadingClass}>{headerTitle}</h2>
+          <div className="sticky top-0 z-10 space-y-2 border-b border-slate-800/80 bg-slate-950 px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <IconBackButton
+                data-no-press
+                aria-label={headerBackLabel}
+                onClick={() => {
+                  handleHeaderBack();
+                }}
+              />
+              <h2 className={formationHeadingClass}>{headerTitle}</h2>
+            </div>
+            {formationSearchField}
           </div>
         ) : null}
         {browser}
@@ -172,24 +211,32 @@ export function AddPlayDrawer({
       contentClassName="md:max-h-[85vh] md:overflow-hidden"
     >
       <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden md:rounded-xl md:border md:border-slate-700 md:bg-slate-950">
-        <div className="flex shrink-0 items-center gap-3 px-4 py-3">
-          <IconBackButton
-            data-no-press
-            aria-label={headerBackLabel}
-            onClick={() => {
-              handleHeaderBack();
-            }}
-          />
-          <h2
-            id="add-play-drawer-title"
-            className={
-              formationSelected
-                ? formationHeadingClass
-                : "font-display text-base font-bold uppercase text-white"
-            }
-          >
-            {headerTitle}
-          </h2>
+        <div
+          className={cn(
+            "shrink-0 space-y-2 px-4 py-3",
+            formationSelected && "border-b border-slate-800/80",
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <IconBackButton
+              data-no-press
+              aria-label={headerBackLabel}
+              onClick={() => {
+                handleHeaderBack();
+              }}
+            />
+            <h2
+              id="add-play-drawer-title"
+              className={
+                formationSelected
+                  ? formationHeadingClass
+                  : "font-display text-base font-bold uppercase text-white"
+              }
+            >
+              {headerTitle}
+            </h2>
+          </div>
+          {formationSearchField}
         </div>
         {browser}
       </div>
