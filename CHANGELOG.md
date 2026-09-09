@@ -5,6 +5,24 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-09 — Pass 5: Scheme & styles under playbook headers
+
+### What
+
+- **Versioned team styles:** `team_offensive_playbooks` / `team_defensive_schemes` gain `game_version` (composite PK). Migration `20260908210000_team_styles_game_version.sql`. CFB27 styles seeded from PlaybookGamer Team Styles (`lib/seed/team-styles/cfb27-team-styles.ts`); CFB26 legacy rows kept via `npm run seed:teams`. Conference omitted.
+- **Playbook headers:** Shared public/in-app browse header shows `Offensive style: {style}` on team offense books and `This defensive style is used by: {teams}` (A–Z, comma-separated) on defensive scheme books. Missing data hides the line.
+- **Lookups:** `teamStylesLookup` + catalog payload fields `offensive_style` / `defensive_teams`. Film setup accepts `?version=`; play sheet / film / import readers filter by game version.
+
+### Why
+
+Coaches opening a playbook need immediate orientation — what kind of offense this is, or which teams run a defensive scheme — without conflating EA team styles with user-created Schemes.
+
+### Status
+
+- Migration applied; `seed:teams` loaded 274/274 rows (136 CFB26 + 138 CFB27).
+- `npm run build` from `sideline/` passed.
+- Name mapping: PlaybookGamer `"Miami FL"` → catalog `"Miami"`; `"Miami OH"` exact.
+
 ## 2026-09-08 — Pass 4: Play type filters (All / RUN / PASS / RPO)
 
 ### What
