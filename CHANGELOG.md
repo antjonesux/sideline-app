@@ -5,6 +5,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-08 — Pass 4: Play type filters (All / RUN / PASS / RPO)
+
+### What
+
+- **`PlayTypeFilterChips`** (`components/shared/`): shared exclusive chip bar + `matchesPlayTypeFilter` against already-resolved catalog `play_type` (no parallel resolution).
+- **`PlayBrowser`:** Client-side type filter on formation plays and global search; composes with Pass 3 `formationPlayFilter`; chips hidden for defense catalogs.
+- **`AddPlayDrawer`:** Controlled filter in sticky formation chrome under in-formation search; resets with formation navigation.
+- **`BrowseFormationDetail`:** Same chips on public and signed-in formation play grids.
+- **`PlayLoggerV2`:** Browse via `PlayBrowser`; My Call Sheet filters sheet rows (resets on situation change).
+
+### Why
+
+Coaches scan call lists as run vs pass; unfiltered catalogs slow “I need a pass from this formation” decisions.
+
+### Status
+
+- Compile + TypeScript clean from `sideline/`; filter is client-side only (no new API params).
+- Defense playbooks hide the offense taxonomy chips. Low RPO volume may empty some lists — product note, not a code hide.
+
 ## 2026-09-08 — Pass 3: Play browsing UX (sticky formation, in-formation search, edit situation)
 
 ### What
