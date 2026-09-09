@@ -18,6 +18,11 @@ import {
   pinTrailingFormationGroups,
 } from "@/lib/playbooks/formation-types";
 import { IconBackButton, IconBackButtonSpacer } from "@/components/shared/IconBackButton";
+import {
+  matchesPlayTypeFilter,
+  PlayTypeFilterChips,
+  type PlayTypeFilterValue,
+} from "@/components/shared/PlayTypeFilterChips";
 import { X } from "lucide-react";
 
 type BrowserStep = "formations" | "plays";
@@ -62,6 +67,17 @@ interface PlayBrowserProps {
    * Filtered client-side; empty / omitted shows the full formation list.
    */
   formationPlayFilter?: string;
+  /**
+   * Controlled play-type filter (All / RUN / PASS / RPO). When omitted, PlayBrowser owns local state.
+   * Composes with `formationPlayFilter` (both apply).
+   */
+  playTypeFilter?: PlayTypeFilterValue;
+  onPlayTypeFilterChange?: (next: PlayTypeFilterValue) => void;
+  /**
+   * When false, chips are not rendered here (parent shows `PlayTypeFilterChips`).
+   * Filtering still applies via `playTypeFilter` / internal state.
+   */
+  showPlayTypeFilterChips?: boolean;
   /** Play Sheet add-play: pins Goal Line + Hail Mary (offense) or Goal Line + Prevent (defense) to the bottom. */
   catalogSideOfBall?: CatalogSideOfBall;
   /** Play Sheet add-play: catalog game version for cfb.fan play-art URLs. */
@@ -111,6 +127,9 @@ export function PlayBrowser({
   onPlaySheetNavChange,
   pageScrollResults = false,
   formationPlayFilter,
+  playTypeFilter: playTypeFilterProp,
+  onPlayTypeFilterChange,
+  showPlayTypeFilterChips = true,
   catalogSideOfBall,
   catalogGameVersion,
   showPlayArtRows = false,
@@ -121,6 +140,7 @@ export function PlayBrowser({
   const usePageScrollResults = pageScrollResults && playSheetAddLayout;
   const useArtBrowseRows = showPlayArtRows || playSheetAddLayout;
   const artSideOfBall = catalogSideOfBall ?? "offense";
+  const playTypeFilterEnabled = artSideOfBall !== "defense";
   const resultsScrollClass = usePageScrollResults
     ? "w-full pb-4"
     : "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4";
@@ -138,6 +158,20 @@ export function PlayBrowser({
   const [selectedFormation, setSelectedFormation] = useState<{ group: string; name: string } | null>(
     qaInitialUi?.formation ?? null,
   );
+  const [internalPlayTypeFilter, setInternalPlayTypeFilter] = useState<PlayTypeFilterValue>("ALL");
+  const playTypeFilterControlled = playTypeFilterProp !== undefined;
+  const playTypeFilter = playTypeFilterEnabled
+    ? playTypeFilterControlled
+      ? playTypeFilterProp
+      : internalPlayTypeFilter
+    : "ALL";
+  const setPlayTypeFilter = (next: PlayTypeFilterValue) => {
+    if (playTypeFilterControlled) {
+      onPlayTypeFilterChange?.(next);
+      return;
+    }
+    setInternalPlayTypeFilter(next);
+  };
   const playsScrollRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -148,6 +182,11 @@ export function PlayBrowser({
     if (!el) return;
     el.scrollTop = 0;
   }, [selectedFormation?.group, selectedFormation?.name, usePageScrollResults]);
+
+  useEffect(() => {
+    if (playTypeFilterControlled) return;
+    setInternalPlayTypeFilter("ALL");
+  }, [selectedFormation?.group, selectedFormation?.name, playTypeFilterControlled]);
 
   useLayoutEffect(() => {
     if (!playSheetAddLayout || !onPlaySheetNavChange) return;
@@ -182,6 +221,7 @@ export function PlayBrowser({
     if (!q) return [];
     const fromCatalog = entries.filter((entry) => {
       if (excludePlaySheetSpecialTeams && isExcludedFromPlaySheetPlay(entry)) return false;
+      if (!matchesPlayTypeFilter(entry.play_type, playTypeFilter)) return false;
       return (
         entry.play_name.toLowerCase().includes(q) ||
         entry.formation.toLowerCase().includes(q) ||
@@ -192,14 +232,15 @@ export function PlayBrowser({
     if (excludePlaySheetSpecialTeams) return fromCatalog;
     const filmSt = FILM_LOGGER_SPECIAL_TEAMS_PLAYS.filter(
       (entry) =>
-        entry.play_name.toLowerCase().includes(q) ||
-        entry.formation.toLowerCase().includes(q) ||
-        entry.group.toLowerCase().includes(q) ||
-        entry.play_type.toLowerCase().includes(q),
+        matchesPlayTypeFilter(entry.play_type, playTypeFilter) &&
+        (entry.play_name.toLowerCase().includes(q) ||
+          entry.formation.toLowerCase().includes(q) ||
+          entry.group.toLowerCase().includes(q) ||
+          entry.play_type.toLowerCase().includes(q)),
     );
     const seen = new Set(fromCatalog.map((e) => e.play_id));
     return [...filmSt.filter((e) => !seen.has(e.play_id)), ...fromCatalog];
-  }, [query, entries, excludePlaySheetSpecialTeams]);
+  }, [query, entries, excludePlaySheetSpecialTeams, playTypeFilter]);
 
   const displayGroups = useMemo((): FormationGroup[] => {
     if (excludePlaySheetSpecialTeams) {
@@ -237,12 +278,28 @@ export function PlayBrowser({
   }, [groups, selectedFormation, excludePlaySheetSpecialTeams]);
 
   const visiblePlays = useMemo(() => {
-    const filter = formationPlayFilter?.trim() ?? "";
-    if (!filter) return selectedPlays;
-    return selectedPlays.filter((play) =>
-      matchesFormationPlaySearch(filter, play.formation, play.play_name),
-    );
-  }, [selectedPlays, formationPlayFilter]);
+    const nameFilter = formationPlayFilter?.trim() ?? "";
+    return selectedPlays.filter((play) => {
+      if (nameFilter && !matchesFormationPlaySearch(nameFilter, play.formation, play.play_name)) {
+        return false;
+      }
+      return matchesPlayTypeFilter(play.play_type, playTypeFilter);
+    });
+  }, [selectedPlays, formationPlayFilter, playTypeFilter]);
+
+  const renderPlayTypeChips =
+    playTypeFilterEnabled && showPlayTypeFilterChips ? (
+      <PlayTypeFilterChips value={playTypeFilter} onChange={setPlayTypeFilter} />
+    ) : null;
+
+  const emptyPlaysMessage = (() => {
+    const hasNameFilter = Boolean(formationPlayFilter?.trim());
+    const hasTypeFilter = playTypeFilter !== "ALL";
+    if (hasNameFilter && hasTypeFilter) return "No plays match this filter.";
+    if (hasNameFilter) return "No plays match this search.";
+    if (hasTypeFilter) return "No plays match this filter.";
+    return "No plays in this formation.";
+  })();
 
   const level1Header = (
     <div
@@ -335,6 +392,7 @@ export function PlayBrowser({
         <>
           {level1Header}
           <div className={`${resultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 pt-1" : "bg-slate-900 pt-3"}`}>
+            {renderPlayTypeChips ? <div className="mb-2 px-4">{renderPlayTypeChips}</div> : null}
             <div className="flex flex-col gap-2 px-4 pb-4">
               {!hasPlaybook ? (
                 <p className="font-body text-sm text-slate-400">
@@ -349,7 +407,9 @@ export function PlayBrowser({
                   <div className="h-11 max-w-[90%] animate-pulse rounded-lg bg-slate-800/40" />
                 </div>
               ) : filtered.length === 0 ? (
-                <p className="font-body text-sm text-slate-500">No plays match this search.</p>
+                <p className="font-body text-sm text-slate-500">
+                  {playTypeFilter !== "ALL" ? "No plays match this filter." : "No plays match this search."}
+                </p>
               ) : useArtBrowseRows ? (
                 <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
                   {filtered.map((play) => {
@@ -455,13 +515,12 @@ export function PlayBrowser({
             ref={playsScrollRef}
             className={`${playsResultsScrollClass} ${playSheetAddLayout ? "bg-slate-950 py-4" : "bg-slate-900 pb-4 pt-3"}`}
           >
+            {renderPlayTypeChips ? <div className="mb-3 px-4">{renderPlayTypeChips}</div> : null}
             {useArtBrowseRows ? (
               <div className="mx-4 overflow-hidden rounded-lg border border-slate-800 bg-slate-950/60">
                 {visiblePlays.length === 0 ? (
                   <p className="px-4 py-6 text-center font-body text-sm text-slate-400" role="status">
-                    {formationPlayFilter?.trim()
-                      ? "No plays match this search."
-                      : "No plays in this formation."}
+                    {emptyPlaysMessage}
                   </p>
                 ) : (
                   visiblePlays.map((play) => {
@@ -491,9 +550,7 @@ export function PlayBrowser({
               <div className="flex flex-col gap-2 px-4 pb-4">
                 {visiblePlays.length === 0 ? (
                   <p className="py-6 text-center font-body text-sm text-slate-400" role="status">
-                    {formationPlayFilter?.trim()
-                      ? "No plays match this search."
-                      : "No plays in this formation."}
+                    {emptyPlaysMessage}
                   </p>
                 ) : (
                   visiblePlays.map((play) => (

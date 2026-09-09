@@ -4,6 +4,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { PlayBrowser, stripFormationGroupPrefix, type PlaySheetAddNav } from "@/components/film/PlayBrowser";
 import { IconBackButton } from "@/components/shared/IconBackButton";
+import {
+  PlayTypeFilterChips,
+  type PlayTypeFilterValue,
+} from "@/components/shared/PlayTypeFilterChips";
 import { ResponsiveOverlay } from "@/components/shared/ResponsiveOverlay";
 import { BUILDER_ADD_PLAY, BUILDER_ADD_PLAY_FOR_SITUATION } from "@/lib/coachCopy";
 import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
@@ -71,15 +75,20 @@ export function AddPlayDrawer({
     };
   });
   const [formationPlayQuery, setFormationPlayQuery] = useState("");
+  const [playTypeFilter, setPlayTypeFilter] = useState<PlayTypeFilterValue>("ALL");
 
   const handleNavChange = useCallback((next: PlaySheetAddNav) => {
     setNav(next);
   }, []);
 
   const formationSelected = nav.step === "plays" && Boolean(nav.formationLabel);
+  const showPlayTypeFilter = (catalogSideOfBall ?? "offense") !== "defense";
 
   useEffect(() => {
-    if (!formationSelected) setFormationPlayQuery("");
+    if (!formationSelected) {
+      setFormationPlayQuery("");
+      setPlayTypeFilter("ALL");
+    }
   }, [formationSelected, nav.formationLabel]);
 
   if (!open) return null;
@@ -131,6 +140,11 @@ export function AddPlayDrawer({
     </div>
   ) : null;
 
+  const formationPlayTypeChips =
+    formationSelected && showPlayTypeFilter ? (
+      <PlayTypeFilterChips value={playTypeFilter} onChange={setPlayTypeFilter} />
+    ) : null;
+
   const browser = (
     <div
       className={cn(
@@ -145,6 +159,9 @@ export function AddPlayDrawer({
         playSheetAddLayout
         pageScrollResults={shell === "panel"}
         formationPlayFilter={formationSelected ? formationPlayQuery : undefined}
+        playTypeFilter={formationSelected ? playTypeFilter : undefined}
+        onPlayTypeFilterChange={formationSelected ? setPlayTypeFilter : undefined}
+        showPlayTypeFilterChips={!formationSelected}
         showGoToStar={showGoToStar}
         goToPlayKeys={goToPlayKeys}
         goToBusyComboKey={goToBusyComboKey}
@@ -195,6 +212,7 @@ export function AddPlayDrawer({
               <h2 className={formationHeadingClass}>{headerTitle}</h2>
             </div>
             {formationSearchField}
+            {formationPlayTypeChips}
           </div>
         ) : null}
         {browser}
@@ -237,6 +255,7 @@ export function AddPlayDrawer({
             </h2>
           </div>
           {formationSearchField}
+          {formationPlayTypeChips}
         </div>
         {browser}
       </div>

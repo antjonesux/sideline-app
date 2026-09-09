@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { PublicCrossRefSection } from "@/components/marketing/PublicCrossRefSection";
@@ -11,6 +12,11 @@ import { PublicPlaybooksBrowseFrame } from "@/components/marketing/PublicPlayboo
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { SkeletonBlock } from "@/components/shared/AppSkeleton";
+import {
+  matchesPlayTypeFilter,
+  PlayTypeFilterChips,
+  type PlayTypeFilterValue,
+} from "@/components/shared/PlayTypeFilterChips";
 import { COULDNT_LOAD } from "@/lib/coachCopy";
 import type {
   PublicFormationDetailData,
@@ -54,6 +60,7 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
   const searchParams = useSearchParams();
   const sideRaw = searchParams.get("side");
   const side = sideRaw === "defense" || sideRaw === "offense" ? sideRaw : null;
+  const [playTypeFilter, setPlayTypeFilter] = useState<PlayTypeFilterValue>("ALL");
 
   const detailQuery = useQuery({
     queryKey: ["public", "formation", playbookId, formationId, side ?? ""],
@@ -74,6 +81,13 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
 
   /** Full catalog formation name (e.g. "Gun Bunch TE Wk", "Goal Line Normal"). */
   const displayFormation = detailQuery.data?.formation ?? formationId;
+  const showPlayTypeFilter = detailQuery.data?.side_of_ball !== "defense";
+
+  const visiblePlays = useMemo(() => {
+    const plays = detailQuery.data?.plays ?? [];
+    if (!showPlayTypeFilter) return plays;
+    return plays.filter((play) => matchesPlayTypeFilter(play.play_type, playTypeFilter));
+  }, [detailQuery.data?.plays, playTypeFilter, showPlayTypeFilter]);
 
   return (
     <PublicPlaybooksBrowseFrame
@@ -127,22 +141,35 @@ export function BrowseFormationDetail({ playbookId, formationId }: BrowseFormati
               Every play in {displayFormation} in the {detailQuery.data.playbook}{" "}
               {detailQuery.data.side_of_ball === "defense" ? "defensive" : "offensive"} playbook.
             </p>
+            {showPlayTypeFilter ? (
+              <PlayTypeFilterChips
+                value={playTypeFilter}
+                onChange={setPlayTypeFilter}
+                className="mt-4"
+              />
+            ) : null}
           </header>
 
-          <ul className="mt-8 grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {detailQuery.data.plays.map((play) => (
-              <li key={play.play_name}>
-                <PublicPlayTile
-                  href={publicPlaybooksHrefWithSide([playbookId, formationId, play.play_name], side)}
-                  playbook={detailQuery.data.playbook}
-                  formation={detailQuery.data.formation}
-                  formationType={detailQuery.data.formation_type}
-                  playName={play.play_name}
-                  sideOfBall={detailQuery.data.side_of_ball}
-                />
-              </li>
-            ))}
-          </ul>
+          {visiblePlays.length === 0 ? (
+            <p className="mt-8 font-body text-sm text-slate-400" role="status">
+              {playTypeFilter !== "ALL" ? "No plays match this filter." : "No plays in this formation."}
+            </p>
+          ) : (
+            <ul className="mt-8 grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {visiblePlays.map((play) => (
+                <li key={play.play_name}>
+                  <PublicPlayTile
+                    href={publicPlaybooksHrefWithSide([playbookId, formationId, play.play_name], side)}
+                    playbook={detailQuery.data.playbook}
+                    formation={detailQuery.data.formation}
+                    formationType={detailQuery.data.formation_type}
+                    playName={play.play_name}
+                    sideOfBall={detailQuery.data.side_of_ball}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
 
           <PublicCrossRefSection
             title="Also in these playbooks"

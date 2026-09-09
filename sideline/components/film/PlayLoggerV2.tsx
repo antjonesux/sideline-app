@@ -16,6 +16,11 @@ import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
 import { fetchPlaySheetOverview, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
 import { PlaySheetSituationChipScroll } from "@/components/shared/PlaySheetSituationChipScroll";
+import {
+  matchesPlayTypeFilter,
+  PlayTypeFilterChips,
+  type PlayTypeFilterValue,
+} from "@/components/shared/PlayTypeFilterChips";
 import { scenarioDisplayLabel, sortScenariosByCanonicalOrder } from "@/lib/playbookUtils";
 import { deriveStoredResultTag, replayGameStateFromPlays } from "@/lib/gameStateEngine";
 import { isConversionScenario } from "@/lib/filmConversionResults";
@@ -178,6 +183,11 @@ export function PlayLoggerV2({
   const [mySheetSelectedScenario, setMySheetSelectedScenario] = useState(() =>
     guidedOnboarding && guidedMySheetScenario?.trim() ? guidedMySheetScenario.trim() : scenarioLabel,
   );
+  const [mySheetPlayTypeFilter, setMySheetPlayTypeFilter] = useState<PlayTypeFilterValue>("ALL");
+
+  useEffect(() => {
+    setMySheetPlayTypeFilter("ALL");
+  }, [mySheetSelectedScenario]);
 
   const guidedInitRef = useRef(false);
   useEffect(() => {
@@ -219,7 +229,12 @@ export function PlayLoggerV2({
     return sortScenariosByCanonicalOrder([...scenarios]);
   }, [sheetOverviewQuery.data?.scenarios]);
 
-  const mySheetDisplayPlays = mySheetPlaysQuery.data?.sheetCalls ?? [];
+  const mySheetDisplayPlays = useMemo(() => {
+    const plays = mySheetPlaysQuery.data?.sheetCalls ?? [];
+    if (catalogSideOfBall === "defense") return plays;
+    return plays.filter((play) => matchesPlayTypeFilter(play.play_type, mySheetPlayTypeFilter));
+  }, [mySheetPlaysQuery.data?.sheetCalls, mySheetPlayTypeFilter, catalogSideOfBall]);
+  const mySheetRawPlayCount = mySheetPlaysQuery.data?.sheetCalls?.length ?? 0;
   const mySheetDisplayName = mySheetPlaysQuery.data?.sheetName ?? sheetName;
 
   const streamPlaysDesc = useMemo(
@@ -754,6 +769,13 @@ export function PlayLoggerV2({
                           <p className="font-sans text-xs text-slate-400">Based on {mySheetDisplayName} play sheet</p>
                         ) : null}
                       </div>
+                      {catalogSideOfBall !== "defense" ? (
+                        <PlayTypeFilterChips
+                          value={mySheetPlayTypeFilter}
+                          onChange={setMySheetPlayTypeFilter}
+                          className="mb-3"
+                        />
+                      ) : null}
                       {mySheetPlaysQuery.isPending ? (
                         <p className="font-sans text-sm text-slate-500">Loading plays…</p>
                       ) : mySheetDisplayPlays.length > 0 ? (
@@ -773,7 +795,9 @@ export function PlayLoggerV2({
                         </div>
                       ) : (
                         <p className="font-sans text-sm text-slate-500">
-                          {filmLoggerMySheetEmptyHint(scenarioDisplayLabel(mySheetSelectedScenario))}
+                          {mySheetRawPlayCount > 0 && mySheetPlayTypeFilter !== "ALL"
+                            ? "No plays match this filter."
+                            : filmLoggerMySheetEmptyHint(scenarioDisplayLabel(mySheetSelectedScenario))}
                         </p>
                       )}
                     </div>
