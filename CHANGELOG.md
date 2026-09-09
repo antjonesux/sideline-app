@@ -19,6 +19,7 @@ Coaches lose formation context while scrolling long play lists, cannot filter wi
 
 ### Status
 
+- `npm run build` from `sideline/` passed.
 - Sticky does not change md+ container scroll architecture (rail / main / sidebar still independent).
 - Handoff: sticky = CSS sticky in panel scrollport + layout pin in modal; add vs edit via existing `mode` prop; search owned by drawer, filter prop on browser.
 
