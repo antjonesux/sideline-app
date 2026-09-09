@@ -1,26 +1,36 @@
 /**
- * Re-seeds team_offensive_playbooks and team_defensive_schemes from seed-team-schemes.sql.
+ * Re-seeds team_offensive_playbooks and team_defensive_schemes.
  *
- * The Supabase JS client cannot run arbitrary SQL (TRUNCATE) with the service role alone,
- * so this script parses the INSERT rows from the SQL file and applies them via PostgREST.
+ * - CFB26: parsed from seed-team-schemes.sql (legacy EA-era styles)
+ * - CFB27: from lib/seed/team-styles/cfb27-team-styles.ts (PlaybookGamer Team Styles)
  *
  * Env (e.g. sideline/.env.local):
  *   NEXT_PUBLIC_SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
  *
- * To run the .sql file literally against Postgres instead, use (from sideline/):
- *   psql "$SUPABASE_DATABASE_URL" -f supabase/seed-team-schemes.sql
+ * Run: npm run seed:teams
  */
 
 import { createClient } from "@supabase/supabase-js";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { CFB27_TEAM_STYLES } from "../lib/seed/team-styles/cfb27-team-styles";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-type OffensiveRow = { team_name: string; playbook_name: string; scheme_style: string };
-type DefensiveRow = { team_name: string; defensive_scheme: string };
+type OffensiveRow = {
+  team_name: string;
+  playbook_name: string;
+  scheme_style: string;
+  game_version: string;
+};
+
+type DefensiveRow = {
+  team_name: string;
+  defensive_scheme: string;
+  game_version: string;
+};
 
 function loadEnvFile(path: string) {
   if (!existsSync(path)) return;
@@ -68,28 +78,61 @@ function extractInsertBlock(sql: string, table: string): string {
   return inner;
 }
 
-function parseOffensive(sql: string): OffensiveRow[] {
+function parseCfb26Offensive(sql: string): OffensiveRow[] {
   const inner = extractInsertBlock(sql, "team_offensive_playbooks");
   const re = /\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/g;
   const rows: OffensiveRow[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(inner)) !== null) {
-    rows.push({ team_name: m[1], playbook_name: m[2], scheme_style: m[3] });
+    rows.push({
+      team_name: m[1],
+      playbook_name: m[2],
+      scheme_style: m[3],
+      game_version: "cfb26",
+    });
   }
-  if (rows.length === 0) throw new Error("No offensive rows parsed from SQL");
+  if (rows.length === 0) throw new Error("No CFB26 offensive rows parsed from SQL");
   return rows;
 }
 
-function parseDefensive(sql: string): DefensiveRow[] {
+function parseCfb26Defensive(sql: string): DefensiveRow[] {
   const inner = extractInsertBlock(sql, "team_defensive_schemes");
   const re = /\(\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/g;
   const rows: DefensiveRow[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(inner)) !== null) {
-    rows.push({ team_name: m[1], defensive_scheme: m[2] });
+    rows.push({
+      team_name: m[1],
+      defensive_scheme: m[2],
+      game_version: "cfb26",
+    });
   }
-  if (rows.length === 0) throw new Error("No defensive rows parsed from SQL");
+  if (rows.length === 0) throw new Error("No CFB26 defensive rows parsed from SQL");
   return rows;
+}
+
+function cfb27Offensive(): OffensiveRow[] {
+  return CFB27_TEAM_STYLES.map((row) => ({
+    team_name: row.team_name,
+    playbook_name: row.playbook_name,
+    scheme_style: row.scheme_style,
+    game_version: "cfb27",
+  }));
+}
+
+function cfb27Defensive(): DefensiveRow[] {
+  return CFB27_TEAM_STYLES.map((row) => ({
+    team_name: row.team_name,
+    defensive_scheme: row.defensive_scheme,
+    game_version: "cfb27",
+  }));
+}
+
+/** Exact-name mismatches between PlaybookGamer labels and Sideline catalog playbook names. */
+function logCfb27NameMappings() {
+  console.log("CFB27 team name mappings (PlaybookGamer → Sideline):");
+  console.log('  "Miami FL" → "Miami"');
+  console.log('  "Miami OH" → "Miami OH" (exact)');
 }
 
 async function main() {
@@ -131,11 +174,18 @@ async function main() {
 
   const sqlPath = join(__dirname, "seed-team-schemes.sql");
   const sql = readFileSync(sqlPath, "utf8");
-  const offensive = parseOffensive(sql);
-  const defensive = parseDefensive(sql);
-  if (offensive.length !== defensive.length) {
-    throw new Error(`Row count mismatch: offense ${offensive.length}, defense ${defensive.length}`);
+  const offensive = [...parseCfb26Offensive(sql), ...cfb27Offensive()];
+  const defensive = [...parseCfb26Defensive(sql), ...cfb27Defensive()];
+
+  const cfb27Off = cfb27Offensive();
+  const cfb27Def = cfb27Defensive();
+  if (cfb27Off.length !== cfb27Def.length) {
+    throw new Error(`CFB27 row count mismatch: offense ${cfb27Off.length}, defense ${cfb27Def.length}`);
   }
+
+  logCfb27NameMappings();
+  console.log(`CFB26 offense=${parseCfb26Offensive(sql).length} defense=${parseCfb26Defensive(sql).length}`);
+  console.log(`CFB27 offense=${cfb27Off.length} defense=${cfb27Def.length}`);
 
   console.log("Clearing tables…");
   await clearTable("team_offensive_playbooks");

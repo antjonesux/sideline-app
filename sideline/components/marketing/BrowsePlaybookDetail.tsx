@@ -86,6 +86,7 @@ export function BrowsePlaybookDetail({ playbookId }: BrowsePlaybookDetailProps) 
         <>
           <div className="mt-4 space-y-3">
             <div className="h-8 w-56 max-w-full animate-pulse rounded-md bg-slate-700/55" aria-hidden />
+            <div className="h-4 w-40 max-w-full animate-pulse rounded-md bg-slate-700/55" aria-hidden />
             <div className="h-4 w-full max-w-xl animate-pulse rounded-md bg-slate-700/55" aria-hidden />
           </div>
           <PublicPlaybookDetailSkeleton />
@@ -112,7 +113,12 @@ export function BrowsePlaybookDetail({ playbookId }: BrowsePlaybookDetailProps) 
 
       {query.isSuccess && query.data ? (
         <>
-          <PublicPlaybookDetailHeader name={query.data.name} sideOfBall={query.data.side_of_ball} />
+          <PublicPlaybookDetailHeader
+            name={query.data.name}
+            sideOfBall={query.data.side_of_ball}
+            offensiveStyle={query.data.offensive_style}
+            defensiveTeams={query.data.defensive_teams}
+          />
           <PublicPlaybookSearchInput
             className="mt-6"
             value={search}

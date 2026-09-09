@@ -6,7 +6,15 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
-## 2026-09-08 — Public playbooks evergreen SEO path
+## 2026-09-08 — Team styles tied to game version (Pass 5)
+
+**Decision:** Extend existing `team_offensive_playbooks` / `team_defensive_schemes` with `game_version` (composite PK). CFB27 styles come from PlaybookGamer Team Styles (`lib/seed/team-styles/cfb27-team-styles.ts`); conference omitted. Public/in-app playbook headers show offensive style for team books and an A–Z team list for defensive scheme books.
+
+**Why:** Coaches need immediate orientation (“what kind of offense/defense is this?”) without conflating EA team styles with user-created Schemes.
+
+**Impact:** Migration `20260908210000_team_styles_game_version.sql`; `seed:teams`; `fetchPublicPlaybookCatalog` + `PublicPlaybookDetailHeader`; style-table readers filter by version.
+
+---
 
 **Decision:** Public catalog browse lives at evergreen `/playbooks/college-football` (and nested playbook/formation/play segments). Game version is **not** in the URL; `resolvePublicPlaybookGameVersion()` (server-only, React `cache`) picks the newest `CATALOG_GAME_VERSIONS` entry that has `playbooks` rows. Old `/playbooks` URLs 301 via `next.config.ts`. Authenticated `/playbook` (call sheets) and `/api/public/*` paths stay unchanged.
 

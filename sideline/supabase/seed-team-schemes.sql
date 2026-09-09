@@ -1,3 +1,7 @@
+-- CFB26 legacy team styles (EA-era labels). Prefer `npm run seed:teams`, which also
+-- seeds CFB27 from lib/seed/team-styles/cfb27-team-styles.ts (PlaybookGamer).
+-- This file alone does not set game_version — the TS seeder tags these rows as cfb26.
+--
 -- Clear existing data
 TRUNCATE TABLE team_offensive_playbooks CASCADE;
 TRUNCATE TABLE team_defensive_schemes CASCADE;

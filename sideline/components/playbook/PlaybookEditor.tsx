@@ -220,14 +220,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
       Boolean(activeScenario) &&
       (onboardingEditor || !useCallSheetBuilderLayout || isSituationEdit),
   });
+  const setupGameVersion = parseCatalogGameVersion(sheet?.game_version);
   const setupQuery = useQuery({
-    queryKey: ["film-setup"],
+    queryKey: ["film-setup", setupGameVersion],
     queryFn: async () => {
-      const res = await fetch("/api/film/setup");
-      if (!res.ok) throw new Error("Failed to load CFB26 playbooks");
+      const qs = new URLSearchParams({ version: setupGameVersion });
+      const res = await fetch(`/api/film/setup?${qs.toString()}`);
+      if (!res.ok) throw new Error("Failed to load playbooks");
       return res.json() as Promise<SetupApi>;
     },
     staleTime: 60 * 60 * 1000,
+    enabled: Boolean(sheet),
   });
 
   const totalSheetPlays = useMemo(

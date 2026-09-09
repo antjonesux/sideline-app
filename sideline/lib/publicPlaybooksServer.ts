@@ -20,6 +20,10 @@ import {
   sortFormationTypes,
 } from "@/lib/playbooks/formation-types";
 import { PUBLIC_PLAYBOOK_GAME_VERSION } from "@/lib/publicPlaybooksPaths";
+import {
+  lookupOffensiveSchemeStyle,
+  lookupTeamsForDefensiveScheme,
+} from "@/lib/teamStylesLookup";
 import { normalizePlayName } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { cache } from "react";
@@ -569,6 +573,10 @@ export type PublicPlaybookCatalogPlay = {
 
 export type PublicPlaybookCatalogData = PublicPlaybookFormationsData & {
   plays: PublicPlaybookCatalogPlay[];
+  /** Team offensive style (e.g. Spread). Null when missing or not a team offense book. */
+  offensive_style: string | null;
+  /** Alphabetized teams running this defensive scheme, comma-separated. Null when none. */
+  defensive_teams: string | null;
 };
 
 export async function fetchPublicGlobalSearch(queryRaw: string): Promise<PublicGlobalSearchData> {
@@ -732,10 +740,23 @@ export async function fetchPublicPlaybookCatalog(
     (a, b) => a.formation.localeCompare(b.formation) || a.play_name.localeCompare(b.play_name),
   );
 
+  const classification = classifyPlaybook(trimmed, sideOfBall);
+  let offensive_style: string | null = null;
+  let defensive_teams: string | null = null;
+
+  if (classification === "team-offense") {
+    offensive_style = await lookupOffensiveSchemeStyle(supabase, trimmed, gameVersion);
+  } else if (classification === "defense") {
+    const teams = await lookupTeamsForDefensiveScheme(supabase, trimmed, gameVersion);
+    defensive_teams = teams.length > 0 ? teams.join(", ") : null;
+  }
+
   return {
     name: trimmed,
     side_of_ball: sideOfBall,
-    classification: classifyPlaybook(trimmed, sideOfBall),
+    classification,
+    offensive_style,
+    defensive_teams,
     formationGroups: groupFormationsByCategory(formationRows, sideOfBall),
     plays,
   };

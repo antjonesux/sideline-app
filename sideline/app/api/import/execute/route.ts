@@ -1,4 +1,5 @@
 import { COULDNT_FINISH_THAT, COULDNT_FIND_THAT } from "@/lib/coachCopy";
+import { DEFAULT_CATALOG_GAME_VERSION } from "@/lib/constants";
 import {
   parseYardLineField,
   validateAllRows,
@@ -243,8 +244,18 @@ export async function POST(req: NextRequest) {
   const game_date = new Date().toISOString().slice(0, 10);
 
   const [mySchemeRes, oppSchemeRes] = await Promise.all([
-    supabase.from("team_offensive_playbooks").select("scheme_style").eq("team_name", game.my_team.trim()).single(),
-    supabase.from("team_defensive_schemes").select("defensive_scheme").eq("team_name", game.opponent_team.trim()).single(),
+    supabase
+      .from("team_offensive_playbooks")
+      .select("scheme_style")
+      .eq("team_name", game.my_team.trim())
+      .eq("game_version", DEFAULT_CATALOG_GAME_VERSION)
+      .maybeSingle(),
+    supabase
+      .from("team_defensive_schemes")
+      .select("defensive_scheme")
+      .eq("team_name", game.opponent_team.trim())
+      .eq("game_version", DEFAULT_CATALOG_GAME_VERSION)
+      .maybeSingle(),
   ]);
 
   const myScheme = mySchemeRes.data?.scheme_style?.trim() || "UNKNOWN";

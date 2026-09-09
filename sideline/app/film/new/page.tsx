@@ -69,7 +69,7 @@ function collectRecentTeamNames(
   return ordered;
 }
 
-let cachedDefensive: DefensiveTeam[] | null = null;
+let cachedDefensiveByVersion: Partial<Record<CatalogGameVersion, DefensiveTeam[]>> = {};
 
 export default function NewGamePage() {
   const supabase = createClient();
@@ -78,8 +78,17 @@ export default function NewGamePage() {
   const { setLastGame } = useLastGamePrefsStore();
   const addToast = useToastStore((s) => s.addToast);
 
-  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
-  const [setupLoading, setSetupLoading] = useState(() => cachedDefensive === null);
+  const defaultGameVersion = parseCatalogGameVersion(
+    searchParams.get("version") ?? DEFAULT_CATALOG_GAME_VERSION,
+  );
+  const [gameVersion, setGameVersion] = useState<CatalogGameVersion>(defaultGameVersion);
+
+  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(
+    () => cachedDefensiveByVersion[defaultGameVersion] ?? [],
+  );
+  const [setupLoading, setSetupLoading] = useState(
+    () => cachedDefensiveByVersion[defaultGameVersion] === undefined,
+  );
   const [setupError, setSetupError] = useState<string | null>(null);
   const [myTeamPick, setMyTeamPick] = useState<TeamOption | null>(null);
   const [opponentPick, setOpponentPick] = useState<TeamOption | null>(null);
@@ -90,11 +99,6 @@ export default function NewGamePage() {
   const [sessionName, setSessionName] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
   const [recentTeamNames, setRecentTeamNames] = useState<string[]>([]);
-
-  const defaultGameVersion = parseCatalogGameVersion(
-    searchParams.get("version") ?? DEFAULT_CATALOG_GAME_VERSION,
-  );
-  const [gameVersion, setGameVersion] = useState<CatalogGameVersion>(defaultGameVersion);
 
   const handleGameVersionChange = useCallback((value: CatalogGameVersion) => {
     setGameVersion(value);
@@ -109,7 +113,13 @@ export default function NewGamePage() {
 
   useEffect(() => {
     let cancelled = false;
-    if (cachedDefensive !== null) return;
+    const cached = cachedDefensiveByVersion[gameVersion];
+    if (cached !== undefined) {
+      setDefensiveTeams(cached);
+      setSetupLoading(false);
+      setSetupError(null);
+      return;
+    }
 
     async function loadTeams() {
       setSetupLoading(true);
@@ -117,6 +127,7 @@ export default function NewGamePage() {
       const defRes = await supabase
         .from("team_defensive_schemes")
         .select("team_name, defensive_scheme")
+        .eq("game_version", gameVersion)
         .order("team_name", { ascending: true })
         .limit(20000);
       if (cancelled) return;
@@ -130,7 +141,7 @@ export default function NewGamePage() {
       }
 
       const defensive = (defRes.data ?? []) as DefensiveTeam[];
-      cachedDefensive = defensive;
+      cachedDefensiveByVersion[gameVersion] = defensive;
       setDefensiveTeams(defensive);
       setSetupLoading(false);
     }
@@ -139,7 +150,7 @@ export default function NewGamePage() {
     return () => {
       cancelled = true;
     };
-  }, [supabase]);
+  }, [supabase, gameVersion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,6 +251,7 @@ export default function NewGamePage() {
         .from("team_offensive_playbooks")
         .select("scheme_style")
         .eq("playbook_name", resolvedOffensePlaybook)
+        .eq("game_version", gameVersion)
         .limit(1)
         .maybeSingle();
       myScheme = (schemeRow?.scheme_style as string | undefined)?.trim() || "Multiple";

@@ -116,10 +116,15 @@ async function patchPlaySheet(req: NextRequest, id: string) {
         patch.game_version = parseCatalogGameVersion(catalogRow.game_version as string);
       }
     }
+    const schemeVersion =
+      typeof patch.game_version === "string"
+        ? parseCatalogGameVersion(patch.game_version)
+        : parseCatalogGameVersion(undefined);
     const { data: schemeRow } = await supabase
       .from("team_offensive_playbooks")
       .select("scheme_style")
       .eq("playbook_name", pb)
+      .eq("game_version", schemeVersion)
       .limit(1)
       .maybeSingle();
     patch.scheme = (schemeRow?.scheme_style as string | undefined)?.trim() || "Multiple";

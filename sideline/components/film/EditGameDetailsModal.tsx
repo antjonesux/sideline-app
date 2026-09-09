@@ -46,7 +46,7 @@ function collectRecentTeamNames(
   return ordered;
 }
 
-let cachedDefensive: DefensiveTeam[] | null = null;
+let cachedDefensiveByVersion: Partial<Record<ReturnType<typeof parseCatalogGameVersion>, DefensiveTeam[]>> = {};
 
 const toggleOn = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
 const toggleOff = "border-slate-700 bg-slate-900 text-slate-400";
@@ -87,8 +87,15 @@ export function EditGameDetailsModal({
     },
     [isControlled, onOpenChange],
   );
-  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(() => cachedDefensive ?? []);
-  const [setupLoading, setSetupLoading] = useState(() => cachedDefensive === null);
+
+  const gameVersion = parseCatalogGameVersion(game.game_version ?? DEFAULT_CATALOG_GAME_VERSION);
+
+  const [defensiveTeams, setDefensiveTeams] = useState<DefensiveTeam[]>(
+    () => cachedDefensiveByVersion[gameVersion] ?? [],
+  );
+  const [setupLoading, setSetupLoading] = useState(
+    () => cachedDefensiveByVersion[gameVersion] === undefined,
+  );
   const [setupError, setSetupError] = useState<string | null>(null);
 
   const [myTeamPick, setMyTeamPick] = useState<TeamOption | null>(null);
@@ -105,15 +112,16 @@ export function EditGameDetailsModal({
   const opponentInputRef = useRef<HTMLInputElement>(null);
   const dialogTitleRef = useRef<HTMLHeadingElement>(null);
 
-  const gameVersion = parseCatalogGameVersion(game.game_version ?? DEFAULT_CATALOG_GAME_VERSION);
-
   const { sheets: offenseSheets, isLoading: offenseSheetsLoading } = useCallSheetsForSide("offense", gameVersion);
   const { sheets: defenseSheets, isLoading: defenseSheetsLoading } = useCallSheetsForSide("defense", gameVersion);
 
   useEffect(() => {
     let cancelled = false;
-
-    if (cachedDefensive !== null) {
+    const cached = cachedDefensiveByVersion[gameVersion];
+    if (cached !== undefined) {
+      setDefensiveTeams(cached);
+      setSetupLoading(false);
+      setSetupError(null);
       return;
     }
 
@@ -123,6 +131,7 @@ export function EditGameDetailsModal({
       const defRes = await supabase
         .from("team_defensive_schemes")
         .select("team_name, defensive_scheme")
+        .eq("game_version", gameVersion)
         .order("team_name", { ascending: true })
         .limit(20000);
       if (cancelled) return;
@@ -136,7 +145,7 @@ export function EditGameDetailsModal({
       }
 
       const defensive = (defRes.data ?? []) as DefensiveTeam[];
-      cachedDefensive = defensive;
+      cachedDefensiveByVersion[gameVersion] = defensive;
       setDefensiveTeams(defensive);
       setSetupLoading(false);
     }
@@ -145,7 +154,7 @@ export function EditGameDetailsModal({
     return () => {
       cancelled = true;
     };
-  }, [supabase]);
+  }, [supabase, gameVersion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -251,6 +260,7 @@ export function EditGameDetailsModal({
         .from("team_offensive_playbooks")
         .select("scheme_style")
         .eq("playbook_name", resolvedOffensePlaybook)
+        .eq("game_version", gameVersion)
         .limit(1)
         .maybeSingle();
       myScheme = (schemeRow?.scheme_style as string | undefined)?.trim() || game.my_scheme || "Multiple";

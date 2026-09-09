@@ -220,15 +220,24 @@ create table if not exists scheme_call_sheets (
 );
 
 create table if not exists team_offensive_playbooks (
-  team_name text primary key,
+  team_name text not null,
   playbook_name text not null,
-  scheme_style text not null
+  scheme_style text not null,
+  game_version text not null default 'cfb26',
+  primary key (team_name, game_version)
 );
 
 create table if not exists team_defensive_schemes (
-  team_name text primary key,
-  defensive_scheme text not null
+  team_name text not null,
+  defensive_scheme text not null,
+  game_version text not null default 'cfb26',
+  primary key (team_name, game_version)
 );
+
+create index if not exists idx_team_offensive_playbooks_playbook_version
+  on team_offensive_playbooks (playbook_name, game_version);
+create index if not exists idx_team_defensive_schemes_scheme_version
+  on team_defensive_schemes (defensive_scheme, game_version);
 
 create index if not exists idx_logged_plays_lookup on logged_plays (scenario, formation, play_name, hash);
 create index if not exists idx_logged_plays_game on logged_plays (game_session_id);
@@ -305,19 +314,19 @@ values
   ('Power Spread', 'FB Run', 0.20, false)
 on conflict do nothing;
 
-insert into team_offensive_playbooks(team_name, playbook_name, scheme_style)
+insert into team_offensive_playbooks(team_name, playbook_name, scheme_style, game_version)
 values
-  ('Washington State', 'Washington State', 'Power Spread'),
-  ('Oregon', 'Oregon', 'Spread Option'),
-  ('Michigan', 'Michigan', 'Multiple Pro')
-on conflict (team_name) do nothing;
+  ('Washington State', 'Washington State', 'Power Spread', 'cfb26'),
+  ('Oregon', 'Oregon', 'Spread Option', 'cfb26'),
+  ('Michigan', 'Michigan', 'Multiple Pro', 'cfb26')
+on conflict (team_name, game_version) do nothing;
 
-insert into team_defensive_schemes(team_name, defensive_scheme)
+insert into team_defensive_schemes(team_name, defensive_scheme, game_version)
 values
-  ('Washington State', '4-2-5'),
-  ('Oregon', '3-3-5'),
-  ('Michigan', 'Multiple')
-on conflict (team_name) do nothing;
+  ('Washington State', '4-2-5', 'cfb26'),
+  ('Oregon', '3-3-5', 'cfb26'),
+  ('Michigan', 'Multiple', 'cfb26')
+on conflict (team_name, game_version) do nothing;
 
 -- Reference data read by the app with the anon key (e.g. GET /api/film/setup).
 alter table team_offensive_playbooks enable row level security;

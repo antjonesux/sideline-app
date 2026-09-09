@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { DEFAULT_CATALOG_GAME_VERSION, parseCatalogGameVersion } from "@/lib/constants";
 import { getPublicSupabaseCredentials } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const creds = getPublicSupabaseCredentials();
   if (!creds) {
     return NextResponse.json(
@@ -13,16 +14,21 @@ export async function GET() {
   }
 
   const supabase = createClient(creds.url, creds.anonKey, { auth: { persistSession: false } });
+  const gameVersion = parseCatalogGameVersion(
+    req.nextUrl.searchParams.get("version") ?? DEFAULT_CATALOG_GAME_VERSION,
+  );
 
   const [{ data: offensiveTeams, error: offError }, { data: defensiveTeams, error: defError }] =
     await Promise.all([
       supabase
         .from("team_offensive_playbooks")
         .select("team_name, playbook_name, scheme_style")
+        .eq("game_version", gameVersion)
         .order("team_name", { ascending: true }),
       supabase
         .from("team_defensive_schemes")
         .select("team_name, defensive_scheme")
+        .eq("game_version", gameVersion)
         .order("team_name", { ascending: true }),
     ]);
 
@@ -38,5 +44,6 @@ export async function GET() {
   return NextResponse.json({
     offensiveTeams: offensiveTeams ?? [],
     defensiveTeams: defensiveTeams ?? [],
+    game_version: gameVersion,
   });
 }

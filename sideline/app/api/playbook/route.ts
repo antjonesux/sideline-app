@@ -148,6 +148,7 @@ export async function POST(req: NextRequest) {
     .from("team_offensive_playbooks")
     .select("scheme_style")
     .eq("playbook_name", playbook)
+    .eq("game_version", gameVersion)
     .limit(1)
     .maybeSingle();
 

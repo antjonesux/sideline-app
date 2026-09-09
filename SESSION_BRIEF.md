@@ -1,49 +1,68 @@
-# Session Brief — Pass 3: Play Browsing UX
+# Session Brief — Pass 5: Scheme & Styles Display
 
 **Objective:**  
-Make browsing and adding plays to a call sheet faster — sticky formation headers, in-formation search, and reuse the add situation modal for editing.
+Seed team style data and display it under playbook headers — offensive style on offensive playbook pages, team list on defensive playbook pages.
 
 **Why this matters:**  
-Coaches browse long formation lists when building call sheets. Losing the formation header while scrolling forces constant back-and-forth, and there's no way to search within a formation. Editing a situation should feel the same as adding one — same modal, pre-filled.
+When a coach clicks into a playbook, the first question is "what kind of offense/defense is this?" For offense, showing the style (e.g. "Spread", "Veer & Shoot") immediately orients the user. For defense, knowing which teams run a given scheme (e.g. "3-4 Zone") helps coaches find playbooks that match their defensive philosophy.
 
-**In scope:**  
-- **Sticky formation header** when adding plays to a call sheet — the formation name row should stick to the top of the scroll area as the user scrolls through plays within that formation
-- **In-formation search** — add a search input within an expanded formation so coaches can filter plays by name without scrolling the full list
-- **Edit situation** — tapping to edit a situation on a call sheet should open the same modal used when adding a situation, pre-filled with the current situation's values
+**In scope:**
+
+### Part 1 — Data
+- Seed offensive style per team (e.g. Alabama → Multiple, Auburn → Veer & Shoot) for all ~134 CFB27 teams
+- Seed defensive style per team (e.g. Alabama → 3-4 Zone, Auburn → 3-3-5 Tite) for all ~134 CFB27 teams
+- Associate styles with game version (CFB27 now, CFB28 later)
+- No conference data — exclude from schema and seeding
+
+### Part 2 — Display
+
+**Offensive playbooks (team-specific):**
+- Show the team's offensive style under the playbook header (e.g. "Spread" under Oklahoma's playbook)
+- One style per team — simple text or badge
+
+**Defensive playbooks (scheme-specific):**
+- Show a comma-separated list of teams that use that defensive scheme under the playbook header
+- Example: under "3-4 Zone" header → "Air Force, Alabama, Liberty, Oregon State, Temple"
+- Keep it as a simple comma-separated text list, not chips or badges
+
+**Both apply to public and in-app playbook pages.**
 
 **Out of scope:**  
-- Play type filters (Pass 4)
-- Sticky headers in the public playbook browse or play logger — this is call sheet add-play only
-- Changes to the situation data model or available situation options
-- Any new API endpoints
-
-**Existing patterns to reuse:**  
-- `PlayBrowser` component and `useFormationGroups` hook — these power the add-play flow already
-- `AddPlayDrawer` and its modal shell pattern (DECISIONS.md 2026-04-19)
-- The existing add situation modal component — reuse it for edit by accepting an optional pre-filled situation prop
-- Toast and feedback patterns from `useToastStore` / `coachCopy.ts`
-
-**Constraints:**  
-- `npm run build` from `sideline/` must pass; no `any`
-- Sticky header must work within the existing scroll container — do not change the container-based scroll architecture at md+ (sidebar, main content, and add-play rail scroll independently)
-- The formation search input should filter the play list client-side, not trigger a new API call
-- Edit situation modal must be the same component as add situation — not a copy. Accept props to differentiate add vs edit mode
-- Dark-only styling; follow existing Tailwind/design token patterns
-- No drive-by refactors to PlayBrowser or formation group logic beyond what these three changes require
-
-**Relevant decisions:**  
-- Game Plan add play mirrors Film — `AddPlayDrawer` reuses film modal pattern and embeds `PlayBrowser` (DECISIONS.md 2026-04-19)
-- Container-based scroll architecture at md+ — sidebar, main content, and add-play rail scroll independently
+- Conference data
+- Displaying the full summary table (formation %, run/pass splits)
+- Filtering or searching playbooks by style
+- Any changes to play data itself
 
 **Done means:**  
-- [x] Formation header sticks to top of scroll area when scrolling through plays in the add-play flow
-- [x] Search input visible within an expanded formation; typing filters the play list in real time
-- [x] Tapping edit on a situation opens the add situation modal pre-filled with current values
-- [x] Saving from the edit modal updates the situation (not creates a duplicate)
-- [x] Sticky header does not break scroll behavior on mobile or at md+ breakpoint
-- [x] `npm run build` clean
+- [x] Style data (offense, defense) is seeded for all CFB27 teams
+- [x] Offensive playbook pages show the team's offensive style under the header
+- [x] Defensive playbook pages show a comma-separated list of teams using that scheme under the header
+- [x] Both public and in-app playbook pages display styles
+- [x] Missing style data results in no display (graceful fallback)
+- [x] Team lists on defensive pages are alphabetically sorted
+- [x] `npm run build` clean (run before handoff complete)
 
-**Handoff notes:**  
-- **Sticky:** Panel shell (`AddPlayDrawer` `shell="panel"`) uses `position: sticky; top: 0` on the formation chrome inside the existing `SituationSideRail` scrollport — no new scroll wrapper / no change to md+ independent rail scroll. Modal shell keeps formation title + search in a shrink-0 header **outside** the nested `PlayBrowser` play scroller (layout pin, not sticky).
-- **Add vs edit situation:** Same `SituationFormModal`; differentiate with existing `mode: "create" | "edit"`. Edit passes `initialValues` from `activeBlock` and `onSubmit={onUpdateSituation}` (PATCH). Presentation aligned to `"responsive"` for both create and edit.
-- **In-formation search:** Query state lives in `AddPlayDrawer` (`formationPlayQuery`); passed as optional `formationPlayFilter` to `PlayBrowser`, which filters `selectedPlays` → `visiblePlays` via `matchesFormationPlaySearch`. **`useFormationGroups` unchanged.**
+**Handoff notes:**
+
+### Where style data lives
+- **Tables (extended, not new):** `team_offensive_playbooks` and `team_defensive_schemes`
+- **Schema:** composite PK `(team_name, game_version)`; offense columns `playbook_name`, `scheme_style`, `game_version`; defense columns `defensive_scheme`, `game_version`
+- **Migration:** `sideline/supabase/migrations/20260908210000_team_styles_game_version.sql`
+- **CFB27 source:** `sideline/lib/seed/team-styles/cfb27-team-styles.ts` (PlaybookGamer Team Styles; no conference)
+- **CFB26 legacy:** still in `sideline/supabase/seed-team-schemes.sql`, tagged `cfb26` by `npm run seed:teams`
+- **Lookup helpers:** `sideline/lib/teamStylesLookup.ts`
+
+### Team name matching
+Verified 138/138 PlaybookGamer rows against CFB27 offense catalog seeds and 31/31 defense schemes against defense playbook seeds.
+**Manual mapping:**
+- `"Miami FL"` → `"Miami"` (catalog / Sideline playbook name)
+- `"Miami OH"` → `"Miami OH"` (exact; no change)
+
+### Display wiring
+- Shared browse surface: `BrowsePlaybookDetail` + `PublicPlaybookDetailHeader` (public + signed-in)
+- Catalog API payload adds `offensive_style` / `defensive_teams` via `fetchPublicPlaybookCatalog`
+- Team-offense only shows style; alternative offense books show nothing; defense shows sorted team list or nothing
+
+### Ops
+1. Apply migration `20260908210000_team_styles_game_version.sql`
+2. Run `npm run seed:teams` from `sideline/`
