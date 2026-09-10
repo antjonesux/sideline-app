@@ -5,6 +5,23 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-10 — Pass 6b: Defensive TD result + opponent play type
+
+### What
+
+- **Defensive Touchdown tag:** `defensiveResultTags` adds selectable `TOUCHDOWN`. Pick-six / scoop-and-score via Interception+TD or Fumble+TD; Incomplete / Punt / Penalty stay blunt standalone; Sack clears TD. `deriveDefensiveStoredResultTag` prefers `TOUCHDOWN` over `TURNOVER` so the drive ends as TD.
+- **Post-TD on defense:** Same XP/2PT hold as offense (`PlayLoggerV2` / `driveNeedsPostTdAttempt` on both sides). Scoring snaps (TD / XP / 2PT) credit `score_mine` — including pick-sixes. `computeCumulativeDriveScores` matches that rule; opponent points stay manual.
+- **Required opponent play type:** `DefensiveLogSheet` uses Pass 4 `PlayTypeFilterChips` (`includeAll={false}`) for RUN / PASS / RPO (what they called). Persisted on `logged_plays.play_type`; create/update APIs fail closed without a valid opponent type. Conversion snaps carry forward the TD play’s type. Reads prefer stored RUN/PASS/RPO over catalog MAN/ZONE.
+
+### Why
+
+Coaches could not log defensive scores (pick-six / scoop-and-score) or tag whether they faced run, pass, or RPO — blocking accurate score and future opponent-tendency answers.
+
+### Status
+
+- `npm run build` from `sideline/` passed (TypeScript clean on changed paths).
+- No tendencies UI for defensive opponent play-type breakdowns yet (follow-up). Catalog MAN/ZONE/BLITZ/MATCH badge on the call remains display-only.
+
 ## 2026-09-10 — Pass 6a: Film Room logger scoring bugs
 
 ### What
@@ -22,7 +39,7 @@ After a TD the logger could close before the XP/2PT selector appeared (refresh/o
 - `npm run build` from `sideline/` passed.
 - Scoring math unchanged (TD 6, XP made +1, 2PT made +2, FG 3).
 - Score edit entry points: drive setup, drive card, post-drive Update score dialog, header / End Game (resolved running score).
-- Deferred: defensive TD result / defensive play-type tagging (Pass 6b).
+- Follow-up shipped in Pass 6b: defensive TD result / defensive play-type tagging.
 
 ## 2026-09-09 — Pass 5: Scheme & styles under playbook headers
 

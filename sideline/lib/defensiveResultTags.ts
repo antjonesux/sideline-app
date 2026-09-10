@@ -8,6 +8,7 @@ export const DEFENSIVE_RESULT_TAGS = [
   "FUMBLE",
   "PENALTY",
   "PUNT",
+  "TOUCHDOWN",
   "TFL",
 ] as const;
 
@@ -18,11 +19,20 @@ export const SELECTABLE_DEFENSIVE_RESULT_TAGS = DEFENSIVE_RESULT_TAGS.filter(
   (tag) => tag !== "TFL",
 ) as Exclude<DefensiveResultTag, "TFL">[];
 
+/**
+ * Blunt standalones: selecting one clears all other tags.
+ * INTERCEPTION is handled specially so it can coexist with TOUCHDOWN (pick-six).
+ */
 export const DEFENSIVE_STANDALONE_RESULT_TAGS = [
   "INCOMPLETE",
   "PENALTY",
   "PUNT",
+] as const satisfies readonly DefensiveResultTag[];
+
+/** Tags that may share a snap with TOUCHDOWN (pick-six / scoop-and-score). */
+export const DEFENSIVE_TD_PARTNER_TAGS = [
   "INTERCEPTION",
+  "FUMBLE",
 ] as const satisfies readonly DefensiveResultTag[];
 
 export const DEFENSIVE_RESULT_TAG_LABELS: Record<DefensiveResultTag, string> = {
@@ -32,10 +42,13 @@ export const DEFENSIVE_RESULT_TAG_LABELS: Record<DefensiveResultTag, string> = {
   FUMBLE: "Fumble",
   PENALTY: "Penalty",
   PUNT: "Punt",
+  TOUCHDOWN: "Touchdown",
   TFL: "TFL",
 };
 
 const TAG_SET = new Set<string>(DEFENSIVE_RESULT_TAGS);
+const STANDALONE_SET = new Set<string>(DEFENSIVE_STANDALONE_RESULT_TAGS);
+const TD_PARTNER_SET = new Set<string>(DEFENSIVE_TD_PARTNER_TAGS);
 
 export function isDefensiveResultTag(value: string): value is DefensiveResultTag {
   return TAG_SET.has(value);
@@ -60,7 +73,14 @@ export function isDefensiveLoggedPlay(play: { result_tags?: string[] | null }): 
   return play.result_tags != null;
 }
 
-/** Apply mutual exclusivity rules when toggling defensive result tags. */
+/**
+ * Apply mutual exclusivity rules when toggling defensive result tags.
+ *
+ * - Incomplete / Penalty / Punt: blunt standalone
+ * - Touchdown: keeps only Interception and/or Fumble partners (pick-six / scoop-and-score)
+ * - Interception: standalone unless Touchdown already selected
+ * - Sack + Fumble can coexist; Sack clears Touchdown (incompatible)
+ */
 export function toggleDefensiveResultTag(
   selected: readonly DefensiveResultTag[],
   tag: DefensiveResultTag,
@@ -69,14 +89,25 @@ export function toggleDefensiveResultTag(
     return selected.filter((t) => t !== tag);
   }
 
-  if ((DEFENSIVE_STANDALONE_RESULT_TAGS as readonly string[]).includes(tag)) {
+  if (STANDALONE_SET.has(tag)) {
     return [tag];
   }
 
-  const withoutStandalone = selected.filter(
-    (t) => !(DEFENSIVE_STANDALONE_RESULT_TAGS as readonly string[]).includes(t),
-  );
-  return [...withoutStandalone, tag];
+  if (tag === "TOUCHDOWN") {
+    const partners = selected.filter((t) => TD_PARTNER_SET.has(t));
+    return [...partners, "TOUCHDOWN"];
+  }
+
+  if (tag === "INTERCEPTION") {
+    return selected.includes("TOUCHDOWN") ? ["INTERCEPTION", "TOUCHDOWN"] : ["INTERCEPTION"];
+  }
+
+  // SACK or FUMBLE
+  let next = selected.filter((t) => !STANDALONE_SET.has(t) && t !== "INTERCEPTION");
+  if (tag === "SACK") {
+    next = next.filter((t) => t !== "TOUCHDOWN");
+  }
+  return [...next, tag];
 }
 
 /** Map defensive multi-tags + yards to the stored `result_tag` used by drive-outcome logic. */
@@ -86,6 +117,8 @@ export function deriveDefensiveStoredResultTag(
   distance = 10,
 ): string {
   const set = new Set(tags);
+  // TD wins over TURNOVER so pick-six / scoop-and-score trigger post-TD scoring.
+  if (set.has("TOUCHDOWN")) return "TOUCHDOWN";
   if (set.has("PUNT")) return "PUNT";
   if (set.has("INTERCEPTION") || set.has("FUMBLE")) return "TURNOVER";
   if (set.has("INCOMPLETE")) return "INCOMPLETE";

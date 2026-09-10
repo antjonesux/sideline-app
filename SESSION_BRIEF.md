@@ -1,37 +1,39 @@
-# Session Brief — Pass 6a: Film Room Logger Scoring Bugs
+# Session Brief — Pass 6b: Defensive Logging — Touchdown Result + Play Type
 
 **Objective:**  
-Fix two bugs in the Film Room play logger: the post-TD XP/2PT selector not appearing (modal auto-closes), and the inability to add or edit scores on drives.
+Add defensive touchdown as a result option and run/pass/RPO play type tagging to defensive play logging.
 
 **Done means:**
-- [x] After logging a touchdown, XP/2PT selector appears before drive closes
-- [x] XP Made / XP Missed / 2PT Made / 2PT Missed result options work correctly after TD
-- [x] Score updates correctly after XP/2PT completion
-- [x] Coach can set score when creating a new drive
-- [x] Coach can edit score on a completed drive (from the drive card or detail)
-- [x] Coach can edit score on an in-progress drive
-- [x] Manual score override takes precedence over derived score when set
-- [x] Running game score in the header reflects manual overrides
-- [x] No regressions to non-scoring drives, FG-only drives, punt drives
+- [x] Defensive play logging shows Touchdown as a result tag option
+- [x] Touchdown + Interception and Touchdown + Fumble are valid combinations
+- [x] Defensive TD triggers post-TD scoring flow (XP/2PT)
+- [x] Defensive play logging includes RUN/PASS/RPO play type selection
+- [x] Play type is required on defensive plays
+- [x] Play type stores to `logged_plays.play_type` same as offensive plays
+- [x] Validation rules updated: Touchdown is standalone unless combined with Interception or Fumble
+- [x] No regressions to existing defensive result tag behavior
+- [x] No regressions to offensive logging
 - [x] `npm run build` clean
 
 **Handoff notes:**
 
-### Bug 1 root cause — TD auto-close race
-`possessionEndedFromSnapAndTag` treats `TOUCHDOWN` as possession-ending. The post-TD XP/2PT hold lived *after* `onRefresh()` + score adjust, and optimistic TD was cleared *before* refresh — so for a frame `mergedPlays` had no TD, `driveNeedsPostTdAttempt` flipped false, and the coach could land in a closed/ended drive with no selector. Fix: set `showPostTdSelector` immediately on offensive TD, refresh before clearing optimistic, never call `onPossessionEndedAfterLog` on offensive TD (only after XP/2PT), and keep `Log a call` available when `driveNeedsPostTdAttempt` is true.
+### Defensive TD validation rules (`defensiveResultTags.ts`)
+- **Blunt standalone:** Incomplete, Penalty, Punt — selecting one clears all others
+- **Touchdown:** keeps only Interception and/or Fumble (pick-six / scoop-and-score); drops Incomplete/Punt/Penalty/Sack
+- **Interception:** alone → `[INTERCEPTION]`; with TD already on → `[INTERCEPTION, TOUCHDOWN]`
+- **Sack + Fumble** still coexist; Sack clears Touchdown
+- **`deriveDefensiveStoredResultTag`:** `TOUCHDOWN` wins over `TURNOVER` so pick-six ends as TD and triggers XP/2PT
 
-### Manual vs derived scores
-`resolveDriveRunningScores` in `filmPostTdFlow.ts`: persisted `score_mine` / `score_opponent` win when non-null; `computeCumulativeDriveScores` fills only when null. `adjustDriveScore` now updates local drive state so TD + XP bumps stack and the header tracks immediately.
+### Scoring
+- Defensive TD / XP / 2PT credits **`score_mine`** (your D scored), matching `adjustDriveScore`
+- `computeCumulativeDriveScores` now always adds scoring points to mine; opponent points stay manual
+- Side-of-ball: defense drive + TD = pick-six/scoop-and-score for the coach
 
-### Score edit entry points
-1. **Drive setup** (`FilmDriveSetupOverlay` / `DriveSetupForm`) — seed + edit on create
-2. **Drive card** expanded detail (`DriveInlineScores` in `DriveList`) — in-progress or completed
-3. **Post-drive modal** (`FilmUpdateScoreDialog`) — after possession end (FG/punt/turnover/XP/2PT close)
-4. **Header** — reflects resolved running score (manual wins)
-5. **End Game** — seeds from the same resolve helper
+### Opponent play type
+- Required RUN/PASS/RPO chips on `DefensiveLogSheet` (Pass 4 chip UI, `includeAll={false}`)
+- Persisted on `logged_plays.play_type`; API fails closed if defense POST/PUT lacks a valid opponent type
+- Conversion snaps (XP/2PT) on defense **carry forward** the TD play’s opponent play type
+- Catalog MAN/ZONE/BLITZ/MATCH badge on the call remains display-only from play name
 
-### DriveInlineScores
-No API changes required; callers now pass resolved persisted scores instead of derived-first values.
-
-### Review note (non-blocking)
-Drive `PUT` still coerces null scores to `0` (pre-existing). New games always set numeric scores on create; legacy null rows fall back to derived until first save.
+### Tendencies
+- Stored `play_type` is now real RUN/PASS/RPO on defense. Tendencies UI breakdowns for defensive opponent play type are **out of scope** (follow-up). `attachPlayTypes` may still re-derive from defensive catalog names in some paths — verify before shipping a tendencies defense play-type chart.

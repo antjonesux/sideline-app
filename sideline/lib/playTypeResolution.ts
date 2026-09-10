@@ -24,7 +24,6 @@ import { parseCatalogGameVersion } from "@/lib/constants";
 import { FILM_LOGGER_SPECIAL_TEAMS_PLAYS } from "@/lib/filmLoggerSpecialTeams";
 import {
   resolveDefensiveDisplayPlayType,
-  type DefensivePlayType,
 } from "@/lib/defensivePlayTypeResolution";
 import { resolveCfbDisplayPlayType, type OffensiveCatalogPlayType, type PlaybookEntry } from "@/lib/playbook";
 import { normalizePlayName } from "@/lib/utils";
@@ -125,11 +124,24 @@ export function storedPlayTypeFromMap(
   return coalesceCfbAndLoggedPlayType(playName, fromCfb, existingLoggedType);
 }
 
-/** Defensive drives — MAN/ZONE/BLITZ/MATCH from name ladder; never offensive RUN/PASS/RPO. */
+/** Opponent RUN/PASS/RPO on a defensive snap (what they called). */
+export function normalizeOpponentPlayType(
+  value: string | null | undefined,
+): OffensiveCatalogPlayType | null {
+  const upper = (value ?? "").trim().toUpperCase();
+  if (upper === "RUN" || upper === "PASS" || upper === "RPO") {
+    return upper;
+  }
+  return null;
+}
+
+/** Defensive drives — prefer stored opponent RUN/PASS/RPO; else MAN/ZONE/BLITZ/MATCH from name ladder. */
 export function storedDefensivePlayType(
   playName: string,
   existingLoggedType: string | null | undefined,
-): DefensivePlayType | null {
+): CanonicalPlayType | null {
+  const opponentType = normalizeOpponentPlayType(existingLoggedType);
+  if (opponentType) return opponentType;
   return resolveDefensiveDisplayPlayType(playName, existingLoggedType);
 }
 

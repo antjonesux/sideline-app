@@ -1,6 +1,7 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import {
   loadCfbPlayTypeMapForDriveSide,
+  normalizeOpponentPlayType,
   storedPlayTypeForDriveSide,
   storedPlayTypeFromMap,
   type GameSessionForPlayType,
@@ -125,6 +126,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const play_name = normalizePlayName(String(payload.play_name ?? ""));
   const clientPlayType =
     typeof payload.play_type === "string" && payload.play_type.trim() ? payload.play_type.trim() : null;
+  const opponentPlayType = normalizeOpponentPlayType(clientPlayType);
   const resolvedDisplayType = storedPlayTypeForDriveSide(
     driveSide,
     pb,
@@ -135,8 +137,11 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   );
   const play_type =
     driveSide === "defense"
-      ? "RUN"
+      ? opponentPlayType
       : storedPlayTypeFromMap(pb, formation, play_name, typeMap, clientPlayType);
+  if (driveSide === "defense" && !play_type) {
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   const insertRow = {
     user_id: user.id,
     drive_id: id,

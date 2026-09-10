@@ -12,6 +12,7 @@ import { PostTdAttemptSelector } from "@/components/film/PostTdAttemptSelector";
 import { YardageSheet, type PlayResult } from "@/components/film/YardageSheet";
 import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import { deriveDefensiveStoredResultTag, type DefensiveResultTag } from "@/lib/defensiveResultTags";
+import { normalizeOpponentPlayType } from "@/lib/playTypeResolution";
 import { usePlaySuggestions } from "@/hooks/usePlaySuggestions";
 import { fetchPlaySheetOverview, fetchPlaySheetScenarioCalls } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
@@ -158,15 +159,10 @@ export function PlayLoggerV2({
   );
 
   useEffect(() => {
-    if (isDefensiveDrive) {
-      setShowPostTdSelector(false);
-      setPendingScenarioOverride(null);
-      return;
-    }
     // While a conversion attempt is in progress, do not let play-list sync clear the TD hold UI.
     if (pendingScenarioOverride === "2 Point" || pendingScenarioOverride === "XP") return;
     setShowPostTdSelector(driveNeedsPostTdAttempt(mergedPlays));
-  }, [isDefensiveDrive, mergedPlays, pendingScenarioOverride]);
+  }, [mergedPlays, pendingScenarioOverride]);
 
   const { sheetName, scenarioLabel } = usePlaySuggestions({
     down: currentGameState.down,
@@ -336,10 +332,10 @@ export function PlayLoggerV2({
       const normResult = snap.result_tag.trim().toUpperCase().replace(/\s+/g, "_");
       const isXpPlay = logScenario === "XP";
       const isTwoPtPlay = logScenario === "2 Point";
-      const isOffensiveTd = !isDefensiveDrive && normResult === "TOUCHDOWN" && !isXpPlay && !isTwoPtPlay;
+      const isScoringTd = normResult === "TOUCHDOWN" && !isXpPlay && !isTwoPtPlay;
 
       // Hold the logger open for XP/2PT before any refresh/close work — possession-end must not race the selector.
-      if (isOffensiveTd) {
+      if (isScoringTd) {
         setShowPostTdSelector(true);
       }
 
@@ -361,14 +357,12 @@ export function PlayLoggerV2({
         });
       }
 
-      const points = !isDefensiveDrive
-        ? offensiveScorePoints({ resultTag: snap.result_tag, scenario: logScenario })
-        : 0;
+      const points = offensiveScorePoints({ resultTag: snap.result_tag, scenario: logScenario });
       if (points > 0) {
         await onDriveScoreAdjust?.({ driveId, points });
       }
 
-      if (isOffensiveTd) {
+      if (isScoringTd) {
         setShowPostTdSelector(true);
         return;
       }
@@ -384,7 +378,7 @@ export function PlayLoggerV2({
       if (
         isXpPlay ||
         isTwoPtPlay ||
-        (!isOffensiveTd && possessionEndedFromSnapAndTag(snap.down, snap.result_tag))
+        (!isScoringTd && possessionEndedFromSnapAndTag(snap.down, snap.result_tag))
       ) {
         onPossessionEndedAfterLog?.({ driveId, storedResultTag: snap.result_tag });
       }
@@ -404,6 +398,7 @@ export function PlayLoggerV2({
     resultTags: DefensiveResultTag[],
     yards: number,
     _endingFieldPos: number,
+    opponentPlayType: "RUN" | "PASS" | "RPO",
     submitFlowId?: string,
   ) {
     if (!selectedPlay) return;
@@ -421,7 +416,7 @@ export function PlayLoggerV2({
       hash: "MIDDLE" as const,
       formation: loggedPlay.formation,
       play_name: loggedPlay.play_name,
-      play_type: loggedPlay.play_type,
+      play_type: opponentPlayType,
       result_tag: storedTag,
       yards_gained: yards,
       result_tags: resultTags,
@@ -446,6 +441,7 @@ export function PlayLoggerV2({
       result_tag: snap.result_tag,
       yards_gained: snap.yards_gained,
       result_tags: snap.result_tags,
+      play_type: opponentPlayType,
     };
     await persistLoggedPlay(snap, optimisticPlay, {
       loggedPlay,
@@ -533,6 +529,25 @@ export function PlayLoggerV2({
     if (!selectedPlay || !isConversionScenario(pendingScenarioOverride)) return;
     const scenario = pendingScenarioOverride;
     const loggedPlay = selectedPlay;
+    const carriedOpponentPlayType = isDefensiveDrive
+      ? (() => {
+          for (let i = mergedPlays.length - 1; i >= 0; i--) {
+            const t = normalizeOpponentPlayType(mergedPlays[i].play_type);
+            if (t) return t;
+          }
+          return null;
+        })()
+      : null;
+    let conversionPlayType: LoggedPlay["play_type"];
+    if (isDefensiveDrive) {
+      if (!carriedOpponentPlayType) {
+        addToast(COULDNT_SAVE, "error");
+        return;
+      }
+      conversionPlayType = carriedOpponentPlayType;
+    } else {
+      conversionPlayType = loggedPlay.play_type ?? null;
+    }
     const snap = {
       down: 1,
       distance: 1,
@@ -542,7 +557,7 @@ export function PlayLoggerV2({
       hash: "MIDDLE" as const,
       formation: loggedPlay.formation,
       play_name: loggedPlay.play_name,
-      play_type: loggedPlay.play_type,
+      play_type: conversionPlayType ?? undefined,
       result_tag: storedTag,
       yards_gained: 0,
       note: null,
@@ -550,6 +565,7 @@ export function PlayLoggerV2({
       opponent_scheme: "",
       drive_number: drive.drive_number,
       situation_override: scenario,
+      ...(isDefensiveDrive ? { result_tags: [] as string[] } : {}),
     };
     const optimisticPlay: LoggedPlay = {
       id: `optimistic-${Date.now()}`,
@@ -567,6 +583,8 @@ export function PlayLoggerV2({
       yards_gained: snap.yards_gained,
       scenario,
       situation_override: scenario,
+      play_type: conversionPlayType,
+      ...(isDefensiveDrive ? { result_tags: [] } : {}),
     };
     setPostTdBusy(true);
     try {

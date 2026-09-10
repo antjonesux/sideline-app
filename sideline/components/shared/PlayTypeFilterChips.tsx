@@ -30,10 +30,16 @@ type PlayTypeFilterChipsProps = {
   className?: string;
   /** Accessible name for the chip group. */
   "aria-label"?: string;
+  /**
+   * When false, hide the All chip (exclusive RUN / PASS / RPO selection input).
+   * Default true for list filters.
+   */
+  includeAll?: boolean;
 };
 
 /**
- * Exclusive All / RUN / PASS / RPO chip bar for play-list filtering.
+ * Exclusive All / RUN / PASS / RPO chip bar for play-list filtering
+ * (or RUN / PASS / RPO-only when `includeAll={false}` for selection inputs).
  * Parents own state; filter resets with navigation (no persistence).
  */
 export function PlayTypeFilterChips({
@@ -41,14 +47,16 @@ export function PlayTypeFilterChips({
   onChange,
   className,
   "aria-label": ariaLabel = "Filter by play type",
+  includeAll = true,
 }: PlayTypeFilterChipsProps) {
+  const options = includeAll ? OPTIONS : OPTIONS.filter((opt) => opt.value !== "ALL");
   return (
     <div
       role="group"
       aria-label={ariaLabel}
       className={cn("flex flex-wrap gap-2", className)}
     >
-      {OPTIONS.map((opt) => {
+      {options.map((opt) => {
         const active = value === opt.value;
         return (
           <button

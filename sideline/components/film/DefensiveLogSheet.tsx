@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PlaybookEntry } from "@/lib/playbook";
+import type { PlaybookEntry, OffensiveCatalogPlayType } from "@/lib/playbook";
 import {
   defensivePlayTypeBadgeClass,
   isDefensivePlayType,
@@ -11,6 +11,7 @@ import {
 import { DefensiveResultTagPicker } from "@/components/film/DefensiveResultTagPicker";
 import { BallSpotControls, useBallSpotInput } from "@/components/film/BallSpotInput";
 import { IconBackButton } from "@/components/shared/IconBackButton";
+import { PlayTypeFilterChips } from "@/components/shared/PlayTypeFilterChips";
 import { startCriticalFlow } from "@/lib/perfInstrumentation";
 import type { DefensiveResultTag } from "@/lib/defensiveResultTags";
 import type { GameState } from "@/lib/gameStateEngine";
@@ -27,6 +28,7 @@ interface DefensiveLogSheetProps {
     resultTags: DefensiveResultTag[],
     yards: number,
     endingFieldPos: number,
+    opponentPlayType: OffensiveCatalogPlayType,
     submitFlowId?: string,
   ) => Promise<void>;
   onCancel: () => void;
@@ -38,6 +40,7 @@ export function DefensiveLogSheet({ play, currentGameState, onLog, onCancel }: D
   const resetKey = `${play.play_id}-${play.play_name}-${play.formation}`;
   const ballSpot = useBallSpotInput({ startFP, resetKey });
   const [selectedTags, setSelectedTags] = useState<DefensiveResultTag[]>([]);
+  const [opponentPlayType, setOpponentPlayType] = useState<OffensiveCatalogPlayType | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -47,7 +50,12 @@ export function DefensiveLogSheet({ play, currentGameState, onLog, onCancel }: D
     return () => window.removeEventListener("popstate", onPop);
   }, [onCancel]);
 
-  const logReady = ballSpot.inputProvided && !busy;
+  useEffect(() => {
+    setOpponentPlayType(null);
+    setSelectedTags([]);
+  }, [resetKey]);
+
+  const logReady = ballSpot.inputProvided && opponentPlayType != null && !busy;
 
   function yardsForSubmit(): number {
     return ballSpot.spotDelta ?? 0;
@@ -58,12 +66,13 @@ export function DefensiveLogSheet({ play, currentGameState, onLog, onCancel }: D
   }
 
   function logCtaLabel(): string {
-    if (!logReady) return "Enter ball spot";
+    if (opponentPlayType == null) return "Select play type";
+    if (!ballSpot.inputProvided) return "Enter ball spot";
     return `Log ${play.play_name} · ${ballSpot.endSide} ${ballSpot.endYardNum ?? ballSpot.endYardStr}`;
   }
 
   async function submit() {
-    if (!logReady) return;
+    if (!logReady || opponentPlayType == null) return;
     const submitFlowId = startCriticalFlow("film_submit_to_next_play", {
       playId: play.play_id,
       playName: play.play_name,
@@ -71,7 +80,7 @@ export function DefensiveLogSheet({ play, currentGameState, onLog, onCancel }: D
     });
     setBusy(true);
     try {
-      await onLog(selectedTags, yardsForSubmit(), endingFieldForSubmit(), submitFlowId);
+      await onLog(selectedTags, yardsForSubmit(), endingFieldForSubmit(), opponentPlayType, submitFlowId);
     } finally {
       setBusy(false);
     }
@@ -100,6 +109,23 @@ export function DefensiveLogSheet({ play, currentGameState, onLog, onCancel }: D
             </span>
           ) : null}
         </div>
+      </div>
+
+      <div className="mb-4">
+        <p className="text-xs font-semibold font-mono text-slate-500 uppercase tracking-widest">
+          Opponent play type
+        </p>
+        <p className="mt-1 font-sans text-xs text-slate-500">What they called — required.</p>
+        <PlayTypeFilterChips
+          className="mt-2"
+          includeAll={false}
+          aria-label="Opponent play type"
+          value={opponentPlayType ?? "ALL"}
+          onChange={(next) => {
+            if (next === "ALL") return;
+            setOpponentPlayType(next);
+          }}
+        />
       </div>
 
       <BallSpotControls

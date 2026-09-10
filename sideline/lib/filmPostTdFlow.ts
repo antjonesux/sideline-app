@@ -1,6 +1,5 @@
 /** Post-touchdown XP / 2-point attempt flow helpers for Film Room. */
 
-import { driveSideOfBall } from "@/lib/filmGameDetailHelpers";
 import {
   isPostTdFollowUpScenario,
   offensiveScorePoints,
@@ -16,7 +15,7 @@ function normTag(tag: string): string {
 
 /**
  * True when the drive's last scoring snap was a TD and the coach still owes an XP or 2PT attempt.
- * Ignores defensive drives at the call site — only offensive TDs trigger this flow.
+ * Applies to both offensive and defensive TDs (pick-six / scoop-and-score).
  */
 export function driveNeedsPostTdAttempt(
   plays: Array<{ result_tag: string; scenario?: string | null; situation_override?: string | null }> | undefined | null,
@@ -41,13 +40,17 @@ export function driveNeedsPostTdAttempt(
   return true;
 }
 
-/** Cumulative running game score after each drive (computed from logged plays). */
+/**
+ * Cumulative running game score after each drive (computed from logged plays).
+ * TD / XP / 2PT / FG points always credit the coach (`score_mine`) — including defensive
+ * pick-six / scoop-and-score. Opponent points remain manual overrides.
+ */
 export function computeCumulativeDriveScores(
   drives: Drive[],
 ): Map<string, { scoreMine: number; scoreOpponent: number }> {
   const chronological = [...drives].sort((a, b) => a.drive_number - b.drive_number);
   let runningMine = 0;
-  let runningOpp = 0;
+  const runningOpp = 0;
   const result = new Map<string, { scoreMine: number; scoreOpponent: number }>();
 
   for (const drive of chronological) {
@@ -55,11 +58,7 @@ export function computeCumulativeDriveScores(
       const scenario = playScenario(play);
       const pts = offensiveScorePoints({ resultTag: play.result_tag, scenario });
       if (pts <= 0) continue;
-      if (driveSideOfBall(drive) === "offense") {
-        runningMine += pts;
-      } else {
-        runningOpp += pts;
-      }
+      runningMine += pts;
     }
     result.set(drive.id, { scoreMine: runningMine, scoreOpponent: runningOpp });
   }

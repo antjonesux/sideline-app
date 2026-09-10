@@ -217,8 +217,7 @@ export function DriveList({
                   <div className="border-t border-slate-800/80 py-3">
                     {(() => {
                       const driveOutcome = getDriveResult(drive.plays);
-                      const needsPostTd =
-                        driveSideOfBall(drive) === "offense" && driveNeedsPostTdAttempt(drive.plays);
+                      const needsPostTd = driveNeedsPostTdAttempt(drive.plays);
                       const canLog =
                         !isGameEnded &&
                         (driveOutcome === "ACTIVE" || driveOutcome === "NO_PLAYS" || needsPostTd);

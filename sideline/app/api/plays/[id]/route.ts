@@ -1,6 +1,7 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
 import {
   loadCfbPlayTypeMapForDriveSide,
+  normalizeOpponentPlayType,
   storedPlayTypeForDriveSide,
   storedPlayTypeFromMap,
   type GameSessionForPlayType,
@@ -67,18 +68,26 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
       typeMap = resolved.typeMap;
     }
   }
+  const clientPlayType =
+    typeof payload.play_type === "string" && payload.play_type.trim()
+      ? payload.play_type.trim()
+      : existing?.play_type ?? null;
+  const opponentPlayType = normalizeOpponentPlayType(clientPlayType);
   const resolvedDisplayType = storedPlayTypeForDriveSide(
     driveSide,
     pb,
     formation,
     play_name,
     typeMap,
-    existing?.play_type ?? null,
+    clientPlayType,
   );
   const play_type =
     driveSide === "defense"
-      ? "RUN"
+      ? (opponentPlayType ?? normalizeOpponentPlayType(existing?.play_type))
       : storedPlayTypeFromMap(pb, formation, play_name, typeMap, existing?.play_type ?? null);
+  if (driveSide === "defense" && !play_type) {
+    return NextResponse.json({ error: COULDNT_FINISH_THAT }, { status: 400 });
+  }
   const resultTags =
     payload.result_tags !== undefined ? normalizeDefensiveResultTags(payload.result_tags) : undefined;
 
