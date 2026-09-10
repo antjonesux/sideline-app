@@ -36,7 +36,7 @@ Coaches could not log defensive scores (pick-six / scoop-and-score) or tag wheth
 ### Status
 
 - `npm run build` from `sideline/` passed (TypeScript clean on changed paths).
-- No tendencies UI for defensive opponent play-type breakdowns yet (follow-up). Catalog MAN/ZONE/BLITZ/MATCH badge on the call remains display-only.
+- Defensive opponent play-type breakdowns in tendencies shipped in Pass 7. Catalog MAN/ZONE/BLITZ/MATCH badge on the call remains display-only.
 
 ## 2026-09-10 — Pass 6a: Film Room logger scoring bugs
 

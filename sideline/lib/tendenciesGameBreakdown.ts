@@ -1,5 +1,10 @@
 import { SCENARIO_SHORT } from "@/lib/constants";
 import type { PlayTypeBucket } from "@/lib/tendenciesPlayType";
+import {
+  computeSuccessRate,
+  successRateByCoarsePlayType,
+  type CoarsePlayTypeSuccessRow,
+} from "@/lib/successRateStats";
 import { attachPlayTypes, isSuccessPlay, playTypeCounts, type GameRow, type LoggedPlayRow } from "@/lib/tendenciesServer";
 import type { GameSession } from "@/lib/types";
 
@@ -19,7 +24,10 @@ export type GameTendencyStats = {
   total_yards: number;
   tds: number;
   turnovers: number;
-  success_rate: number;
+  /** Headline rate; null when fewer than 5 eligible plays. */
+  success_rate: number | null;
+  success_rate_successes: number;
+  success_rate_total: number;
   avg_yards_per_play: number;
   run_pct: number;
   pass_pct: number;
@@ -44,6 +52,7 @@ export type GameTendenciesPayload = {
   run_pass: { run_pct: number; pass_pct: number };
   play_type_buckets: PlayTypeBucket[];
   play_type_distribution: { name: string; pct: number; count: number }[];
+  success_rate_by_play_type: CoarsePlayTypeSuccessRow[];
   scenario_breakdown: { situation: string; plays: number; success_rate: number }[];
 };
 
@@ -144,17 +153,20 @@ export function buildTendenciesGamePayload(
   const runPct = plays.length ? Math.round((run * 1000) / plays.length) / 10 : 0;
   const passPct = plays.length ? Math.round((passish * 1000) / plays.length) / 10 : 0;
 
-  let successes = 0;
   let yards = 0;
   let tds = 0;
   let turnovers = 0;
   for (const p of plays) {
-    if (isSuccessPlay(p)) successes += 1;
     yards += p.yards_gained ?? 0;
     const tag = (p.result_tag ?? "").toUpperCase();
     if (tag === "TOUCHDOWN") tds += 1;
     if (tag === "TURNOVER") turnovers += 1;
   }
+
+  const successAgg = computeSuccessRate(plays);
+  const success_rate_by_play_type = successRateByCoarsePlayType(
+    plays.map((p, i) => ({ ...p, bucket: typedPlays[i]?.bucket ?? "Other" })),
+  );
 
   const combos = aggregatePlayCombo(plays);
   const qualified = combos.filter((c) => c.uses >= 2);
@@ -192,7 +204,9 @@ export function buildTendenciesGamePayload(
       total_yards: yards,
       tds,
       turnovers,
-      success_rate: plays.length ? Math.round((successes * 1000) / plays.length) / 10 : 0,
+      success_rate: successAgg.rate,
+      success_rate_successes: successAgg.successes,
+      success_rate_total: successAgg.total,
       avg_yards_per_play: plays.length ? Math.round((yards / plays.length) * 10) / 10 : 0,
       run_pct: runPct,
       pass_pct: passPct,
@@ -216,6 +230,7 @@ export function buildTendenciesGamePayload(
     run_pass: { run_pct: runPct, pass_pct: passPct } satisfies { run_pct: number; pass_pct: number },
     play_type_buckets: buckets,
     play_type_distribution,
+    success_rate_by_play_type,
     scenario_breakdown,
   };
 }

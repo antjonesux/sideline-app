@@ -6,6 +6,16 @@ Format: **Date** · **Decision** · **Why** · **Impact**
 
 ---
 
+## 2026-09-10 — Success rate (FO/SP+ 50/70/100)
+
+**Decision:** The Sideline uses the Football Outsiders / SP+ college success-rate definition with **integer floor** thresholds (1st ≥ 50% of yards to go, 2nd ≥ 70%, 3rd/4th full distance). TD always success; turnover and sack always fail. Headline rates are computed **server-side** only (`computeSuccessRate` / eligibility in `successRateStats.ts`), require **≥ 5 eligible plays**, and exclude FG / XP / 2PT / kneel / spike (and punt / film ST rows) from the success denominator without changing Calls. Defense is framed as **Opponent Success** (lower is better) with inverted color thresholds.
+
+**Why:** Coaches need a trusted consistency metric aligned with industry CFB analytics; float thresholds and special-teams noise made the old % misleading.
+
+**Impact:** `loggedPlaySuccess.ts`, `successRateStats.ts`, `successRateTextClass.ts`, game tendencies payload + overview hero, predictability meta; DECISIONS / SESSION_BRIEF Pass 8.
+
+---
+
 ## 2026-09-08 — Team styles tied to game version (Pass 5)
 
 **Decision:** Extend existing `team_offensive_playbooks` / `team_defensive_schemes` with `game_version` (composite PK). CFB27 styles come from PlaybookGamer Team Styles (`lib/seed/team-styles/cfb27-team-styles.ts`); conference omitted. Public/in-app playbook headers show offensive style for team books and an A–Z team list for defensive scheme books.

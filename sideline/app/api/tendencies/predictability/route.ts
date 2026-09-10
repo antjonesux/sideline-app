@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { computeSuccessRate } from "@/lib/successRateStats";
 import {
   attachPlayTypes,
   fetchCfbPlayTypeMap,
@@ -9,7 +10,6 @@ import {
   isOffensivePlayTypeDistributionExcludedPlay,
   motionStatsForPlaybook,
   motionUsageStats,
-  isSuccessPlay,
   parseGameVersionFilter,
   parsePlaybookFilter,
   parseScope,
@@ -187,8 +187,7 @@ ORDER BY total_plays DESC;
     Boolean(dominantPlaybook) && playbookMotionPct >= 10 && userMotionPct < playbookMotionPct - 5;
   const turnoverCount = plays.filter((p) => p.result_tag === "TURNOVER").length;
   const turnoverRate = plays.length > 0 ? Math.round((turnoverCount * 1000) / plays.length) / 10 : 0;
-  const overallSuccessRate =
-    plays.length > 0 ? Math.round((plays.filter((p) => isSuccessPlay(p)).length * 1000) / plays.length) / 10 : 0;
+  const overallSuccessRate = computeSuccessRate(plays).rate;
   const redZone = redZoneScoreStats(plays);
   const explosive = explosivePlayStats(plays);
   const thirdDown = thirdDownConvStats(plays);

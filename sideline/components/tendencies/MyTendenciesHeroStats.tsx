@@ -2,8 +2,15 @@
 
 import { SkeletonBlock } from "@/components/shared/AppSkeleton";
 import { buildTendenciesQueryString } from "@/components/tendencies/TendenciesFilters";
-import { COULDNT_LOAD } from "@/lib/coachCopy";
+import {
+  COULDNT_LOAD,
+  SUCCESS_RATE_LABEL_DEFENSE,
+  SUCCESS_RATE_LABEL_OFFENSE,
+  SUCCESS_RATE_NOT_ENOUGH_PLAYS,
+  SUCCESS_RATE_TOOLTIP,
+} from "@/lib/coachCopy";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import { successRateTextClass } from "@/lib/successRateTextClass";
 import type { CatalogGameVersion } from "@/lib/constants";
 import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +23,9 @@ type OverviewData = {
   avg_yards_per_play: number;
   run_pct: number;
   pass_pct: number;
+  success_rate: number | null;
+  success_rate_successes: number;
+  success_rate_total: number;
 };
 
 type OverviewResponse = { data: OverviewData };
@@ -32,15 +42,21 @@ function HeroStatCard({
   label,
   value,
   description,
+  valueClass,
+  title,
 }: {
   label: string;
   value: string;
   description: string;
+  valueClass?: string;
+  title?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 flex min-h-[132px] flex-col p-4">
+    <div className="rounded-xl border border-slate-700 bg-slate-900 flex min-h-[132px] flex-col p-4" title={title}>
       <p className="font-mono text-[10px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-2 font-heading text-[28px] font-bold leading-none tracking-wide text-slate-100 tabular-nums">
+      <p
+        className={`mt-2 font-heading text-[28px] font-bold leading-none tracking-wide tabular-nums ${valueClass ?? "text-slate-100"}`}
+      >
         {value}
       </p>
       <p className="mt-auto pt-3 font-body text-[12px] font-normal leading-snug text-slate-500">{description}</p>
@@ -50,8 +66,8 @@ function HeroStatCard({
 
 function HeroStatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-hidden>
-      {Array.from({ length: 3 }).map((_, i) => (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-hidden>
+      {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
           className="rounded-xl border border-slate-700 bg-slate-900 flex min-h-[132px] flex-col p-4"
@@ -72,6 +88,9 @@ const emptyOverview: OverviewData = {
   avg_yards_per_play: 0,
   run_pct: 0,
   pass_pct: 0,
+  success_rate: null,
+  success_rate_successes: 0,
+  success_rate_total: 0,
 };
 
 export function MyTendenciesHeroStats({
@@ -108,10 +127,24 @@ export function MyTendenciesHeroStats({
 
   const data = q.data?.data ?? emptyOverview;
   const showDash = q.isError;
+  const successLabel = sideOfBall === "defense" ? SUCCESS_RATE_LABEL_DEFENSE : SUCCESS_RATE_LABEL_OFFENSE;
+  const successInsufficient = !showDash && data.success_rate == null && data.success_rate_total > 0;
+  const successValue = showDash || data.success_rate == null ? "—" : `${data.success_rate.toFixed(1)}%`;
+  const successValueClass =
+    showDash || data.success_rate == null
+      ? "text-slate-500"
+      : successRateTextClass(data.success_rate, sideOfBall);
+  const successDescription = showDash
+    ? "—"
+    : successInsufficient
+      ? SUCCESS_RATE_NOT_ENOUGH_PLAYS
+      : data.success_rate == null
+        ? "—"
+        : `${data.success_rate_successes}/${data.success_rate_total} plays`;
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <HeroStatCard
           label="WIN RATE"
           value={showDash ? "—" : `${data.win_rate_pct}%`}
@@ -126,6 +159,13 @@ export function MyTendenciesHeroStats({
           label="RUN / PASS"
           value={showDash ? "—" : `${data.run_pct}% / ${data.pass_pct}%`}
           description="Play type split"
+        />
+        <HeroStatCard
+          label={successLabel.toUpperCase()}
+          value={successValue}
+          valueClass={successValueClass}
+          description={successDescription}
+          title={SUCCESS_RATE_TOOLTIP}
         />
       </div>
       {q.isError ? <p className="font-body text-xs text-slate-500">{COULDNT_LOAD}</p> : null}

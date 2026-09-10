@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
+import { computeSuccessRate } from "@/lib/successRateStats";
 import { isSpecialTeamsFormationPlayRow, normalizeOpponentPlayType } from "@/lib/playTypeResolution";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
@@ -420,6 +421,10 @@ export type TendenciesOverviewData = {
   avg_yards_per_play: number;
   run_pct: number;
   pass_pct: number;
+  /** Headline rate; null when fewer than 5 eligible plays. */
+  success_rate: number | null;
+  success_rate_successes: number;
+  success_rate_total: number;
 };
 
 /** Offensive play-type distribution: exclude punts and film special-teams rows. */
@@ -459,6 +464,8 @@ export function summarizeTendenciesOverview(
   const run_pct = plays.length > 0 ? Math.round((runCount * 100) / plays.length) : 0;
   const pass_pct = plays.length > 0 ? Math.max(0, 100 - run_pct) : 0;
 
+  const successAgg = computeSuccessRate(plays);
+
   return {
     games_logged: gameIdsWithPlays.size,
     wins,
@@ -467,6 +474,9 @@ export function summarizeTendenciesOverview(
     avg_yards_per_play,
     run_pct,
     pass_pct,
+    success_rate: successAgg.rate,
+    success_rate_successes: successAgg.successes,
+    success_rate_total: successAgg.total,
   };
 }
 

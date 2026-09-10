@@ -8,10 +8,17 @@ import { TopFormationsList } from "@/components/tendencies/TopFormationsList";
 import { TopPlaysList } from "@/components/tendencies/TopPlaysList";
 import { WORKING_LIST_PAGE_SIZE } from "@/components/tendencies/WorkingListPagination";
 import { CATALOG_SIDES_OF_BALL, CATALOG_SIDE_OF_BALL_LABELS } from "@/lib/constants";
-import { COULDNT_LOAD } from "@/lib/coachCopy";
+import {
+  COULDNT_LOAD,
+  SUCCESS_RATE_LABEL_DEFENSE,
+  SUCCESS_RATE_LABEL_OFFENSE,
+  SUCCESS_RATE_NOT_ENOUGH_PLAYS,
+  SUCCESS_RATE_TOOLTIP,
+} from "@/lib/coachCopy";
 import { summarizeGameWhatsWorking } from "@/lib/gameTendenciesWhatsWorking";
 import type { GameTendenciesPayload } from "@/lib/tendenciesGameBreakdown";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
+import type { CoarsePlayTypeSuccessRow } from "@/lib/successRateStats";
 import { successRateTextClass } from "@/lib/successRateTextClass";
 import type { DriveSideOfBall } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -27,10 +34,33 @@ async function fetchGameTendencies(id: string, sideOfBall: DriveSideOfBall): Pro
   return res.json() as Promise<GameTendenciesPayload>;
 }
 
-function CoreStatsGrid({ stats }: { stats: GameTendenciesPayload["stats"] }) {
-  function Card({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+function formatSuccessRateDisplay(rate: number | null): string {
+  if (rate == null) return "—";
+  return `${rate.toFixed(1)}%`;
+}
+
+function CoreStatsGrid({
+  stats,
+  sideOfBall,
+}: {
+  stats: GameTendenciesPayload["stats"];
+  sideOfBall: DriveSideOfBall;
+}) {
+  function Card({
+    label,
+    value,
+    valueClass,
+    title,
+    hint,
+  }: {
+    label: string;
+    value: string;
+    valueClass?: string;
+    title?: string;
+    hint?: string;
+  }) {
     return (
-      <div className="min-w-0 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2">
+      <div className="min-w-0 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2" title={title}>
         <p className="truncate font-sans text-[9px] font-normal uppercase tracking-wide text-slate-500 sm:text-[10px]">
           {label}
         </p>
@@ -39,6 +69,7 @@ function CoreStatsGrid({ stats }: { stats: GameTendenciesPayload["stats"] }) {
         >
           {value}
         </p>
+        {hint ? <p className="mt-0.5 truncate font-sans text-[9px] text-slate-500">{hint}</p> : null}
       </div>
     );
   }
@@ -49,15 +80,56 @@ function CoreStatsGrid({ stats }: { stats: GameTendenciesPayload["stats"] }) {
   const avg = stats.avg_yards_per_play;
   const avgTone = avg > 0 ? "text-emerald-400" : avg < 0 ? "text-red-400" : "text-slate-500";
   const avgVal = avg > 0 ? `+${avg.toFixed(1)}` : String(avg.toFixed(1));
+  const successLabel = sideOfBall === "defense" ? SUCCESS_RATE_LABEL_DEFENSE : SUCCESS_RATE_LABEL_OFFENSE;
+  const successInsufficient = stats.success_rate == null && stats.success_rate_total > 0;
+  const successValueClass =
+    stats.success_rate == null
+      ? "text-slate-500"
+      : successRateTextClass(stats.success_rate, sideOfBall);
   return (
     <div className="grid grid-cols-3 grid-rows-2 gap-2 sm:gap-3">
       <Card label="Calls" value={String(stats.play_count)} />
       <Card label="Yards" value={yardsVal} valueClass={yardsTone} />
       <Card label="Avg yds" value={avgVal} valueClass={avgTone} />
-      <Card label="Success" value={`${stats.success_rate}%`} valueClass={successRateTextClass(stats.success_rate)} />
+      <Card
+        label={successLabel}
+        value={formatSuccessRateDisplay(stats.success_rate)}
+        valueClass={successValueClass}
+        title={SUCCESS_RATE_TOOLTIP}
+        hint={successInsufficient ? SUCCESS_RATE_NOT_ENOUGH_PLAYS : undefined}
+      />
       <Card label="TD" value={String(stats.tds)} />
       <Card label="TO" value={String(stats.turnovers)} />
     </div>
+  );
+}
+
+function SuccessByPlayTypeRows({
+  rows,
+  sideOfBall,
+}: {
+  rows: CoarsePlayTypeSuccessRow[];
+  sideOfBall: DriveSideOfBall;
+}) {
+  return (
+    <ul className="mt-4 space-y-1.5 border-t border-slate-800 pt-3" aria-label="Success rate by play type">
+      {rows.map((row) => {
+        const rateText = formatSuccessRateDisplay(row.rate);
+        const countText = `(${row.successes}/${row.total})`;
+        const tone =
+          row.rate == null ? "text-slate-500" : successRateTextClass(row.rate, sideOfBall);
+        return (
+          <li
+            key={row.type}
+            className="grid grid-cols-[4rem_1fr_auto] items-baseline gap-2 font-mono text-sm tabular-nums"
+          >
+            <span className="font-medium uppercase tracking-wide text-slate-400">{row.type}</span>
+            <span className={`font-semibold ${tone}`}>{rateText}</span>
+            <span className="text-slate-500">{countText}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -92,15 +164,17 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
       },
       {
         key: "success",
-        header: "SUCCESS",
+        header: sideOfBall === "defense" ? "OPP. SUCCESS" : "SUCCESS",
         render: (r) => (
-          <span className={`font-mono text-sm font-medium tabular-nums ${successRateTextClass(r.success_rate)}`}>
+          <span
+            className={`font-mono text-sm font-medium tabular-nums ${successRateTextClass(r.success_rate, sideOfBall)}`}
+          >
             {r.success_rate}%
           </span>
         ),
       },
     ],
-    [],
+    [sideOfBall],
   );
 
   const q = useQuery({
@@ -183,13 +257,16 @@ export function FilmGameTendenciesBody({ gameId }: Props) {
 
       <section>
         <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">GAME STATS</h2>
-        <CoreStatsGrid stats={data.stats} />
+        <CoreStatsGrid stats={data.stats} sideOfBall={sideOfBall} />
       </section>
 
       <section>
         <h2 className="mb-3 font-display text-sm uppercase tracking-wider text-white">PLAY TYPES</h2>
         {hasPlays ? (
-          <PlayTypeDistribution data={data.play_type_distribution} />
+          <>
+            <PlayTypeDistribution data={data.play_type_distribution} />
+            <SuccessByPlayTypeRows rows={data.success_rate_by_play_type ?? []} sideOfBall={sideOfBall} />
+          </>
         ) : (
           <p className="font-sans text-sm text-slate-500">
             Log calls to see run/pass/RPO splits, top calls, formations, and plays to reconsider.

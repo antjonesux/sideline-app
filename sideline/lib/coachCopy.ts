@@ -282,6 +282,14 @@ export const TENDENCIES_SCOUTING_REPORT_SUBHEADING = "What an opponent would not
 /** What's Working — low-yield calls section heading. */
 export const TENDENCIES_CALLS_TO_RECONSIDER = "Calls to Reconsider";
 export const TENDENCIES_NO_DEFENSIVE_PLAYS = "No defensive plays logged yet.";
+
+/** Success rate — one-line explanation (tooltip / title). */
+export const SUCCESS_RATE_TOOLTIP =
+  "Percentage of plays that gained enough yards to stay on schedule — 50% of needed on 1st down, 70% on 2nd, first down on 3rd/4th.";
+export const SUCCESS_RATE_NOT_ENOUGH_PLAYS = "Not enough plays";
+export const SUCCESS_RATE_LABEL_OFFENSE = "Success";
+export const SUCCESS_RATE_LABEL_DEFENSE = "Opponent Success";
+
 export const CALL_SHEET_VIEWER_SWITCHER_TITLE = "Select your play sheet";
 
 /** Film game detail — end game with final score before marking ended. */

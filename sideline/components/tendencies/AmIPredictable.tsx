@@ -38,7 +38,7 @@ type PredictApi = {
     turnover_count: number;
     turnover_rate: number;
     game_count: number;
-    overall_success_rate: number;
+    overall_success_rate: number | null;
   };
 };
 

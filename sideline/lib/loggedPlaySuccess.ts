@@ -1,12 +1,14 @@
 /**
- * Standard football analytics success for a logged play (matches down-aware CASE logic).
+ * Standard college football success (FO / SP+ 50/70/100) for a logged play.
  *
- * - Any down: TOUCHDOWN → success; TURNOVER / INTERCEPTION / FUMBLE → failure
- * - FIRST_DOWN result → success
- * - 1st down: yards_gained >= 50% of distance
- * - 2nd down: yards_gained >= 70% of distance
- * - 3rd & 4th: only FIRST_DOWN / TOUCHDOWN (handled above); other tags → not success by yardage
+ * - Any down: TOUCHDOWN → success; TURNOVER / INTERCEPTION / FUMBLE → failure; SACK → failure
+ * - FIRST_DOWN result → success (counts once even if yardage also meets the threshold)
+ * - 1st: yards_gained >= floor(distance / 2)
+ * - 2nd: yards_gained >= floor((distance * 7) / 10)
+ * - 3rd & 4th: yards_gained >= distance
  * - Null/invalid down or distance: fallback to FIRST_DOWN or TOUCHDOWN only
+ *
+ * Examples: 2nd & 6 → need 4 yards; 1st & Goal from 5 → need 2 yards.
  */
 
 export type StandardSuccessPlayInput = {
@@ -28,6 +30,7 @@ export function isStandardSuccessfulPlay(p: StandardSuccessPlayInput): boolean {
   const tag = normalizeLoggedResultTag(p.result_tag);
   if (tag === "TOUCHDOWN") return true;
   if (isTurnoverTag(tag)) return false;
+  if (tag === "SACK") return false;
   if (tag === "FIRST_DOWN") return true;
 
   const yards = p.yards_gained ?? 0;
@@ -38,8 +41,8 @@ export function isStandardSuccessfulPlay(p: StandardSuccessPlayInput): boolean {
     return false;
   }
 
-  if (downN === 1) return yards >= distN * 0.5;
-  if (downN === 2) return yards >= distN * 0.7;
-  if (downN === 3 || downN === 4) return false;
+  if (downN === 1) return yards >= Math.floor(distN / 2);
+  if (downN === 2) return yards >= Math.floor((distN * 7) / 10);
+  if (downN === 3 || downN === 4) return yards >= distN;
   return false;
 }
