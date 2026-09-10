@@ -1,68 +1,37 @@
-# Session Brief — Pass 5: Scheme & Styles Display
+# Session Brief — Pass 6a: Film Room Logger Scoring Bugs
 
 **Objective:**  
-Seed team style data and display it under playbook headers — offensive style on offensive playbook pages, team list on defensive playbook pages.
+Fix two bugs in the Film Room play logger: the post-TD XP/2PT selector not appearing (modal auto-closes), and the inability to add or edit scores on drives.
 
-**Why this matters:**  
-When a coach clicks into a playbook, the first question is "what kind of offense/defense is this?" For offense, showing the style (e.g. "Spread", "Veer & Shoot") immediately orients the user. For defense, knowing which teams run a given scheme (e.g. "3-4 Zone") helps coaches find playbooks that match their defensive philosophy.
-
-**In scope:**
-
-### Part 1 — Data
-- Seed offensive style per team (e.g. Alabama → Multiple, Auburn → Veer & Shoot) for all ~134 CFB27 teams
-- Seed defensive style per team (e.g. Alabama → 3-4 Zone, Auburn → 3-3-5 Tite) for all ~134 CFB27 teams
-- Associate styles with game version (CFB27 now, CFB28 later)
-- No conference data — exclude from schema and seeding
-
-### Part 2 — Display
-
-**Offensive playbooks (team-specific):**
-- Show the team's offensive style under the playbook header (e.g. "Spread" under Oklahoma's playbook)
-- One style per team — simple text or badge
-
-**Defensive playbooks (scheme-specific):**
-- Show a comma-separated list of teams that use that defensive scheme under the playbook header
-- Example: under "3-4 Zone" header → "Air Force, Alabama, Liberty, Oregon State, Temple"
-- Keep it as a simple comma-separated text list, not chips or badges
-
-**Both apply to public and in-app playbook pages.**
-
-**Out of scope:**  
-- Conference data
-- Displaying the full summary table (formation %, run/pass splits)
-- Filtering or searching playbooks by style
-- Any changes to play data itself
-
-**Done means:**  
-- [x] Style data (offense, defense) is seeded for all CFB27 teams
-- [x] Offensive playbook pages show the team's offensive style under the header
-- [x] Defensive playbook pages show a comma-separated list of teams using that scheme under the header
-- [x] Both public and in-app playbook pages display styles
-- [x] Missing style data results in no display (graceful fallback)
-- [x] Team lists on defensive pages are alphabetically sorted
-- [x] `npm run build` clean (run before handoff complete)
+**Done means:**
+- [x] After logging a touchdown, XP/2PT selector appears before drive closes
+- [x] XP Made / XP Missed / 2PT Made / 2PT Missed result options work correctly after TD
+- [x] Score updates correctly after XP/2PT completion
+- [x] Coach can set score when creating a new drive
+- [x] Coach can edit score on a completed drive (from the drive card or detail)
+- [x] Coach can edit score on an in-progress drive
+- [x] Manual score override takes precedence over derived score when set
+- [x] Running game score in the header reflects manual overrides
+- [x] No regressions to non-scoring drives, FG-only drives, punt drives
+- [x] `npm run build` clean
 
 **Handoff notes:**
 
-### Where style data lives
-- **Tables (extended, not new):** `team_offensive_playbooks` and `team_defensive_schemes`
-- **Schema:** composite PK `(team_name, game_version)`; offense columns `playbook_name`, `scheme_style`, `game_version`; defense columns `defensive_scheme`, `game_version`
-- **Migration:** `sideline/supabase/migrations/20260908210000_team_styles_game_version.sql`
-- **CFB27 source:** `sideline/lib/seed/team-styles/cfb27-team-styles.ts` (PlaybookGamer Team Styles; no conference)
-- **CFB26 legacy:** still in `sideline/supabase/seed-team-schemes.sql`, tagged `cfb26` by `npm run seed:teams`
-- **Lookup helpers:** `sideline/lib/teamStylesLookup.ts`
+### Bug 1 root cause — TD auto-close race
+`possessionEndedFromSnapAndTag` treats `TOUCHDOWN` as possession-ending. The post-TD XP/2PT hold lived *after* `onRefresh()` + score adjust, and optimistic TD was cleared *before* refresh — so for a frame `mergedPlays` had no TD, `driveNeedsPostTdAttempt` flipped false, and the coach could land in a closed/ended drive with no selector. Fix: set `showPostTdSelector` immediately on offensive TD, refresh before clearing optimistic, never call `onPossessionEndedAfterLog` on offensive TD (only after XP/2PT), and keep `Log a call` available when `driveNeedsPostTdAttempt` is true.
 
-### Team name matching
-Verified 138/138 PlaybookGamer rows against CFB27 offense catalog seeds and 31/31 defense schemes against defense playbook seeds.
-**Manual mapping:**
-- `"Miami FL"` → `"Miami"` (catalog / Sideline playbook name)
-- `"Miami OH"` → `"Miami OH"` (exact; no change)
+### Manual vs derived scores
+`resolveDriveRunningScores` in `filmPostTdFlow.ts`: persisted `score_mine` / `score_opponent` win when non-null; `computeCumulativeDriveScores` fills only when null. `adjustDriveScore` now updates local drive state so TD + XP bumps stack and the header tracks immediately.
 
-### Display wiring
-- Shared browse surface: `BrowsePlaybookDetail` + `PublicPlaybookDetailHeader` (public + signed-in)
-- Catalog API payload adds `offensive_style` / `defensive_teams` via `fetchPublicPlaybookCatalog`
-- Team-offense only shows style; alternative offense books show nothing; defense shows sorted team list or nothing
+### Score edit entry points
+1. **Drive setup** (`FilmDriveSetupOverlay` / `DriveSetupForm`) — seed + edit on create
+2. **Drive card** expanded detail (`DriveInlineScores` in `DriveList`) — in-progress or completed
+3. **Post-drive modal** (`FilmUpdateScoreDialog`) — after possession end (FG/punt/turnover/XP/2PT close)
+4. **Header** — reflects resolved running score (manual wins)
+5. **End Game** — seeds from the same resolve helper
 
-### Ops
-1. Apply migration `20260908210000_team_styles_game_version.sql`
-2. Run `npm run seed:teams` from `sideline/`
+### DriveInlineScores
+No API changes required; callers now pass resolved persisted scores instead of derived-first values.
+
+### Review note (non-blocking)
+Drive `PUT` still coerces null scores to `0` (pre-existing). New games always set numeric scores on create; legacy null rows fall back to derived until first save.

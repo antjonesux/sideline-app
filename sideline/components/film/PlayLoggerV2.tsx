@@ -163,7 +163,8 @@ export function PlayLoggerV2({
       setPendingScenarioOverride(null);
       return;
     }
-    if (pendingScenarioOverride === "2 Point") return;
+    // While a conversion attempt is in progress, do not let play-list sync clear the TD hold UI.
+    if (pendingScenarioOverride === "2 Point" || pendingScenarioOverride === "XP") return;
     setShowPostTdSelector(driveNeedsPostTdAttempt(mergedPlays));
   }, [isDefensiveDrive, mergedPlays, pendingScenarioOverride]);
 
@@ -332,8 +333,19 @@ export function PlayLoggerV2({
           source: "film_logger",
         });
       }
-      setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
+      const normResult = snap.result_tag.trim().toUpperCase().replace(/\s+/g, "_");
+      const isXpPlay = logScenario === "XP";
+      const isTwoPtPlay = logScenario === "2 Point";
+      const isOffensiveTd = !isDefensiveDrive && normResult === "TOUCHDOWN" && !isXpPlay && !isTwoPtPlay;
+
+      // Hold the logger open for XP/2PT before any refresh/close work — possession-end must not race the selector.
+      if (isOffensiveTd) {
+        setShowPostTdSelector(true);
+      }
+
+      // Refresh first so merged plays keep the TD while optimistic is cleared (avoids a frame where TD disappears).
       await onRefresh();
+      setOptimistic((p) => p.filter((row) => row.id !== optimisticPlay.id));
       if (guidedOnboarding) {
         if (logCameFromSheet) {
           setPickTab("my_sheet");
@@ -355,11 +367,6 @@ export function PlayLoggerV2({
       if (points > 0) {
         await onDriveScoreAdjust?.({ driveId, points });
       }
-
-      const normResult = snap.result_tag.trim().toUpperCase().replace(/\s+/g, "_");
-      const isXpPlay = logScenario === "XP";
-      const isTwoPtPlay = logScenario === "2 Point";
-      const isOffensiveTd = !isDefensiveDrive && normResult === "TOUCHDOWN" && !isXpPlay && !isTwoPtPlay;
 
       if (isOffensiveTd) {
         setShowPostTdSelector(true);

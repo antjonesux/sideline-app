@@ -9,6 +9,7 @@ import { FilmDriveSetupOverlay } from "@/components/film/FilmDriveSetupOverlay";
 import { FilmEndGameScoreDialog } from "@/components/film/FilmEndGameScoreDialog";
 import { FilmGameTendenciesBody } from "@/components/film/FilmGameTendenciesBody";
 import { FilmPlayLoggerOverlay } from "@/components/film/FilmPlayLoggerOverlay";
+import { FilmUpdateScoreDialog } from "@/components/film/FilmUpdateScoreDialog";
 import { GameDetailHeader } from "@/components/film/GameDetailHeader";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
 import { GameDetailSkeleton } from "@/components/shared/AppSkeleton";
@@ -31,7 +32,7 @@ import type { Drive, GameSession, LoggedPlay } from "@/lib/types";
 import { parseFieldPosition } from "@/lib/fieldPosition";
 import { closeAllDropdownMenus } from "@/lib/dropdownMenuRegistry";
 import { countCoachCallsInGame, countPlaysInGame, isCoachCallPlay } from "@/lib/filmPlayCounting";
-import { computeCumulativeDriveScores } from "@/lib/filmPostTdFlow";
+import { computeCumulativeDriveScores, resolveDriveRunningScores } from "@/lib/filmPostTdFlow";
 import { endCriticalFlow, startCriticalFlow } from "@/lib/perfInstrumentation";
 import { emitProductEvent, markMilestoneFired, wasMilestoneFired } from "@/lib/productAnalytics";
 import { tendenciesQueryKeys } from "@/lib/tendenciesQueryKeys";
@@ -58,6 +59,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const [showLogger, setShowLogger] = useState(false);
   const [showDriveSetup, setShowDriveSetup] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [scorePromptDriveId, setScorePromptDriveId] = useState<string | null>(null);
   const [endGameScoreMine, setEndGameScoreMine] = useState("0");
   const [endGameScoreOpp, setEndGameScoreOpp] = useState("0");
   const [pageReady, setPageReady] = useState(false);
@@ -71,7 +73,7 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const endGameScoresSeededRef = useRef(false);
   const mdUp = useMdUp();
   const loggerSidebarOpen = showLogger && mdUp;
-  useScrollLock(showLogger && !mdUp);
+  useScrollLock((showLogger && !mdUp) || scorePromptDriveId !== null);
 
   const refresh = useCallback(async (opts?: { expandDriveId?: string; pruneClosedPossessions?: boolean }) => {
     if (!gameId) return;
@@ -204,11 +206,8 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (!lastDrive) {
       return { scoreMine: 0, scoreOpponent: 0 };
     }
-    const running = computeCumulativeDriveScores(drives).get(lastDrive.id);
-    return {
-      scoreMine: running?.scoreMine ?? 0,
-      scoreOpponent: running?.scoreOpponent ?? 0,
-    };
+    const derived = computeCumulativeDriveScores(drives).get(lastDrive.id);
+    return resolveDriveRunningScores(lastDrive, derived);
   }, [drives, game?.my_score, game?.opponent_score, isGameEnded]);
 
   useEffect(() => {
@@ -229,11 +228,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     }
     if (endGameScoresSeededRef.current) return;
     endGameScoresSeededRef.current = true;
-    const last = drives[drives.length - 1];
-    const mine = last?.score_mine ?? 0;
-    const opp = last?.score_opponent ?? 0;
-    setEndGameScoreMine(String(Math.max(0, Number(mine) || 0)));
-    setEndGameScoreOpp(String(Math.max(0, Number(opp) || 0)));
+    const chronological = [...drives].sort((a, b) => a.drive_number - b.drive_number);
+    const last = chronological[chronological.length - 1];
+    const derived = last ? computeCumulativeDriveScores(drives).get(last.id) : null;
+    const resolved = resolveDriveRunningScores(last, derived);
+    setEndGameScoreMine(String(resolved.scoreMine));
+    setEndGameScoreOpp(String(resolved.scoreOpponent));
   }, [showEndGameModal, drives]);
 
   async function persistMissingSidePlaybook(payload: NonNullable<DriveSetupSubmitPayload["persist_playbook"]>) {
@@ -400,16 +400,16 @@ export default function GameLogPage({ params }: GameLogPageProps) {
     if (points <= 0) return;
     const dr = drivesRef.current.find((d) => d.id === driveId);
     if (!dr) return;
-    await saveDrive(
-      { ...dr, score_mine: Math.max(0, Number(dr.score_mine ?? 0) + points) },
-      { silent: true, skipRefresh: true },
-    );
+    const nextMine = Math.max(0, Number(dr.score_mine ?? 0) + points);
+    setDrives((all) => all.map((d) => (d.id === driveId ? { ...d, score_mine: nextMine } : d)));
+    await saveDrive({ ...dr, score_mine: nextMine }, { silent: true, skipRefresh: true });
   }
 
   async function handlePossessionEndedAfterLog(args: { driveId: string; storedResultTag: string }) {
-    const { driveId, storedResultTag } = args;
+    const { driveId } = args;
     setShowLogger(false);
     setActiveDrive(driveId);
+    setScorePromptDriveId(driveId);
     await refresh({ pruneClosedPossessions: true });
   }
 
@@ -509,6 +509,12 @@ export default function GameLogPage({ params }: GameLogPageProps) {
   const lastDriveId = drives[drives.length - 1]?.id ?? "";
   const pendingPlayRowForModal = pendingPlayDelete ? findPlayById(pendingPlayDelete) : undefined;
   const activeDriveObj = drives.find((d) => d.id === activeDrive) ?? drives[0] ?? null;
+  const scorePromptDrive = scorePromptDriveId
+    ? drives.find((d) => d.id === scorePromptDriveId) ?? null
+    : null;
+  const scorePromptResolved = scorePromptDrive
+    ? resolveDriveRunningScores(scorePromptDrive, computeCumulativeDriveScores(drives).get(scorePromptDrive.id))
+    : null;
 
   if (!pageReady) {
     return <GameDetailSkeleton />;
@@ -653,6 +659,21 @@ export default function GameLogPage({ params }: GameLogPageProps) {
         onScoreOppChange={setEndGameScoreOpp}
         onConfirm={(scores) => void setGameEnded(true, scores)}
       />
+
+      {scorePromptDriveId && scorePromptDrive && scorePromptResolved ? (
+        <FilmUpdateScoreDialog
+          open
+          driveId={scorePromptDriveId}
+          scoreMine={scorePromptResolved.scoreMine}
+          scoreOpponent={scorePromptResolved.scoreOpponent}
+          onOpenChange={(open) => {
+            if (!open) setScorePromptDriveId(null);
+          }}
+          onSaveBoth={(mine, theirs) => {
+            patchDriveAndPersist(scorePromptDriveId, { score_mine: mine, score_opponent: theirs });
+          }}
+        />
+      ) : null}
 
       <FilmDriveSetupOverlay
         open={showDriveSetup && Boolean(game)}

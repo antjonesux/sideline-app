@@ -66,3 +66,22 @@ export function computeCumulativeDriveScores(
 
   return result;
 }
+
+/**
+ * Display / edit scores for a drive: persisted `score_mine` / `score_opponent` win when set;
+ * `computeCumulativeDriveScores` fills in only when a side is null.
+ */
+export function resolveDriveRunningScores(
+  drive: Pick<Drive, "score_mine" | "score_opponent"> | null | undefined,
+  derived?: { scoreMine: number; scoreOpponent: number } | null,
+): { scoreMine: number; scoreOpponent: number } {
+  const scoreMine =
+    drive?.score_mine != null && Number.isFinite(Number(drive.score_mine))
+      ? Math.max(0, Number(drive.score_mine))
+      : Math.max(0, derived?.scoreMine ?? 0);
+  const scoreOpponent =
+    drive?.score_opponent != null && Number.isFinite(Number(drive.score_opponent))
+      ? Math.max(0, Number(drive.score_opponent))
+      : Math.max(0, derived?.scoreOpponent ?? 0);
+  return { scoreMine, scoreOpponent };
+}

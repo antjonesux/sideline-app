@@ -5,6 +5,25 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-10 — Pass 6a: Film Room logger scoring bugs
+
+### What
+
+- **Post-TD XP/2PT hold:** `PlayLoggerV2` sets the inline XP/2PT selector before refresh/close work, refreshes before clearing the optimistic TD, and never calls `onPossessionEndedAfterLog` on an offensive TD — only after XP/2PT (or other true possession ends). Drive cards keep **Log a call** when `driveNeedsPostTdAttempt` is true so a coach can finish a pending conversion.
+- **Manual score authority:** `resolveDriveRunningScores` in `filmPostTdFlow.ts` — persisted `score_mine` / `score_opponent` win when set; `computeCumulativeDriveScores` fills only when null. Wired through game header, drive card (`DriveInlineScores`), drive setup defaults, and End Game seed.
+- **Update score modal restored:** `FilmUpdateScoreDialog` (Radix Dialog + `DriveInlineScores`) opens after possession end. `adjustDriveScore` also updates local drive state so TD + XP bumps stack and the header tracks immediately.
+
+### Why
+
+After a TD the logger could close before the XP/2PT selector appeared (refresh/optimistic race against possession-end). Drive score edits looked broken because the UI preferred derived cumulative scores over persisted values coaches actually save.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Scoring math unchanged (TD 6, XP made +1, 2PT made +2, FG 3).
+- Score edit entry points: drive setup, drive card, post-drive Update score dialog, header / End Game (resolved running score).
+- Deferred: defensive TD result / defensive play-type tagging (Pass 6b).
+
 ## 2026-09-09 — Pass 5: Scheme & styles under playbook headers
 
 ### What
