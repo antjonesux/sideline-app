@@ -5,6 +5,22 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-09-10 — Pass 7: Tendencies play type sync
+
+### What
+
+- **Offense count fix:** Game tendencies PLAY TYPES now counts every logged call (catalog + name ladder + stored type), not catalog-matched only — totals align with GAME STATS Calls. Game route loads the CFB map with the session’s `game_version` (and side) so CFB27 games no longer default to an empty CFB26 map.
+- **Defense play types:** `attachPlayTypes` prefers stored opponent RUN/PASS/RPO on `logged_plays.play_type` (Pass 6b). Surfaces in Film game tendencies and overall Tendencies (predictability / overview) via existing routes — no new endpoints. Older defensive snaps without `play_type` fall through to catalog/name (usually Other).
+
+### Why
+
+Play type breakdown showed ~1 call when dozens were logged, and Pass 6b opponent types never appeared in tendencies — both break coach trust in the most visible tendencies chart.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Existing game stats, yards, and non–play-type metrics unchanged.
+
 ## 2026-09-10 — Pass 6b: Defensive TD result + opponent play type
 
 ### What

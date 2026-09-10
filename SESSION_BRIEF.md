@@ -1,39 +1,24 @@
-# Session Brief — Pass 6b: Defensive Logging — Touchdown Result + Play Type
+# Session Brief — Pass 7: Tendencies Play Type Sync Bugs
 
 **Objective:**  
-Add defensive touchdown as a result option and run/pass/RPO play type tagging to defensive play logging.
+Fix play type breakdown in tendencies so offensive plays show the correct count and defensive play types display correctly — both in game-specific tendencies (Film Room) and overall tendencies.
 
 **Done means:**
-- [x] Defensive play logging shows Touchdown as a result tag option
-- [x] Touchdown + Interception and Touchdown + Fumble are valid combinations
-- [x] Defensive TD triggers post-TD scoring flow (XP/2PT)
-- [x] Defensive play logging includes RUN/PASS/RPO play type selection
-- [x] Play type is required on defensive plays
-- [x] Play type stores to `logged_plays.play_type` same as offensive plays
-- [x] Validation rules updated: Touchdown is standalone unless combined with Interception or Fumble
-- [x] No regressions to existing defensive result tag behavior
-- [x] No regressions to offensive logging
+- [x] Offensive play type breakdown shows correct count matching game stats calls
+- [x] Defensive play type breakdown displays RUN / PASS / RPO distribution
+- [x] Both fixes work in game-specific tendencies (Film Room Tendencies tab)
+- [x] Both fixes work in overall tendencies page
+- [x] Plays logged before the defensive play type feature still display correctly
+- [x] No regressions to game stats counts, yards, or other tendencies metrics
 - [x] `npm run build` clean
 
 **Handoff notes:**
 
-### Defensive TD validation rules (`defensiveResultTags.ts`)
-- **Blunt standalone:** Incomplete, Penalty, Punt — selecting one clears all others
-- **Touchdown:** keeps only Interception and/or Fumble (pick-six / scoop-and-score); drops Incomplete/Punt/Penalty/Sack
-- **Interception:** alone → `[INTERCEPTION]`; with TD already on → `[INTERCEPTION, TOUCHDOWN]`
-- **Sack + Fumble** still coexist; Sack clears Touchdown
-- **`deriveDefensiveStoredResultTag`:** `TOUCHDOWN` wins over `TURNOVER` so pick-six ends as TD and triggers XP/2PT
+### Root cause — offensive count mismatch
+- **Primary:** `buildTendenciesGamePayload` only counted catalog-`matched` plays in `play_type_distribution`, while GAME STATS `play_count` counted all logged calls. Unmatched plays (name-ladder only) were dropped from the chart.
+- **Amplifier:** Game tendencies offense path called `fetchCfbPlayTypeMap` with no options → defaulted to CFB26 catalog while most sessions are CFB27, so almost nothing matched.
 
-### Scoring
-- Defensive TD / XP / 2PT credits **`score_mine`** (your D scored), matching `adjustDriveScore`
-- `computeCumulativeDriveScores` now always adds scoring points to mine; opponent points stay manual
-- Side-of-ball: defense drive + TD = pick-six/scoop-and-score for the coach
-
-### Opponent play type
-- Required RUN/PASS/RPO chips on `DefensiveLogSheet` (Pass 4 chip UI, `includeAll={false}`)
-- Persisted on `logged_plays.play_type`; API fails closed if defense POST/PUT lacks a valid opponent type
-- Conversion snaps (XP/2PT) on defense **carry forward** the TD play’s opponent play type
-- Catalog MAN/ZONE/BLITZ/MATCH badge on the call remains display-only from play name
-
-### Tendencies
-- Stored `play_type` is now real RUN/PASS/RPO on defense. Tendencies UI breakdowns for defensive opponent play type are **out of scope** (follow-up). `attachPlayTypes` may still re-derive from defensive catalog names in some paths — verify before shipping a tendencies defense play-type chart.
+### Defensive play types
+- No new endpoints — extended `attachPlayTypes` + existing game/predictability/overview routes.
+- Defense prefers stored `logged_plays.play_type` (RUN/PASS/RPO via `normalizeOpponentPlayType`); older null rows fall through to catalog/name → usually **Other**.
+- Offense null `play_type` is fine — still resolved via catalog + name ladder; stored type is last-resort fallback only.

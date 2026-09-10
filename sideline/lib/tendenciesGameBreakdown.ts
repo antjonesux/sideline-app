@@ -101,20 +101,21 @@ export function buildTendenciesGamePayload(
   drives: DriveWithPlays[],
   cfbTypes: Map<string, string>,
   catalogPlaybookLabel?: string,
+  sideOfBall: "offense" | "defense" = "offense",
 ) {
   const plays = drives.flatMap((d) => d.plays);
   const gamesById = new Map<string, GameRow>([[game.id, game]]);
-  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes, catalogPlaybookLabel);
+  const typedPlays = attachPlayTypes(plays, gamesById, cfbTypes, catalogPlaybookLabel, sideOfBall);
   const buckets = typedPlays.map((b) => b.bucket);
 
-  const classifiedBuckets = typedPlays.filter((row) => row.matched).map((row) => row.bucket);
-  const classifiedCount = Math.max(0, typedPlays.length - typedPlays.filter((row) => !row.matched).length);
-  const classifiedPctDenom = classifiedCount > 0 ? classifiedCount : 1;
-  const counts = playTypeCounts(classifiedBuckets);
+  // Count every logged call (catalog + name ladder + stored type) so distribution totals match game stats Calls.
+  // Do not filter to catalog-matched only — unmatched plays still resolve via name ladder / stored play_type.
+  const counts = playTypeCounts(buckets);
+  const distributionDenom = buckets.length > 0 ? buckets.length : 1;
   const distributionNames = ["Run", "Pass", "Play Action", "Screen", "RPO", "Option", "Other"] as const;
   const play_type_distribution = distributionNames.map((name) => ({
     name,
-    pct: Math.round(((counts[name] ?? 0) * 1000) / classifiedPctDenom) / 10,
+    pct: Math.round(((counts[name] ?? 0) * 1000) / distributionDenom) / 10,
     count: counts[name] ?? 0,
   }));
 

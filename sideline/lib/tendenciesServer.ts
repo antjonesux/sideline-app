@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { GAME_SESSION_IMPORT_SOURCE_ONBOARDING } from "@/lib/onboardingImportSource";
 import { isStandardSuccessfulPlay } from "@/lib/loggedPlaySuccess";
-import { isSpecialTeamsFormationPlayRow } from "@/lib/playTypeResolution";
+import { isSpecialTeamsFormationPlayRow, normalizeOpponentPlayType } from "@/lib/playTypeResolution";
 import { shouldOverrideCfbPassLabelToRun } from "@/lib/playbook";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
 import { normalizePlayName } from "@/lib/utils";
@@ -42,6 +42,8 @@ export type LoggedPlayRow = {
   result_tag: string;
   scenario: string;
   is_success: boolean | null;
+  /** Stored RUN / PASS / RPO (offense catalog or defensive opponent type). May be null on older rows. */
+  play_type?: string | null;
 };
 
 export type TendencyScope = "all" | "last5" | "last10" | "opponent";
@@ -255,7 +257,7 @@ export async function fetchLoggedPlaysForGames(
     let query = supabase
       .from("logged_plays")
       .select(
-        "id, game_session_id, drive_id, play_number, down, distance, is_inches, formation, play_name, yards_gained, result_tag, scenario, is_success",
+        "id, game_session_id, drive_id, play_number, down, distance, is_inches, formation, play_name, yards_gained, result_tag, scenario, is_success, play_type",
       )
       .in("game_session_id", slice);
     if (userId) query = query.eq("user_id", userId);
@@ -371,6 +373,19 @@ export function attachPlayTypes(
   sideOfBall: "offense" | "defense" = "offense",
 ): { bucket: PlayTypeBucket; matched: boolean; rawType: string }[] {
   return plays.map((p) => {
+    // Defense: Pass 6b stores opponent RUN/PASS/RPO on `logged_plays.play_type` — prefer that over catalog coverage labels.
+    if (sideOfBall === "defense") {
+      const opponentType = normalizeOpponentPlayType(p.play_type);
+      if (opponentType) {
+        return {
+          bucket: categorizeCfbPlayType(opponentType),
+          matched: true,
+          rawType: opponentType,
+        };
+      }
+      // Older defensive snaps without opponent type: fall through to catalog/name (often Other).
+    }
+
     const g = gamesById.get(p.game_session_id);
     const pb =
       (catalogPlaybookLabel ?? "").trim() ||
@@ -387,6 +402,11 @@ export function attachPlayTypes(
     }
     if (fromLookup && shouldOverrideCfbPassLabelToRun(p.play_name, fromLookup)) {
       raw = "inside_run";
+    }
+    // Backward-compatible fallback when catalog + name ladder miss but a stored type exists (pre-Pass-6b offense rows may still have it).
+    if (!raw.trim()) {
+      const stored = (p.play_type ?? "").trim();
+      if (stored) raw = stored;
     }
     return { bucket: categorizeCfbPlayType(raw), matched, rawType: raw };
   });

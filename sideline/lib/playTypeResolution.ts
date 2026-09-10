@@ -3,9 +3,9 @@
  * - COUNT diagnostics on `logged_plays.play_type` failed: column does not exist (42703).
  *
  * Code-path audit:
- * - Tendencies: `fetchLoggedPlaysForGames` omits `play_type`; `fetchCfbPlayTypeMap` + `attachPlayTypes`
- *   resolve type from `playbooks` using playbook labels from `game_sessions` (`playbookForGame`), with
- *   case-insensitive playbook matching (`ilike` / `or` filters). On catalog hits, `attachPlayTypes` can still
+ * - Tendencies: `fetchLoggedPlaysForGames` selects `play_type` when present; `attachPlayTypes` prefers
+ *   stored opponent RUN/PASS/RPO on defense, else `fetchCfbPlayTypeMap` + name ladder (offense catalog path).
+ *   Case-insensitive playbook matching (`ilike` / `or` filters). On catalog hits, `attachPlayTypes` can still
  *   prefer `deriveCfbPlayTypeFromName` for Screen / Play Action / RPO / Option so distribution matches call names.
  * - Film (play browser / suggestions / yardage): `/api/cfb26-plays` used `.eq("playbook", …)` (Postgres case-sensitive).
  * - Play Sheet: `/api/playbook/[id]/plays` duplicated lookup-key logic and used `.eq("playbook", …)` for the type map.

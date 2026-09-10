@@ -1,6 +1,6 @@
 import { COULDNT_FINISH_THAT } from "@/lib/coachCopy";
+import { parseCatalogGameVersion } from "@/lib/constants";
 import { buildTendenciesGamePayload, type DriveWithPlays } from "@/lib/tendenciesGameBreakdown";
-import { cfbPlayTypeMapOptionsForDriveSide, type GameSessionForPlayType } from "@/lib/playTypeResolution";
 import { withNormalizedPlayName } from "@/lib/utils";
 import { fetchCfbPlayTypeMap, parseSideOfBallFilter, playbookForTendenciesSide, type GameRow } from "@/lib/tendenciesServer";
 import { createClient } from "@/lib/supabase/server";
@@ -36,19 +36,19 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const g = game as GameRow & { opponent_scheme?: string | null };
   const pb = playbookForTendenciesSide(g, sideOfBall);
   const driveList = (driveRows ?? []).filter((d) => (d.side_of_ball ?? "offense") === sideOfBall);
+  const gameVersion = parseCatalogGameVersion(g.game_version ?? undefined);
 
   const [cfbTypes, playRows] = await Promise.all([
-    fetchCfbPlayTypeMap(
-      supabase,
-      [pb],
-      sideOfBall === "defense" ? cfbPlayTypeMapOptionsForDriveSide(g as GameSessionForPlayType, "defense") : undefined,
-    ),
+    fetchCfbPlayTypeMap(supabase, [pb], {
+      sideOfBall,
+      gameVersion,
+    }),
     Promise.all(
       driveList.map((d) =>
         supabase
           .from("logged_plays")
           .select(
-            "id, game_session_id, drive_id, play_number, down, distance, formation, play_name, yards_gained, result_tag, scenario, is_success",
+            "id, game_session_id, drive_id, play_number, down, distance, formation, play_name, yards_gained, result_tag, scenario, is_success, play_type",
           )
           .eq("drive_id", d.id)
           .eq("user_id", user.id)
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     };
   });
 
-  const breakdown = buildTendenciesGamePayload(g, drives, cfbTypes, pb);
+  const breakdown = buildTendenciesGamePayload(g, drives, cfbTypes, pb, sideOfBall);
 
   return NextResponse.json({
     game: g,
