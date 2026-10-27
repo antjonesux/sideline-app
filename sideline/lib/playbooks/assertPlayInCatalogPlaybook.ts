@@ -1,8 +1,11 @@
-import { parseCatalogGameVersion } from "@/lib/constants";
+import { parseCatalogGameVersion, type CatalogSideOfBall } from "@/lib/constants";
 import {
   ADD_PLAY_FORMATION_NOT_IN_PLAYBOOK,
   ADD_PLAY_NOT_IN_PLAYBOOK,
   ADD_PLAY_PLAY_NOT_IN_FORMATION,
+  PLAY_SETUP_FORMATION_NOT_IN_PLAYBOOK,
+  PLAY_SETUP_NOT_IN_PLAYBOOK,
+  PLAY_SETUP_PLAY_NOT_IN_FORMATION,
 } from "@/lib/coachCopy";
 import { normalizePlayLabel } from "@/lib/normalizePlayLabel";
 import { playbookIlikeExactPattern } from "@/lib/playbookIlikeExact";
@@ -71,6 +74,59 @@ export async function assertPlayInSheetCatalog(
   );
   if (!matched) {
     return { error: ADD_PLAY_PLAY_NOT_IN_FORMATION(playbookName, formation, playName) };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Catalog guard for play setups: play must exist in `playbooks` for the given
+ * game_version, side_of_ball, playbook, and formation (case-insensitive).
+ */
+export async function assertPlayInCatalogForSetup(
+  supabase: SupabaseClient,
+  identity: {
+    game_version: string;
+    side_of_ball: CatalogSideOfBall;
+    playbook: string;
+    formation: string;
+    play_name: string;
+  },
+): Promise<{ ok: true } | { error: string }> {
+  const playbookName = identity.playbook.trim();
+  const formation = identity.formation.trim();
+  const playName = identity.play_name.trim();
+  if (!playbookName || !formation || !playName) {
+    return { error: PLAY_SETUP_NOT_IN_PLAYBOOK };
+  }
+
+  const gameVersion = parseCatalogGameVersion(identity.game_version);
+
+  const { data, error } = await supabase
+    .from("playbooks")
+    .select("play_name, formation")
+    .ilike("game_version", gameVersion)
+    .eq("side_of_ball", identity.side_of_ball)
+    .ilike("playbook", playbookIlikeExactPattern(playbookName))
+    .ilike("formation", playbookIlikeExactPattern(formation))
+    .limit(2000);
+
+  if (error) {
+    console.error("assertPlayInCatalogForSetup:", error);
+    return { error: PLAY_SETUP_NOT_IN_PLAYBOOK };
+  }
+
+  const rows = data ?? [];
+  if (rows.length === 0) {
+    return { error: PLAY_SETUP_FORMATION_NOT_IN_PLAYBOOK(playbookName, formation) };
+  }
+
+  const canonicalFormation = String(rows[0]?.formation ?? formation).trim() || formation;
+  const matched = rows.some((row) =>
+    playNamesMatch(String(row.play_name ?? ""), canonicalFormation, playName),
+  );
+  if (!matched) {
+    return { error: PLAY_SETUP_PLAY_NOT_IN_FORMATION(playbookName, formation, playName) };
   }
 
   return { ok: true };

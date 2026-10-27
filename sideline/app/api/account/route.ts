@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { deleteAllPlaySetupImagesForUser } from "@/lib/playSetupApi";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -46,11 +47,20 @@ export async function DELETE() {
   const uid = user.id;
 
   try {
+    // Fail-closed: storage cleanup failure blocks deletion (same as table steps).
+    const imageCleanup = await deleteAllPlaySetupImagesForUser(admin, uid);
+    if (imageCleanup.error) {
+      logDeleteStepFailure("play-setup-images", imageCleanup.error);
+      return NextResponse.json({ error: "Couldn't delete account. Try again." }, { status: 500 });
+    }
+
     // Deletion order: children before parents; app data before auth user.
     // `logged_plays` references `game_sessions` without ON DELETE CASCADE, so
     // `game_sessions` must be deleted only after `logged_plays` and `drives`.
     // `dismissed_suggestions` references `play_sheets` without cascade — remove before `play_sheets`.
+    // `play_setups` before `user_profiles` / auth user (also ON DELETE CASCADE from auth.users).
     const steps: [string, string][] = [
+      ["play_setups", "play_setups"],
       ["play_sheet_plays", "play_sheet_plays"],
       ["play_sheet_scenarios", "play_sheet_scenarios"],
       ["dismissed_suggestions", "dismissed_suggestions"],

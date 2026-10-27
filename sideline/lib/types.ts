@@ -150,3 +150,33 @@ export type SheetScenarioBlock = {
   is_locked?: boolean;
   plays: SheetPlayRow[];
 };
+
+/** Catalog play identity for play setups (game version + side + playbook + formation + play). */
+export type PlayIdentity = {
+  game_version: string;
+  side_of_ball: "offense" | "defense";
+  playbook: string;
+  formation: string;
+  play_name: string;
+};
+
+/**
+ * Play setup row returned to clients.
+ * Includes a signed `image_url` when an image exists; never exposes `user_id`.
+ */
+export type PlaySetup = {
+  id: string;
+  game_version: string;
+  side_of_ball: "offense" | "defense";
+  playbook: string;
+  formation: string;
+  play_name: string;
+  play_key: string;
+  title: string;
+  notes: string;
+  image_path: string | null;
+  image_url: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};

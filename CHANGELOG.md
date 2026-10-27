@@ -5,6 +5,40 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-10-27 — Play setups Pass 2: data + API foundation
+
+### What
+
+- `play_setups` table (per user + game version + side + playbook + formation + play) with RLS; private `play-setup-images` bucket with per-user folder policies.
+- `/api/play-setups` routes: list per play (signed image URLs), playbook counts, create (catalog guard, 10-per-play cap), update (image path validation + old image cleanup), delete, reorder.
+- Account deletion removes setups and setup images.
+
+### Why
+
+Foundation for coaches to attach setups (title, notes, end-result image) to plays, scoped to a single playbook.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- No UI changes; Pass 3 adds play detail, setup editor, Coach View and builder entry points.
+
+## 2026-09-10 — Pass 8: Success rate definition alignment
+
+### What
+
+- **FO/SP+ thresholds:** Shared `isStandardSuccessfulPlay` uses integer floors (1st ≥ 50% of yards to go, 2nd ≥ 70%, 3rd/4th full distance). TD always success; turnover and sack always fail. `FIRST_DOWN` still counts once.
+- **Eligibility:** Headline success rate excludes FG / XP / 2PT / kneel / spike (plus punt / film ST rows) via `isSuccessRateEligiblePlay` — **Calls** / `play_count` unchanged. Rate is `null` (UI `—`) under 5 eligible plays.
+- **Surfaces:** Game tendencies + Overall Tendencies hero show side-aware colors (offense high-good, defense low-good), **Opponent Success** on defense, tooltip copy, and RUN / PASS / RPO success rows with `(made/total)`. Wired server-side into existing game / overview / predictability responses — no new endpoints.
+
+### Why
+
+Float thresholds and special-teams noise made success rate untrustworthy; coaches need the industry consistency metric framed correctly on offense vs defense.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- DB generated `is_success` column left unchanged (rates ignore it).
+
 ## 2026-09-10 — Pass 7: Tendencies play type sync
 
 ### What

@@ -219,6 +219,30 @@ create table if not exists scheme_call_sheets (
   unique (scheme_id, call_sheet_id)
 );
 
+-- Per-user play setups (title/notes/optional image) scoped to one catalog play identity.
+-- See migrations/20261027173028_play_setups.sql.
+create table if not exists play_setups (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  game_version text not null,
+  side_of_ball text not null check (side_of_ball in ('offense', 'defense')),
+  playbook text not null,
+  formation text not null,
+  play_name text not null,
+  play_key text not null,
+  title text not null,
+  notes text not null default '',
+  image_path text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint play_setups_title_len check (char_length(trim(title)) between 1 and 60),
+  constraint play_setups_notes_len check (char_length(notes) <= 2000)
+);
+
+create index if not exists idx_play_setups_user_play_key_sort
+  on play_setups (user_id, play_key, sort_order);
+
 create table if not exists team_offensive_playbooks (
   team_name text not null,
   playbook_name text not null,
@@ -427,6 +451,62 @@ create policy "Owner access" on scheme_call_sheets for all to authenticated
     auth.uid() = user_id
     and exists (select 1 from schemes s where s.id = scheme_id and s.user_id = auth.uid())
     and exists (select 1 from play_sheets ps where ps.id = call_sheet_id and ps.user_id = auth.uid())
+  );
+
+alter table play_setups enable row level security;
+drop policy if exists "Owner access" on play_setups;
+create policy "Owner access" on play_setups for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- Private play-setup images: path {user_id}/{setup_id}/{file}; folder segment must match auth.uid().
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'play-setup-images',
+  'play-setup-images',
+  false,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp']::text[]
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "play_setup_images_select" on storage.objects;
+create policy "play_setup_images_select" on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'play-setup-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "play_setup_images_insert" on storage.objects;
+create policy "play_setup_images_insert" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'play-setup-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "play_setup_images_update" on storage.objects;
+create policy "play_setup_images_update" on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'play-setup-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  )
+  with check (
+    bucket_id = 'play-setup-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "play_setup_images_delete" on storage.objects;
+create policy "play_setup_images_delete" on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'play-setup-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
   );
 
 -- Catalog table: public read, writes only via service role (bypasses RLS).

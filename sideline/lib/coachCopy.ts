@@ -230,6 +230,19 @@ export const ADD_PLAY_PLAY_NOT_IN_FORMATION = (playbook: string, formation: stri
 /** Public browse add-to-sheet — no call sheets use this playbook. */
 export const ADD_PLAY_NO_MATCHING_SHEETS =
   "None of your call sheets use this playbook. Create one from this playbook first.";
+
+/** Play setups — catalog / validation copy. */
+export const PLAY_SETUP_NOT_IN_PLAYBOOK = "That play isn't in this playbook.";
+export const PLAY_SETUP_FORMATION_NOT_IN_PLAYBOOK = (playbook: string, formation: string) =>
+  `${formation} isn't in the ${playbook} playbook.`;
+export const PLAY_SETUP_PLAY_NOT_IN_FORMATION = (playbook: string, formation: string, playName: string) =>
+  `${playName} isn't in ${formation} in the ${playbook} playbook.`;
+export const PLAY_SETUP_CAP = "You can save up to 10 setups for this play.";
+export const PLAY_SETUP_TITLE_REQUIRED = "Give this setup a title.";
+export const PLAY_SETUP_TITLE_TOO_LONG = "Title must be 60 characters or fewer.";
+export const PLAY_SETUP_NOTES_TOO_LONG = "Notes must be 2000 characters or fewer.";
+export const PLAY_SETUP_BAD_IMAGE = "That image path isn't valid.";
+export const PLAY_SETUP_REORDER_MISMATCH = "Couldn't reorder those setups. Refresh and try again.";
 /** Browse playbook flow — pick which situation bucket receives the play. */
 export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
 export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>
