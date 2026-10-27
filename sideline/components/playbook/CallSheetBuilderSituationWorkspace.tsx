@@ -9,7 +9,7 @@ import {
   appShellSituationWorkspaceWithBrowseClass,
 } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 type HeaderProps = ComponentProps<typeof CallSheetBuilderSituationHeader>;
 type BrowsePanelProps = ComponentProps<typeof CallSheetBuilderSituationBrowsePanel>;
@@ -18,32 +18,38 @@ type BrowsePanelProps = ComponentProps<typeof CallSheetBuilderSituationBrowsePan
 export function CallSheetBuilderSituationWorkspace({
   header,
   browsePanel,
+  sideRail,
   children,
   className,
 }: {
   header: Omit<HeaderProps, "layout">;
   browsePanel?: BrowsePanelProps | null;
+  /** Prefer over `browsePanel` when set (e.g. play detail side rail). */
+  sideRail?: ReactNode;
   children: React.ReactNode;
   className?: string;
 }) {
+  const rail = sideRail ?? (browsePanel ? <CallSheetBuilderSituationBrowsePanel {...browsePanel} /> : null);
+  const hasRail = Boolean(rail);
+
   return (
     <div
       className={cn(
         appShellSituationWorkspaceClass,
-        browsePanel && appShellSituationWorkspaceWithBrowseClass,
+        hasRail && appShellSituationWorkspaceWithBrowseClass,
         "hidden min-h-0 flex-col md:flex",
         className,
       )}
     >
-      <div className={cn("flex min-h-0 flex-1 items-start", browsePanel && "gap-0")}>
+      <div className={cn("flex min-h-0 flex-1 items-start", hasRail && "gap-0")}>
         <div className="min-w-0 flex-1">
           <div
             className={cn(
-              browsePanel
+              hasRail
                 ? appShellSituationWorkspaceInnerWithBrowseClass
                 : appShellSituationWorkspaceInnerClass,
               "min-w-0 py-0 md:py-1 lg:py-2",
-              !browsePanel && "mx-auto",
+              !hasRail && "mx-auto",
             )}
           >
             <CallSheetBuilderSituationHeader {...header} layout="workspace" />
@@ -51,7 +57,7 @@ export function CallSheetBuilderSituationWorkspace({
           </div>
         </div>
 
-        {browsePanel ? <CallSheetBuilderSituationBrowsePanel {...browsePanel} /> : null}
+        {rail}
       </div>
     </div>
   );

@@ -49,9 +49,17 @@ export default function PrivacyPage() {
             <li>Game sessions (opponent, game settings)</li>
             <li>Drives and logged plays (play names, formations, results, yardage)</li>
             <li>Play sheets (situation buckets, play selections)</li>
+            <li>
+              Play setups (titles, notes, and optional end-result images you attach to calls in a
+              playbook)
+            </li>
           </ul>
           <p>
             This is your coaching data. It&apos;s stored so you can access it across sessions and devices.
+          </p>
+          <p>
+            Setup images are stored privately and are visible only to you. They are deleted when you
+            delete the setup or your account.
           </p>
         </LegalSubsection>
 
@@ -98,9 +106,9 @@ export default function PrivacyPage() {
       <LegalSection title="How long we keep your data">
         <p>
           We keep your data as long as you have an account. When you delete your account, all associated
-          data (game sessions, drives, logged plays, play sheets) is permanently deleted. We don&apos;t retain
-          backups of deleted user data beyond standard database backup windows (typically 7 days with
-          Supabase), after which it&apos;s fully purged.
+          data (game sessions, drives, logged plays, play sheets, play setups, and setup images) is
+          permanently deleted. We don&apos;t retain backups of deleted user data beyond standard database
+          backup windows (typically 7 days with Supabase), after which it&apos;s fully purged.
         </p>
       </LegalSection>
 

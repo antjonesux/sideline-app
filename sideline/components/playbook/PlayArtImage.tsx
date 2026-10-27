@@ -18,10 +18,13 @@ export function PlayArtImage({
   src,
   source,
   alt,
+  /** Row thumbnail — smaller radius, no placeholder copy. */
+  compact = false,
 }: {
   src: string | null;
   source?: PlayArtSource;
   alt: string;
+  compact?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
 
@@ -35,25 +38,41 @@ export function PlayArtImage({
     event.preventDefault();
   };
 
+  const frameClass = compact
+    ? "@container relative aspect-[16/10] w-full overflow-hidden rounded-md border border-slate-700 bg-slate-900 select-none [-webkit-touch-callout:none]"
+    : "@container relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-900 select-none [-webkit-touch-callout:none]";
+
   if (showPlaceholder) {
     return (
-      <div
-        className="@container relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-900 select-none [-webkit-touch-callout:none]"
-        aria-label={PLAY_ART_PLACEHOLDER_COPY}
-      >
-        <div className="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
-          <ImageOff className="h-8 w-8 shrink-0 text-slate-600" aria-hidden />
-          <p className="font-body text-xs text-slate-500">{PLAY_ART_PLACEHOLDER_COPY}</p>
+      <div className={frameClass} aria-label={PLAY_ART_PLACEHOLDER_COPY}>
+        <div
+          className={
+            compact
+              ? "flex h-full items-center justify-center"
+              : "flex h-full flex-col items-center justify-center gap-2 px-4 text-center"
+          }
+        >
+          <ImageOff
+            className={compact ? "h-4 w-4 shrink-0 text-slate-600" : "h-8 w-8 shrink-0 text-slate-600"}
+            aria-hidden
+          />
+          {!compact ? (
+            <p className="font-body text-xs text-slate-500">{PLAY_ART_PLACEHOLDER_COPY}</p>
+          ) : null}
         </div>
       </div>
     );
   }
 
-  const showWatermark = source === "owned" && !failed;
+  const showWatermark = !compact && source === "owned" && !failed;
 
   return (
     <div
-      className="@container relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-900/80 select-none [-webkit-touch-callout:none]"
+      className={
+        compact
+          ? "@container relative aspect-[16/10] w-full overflow-hidden rounded-md bg-slate-900/80 select-none [-webkit-touch-callout:none]"
+          : "@container relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-900/80 select-none [-webkit-touch-callout:none]"
+      }
       onContextMenu={blockImageSave}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- owned /play-art paths and remote cfb.fan URLs */}

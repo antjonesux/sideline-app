@@ -12,9 +12,17 @@ import {
 import { appShellPrimaryCtaButtonClass } from "@/lib/constants/designTokens";
 import {
   playSheetQaCallSheetName,
+  playSheetQaCfb26Playbook,
   playSheetQaCoachViewScenarios,
   playSheetQaSummaries,
 } from "@/lib/playSheetQaFixture";
+
+const qaCoachViewIdentity = {
+  gameVersion: "cfb26",
+  sideOfBall: "offense" as const,
+  playbook: playSheetQaCfb26Playbook,
+  enableSetupCounts: false,
+};
 import Link from "next/link";
 import { CallSheetQaMenuDrawer } from "@/components/qa/call-sheet/CallSheetQaMenuDrawer";
 import { useEffect, useState } from "react";
@@ -64,7 +72,7 @@ export function CallSheetQaHome() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader />
-      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} {...qaCoachViewIdentity} />
     </div>
   );
 }
@@ -104,7 +112,7 @@ export function CallSheetQaSwitcher() {
   return (
     <div className="space-y-4">
       <CallSheetQaHeader initialSwitcherOpen />
-      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} />
+      <CallSheetCoachView scenarios={playSheetQaCoachViewScenarios} {...qaCoachViewIdentity} />
     </div>
   );
 }
@@ -114,6 +122,7 @@ export function CallSheetQaRunGameSituation() {
     <CallSheetCoachView
       initiallyExpanded
       scenarios={playSheetQaCoachViewScenarios.filter((block) => block.scenario === "Run Game")}
+      {...qaCoachViewIdentity}
     />
   );
 }

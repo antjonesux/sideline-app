@@ -13,6 +13,10 @@ type SituationSideRailOverlayProps = {
   title: string;
   subtitle?: string;
   titleClassName?: string;
+  /** Merged onto the inner card (e.g. `border-0` for borderless drawers). */
+  innerClassName?: string;
+  /** Merged onto `ResponsiveOverlay` content (dialog / full-drawer shell). */
+  contentClassName?: string;
   children: ReactNode;
 };
 
@@ -24,6 +28,8 @@ export function SituationSideRailOverlay({
   title,
   subtitle,
   titleClassName,
+  innerClassName,
+  contentClassName,
   children,
 }: SituationSideRailOverlayProps) {
   return (
@@ -32,9 +38,9 @@ export function SituationSideRailOverlay({
       onClose={onClose}
       mobileVariant="full-drawer"
       maxWidth="4xl"
-      contentClassName="md:max-h-[85vh] md:overflow-hidden"
+      contentClassName={cn("md:max-h-[85vh] md:overflow-hidden", contentClassName)}
     >
-      <div className={responsiveOverlayInnerCardClass}>
+      <div className={cn(responsiveOverlayInnerCardClass, innerClassName)}>
         <div className="flex shrink-0 items-center gap-3 px-4 py-3">
           <IconBackButton data-no-press aria-label={backAriaLabel} onClick={onClose} />
           <div className="min-w-0 flex-1">

@@ -18,7 +18,7 @@ import {
 } from "@/lib/constants/designTokens";
 import { cn } from "@/lib/utils";
 import { BookOpen, Plus } from "lucide-react";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 type BrowsePanelProps = ComponentProps<typeof CallSheetBuilderSituationBrowsePanel>;
 
@@ -38,6 +38,7 @@ export function CallSheetBuilderWorkspaceChrome({
   addSituationDisabled,
   browseActive = false,
   browsePanel = null,
+  sideRail,
   children,
 }: {
   backHref: string;
@@ -54,19 +55,24 @@ export function CallSheetBuilderWorkspaceChrome({
   addSituationDisabled?: boolean;
   browseActive?: boolean;
   browsePanel?: BrowsePanelProps | null;
+  /** Prefer over `browsePanel` when set (e.g. play detail side rail). */
+  sideRail?: ReactNode;
   children: React.ReactNode;
 }) {
+  const rail = sideRail ?? (browsePanel ? <CallSheetBuilderSituationBrowsePanel {...browsePanel} /> : null);
+  const hasRail = Boolean(rail);
+
   return (
     <div
       className={cn(
         "hidden min-h-0 flex-col overflow-hidden md:flex md:min-h-[50vh]",
-        browsePanel && appShellSituationWorkspaceWithBrowseClass,
+        hasRail && appShellSituationWorkspaceWithBrowseClass,
       )}
     >
       <div
         className={cn(
           "flex min-h-0 flex-1 overflow-hidden",
-          browsePanel && "gap-4 lg:gap-6 xl:gap-0",
+          hasRail && "gap-4 lg:gap-6 xl:gap-0",
         )}
       >
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
@@ -137,7 +143,7 @@ export function CallSheetBuilderWorkspaceChrome({
           </div>
         </div>
 
-        {browsePanel ? <CallSheetBuilderSituationBrowsePanel {...browsePanel} /> : null}
+        {rail}
       </div>
     </div>
   );

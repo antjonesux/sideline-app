@@ -16,7 +16,7 @@ import { appShellHeaderActionButtonClass, appShellWorkspaceInnerClass } from "@/
 import type { CatalogSideOfBall } from "@/lib/constants";
 import { fetchPlaySheetOverview } from "@/lib/filmLoggerCatalogFetch";
 import { filmLoggerQueryKeys } from "@/lib/filmLoggerQueryKeys";
-import { callSheetDetailsMetadataLabels } from "@/lib/playbookUtils";
+import { callSheetDetailsMetadataLabels, catalogMetaForSheet } from "@/lib/playbookUtils";
 import { playbookEditorHref } from "@/lib/navigation/playSheetNav";
 import { fetchSchemeDetail, schemeDetailQueryKey } from "@/lib/schemeDetailQuery";
 import type { SchemeDetail } from "@/lib/types";
@@ -43,12 +43,14 @@ function SchemeActiveSheetPanel({
   sheetName,
   playbook,
   schemeStyle,
+  sideOfBall,
   returnTo,
 }: {
   sheetId: string;
   sheetName: string;
   playbook: string;
   schemeStyle: string;
+  sideOfBall: CatalogSideOfBall;
   returnTo: string;
 }) {
   const { data: catalogMeta } = useCatalogPlaybookMeta(playbook);
@@ -56,6 +58,11 @@ function SchemeActiveSheetPanel({
     queryKey: filmLoggerQueryKeys.playSheetOverview(sheetId),
     queryFn: () => fetchPlaySheetOverview(sheetId),
   });
+
+  const sheetMeta = useMemo(
+    () => catalogMetaForSheet(catalogMeta ?? null, data?.game_version),
+    [catalogMeta, data?.game_version],
+  );
 
   return (
     <div className="space-y-4">
@@ -89,7 +96,15 @@ function SchemeActiveSheetPanel({
           {COULDNT_LOAD}
         </p>
       ) : null}
-      {!isLoading && !error ? <CallSheetCoachView key={sheetId} scenarios={data?.scenarios ?? []} /> : null}
+      {!isLoading && !error ? (
+        <CallSheetCoachView
+          key={sheetId}
+          scenarios={data?.scenarios ?? []}
+          gameVersion={sheetMeta.game_version}
+          sideOfBall={sideOfBall}
+          playbook={playbook}
+        />
+      ) : null}
     </div>
   );
 }
@@ -181,6 +196,7 @@ export function SchemeDetailView({ schemeId }: { schemeId: string }) {
               sheetName={activeEntry.call_sheet.name}
               playbook={activeEntry.call_sheet.playbook}
               schemeStyle={activeEntry.call_sheet.scheme}
+              sideOfBall={activeEntry.side_of_ball}
               returnTo={`/schemes/${schemeId}`}
             />
           ) : null}

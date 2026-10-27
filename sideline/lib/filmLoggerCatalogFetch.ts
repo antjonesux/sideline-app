@@ -80,16 +80,25 @@ export async function fetchPlaySheetScenarioCalls(
 /** Full play sheet with all scenarios (existing GET `/api/playbook/[id]`). */
 export async function fetchPlaySheetOverview(
   sheetId: string,
-): Promise<{ sheetName: string | null; scenarios: SheetScenarioBlock[] }> {
+): Promise<{
+  sheetName: string | null;
+  playbook: string | null;
+  game_version: string | null;
+  scenarios: SheetScenarioBlock[];
+}> {
   const res = await fetch(`/api/playbook/${sheetId}`);
   const json = (await res.json()) as {
     name?: string;
+    playbook?: string;
+    game_version?: string | null;
     scenarios?: SheetScenarioBlock[];
     error?: string;
   };
   if (!res.ok) throw new Error(json.error ?? "Failed to load play sheet");
   return {
     sheetName: typeof json.name === "string" ? json.name.trim() || null : null,
+    playbook: typeof json.playbook === "string" ? json.playbook.trim() || null : null,
+    game_version: typeof json.game_version === "string" ? json.game_version.trim() || null : null,
     scenarios: json.scenarios ?? [],
   };
 }

@@ -5,6 +5,31 @@ All notable changes to **The Sideline** (CFB play-calling / film logging assista
 ---
 ---
 
+## 2026-10-27 — Play setups Pass 3: play detail, setup editor, Coach View + builder entry
+
+### What
+
+- Shared `PlayDetailOverlay` (drawer mobile; desktop builder uses `SituationSideRail` like Add Play): official play art (full image), setup chips (horizontal scroll on mobile), selected setup notes + "Your setup" image, ••• menu (edit, move left/right, delete), empty state.
+- `PlaySetupEditor`: title, notes, optional end-result image (client-side resize/WebP, direct private upload), upload/error states, delete confirm.
+- Coach View: full-width tappable play rows with setup count indicator (one counts request per sheet); Scheme detail inherits.
+- Builder situation detail: whole-row tap opens play detail; drag handle, Go-To star and remove excluded; compact play-art thumbnail on each filled row (`PlayArtImage` compact + catalog resolve via `PlaySlot`).
+- Privacy Policy: setup image storage.
+
+### Why
+
+Coaches can keep their own setups for each call and reference them during prep and games.
+
+### Status
+
+- `npm run build` from `sideline/` passed.
+- Film logger and situation-specific setups deferred.
+
+### Handoff notes
+
+- **`PlaySheetSituationChipScroll`:** Extended with a generic `items` / `selectedItemId` / `onSelectItem` mode and optional `edgeToEdge` (default true). Situation callers unchanged. Play detail uses generic chips; `edgeToEdge={!mdUp}` so mobile drawers bleed edge-to-edge and desktop modals stay inset.
+- **Pass 2 API gaps:** None found. Counts key via `buildPlaySetupKey`; list/create/update/delete/reorder match Pass 2.
+- **Visual deviations from Figma:** Desktop play detail uses the Add Play side rail (`SituationSideRail` / `PlayDetailSidePanel`); mobile uses the same full-drawer chrome as Add Play (`SituationSideRailOverlay` + back button) instead of a bottom sheet — QA preference over frames 02d/03a. Official play art shows the full `PlayArtImage` (no max-height crop). Setup editor stacks above in the Radix dialog band (`overlayZ.sheetShell`).
+
 ## 2026-10-27 — Play setups Pass 2: data + API foundation
 
 ### What

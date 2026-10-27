@@ -7,7 +7,7 @@ import { CALL_SHEET_SCENARIOS, GO_TO_PLAYS_SCENARIO, parseCatalogGameVersion } f
 import { defaultColorForNewSituation, MAX_SITUATIONS_PER_SHEET } from "@/lib/situationApiHelpers";
 import { appShellHeaderActionButtonClass, appShellPageTitleClass, appShellSituationAddPlayButtonClass, modalCtaFooterClass, overlayZ, responsiveOverlayBottomShellPositionClass, responsiveOverlayDialogContentClass } from "@/lib/constants/designTokens";
 import { cn, normalizePlayName } from "@/lib/utils";
-import type { SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
+import type { PlayIdentity, SheetPlayRow, SheetScenarioBlock } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackNavLink } from "@/components/shared/BackNavLink";
 import { ConfirmDestructiveModal } from "@/components/shared/ConfirmDestructiveModal";
@@ -16,6 +16,8 @@ import { PlayTableHeader } from "@/components/game-plan/PlayTableHeader";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaybookEditorSkeleton } from "@/components/shared/AppSkeleton";
+import { usePlaySetupCounts } from "@/hooks/usePlaySetups";
+import { buildPlaySetupKey } from "@/lib/playSetupKey";
 import {
   COULDNT_SAVE,
   BUILDER_ADD_PLAY,
@@ -60,6 +62,8 @@ import { CallSheetBuilderWorkspaceChrome } from "./CallSheetBuilderWorkspaceChro
 import { CallSheetCoachView } from "./CallSheetCoachView";
 import { CallSheetEditorTabBar, type CallSheetEditorTab } from "./CallSheetEditorTabBar";
 import { CallSheetSituationGrid } from "./CallSheetSituationGrid";
+import { PlayDetailOverlay } from "./PlayDetailOverlay";
+import { PlayDetailSidePanel } from "./PlayDetailSidePanel";
 import { PlaySlot } from "./PlaySlot";
 import { PlaySuggestions } from "./PlaySuggestions";
 import { SituationFormModal, type SituationFormValues } from "./SituationFormModal";
@@ -141,6 +145,7 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
   const [editorTab, setEditorTab] = useState<CallSheetEditorTab>("situations");
   const [editName, setEditName] = useState("");
   const [editPlaybook, setEditPlaybook] = useState("");
+  const [detailIdentity, setDetailIdentity] = useState<PlayIdentity | null>(null);
   const [startGuidedBusy, setStartGuidedBusy] = useState(false);
   const [situationsEditMode, setSituationsEditMode] = useState(false);
   const [situationDragId, setSituationDragId] = useState<string | null>(null);
@@ -347,6 +352,41 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     () => catalogMetaForSheet(catalogMeta ?? null, sheet?.game_version),
     [catalogMeta, sheet?.game_version],
   );
+
+  const { data: setupCounts = {} } = usePlaySetupCounts(
+    sheetCatalogMeta.game_version,
+    sheetCatalogMeta.side_of_ball,
+    cfb26,
+  );
+
+  const openPlayDetail = useCallback(
+    (play: SheetPlayRow) => {
+      if (!cfb26) return;
+      setDrawerOpen(false);
+      setDetailIdentity({
+        game_version: sheetCatalogMeta.game_version,
+        side_of_ball: sheetCatalogMeta.side_of_ball,
+        playbook: cfb26,
+        formation: play.formation,
+        play_name: play.play_name,
+      });
+    },
+    [cfb26, sheetCatalogMeta.game_version, sheetCatalogMeta.side_of_ball],
+  );
+
+  const openPlayDetailIdentity = useCallback((identity: PlayIdentity) => {
+    setDrawerOpen(false);
+    setDetailIdentity(identity);
+  }, []);
+
+  const closePlayDetail = useCallback(() => {
+    setDetailIdentity(null);
+  }, []);
+
+  const playDetailSideRail =
+    detailIdentity && mdWorkspaceUp && useCallSheetBuilderLayout ? (
+      <PlayDetailSidePanel open onClose={closePlayDetail} identity={detailIdentity} />
+    ) : null;
 
   const invalidateSheet = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["playbook", sheetId] });
@@ -1066,6 +1106,10 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
     stackFormation: useCallSheetPlayRows,
     hideRemove: isGoToSituation,
     hidePlayType: useCallSheetPlayRows,
+    onOpenDetail: openPlayDetail,
+    catalogPlaybook: cfb26 || undefined,
+    catalogGameVersion: sheetCatalogMeta.game_version,
+    catalogSideOfBall: sheetCatalogMeta.side_of_ball,
   } as const;
 
   const canTakeField =
@@ -1135,6 +1179,17 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   play={play}
                   slotIndex={slotIndex}
                   {...playSlotProps}
+                  setupCount={
+                    setupCounts[
+                      buildPlaySetupKey({
+                        game_version: sheetCatalogMeta.game_version,
+                        side_of_ball: sheetCatalogMeta.side_of_ball,
+                        playbook: cfb26,
+                        formation: play.formation,
+                        play_name: play.play_name,
+                      })
+                    ] ?? 0
+                  }
                   inGoTo={isGoToSituation || goToPlayKeys.has(sheetPlayComboKey(play.formation, play.play_name))}
                   goToBusy={goToBusyId === play.id}
                   atCapacity={atCapacity && !play}
@@ -1217,7 +1272,8 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                 showEdit: !isGoToSituation,
                 onEdit: () => setEditSituationOpen(true),
               }}
-              browsePanel={playBrowserPanelProps}
+              browsePanel={playDetailSideRail ? null : playBrowserPanelProps}
+              sideRail={playDetailSideRail}
             >
               {renderScenarioPlaysSection(true)}
             </CallSheetBuilderSituationWorkspace>
@@ -1237,8 +1293,9 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
               onBrowsePlaybook={navigateToDashboardBrowse}
               onAddSituation={() => setCreateSituationOpen(true)}
               addSituationDisabled={scenarios.length >= MAX_SITUATIONS_PER_SHEET || situationsEditMode}
-              browseActive={drawerOpen && browsePlaybookMode}
-              browsePanel={playBrowserPanelProps}
+              browseActive={drawerOpen && browsePlaybookMode && !playDetailSideRail}
+              browsePanel={playDetailSideRail ? null : playBrowserPanelProps}
+              sideRail={playDetailSideRail}
             >
               {editorTab === "situations" ? (
                 <CallSheetBuilderDashboard
@@ -1255,7 +1312,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   onDeleteSituation={(block) => setDeleteSituationTarget(block)}
                 />
               ) : (
-                <CallSheetCoachView scenarios={scenarios} />
+                <CallSheetCoachView
+                  scenarios={scenarios}
+                  gameVersion={sheetCatalogMeta.game_version}
+                  sideOfBall={sheetCatalogMeta.side_of_ball}
+                  playbook={cfb26}
+                  onOpenPlay={openPlayDetailIdentity}
+                />
               )}
             </CallSheetBuilderWorkspaceChrome>
 
@@ -1282,7 +1345,13 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
                   onDeleteSituation={(block) => setDeleteSituationTarget(block)}
                 />
               ) : (
-                <CallSheetCoachView scenarios={scenarios} />
+                <CallSheetCoachView
+                  scenarios={scenarios}
+                  gameVersion={sheetCatalogMeta.game_version}
+                  sideOfBall={sheetCatalogMeta.side_of_ball}
+                  playbook={cfb26}
+                  onOpenPlay={openPlayDetailIdentity}
+                />
               )}
             </div>
           </>
@@ -1599,6 +1668,14 @@ export function PlaybookEditor({ sheetId }: { sheetId: string }) {
             {startGuidedBusy ? "Starting…" : ONBOARDING_START_LOGS}
           </Button>
         </footer>
+      ) : null}
+
+      {detailIdentity && !playDetailSideRail ? (
+        <PlayDetailOverlay
+          open={Boolean(detailIdentity)}
+          onClose={closePlayDetail}
+          identity={detailIdentity}
+        />
       ) : null}
     </div>
   );

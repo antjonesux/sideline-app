@@ -243,6 +243,47 @@ export const PLAY_SETUP_TITLE_TOO_LONG = "Title must be 60 characters or fewer."
 export const PLAY_SETUP_NOTES_TOO_LONG = "Notes must be 2000 characters or fewer.";
 export const PLAY_SETUP_BAD_IMAGE = "That image path isn't valid.";
 export const PLAY_SETUP_REORDER_MISMATCH = "Couldn't reorder those setups. Refresh and try again.";
+
+/** Play setups — coach-facing UI copy. */
+export const PLAY_SETUP_SECTION_LABEL = "Setups";
+export const PLAY_SETUP_ADD = "+ Add setup";
+export const PLAY_SETUP_OFFICIAL_ART_LABEL = "Official play art";
+export const PLAY_SETUP_YOUR_IMAGE_LABEL = "Your setup";
+export const PLAY_SETUP_NEW_TITLE = "New setup";
+export const PLAY_SETUP_EDIT_TITLE = "Edit setup";
+export const PLAY_SETUP_SAVE = "Save setup";
+export const PLAY_SETUP_DELETE_ACTION = "Delete setup";
+export const PLAY_SETUP_EDIT_MENU = "Edit setup";
+export const PLAY_SETUP_MOVE_LEFT = "Move left";
+export const PLAY_SETUP_MOVE_RIGHT = "Move right";
+export const PLAY_SETUP_DELETE_MENU = "Delete";
+export const PLAY_SETUP_EMPTY_TITLE = "No setups yet";
+export const PLAY_SETUP_EMPTY_BODY = "Add your adjustments so this call is ready on game day.";
+export const PLAY_SETUP_TITLE_PLACEHOLDER = "vs Cover 3";
+export const PLAY_SETUP_NOTES_PLACEHOLDER = "Motion, hot routes, protection…";
+export const PLAY_SETUP_TITLE_FIELD = "Title";
+export const PLAY_SETUP_NOTES_FIELD = "Notes";
+export const PLAY_SETUP_IMAGE_FIELD = "Image";
+export const PLAY_SETUP_IMAGE_ADD = "Add an image of the end result";
+export const PLAY_SETUP_IMAGE_HINT = "JPG, PNG or WebP · 10MB max";
+export const PLAY_SETUP_IMAGE_REPLACE = "Replace";
+export const PLAY_SETUP_IMAGE_REMOVE = "Remove";
+export const PLAY_SETUP_IMAGE_TRY_AGAIN = "Try again";
+export const PLAY_SETUP_IMAGE_TOO_LARGE_TITLE = "Image too large";
+export const PLAY_SETUP_IMAGE_TOO_LARGE_BODY = "Use JPG, PNG or WebP under 10MB.";
+export const PLAY_SETUP_IMAGE_TYPE_TITLE = "Use JPG, PNG or WebP";
+export const PLAY_SETUP_IMAGE_TYPE_BODY = "Choose a JPG, PNG, or WebP file.";
+export const PLAY_SETUP_DELETE_CONFIRM_TITLE = "Delete this setup?";
+export const PLAY_SETUP_DELETE_CONFIRM_BODY = "This can't be undone.";
+export const PLAY_SETUP_SAVED = "Setup saved.";
+export const PLAY_SETUP_UPDATED = "Setup updated.";
+export const PLAY_SETUP_DELETED = "Setup deleted.";
+export const PLAY_SETUP_CREATED_IMAGE_FAILED =
+  "Setup saved, but the image didn't upload. Try again.";
+export const PLAY_SETUP_LOAD_FAILED = "Couldn't load setups. Try again.";
+export const PLAY_SETUP_COUNT_INDICATOR = (count: number) =>
+  count === 1 ? "1 setup" : `${count} setups`;
+
 /** Browse playbook flow — pick which situation bucket receives the play. */
 export const BUILDER_BROWSE_SITUATION_PROMPT = "What's this play for?";
 export const BUILDER_PLAY_ADDED_TO_SITUATION = (situationDisplay: string) =>

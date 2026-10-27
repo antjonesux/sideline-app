@@ -2,6 +2,7 @@
 
 import { PlayTableRow } from "@/components/game-plan/PlayTableRow";
 import { BUILDER_ADD_PLAY } from "@/lib/coachCopy";
+import type { CatalogGameVersion, CatalogSideOfBall } from "@/lib/constants";
 import { resolveCfbDisplayPlayType } from "@/lib/playbook";
 import type { SheetPlayRow } from "@/lib/types";
 
@@ -21,6 +22,11 @@ export function PlaySlot({
   stackFormation = false,
   hideRemove = false,
   hidePlayType = false,
+  setupCount = 0,
+  onOpenDetail,
+  catalogPlaybook,
+  catalogGameVersion,
+  catalogSideOfBall,
 }: {
   play: SheetPlayRow | null;
   slotIndex: number;
@@ -37,6 +43,11 @@ export function PlaySlot({
   stackFormation?: boolean;
   hideRemove?: boolean;
   hidePlayType?: boolean;
+  setupCount?: number;
+  onOpenDetail?: (play: SheetPlayRow) => void;
+  catalogPlaybook?: string;
+  catalogGameVersion?: CatalogGameVersion | string;
+  catalogSideOfBall?: CatalogSideOfBall;
 }) {
   if (!play) {
     return (
@@ -82,13 +93,20 @@ export function PlaySlot({
       stackFormation={stackFormation}
       hideRemove={hideRemove}
       hidePlayType={hidePlayType}
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/play-id", play.id);
-        e.dataTransfer.effectAllowed = "move";
-        setDragId(play.id);
+      setupCount={setupCount}
+      onOpenDetail={onOpenDetail ? () => onOpenDetail(play) : undefined}
+      catalogPlaybook={catalogPlaybook}
+      catalogGameVersion={catalogGameVersion}
+      catalogSideOfBall={catalogSideOfBall}
+      dragHandleProps={{
+        draggable: true,
+        onDragStart: (e) => {
+          e.dataTransfer.setData("text/play-id", play.id);
+          e.dataTransfer.effectAllowed = "move";
+          setDragId(play.id);
+        },
+        onDragEnd: () => setDragId(null),
       }}
-      onDragEnd={() => setDragId(null)}
       onDragOver={(e) => {
         e.preventDefault();
       }}

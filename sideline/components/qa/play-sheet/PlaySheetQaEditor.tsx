@@ -54,7 +54,13 @@ export function PlaySheetQaEditor({
             onDeleteSituation={() => {}}
           />
         ) : (
-          <CallSheetCoachView scenarios={scenarios} />
+          <CallSheetCoachView
+            scenarios={scenarios}
+            gameVersion="cfb26"
+            sideOfBall="offense"
+            playbook={cfb26Playbook}
+            enableSetupCounts={false}
+          />
         )}
       </div>
 
